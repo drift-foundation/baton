@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "docker",
+    "image",
+    "inspect",
+    "--format",
+    "{\"id\":{{json .Id}},\"tags\":{{json .RepoTags}}}",
+    "baton-w6633-test:7dc2c25ca26c"
+  ],
+  "returncode": 0,
+  "stdout": "{\"id\":\"sha256:db9f397171153338ce068b46a7c9ab48c79b80d9f1ad1db4c149541a5eb8199b\",\"tags\":[\"baton-w6633-test:7dc2c25ca26c\",\"baton-w81857-exchange:1\",\"baton-w81857-exchange:2\"]}\n",
+  "stderr": ""
+}

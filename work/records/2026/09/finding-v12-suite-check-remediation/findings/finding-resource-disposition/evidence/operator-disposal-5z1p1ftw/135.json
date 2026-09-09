@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "docker",
+    "image",
+    "rm",
+    "baton-w6633-test:7dc2c25ca26c"
+  ],
+  "returncode": 0,
+  "stdout": "Untagged: baton-w6633-test:7dc2c25ca26c\n",
+  "stderr": ""
+}

@@ -1,0 +1,51 @@
+F
+======================================================================
+FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)
+Every exact source call has an entry claim or a named exception.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 7173, in test_every_boundary_call_belongs_to_an_entry_or_is_declared
+    self.assertEqual(orphans, [], "boundary calls attributed to no entry")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('attempts.py:_committed_record', 'docume[9166 chars]nt')] != []
+
+First list contains 121 additional elements.
+First extra element 0:
+('attempts.py:_committed_record', 'document', 'a committed ending record')
+
+Diff is 9917 characters long. Set self.maxDiff to None to see it. : boundary calls attributed to no entry
+
+----------------------------------------------------------------------
+Ran 1 test in 2.188s
+
+FAILED (failures=1)
+
+real	0m2.408s
+user	0m2.390s
+sys	0m0.018s
+total_lines 216
+mine: 31
+   -  ('intake.py:_abandon_fence_operation_id', 'document', 'a persisted attempt'),
+   -  ('intake.py:_abandon_intent', 'document', 'a committed abandonment record'),
+   -  ('intake.py:_abandon_operation_id', 'document', 'a persisted attempt'),
+   -  ('intake.py:_abandoned_absence', 'document', "{what}'s cleanup operation"),
+   -  ('intake.py:_abandoned_absence', 'document', "{what}'s committed cleanup"),
+   -  ('intake.py:_abandoned_absence', 'text', "{what}'s account"),
+   -  ('intake.py:_abandoned_destroy_operation', 'document', 'a persisted attempt'),
+   -  ('intake.py:_abandoned_destroy_operation',
+   -  ('intake.py:_abandoned_destroy_operation',
+   -   'an abandonment record digest'),
+   -  ('intake.py:_abandoned_fence', 'document', "{what}'s committed fence"),
+   -  ('intake.py:_abandonment_declaration', 'document', '{what}'),
+   -  ('intake.py:_abandonment_declaration',
+   -  ('intake.py:_abandonment_declaration', 'text', "{what}'s reason"),
+   -  ('intake.py:_adopted_abandoned_discharge', 'document', '{what}'),
+   -  ('intake.py:_adopted_abandoned_discharge',
+   -  ('intake.py:_adopted_abandoned_discharge', 'document', "{what}'s assignment"),
+   -  ('intake.py:_adopted_abandoned_discharge',
+   -  ('intake.py:_adopted_abandoned_discharge',
+   -  ('intake.py:_adopted_abandoned_discharge', 'document', "{what}'s evidence"),
+
+real	0m2.402s
+user	0m2.358s
+sys	0m0.044s

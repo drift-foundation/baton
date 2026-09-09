@@ -1,0 +1,22 @@
+[
+  {
+    "path": "v12/python/tools/stage_execution.py",
+    "sha256": "71919d15c22531533e460384d6de32302e0c5b39478a3944dc743bb65f31d77f",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/tools/single_worker.py",
+    "sha256": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/tests/tools/test_stage_execution.py",
+    "sha256": "0a540ed922ac50fc8b39cdcb15014b068afe4bbb6e6de4323f3687133b37a4f4",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/tests/tools/test_single_worker.py",
+    "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+    "mode": "0o664"
+  }
+]

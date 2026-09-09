@@ -1,0 +1,18 @@
+{
+  "claim": 120378,
+  "sha256": {
+    "src/baton_v12/job_manager/ending.py": "8da734ac757126ad70cc64556c8568384fa4a6283f0304cc0eaf17a92a1bae16",
+    "src/baton_v12/job_manager/projection.py": "8a15446c04ceec1e43bcafc41e22e87cf0419a4fff78daf03b06ffa47cea8796",
+    "src/baton_v12/job_manager/manager.py": "f77a12f80c66e8dfb9ed700177b90fa4bda841788396304189f00230dfbd9c83",
+    "src/baton_v12/job_manager/review_driver.py": "2aacdd853b96c03340cb3b7082699aa5106609a61717d3cc2254620d8227eeaf",
+    "tests/job_manager/test_ending.py": "a0ca21e92fb5ddf4721dff987ed68e459c874102440fbff1b0cf4e92399f63c7",
+    "tests/job_manager/test_review_driver.py": "a3d8d28c2b58624c217d41ed4f4d3b0b4cbdf9bd33d9d99c9d52be837d7e9d8c"
+  },
+  "new_modes": {
+    "src/baton_v12/job_manager/ending.py": "0o664",
+    "tests/job_manager/test_ending.py": "0o664"
+  },
+  "existing_review_driver_file_is_unchanged_prefix": true,
+  "existing_review_driver_test_methods": 101,
+  "added_review_driver_test_methods": 19
+}

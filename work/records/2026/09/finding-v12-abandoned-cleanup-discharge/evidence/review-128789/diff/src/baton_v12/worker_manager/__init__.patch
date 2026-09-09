@@ -1,0 +1,38 @@
+--- baseline/src/baton_v12/worker_manager/__init__.py
++++ candidate/src/baton_v12/worker_manager/__init__.py
+@@ -98,11 +98,18 @@
+ from .manifests import load_manifest, retain_manifest
+ from .output import (freeze_operation, frozen_output_of, record_frozen_result,
+                      request_freeze)
+-from .intake import (GATE_DISCHARGE_KIND, KEEPS_MATERIAL, QUIESCENCE_GATE,
+-                     RUNTIME_ABSENT, abandon_attempt, authorize_cleanup,
++from .intake import (ABANDONED_CLEANUP, ABANDONED_CLEANUP_SCHEMA,
++                     ABANDONED_GATE_DISCHARGE_KIND,
++                     ABANDONED_GATE_DISCHARGE_RECEIPT,
++                     ABANDONED_GATE_DISCHARGE_SCHEMA,
++                     GATE_DISCHARGE_KIND, KEEPS_MATERIAL, QUIESCENCE_GATE,
++                     RUNTIME_ABSENT, abandon_attempt,
++                     abandoned_gate_discharge_of, abandonment_cleanup_of,
++                     authorize_cleanup,
+                      authorize_failed_start_cleanup,
+                      authorize_refused_session_cleanup, collect_operation,
+                      decide_retention, destroy_operation,
++                     discharge_abandoned_quiescence_gate,
+                      discharge_quiescence_gate,
+                      failed_start_destroy_operation, gate_discharge_of,
+                      cleanup_of, CLEANUP_ENDINGS, CLEANUP_RECEIPT,
+@@ -191,6 +198,14 @@
+            "OPTIONAL_SESSION_OPERATIONS", "QUIESCENCE_GATE", "RUNTIME_ABSENT",
+            "discharge_quiescence_gate", "gate_discharge_of",
+            "CLEANUP_ENDINGS", "CLEANUP_RECEIPT", "cleanup_of",
++           # W128682: the abandoned family's own reader, act and receipt
++           # reader, beside the ordinary ones rather than inside them.
++           "ABANDONED_CLEANUP", "ABANDONED_CLEANUP_SCHEMA",
++           "ABANDONED_GATE_DISCHARGE_KIND",
++           "ABANDONED_GATE_DISCHARGE_RECEIPT",
++           "ABANDONED_GATE_DISCHARGE_SCHEMA",
++           "abandonment_cleanup_of", "discharge_abandoned_quiescence_gate",
++           "abandoned_gate_discharge_of",
+            "SESSION_MEMBERS", "SESSION_OPERATIONS", "SCHEMA_VERSION",
+            "SETTLE_SECONDS", "STORE_KIND", "TABLES", "TRANSITIONS",
+            "accept_offer", "activate_assignment", "attempt_activity_of",

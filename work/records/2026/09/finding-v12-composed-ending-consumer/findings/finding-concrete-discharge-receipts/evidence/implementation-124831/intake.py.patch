@@ -1,0 +1,40 @@
+--- base/v12/python/src/baton_v12/worker_manager/intake.py
++++ v12/python/src/baton_v12/worker_manager/intake.py
+@@ -1422,17 +1422,15 @@
+     _same_authority(port, expect, attempt_id)
+     answered = port.satisfy_gate(expect["work_ref"]["work_id"], operation_id,
+                                  gate, evidence)
+-    # AND THE ANSWER IS THIS GATE'S KIND. The port has already held the reply
+-    # to the gate it asked about and to the discharged phase; what belongs here
+-    # is the one thing this act knows and the port does not -- which gate kind
+-    # this manager set out to discharge.
+-    if answered["kind"] != QUIESCENCE_GATE:
+-        raise ContractRefusal(
+-            "integrity", "schema",
+-            f"the authority discharged a {name_value(answered['kind'])} gate "
+-            f"for attempt {name_value(attempt_id)} and this act carries "
+-            f"positive runtime absence, which is evidence for a "
+-            f"{name_value(QUIESCENCE_GATE)} gate and nothing else")
++    # The Authority answers with the evidence kind. The port already checks
++    # the requested gate token and discharged phase; this act additionally
++    # requires the positive runtime absence it supplied.
++    if answered["kind"] != RUNTIME_ABSENT:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"the authority answered evidence kind {name_value(answered['kind'])} "
++            f"for attempt {name_value(attempt_id)} and this act requires "
++            f"{name_value(RUNTIME_ABSENT)}")
+     # THE ANSWER IS COMPOSED HERE RATHER THAN THROUGH `documents`, and that is
+     # a scope statement rather than a style one. Every other receipt in this
+     # module is built by a registered `documents` contract; registering a new
+@@ -1600,8 +1598,8 @@
+                         f"{what}'s cleanup operation identity")
+     boundaries.identity(taken["runtime_id"], f"{what}'s runtime identity")
+     boundaries.text(taken["gate"], f"{what}'s gate")
+-    if taken["kind"] != QUIESCENCE_GATE:
+-        _refuse_receipt(what, "kind", taken["kind"], QUIESCENCE_GATE)
++    if taken["kind"] != RUNTIME_ABSENT:
++        _refuse_receipt(what, "kind", taken["kind"], RUNTIME_ABSENT)
+     if taken["phase"] != GATE_DISCHARGED_PHASE:
+         _refuse_receipt(what, "phase", taken["phase"], GATE_DISCHARGED_PHASE)
+     if taken["cleanup"] not in _ABSENT_ENDINGS:

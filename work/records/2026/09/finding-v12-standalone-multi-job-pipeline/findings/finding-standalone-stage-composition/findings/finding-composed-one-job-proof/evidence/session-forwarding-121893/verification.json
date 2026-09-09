@@ -1,0 +1,18 @@
+{
+  "hashes": {
+    "v12/python/tools/single_worker.py": {
+      "base": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27",
+      "candidate": "ff383296aeb75885668d365d3cdc5ff1a280234f5282694acb7f37cc3f4ca47f"
+    },
+    "v12/python/tests/tools/test_single_worker.py": {
+      "base": "95808aee8529d27bab0519f3fe8d45ae4e51507594c4825495530a8882d9af6c",
+      "candidate": "7e9565ef8e1b2c7dabc524b10874c0d3c28c685112e8b0b9f6ff4d5574458311"
+    }
+  },
+  "preserved_existing_code_and_assertions": true,
+  "tests": 3,
+  "successful": false,
+  "error": "Traceback (most recent call last):\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-composed-one-job-proof/evidence/session-forwarding-121893/verify.py\", line 60, in <module>\n    verify()\n    ~~~~~~^^\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-composed-one-job-proof/evidence/session-forwarding-121893/verify.py\", line 54, in verify\n    assert result.wasSuccessful()\n           ~~~~~~~~~~~~~~~~~~~~^^\nAssertionError\n",
+  "output": "test_authority_refusals_cross_both_wrappers_unchanged (tests.tools.test_single_worker.TheWorkerSessionForwardsGateDischarge.test_authority_refusals_cross_both_wrappers_unchanged) ... ok\ntest_port_crosses_the_wrapper_and_replays_one_real_discharge (tests.tools.test_single_worker.TheWorkerSessionForwardsGateDischarge.test_port_crosses_the_wrapper_and_replays_one_real_discharge) ... ok\ntest_wrapper_preserves_the_exact_operand_document_and_session_answer (tests.tools.test_single_worker.TheWorkerSessionForwardsGateDischarge.test_wrapper_preserves_the_exact_operand_document_and_session_answer) ... FAIL\n\n======================================================================\nFAIL: test_wrapper_preserves_the_exact_operand_document_and_session_answer (tests.tools.test_single_worker.TheWorkerSessionForwardsGateDischarge.test_wrapper_preserves_the_exact_operand_document_and_session_answer)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py\", line 105, in test_wrapper_preserves_the_exact_operand_document_and_session_answer\n    self.assertEqual(answer, {\"gate\": self.gate, \"kind\": \"runtime-quiescence\", \"phase\": \"queued\"})\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'gat[13 chars]quiescence:1', 'kind': 'runtime-absent', 'phase': 'queued'} != {'gat[13 chars]quiescence:1', 'kind': 'runtime-quiescence', 'phase': 'queued'}\n- {'gate': 'runtime-quiescence:1', 'kind': 'runtime-absent', 'phase': 'queued'}\n+ {'gate': 'runtime-quiescence:1',\n+  'kind': 'runtime-quiescence',\n+  'phase': 'queued'}\n\n----------------------------------------------------------------------\nRan 3 tests in 0.006s\n\nFAILED (failures=1)\n",
+  "seconds": 0.25557324499823153
+}

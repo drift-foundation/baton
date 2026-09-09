@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "docker",
+    "container",
+    "inspect",
+    "--format",
+    "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"created\":{{json .Created}},\"image_id\":{{json .Image}},\"state\":{{json .State.Status}},\"exit_code\":{{json .State.ExitCode}},\"started\":{{json .State.StartedAt}},\"finished\":{{json .State.FinishedAt}},\"runtime_attempt_id\":{{json (index .Config.Labels \"baton.v12.runtime_attempt_id\")}},\"authority_uuid\":{{json (index .Config.Labels \"baton.v12.authority_uuid\")}},\"work_id\":{{json (index .Config.Labels \"baton.v12.work_id\")}},\"participant\":{{json (index .Config.Labels \"baton.v12.participant\")}},\"generation\":{{json (index .Config.Labels \"baton.v12.generation\")}},\"principal\":{{json (index .Config.Labels \"baton.v12.principal\")}},\"effective_scope\":{{json (index .Config.Labels \"baton.v12.effective_scope\")}},\"profile_digest\":{{json (index .Config.Labels \"baton.v12.profile_digest\")}},\"policy_digest\":{{json (index .Config.Labels \"baton.v12.policy_digest\")}},\"adapter_digest\":{{json (index .Config.Labels \"baton.v12.adapter_digest\")}}}",
+    "395d0a8f58dd436d76bf2c7c26ea4eaace084b394a3f48938a51e1c51d168baf"
+  ],
+  "returncode": 0,
+  "stdout": "{\"id\":\"395d0a8f58dd436d76bf2c7c26ea4eaace084b394a3f48938a51e1c51d168baf\",\"name\":\"/baton-w6633-test-ad84cd27dea3\",\"created\":\"2026-09-05T05:31:11.002705671Z\",\"image_id\":\"sha256:db9f397171153338ce068b46a7c9ab48c79b80d9f1ad1db4c149541a5eb8199b\",\"state\":\"exited\",\"exit_code\":137,\"started\":\"2026-09-05T05:31:11.012492834Z\",\"finished\":\"2026-09-05T05:31:21.082645165Z\",\"runtime_attempt_id\":null,\"authority_uuid\":null,\"work_id\":null,\"participant\":null,\"generation\":null,\"principal\":null,\"effective_scope\":null,\"profile_digest\":null,\"policy_digest\":null,\"adapter_digest\":null}\n",
+  "stderr": ""
+}

@@ -1,0 +1,128 @@
+{
+  "work": "W126880",
+  "claim": 127026,
+  "corrects": "review-2026-09-09T10-04-51Z.md P1",
+  "claim_order": "claimed at seq127026 before reading the review and before any edit",
+  "baseline": "the candidate bytes at handoff; the reviewer's retained manifest is evidence/review-126983-audit.json",
+  "paths": {
+    "src/baton_v12/authority/api.py": {
+      "baseline_candidate": "54583b9a6f06dcb172e90ec13170541e6982a966ec3da76e7ee676f54085af90",
+      "final": "54583b9a6f06dcb172e90ec13170541e6982a966ec3da76e7ee676f54085af90",
+      "mode": "664"
+    },
+    "src/baton_v12/authority/store.py": {
+      "baseline_candidate": "8919778a6d4fb5885da703dd8f898c44fe18150f170790c3863cd8c881a4bfa4",
+      "final": "745c87ce695c6019cbf4576cac279c73a8ab08428909203fdf10cc5e2bed71fd",
+      "mode": "664"
+    },
+    "tests/authority/test_store.py": {
+      "baseline_candidate": "e776cf7df48ccdc296747588b33ec2a38ff86a947b286f80be6e16f6294aa2bb",
+      "final": "1cb3ab313768209fd048ee77969e191e717060f1dd7e23d68ac1cddfc3f27208",
+      "mode": "664"
+    }
+  },
+  "test_methods": {
+    "tests/authority/test_store.py": 49
+  },
+  "diagnosis_before_repair": {
+    "why": "the review asked for the actual SQLite opening boundary to be diagnosed rather than another guard-only repair",
+    "script": "evidence/diagnosis-127026.py",
+    "output": "evidence/diagnosis-127026.json (sqlite 3.46.1, 0.0018s)",
+    "measured": {
+      "mode=ro, no sidecars": "creates -wal and -shm",
+      "mode=ro, only -wal": "creates -shm",
+      "mode=ro, only -shm": "creates -wal",
+      "mode=ro, both present": "creates nothing",
+      "mode=ro&nolock=1": "refuses `unable to open database file` with or without sidecars, so it is not a non-creating route to a WAL store",
+      "writer attached": "creates nothing"
+    },
+    "conclusion": "from this sqlite3 build the only non-creating options are both-sidecars-present, a writer attached, refusal, or immutable=1 -- and the allocation excludes the last."
+  },
+  "correction": {
+    "pre_check": "requires BOTH sidecars, not either. That is the defect the review reported, and it closes every fixed state its probe drives.",
+    "post_check": "the same fact read again after the FIRST REAL READ, which is where SQLite actually attaches them -- measured in evidence/race-127026.json: `connect` touches neither and `SELECT 1` does not either; they appear when the first statement reads a table. An earlier check looked before the thing it was checking for had happened.",
+    "by_identity_not_name": "the race removes both sidecars and creates two new files with the SAME names, so the comparison is on device and inode",
+    "no_cleanup": "an artifact the race produced is reported and left. Removing it would be the post-hoc cleanup the allocation and the review exclude, and it would race another opener's own file."
+  },
+  "reviewer_probe_replayed": {
+    "run": "PYTHONPATH=.:src:tests python3 evidence/review-126983-probe.py",
+    "retained": "evidence/replay-126983-probe-127026.json",
+    "result": "all three cases now REFUSE: only-wal and only-shm at the pre-check with nothing created, and serving-close-after-guard at the post-check, naming that the store was released and that the files were left rather than removed"
+  },
+  "residual_reported": {
+    "what": "in the race, the refusal comes after SQLite has already made the files, so the open leaves two artifacts behind even though it refuses",
+    "why_it_cannot_be_closed_here": "the check and the open are separate operations in this sqlite3 build, and the only atomic alternatives are immutable=1 (excluded), post-hoc cleanup (excluded) or a VFS this allocation does not reach",
+    "smallest_decisions_available": [
+      "accept the race: it needs a serving process to release the store inside a single open, and the open refuses rather than answering",
+      "permit removal of artifacts this opener demonstrably created, identified by device and inode -- which would need the no-cleanup rule relaxed",
+      "require the consumer to read only while a writer is attached, which is the case the allocation names and the one that creates nothing at all"
+    ],
+    "not_taken": "I did not choose among these; the allocation excludes two of them and the third is the consumer's to decide."
+  },
+  "budget": {
+    "carried_forward": true,
+    "spent_before_this_pass": 0.77,
+    "allowance": 20.0,
+    "spent_this_pass": 0.64,
+    "cumulative": 1.41,
+    "note": "every run below is an exact command with its wall time from `time`; the logs are retained beside this file rather than summarized"
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 evidence/diagnosis-127026.py",
+      "wall": "0.014s",
+      "log": "evidence/diagnosis-127026.json"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 evidence/review-126983-probe.py",
+      "wall": "0.058s",
+      "note": "first attempt: NameError, the helper was not yet defined"
+    },
+    {
+      "run": "same",
+      "wall": "0.060s",
+      "note": "second: NameError on the pre-connect snapshot"
+    },
+    {
+      "run": "same",
+      "wall": "0.058s",
+      "note": "third: two cases refuse, the race still opens"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 /tmp/w126880-race.py",
+      "wall": "0.058s",
+      "log": "evidence/race-127026.json",
+      "note": "the measurement that located the creation point"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 evidence/review-126983-probe.py",
+      "wall": "0.058s",
+      "log": "evidence/replay-126983-probe-127026.json",
+      "note": "all three refuse"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.authority.test_store",
+      "wall": "0.062s",
+      "result": "45 tests, OK"
+    },
+    {
+      "run": "same, with the four scheduled controls added",
+      "wall": "0.083s",
+      "log": "evidence/run-127026-test-store.log",
+      "result": "49 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.authority.test_store tests.authority.test_assignment tests.authority.test_session",
+      "wall": "0.243s",
+      "log": "evidence/run-127026-authority-suites.log",
+      "result": "137 tests, OK"
+    }
+  ],
+  "controls_added": [
+    "test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing (-wal only and -shm only)",
+    "test_a_serving_shutdown_during_the_open_refuses -- the reviewer's own race, driven inside the suite",
+    "test_a_read_only_filesystem_store_is_readable, skipping where the platform will not make the root read-only",
+    "test_the_committed_operation_journal_is_readable"
+  ],
+  "existing_assertions": "unchanged; every addition is in the new class"
+}

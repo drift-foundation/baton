@@ -1,0 +1,61 @@
+--- 
++++ 
+@@ -785,7 +785,45 @@
+         _refuse(f"{what}'s publication names another assignment; one "
+                 f"publication belongs to one generation of one Work",
+                 code="operation-collision")
+-    return held
++    # THE SELECTORS ARE CORRELATED HERE TOO, and review 2026-09-08T17-37-36Z
++    # [P1] is why. An honest `publication_of` validates ITS OWN record; it says
++    # nothing about a contradictory document arriving at this seam, so a
++    # `proposal_id` changed to something else, or a `proposal_manifest_digest`
++    # naming an unrelated manifest, crossed this boundary unexamined. Both are
++    # read back from the retained proposal this manager holds.
++    manifest = load_manifest(control, held["proposal_manifest_digest"],
++                             "proposalManifest")
++    if manifest is None:
++        _refuse(f"this manager retains no proposal manifest at "
++                f"{name_value(held['proposal_manifest_digest'])} for {what}; "
++                f"a publication that survives a restart is one this manager "
++                f"can still read")
++    if manifest["proposal_id"] != held["proposal_id"]:
++        _refuse(f"{what}'s retained proposal manifest names proposal "
++                f"{name_value(manifest['proposal_id'])} and its publication "
++                f"history names {name_value(held['proposal_id'])}",
++                code="operation-collision")
++    if manifest["result_id"] != frozen["result_id"] \
++            or manifest["result_manifest_digest"] != frozen["manifest_digest"]:
++        _refuse(f"{what}'s retained proposal manifest was composed from "
++                f"result {name_value(manifest['result_id'])} and this ending "
++                f"froze {name_value(frozen['result_id'])}",
++                code="operation-collision")
++    if manifest["assignment_ref"] != assignment:
++        _refuse(f"{what}'s retained proposal manifest names another "
++                f"assignment", code="operation-collision")
++    # AND THE ACTUAL ANSWER THE AUTHORITY GAVE, which is the member no local
++    # document can re-derive and the one this ending returns.
++    answered = boundaries.document(held["published"],
++                                   f"{what}'s Authority answer")
++    for member, value in (("proposal_id", held["proposal_id"]),
++                          ("result_id", frozen["result_id"]),
++                          ("result_digest", frozen["manifest_digest"]),
++                          ("assignment_ref", assignment)):
++        if answered.get(member) != value:
++            _refuse(f"{what}'s recorded Authority answer disagrees about "
++                    f"{member}", code="operation-collision")
++    return answered
+ 
+ 
+ def _fenced_writer(control, *, writer_id, attempt_id, generation, what):
+@@ -904,6 +942,11 @@
+     checkpoint = _frozen_checkpoint(control, port, writer,
+                                     generation=generation, profile=profile,
+                                     what=what)
++    # W120425 review [P2]: THE ORDINARY ENDING'S OWN ANSWER, not the record
++    # that carries it. The committed publication receipt already holds exactly
++    # what `publish_candidate` returned, so returning the whole receipt made
++    # this the one member the two paths did not share -- and the earlier claim
++    # that they could not is superseded by the provider retaining the answer.
+     published = _published(control, publication, attempt_id=attempt_id,
+                            frozen=frozen, assignment=_assignment_ref(fixed),
+                            what=what)

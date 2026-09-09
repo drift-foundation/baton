@@ -1,0 +1,21 @@
+{
+  "work": "W116972",
+  "claim_seq": 120164,
+  "command": "PYTHONPATH=v12/python:v12/python/src python3 -c \"from tests.manager import test_boundary_inventory as b; b.receiving_entries()\"",
+  "executed_scope": "The equivalent import and first receiving_entries call in an inline catalog-only census; execution stopped before owners or probe catalogs.",
+  "exit_code": 1,
+  "seconds": 0.884566055,
+  "exception": "AssertionError: satisfy_gate.kind belongs to no crossing",
+  "stack": [
+    "test_boundary_inventory.py:1200 receiving_entries -> _crossing_of(crossings, subject)",
+    "test_boundary_inventory.py:1299 _crossing_of raises AssertionError"
+  ],
+  "source_hashes": {
+    "v12/python/tests/manager/test_boundary_inventory.py": "162f527e3476dcffcc937996df6c36d2d26505dfd7ea156eee6657e7433b30d5",
+    "v12/python/src/baton_v12/worker_manager/lanes.py": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c",
+    "v12/python/src/baton_v12/worker_manager/authority_port.py": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6",
+    "v12/python/src/baton_v12/worker_manager/intake.py": "6c00c441bc7b2356fddfd9f0867db59e05d6b96128dbf8918fc3b67ea46c89c7"
+  },
+  "observed_source": "AuthorityPort.satisfy_gate obtains performing through getattr(self._session, \"satisfy_gate\", _ABSENT), calls performing, then consumes answer.kind.",
+  "inference": "Origin tracking recognizes satisfy_gate.kind, but the independent crossing projection lacks satisfy_gate. Requires scanner diagnosis; no exception or source substitution applied."
+}

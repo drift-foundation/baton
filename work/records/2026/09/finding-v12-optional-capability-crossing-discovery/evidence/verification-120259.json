@@ -1,0 +1,62 @@
+{
+  "work": "W120204",
+  "claim": 120259,
+  "classes": [
+    "AdoptedHelperOriginsAreContextual",
+    "DeclaredMountOriginsStayWithTheirElements",
+    "ProviderLabelsStayWithTheirSubdocuments",
+    "TheDiscoveryProjectionsAreBoundedAndImmutable",
+    "HelperDeclarationsHaveExactAccounting"
+  ],
+  "tests": 87,
+  "successful": false,
+  "output": ".......................F........F......................................................\n======================================================================\nFAIL: test_member_reassignment_is_finite_and_applies_each_assignment_once (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_member_reassignment_is_finite_and_applies_each_assignment_once)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py\", line 11436, in test_member_reassignment_is_finite_and_applies_each_assignment_once\n    self.assertEqual(result.returncode, 0, result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 1 != 0 : Traceback (most recent call last):\n  File \"<string>\", line 2, in <module>\n    from tests.manager.test_boundary_inventory import _returned_origins\nModuleNotFoundError: No module named 'tests.manager'\n\n\n======================================================================\nFAIL: test_recursive_member_expansion_ends_at_recursive_reentry (tests.manager.test_boundary_inventory.AdoptedHelperOriginsAreContextual.test_recursive_member_expansion_ends_at_recursive_reentry)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py\", line 11691, in test_recursive_member_expansion_ends_at_recursive_reentry\n    self.assertEqual(result.returncode, 0, result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 1 != 0 : Traceback (most recent call last):\n  File \"<string>\", line 2, in <module>\n    from tests.manager.test_boundary_inventory import _returned_origins\nModuleNotFoundError: No module named 'tests.manager'\n\n\n----------------------------------------------------------------------\nRan 87 tests in 10.787s\n\nFAILED (failures=2)\n",
+  "regression_seconds": 10.78756154794246,
+  "scope_audit": {
+    "existing_changed_functions": [
+      "_crossings",
+      "_origins",
+      "_source",
+      "receiving_entries"
+    ],
+    "unchanged_existing_classes_and_functions": 74,
+    "new_classes_and_functions": [
+      "OptionalCapabilityAliasesKeepTheirCrossing",
+      "_callable_members",
+      "_discovered_capabilities",
+      "_invoked_capabilities"
+    ],
+    "existing_catalogs_imports_and_assertions_unchanged": true
+  },
+  "source_hashes": {
+    "v12/python/tests/manager/test_boundary_inventory.py": "a4cdff060027f8b87f009fdacaff1af3d01ffe09148dcaf9360cc560bb58831f",
+    "v12/python/src/baton_v12/worker_manager/__init__.py": "19dc529bebb57f3aa05638008ac9c8f4623f69ca70096efef60d5cc394f4f498",
+    "v12/python/src/baton_v12/worker_manager/attempts.py": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+    "v12/python/src/baton_v12/worker_manager/authority_port.py": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6",
+    "v12/python/src/baton_v12/worker_manager/boundaries.py": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a",
+    "v12/python/src/baton_v12/worker_manager/credentials.py": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df",
+    "v12/python/src/baton_v12/worker_manager/custody.py": "8a11cac9c2a3859392b619cd1bbaf7019c3fef57bd03c9b9cc651d7e8275dbd6",
+    "v12/python/src/baton_v12/worker_manager/documents.py": "3c67406e5b234d043581cb4b2d2cabb871e7e3ec9ac51a190a185f855395655f",
+    "v12/python/src/baton_v12/worker_manager/events.py": "20ea986b6d88d4c4584c3eeccb95f33fc502b9440460f622c8028cb8f2a6fed5",
+    "v12/python/src/baton_v12/worker_manager/exchange.py": "1fbff4e8bd73c44b658e5fc7ec0b5595ada498813ec5247ae2032c32543f35ce",
+    "v12/python/src/baton_v12/worker_manager/handshake.py": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e",
+    "v12/python/src/baton_v12/worker_manager/intake.py": "6c00c441bc7b2356fddfd9f0867db59e05d6b96128dbf8918fc3b67ea46c89c7",
+    "v12/python/src/baton_v12/worker_manager/interrogation.py": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0",
+    "v12/python/src/baton_v12/worker_manager/lanes.py": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c",
+    "v12/python/src/baton_v12/worker_manager/launch.py": "6546008fb4970b406d2a56adffc4f6a36c8c18f62e488a9b0ac74307059d7647",
+    "v12/python/src/baton_v12/worker_manager/manifests.py": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866",
+    "v12/python/src/baton_v12/worker_manager/oci.py": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+    "v12/python/src/baton_v12/worker_manager/offers.py": "218dfcb11408ccd0c634a5f9cda2ae833c8de8560cc8557d75b1e88e662d7f8b",
+    "v12/python/src/baton_v12/worker_manager/output.py": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+    "v12/python/src/baton_v12/worker_manager/posture_slots.py": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+    "v12/python/src/baton_v12/worker_manager/schema.py": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+    "v12/python/src/baton_v12/worker_manager/sealing.py": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada",
+    "v12/python/src/baton_v12/worker_manager/sessions.py": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd",
+    "v12/python/src/baton_v12/worker_manager/source_boundary.py": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+    "v12/python/src/baton_v12/worker_manager/store.py": "a692a6021e57544e6c92cba89611e9e0ca3fe87ca72ca748c8155843b6a93b32",
+    "v12/python/src/baton_v12/worker_manager/worker_entry.py": "b83b8bb7bc7b41d6f9b98b49ddba3c2a7a5d5e70be802318bbce82193c685fba",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9"
+  },
+  "seconds": 10.934467292041518
+}

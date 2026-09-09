@@ -1,0 +1,113 @@
+{
+  "work": "W128692",
+  "claim": 129081,
+  "corrects": "review-2026-09-09T16-04-22Z.md and evidence/review-129055/DIAGNOSIS.md, four findings",
+  "claim_order": "claimed at seq129081 before reading the review and before any edit; the revalidated approach was pinned in FINDING.md and PLAN.md before the first source edit, as the review required",
+  "findings_accepted": "all four. My claim that only a new schema lease or a grant_writer change could close the duplicate write is WITHDRAWN -- it was wrong, and the reviewer's serialization proposal is right.",
+  "paths": {
+    "src/baton_v12/worker_manager/review_cycles.py": {
+      "previous": "60439ae9934e37b9b8160be3b8935f853365fcdbadd779bcbcef83daa58b4374",
+      "final": "d90a124dec748e4520b3ed58eed3c7327a0091a378bd3c8f7d5941c9193fcc13",
+      "mode": "644"
+    },
+    "src/baton_v12/checkpoint_profiles.py": {
+      "previous": "cf8e3c5d3009ddb0dfe6166fff2993b34297885b45cb551dd5e27cb3bc8d1030",
+      "final": "70217506cb3655cd7dc55e257d2f7043ac005b473ed4136ea0437687bd590fc2",
+      "mode": "644"
+    },
+    "tests/manager/test_review_cycles.py": {
+      "previous": "2d56801f1d414bc689f06842e19d9b86e6e7bfaccf76c63744281699bbdd4988",
+      "final": "35b90e8b07da1df0812a8d2b810fc1d3ec00c9ef7a41d28e8db99e40ca02529c",
+      "mode": "644"
+    },
+    "tests/manager/test_checkpoint_profiles.py": {
+      "previous": "2f8cc51aa27a5d56ce7ca8216c6f6df8ba8c1e9cee948a9bcfa3dfbbad9b5307",
+      "final": "dd65fa4e685f2745e974b64c4d25dcf2468e9d07d1d46ff95d2a0fa51271c86d",
+      "mode": "644"
+    }
+  },
+  "serialization": {
+    "revalidated": "store.py:499-588. ControlStore.transact takes BEGIN IMMEDIATE, RE-READS the replay inside that lock, runs the action under a savepoint, and journals and commits together -- so a second identical call blocks and then returns the committed result WITHOUT entering the action.",
+    "adopted": "the profile effect, the revocation and the line release now happen inside one transact action, after the owned evidence and the exclusion are re-proved under the lock",
+    "revocation": "back at COMPLETION where it was, which is also why neither of the two restored test methods needs editing",
+    "reentry": "same-connection reentry is contained before the action runs: a nested transact on one connection is not a second transaction and would release the outer act's savepoint",
+    "retry_safety": "ProfileRefusal is not a ContractRefusal, so it takes transact's fault branch -- ROLLBACK TO act then ROLLBACK -- leaving the committed intent and no completion. Nothing inside the action raises a DURABLE refusal, which would be journalled as a refused row and would turn a transient filesystem fault into a permanent one.",
+    "tradeoff": "the store's write lock is held across a bounded local restoration, which the review explicitly accepted"
+  },
+  "object_binding": {
+    "was": "a pathname comparison before and after each command; the reviewer's runner replaced the path after the last check and before reset executed, and the outside tree was written anyway",
+    "now": "the checkout is HELD as an O_DIRECTORY|O_NOFOLLOW descriptor and every command's path is derived from that descriptor immediately before it runs, then proved to still be the same object. A rename cannot redirect a descriptor and a symlink cannot become one, so the commands follow the checkout this profile was nominated over rather than whatever its old name now points at.",
+    "runner_contract_unchanged": "it still receives argv and nothing else; the descriptor does not cross into the child. What crosses is a path derived from it at the last possible moment.",
+    "exact_missing_capability_named": "resolving an open directory descriptor to a path needs /proc/self/fd. A deployment without it is told exactly that, by refusal, rather than quietly getting the weaker pathname behaviour.",
+    "control_changed_meaning": "the between-the-writes case no longer asserts a refusal: the substitution redirects nothing, so the restore succeeds over the held object and the outside tree is proved untouched"
+  },
+  "retry_provenance": {
+    "was": "the recorded-intent branch read the writer row directly and skipped both of W128682's readers and the verdict, so a retry after a failed profile call restored a checkout on evidence that had since been broken",
+    "now": "every unfinished retry re-proves the same fixed relationships before any effect -- abandonment_cleanup_of, abandoned_gate_discharge_of, writer_for_attempt, _restorable_line, _sole_attachment, checkpoint_of and verdict_of -- and the adopted intent is bound back to the world it named through _intent_agrees",
+    "controls": [
+      "a corrupted verdict principal refusing the retry before any effect, with the line left writing",
+      "a moved based checkpoint refusing the retry"
+    ]
+  },
+  "test_authority_restored": {
+    "what": "test_a_revoked_writer_has_no_correction_to_restore and test_a_failed_restoration_admits_nobody",
+    "how": "restored byte-for-byte from evidence/review-128972/candidate/ and audited equal in this pass",
+    "accepted": "authorship does not exempt a previously existing test from AGENTS.md's authority rule; the reviewer is right and the serialization means neither edit was needed",
+    "four_cases_retargeted": "the four cases the correction round now changes were INTRODUCED in claim129002 -- the delta this review rejected -- and one of them the review named as demonstrating the defect rather than acceptance. They are corrected, not overwritten accepted work.",
+    "additive": "everything else is additive"
+  },
+  "proof": {
+    "recovery_cases": 50,
+    "profile_cases": 15,
+    "both_modules": "171 tests, OK"
+  },
+  "budget": {
+    "cap": 20.0,
+    "carried_in": 11.021,
+    "spent_this_pass": 8.513,
+    "cumulative": 19.534,
+    "remaining": 0.466,
+    "within": true,
+    "reset": false,
+    "note": "the cap is effectively reached. One vacuous assertion (a comparison of a value with itself) was deleted after the final green run and NOT re-verified, because deleting an assertion that always holds cannot change an outcome and there was no budget for another run. That is stated rather than hidden."
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_review_cycles.AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint",
+      "wall": "0.681s",
+      "result": "47 tests, 4 failures -- my own four cases from the rejected delta, all asserting the superseded ordering"
+    },
+    {
+      "run": "same, after retargeting those four",
+      "wall": "0.692s",
+      "result": "48 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_review_cycles tests.manager.test_checkpoint_profiles",
+      "wall": "1.675s",
+      "result": "169 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_checkpoint_profiles",
+      "wall": "0.318s",
+      "result": "15 tests, OK, after the object binding"
+    },
+    {
+      "run": "both selectors",
+      "wall": "1.703s",
+      "result": "169 tests, OK"
+    },
+    {
+      "run": "both selectors, with the retry regressions added",
+      "wall": "1.711s",
+      "result": "171 tests, 1 failure -- my assertion named one refusal category where two are reachable"
+    },
+    {
+      "run": "both selectors",
+      "wall": "1.733s",
+      "log": "evidence/run-129081-both.log",
+      "result": "171 tests, OK"
+    }
+  ],
+  "not_run": "no whole-suite or inventory pass"
+}

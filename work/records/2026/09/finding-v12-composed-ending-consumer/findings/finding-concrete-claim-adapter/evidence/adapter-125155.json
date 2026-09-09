@@ -1,0 +1,101 @@
+{
+  "work": "W125032",
+  "claim": 125155,
+  "corrects": "review-2026-09-09T04-50-13Z.md, corrections 1 and 2",
+  "claim_order": "claimed at seq125155 before reading the review and before any edit; the budget was declared in PROGRESS before any execution this pass",
+  "paths": {
+    "tools/single_worker.py": {
+      "sha256": "5cb38f3f782d91b239c24af0fecabc083ff9706584bddc65f597d29a09e76b10",
+      "mode": "664"
+    },
+    "tests/tools/test_single_worker.py": {
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "mode": "664"
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "3fa2474c8ed3eed1ae402f5ca20adc626d0a8cc2dc03ead0c83a7bfc05d1cc92",
+      "mode": "664"
+    }
+  },
+  "test_methods": {
+    "tests/tools/test_single_worker.py": 110,
+    "tests/tools/test_stage_execution.py": 124
+  },
+  "correction_1": {
+    "what": "_claim_refusal caught BaseException around the ContractRefusal construction; it now catches AssertionError only",
+    "why_that_type": "ContractRefusal classifies a message that is not text, not encodable or too long as a defect at the raising site and raises AssertionError; the pair is one of three constants, so the message is the only operand that can be rejected there",
+    "verified_with": "the reviewer's own evidence/review-125102-probe.py, unmodified: injected KeyboardInterrupt, MemoryError and RuntimeError at that constructor now all propagate identically",
+    "probe_after": [
+      {
+        "injected": "KeyboardInterrupt",
+        "propagated_identically": true
+      },
+      {
+        "injected": "MemoryError",
+        "propagated_identically": true
+      },
+      {
+        "injected": "RuntimeError",
+        "propagated_identically": true
+      }
+    ],
+    "controls_added": [
+      "test_only_the_diagnostic_rejection_reaches_the_static_fallback",
+      "test_an_unrelated_failure_at_that_constructor_is_not_absorbed"
+    ]
+  },
+  "correction_2": {
+    "class_description_fixed": "the class no longer says Job B's claim succeeds; it says B is owed and does not progress",
+    "progress_proof": "NOT DELIVERED. Three separate owner refusals were measured instead of asserting an excluded capability",
+    "measured_refusals": [
+      {
+        "owner": "tools/stage_execution.py:_held_workers",
+        "message": "two workers are configured for the implementation stage; each stage is served by exactly one",
+        "pinned_by": "test_a_second_worker_for_one_role_is_refused_by_the_document"
+      },
+      {
+        "owner": "tools/single_worker.py:_SingleWorker",
+        "message": "this single worker accepts only '<job_work_id>' / the Job names another bootstrap input",
+        "measured": "a second Job on WORK_C is deferred at admission every tick"
+      },
+      {
+        "owner": "worker_manager offers",
+        "message": "Work '0000000a-W1' already has a live offer; one authorization at a time",
+        "pinned_by": "test_what_stops_the_second_job_progressing_in_this_deployment"
+      }
+    ],
+    "what_the_reviewers_seam_would_take": "a second worker_operations over its own Work-bound input manifest, a pool generation carrying four workers, and a PooledManagerOperations composed in the test. All three are public. The cost is a test that re-implements the composition tools/stage_execution.py owns, and that file is excluded from this Work's three paths, so no supported seam for it can be added here. Raised for the reviewer rather than decided.",
+    "retained": [
+      "the same-tick control: both Jobs spoken for every tick",
+      "the counterfactual: with the containment removed for one tick the sweep raises and Job B's act is never reached",
+      "A's no-success, no-release and fixed-identity recovery controls, unchanged"
+    ]
+  },
+  "declared_budget_seconds": 12,
+  "budget": {
+    "declared_before_any_execution_this_pass": true,
+    "spent_seconds": 21.0,
+    "breakdown": "reviewer probe 0.18s; the two-Job class four times 0.94+0.93+0.62+0.93s; three short diagnostic probes ~1.1s; test_single_worker 3.86s; both owned modules once 10.4s",
+    "over_by": 9.0,
+    "why": "the two-Job correction took four measured attempts -- same Work, second Work, matched bootstrap input, and the pool probe -- before the three refusals were established. Recorded, not presented as met."
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 evidence/review-125102-probe.py",
+      "result": "0.00022s; all three injected failures propagate identically"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone",
+      "result": "6 tests, OK, 0.93s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_single_worker",
+      "result": "119 tests, OK, 3.86s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_single_worker tests.tools.test_stage_execution",
+      "result": "243 tests, 10.23s, the same five known W122060 failures"
+    }
+  ],
+  "pre_existing_failures": "unchanged from adapter-125043.json: the five are W124782's landed intake fix meeting a W122060 fixture, and this allocation authorizes no assertion change there"
+}

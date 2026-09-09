@@ -1,0 +1,61 @@
+--- v12/python/tools/stage_execution.py
++++ v12/python/tools/stage_execution.py
+@@ -43,6 +43,7 @@
+ import json
+ import os
+ import re
++from types import SimpleNamespace
+ 
+ from baton_v12 import checkpoint_profiles
+ from baton_v12.authority import MAX_SAFE_INTEGER, Authority, Refusal
+@@ -2050,13 +2051,17 @@
+     for the same reason: reporting one worker's silence as another's state is
+     a false observation rather than a missing one.
+ 
+-    IT OPENS NOTHING AND RECORDS NOTHING. No Authority, no session, no pool
+-    activation, no workspace allocation, no runtime refresh.
++    Integration reads open only the accepted read-only Authority/coordinator
++    handles and release both within that read. No session, pool activation,
++    workspace allocation or runtime refresh is constructed. SQLite-managed
++    sidecars follow the owner-approved opener contract.
+     """
+ 
+     canonical = True
+ 
+     def __init__(self, given, workers, job_store, control_store):
++        self.given = given
++        self.control = control_store
+         self.jobs = job_store
+         self.readers = {}
+         # THE RAW WORKER DOCUMENTS, NOT THE HELD ONES. `held_configuration`
+@@ -2091,6 +2096,30 @@
+             return None
+         return reader.observe_exchange(stage)
+ 
++    def observe_integration(self, stage):
++        """Use the same owned completion account as serving, through ro handles.
++
++        A generic or not-yet-activated stage needs neither owner opened.
++        Handles are local to the read, including all refusal paths, so the
++        observation object carries no serving capability or disposal obligation.
++        """
++        if stage.get("kind") != "integration":
++            return None
++        row = attempt_runtime_of(self.control, stage["attempt_id"])
++        if row is None or row["assignment"] is None:
++            return None
++        authority = _authority_read("read-only integration Authority", lambda: Authority.open_readonly(
++            self.given["authority_store"], expected_authority_uuid=self.given["authority_uuid"]))
++        with authority:
++            with IntegrationStore.open_readonly(self.given["integration_store"],
++                    incarnation=_incarnation(self.control), clock=_now) as coordinator:
++                context = SimpleNamespace(given=self.given, control=self.control,
++                    authority=authority, integration=coordinator,
++                    integration_profile=integration_from(self.given),
++                    integration_root=os.path.join(self.given["state_root"], INTEGRATION_HOME),
++                    workspace_group=configured_workspace_group(self.control))
++                return Integration(context).observe(stage)
++
+ 
+ def observation_from(document, job_store, control_store, *, checkout=None):
+     """Build the observation-only surface from one already-read document."""

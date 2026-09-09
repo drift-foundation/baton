@@ -1,0 +1,57 @@
+{
+  "claim": 129125,
+  "files": [
+    {
+      "path": "src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "d90a124dec748e4520b3ed58eed3c7327a0091a378bd3c8f7d5941c9193fcc13",
+      "mode": "644"
+    },
+    {
+      "path": "src/baton_v12/checkpoint_profiles.py",
+      "sha256": "70217506cb3655cd7dc55e257d2f7043ac005b473ed4136ea0437687bd590fc2",
+      "mode": "644"
+    },
+    {
+      "path": "tests/manager/test_review_cycles.py",
+      "sha256": "35b90e8b07da1df0812a8d2b810fc1d3ec00c9ef7a41d28e8db99e40ca02529c",
+      "mode": "644"
+    },
+    {
+      "path": "tests/manager/test_checkpoint_profiles.py",
+      "sha256": "dd65fa4e685f2745e974b64c4d25dcf2468e9d07d1d46ff95d2a0fa51271c86d",
+      "mode": "644"
+    }
+  ],
+  "test_changes": {
+    "tests/manager/test_review_cycles.py": {
+      "removed": [
+        "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_the_intent_takes_the_exclusion_before_the_profile_is_asked",
+        "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_an_in_flight_duplicate_cannot_reset_a_successors_checkout",
+        "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_a_duplicate_that_completed_is_not_reported_as_this_call",
+        "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_an_admission_during_the_restore_stops_the_completion"
+      ],
+      "modified": [
+        "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_a_revoked_writer_has_no_correction_to_restore",
+        "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_a_failed_restoration_admits_nobody"
+      ],
+      "added": [
+        "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_the_effect_and_the_release_happen_in_one_serialized_act",
+        "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_an_in_flight_duplicate_cannot_reach_a_second_effect",
+        "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_a_second_connection_replays_without_entering_the_effect",
+        "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_the_exclusion_is_proved_under_the_lock_and_not_before_it",
+        "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_an_unfinished_retry_re_proves_its_provenance_first",
+        "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_an_unfinished_retry_binds_its_intent_to_the_owners",
+        "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_a_transient_profile_failure_stays_retryable"
+      ]
+    },
+    "tests/manager/test_checkpoint_profiles.py": {
+      "removed": [
+        "RestoringOneCheckoutToItsRetainedCheckpoint.test_a_substitution_between_the_writes_is_refused"
+      ],
+      "modified": [],
+      "added": [
+        "RestoringOneCheckoutToItsRetainedCheckpoint.test_a_substitution_between_the_writes_follows_the_held_object"
+      ]
+    }
+  }
+}

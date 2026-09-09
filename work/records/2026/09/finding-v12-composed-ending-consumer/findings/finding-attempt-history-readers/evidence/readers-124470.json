@@ -1,0 +1,105 @@
+{
+  "work": "W124331",
+  "claim": 124470,
+  "corrects": "review-2026-09-09T03-05-04Z.md P1",
+  "paths": {
+    "src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "66f1ba4630ee7b53eed5b68fac44f28364a6bd92077a4f7365522d654ebb4b23",
+      "mode": "644"
+    },
+    "src/baton_v12/worker_manager/__init__.py": {
+      "sha256": "0c417699ed667a857863c845d94408b4f06191706b169e1cd478c0d9e998eb05",
+      "mode": "644"
+    },
+    "tests/manager/test_review_cycles.py": {
+      "sha256": "950eb57ba03189a6f84fbd711fadc0456410f9a3373a6435380b8dfe78524d46",
+      "mode": "644"
+    },
+    "tests/manager/test_secrets.py": {
+      "sha256": "9104bf90aa9c437eb221c8dbcd2e3528f07bc5d1c2d5174d37e71bc7ee243724",
+      "mode": "644"
+    }
+  },
+  "test_methods": {
+    "tests/manager/test_review_cycles.py": 86,
+    "tests/manager/test_secrets.py": 92
+  },
+  "test_secrets_unchanged_this_claim": true,
+  "declared_budget_seconds": 20,
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_review_cycles",
+      "result": "94 tests, OK, 0.89s (before the new controls)"
+    },
+    {
+      "run": "same, with the ten additive committed-history controls",
+      "result": "104 tests, OK, 0.98s"
+    },
+    {
+      "run": "PYTHONPATH=v12/python/src:v12/python/tests:v12/python python3 evidence/review-124428-probe-v4.py (reviewer's probe, unmodified, copied to /tmp so its own .json is not overwritten)",
+      "result": "0.016s; all nine demonstrated defects now ContractRefusal category 'integrity'; both cold reopened positives still return the honest row under denied writes/transactions/savepoints and forbidden profile/physical-line access"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_review_cycles tests.manager.test_secrets",
+      "result": "196 tests, OK, 1.73s"
+    }
+  ],
+  "cumulative_seconds": 3.6,
+  "probe_verdicts_after": {
+    "writer_malformed_signature": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.grant-writer signature for the line writer for attempt 'writer-attempt-1' generation 1 is not readable as a journal document"
+    },
+    "writer_null_result": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.grant-writer result for the line writer for attempt 'writer-attempt-1' generation 1 is one exact document; this is none"
+    },
+    "writer_foreign_result": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.grant-writer result for the line writer for attempt 'writer-attempt-1' generation 1 needs writer_id, line_id, generation, state"
+    },
+    "writer_bool_committed_generation": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.grant-writer generation for the line writer for attempt 'writer-attempt-1' generation 1 is a whole assignment generation, counting from zero; this is true"
+    },
+    "review_malformed_signature": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.attach-review signature for the review attachment for attempt 'review-attempt-1' generation 1 is not readable as a journal document"
+    },
+    "review_null_result": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.attach-review result for the review attachment for attempt 'review-attempt-1' generation 1 is one exact document; this is none"
+    },
+    "review_foreign_result": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.attach-review result for the review attachment for attempt 'review-attempt-1' generation 1 needs attachment_id, checkpoint_id, state"
+    },
+    "review_bool_committed_generation": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.attach-review generation for the review attachment for attempt 'review-attempt-1' generation 1 is a whole assignment generation, counting from zero; this is true"
+    },
+    "writer_changed_fixed_generation": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the line writer for attempt 'writer-attempt-1' generation 1 and the fixed assignment its review-line.grant-writer act read disagree about generation"
+    },
+    "writer_cold_earlier_round": {
+      "returned": true,
+      "equals_honest": true
+    },
+    "review_cold_earlier_round": {
+      "returned": true,
+      "equals_honest": true
+    }
+  },
+  "not_run": "tests.manager.test_boundary_inventory, per M124458. The residual reported at claim124345 stands as reported, with its stated lack of a paired baseline.",
+  "not_touched": "tests/manager/test_secrets.py, per M124456/M124458, pending owner disposition of its two accounting names."
+}

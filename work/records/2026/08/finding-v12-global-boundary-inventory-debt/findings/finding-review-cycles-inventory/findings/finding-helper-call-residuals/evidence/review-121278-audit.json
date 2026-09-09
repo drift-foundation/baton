@@ -1,0 +1,21 @@
+{
+  "claim": 121278,
+  "hashes": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+    "v12/python/src/baton_v12/worker_manager/schema.py": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+    "v12/python/src/baton_v12/worker_manager/boundaries.py": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a",
+    "v12/python/tests/manager/test_boundary_inventory.py": "e92579485bc5074b26a83d953fc08f428723c84c459fc5750f20278b81b1d401"
+  },
+  "retained_evidence_valid": true,
+  "residual_count": 22,
+  "counts": {
+    "review_cycles.py:_evidence": 8,
+    "review_cycles.py:_fence": 2,
+    "review_cycles.py:_line_place": 1,
+    "review_cycles.py:_profile": 2,
+    "review_cycles.py:_review_result": 8,
+    "review_cycles.py:create_line": 1
+  },
+  "seconds": 0.0013722609728574753,
+  "reused_seconds": 3.569074338884093
+}

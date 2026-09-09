@@ -1,0 +1,33 @@
+test_lost_pass_answer_remains_completed_after_a_later_assignment (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_lost_pass_answer_remains_completed_after_a_later_assignment) ... ok
+test_uncertain_integration_effect_stays_held (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_uncertain_integration_effect_stays_held) ... ok
+test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick)
+Absent or unpublished: neither invents an assignment. ... ok
+test_a_delivery_with_no_started_runtime_is_not_refreshed (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed)
+The namespaces are materialized before the container, so a delivery ... ok
+test_a_deployment_without_exactly_one_producer_refuses (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_deployment_without_exactly_one_producer_refuses) ... ok
+test_a_later_tick_refreshes_before_it_continues (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_later_tick_refreshes_before_it_continues)
+Owner ruling M115946: refresh FIRST, then the port's own marker. ... ok
+test_a_lost_marker_falls_through_to_admission (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_lost_marker_falls_through_to_admission)
+A fresh serving incarnation holds no marker, so the driver's own ... ok
+test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here)
+The other side of that branch, which is why it IS a branch. ... ok
+test_the_first_tick_prepares_and_then_admits (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits) ... ok
+test_the_published_reader_adopts_a_real_delivery_with_the_group (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_published_reader_adopts_a_real_delivery_with_the_group)
+W103083 review 2026-09-08T04:06:54Z [P1], proved through the REAL ... ok
+test_the_requirement_is_derived_from_the_configured_task (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_requirement_is_derived_from_the_configured_task)
+Not from what the worker REPORTED: from the task bytes this ... ok
+test_a_fresh_port_prepares_that_delivery_and_then_starts_it (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_fresh_port_prepares_that_delivery_and_then_starts_it)
+W103083 review 2026-09-08T12:41:47Z [P1], and the whole of W119113. ... ok
+test_a_runtime_this_execution_did_not_start_is_still_held (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_runtime_this_execution_did_not_start_is_still_held)
+The hold this correction must not spend: a started attempt is NOT ... ok
+test_a_second_tick_in_the_same_execution_starts_nothing_again (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_second_tick_in_the_same_execution_starts_nothing_again)
+The same-execution case: this port holds the marker it made, so the ... ok
+test_an_interrupted_first_admission_leaves_a_never_started_delivery (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_interrupted_first_admission_leaves_a_never_started_delivery)
+The predecessor state this correction is about, measured rather ... ok
+test_an_ordinary_first_tick_prepares_and_starts_exactly_once (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_ordinary_first_tick_prepares_and_starts_exactly_once)
+The valid initial case: nothing is published yet, so this is the ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 2.868s
+
+OK

@@ -1,0 +1,1495 @@
+{
+  "basis": "Current unfiltered census, not a baseline delta or new edit authority",
+  "modules": {
+    "attempts": {
+      "work": "W116992",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-attempts-inventory",
+      "unowned": [
+        [
+          "adopted",
+          "attempts.py:_decide",
+          "observations.next"
+        ],
+        [
+          "adopted",
+          "attempts.py:_next_source_seq",
+          "observations.next"
+        ],
+        [
+          "caller",
+          "attempts.py:assignment_of",
+          "attempt_id"
+        ],
+        [
+          "caller",
+          "attempts.py:attempt_activity_of",
+          "attempt_id"
+        ],
+        [
+          "caller",
+          "attempts.py:attempt_runtime_of",
+          "attempt_id"
+        ],
+        [
+          "caller",
+          "attempts.py:attempt_start_failure_of",
+          "attempt_id"
+        ],
+        [
+          "caller",
+          "attempts.py:authorize_input_root",
+          "attempt_id"
+        ],
+        [
+          "caller",
+          "attempts.py:authorize_input_root",
+          "inputs"
+        ],
+        [
+          "caller",
+          "attempts.py:label_context",
+          "attempt_id"
+        ],
+        [
+          "caller",
+          "attempts.py:observe_activity",
+          "attempt_id"
+        ],
+        [
+          "caller",
+          "attempts.py:observe_activity",
+          "bytes_observed"
+        ],
+        [
+          "caller",
+          "attempts.py:request_runtime_start",
+          "inputs"
+        ],
+        [
+          "caller",
+          "attempts.py:start_failure_operation_id",
+          "attempt"
+        ],
+        [
+          "caller",
+          "attempts.py:start_failure_operation_id",
+          "attempt.assignment_generation"
+        ],
+        [
+          "caller",
+          "attempts.py:start_failure_operation_id",
+          "attempt.assignment_participant"
+        ],
+        [
+          "caller",
+          "attempts.py:start_failure_operation_id",
+          "attempt.authority_uuid"
+        ],
+        [
+          "caller",
+          "attempts.py:start_failure_operation_id",
+          "attempt.profile_digest"
+        ],
+        [
+          "caller",
+          "attempts.py:start_failure_operation_id",
+          "attempt.runtime_attempt_id"
+        ],
+        [
+          "caller",
+          "attempts.py:start_failure_operation_id",
+          "attempt.work_id"
+        ],
+        [
+          "injected",
+          "attempts.py:_observed",
+          "adapter.observe"
+        ]
+      ],
+      "orphan_calls": [
+        [
+          "attempts.py:_committed_record",
+          "document",
+          "a committed ending record"
+        ],
+        [
+          "attempts.py:_identified_within",
+          "identity",
+          "a runtime attempt id"
+        ],
+        [
+          "attempts.py:_plan_agrees",
+          "document",
+          "a declared runtime mount"
+        ],
+        [
+          "attempts.py:_reconciled",
+          "identity",
+          "a runtime attempt id"
+        ],
+        [
+          "attempts.py:reconcile_runtime",
+          "identity",
+          "a runtime attempt id"
+        ]
+      ]
+    },
+    "authority_port": {
+      "work": "W116979",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-authority-port-inventory",
+      "unowned": [
+        [
+          "caller",
+          "authority_port.py:AuthorityPort.claim",
+          "role"
+        ],
+        [
+          "caller",
+          "authority_port.py:AuthorityPort.claim",
+          "scope"
+        ],
+        [
+          "caller",
+          "authority_port.py:AuthorityPort.satisfy_gate",
+          "evidence"
+        ],
+        [
+          "caller",
+          "authority_port.py:AuthorityPort.satisfy_gate",
+          "gate"
+        ],
+        [
+          "caller",
+          "authority_port.py:AuthorityPort.satisfy_gate",
+          "operation_id"
+        ],
+        [
+          "caller",
+          "authority_port.py:AuthorityPort.satisfy_gate",
+          "work_id"
+        ],
+        [
+          "caller",
+          "authority_port.py:AuthorityPort.settle_operation",
+          "role"
+        ],
+        [
+          "caller",
+          "authority_port.py:AuthorityPort.settle_operation",
+          "scope"
+        ],
+        [
+          "injected",
+          "authority_port.py:AuthorityPort.claim",
+          "claim.claim_event"
+        ],
+        [
+          "injected",
+          "authority_port.py:AuthorityPort.claim",
+          "claim.decision.grant"
+        ],
+        [
+          "injected",
+          "authority_port.py:AuthorityPort.claim",
+          "claim.decision.policy_generation"
+        ],
+        [
+          "injected",
+          "authority_port.py:AuthorityPort.satisfy_gate",
+          "satisfy_gate.gate"
+        ],
+        [
+          "injected",
+          "authority_port.py:AuthorityPort.satisfy_gate",
+          "satisfy_gate.phase"
+        ],
+        [
+          "injected",
+          "authority_port.py:AuthorityPort.settle_operation",
+          "settle_operation.result.claim_event"
+        ],
+        [
+          "injected",
+          "authority_port.py:AuthorityPort.settle_operation",
+          "settle_operation.result.decision.grant"
+        ],
+        [
+          "injected",
+          "authority_port.py:AuthorityPort.settle_operation",
+          "settle_operation.result.decision.policy_generation"
+        ]
+      ],
+      "orphan_calls": []
+    },
+    "credentials": {
+      "work": "W117004",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-credentials-inventory",
+      "unowned": [
+        [
+          "caller",
+          "credentials.py:CredentialHome.adopt",
+          "workspace_group"
+        ],
+        [
+          "caller",
+          "credentials.py:CredentialHome.materialize",
+          "workspace_group"
+        ],
+        [
+          "caller",
+          "credentials.py:OrphanTeardown.__init__",
+          "homes"
+        ]
+      ],
+      "orphan_calls": []
+    },
+    "custody": {
+      "work": "W117020",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-custody-inventory",
+      "unowned": [],
+      "orphan_calls": [
+        [
+          "custody.py:_reconciled",
+          "identity",
+          "a listed runtime id"
+        ]
+      ]
+    },
+    "documents": {
+      "work": "W117002",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-documents-inventory",
+      "unowned": [
+        [
+          "caller",
+          "documents.py:abandon_intent",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:abandoned_destroy_command",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:abandonment",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:directory_custody_settled",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:failed_start_destroy_command",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:freeze_requested",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:frozen_output",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:manifest_retained",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:operation",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:output_answer",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:output_artifact",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:posture_slot",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:provider_session_adopted",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:refused_session_destroy_command",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:result_frozen",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:runtime_preparation_failed",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:runtime_start_failed",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:session_closed",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:session_observed",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:session_opened",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:session_quiescence_requested",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:session_reconciled",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:session_ref",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:session_unsupported_version",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:slot_moved",
+          "members"
+        ],
+        [
+          "caller",
+          "documents.py:transport_lost",
+          "members"
+        ]
+      ],
+      "orphan_calls": []
+    },
+    "exchange": {
+      "work": "W117006",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-exchange-inventory",
+      "unowned": [
+        [
+          "caller",
+          "exchange.py:adopt",
+          "attempt_id"
+        ],
+        [
+          "caller",
+          "exchange.py:adopt",
+          "workspace_group"
+        ],
+        [
+          "caller",
+          "exchange.py:command_document",
+          "session"
+        ],
+        [
+          "caller",
+          "exchange.py:discard",
+          "root"
+        ],
+        [
+          "caller",
+          "exchange.py:materialize",
+          "attempt_id"
+        ],
+        [
+          "caller",
+          "exchange.py:materialize",
+          "workspace_group"
+        ],
+        [
+          "caller",
+          "exchange.py:observation",
+          "delivery"
+        ],
+        [
+          "caller",
+          "exchange.py:publish_command",
+          "delivery"
+        ],
+        [
+          "caller",
+          "exchange.py:state_document",
+          "operation"
+        ],
+        [
+          "caller",
+          "exchange.py:worker_operation_id",
+          "operation"
+        ]
+      ],
+      "orphan_calls": [
+        [
+          "exchange.py:_instant",
+          "instant",
+          "a worker document's {name}"
+        ],
+        [
+          "exchange.py:_value",
+          "text",
+          "an exchange document value"
+        ]
+      ]
+    },
+    "handshake": {
+      "work": "W116999",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-handshake-inventory",
+      "unowned": [
+        [
+          "caller",
+          "handshake.py:settle_unsupported_version",
+          "adapter"
+        ],
+        [
+          "caller",
+          "handshake.py:settle_unsupported_version",
+          "agent"
+        ],
+        [
+          "caller",
+          "handshake.py:settle_unsupported_version",
+          "agent_protocol_version"
+        ],
+        [
+          "caller",
+          "handshake.py:settle_unsupported_version",
+          "agent_session_capabilities"
+        ],
+        [
+          "caller",
+          "handshake.py:settle_unsupported_version",
+          "session_ref"
+        ],
+        [
+          "caller",
+          "handshake.py:settle_unsupported_version",
+          "session_ref.posture"
+        ],
+        [
+          "caller",
+          "handshake.py:settle_unsupported_version",
+          "session_ref.provider_session_id"
+        ],
+        [
+          "caller",
+          "handshake.py:settle_unsupported_version",
+          "session_ref.runtime_attempt_id"
+        ],
+        [
+          "caller",
+          "handshake.py:settle_unsupported_version",
+          "session_ref.session_epoch"
+        ],
+        [
+          "caller",
+          "handshake.py:unsupported_version_operation_id",
+          "session_ref"
+        ],
+        [
+          "caller",
+          "handshake.py:unsupported_version_operation_id",
+          "session_ref.posture"
+        ],
+        [
+          "caller",
+          "handshake.py:unsupported_version_operation_id",
+          "session_ref.provider_session_id"
+        ],
+        [
+          "caller",
+          "handshake.py:unsupported_version_operation_id",
+          "session_ref.runtime_attempt_id"
+        ],
+        [
+          "caller",
+          "handshake.py:unsupported_version_operation_id",
+          "session_ref.session_epoch"
+        ]
+      ],
+      "orphan_calls": []
+    },
+    "intake": {
+      "work": "W116977",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-intake-inventory",
+      "unowned": [
+        [
+          "caller",
+          "intake.py:authorize_refused_session_cleanup",
+          "session_ref"
+        ],
+        [
+          "caller",
+          "intake.py:authorize_refused_session_cleanup",
+          "session_ref.posture"
+        ],
+        [
+          "caller",
+          "intake.py:authorize_refused_session_cleanup",
+          "session_ref.provider_session_id"
+        ],
+        [
+          "caller",
+          "intake.py:authorize_refused_session_cleanup",
+          "session_ref.session_epoch"
+        ],
+        [
+          "injected",
+          "intake.py:_destroyed",
+          "adapter.destroy.credentials.why"
+        ],
+        [
+          "injected",
+          "intake.py:_destroyed",
+          "adapter.destroy.launch.why"
+        ],
+        [
+          "injected",
+          "intake.py:_destroyed_abandoned",
+          "adapter.destroy_abandoned.credentials.why"
+        ],
+        [
+          "injected",
+          "intake.py:_destroyed_abandoned",
+          "adapter.destroy_abandoned.launch.why"
+        ],
+        [
+          "injected",
+          "intake.py:_destroyed_failed_start",
+          "adapter.destroy_failed_start.credentials.why"
+        ],
+        [
+          "injected",
+          "intake.py:_destroyed_failed_start",
+          "adapter.destroy_failed_start.launch.why"
+        ],
+        [
+          "injected",
+          "intake.py:_destroyed_refused_session",
+          "adapter.destroy_refused_session.credentials.why"
+        ],
+        [
+          "injected",
+          "intake.py:_destroyed_refused_session",
+          "adapter.destroy_refused_session.launch.why"
+        ]
+      ],
+      "orphan_calls": [
+        [
+          "intake.py:_abandon_fence_operation_id",
+          "document",
+          "a persisted attempt"
+        ],
+        [
+          "intake.py:_abandon_intent",
+          "document",
+          "a committed abandonment record"
+        ],
+        [
+          "intake.py:_abandon_operation_id",
+          "document",
+          "a persisted attempt"
+        ],
+        [
+          "intake.py:_abandoned_destroy_operation",
+          "document",
+          "a persisted attempt"
+        ],
+        [
+          "intake.py:_abandoned_destroy_operation",
+          "text",
+          "a retention policy digest"
+        ],
+        [
+          "intake.py:_abandoned_destroy_operation",
+          "text",
+          "an abandonment record digest"
+        ],
+        [
+          "intake.py:_absence_proof",
+          "document",
+          "attempt {name_value(attempt_id)}'s committed cleanup"
+        ],
+        [
+          "intake.py:_absence_proof",
+          "document",
+          "attempt {name_value(attempt_id)}'s committed cleanup operation"
+        ],
+        [
+          "intake.py:_adopted_discharge",
+          "document",
+          "{what}"
+        ],
+        [
+          "intake.py:_adopted_discharge",
+          "document",
+          "{what}'s Work reference"
+        ],
+        [
+          "intake.py:_adopted_discharge",
+          "document",
+          "{what}'s assignment"
+        ],
+        [
+          "intake.py:_adopted_discharge",
+          "identity",
+          "{what}'s attempt"
+        ],
+        [
+          "intake.py:_adopted_discharge",
+          "identity",
+          "{what}'s cleanup operation identity"
+        ],
+        [
+          "intake.py:_adopted_discharge",
+          "identity",
+          "{what}'s operation identity"
+        ],
+        [
+          "intake.py:_adopted_discharge",
+          "identity",
+          "{what}'s runtime identity"
+        ],
+        [
+          "intake.py:_adopted_discharge",
+          "text",
+          "{what}'s gate"
+        ],
+        [
+          "intake.py:_chosen",
+          "identity",
+          "an artifact id"
+        ],
+        [
+          "intake.py:_compared",
+          "document",
+          "a collected artifact"
+        ],
+        [
+          "intake.py:_compared",
+          "identity",
+          "a collected result id"
+        ],
+        [
+          "intake.py:_compared",
+          "identity",
+          "an artifact id"
+        ],
+        [
+          "intake.py:_compared",
+          "text",
+          "a content digest"
+        ],
+        [
+          "intake.py:_compared",
+          "text",
+          "a custody locator"
+        ],
+        [
+          "intake.py:_custody_capable",
+          "capability",
+          "the runtime adapter's directory-custody act"
+        ],
+        [
+          "intake.py:_custody_capable",
+          "text",
+          "the custodian image identity custody acts are signed with"
+        ],
+        [
+          "intake.py:_failed_start_record",
+          "document",
+          "a committed failed-start record"
+        ],
+        [
+          "intake.py:_refused_session_record",
+          "document",
+          "a committed refusal record"
+        ],
+        [
+          "intake.py:abandon_attempt",
+          "document",
+          "a persisted attempt"
+        ],
+        [
+          "intake.py:discharge_quiescence_gate",
+          "identity",
+          "attempt {name_value(attempt_id)}'s attached runtime identity"
+        ]
+      ]
+    },
+    "interrogation": {
+      "work": "W116981",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-interrogation-inventory",
+      "unowned": [
+        [
+          "caller",
+          "interrogation.py:inquire",
+          "agent"
+        ],
+        [
+          "caller",
+          "interrogation.py:inquire",
+          "deadline_seconds"
+        ],
+        [
+          "caller",
+          "interrogation.py:probe",
+          "agent"
+        ],
+        [
+          "caller",
+          "interrogation.py:probe",
+          "deadline_seconds"
+        ]
+      ],
+      "orphan_calls": [
+        [
+          "interrogation.py:_diagnostics",
+          "text",
+          "a probe diagnostic name"
+        ],
+        [
+          "interrogation.py:publish_inquiry_answer",
+          "injected",
+          "a published answer reference"
+        ]
+      ]
+    },
+    "lanes": {
+      "work": "W116972",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-lanes-inventory",
+      "unowned": [
+        [
+          "caller",
+          "lanes.py:runtime_lane",
+          "attempt_id"
+        ]
+      ],
+      "orphan_calls": [
+        [
+          "lanes.py:_occupy_lane",
+          "identity",
+          "a runtime attempt id"
+        ],
+        [
+          "lanes.py:_occupy_lane",
+          "text",
+          "a lane occupancy reason"
+        ],
+        [
+          "lanes.py:_release_lane",
+          "identity",
+          "a runtime attempt id"
+        ],
+        [
+          "lanes.py:_release_lane",
+          "text",
+          "a lane release reason"
+        ]
+      ]
+    },
+    "launch": {
+      "work": "W117008",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-launch-inventory",
+      "unowned": [
+        [
+          "caller",
+          "launch.py:LaunchDelivery.__init__",
+          "delivery"
+        ],
+        [
+          "caller",
+          "launch.py:adopt",
+          "transport"
+        ],
+        [
+          "caller",
+          "launch.py:adopt",
+          "workspace_group"
+        ],
+        [
+          "caller",
+          "launch.py:launch_document",
+          "transport"
+        ],
+        [
+          "caller",
+          "launch.py:materialize",
+          "transport"
+        ],
+        [
+          "caller",
+          "launch.py:materialize",
+          "workspace_group"
+        ],
+        [
+          "caller",
+          "launch.py:members_for",
+          "document"
+        ],
+        [
+          "caller",
+          "launch.py:members_for",
+          "document.schema"
+        ]
+      ],
+      "orphan_calls": []
+    },
+    "oci": {
+      "work": "W116997",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-oci-inventory",
+      "unowned": [
+        [
+          "caller",
+          "oci.py:OciAdapter.__init__",
+          "credential_home"
+        ],
+        [
+          "caller",
+          "oci.py:OciAdapter.__init__",
+          "credential_orphan"
+        ],
+        [
+          "caller",
+          "oci.py:OciAdapter.__init__",
+          "integration_delivery"
+        ],
+        [
+          "caller",
+          "oci.py:OciAdapter.__init__",
+          "interactive"
+        ],
+        [
+          "caller",
+          "oci.py:OciAdapter.__init__",
+          "network"
+        ],
+        [
+          "caller",
+          "oci.py:OciAdapter.__init__",
+          "workspace_group"
+        ],
+        [
+          "caller",
+          "oci.py:OciAdapter.integration_mounts_agree",
+          "runtime_id"
+        ],
+        [
+          "caller",
+          "oci.py:OciAdapter.normalize_directory",
+          "assignment_id"
+        ],
+        [
+          "caller",
+          "oci.py:OciAdapter.normalize_directory",
+          "which"
+        ],
+        [
+          "caller",
+          "oci.py:OciAdapter.prove_line_consumable",
+          "assignment_id"
+        ],
+        [
+          "caller",
+          "oci.py:OciAdapter.prove_line_consumable",
+          "generation"
+        ],
+        [
+          "caller",
+          "oci.py:OciAdapter.seal",
+          "request.context"
+        ],
+        [
+          "caller",
+          "oci.py:OciAdapter.seal",
+          "request.context.effective_scope"
+        ],
+        [
+          "caller",
+          "oci.py:OciAdapter.seal",
+          "request.context.principal"
+        ],
+        [
+          "caller",
+          "oci.py:canonical_source",
+          "what"
+        ],
+        [
+          "caller",
+          "oci.py:canonical_target",
+          "what"
+        ],
+        [
+          "caller",
+          "oci.py:exec_vector",
+          "engine"
+        ],
+        [
+          "caller",
+          "oci.py:run_vector",
+          "exchange_delivered"
+        ],
+        [
+          "caller",
+          "oci.py:run_vector",
+          "integration_delivered"
+        ],
+        [
+          "caller",
+          "oci.py:run_vector",
+          "interactive"
+        ],
+        [
+          "caller",
+          "oci.py:run_vector",
+          "source_delivered"
+        ],
+        [
+          "caller",
+          "oci.py:run_vector",
+          "workspace_group"
+        ]
+      ],
+      "orphan_calls": [
+        [
+          "oci.py:OciAdapter._bound_orphan",
+          "identity",
+          "{what} runtime attempt id"
+        ],
+        [
+          "oci.py:OciAdapter._custodied",
+          "text",
+          "a retained artifact id"
+        ],
+        [
+          "oci.py:OciAdapter._mounts_the_authorized_root",
+          "document",
+          "a runtime mount"
+        ],
+        [
+          "oci.py:OciAdapter._quiesced",
+          "document",
+          "a seal authorization context"
+        ],
+        [
+          "oci.py:OciAdapter._removed",
+          "identity",
+          "{what} runtime id"
+        ],
+        [
+          "oci.py:OciAdapter.list",
+          "identity",
+          "a listed runtime id"
+        ],
+        [
+          "oci.py:OciAdapter.start",
+          "identity",
+          "a started runtime id"
+        ],
+        [
+          "oci.py:_decoded",
+          "text",
+          "an engine document"
+        ],
+        [
+          "oci.py:_exchange_mounts",
+          "text",
+          "an exchange delivery target"
+        ],
+        [
+          "oci.py:_image_identity",
+          "text",
+          "a runtime image"
+        ],
+        [
+          "oci.py:_label_value",
+          "text",
+          "a runtime label"
+        ],
+        [
+          "oci.py:_mounts",
+          "document",
+          "a runtime mount"
+        ],
+        [
+          "oci.py:_whole",
+          "text",
+          "a generation label"
+        ],
+        [
+          "oci.py:exec_vector",
+          "text",
+          "an exec program word"
+        ]
+      ]
+    },
+    "posture_slots": {
+      "work": "W117022",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-posture-slots-inventory",
+      "unowned": [],
+      "orphan_calls": [
+        [
+          "posture_slots.py:_occupy_slot",
+          "identity",
+          "a runtime attempt id"
+        ],
+        [
+          "posture_slots.py:_occupy_slot",
+          "instant",
+          "a slot movement instant"
+        ],
+        [
+          "posture_slots.py:_release_slot_in",
+          "instant",
+          "a slot movement instant"
+        ],
+        [
+          "posture_slots.py:_require_slot_recovery_in",
+          "instant",
+          "a slot movement instant"
+        ]
+      ]
+    },
+    "review_cycles": {
+      "work": "W116975",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory",
+      "unowned": [
+        [
+          "adopted",
+          "review_cycles.py:consumption_subject",
+          "line_writers"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:consumption_subject",
+          "line_writers.writer_id"
+        ],
+        [
+          "caller",
+          "review_cycles.py:review_of",
+          "attachment_id"
+        ],
+        [
+          "caller",
+          "review_cycles.py:verdict_of",
+          "verdict_id"
+        ]
+      ],
+      "orphan_calls": [
+        [
+          "review_cycles.py:_evidence",
+          "document",
+          "persisted checkpoint evidence"
+        ],
+        [
+          "review_cycles.py:_evidence",
+          "text",
+          "a persisted checkpoint evidence path"
+        ],
+        [
+          "review_cycles.py:_evidence",
+          "text",
+          "persisted checkpoint evidence's base"
+        ],
+        [
+          "review_cycles.py:_evidence",
+          "text",
+          "persisted checkpoint evidence's head"
+        ],
+        [
+          "review_cycles.py:_evidence",
+          "text",
+          "persisted checkpoint evidence's path_set_digest"
+        ],
+        [
+          "review_cycles.py:_evidence",
+          "text",
+          "persisted checkpoint evidence's profile"
+        ],
+        [
+          "review_cycles.py:_evidence",
+          "text",
+          "persisted checkpoint evidence's reference"
+        ],
+        [
+          "review_cycles.py:_evidence",
+          "text",
+          "persisted checkpoint evidence's tree"
+        ],
+        [
+          "review_cycles.py:_line_place",
+          "text",
+          "the manager's workspace storage"
+        ],
+        [
+          "review_cycles.py:_profile",
+          "capability",
+          "a checkpoint profile's {method} capability"
+        ],
+        [
+          "review_cycles.py:_profile",
+          "text",
+          "a checkpoint profile name"
+        ],
+        [
+          "review_cycles.py:_review_result",
+          "document",
+          "a frozen review artifact"
+        ],
+        [
+          "review_cycles.py:_review_result",
+          "document",
+          "a frozen review result"
+        ],
+        [
+          "review_cycles.py:_review_result",
+          "identity",
+          "a frozen review output name"
+        ],
+        [
+          "review_cycles.py:_review_result",
+          "identity",
+          "a frozen review result's attempt_id"
+        ],
+        [
+          "review_cycles.py:_review_result",
+          "identity",
+          "a frozen review result's freeze_operation_id"
+        ],
+        [
+          "review_cycles.py:_review_result",
+          "identity",
+          "a frozen review result's manifest_digest"
+        ],
+        [
+          "review_cycles.py:_review_result",
+          "identity",
+          "a frozen review result's result_id"
+        ],
+        [
+          "review_cycles.py:_review_result",
+          "instant",
+          "a frozen review result's frozen_at"
+        ],
+        [
+          "review_cycles.py:create_line",
+          "text",
+          "a materialized line head"
+        ],
+        [
+          "review_cycles.py:integration_checkpoint",
+          "document",
+          "a persisted assignment fence"
+        ],
+        [
+          "review_cycles.py:record_verdict",
+          "document",
+          "a persisted assignment fence"
+        ]
+      ]
+    },
+    "sessions": {
+      "work": "W116987",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-sessions-inventory",
+      "unowned": [
+        [
+          "adopted",
+          "sessions.py:_next_epoch",
+          "agent_sessions.next"
+        ],
+        [
+          "caller",
+          "sessions.py:close_agent_session",
+          "session_ref.posture"
+        ],
+        [
+          "caller",
+          "sessions.py:close_agent_session",
+          "session_ref.session_epoch"
+        ],
+        [
+          "caller",
+          "sessions.py:handle_transport_loss",
+          "session_ref.posture"
+        ],
+        [
+          "caller",
+          "sessions.py:handle_transport_loss",
+          "session_ref.session_epoch"
+        ],
+        [
+          "caller",
+          "sessions.py:observe_session_state",
+          "session_ref.posture"
+        ],
+        [
+          "caller",
+          "sessions.py:observe_session_state",
+          "session_ref.provider_session_id"
+        ],
+        [
+          "caller",
+          "sessions.py:observe_session_state",
+          "session_ref.runtime_attempt_id"
+        ],
+        [
+          "caller",
+          "sessions.py:observe_session_state",
+          "session_ref.session_epoch"
+        ]
+      ],
+      "orphan_calls": [
+        [
+          "sessions.py:_request_session_quiescence",
+          "identity",
+          "a runtime attempt id"
+        ]
+      ]
+    },
+    "source_boundary": {
+      "work": "W117017",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-source-boundary-inventory",
+      "unowned": [
+        [
+          "caller",
+          "source_boundary.py:SourceBoundary.__init__",
+          "guard"
+        ]
+      ],
+      "orphan_calls": []
+    },
+    "worker_entry": {
+      "unowned": [],
+      "orphan_calls": [
+        [
+          "worker_entry.py:converse",
+          "identity",
+          "a worker-entry operation identity"
+        ]
+      ],
+      "work": "W117026",
+      "dossier": "work/records/2026/09/finding-v12-worker-entry-inventory-followup"
+    },
+    "workspaces": {
+      "work": "W116995",
+      "dossier": "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-workspaces-inventory",
+      "unowned": [
+        [
+          "adopted",
+          "workspaces.py:_configured_storage",
+          "meta"
+        ],
+        [
+          "adopted",
+          "workspaces.py:_configured_storage",
+          "meta.value"
+        ],
+        [
+          "caller",
+          "workspaces.py:AllocatedRoots.__init__",
+          "_grant"
+        ],
+        [
+          "caller",
+          "workspaces.py:AllocatedRoots.__init__",
+          "_grant_required"
+        ],
+        [
+          "caller",
+          "workspaces.py:AllocatedRoots.__init__",
+          "_minted"
+        ],
+        [
+          "caller",
+          "workspaces.py:AllocatedRoots.__init__",
+          "made"
+        ],
+        [
+          "caller",
+          "workspaces.py:WorkspaceGroup.__init__",
+          "_minted"
+        ],
+        [
+          "caller",
+          "workspaces.py:WorkspaceGroup.__init__",
+          "gid"
+        ],
+        [
+          "caller",
+          "workspaces.py:WorkspaceStorage.__init__",
+          "_minted"
+        ],
+        [
+          "caller",
+          "workspaces.py:WorkspaceStorage.__init__",
+          "place"
+        ],
+        [
+          "caller",
+          "workspaces.py:adopt_workspace_group",
+          "gid"
+        ],
+        [
+          "caller",
+          "workspaces.py:adopt_workspace_group",
+          "roots"
+        ],
+        [
+          "caller",
+          "workspaces.py:adopt_workspace_group",
+          "roots.workspace"
+        ],
+        [
+          "caller",
+          "workspaces.py:adopted_assignment_workspace",
+          "assignment_id"
+        ],
+        [
+          "caller",
+          "workspaces.py:assignment_workspace",
+          "assignment_id"
+        ],
+        [
+          "caller",
+          "workspaces.py:assignment_workspace",
+          "workspace_group"
+        ],
+        [
+          "caller",
+          "workspaces.py:check_workspace_group",
+          "gid"
+        ],
+        [
+          "caller",
+          "workspaces.py:check_workspace_group",
+          "what"
+        ],
+        [
+          "caller",
+          "workspaces.py:check_workspace_storage",
+          "what"
+        ],
+        [
+          "caller",
+          "workspaces.py:configure_workspace_group",
+          "gid"
+        ],
+        [
+          "caller",
+          "workspaces.py:configure_workspace_storage",
+          "place"
+        ],
+        [
+          "caller",
+          "workspaces.py:copied_manifest",
+          "admits"
+        ],
+        [
+          "caller",
+          "workspaces.py:copied_manifest",
+          "into"
+        ],
+        [
+          "caller",
+          "workspaces.py:copied_manifest",
+          "max_bytes"
+        ],
+        [
+          "caller",
+          "workspaces.py:copied_manifest",
+          "max_entries"
+        ],
+        [
+          "caller",
+          "workspaces.py:copied_manifest",
+          "root"
+        ],
+        [
+          "caller",
+          "workspaces.py:discard_execution_roots",
+          "assignment_id"
+        ],
+        [
+          "caller",
+          "workspaces.py:discard_tree",
+          "place"
+        ],
+        [
+          "caller",
+          "workspaces.py:discard_workspace",
+          "assignment_id"
+        ],
+        [
+          "caller",
+          "workspaces.py:prove_workspace_group",
+          "gid"
+        ],
+        [
+          "caller",
+          "workspaces.py:prove_workspace_group",
+          "place"
+        ],
+        [
+          "caller",
+          "workspaces.py:prove_workspace_group",
+          "what"
+        ],
+        [
+          "caller",
+          "workspaces.py:read_input_root",
+          "inputs"
+        ]
+      ],
+      "orphan_calls": [
+        [
+          "workspaces.py:_assignment_identity",
+          "identity",
+          "an assignment identity"
+        ],
+        [
+          "workspaces.py:_committed_workspace_group",
+          "document",
+          "the committed workspace group configuration"
+        ],
+        [
+          "workspaces.py:_committed_workspace_storage",
+          "document",
+          "the committed workspace store configuration"
+        ],
+        [
+          "workspaces.py:_granted_roots",
+          "capability",
+          "an assignment roots live grant"
+        ]
+      ]
+    }
+  }
+}

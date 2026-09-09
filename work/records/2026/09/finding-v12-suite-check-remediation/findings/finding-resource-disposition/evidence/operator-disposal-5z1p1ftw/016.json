@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "docker",
+    "container",
+    "inspect",
+    "--format",
+    "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"created\":{{json .Created}},\"image_id\":{{json .Image}},\"state\":{{json .State.Status}},\"exit_code\":{{json .State.ExitCode}},\"started\":{{json .State.StartedAt}},\"finished\":{{json .State.FinishedAt}},\"runtime_attempt_id\":{{json (index .Config.Labels \"baton.v12.runtime_attempt_id\")}},\"authority_uuid\":{{json (index .Config.Labels \"baton.v12.authority_uuid\")}},\"work_id\":{{json (index .Config.Labels \"baton.v12.work_id\")}},\"participant\":{{json (index .Config.Labels \"baton.v12.participant\")}},\"generation\":{{json (index .Config.Labels \"baton.v12.generation\")}},\"principal\":{{json (index .Config.Labels \"baton.v12.principal\")}},\"effective_scope\":{{json (index .Config.Labels \"baton.v12.effective_scope\")}},\"profile_digest\":{{json (index .Config.Labels \"baton.v12.profile_digest\")}},\"policy_digest\":{{json (index .Config.Labels \"baton.v12.policy_digest\")}},\"adapter_digest\":{{json (index .Config.Labels \"baton.v12.adapter_digest\")}}}",
+    "14555ec69c3048d34f6e46c9877500dc5984b88f4a589f253983669203886935"
+  ],
+  "returncode": 0,
+  "stdout": "{\"id\":\"14555ec69c3048d34f6e46c9877500dc5984b88f4a589f253983669203886935\",\"name\":\"/baton-runtime.start-fe34d69910212ef6e92abb7e471b329cac812e122eb11f684c3af5b149b8852e\",\"created\":\"2026-08-30T19:36:52.655990583Z\",\"image_id\":\"sha256:e0f99ea9fce7d4b0a00933fa1edf6279d3c00ac839758f482d45a032b0aa4682\",\"state\":\"exited\",\"exit_code\":137,\"started\":\"2026-08-30T19:36:52.666613653Z\",\"finished\":\"2026-08-30T19:37:22.85616626Z\",\"runtime_attempt_id\":\"attempt-3fb397f817\",\"authority_uuid\":\"43c55d4b000000000000000000000000\",\"work_id\":\"43c55d4b-W6636\",\"participant\":\"baton.claude\",\"generation\":\"1\",\"principal\":\"principal:baton.claude\",\"effective_scope\":\"scope:deployment\",\"profile_digest\":\"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"policy_digest\":\"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\"adapter_digest\":\"sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\"}\n",
+  "stderr": ""
+}

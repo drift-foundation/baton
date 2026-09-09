@@ -1,0 +1,82 @@
+--- prior/src/baton_v12/checkpoint_profiles.py
++++ src/baton_v12/checkpoint_profiles.py
+@@ -117,6 +117,40 @@
+     """
+     return ["git", "-C", _path(repository, "a private line repository"),
+             "clean", "-f", "-d", "-x", "--"]
++
++
++def _pinned_object(repository):
++    """The exact directory a restore is nominated over, by identity.
++
++    W128692 review [P1]. `lstat` rather than `stat` on purpose: a symlink whose
++    target is a directory answers a perfectly good directory to `stat`, and a
++    checkout reached through one is a checkout this profile was not asked to
++    write. What is pinned is the object the NAME resolves to without following
++    anything.
++    """
++    try:
++        status = os.lstat(repository)
++    except OSError:
++        raise ProfileRefusal(
++            "the private line repository is a directory that exists") from None
++    if not os.path.isdir(repository) or os.path.islink(repository):
++        raise ProfileRefusal(
++            "the private line repository is a directory of its own and not a "
++            "link to one")
++    return (status.st_dev, status.st_ino)
++
++
++def _same_object(repository, pinned):
++    """Still the object this restore pinned, or a refusal before it writes."""
++    try:
++        status = os.lstat(repository)
++    except OSError:
++        raise ProfileRefusal(
++            "the private line repository is a directory that exists") from None
++    if os.path.islink(repository) or (status.st_dev, status.st_ino) != pinned:
++        raise ProfileRefusal(
++            "the private line repository pathname now names another object; a "
++            "restore writes the exact checkout it was nominated over")
+ 
+ 
+ class GitCheckpointProfile:
+@@ -228,6 +262,20 @@
+         wrong AFTER discarding the scratch would have destroyed the only copy
+         of the thing it could not replace.
+ 
++        AND SO IS THE OBJECT, which review 2026-09-09T15:50Z [P1] is about. The
++        first cut validated the PATHNAME and the checkpoint CONTENTS and
++        nothing else, so renaming the nominated directory and leaving a symlink
++        with its old name pointed the destructive commands at a tree outside
++        the line entirely: `-C` follows the link, and their scratch and tracked
++        bytes went with it. A pathname is not an identity.
++
++        SO THE EXACT OBJECT IS PINNED AND HELD ACROSS THE WRITE BOUNDARY. The
++        nominated path must be a real directory rather than a link, its device
++        and inode are taken before anything is verified, and they are compared
++        again immediately before each destructive command and once after the
++        last one -- so a substitution before, between or after the writes is a
++        refusal rather than a silent redirection.
++
+         WHAT IS WRITTEN IS THE NOMINATED CHECKOUT AND NOTHING ELSE. Two
+         commands, both `-C` this repository, both option-terminated with no
+         pathspec: `reset --hard <head>` for tracked state and `clean -fdx` for
+@@ -243,13 +291,17 @@
+         would be reporting an intention.
+         """
+         repository = _path(repository, "a private line repository")
++        pinned = _pinned_object(repository)
+         # BEFORE THE FIRST WRITE. `validate` owns the evidence shape, the
+         # profile, the retained reference, its commit and tree, and the
+         # reviewed path set.
+         held = self.validate(repository, evidence)
+         head = check_declared_base(held["head"])
++        _same_object(repository, pinned)
+         self._run(reset_vector(repository, head), "checkpoint restoration")
++        _same_object(repository, pinned)
+         self._run(clean_vector(repository), "scratch removal")
++        _same_object(repository, pinned)
+         return self.validate(repository, held, current=True)
+ 
+     def validate(self, repository, evidence, *, current=False):

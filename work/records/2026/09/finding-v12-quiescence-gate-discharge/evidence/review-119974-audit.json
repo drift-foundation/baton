@@ -1,0 +1,27 @@
+{
+  "claim": 119974,
+  "focused_tests": {
+    "count": 34,
+    "seconds": 0.649,
+    "result": "OK"
+  },
+  "unchanged_cleanup_helpers": {
+    "authorize_cleanup": true,
+    "destroy_operation": true,
+    "_committed": true
+  },
+  "original_test_methods": {
+    "v12/python/tests/manager/test_intake.py": {
+      "count": 82,
+      "changed_or_removed": []
+    },
+    "v12/python/tests/manager/test_offers.py": {
+      "count": 77,
+      "changed_or_removed": []
+    },
+    "v12/python/tests/manager/test_secrets.py": {
+      "count": 91,
+      "changed_or_removed": []
+    }
+  }
+}

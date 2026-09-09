@@ -1,0 +1,126 @@
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -7755,6 +7755,28 @@
+                 finally:
+                     connection.row_factory = original
+                 return
++            if (site, table, column) == ("_attachment_row", "review_attachments", "attachment_id"):
++                connection = self.store._connection
++                original = connection.row_factory
++
++                def returned_attachment(cursor, values):
++                    row = original(cursor, values)
++                    if tuple(one[0] for one in cursor.description) == tuple(schema.REVIEW_ATTACHMENT_COLUMNS):
++                        row = dict(row)
++                        row["attachment_id"] = self.SPOILED[contract.kind]
++                    return row
++
++                # Preserve the lookup key; spoil the answer the real public
++                # verdict operation adopts, not the row it searches for.
++                connection.row_factory = returned_attachment
++                try:
++                    review_cycles.record_verdict(
++                        self.store, attachment_id="attachment-probe",
++                        disposition="accepted", profile=self.review_profile(),
++                        port=self.review_port("baton.review"))
++                finally:
++                    connection.row_factory = original
++                return
+             self.corrupt(f"UPDATE {table} SET {actual} = ?",
+                          self.SPOILED[contract.kind])
+             profile = self.review_profile()
+@@ -13573,3 +13595,94 @@
+             self.assertEqual(settled["cleanup"], "complete")
+             self.assertEqual(fixture.lanes(), [])
+         self.assertEqual([e[0] for e in events if e[0] != "owned"], ["occupy", "release"])
++
++
++class TheAttachmentKeyProbeReachesAdoption(unittest.TestCase):
++    def setUp(self):
++        self.case = EveryProbeProvesItArrived()
++        self.case.setUp()
++        self.addCleanup(self.case.doCleanups)
++
++    def stimulus(self):
++        return self.case.spoiling_review_row("_attachment_row", "review_attachments", "attachment_id")
++
++    def missing_attachment(self):
++        original_world = self.case.review_cycle_world
++
++        def world():
++            original_world()
++            self.case.corrupt("DELETE FROM review_attachments WHERE attachment_id = ?", "attachment-probe")
++
++        self.case.review_cycle_world = world
++
++    def test_malformed_key_arrives_from_the_exact_attachment_lookup(self):
++        connection = self.case.store._connection
++        original = connection.row_factory
++        statements, returned = [], []
++        connection.set_trace_callback(statements.append)
++        self.addCleanup(connection.set_trace_callback, None)
++
++        def observing_factory(cursor, values):
++            row = original(cursor, values)
++            if tuple(one[0] for one in cursor.description) == tuple(schema.REVIEW_ATTACHMENT_COLUMNS):
++                returned.append((statements[-1], dict(row)))
++            return row
++
++        connection.row_factory = observing_factory
++        with self.assertRaises(ContractRefusal) as caught:
++            self.stimulus()()
++        self.assertEqual((caught.exception.category, caught.exception.code), ("integrity", "schema"))
++        self.assertIn("a persisted review attachment's attachment_id", caught.exception.message)
++        self.assertIs(connection.row_factory, observing_factory)
++        self.assertEqual(len(returned), 1)
++        statement, row = returned[0]
++        self.assertEqual(statement, "SELECT * FROM review_attachments WHERE attachment_id = 'attachment-probe'")
++        self.assertEqual(row["attachment_id"], "attachment-probe")
++        self.assertEqual(row["runtime_attempt_id"], "review-attempt")
++        connection.row_factory = original
++        self.assertEqual(dict(review_cycles._attachment_row(self.case.store, "attachment-probe")), row)
++        self.assertIsNone(connection.execute("SELECT attachment_id FROM review_attachments WHERE attachment_id = ''").fetchone())
++
++    def test_valid_returned_key_passes_adoption_and_reaches_the_recorded_fence_guard(self):
++        self.case.SPOILED = dict(self.case.SPOILED, identity="attachment-probe")
++        connection = self.case.store._connection
++        original = connection.row_factory
++        with patch.object(attempts, "finalize_quiescent_assignment", wraps=attempts.finalize_quiescent_assignment) as finalizing:
++            with self.assertRaises(ContractRefusal) as caught:
++                self.stimulus()()
++        self.assertEqual(finalizing.call_args.kwargs, {"attempt_id": "review-attempt", "reason": "independent checkpoint review completed"})
++        self.assertEqual((caught.exception.category, caught.exception.code), ("refused", "operation-collision"))
++        self.assertIn("is already recorded with a different kind or signature", caught.exception.message)
++        self.assertIs(connection.row_factory, original)
++        self.assertEqual(review_cycles._attachment_row(self.case.store, "attachment-probe")["attachment_id"], "attachment-probe")
++
++    def test_missing_row_keeps_earlier_refusal_and_restores_the_factory(self):
++        self.missing_attachment()
++        connection = self.case.store._connection
++        original = connection.row_factory
++        with self.assertRaises(ContractRefusal) as caught:
++            self.stimulus()()
++        self.assertEqual((caught.exception.category, caught.exception.code), ("refused", "precondition"))
++        self.assertIn("no review attachment", caught.exception.message)
++        self.assertIs(connection.row_factory, original)
++        self.assertIsNone(connection.execute("SELECT attachment_id FROM review_attachments WHERE attachment_id = ?", ("attachment-probe",)).fetchone())
++
++    def test_existing_guard_accepts_the_returned_key_adoption_refusal(self):
++        self.case.refusing("a persisted review attachment", self.stimulus())
++
++    def test_existing_guard_rejects_the_missing_row_refusal(self):
++        self.missing_attachment()
++        with self.assertRaisesRegex(AssertionError, "refused, but not at"):
++            self.case.refusing("a persisted review attachment", self.stimulus())
++
++    def test_existing_guard_rejects_the_valid_row_finalization_refusal(self):
++        self.case.SPOILED = dict(self.case.SPOILED, identity="attachment-probe")
++        with self.assertRaisesRegex(AssertionError, "refused, but not at"):
++            self.case.refusing("a persisted review attachment", self.stimulus())
++
++    def test_catalog_keeps_the_exact_pair_and_reaches_adoption(self):
++        entry = ("adopted", "review_cycles.py:_attachment_row", "review_attachments.attachment_id")
++        label = "a persisted review attachment"
++        full, probe = self.case.review_cycle_probes()[(entry, label)]
++        self.assertEqual(full, label)
++        self.case.refusing(full, probe)

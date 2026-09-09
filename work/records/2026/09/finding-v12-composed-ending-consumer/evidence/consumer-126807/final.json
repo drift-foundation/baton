@@ -1,0 +1,74 @@
+{
+  "files": [
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "sha256": "eb949c4d5c0e6912a76fc9608b4c9357a27507606b7a813db302a89bd35961f8",
+      "mode": "0o664",
+      "changed": true
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "sha256": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+      "mode": "0o664",
+      "changed": false
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "f8bfc15d3e1448bdc16a7f4220de5f4620d031e0ee8f9916b55d6aa61e14b4b9",
+      "mode": "0o664",
+      "changed": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "mode": "0o664",
+      "changed": false
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/delegation.py",
+      "sha256": "fd83e32d0ab52b1f611c21adc3cb07b094dee9c2dd7ca904f923b82bb1e42705",
+      "mode": "0o664",
+      "changed": false
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "d22c3e7d83731e9ecf5c74255b2d40a46f8b24b858fd091226cd60e9eba91af3",
+      "mode": "0o664",
+      "changed": false
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "sha256": "1060e26a4196bafbc55db7955271853b1a2dde45e316d39cba7681939aeb6bb7",
+      "mode": "0o664",
+      "changed": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_delegation.py",
+      "sha256": "ce18e8dbf6d05a73dcba217b227f7c9e4d430e4aa0bc44c56fda897028d91a4a",
+      "mode": "0o664",
+      "changed": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_status.py",
+      "sha256": "859869bf8538320b39ab931d54772c5bd935b2ad24f7dad72ba47414c65d62bf",
+      "mode": "0o664",
+      "changed": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_exchange.py",
+      "sha256": "945c0b0ef55a1434e72ce51d2ac841a608b2f35bd17af160bc96123f09b07016",
+      "mode": "0o664",
+      "changed": false
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_tool.py",
+      "sha256": "02991e0256a4b71fce3e7e1cfb6429adf4caa818db6da4a5300456ff24b1b50a",
+      "mode": "0o664",
+      "changed": false
+    }
+  ],
+  "all_test_bytes_outside_OrdinaryTerminalLifecycle_unchanged": true,
+  "prior_claim_seconds": 0.46441402996424586,
+  "cumulative_seconds": 8.87630141095724,
+  "remaining_seconds": 11.12369858904276
+}

@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "docker",
+    "rm",
+    "ed580f82dbff4ff9d998e4879d5a8afbeb39ca03fd4f4e240496c37117c1f2de"
+  ],
+  "returncode": 0,
+  "stdout": "ed580f82dbff4ff9d998e4879d5a8afbeb39ca03fd4f4e240496c37117c1f2de\n",
+  "stderr": ""
+}

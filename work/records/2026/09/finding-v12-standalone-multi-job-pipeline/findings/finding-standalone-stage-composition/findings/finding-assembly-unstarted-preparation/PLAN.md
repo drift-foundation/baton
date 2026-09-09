@@ -32,5 +32,7 @@
 4. **Done.** Hashes, the assertion delta and focused evidence are in
    `evidence/implementation-119155/` and PROGRESS. The retained broad gate log
    was audited, not rerun.
-5. **Awaiting independent review** at `baton.bug` before serial file ownership
-   passes to `../finding-composed-one-job-proof/`.
+5. **Accepted by independent review**, 2026-09-08, baton.codex claim119371:
+   `review-2026-09-08T13-16-48Z.md`. This bounded preparation correction is
+   complete; serial file ownership may proceed to
+   `../finding-composed-one-job-proof/` under its existing acceptance scope.

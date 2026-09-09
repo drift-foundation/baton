@@ -224,3 +224,26 @@ edit or broad rerun. This supersedes the preceding review-ahead pending-final-
 checks status. Joined acceptance is recorded in review-2026-09-07T18-45-07Z.md
 and evidence/joined-review-112565/. Close W112039 satisfying only; downstream
 ownership, other dependencies and live restrictions remain unchanged.
+
+## 2026-09-08 — approved multi-Job successor placement, M119126
+
+**Confirmed owner ruling:** Slawomir approved the separate successor provider
+under the stage-composition owner after independent shared-assembly acceptance,
+as proposed in review-2026-09-08T12-29-16Z.md in the two-Job proof record.
+This explicitly supersedes the pending-placement status of that recommendation.
+Preserve the current one-Job assembly/custody/restart scope. Split multi-worker
+configuration/pool composition from per-Job deployment/line binding, and require
+joined acceptance before the demonstration freeze. The reviewer creates bounded
+plans and dependencies before implementation. Shared source/test files are
+owned serially, not by concurrent claims.
+
+The successor's canonical record is
+`baton:work/records/2026/09/finding-v12-multi-job-deployment/`. Its dossier is
+promoted to a top-level path to retain readable paths and bounded dossier depth;
+Baton containment still places it under the stage-composition owner. The two
+implementation children each own only `v12/python/tools/stage_execution.py`
+and additive controls in `v12/python/tests/tools/test_stage_execution.py`.
+An explicit new multi-Job configuration variant preserves the old one-Job
+schema/refusals; enumerate its exact document/interface before editing. No
+external schema, scheduler/driver redesign, extra source path, unrelated test
+assertion change, live runtime grant or manual-transition workaround follows.

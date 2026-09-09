@@ -457,5 +457,344 @@ class FailureNotificationTests(unittest.TestCase):
         self.assertNotEqual(self.events()[0]["id"], self.events()[1]["id"])
 
 
+class ObligationReminderTests(unittest.TestCase):
+    read = NotifierTests.read
+    request = NotifierTests.request
+    events = FailureNotificationTests.events
+
+    def setUp(self):
+        NotifierTests.setUp(self)
+        self.rows = []
+        self.now = 1000
+        self.obligations = [self.obligation(42)]
+
+    def obligation(self, seq):
+        return dict(seq=seq, work="a-W2", flavor="response", status="pending", owed_by={"endpoint": "baton.ops", "handlers": ["slaw"]})
+
+    def poll(self, state=None):
+        return notifier.poll(self.config, state or {}, self.read, self.request, clock=lambda: self.now)
+
+    def test_default_expiry_coalesces_and_successive_generations_are_distinct(self):
+        self.obligations.append(self.obligation(43))
+        state, _ = self.poll()
+        original_id = self.events()[-1]["id"]
+        self.now = 1599
+        state, result = self.poll(state)
+        self.assertEqual(result["status"], "unchanged")
+        self.now = 1600
+        state, result = self.poll(state)
+        self.assertEqual(result["status"], "accepted")
+        self.assertEqual(json.loads(self.events()[-1]["details"])["changed"], ["obligation:42", "obligation:43"])
+        reminder_id = self.events()[-1]["id"]
+        self.assertNotEqual(original_id, reminder_id)
+        self.assertEqual(state["obligation_reminders"]["obligation:42"]["generation"], 2)
+        self.assertEqual(state["obligation_reminders"]["obligation:42"]["accepted_at"], 1600)
+        self.now = 2200
+        self.assertEqual(self.poll(state)[1]["status"], "accepted")
+        self.assertNotIn(self.events()[-1]["id"], [original_id, reminder_id])
+
+    def test_busy_and_rejected_reminders_keep_the_timer_and_retry_identity(self):
+        state, _ = self.poll()
+        original = copy.deepcopy(state)
+        self.now = 1600
+        self.status["targets"]["prompt"]["status"] = "active"
+        state, result = self.poll(state)
+        self.assertEqual(result["status"], "waiting-for-prompt")
+        self.assertEqual(state, original)
+        self.assertEqual(len(self.events()), 1)
+        self.status["targets"]["prompt"]["status"] = "idle"
+        self.response = {"accepted": False, "reason": "copilot-busy"}
+        state, result = self.poll(state)
+        retry_id = self.events()[-1]["id"]
+        self.assertEqual(result["status"], "not-accepted")
+        self.assertEqual(state, original)
+        self.now = 1900
+        self.response = {"accepted": True}
+        state, _ = self.poll(json.loads(json.dumps(state)))
+        self.assertEqual(self.events()[-1]["id"], retry_id)
+        self.assertEqual(state["obligation_reminders"]["obligation:42"]["accepted_at"], 1900)
+
+    def test_resolution_or_lost_handler_prunes_due_reminders_before_send(self):
+        for change in ("resolved", "other-handler"):
+            with self.subTest(change=change):
+                self.setUp()
+                state, _ = self.poll()
+                self.now = 1600
+                if change == "resolved":
+                    self.obligations = []
+                else:
+                    self.obligations[0]["owed_by"]["handlers"] = ["claude"]
+                state, result = self.poll(state)
+                self.assertEqual(result["status"], "unchanged")
+                self.assertEqual(state["seen"], {})
+                self.assertEqual(state.get("obligation_reminders", {}), {})
+                self.assertEqual(len(self.events()), 1)
+
+    def test_unrelated_accepted_attention_does_not_postpone_obligation(self):
+        state, _ = self.poll()
+        reminder = copy.deepcopy(state["obligation_reminders"]["obligation:42"])
+        self.now = 1599
+        self.rows = [dict(id="a-W3", last_change_seq=7)]
+        state, result = self.poll(state)
+        self.assertEqual(result["status"], "accepted")
+        self.assertEqual(state["obligation_reminders"]["obligation:42"], reminder)
+        self.assertEqual(json.loads(self.events()[-1]["details"])["changed"], ["work:a-W3"])
+        self.now = 1600
+        state, result = self.poll(state)
+        self.assertEqual(result["status"], "accepted")
+        self.assertEqual(json.loads(self.events()[-1]["details"])["changed"], ["obligation:42"])
+
+    def test_new_and_changed_obligations_are_immediate(self):
+        state, _ = self.poll()
+        self.now = 1001
+        self.obligations[0]["work"] = "a-W4"
+        self.obligations.append(self.obligation(43))
+        state, result = self.poll(state)
+        self.assertEqual(result["status"], "accepted")
+        self.assertEqual(json.loads(self.events()[-1]["details"])["changed"], ["obligation:42", "obligation:43"])
+        self.assertEqual(state["obligation_reminders"]["obligation:42"]["accepted_at"], 1001)
+        self.assertEqual(state["obligation_reminders"]["obligation:42"]["generation"], 2)
+        self.assertEqual(state["obligation_reminders"]["obligation:43"]["generation"], 1)
+
+    def test_disabled_reminders_reenable_from_last_acceptance_and_allow_changes(self):
+        self.config["obligation_reminder_seconds"] = 0
+        state, _ = self.poll()
+        self.now = 9999
+        state, result = self.poll(state)
+        self.assertEqual(result["status"], "unchanged")
+        self.obligations.append(self.obligation(43))
+        state, _ = self.poll(state)
+        self.assertEqual(state["obligation_reminders"]["obligation:42"]["accepted_at"], 1000)
+        self.config["obligation_reminder_seconds"] = 300
+        state, result = self.poll(state)
+        self.assertEqual(result["status"], "accepted")
+        self.assertEqual(json.loads(self.events()[-1]["details"])["changed"], ["obligation:42"])
+
+    def test_five_minute_interval_and_persisted_restart(self):
+        self.config["obligation_reminder_seconds"] = 300
+        state, _ = self.poll()
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "cursor.json"
+            notifier.save_state(path, state)
+            self.now = 1299
+            self.assertEqual(self.poll(json.loads(path.read_text()))[1]["status"], "unchanged")
+            self.now = 1300
+            self.assertEqual(self.poll(json.loads(path.read_text()))[1]["status"], "accepted")
+
+    def test_legacy_migration_is_one_anchor_not_a_fabricated_acceptance(self):
+        state, _ = self.poll()
+        del state["obligation_reminders"]
+        self.now = 2000
+        self.status["targets"]["prompt"]["status"] = "active"
+        state, result = self.poll(state)
+        record = copy.deepcopy(state["obligation_reminders"]["obligation:42"])
+        self.assertEqual(result["status"], "unchanged")
+        self.assertEqual(record["migration_at"], 2000)
+        self.assertIsNone(record["accepted_at"])
+        self.assertEqual(record["generation"], 0)
+        self.now = 2500
+        state, _ = self.poll(json.loads(json.dumps(state)))
+        self.assertEqual(state["obligation_reminders"]["obligation:42"], record)
+        self.status["targets"]["prompt"]["status"] = "idle"
+        self.rows = [dict(id="a-W3")]
+        state, _ = self.poll(state)
+        self.assertEqual(state["obligation_reminders"]["obligation:42"], record)
+        self.now = 2600
+        state, result = self.poll(state)
+        self.assertEqual(result["status"], "accepted")
+        self.assertEqual(state["obligation_reminders"]["obligation:42"]["accepted_at"], 2600)
+
+    def test_trial_and_verification_attention_remain_change_based(self):
+        self.obligations = [dict(seq=42, flavor="verification", work="a-W2", owed_by={"endpoint": "baton.ops", "handlers": ["slaw"]}), dict(flavor="due_trial", work="a-W3", trial=1, deadline_generation=1, owed_by={"endpoint": "baton.ops", "handlers": ["slaw"]})]
+        state, _ = self.poll()
+        self.now = 9999
+        self.assertEqual(self.poll(state)[1]["status"], "unchanged")
+        self.assertNotIn("obligation_reminders", state)
+
+    def test_only_the_fifty_offered_obligations_get_accepted_timers(self):
+        self.obligations = [self.obligation(i) for i in range(60)]
+        state, _ = self.poll()
+        offered = set(json.loads(self.events()[-1]["details"])["changed"])
+        self.assertEqual(len(offered), 50)
+        self.assertEqual(set(state["seen"]), offered)
+        self.assertEqual(set(state["obligation_reminders"]), offered)
+        self.now = 1001
+        state, _ = self.poll(state)
+        remaining = set(json.loads(self.events()[-1]["details"])["changed"])
+        self.assertEqual(len(remaining), 10)
+        self.assertFalse(remaining & offered)
+        self.assertEqual(len(state["obligation_reminders"]), 60)
+        self.assertTrue(all(state["obligation_reminders"][k]["accepted_at"] == 1000 for k in offered))
+
+    def test_acceptance_uses_acknowledgement_time_and_transport_failure_changes_nothing(self):
+        original_request = self.request
+
+        def delayed(config, payload):
+            if "control" not in payload:
+                self.now += 12
+            return original_request(config, payload)
+
+        self.request = delayed
+        state, _ = self.poll()
+        self.assertEqual(state["obligation_reminders"]["obligation:42"]["accepted_at"], 1012)
+        unchanged = copy.deepcopy(state)
+        self.now = 1612
+
+        def broken(config, payload):
+            if "control" not in payload:
+                raise OSError("lost acknowledgement")
+            return original_request(config, payload)
+
+        self.request = broken
+        with self.assertRaises(OSError):
+            self.poll(state)
+        self.assertEqual(state, unchanged)
+
+    # W119521 review 2026-09-08T14:17:52Z [P2]: the two reproduced starvation
+    # scenarios, and the mixed-attention interaction they sit in.
+    #
+    # THE DEFECT THESE REPLACE A GAP IN. The existing sixty-obligation control
+    # above polls the remainder BEFORE any reminder is due, so it never sees the
+    # interaction: once accepted reminders become eligible again, a key-ordered
+    # batch hands the same lexicographically first fifty back forever. Both
+    # cases below run the schedule the reviewer measured -- a supported
+    # 300-second reminder and poll interval, sixty obligations, three
+    # consecutive due polls -- and require the omitted ten to make progress.
+
+    def sixty_at(self, *instants, all_seen=False):
+        """Three consecutive eligible polls over sixty obligations.
+
+        Answers what each poll OFFERED, so a case can assert progress across
+        them rather than the contents of any one batch.
+        """
+        self.config["obligation_reminder_seconds"] = 300
+        self.config["poll_seconds"] = 300
+        self.obligations = [self.obligation(i) for i in range(60)]
+        state, _ = self.poll()
+        if all_seen:
+            # Establish BOTH batches before anything expires, so what follows is
+            # purely the due-reminder rotation.
+            self.now = 1001
+            state, _ = self.poll(state)
+            self.assertEqual(len(state["seen"]), 60)
+        offered = []
+        for instant in instants:
+            self.now = instant
+            state, result = self.poll(state)
+            self.assertEqual(result["status"], "accepted")
+            offered.append(json.loads(self.events()[-1]["details"])["changed"])
+        return state, offered
+
+    def test_unoffered_obligations_are_not_displaced_by_due_reminders(self):
+        """Scenario one: ten obligations never received an INITIAL advisory.
+
+        The first batch takes fifty; by the next eligible poll those fifty are
+        due again, and a key-ordered merge handed them the whole batch a second
+        and third time. New attention keeps its immediate contract, so the ten
+        lead the batch instead.
+        """
+        state, offered = self.sixty_at(1301, 1601, 1901)
+        everyone = {"obligation:" + str(one) for one in range(60)}
+        self.assertEqual([len(one) for one in offered], [50, 50, 50])
+        # THE TEN GET THEIR FIRST ADVISORY, and they get it at the FIRST
+        # opportunity rather than eventually: they are fresh, not due.
+        self.assertEqual(set(offered[0]) & (everyone - set(offered[0])), set())
+        self.assertTrue(everyone - set(offered[0]) <= set(offered[1]))
+        self.assertEqual(set(offered[0]) | set(offered[1]), everyone)
+        self.assertEqual(set(state["seen"]), everyone)
+        self.assertEqual(set(state["obligation_reminders"]), everyone)
+
+    def test_due_reminders_rotate_instead_of_repeating_the_same_fifty(self):
+        """Scenario two: all sixty were accepted first, so every item is DUE.
+
+        A key-ordered batch left the same ten holding `accepted_at` 1001 forever
+        while the other fifty advanced. Ordering by each record's own anchor is
+        what rotates them: acceptance moves a record to the back, so the ten
+        that waited longest lead the next eligible poll.
+        """
+        state, offered = self.sixty_at(1301, 1601, 1901, all_seen=True)
+        everyone = {"obligation:" + str(one) for one in range(60)}
+        self.assertEqual([len(one) for one in offered], [50, 50, 50])
+        self.assertNotEqual(set(offered[0]), set(offered[1]))
+        self.assertEqual(set(offered[0]) | set(offered[1]), everyone)
+        # NOBODY IS LEFT ON THE ORIGINAL ANCHOR. The measured defect kept ten at
+        # 1001 indefinitely; every record has advanced past it.
+        self.assertTrue(all(record["accepted_at"] > 1001
+                            for record in state["obligation_reminders"].values()))
+
+    def test_the_batch_is_ordered_by_the_oldest_anchor_and_then_by_key(self):
+        """The ordering rule itself, asked directly rather than inferred.
+
+        Two obligations are made due with different anchors and a third shares
+        one of them, so the case measures both halves: the oldest anchor leads,
+        and the key breaks a tie without becoming the sort.
+        """
+        self.obligations = [self.obligation(one) for one in (7, 8, 9)]
+        state, _ = self.poll()
+        # Give `obligation:9` the oldest anchor and leave the other two equal.
+        state["obligation_reminders"]["obligation:9"]["accepted_at"] = 100
+        self.now = 1600
+        state, result = self.poll(state)
+        self.assertEqual(result["status"], "accepted")
+        self.assertEqual(json.loads(self.events()[-1]["details"])["changed"],
+                         ["obligation:9", "obligation:7", "obligation:8"])
+
+    def test_new_work_and_failure_attention_lead_a_batch_of_due_reminders(self):
+        """The mixed case: fresh attention of every kind keeps its immediate
+        contract, and due reminders follow it rather than crowding it out."""
+        self.obligations = [self.obligation(one) for one in range(50)]
+        state, _ = self.poll()
+        self.assertEqual(
+            len(json.loads(self.events()[-1]["details"])["changed"]), 50)
+        self.now = 1600
+        self.rows = [dict(id="a-W1", title="First", last_change_seq=4,
+                          message_count=1, progress={"children": 0},
+                          route={"endpoint": "baton.ops"})]
+        state, result = self.poll(state)
+        self.assertEqual(result["status"], "accepted")
+        offered = json.loads(self.events()[-1]["details"])["changed"]
+        self.assertEqual(offered[0], "work:a-W1")
+        self.assertEqual(len(offered), 50)
+        # AND THE DISPLACED REMINDER IS NOT LOST: it holds the oldest anchor, so
+        # it leads the next eligible batch.
+        self.now = 1900
+        state, result = self.poll(state)
+        self.assertEqual(result["status"], "accepted")
+        following = json.loads(self.events()[-1]["details"])["changed"]
+        self.assertEqual(set(offered[1:]) | set(following),
+                         {"obligation:" + str(one) for one in range(50)})
+
+    def test_ordering_does_not_move_while_a_batch_is_unaccepted(self):
+        """Retry identity, over the new ordering. Anchors move only when an
+        OFFERED locator is accepted, so a refused batch composes the same event
+        again rather than reshuffling underneath the retry."""
+        self.obligations = [self.obligation(one) for one in range(60)]
+        state, _ = self.poll()
+        self.now = 1600
+        self.response = {"accepted": False, "reason": "copilot-busy"}
+        state, result = self.poll(state)
+        self.assertEqual(result["status"], "not-accepted")
+        refused = self.events()[-1]
+        state, result = self.poll(json.loads(json.dumps(state)))
+        self.assertEqual(result["status"], "not-accepted")
+        self.assertEqual(self.events()[-1]["id"], refused["id"])
+        self.assertEqual(json.loads(self.events()[-1]["details"])["changed"],
+                         json.loads(refused["details"])["changed"])
+
+    def test_config_defaults_accepts_five_minutes_and_zero_and_refuses_invalid_values(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "config.json"
+            path.write_text(json.dumps(self.config))
+            self.assertEqual(notifier.read_config(path)["obligation_reminder_seconds"], 600)
+            for value in (300, 0, 600):
+                path.write_text(json.dumps({**self.config, "obligation_reminder_seconds": value}))
+                self.assertEqual(notifier.read_config(path)["obligation_reminder_seconds"], value)
+            for value in (-1, True, "300", None, float("nan"), float("inf")):
+                with self.subTest(value=value):
+                    path.write_text(json.dumps({**self.config, "obligation_reminder_seconds": value}))
+                    with self.assertRaises(ValueError):
+                        notifier.read_config(path)
+
+
 if __name__ == "__main__":
     unittest.main()

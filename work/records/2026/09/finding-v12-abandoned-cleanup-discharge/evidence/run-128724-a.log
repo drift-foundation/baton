@@ -1,0 +1,555 @@
+.........................................................EEEEEEEEEE..EEE.E.EEEEE...................................................................................................
+======================================================================
+ERROR: test_a_committed_abandonment_reads_as_its_own_absence_evidence (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_a_committed_abandonment_reads_as_its_own_absence_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3221, in test_a_committed_abandonment_reads_as_its_own_absence_evidence
+    answered = self.abandoned()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_a_declaration_whose_removal_never_committed_is_absence (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_a_declaration_whose_removal_never_committed_is_absence)
+The intent commits BEFORE any external call, so this state is real:
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3271, in test_a_declaration_whose_removal_never_committed_is_absence
+    abandon_attempt(self.store, self.port, adapter, attempt_id=ATTEMPT,
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    reason=self.REASON,
+                    ^^^^^^^^^^^^^^^^^^^
+                    retention_policy_digest=RETENTION)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_a_discharge_row_committed_under_another_kind_refuses (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_a_discharge_row_committed_under_another_kind_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3449, in test_a_discharge_row_committed_under_another_kind_refuses
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_a_lost_local_receipt_reissues_the_identical_remote_operation (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_a_lost_local_receipt_reissues_the_identical_remote_operation)
+FOUR AND FIVE CANNOT BE ONE TRANSACTION. The remote act commits
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3381, in test_a_lost_local_receipt_reissues_the_identical_remote_operation
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_a_receipt_edited_member_by_member_cannot_reproduce_its_signature (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_a_receipt_edited_member_by_member_cannot_reproduce_its_signature)
+One comparison for a relationship six field checks cannot state.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3430, in test_a_receipt_edited_member_by_member_cannot_reproduce_its_signature
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_a_removal_row_committed_under_another_kind_refuses (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_a_removal_row_committed_under_another_kind_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3319, in test_a_removal_row_committed_under_another_kind_refuses
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_a_removal_row_signed_over_anything_else_refuses (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_a_removal_row_signed_over_anything_else_refuses)
+Replaying under the row's OWN signature proves the row is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3310, in test_a_removal_row_signed_over_anything_else_refuses
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_a_running_removal_is_not_an_ending_and_supplies_no_absence (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_a_running_removal_is_not_an_ending_and_supplies_no_absence)
+`_not_an_ending` returns without journalling, so there is nothing to
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3279, in test_a_running_removal_is_not_an_ending_and_supplies_no_absence
+    answered = self.abandoned(adapter=self.Abandoner(abandoned={
+        "state": "running",
+        "why": "the engine still reports this identity",
+        "credentials": {"lifecycle_state": "not-delivered"},
+        "launch": {"lifecycle_state": "not-delivered"}}))
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_an_edited_runtime_cannot_keep_a_real_removals_evidence (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_an_edited_runtime_cannot_keep_a_real_removals_evidence)
+The declaration names ONE runtime, and this read compares it against
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3297, in test_an_edited_runtime_cannot_keep_a_real_removals_evidence
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_an_old_generations_evidence_cannot_clear_a_newer_gate (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_an_old_generations_evidence_cannot_clear_a_newer_gate)
+The authority's own equality check is what refuses it, which is the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3399, in test_an_old_generations_evidence_cannot_clear_a_newer_gate
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_another_participant_or_authority_cannot_discharge_this_gate (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_another_participant_or_authority_cannot_discharge_this_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3415, in test_another_participant_or_authority_cannot_discharge_this_gate
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_another_policy_selects_an_act_this_manager_never_committed (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_another_policy_selects_an_act_this_manager_never_committed)
+The declaration's digest and the policy are the two halves of the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3291, in test_another_policy_selects_an_act_this_manager_never_committed
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_it_is_read_back_and_replayed_without_a_second_remote_act (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_it_is_read_back_and_replayed_without_a_second_remote_act)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3367, in test_it_is_read_back_and_replayed_without_a_second_remote_act
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_reading_writes_nothing_and_calls_nothing (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_reading_writes_nothing_and_calls_nothing)
+It takes no port and no adapter, and there is no branch in it that
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3241, in test_reading_writes_nothing_and_calls_nothing
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_the_committed_abandonment_discharges_its_own_gate (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_the_committed_abandonment_discharges_its_own_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3330, in test_the_committed_abandonment_discharges_its_own_gate
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_the_evidence_is_positive_absence_naming_the_exact_runtime (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_the_evidence_is_positive_absence_naming_the_exact_runtime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3345, in test_the_evidence_is_positive_absence_naming_the_exact_runtime
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_the_ordinary_discharge_still_refuses_an_abandoned_attempt (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_the_ordinary_discharge_still_refuses_an_abandoned_attempt)
+It refuses for its OWN reason -- there is no intake receipt -- which
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3483, in test_the_ordinary_discharge_still_refuses_an_abandoned_attempt
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_the_ordinary_readers_answer_nothing_about_an_abandonment (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_the_ordinary_readers_answer_nothing_about_an_abandonment)
+THE FOUR FAMILIES STAY APART. `cleanup_of` reads `runtime.destroy`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3473, in test_the_ordinary_readers_answer_nothing_about_an_abandonment
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+======================================================================
+ERROR: test_the_receipt_binds_the_original_cleanup_operation (tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence.test_the_receipt_binds_the_original_cleanup_operation)
+The contract's own requirement: the cleanup's identity AND its
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3357, in test_the_receipt_binds_the_original_cleanup_operation
+    self.abandoned()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 3167, in abandoned
+    answered = abandon_attempt(
+        self.store, self.port, adapter, attempt_id=ATTEMPT,
+        reason=self.REASON, retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 2384, in abandon_attempt
+    fenced = port.cancel(dict(expect),
+                         intent["document"]["authority_operation_id"],
+                         intent["document"]["reason"],
+                         expect["work_ref"]["work_id"],
+                         expect["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+----------------------------------------------------------------------
+Ran 179 tests in 2.945s
+
+FAILED (errors=19)
+
+real	0m3.113s
+user	0m3.009s
+sys	0m0.104s

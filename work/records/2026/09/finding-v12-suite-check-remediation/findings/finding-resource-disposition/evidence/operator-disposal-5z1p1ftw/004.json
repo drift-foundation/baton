@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "docker",
+    "container",
+    "inspect",
+    "--format",
+    "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"created\":{{json .Created}},\"image_id\":{{json .Image}},\"state\":{{json .State.Status}},\"exit_code\":{{json .State.ExitCode}},\"started\":{{json .State.StartedAt}},\"finished\":{{json .State.FinishedAt}},\"runtime_attempt_id\":{{json (index .Config.Labels \"baton.v12.runtime_attempt_id\")}},\"authority_uuid\":{{json (index .Config.Labels \"baton.v12.authority_uuid\")}},\"work_id\":{{json (index .Config.Labels \"baton.v12.work_id\")}},\"participant\":{{json (index .Config.Labels \"baton.v12.participant\")}},\"generation\":{{json (index .Config.Labels \"baton.v12.generation\")}},\"principal\":{{json (index .Config.Labels \"baton.v12.principal\")}},\"effective_scope\":{{json (index .Config.Labels \"baton.v12.effective_scope\")}},\"profile_digest\":{{json (index .Config.Labels \"baton.v12.profile_digest\")}},\"policy_digest\":{{json (index .Config.Labels \"baton.v12.policy_digest\")}},\"adapter_digest\":{{json (index .Config.Labels \"baton.v12.adapter_digest\")}}}",
+    "c4c12927cd8857d1860ac157baf7aee9bb69bb03adc01613fdd4bfbddc08e75b"
+  ],
+  "returncode": 0,
+  "stdout": "{\"id\":\"c4c12927cd8857d1860ac157baf7aee9bb69bb03adc01613fdd4bfbddc08e75b\",\"name\":\"/baton-runtime.start-e4a5f5ea06c648b01a4d2ca389daa508e193cecfe31bcac606a7e9c5a0956eec\",\"created\":\"2026-09-04T02:16:38.956020273Z\",\"image_id\":\"sha256:896884b237a14d2397a9851dc1692cb34bedb46a367c2544de9e7499fd9bc124\",\"state\":\"exited\",\"exit_code\":137,\"started\":\"2026-09-04T02:16:38.973112556Z\",\"finished\":\"2026-09-04T08:02:19.95712944Z\",\"runtime_attempt_id\":\"attempt-1851504c0486e885c0d71be5f9b73e09c1352b4b11c9e7a5e97e904dc71ec76e\",\"authority_uuid\":\"26050b09a89ab20c0a0e631723fce6c0\",\"work_id\":\"26050b09-W71917\",\"participant\":\"baton.claude\",\"generation\":\"1\",\"principal\":\"principal:baton.claude\",\"effective_scope\":\"scope:deployment\",\"profile_digest\":\"sha256:45f80133d10d16351bc5e944b260dbd733dae0f87116ebd5a83defe8742ad7fc\",\"policy_digest\":\"sha256:738b102ba8bc8ef03991ea8654d022053eb842a5cbdf7020bf48139edf71e1bb\",\"adapter_digest\":\"sha256:037e66064e95fe4fc2a328467f39bcd63b1d97821bcc7b1ce47f3abaebc7968b\"}\n",
+  "stderr": ""
+}

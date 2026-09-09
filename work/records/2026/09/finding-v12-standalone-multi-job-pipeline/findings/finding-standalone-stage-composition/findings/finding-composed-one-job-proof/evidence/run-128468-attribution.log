@@ -1,0 +1,123 @@
+..F.F...
+======================================================================
+FAIL: test_the_bootstrap_face_configures_and_reads_and_never_acts (tests.authority.test_boundary.ExportedSurface.test_the_bootstrap_face_configures_and_reads_and_never_acts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_boundary.py", line 110, in test_the_bootstrap_face_configures_and_reads_and_never_acts
+    self.assertEqual(public, sorted([
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+        # identity
+        ^^^^^^^^^^
+    ...<42 lines>...
+        "decision_of", "grants_of",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ]))
+    ^^^
+AssertionError: Lists differ: ['act[422 chars] 'open_readonly', 'operation_record', 'operati[339 chars]els'] != ['act[422 chars] 'operation_record', 'operation_result', 'perm[322 chars]els']
+
+First differing element 25:
+'open_readonly'
+'operation_record'
+
+First list contains 1 additional elements.
+First extra element 45:
+'works_with_labels'
+
+Diff is 955 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='authority_port.py:AuthorityPort:satisfy_gate', parameter='gate')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_dependencies.py", line 866, in test_every_public_parameter_is_a_declared_operand
+    self.assertIn(parameter, self.OPERANDS)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'gate' not found in {'input_digest', 'toolchain_digest', 'variants', 'runtime_attempt_id', 'request', 'refusal_record_digest', 'policy_digest', 'storage_usage', 'question', 'assignment_roots', 'scope', 'adapter_digest', 'role', 'offer', 'sequence', 'agent', 'names', 'to_state', 'bytes_observed', 'based_checkpoint_id', 'profile', 'disposition', 'axis', 'collected', 'manifest_digest', 'slots', 'session_epoch', 'agent_protocol_version', 'attempt_id', 'failed_start_record_digest', 'minted', 'retention_policy_digest', 'value', 'category', 'delivery', 'worker_id', 'from_state', 'attempt', 'gid', 'mounts', 'store', 'channel_port', 'seconds', 'artifact_ids', 'custody', 'labels', 'workspace', 'run', 'validator', 'credentials_delivered', 'bearer', 'kind', 'assignment', 'receipt_digest', 'generation', 'assignment_id', 'agent_session_capabilities', 'interactive', 'outputs', 'adapter', 'action', 'profile_name', 'may_retire', 'image_digest', 'operands', 'optional', 'intent_digest', 'contract', 'runtime_id', 'evidence', 'input_manifest', 'columns', 'input_manifest_digest', 'which', 'offer_ids', 'ttl_seconds', 'port', 'advertised', 'checkpoint_id', 'source', 'clock', 'live', 'work_id', 'now', 'refused_evidence', 'outcome', 'prompt', 'transport', 'sealed', 'inputs', 'place', 'definition', 'reviewer_worker_id', 'state', 'command', 'boundary', 'capacity', 'engine', 'storage', 'document', 'operation', 'workspace_group', 'launch_delivered', 'exchange_delivered', 'turn_in_flight', 'line_id', 'signature', 'roots', 'writer_id', 'observation', 'intent', 'reason', 'credential_provider', 'work_ref', 'profile_digest', 'code', 'uri', 'participant', 'resolution', 'name', 'refusal', 'body', 'max_bytes', 'root', 'authority_uuid', 'assignment_manifest', 'declared', 'posture', 'observed_identity', 'program', 'what', 'discriminator', 'admits', 'source_delivered', 'network', 'content', 'manifest', 'max_entries', 'session_ref', 'record', 'required', 'offer_id', 'attachment_id', 'expect', 'incarnation', 'into', 'queue', 'verdict_id', 'payload', 'deadline_seconds', 'path', 'pinned', 'operation_id', 'adapter_name', 'declared_base', 'answer', 'session', 'provider_session_id', 'mint_bearer', 'minted_labels', 'issued', 'operations', 'from_instant', 'identity', 'decision', 'operation_ids', 'integration_delivered'}
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.155s
+
+FAILED (failures=2)
+
+real	0m0.306s
+user	0m0.294s
+sys	0m0.012s
+..F..F.F.....
+======================================================================
+FAIL: test_the_table_names_every_exported_callable (tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_the_table_names_every_exported_callable)
+The completeness half, and the reason this file exists.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_text_sweep.py", line 569, in test_the_table_names_every_exported_callable
+    self.assertEqual(sorted(self.callable_table()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     sorted(self.exported_callables()))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['Aut[604 chars], 'close_agent_session', 'collect_operation', [1579 chars]_of'] != ['Aut[604 chars], 'cleanup_of', 'close_agent_session', 'collec[1637 chars]_of']
+
+First differing element 26:
+'close_agent_session'
+'cleanup_of'
+
+Second list contains 3 additional elements.
+First extra element 102:
+'writer_boundary'
+
+Diff is 2612 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_every_named_site_covers_the_paths_it_was_written_for (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_covers_the_paths_it_was_written_for)
+The unique LEXICAL identity, pinned.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_boundary.py", line 780, in test_every_named_site_covers_the_paths_it_was_written_for
+    self.assertEqual(excused, [
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+        ("core.py", "_require_capability", "capability"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<15 lines>...
+        ("store.py", "create", "failure.errno"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+AssertionError: Lists differ: [('co[642 chars]', '_connect_readonly', 'failure'), ('store.py[233 chars]no')] != [('co[642 chars]', '_describe_target', 'failure.errno'), ('sto[30 chars]no')]
+
+First differing element 14:
+('store.py', '_connect_readonly', 'failure')
+('store.py', '_describe_target', 'failure.errno')
+
+First list contains 4 additional elements.
+First extra element 16:
+('store.py', '_connect_readonly', 'type(failure).__name__')
+
+Diff is 991 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_no_refusal_renders_an_unbounded_value (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_no_refusal_renders_an_unbounded_value)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_boundary.py", line 741, in test_no_refusal_renders_an_unbounded_value
+    self.assertEqual(self.offenders(self.interpolations()), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "unbounded refusal diagnostics")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('store.py', '_writable', 378, 'what'), ([176 chars]re')] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+('store.py', '_writable', 378, 'what')
+
++ []
+- [('store.py', '_writable', 378, 'what'),
+-  ('store.py', '_connect_readonly', 649, 'type(failure).__name__'),
+-  ('store.py', '_connect_readonly', 662, 'type(failure).__name__'),
+-  ('store.py', '_connect_readonly', 662, 'failure')] : unbounded refusal diagnostics
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.120s
+
+FAILED (failures=3)
+
+real	0m0.270s
+user	0m0.260s
+sys	0m0.010s

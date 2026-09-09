@@ -1,0 +1,61 @@
+{
+  "work": "W120425",
+  "claim": 121927,
+  "results": {
+    "cold_actual_later_round": {
+      "whole_return_equal": true,
+      "no_external_or_sql_act": true
+    },
+    "receipt_proposal_id": {
+      "accepted": false,
+      "exception": "ContractRefusal",
+      "message": "the resumed implementation ending of attempt 'public-implementation''s retained proposal manifest names proposal 'integration-driver.proposal:f72ed33bce1011496beb5b9440f48b5\u2026 and its publication history names 'proposal-elsewhere'"
+    },
+    "receipt_proposal_manifest_digest": {
+      "accepted": false,
+      "exception": "ContractRefusal",
+      "message": "this manager retains no proposal manifest at 'sha256:3333333333333333333333333333333333333333333333333333\u2026 for the resumed implementation ending of attempt 'public-implementation'; a publication that survives a restart is one this manager can still read"
+    },
+    "receipt_candidate_digest": {
+      "accepted": false,
+      "exception": "ContractRefusal",
+      "message": "the resumed implementation ending of attempt 'public-implementation''s publication records candidate_digest 'c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3' and its retained proposal fixes 'b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2'"
+    },
+    "receipt_target": {
+      "accepted": false,
+      "exception": "ContractRefusal",
+      "message": "the resumed implementation ending of attempt 'public-implementation''s publication records target 'c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3' and its retained proposal fixes 'a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1'"
+    },
+    "answer_candidate_digest": {
+      "accepted": false,
+      "exception": "ContractRefusal",
+      "message": "the resumed implementation ending of attempt 'public-implementation''s recorded Authority answer disagrees about candidate_digest"
+    },
+    "answer_target": {
+      "accepted": false,
+      "exception": "ContractRefusal",
+      "message": "the resumed implementation ending of attempt 'public-implementation''s recorded Authority answer disagrees about target"
+    },
+    "answer_input_digest": {
+      "accepted": false,
+      "exception": "ContractRefusal",
+      "message": "the resumed implementation ending of attempt 'public-implementation''s recorded Authority answer disagrees about input_digest"
+    },
+    "answer_policy_digest": {
+      "accepted": false,
+      "exception": "ContractRefusal",
+      "message": "the resumed implementation ending of attempt 'public-implementation''s recorded Authority answer disagrees about policy_digest"
+    },
+    "assignment_bool_generation": {
+      "accepted": false,
+      "exception": "ContractRefusal",
+      "message": "the resumed implementation ending of attempt 'public-implementation''s publication assignment's generation is a whole assignment generation, counting from zero; this is true"
+    },
+    "published_bool_generation": {
+      "accepted": false,
+      "exception": "ContractRefusal",
+      "message": "the resumed implementation ending of attempt 'public-implementation''s recorded assignment's generation is a whole assignment generation, counting from zero; this is true"
+    }
+  },
+  "seconds": 0.11262949497904629
+}

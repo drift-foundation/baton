@@ -1,0 +1,17 @@
+{
+  "results": [
+    {
+      "injected": "KeyboardInterrupt",
+      "propagated_identically": true
+    },
+    {
+      "injected": "MemoryError",
+      "propagated_identically": true
+    },
+    {
+      "injected": "RuntimeError",
+      "propagated_identically": true
+    }
+  ],
+  "elapsed_seconds": 0.00022987800184637308
+}

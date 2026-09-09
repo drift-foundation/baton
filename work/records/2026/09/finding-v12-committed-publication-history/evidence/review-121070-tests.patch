@@ -1,0 +1,341 @@
+--- base/test_driver.py
++++ candidate/test_driver.py
+@@ -1,6 +1,9 @@
+ """W103077: replay-safe proposal publication and integration driving."""
+ 
++import contextlib
+ import copy
++import inspect
++import json
+ import os
+ import unittest
+ from types import SimpleNamespace
+@@ -48,7 +51,21 @@
+ class PublicationCase(unittest.TestCase):
+ 
+     def setUp(self):
+-        self.manager = SimpleNamespace(_connection=lambda: None)
++        # W120763: A REAL JOURNAL, because publication now commits a local
++        # record before it reports success. Every manifest and assignment read
++        # this case makes is still replaced below -- what the store is here for
++        # is the one operation `publish_candidate` writes, and a stand-in for
++        # that would be this case deciding whether effectively-once holds.
++        import os
++        import tempfile
++        from baton_v12.worker_manager import ControlStore
++        root = tempfile.TemporaryDirectory(prefix="v12-publication-")
++        self.addCleanup(root.cleanup)
++        self.manager = ControlStore.open(
++            os.path.join(root.name, "control.sqlite3"),
++            incarnation="manager-1", clock=lambda: "2026-09-08T00:00:00.000Z")
++        self.addCleanup(self.manager.close)
++        self.root = root.name
+         artifact = {"artifact_id": "artifact-1",
+                     "media_type": "application/octet-stream", "bytes": 8,
+                     "content_digest": "sha256:" + "7" * 64,
+@@ -2027,3 +2044,305 @@
+             world.admit()
+         self.assertIn("published proposal names assignment", str(caught.exception))
+         world.assert_no_admission()
++
++
++# -- W120763: the local record that a publication actually committed ----------
++#
++# `work/records/2026/09/finding-v12-committed-publication-history/`.
++#
++# WHAT A RETAINED MANIFEST DOES NOT PROVE. `retain_proposal` composes and
++# retains a proposal from a frozen result, and that manifest exists whether or
++# not the Authority was ever asked to publish it. A consumer recovering a
++# composed ending had nothing local that told the two apart, so reading the
++# retained manifest as publication evidence was inferring an act from its
++# preparation. These cases drive the real producer, the real
++# `publish_candidate` and the deterministic publisher transport, then REOPEN
++# the store and read the record back.
++#
++# WHAT IS STILL A STAND-IN, and it is this suite's own: `frozen_output_of` and
++# `assignment_of` are replaced, exactly as `TheProducerFeedsThePublicationDriver`
++# replaces them, because this fixture retains real manifests without writing
++# the attempt rows those two read. The proposal manifest, the result manifest
++# and the publication record are all really durable.
++
++
++class TheCommittedPublicationSurvivesTheProcessThatMadeIt(ProducerCase):
++
++    ATTEMPT = "attempt-1"
++
++    def owners(self):
++        """The two attempt-row readers this fixture stands in for."""
++        return mock.patch.multiple(
++            driver,
++            frozen_output_of=mock.Mock(return_value={
++                "result_id": self.result["result_id"],
++                "disposition": "completed",
++                "manifest_digest": self.result_digest}),
++            assignment_of=mock.Mock(return_value={
++                "authority_uuid":
++                    self.assignment["work_ref"]["authority_uuid"],
++                "work_id": self.assignment["work_ref"]["work_id"],
++                "participant": self.assignment["participant"],
++                "generation": self.assignment["generation"]}))
++
++    def published(self):
++        """One real retained proposal, really published."""
++        digest_ = self.produced()
++        with self.owners():
++            recorded = driver.publish_candidate(
++                self.store, self.publisher, attempt_id=self.ATTEMPT,
++                proposal_manifest_digest=digest_)
++        return digest_, recorded
++
++    def reopened(self):
++        """A manager handle that published nothing."""
++        self.store.close()
++        self.store = ControlStore.open(
++            os.path.join(self._root.name, "control.sqlite3"),
++            incarnation="manager-2",
++            clock=lambda: "2026-09-07T02:00:00.000Z")
++        self.addCleanup(self.store.close)
++        return self.store
++
++    def read(self, digest_):
++        with self.owners():
++            return driver.publication_of(
++                self.store, attempt_id=self.ATTEMPT,
++                proposal_manifest_digest=digest_)
++
++    def rows(self):
++        return self.store._connection.execute(
++            "SELECT count(*) FROM operations WHERE kind = ?",
++            (driver.PUBLICATION_KIND,)).fetchone()[0]
++
++    def refusal(self, call, *operands, **named):
++        with self.assertRaises(ContractRefusal) as caught:
++            call(*operands, **named)
++        return caught.exception
++
++    @contextlib.contextmanager
++    def damaged(self, statement, values=()):
++        self.store._connection.execute("SAVEPOINT damaged")
++        try:
++            self.store._connection.execute(statement, values)
++            yield
++        finally:
++            self.store._connection.execute("ROLLBACK TO damaged")
++            self.store._connection.execute("RELEASE damaged")
++
++    # -- what it answers -----------------------------------------------------
++
++    def test_it_takes_no_publisher(self):
++        """The structural half of "local reads only".
++
++        A reader that accepted a publisher could republish; this one has
++        nowhere to put one.
++        """
++        self.assertEqual(
++            list(inspect.signature(driver.publication_of).parameters),
++            ["manager", "attempt_id", "proposal_manifest_digest"])
++
++    def test_a_reopened_manager_reads_the_publication_back(self):
++        held, recorded = self.published()
++        self.reopened()
++        answered = self.read(held)
++        self.assertEqual(sorted(answered), sorted(driver.PUBLICATION_RECEIPT))
++        self.assertEqual(answered["attempt_id"], self.ATTEMPT)
++        self.assertEqual(answered["proposal_manifest_digest"], held)
++        self.assertEqual(answered["proposal_id"], recorded["proposal_id"])
++        self.assertEqual(answered["result_id"], self.result["result_id"])
++        self.assertEqual(answered["result_manifest_digest"],
++                         self.result_digest)
++        self.assertEqual(answered["candidate_digest"], PRIVATE_HEAD)
++        self.assertEqual(answered["target"], PRIVATE_BASE)
++        # THE ONE MEMBER NO LOCAL RECORD CAN RE-DERIVE.
++        self.assertEqual(answered["published"], self.publisher.proposal(
++            recorded["proposal_id"]))
++
++    def test_a_retained_proposal_is_not_a_published_one(self):
++        """The whole reason this record exists.
++
++        `retain_proposal` succeeded and the Authority was never asked, so
++        there is nothing to read.
++        """
++        held = self.produced()
++        self.assertIsNotNone(load_manifest(self.store, held,
++                                           "proposalManifest"))
++        self.reopened()
++        self.assertIsNone(self.read(held))
++        self.assertEqual(self.publisher.calls, [])
++
++    def test_an_exact_republication_replays_one_record(self):
++        held, recorded = self.published()
++        with self.owners():
++            again = driver.publish_candidate(
++                self.store, self.publisher, attempt_id=self.ATTEMPT,
++                proposal_manifest_digest=held)
++        self.assertEqual(again, recorded)
++        self.assertEqual(self.rows(), 1)
++        self.reopened()
++        self.assertEqual(self.read(held), self.read(held))
++
++    # -- the interruption this record is written around ----------------------
++
++    def test_a_publish_whose_record_was_lost_is_not_upgraded_to_success(self):
++        """Remote success, local nothing — and recovery re-enters the act.
++
++        The Authority holds the proposal and this manager holds no evidence,
++        so the reader answers absence. Absence means "no local record" and
++        never "not published": ordinary recovery re-enters `publish_candidate`
++        under the already-owned publication identity, which is what turns the
++        interruption into a committed record rather than a second proposal.
++        """
++        held = self.produced()
++
++        class Interrupted(Exception):
++            pass
++
++        with self.owners(), mock.patch.object(
++                self.store, "transact", side_effect=Interrupted):
++            with self.assertRaises(Interrupted):
++                driver.publish_candidate(
++                    self.store, self.publisher, attempt_id=self.ATTEMPT,
++                    proposal_manifest_digest=held)
++        self.assertEqual(len(self.publisher.calls), 1)
++        self.reopened()
++        self.assertIsNone(self.read(held))
++        self.assertEqual(self.rows(), 0)
++
++        with self.owners():
++            driver.publish_candidate(
++                self.store, self.publisher, attempt_id=self.ATTEMPT,
++                proposal_manifest_digest=held)
++        self.assertEqual(len(self.publisher.calls), 2)
++        self.assertEqual(self.publisher.calls[0], self.publisher.calls[1])
++        self.assertEqual(self.rows(), 1)
++        self.assertIsNotNone(self.read(held))
++
++    def test_a_remote_answer_that_is_not_the_requested_proposal_records_none(self):
++        held = self.produced()
++        original = self.publisher.publish
++
++        def wrong(operands):
++            answer = original(operands)
++            return dict(answer, candidate_digest="0" * 40)
++
++        with self.owners(), mock.patch.object(self.publisher, "publish",
++                                              side_effect=wrong):
++            self.refusal(driver.publish_candidate, self.store,
++                         self.publisher, attempt_id=self.ATTEMPT,
++                         proposal_manifest_digest=held)
++        self.assertEqual(self.rows(), 0)
++        self.reopened()
++        self.assertIsNone(self.read(held))
++
++    def test_a_readback_that_disagrees_records_none(self):
++        held = self.produced()
++        with self.owners(), mock.patch.object(
++                self.publisher, "proposal",
++                side_effect=lambda proposal_id: dict(
++                    copy.deepcopy(self.publisher.recorded),
++                    result_id="another-result")):
++            self.refusal(driver.publish_candidate, self.store,
++                         self.publisher, attempt_id=self.ATTEMPT,
++                         proposal_manifest_digest=held)
++        self.assertEqual(self.rows(), 0)
++        self.reopened()
++        self.assertIsNone(self.read(held))
++
++    # -- present, and not this publication's ---------------------------------
++
++    def test_a_record_of_another_kind_refuses(self):
++        held, _recorded = self.published()
++        self.reopened()
++        with self.damaged("UPDATE operations SET kind = 'foreign.publication' "
++                          "WHERE kind = ?", (driver.PUBLICATION_KIND,)):
++            self.assertIsInstance(self.refusal(self.read, held),
++                                  ContractRefusal)
++
++    def test_a_signature_this_manager_does_not_derive_refuses(self):
++        """The record and the retained proposal it names must still agree.
++
++        The operands are re-derived from that proposal, the frozen result and
++        the fixed assignment, so a row signed over anything else is not this
++        act — and a proposal edited underneath a real record refuses here too.
++        """
++        held, _recorded = self.published()
++        self.reopened()
++        for name, statement, values in (
++                ("an empty signature",
++                 "UPDATE operations SET signature = '{}' WHERE kind = ?",
++                 (driver.PUBLICATION_KIND,)),
++                ("a foreign signature",
++                 "UPDATE operations SET signature = ? WHERE kind = ?",
++                 (json.dumps({"kind": driver.PUBLICATION_KIND,
++                              "operands": {}}, sort_keys=True,
++                             separators=(",", ":")),
++                  driver.PUBLICATION_KIND))):
++            with self.subTest(signature=name):
++                with self.damaged(statement, values):
++                    caught = self.refusal(self.read, held)
++                self.assertIn("does not derive", caught.message)
++
++    def test_a_receipt_whose_selectors_this_manager_does_not_derive_refuses(self):
++        held, recorded = self.published()
++        self.reopened()
++        row = self.store._connection.execute(
++            "SELECT operation_id, result FROM operations WHERE kind = ?",
++            (driver.PUBLICATION_KIND,)).fetchone()
++        receipt = json.loads(row["result"])
++        for name, changed in (
++                ("another attempt", {"attempt_id": "another-attempt"}),
++                ("another proposal", {"proposal_id": "proposal-elsewhere"}),
++                ("another result", {"result_id": "another-result"}),
++                ("another candidate", {"candidate_digest": "0" * 40}),
++                ("another target", {"target": "0" * 40}),
++                ("another assignment",
++                 {"assignment": dict(recorded["assignment_ref"],
++                                     generation=99)})):
++            with self.subTest(receipt=name):
++                with self.damaged(
++                        "UPDATE operations SET result = ? WHERE "
++                        "operation_id = ?",
++                        (json.dumps(dict(receipt, **changed)),
++                         row["operation_id"])):
++                    self.assertIsInstance(self.refusal(self.read, held),
++                                          ContractRefusal)
++
++    def test_a_malformed_receipt_refuses(self):
++        held, _recorded = self.published()
++        self.reopened()
++        row = self.store._connection.execute(
++            "SELECT operation_id, result FROM operations WHERE kind = ?",
++            (driver.PUBLICATION_KIND,)).fetchone()
++        receipt = json.loads(row["result"])
++        short = {member: value for member, value in receipt.items()
++                 if member != "published"}
++        for name, value in (("a missing member", short),
++                            ("an unknown member",
++                             dict(receipt, invented="anything")),
++                            ("not a document", ["published"]),
++                            ("an answer that is not a document",
++                             dict(receipt, published="published"))):
++            with self.subTest(receipt=name):
++                with self.damaged(
++                        "UPDATE operations SET result = ? WHERE "
++                        "operation_id = ?",
++                        (json.dumps(value), row["operation_id"])):
++                    self.assertIsInstance(self.refusal(self.read, held),
++                                          ContractRefusal)
++
++    def test_a_recorded_answer_that_disagrees_with_its_operands_refuses(self):
++        held, _recorded = self.published()
++        self.reopened()
++        row = self.store._connection.execute(
++            "SELECT operation_id, result FROM operations WHERE kind = ?",
++            (driver.PUBLICATION_KIND,)).fetchone()
++        receipt = json.loads(row["result"])
++        answer = dict(receipt["published"], result_digest="sha256:foreign")
++        with self.damaged(
++                "UPDATE operations SET result = ? WHERE operation_id = ?",
++                (json.dumps(dict(receipt, published=answer)),
++                 row["operation_id"])):
++            caught = self.refusal(self.read, held)
++        self.assertIn("disagrees about", caught.message)

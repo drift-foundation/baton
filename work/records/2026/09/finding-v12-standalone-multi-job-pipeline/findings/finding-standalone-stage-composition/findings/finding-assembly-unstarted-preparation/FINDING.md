@@ -48,3 +48,14 @@ implements this bounded correction and returns through baton.bug for independent
 review. Shared test/source writes finish before the lifecycle proof begins.
 No live model, OCI campaign, canonical target import, mutating Git operation,
 new path or unrelated assertion change is authorized by this subdivision.
+
+## 2026-09-08 — independent correction acceptance, claim119371
+
+**Confirmed:** the missing preparation described above is corrected at source
+SHA-256 db280363bf8e1f7bc534a25dd163275a87aad3a21d784d330801823ce9f3cb60.
+This explicitly supersedes the opening observation as current candidate behavior;
+the original reproduction and approval history remain valid evidence.
+`review-2026-09-08T13-16-48Z.md` accepts the exact two-path correction and
+component regressions after independent byte/assertion/evidence audit.
+The complete lifecycle/custody proof remains separately accountable; no full
+assembly or broad-gate acceptance is implied.

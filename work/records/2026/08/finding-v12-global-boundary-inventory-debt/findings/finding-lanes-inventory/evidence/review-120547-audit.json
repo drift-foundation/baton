@@ -1,0 +1,25 @@
+{
+  "work": "W116972",
+  "claim": 120547,
+  "candidate_sha256": "bc1844e7840527818951b89d51762fedcaa0d1413bcd518dc742184ad3075509",
+  "base_sha256": "05c45eba60d79ec3c940305259d35b2c3cc59e32586db3d8da75bded0195c8d8",
+  "all_existing_scanner_functions_and_other_classes_unchanged": true,
+  "all_existing_catalog_entries_and_lane_probe_body_preserved": true,
+  "additions": {
+    "delegation": 1,
+    "private_check_classifications": 4,
+    "probe_pairs": 7,
+    "witness_tests": 7
+  },
+  "retained_lane_entries": 25,
+  "retained_expected_and_declared_pairs": 24,
+  "lane_residuals": 0,
+  "retained_final_positive_control": ".\n----------------------------------------------------------------------\nRan 1 test in 0.005s\n\nOK\n",
+  "source_hashes_from_verification": {
+    "v12/python/tests/manager/test_boundary_inventory.py": "dbc6819c5bcf5902abbba0728d34fb5361736cb234f9da73f8472bcf3d6b6fd7",
+    "v12/python/src/baton_v12/worker_manager/lanes.py": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c",
+    "v12/python/src/baton_v12/worker_manager/schema.py": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+    "v12/python/src/baton_v12/worker_manager/attempts.py": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+    "v12/python/src/baton_v12/worker_manager/intake.py": "6c00c441bc7b2356fddfd9f0867db59e05d6b96128dbf8918fc3b67ea46c89c7"
+  }
+}

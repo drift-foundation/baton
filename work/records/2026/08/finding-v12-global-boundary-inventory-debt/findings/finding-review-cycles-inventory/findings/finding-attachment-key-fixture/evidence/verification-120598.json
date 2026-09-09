@@ -1,0 +1,107 @@
+{
+  "base_sha256": "bc1844e7840527818951b89d51762fedcaa0d1413bcd518dc742184ad3075509",
+  "candidate_sha256": "bf6160f596ad917fdb4296963d2c272adf3f328b2e78e279dc1f1eb4da7bf00c",
+  "scope_audit": "only exact fixture branch and new control class; all other AST unchanged",
+  "runtime_hashes": {
+    "v12/python/tests/manager/test_boundary_inventory.py": "bc1844e7840527818951b89d51762fedcaa0d1413bcd518dc742184ad3075509",
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+    "v12/python/src/baton_v12/worker_manager/schema.py": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1"
+  },
+  "retained_initial_passes": 6,
+  "corrected_control": "test_valid_returned_key_passes_adoption_and_reaches_the_recorded_fence_guard (tests.manager.test_boundary_inventory.TheAttachmentKeyProbeReachesAdoption.test_valid_returned_key_passes_adoption_and_reaches_the_recorded_fence_guard) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.006s\n\nOK\n",
+  "corrected_elapsed_seconds": 0.006578961038030684,
+  "attachment_pairs": [
+    [
+      [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.attachment_id"
+      ],
+      "a persisted review attachment",
+      "a persisted review attachment",
+      "attachment_id"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.line_id"
+      ],
+      "a persisted review attachment",
+      "a persisted review attachment",
+      "line_id"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.checkpoint_id"
+      ],
+      "a persisted review attachment",
+      "a persisted review attachment",
+      "checkpoint_id"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.runtime_attempt_id"
+      ],
+      "a persisted review attachment",
+      "a persisted review attachment",
+      "runtime_attempt_id"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.reviewer_worker_id"
+      ],
+      "a persisted review attachment",
+      "a persisted review attachment",
+      "reviewer_worker_id"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.reviewer_participant"
+      ],
+      "a persisted review attachment",
+      "a persisted review attachment",
+      "reviewer_participant"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.reviewer_principal"
+      ],
+      "a persisted review attachment",
+      "a persisted review attachment",
+      "reviewer_principal"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.state"
+      ],
+      "a persisted review attachment",
+      "a persisted review attachment",
+      "state"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments"
+      ],
+      "a persisted review attachment",
+      "a persisted review attachment",
+      "reviewer_participant"
+    ]
+  ],
+  "attachment_count": 9,
+  "sweep_elapsed_seconds": 1.6369685559766367
+}

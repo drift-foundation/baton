@@ -1,0 +1,9 @@
+{
+  "work": "W116972",
+  "claim": 120480,
+  "result": ".\n----------------------------------------------------------------------\nRan 1 test in 0.005s\n\nOK\n",
+  "successful": true,
+  "candidate_sha256": "bc1844e7840527818951b89d51762fedcaa0d1413bcd518dc742184ad3075509",
+  "only_change_from_joined_candidate": "new positive-control setup now uses attempts._attempt_row; other test methods/catalogs/probes/runtime unchanged",
+  "retained_joined_evidence": "verification-120480.json"
+}

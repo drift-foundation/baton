@@ -1,0 +1,40 @@
+{
+  "budget_seconds": 2,
+  "elapsed_seconds": 0.6904107689624652,
+  "cwd": "v12/python",
+  "PYTHONPATH": "src:.",
+  "runs": [
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-composed-ending-consumer/findings/finding-readonly-coordinator-open/evidence/review-127103-shutdown.py"
+      ],
+      "elapsed_seconds": 0.33403648901730776,
+      "returncode": 1,
+      "stdout": "{\n  \"before\": [\n    \"coordinator.sqlite3\",\n    \"coordinator.sqlite3-shm\",\n    \"coordinator.sqlite3-wal\"\n  ],\n  \"after_serving_exit\": [\n    \"coordinator.sqlite3\"\n  ],\n  \"exception\": \"BrokenPipeError: [Errno 32] Broken pipe\",\n  \"contract_refusal\": false,\n  \"after_open\": {\n    \"coordinator.sqlite3-shm\": 32768,\n    \"coordinator.sqlite3-wal\": 0,\n    \"coordinator.sqlite3\": 73728\n  }\n}\n",
+      "stderr": "BrokenPipeError: [Errno 32] Broken pipe\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-composed-ending-consumer/findings/finding-readonly-coordinator-open/evidence/review-127103-shutdown.py\", line 42, in <module>\n    child.stdin.close();child.stdout.close();child.stderr.close()\n    ~~~~~~~~~~~~~~~~~^^\nBrokenPipeError: [Errno 32] Broken pipe\n"
+    },
+    {
+      "command": [
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-composed-ending-consumer/findings/finding-readonly-coordinator-open/evidence/review-127025-probe.py"
+      ],
+      "elapsed_seconds": 0.16178553190547973,
+      "returncode": 0,
+      "stdout": "[\n  {\n    \"case\": \"only-wal\",\n    \"before\": [\n      \"coordinator.sqlite3\",\n      \"coordinator.sqlite3-wal\"\n    ],\n    \"exception\": \"ContractRefusal: the integration coordinator store at '/tmp/review-127025-shpk5r2y/coordinator.sqlite3' is a write-ahead-log store and its journal sidecars are incomplete (-wal); opening it would make SQLite create the rest, and a read-only open creates no journal artifact. Read it while its coordinator holds it, or open it for writing deliberately\",\n    \"contract_refusal\": true,\n    \"after\": [\n      \"coordinator.sqlite3\",\n      \"coordinator.sqlite3-wal\"\n    ],\n    \"sizes\": {\n      \"coordinator.sqlite3-wal\": 0,\n      \"coordinator.sqlite3\": 73728\n    }\n  },\n  {\n    \"case\": \"only-shm\",\n    \"before\": [\n      \"coordinator.sqlite3\",\n      \"coordinator.sqlite3-shm\"\n    ],\n    \"exception\": \"ContractRefusal: the integration coordinator store at '/tmp/review-127025-votwowa0/coordinator.sqlite3' is a write-ahead-log store and its journal sidecars are incomplete (-shm); opening it would make SQLite create the rest, and a read-only open creates no journal artifact. Read it while its coordinator holds it, or open it for writing deliberately\",\n    \"contract_refusal\": true,\n    \"after\": [\n      \"coordinator.sqlite3\",\n      \"coordinator.sqlite3-shm\"\n    ],\n    \"sizes\": {\n      \"coordinator.sqlite3-shm\": 0,\n      \"coordinator.sqlite3\": 73728\n    }\n  },\n  {\n    \"case\": \"serving-close-after-guard\",\n    \"before\": [\n      \"coordinator.sqlite3\"\n    ],\n    \"exception\": \"ContractRefusal: the integration coordinator store at '/tmp/review-127025-wktroxm4/coordinator.sqlite3' is a write-ahead-log store and its journal sidecars are absent (neither -wal nor -shm); opening it would make SQLite create the rest, and a read-only open creates no journal artifact. Read it while its coordinator holds it, or open it for writing deliberately\",\n    \"contract_refusal\": true,\n    \"after\": [\n      \"coordinator.sqlite3\"\n    ],\n    \"sizes\": {\n      \"coordinator.sqlite3\": 73728\n    }\n  },\n  {\n    \"case\": \"not-database\",\n    \"before\": [\n      \"coordinator.sqlite3\"\n    ],\n    \"exception\": \"ContractRefusal: the database at '/tmp/review-127025-mipjuq4c/coordinator.sqlite3' could not be read by this coordinator (DatabaseError: file is not a database); a read-only open refuses an unreadable store and repairs nothing. Nothing was changed\",\n    \"contract_refusal\": true,\n    \"after\": [\n      \"coordinator.sqlite3\"\n    ],\n    \"sizes\": {\n      \"coordinator.sqlite3\": 23\n    }\n  }\n]\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.integration.test_coordinator.ReadOnlyOpening"
+      ],
+      "elapsed_seconds": 0.19458874803967774,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3519: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-2c2nn2ed/prose.txt'>\n  before = open(prose, \"rb\").read()\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3526: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-2c2nn2ed/prose.txt'>\n  self.assertEqual(open(prose, \"rb\").read(), before)\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n./home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3407: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-d6lx76y3/theirs.sqlite3'>\n  before = open(foreign, \"rb\").read()\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3412: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-d6lx76y3/theirs.sqlite3'>\n  self.assertEqual(open(foreign, \"rb\").read(), before)\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n.../home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3540: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-a_voqwb0/older.sqlite3'>\n  before = open(path, \"rb\").read()\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3544: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-a_voqwb0/older.sqlite3'>\n  self.assertEqual(open(path, \"rb\").read(), before)\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n../home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3422: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-vfgg1ya_/other-kind.sqlite3'>\n  before = open(foreign, \"rb\").read()\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3426: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-vfgg1ya_/other-kind.sqlite3'>\n  self.assertEqual(open(foreign, \"rb\").read(), before)\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n.../home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3395: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-w5kl3vr4/empty.sqlite3'>\n  before = open(empty, \"rb\").read()\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3400: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-w5kl3vr4/empty.sqlite3'>\n  self.assertEqual(open(empty, \"rb\").read(), before)\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n...../home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3329: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-vxyc8ja8/integration.sqlite3'>\n  return {name: (open(os.path.join(self.root, name), \"rb\").read(),\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n....\n----------------------------------------------------------------------\nRan 18 tests in 0.033s\n\nOK\n"
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "work": "W120204",
+  "claim": 120459,
+  "candidate_sha256": "05c45eba60d79ec3c940305259d35b2c3cc59e32586db3d8da75bded0195c8d8",
+  "changed_existing_nodes_since_review": [
+    "OptionalCapabilityAliasesKeepTheirCrossing",
+    "_OriginBindings",
+    "_invoked_capabilities",
+    "_origins"
+  ],
+  "existing_nodes_and_assertions_preserved": true,
+  "added_tests": 10,
+  "results": {
+    "ordinary": {
+      "source": "\ndef public(session, other):\n    performing = getattr(session, \"release_token\", None)\n    answer = performing(other)\n    return answer[\"kind\"]\n",
+      "crossings": {
+        "release_token": "sample.py:public"
+      },
+      "injected": [
+        [
+          "injected",
+          "sample.py:public",
+          "release_token"
+        ],
+        [
+          "injected",
+          "sample.py:public",
+          "release_token.kind"
+        ]
+      ],
+      "passed": true
+    },
+    "argument_rebinds_alias": {
+      "source": "\ndef public(session, other):\n    performing = getattr(session, \"release_token\", None)\n    answer = performing((performing := other))\n    return answer[\"kind\"]\n",
+      "crossings": {
+        "release_token": "sample.py:public"
+      },
+      "injected": [
+        [
+          "injected",
+          "sample.py:public",
+          "release_token"
+        ],
+        [
+          "injected",
+          "sample.py:public",
+          "release_token.kind"
+        ]
+      ],
+      "passed": true
+    },
+    "delete_attribute_keeps_callable": {
+      "source": "\ndef public(session):\n    performing = getattr(session, \"release_token\", None)\n    del performing.cached\n    return performing({})[\"kind\"]\n",
+      "crossings": {
+        "release_token": "sample.py:public"
+      },
+      "injected": [
+        [
+          "injected",
+          "sample.py:public",
+          "release_token"
+        ],
+        [
+          "injected",
+          "sample.py:public",
+          "release_token.kind"
+        ]
+      ],
+      "passed": true
+    },
+    "delete_subscript_keeps_callable": {
+      "source": "\ndef public(session, other):\n    performing = getattr(session, \"release_token\", None)\n    del other[performing]\n    return performing({})[\"kind\"]\n",
+      "crossings": {
+        "release_token": "sample.py:public"
+      },
+      "injected": [
+        [
+          "injected",
+          "sample.py:public",
+          "release_token"
+        ],
+        [
+          "injected",
+          "sample.py:public",
+          "release_token.kind"
+        ]
+      ],
+      "passed": true
+    },
+    "delete_binding_kills_callable": {
+      "source": "\ndef public(session):\n    performing = getattr(session, \"release_token\", None)\n    del performing\n    return performing({})[\"kind\"]\n",
+      "crossings": {},
+      "injected": [],
+      "passed": true
+    },
+    "keyword_rebinding_current_and_later": {
+      "source": "\ndef public(session, other):\n    performing = getattr(session, \"release_token\", None)\n    answer = performing(key=(performing := other))\n    return answer[\"kind\"], performing({})[\"wrong\"]\n",
+      "crossings": {
+        "release_token": "sample.py:public"
+      },
+      "injected": [
+        [
+          "injected",
+          "sample.py:public",
+          "release_token"
+        ],
+        [
+          "injected",
+          "sample.py:public",
+          "release_token.kind"
+        ]
+      ],
+      "passed": true
+    },
+    "augmented_rhs_before_rebinding": {
+      "source": "\ndef public(session):\n    performing = getattr(session, \"release_token\", None)\n    performing += performing({})[\"kind\"]\n    return performing({})[\"wrong\"]\n",
+      "crossings": {
+        "release_token": "sample.py:public"
+      },
+      "injected": [
+        [
+          "injected",
+          "sample.py:public",
+          "release_token"
+        ],
+        [
+          "injected",
+          "sample.py:public",
+          "release_token.kind"
+        ]
+      ],
+      "passed": true
+    }
+  },
+  "seconds": 0.28524678689427674
+}

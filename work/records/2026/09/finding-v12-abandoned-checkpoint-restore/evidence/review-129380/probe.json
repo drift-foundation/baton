@@ -1,0 +1,43 @@
+{
+  "foreign-signature-kind": {
+    "outcome": [
+      "integrity",
+      "schema"
+    ],
+    "effects": 0,
+    "completion": null
+  },
+  "foreign-runtime-resigned": {
+    "outcome": [
+      "integrity",
+      "schema"
+    ],
+    "effects": 0,
+    "completion": null
+  },
+  "foreign-schema-resigned": {
+    "outcome": [
+      "integrity",
+      "schema"
+    ],
+    "effects": 0,
+    "completion": null
+  },
+  "null-assignment-resigned": {
+    "outcome": [
+      "integrity",
+      "schema"
+    ],
+    "effects": 0,
+    "completion": null
+  },
+  "foreign-row-kind": {
+    "outcome": [
+      "integrity",
+      "schema"
+    ],
+    "effects": 0,
+    "completion": null
+  },
+  "controls_pass": true
+}

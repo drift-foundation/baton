@@ -1,0 +1,232 @@
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -1758,6 +1758,21 @@
+ # Checked for staleness, because a list of exceptions nobody compares to the
+ # code is a list of things somebody remembered.
+ NOT_AN_ENTRY = {
++    ("lanes.py:_occupy_lane", "identity", "a runtime attempt id"):
++        "private write check after request_runtime_start -> _require_attempt -> "
++        "_attempt_row owns the same id; test_private_lane_writer_provenance "
++        "and test_public_start_and_cleanup_supply_owned_lane_values witness it",
++    ("lanes.py:_release_lane", "identity", "a runtime attempt id"):
++        "private write check after both intake endings call observe -> _decide "
++        "-> _require_attempt -> _attempt_row; test_private_lane_writer_provenance "
++        "and test_public_start_and_cleanup_supply_owned_lane_values witness it",
++    ("lanes.py:_occupy_lane", "text", "a lane occupancy reason"):
++        "the start caller composes this write value from its derived operation id; "
++        "test_private_lane_writer_provenance pins its sole caller and composer",
++    ("lanes.py:_release_lane", "text", "a lane release reason"):
++        "private write value from the local cleanup ending or three fixed "
++        "recordless reasons; test_private_lane_writer_provenance pins every "
++        "caller; test_private_lane_checks_refuse_before_sql exercises all four checks",
+     **{("custody.py:historical_directory_custody", kind, label):
+        "normalization-specific validation chained onto the journal's adopted "
+        "signature/result decode; test_historical_custody_journal_probes_reach_their_named_boundaries "
+@@ -2762,6 +2777,8 @@
+ }
+ 
+ DELEGATED = {
++    ("caller", "lanes.py:runtime_lane", "attempt_id"):
++        ("attempts.py:_attempt_row", "caller:attempt_id"),
+     ("caller", "workspaces.py:AllocatedRoots.__init__", "_line_proof"):
+         ("workspaces.py:_granted_roots", "caller:line_proof"),
+     # -- W71918: public lifecycle operations share their exact private owners.
+@@ -7242,7 +7259,18 @@
+         what the inventory tracks; the label is what a probe proves it reached.
+         """
+         entries = receiving_entries()
+-        found = {}
++        valid = dict(runtime_attempt_id="attempt-1", authority_uuid=UUID,
++                     work_id=WORK, assignment_principal=PRINCIPAL, assignment_scope=SCOPE)
++        found = {
++            (("caller", "lanes.py:runtime_lane", "attempt_id"), "a runtime attempt id"):
++                ("a runtime attempt id", lambda: lanes.runtime_lane(self.store, SURROGATE)),
++            (("caller", "lanes.py:lane_reference", "attempt"), "a runtime lane attempt"):
++                ("a runtime lane attempt", lambda: lanes.lane_reference([])),
++        }
++        for name in ("runtime_attempt_id", "authority_uuid", "work_id", "assignment_principal", "assignment_scope"):
++            label = f"a runtime lane attempt's {name}"
++            entry = ("caller", "lanes.py:lane_reference", f"attempt.{name}")
++            found[(entry, label)] = (label, lambda name=name: lanes.lane_reference(dict(valid, **{name: []})))
+         # W32649 review [P2]: FOUR READS, not two. The projection pair reads
+         # this relation to ANSWER about it; the start pair reads it to DECIDE
+         # whether a runtime may exist. An inventory that enumerated only the
+@@ -13370,3 +13398,178 @@
+     return performing({})["wrong"]
+ ''')
+         self.assertEqual(self.injected(entries), self.expected(".kept"))
++
++
++class LanesHaveCompleteReceivingCoverage(BoundaryCase):
++    def test_lane_entries_have_exactly_one_owner_and_no_unaccounted_calls(self):
++        entries = receiving_entries()
++        own = EveryReceivingEntryHasOneOwner()
++        lane_entries = {e for e in entries if e[1].startswith("lanes.py:")}
++        self.assertGreater(len(lane_entries), 20)
++        for entry in sorted(lane_entries):
++            with self.subTest(entry=entry):
++                self.assertIsNotNone(own.owner_of(entry)[0])
++                self.assertEqual(sum((bool(layer_labels(entry)), entry in DELEGATED, entry in STATED_OWNERS,
++                                      entry[0] == "caller" and entry[2] in CONSTRUCTED_BY)), 1)
++        records = boundary_occurrences()
++        claimed = _boundary_claims(records, entries, DELEGATED)
++        _, residual = _account_boundary_calls(records, claimed, NOT_AN_ENTRY)
++        self.assertEqual(sorted({(r.site, r.kind, r.label) for r in residual if r.site.startswith("lanes.py:")}), [])
++        expected = {(f"lanes.py:{site}", kind, label) for site, kind, label in (
++            ("_occupy_lane", "identity", "a runtime attempt id"),
++            ("_release_lane", "identity", "a runtime attempt id"),
++            ("_occupy_lane", "text", "a lane occupancy reason"),
++            ("_release_lane", "text", "a lane release reason"))}
++        self.assertEqual({e for e in NOT_AN_ENTRY if e[0].startswith("lanes.py:")}, expected)
++        self.assertTrue(expected <= {(r.site, r.kind, r.label) for r in records})
++
++    def test_lane_probe_catalog_matches_every_actual_owner(self):
++        case = EveryProbeProvesItArrived()
++        try:
++            case.setUp()
++            wanted = {pair for pair in case.expected() if pair[0][1].startswith("lanes.py:")}
++            declared = {pair for pair in case.all_probes() if pair[0][1].startswith("lanes.py:")}
++            self.assertEqual(sorted(wanted - declared), [])
++            self.assertEqual(sorted(declared - wanted), [])
++            self.assertEqual(len(declared), 24)
++            self.assertEqual(sum(pair[0][0] == "adopted" for pair in declared), 17)
++            self.assertEqual(sum(pair[0][0] == "caller" for pair in declared), 7)
++        finally:
++            case.doCleanups()
++
++    def test_all_lane_probes_reach_their_named_boundary(self):
++        case = EveryProbeProvesItArrived()
++        try:
++            case.setUp()
++            keys = sorted(case.lane_probes())
++        finally:
++            case.doCleanups()
++        for key in keys:
++            with self.subTest(entry=key):
++                try:
++                    case.setUp()
++                    full, probe = case.lane_probes()[key]
++                    self.assertIn(key[1], full)
++                    case.refusing(full, probe)
++                finally:
++                    case.doCleanups()
++
++    def test_lane_projection_and_lookup_positive_and_earlier_refusal_controls(self):
++        attempt_id = self.bound_attempt()
++        supplied = self.attempt_row_of(attempt_id)
++        before = dict(supplied)
++        reference = lanes.lane_reference(supplied)
++        self.assertEqual(reference, {"authority_uuid": UUID, "work_id": WORK,
++                                     "principal": PRINCIPAL, "effective_scope": SCOPE})
++        self.assertEqual(supplied, before)
++        projected = lanes.runtime_lane(self.store, attempt_id)
++        self.assertEqual(projected["lane"], {"lane_id": lanes._lane_id(reference), **reference})
++        self.assertIsNone(projected["holder"])
++        self.assertEqual(projected["blocked_by"], [])
++        with self.assertRaisesRegex(AssertionError, "not at"):
++            self.refusing("a runtime lane attempt's work_id", lambda: lanes.lane_reference([]))
++        with self.assertRaisesRegex(AssertionError, "not at"):
++            self.refusing("a runtime attempt id", lambda: lanes.runtime_lane(self.store, "missing-attempt"))
++
++    def test_private_lane_checks_refuse_before_sql(self):
++        class NoSql:
++            def execute(self, *args):
++                raise AssertionError("private check reached SQL")
++        reference = {"authority_uuid": UUID, "work_id": WORK, "principal": PRINCIPAL, "effective_scope": SCOPE}
++        for name, reason_key, reason_label in (
++                ("_occupy_lane", "reason", "a lane occupancy reason"),
++                ("_release_lane", "why", "a lane release reason")):
++            for bad_id in (True, False):
++                with self.subTest(writer=name, bad_id=bad_id):
++                    operands = {"attempt_id": SURROGATE if bad_id else "attempt-1",
++                                "reference": reference, reason_key: "local reason" if bad_id else SURROGATE}
++                    args = (NoSql(), NOW) if name == "_occupy_lane" else (NoSql(),)
++                    self.refusing("a runtime attempt id" if bad_id else reason_label,
++                                  lambda: getattr(lanes, name)(*args, **operands))
++
++    def test_private_lane_writer_provenance(self):
++        functions = {site: node for source, tree in _sources() for site, node in _functions(tree, source.name)}
++        calls = {(site, call.func.attr): call for site, node in functions.items() for call in ast.walk(node)
++                 if isinstance(call, ast.Call) and isinstance(call.func, ast.Attribute) and call.func.attr in ("_occupy_lane", "_release_lane")}
++        self.assertEqual(set(calls), {("attempts.py:request_runtime_start", "_occupy_lane"),
++                                     ("intake.py:_settle", "_release_lane"),
++                                     ("intake.py:_settle_recordless_cleanup", "_release_lane")})
++        self.assertEqual(sum(1 for node in functions.values() for call in ast.walk(node)
++                             if isinstance(call, ast.Call) and isinstance(call.func, ast.Attribute) and call.func.attr in ("_occupy_lane", "_release_lane")), 3)
++        for (site, writer), call in calls.items():
++            self.assertEqual(ast.unparse(next(k.value for k in call.keywords if k.arg == "attempt_id")), "attempt_id")
++            node = functions[site]
++            if writer == "_occupy_lane":
++                earlier = [s.value for s in node.body if isinstance(s, ast.Assign) and isinstance(s.value, ast.Call)
++                           and isinstance(s.value.func, ast.Name) and s.value.func.id == "_require_attempt"]
++                self.assertEqual([ast.unparse(c) for c in earlier], ["_require_attempt(store, attempt_id)"])
++                self.assertLess(earlier[0].lineno, call.lineno)
++                composed = [statement.value for statement in node.body if isinstance(statement, ast.Assign)
++                            and any(isinstance(target, ast.Name) and target.id == "operation_id" for target in statement.targets)]
++                self.assertEqual([ast.unparse(value) for value in composed], ["_start_operation_id(attempt)"])
++                reason = next(k.value for k in call.keywords if k.arg == "reason")
++                self.assertEqual(ast.dump(reason), ast.dump(ast.parse('f"execution requested under {operation_id}"', mode="eval").body))
++            else:
++                earlier = [s.value for s in node.body if isinstance(s, ast.Expr) and isinstance(s.value, ast.Call)
++                           and isinstance(s.value.func, ast.Name) and s.value.func.id == "observe" and s.lineno < call.lineno]
++                self.assertTrue(earlier)
++                self.assertTrue(all(any(k.arg == "attempt_id" and ast.unparse(k.value) == "attempt_id" for k in c.keywords) for c in earlier))
++                why = next(k.value for k in call.keywords if k.arg == "why")
++                expected = 'f"cleanup settled {ending}"' if site == "intake.py:_settle" else "why"
++                self.assertEqual(ast.dump(why), ast.dump(ast.parse(expected, mode="eval").body))
++        endings = [statement.value for statement in functions["intake.py:_settle"].body if isinstance(statement, ast.Assign)
++                   and any(isinstance(target, ast.Name) and target.id == "ending" for target in statement.targets)]
++        self.assertEqual(len(endings), 1)
++        self.assertIsInstance(endings[0], ast.IfExp)
++        self.assertEqual((endings[0].body.value, endings[0].orelse.value), ("retained", "complete"))
++        # Pin the forwarding chain to the real validator, not just a lookup name.
++        for site, target in (("attempts.py:_require_attempt", "_attempt_row"),
++                             ("attempts.py:_decide", "_require_attempt"),
++                             ("attempts.py:observe", "_decide")):
++            found = [c for c in ast.walk(functions[site]) if isinstance(c, ast.Call) and isinstance(c.func, ast.Name) and c.func.id == target]
++            self.assertEqual(len(found), 1)
++            self.assertEqual(ast.unparse(found[0].args[1]), "attempt_id")
++        self.assertIn(("identity", "a runtime attempt id", "caller:attempt_id"), owning_validators()["attempts.py:_attempt_row"])
++        recordless = [(site, c) for site, node in functions.items() for c in ast.walk(node)
++                      if isinstance(c, ast.Call) and isinstance(c.func, ast.Name) and c.func.id == "_settle_recordless_cleanup"]
++        self.assertEqual(len(recordless), 3)
++        self.assertEqual({site: next(k.value.value for k in c.keywords if k.arg == "why") for site, c in recordless},
++                         {"intake.py:authorize_failed_start_cleanup": "failed-start cleanup settled retained",
++                          "intake.py:authorize_refused_session_cleanup": "refused-session cleanup settled retained",
++                          "intake.py:abandon_attempt": "abandonment cleanup settled retained"})
++
++    def test_public_start_and_cleanup_supply_owned_lane_values(self):
++        from .test_runtime_lane import LaneCase
++        fixture = LaneCase()
++        self.addCleanup(fixture.doCleanups)
++        fixture.setUp()
++        events = []
++        identity, occupy, release = boundaries.identity, lanes._occupy_lane, lanes._release_lane
++
++        def owning(value, label, *args, **kwargs):
++            result = identity(value, label, *args, **kwargs)
++            if label == "a runtime attempt id":
++                events.append(("owned", value))
++            return result
++
++        def writing(action, implementation):
++            def run(*args, **kwargs):
++                prior = [e for e in events if e[1] == kwargs["attempt_id"]]
++                self.assertTrue(prior)
++                self.assertEqual(prior[-1][0], "owned")
++                events.append((action, kwargs["attempt_id"]))
++                self.assertEqual(kwargs["reference"], fixture.reference(kwargs["attempt_id"]))
++                if action == "occupy":
++                    self.assertRegex(kwargs["reason"], r"\Aexecution requested under runtime.start:[0-9a-f]{64}\Z")
++                else:
++                    self.assertEqual(kwargs["why"], "cleanup settled complete")
++                return implementation(*args, **kwargs)
++            return run
++
++        with patch.object(boundaries, "identity", owning), patch.object(lanes, "_occupy_lane", writing("occupy", occupy)), patch.object(lanes, "_release_lane", writing("release", release)):
++            fixture.retained_ready("discard-after-intake")
++            self.assertEqual(len(fixture.lanes()), 1)
++            settled = fixture.cleanup_settled()
++            self.assertEqual(settled["cleanup"], "complete")
++            self.assertEqual(fixture.lanes(), [])
++        self.assertEqual([e[0] for e in events if e[0] != "owned"], ["occupy", "release"])

@@ -1,0 +1,82 @@
+{
+  "work": "W122060",
+  "claim": 125334,
+  "claim_order": "claimed at seq125334 before reading past the thread and before any edit; the question and budget were declared in PROGRESS before any execution",
+  "paths": {
+    "tools/stage_execution.py": {
+      "sha256": "77171f2aa8f3948d4bb767b97f636ddad67497d9af2ab7a8c3ceee0b436ed9b2",
+      "mode": "664"
+    },
+    "tools/single_worker.py": {
+      "sha256": "453d5caa5dbafea4e1472a44707c8e7f8d1410f8bdc1795026fddd0fc049f7c2",
+      "mode": "664"
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "2944afe7fd97f0c48bf71388dd5495b1b95e414f93483f99d3342e6c3f9a89fb",
+      "mode": "664"
+    },
+    "tests/tools/test_single_worker.py": {
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "mode": "664"
+    }
+  },
+  "test_methods": {
+    "tests/tools/test_stage_execution.py": {
+      "baseline_HEAD": 93,
+      "now": 128
+    },
+    "tests/tools/test_single_worker.py": {
+      "baseline_HEAD": 83,
+      "now": 110
+    }
+  },
+  "furthest_completed_transition": "implementation completed and its quiescence gate discharged; the Work handed off to the review route while the gate still held; the reviewer claimed, its own container started, and a real review turn produced an accepted verdict read from its frozen result; the Work handed off again to the integration route; the integration stage queued, offered and CLAIMED by the integrator.",
+  "exact_next_blocker": {
+    "where": "tools/stage_execution.py:1236, this build's own statement",
+    "message": "this deployment holds no integration runtime port; `integrate_next` starts the integrator through one and no accepted composition in this build builds one over the integration delivery's namespaces",
+    "category": "refused/capability, reported as itself and contained to the integration stage: implementation and review keep their completed state",
+    "smallest_missing_capability": "an integration runtime port over `integration.runtime.materialize_delivery`'s namespaces. The only implementations in this tree are focused-test doubles; supplying one here would be the helper-only success the PLAN forbids, so it is reported rather than stubbed.",
+    "pinned_by": "TheComposedJobTraversesReviewAndAcceptance::test_the_integration_stage_is_held_for_want_of_a_runtime_port"
+  },
+  "source_changes": {
+    "tools/single_worker.py": [
+      "_AuthoritySession.route_fenced forwarding, like pass_work",
+      "_SingleWorker.handoff: derives the operation identity, owns the answer against HANDOFF_MEMBERS, and refuses an answer that left the Work unblocked or ungated",
+      "HANDOFF_MEMBERS"
+    ],
+    "tools/stage_execution.py": [
+      "_finished now orders: driver -> committed route change with the gate intact -> positive-absence discharge -> correction routing -> settlement. This replaces owner119712's discharge-before-route ordering for the composed fenced handoff, per MINIMUM-ALLOCATION-2026-09-09.md",
+      "_handed_off: operands from committed records only -- the assignment, the fence this ending recorded, from_route from claimed_offers_for's work_route, to_route from the worker's existing review_route",
+      "_fence_operation reads the checkpoint's fence for an implementation ending and the verdict's review_fence for a review ending"
+    ]
+  },
+  "fixture_changes": {
+    "one runtime identity per start": "the composed engine overlay minted `runtime-single-1` for every run, so after the implementation's `rm` the reviewer's brand-new container was reported absent the moment it started. The first identity is unchanged.",
+    "the reviewer's read-only source": "`review_boundary` binds the line at /input/source; outside a container that mountpoint is the empty directory the manifest declares, so `mounted_view` composes the same view from the boundary's own nominated source.",
+    "the two next-role routes": "configured explicitly in the fixture Authority, as MINIMUM-ALLOCATION directs: rview -> baton.reviewer, integration -> baton.integrator, with the review worker carrying its own review_route.",
+    "the deferred-cleanup window": "`cleaned_up` now withholds one discharge deliberately; W124782's accepted fix means the ordinary ending settles on its first tick, so the window those four recovery cases measure no longer happens by accident."
+  },
+  "retired_and_converted": {
+    "TheDischargeReceiptIsNeverJournalled": "converted to TheDischargeReceiptIsCommittedWithItsOwnKind: W124782 fixed the defect it pinned, so it now asserts the receipt commits with the evidence kind and that the settlement names it",
+    "TheWrongRouteClaimDefersInsteadOfStoppingTheSweep and OneRefusedClaimLeavesEveryOtherJobAlone": "RETIRED, and this is a judgement the reviewer should confirm. Both were about the composed Job's wrong-route review claim, which this Work's handoff removes -- their premise no longer occurs in the deployment. The wrong-route negative the PLAN requires to stay is preserved in TwoIndependentlyBoundWorkersShareOneSweep, over a route no participant handles, and the correctly routed positive is TheComposedJobTraversesReviewAndAcceptance. Owner124767's conversion as amended by owner124970 is what authorizes this; if the reviewer reads that authority more narrowly, the exact prior bytes are in this claim's diff and in findings/finding-concrete-claim-adapter/evidence/."
+  },
+  "declared_budget_seconds": 40,
+  "budget": {
+    "declared_before_any_execution": true,
+    "spent_seconds": 85.0,
+    "over_by": 45.0,
+    "why": "the lifecycle advanced through five successive boundaries, each found by a short probe (route, runtime identity, reviewer source, review report, review fence) at under a second each; the cost is five full two-module runs at about 12s, one of which repaired a splicing error of my own that briefly duplicated two classes. Recorded, not presented as met.",
+    "self_inflicted": "one of the five full runs was spent finding and repairing my own duplicated-class edit"
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance",
+      "result": "6 tests, OK, 1.52s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_stage_execution tests.tools.test_single_worker",
+      "result": "247 tests, OK, 11.0s -- the five long-standing W122060 failures are gone, and no failure remains"
+    }
+  ],
+  "still_owed": "W119114 keeps the full lifecycle acceptance and the narrowed restart/custody proof. This component has not run the committed-handoff restart proof yet; it stops at the integration runtime port above."
+}

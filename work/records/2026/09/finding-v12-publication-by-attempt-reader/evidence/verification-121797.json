@@ -1,0 +1,38 @@
+{
+  "work": "W121793",
+  "claim": 121797,
+  "interface": "publication_for_attempt(manager, *, attempt_id) -> the same validated receipt publication_of answers, or None",
+  "budget_seconds": {
+    "declared_before_running": 15,
+    "spent": 6.3
+  },
+  "sha256": {
+    "src/baton_v12/integration/driver.py": "b19839ac0d87878aba3fba89c11e823de3b324e2aed9766b192435101ae3a1a7",
+    "src/baton_v12/integration/__init__.py": "ec3a2e4fd52739c249b5a2dff102fe1be056ae6fabcb83dca52eed80d83ea8eb",
+    "tests/integration/test_driver.py": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7"
+  },
+  "modes": {
+    "src/baton_v12/integration/driver.py": "664",
+    "src/baton_v12/integration/__init__.py": "664",
+    "tests/integration/test_driver.py": "664"
+  },
+  "existing_assertions": {
+    "test_driver_methods_at_baseline": 83,
+    "test_driver_methods_now": 109,
+    "all_additive": true
+  },
+  "commands": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.integration.test_driver.TheCommittedPublicationIsFoundFromTheAttemptAlone",
+      "result": "11 tests, OK, 0.12s"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.integration.test_driver tests.tools.test_stage_execution",
+      "result": "214 tests, OK, 6.2s"
+    }
+  ],
+  "limits": [
+    "the scan reads rows of integration.publication directly, because the identity is a digest over the attempt AND the selector so no enumeration is possible; it is bounded to a kind this module alone writes",
+    "frozen_output_of and assignment_of remain this suite's declared stand-ins, as in the existing producer cases; the publication record, its journal row and the retained manifests are real"
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "correction": "Initial module comparison used layer labels only and omitted delegated labels, creating unrelated caller residuals; reuse complete retained expected catalog to correct data-only comparison. No projection or test rerun.",
+  "missing_before": [
+    [
+      [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.review_fence.intent"
+      ],
+      "a persisted checkpoint verdict"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence"
+      ],
+      "a persisted assignment fence"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence.intent"
+      ],
+      "a persisted assignment fence"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence.intent"
+      ],
+      "a persisted line checkpoint"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility.verdict_id"
+      ],
+      "a checkpoint verdict identity"
+    ],
+    [
+      [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "attempt_id"
+      ],
+      "a runtime attempt identity"
+    ],
+    [
+      [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "generation"
+      ],
+      "an assignment generation"
+    ]
+  ],
+  "missing_after": [
+    [
+      [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.review_fence.intent"
+      ],
+      "a persisted checkpoint verdict"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence.intent"
+      ],
+      "a persisted assignment fence"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence.intent"
+      ],
+      "a persisted line checkpoint"
+    ],
+    [
+      [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "attempt_id"
+      ],
+      "a runtime attempt identity"
+    ],
+    [
+      [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "generation"
+      ],
+      "an assignment generation"
+    ]
+  ],
+  "orphan_before": [
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence"
+      ],
+      "a persisted line checkpoint"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility.verdict_id"
+      ],
+      "persisted integration eligibility"
+    ]
+  ],
+  "orphan_after": [],
+  "selected": [
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence"
+      ],
+      "exact": [
+        {
+          "call": [
+            "review_cycles.py:_fence",
+            456,
+            12,
+            457,
+            62
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "document",
+          "label": "a persisted assignment fence",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints[fence]",
+          "lexical_label": "a persisted assignment fence",
+          "propagated": true
+        }
+      ],
+      "rows": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility.verdict_id"
+      ],
+      "exact": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            211,
+            4,
+            211,
+            68
+          ],
+          "site": "review_cycles.py:integration_checkpoint",
+          "kind": "identity",
+          "label": "a checkpoint verdict identity",
+          "subject": "read:review_cycles.py:integration_checkpoint|integration_eligibility[verdict_id]",
+          "lexical_label": "a checkpoint verdict identity",
+          "propagated": true
+        }
+      ],
+      "rows": [
+        {
+          "call": [
+            "review_cycles.py:integration_checkpoint",
+            1296,
+            12,
+            1297,
+            66
+          ],
+          "site": "review_cycles.py:integration_checkpoint",
+          "kind": "row",
+          "label": "persisted integration eligibility",
+          "subject": "read:review_cycles.py:integration_checkpoint|integration_eligibility",
+          "lexical_label": "persisted integration eligibility",
+          "propagated": false
+        }
+      ]
+    }
+  ]
+}

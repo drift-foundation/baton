@@ -1,0 +1,70 @@
+--- prior/src/baton_v12/integration/driver.py
++++ src/baton_v12/integration/driver.py
+@@ -485,6 +485,32 @@
+     return recorded
+ 
+ 
++def _typed_assignment(value, what):
++    """The four-part assignment with its member TYPES proved, not just equal.
++
++    W120763 review 2026-09-08T17-15-33Z [P2]. `True == 1` in Python, so a
++    recorded assignment whose generation was JSON `true` compared equal to the
++    first generation ever minted and every equality check in this module
++    passed it through. The journal signature does not close the gap either: it
++    is derived for integer generation 1 and says nothing about the types of the
++    members the RESULT carries.
++
++    `boundaries.generation` excludes `bool` for exactly this reason and says so
++    in its own words, so the fix is to own the document before comparing it
++    rather than to invent a second rule about numbers here.
++    """
++    held = boundaries.document(value, what,
++                               required=("work_ref", "participant",
++                                         "generation"))
++    ref = boundaries.document(held["work_ref"], f"{what}'s Work reference",
++                              required=("authority_uuid", "work_id"))
++    boundaries.text(ref["authority_uuid"], f"{what}'s Authority")
++    boundaries.text(ref["work_id"], f"{what}'s Work id")
++    boundaries.text(held["participant"], f"{what}'s participant")
++    boundaries.generation(held["generation"], f"{what}'s generation")
++    return held
++
++
+ def _publication_operation_id(attempt_id, proposal_manifest_digest):
+     """The one identity this attempt's publication record is journalled by.
+ 
+@@ -530,6 +556,15 @@
+                         proposal, operands, recorded):
+     """Commit the closed publication record, effectively once."""
+     del proposal
++    # THE TYPES ARE PROVED BEFORE ANYTHING IS COMMITTED, on both accounts of
++    # the assignment this record will carry: the operands this manager asked
++    # with, and the answer the Authority read back. Review [P2]: a boolean
++    # generation in the readback was committed, so the record itself carried a
++    # member no reader could then reject on value alone.
++    _typed_assignment(operands["expect"],
++                      "a publication's requested assignment")
++    _typed_assignment(recorded.get("assignment_ref"),
++                      "a published proposal's assignment")
+     receipt = _publication_receipt(attempt_id, proposal_manifest_digest,
+                                    operands, recorded)
+     check_no_durable_secret(receipt, what="a retained publication record")
+@@ -608,6 +643,9 @@
+                 category="refused", code="precondition")
+     taken = boundaries.document(committed, what,
+                                 required=PUBLICATION_RECEIPT)
++    # TYPES FIRST, THEN VALUES, for both accounts. `True == 1`, so an equality
++    # comparison alone accepts a boolean generation wherever the real one is 1.
++    _typed_assignment(taken["assignment"], f"{what}'s assignment")
+     if taken != _publication_receipt(attempt_id, proposal_manifest_digest,
+                                      operands, taken["published"]):
+         _refuse(f"{what} names selectors this manager does not derive for it")
+@@ -617,6 +655,8 @@
+     # this build reads -- which the publishing path accepts, so the reader
+     # accepts it too rather than inventing a second contract for one fact.
+     published = boundaries.document(taken["published"], f"{what}'s answer")
++    _typed_assignment(published.get("assignment_ref"),
++                      f"{what}'s recorded assignment")
+     for name, value in expected.items():
+         if published.get(name) != value:
+             _refuse(f"{what} records an Authority answer that disagrees about "

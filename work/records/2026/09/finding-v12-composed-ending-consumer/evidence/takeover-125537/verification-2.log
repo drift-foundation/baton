@@ -1,0 +1,77 @@
+test_one_job_completes_correction_integration_and_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff) ... ERROR
+
+======================================================================
+ERROR: test_one_job_completes_correction_integration_and_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3653, in test_one_job_completes_correction_integration_and_terminal_handoff
+    report = self.tick(held)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3540, in tick
+    return sweep(held.job, held.composed, now=fixtures.NOW)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 160, in sweep
+    started = _launch(store, operations, projection.stage_states(store,
+                                                                 operations))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 340, in _launch
+    answer = operations.launch(attempt, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 1532, in launch
+    return self.integrator.run(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 1341, in run
+    return admit_accepted(
+        deployment.integration, control, deployment.jobs,
+        deployment.authority, *sessions, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1453, in admit_accepted
+    answer = execution.integrate_next(
+        store, manager, jobs, authority, port,
+    ...<2 lines>...
+        lease_id=lease_id, attempt_id=attempt_id,
+        launch_root=launch_root, workspace_group=workspace_group)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/execution.py", line 340, in integrate_next
+    port.run(delivery, assignment)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 520, in run
+    published = integration_bundle.compose_bundle(
+        os.path.join(self._bundle_home, attempt_id),
+    ...<4 lines>...
+        line_id=self.line_id, proposal_id=self.proposal_id,
+        runner=self.object_runner)
+  File "/home/sl/src/baton/v12/python/tools/integration_bundle.py", line 1174, in compose_bundle
+    table = reviewed_path_table(runner, directory, evidence)
+  File "/home/sl/src/baton/v12/python/tools/integration_bundle.py", line 406, in reviewed_path_table
+    _run(runner, directory, tree_vector(evidence["base"]),
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         "the reviewed base tree"), "a tree name")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_bundle.py", line 258, in _run
+    answer = runner(tuple(argv), directory=directory)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3588, in object_runner
+    answer = subprocess.run(list(argv), cwd=directory, env=self.environment(), capture_output=True, timeout=10)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1902, in _execute_child
+    self.pid = _fork_exec(
+               ~~~~~~~~~~^
+            args, executable_list,
+            ^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+            process_group, gid, gids, uid, umask,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            preexec_fn, _USE_VFORK)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not int
+
+----------------------------------------------------------------------
+Ran 1 test in 0.632s
+
+FAILED (errors=1)

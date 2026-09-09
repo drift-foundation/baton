@@ -1,0 +1,168 @@
+--- v12/python/tests/tools/test_stage_execution.py
++++ v12/python/tests/tools/test_stage_execution.py
+@@ -3538,6 +3538,165 @@
+         from tests.job_manager import fixtures
+ 
+         return sweep(held.job, held.composed, now=fixtures.NOW)
++
++
++class OrdinaryTerminalLifecycle(ComposedOneJobCase):
++    """W122060: coherent provisioning and one actual terminal lifecycle."""
++
++    REPORT = TheComposedJobTraversesReviewAndAcceptance.REPORT
++    reviewed = TheComposedJobTraversesReviewAndAcceptance.reviewed
++    projected = TheComposedJobTraversesReviewAndAcceptance.projected
++    only_attempt_of = TheComposedJobTraversesReviewAndAcceptance.only_attempt_of
++    deployment_of = staticmethod(TheComposedJobTraversesReviewAndAcceptance.deployment_of)
++    tick = TheComposedJobTraversesReviewAndAcceptance.tick
++    INSTRUCTIONS = b"the configured integration instructions\n"
++
++    def setUp(self):
++        from baton_v12.authority import Authority
++
++        super().setUp()
++        # Provision the disposable target at its Git-reviewed ordinary mode,
++        # independently of the test process umask, before starting any worker.
++        os.chmod(os.path.join(self.source, "harness.py"), 0o644)
++        authority = Authority.open(self.authority_path, expected_authority_uuid=self.config["authority_uuid"])
++        try:
++            # Pin once after bootstrap; subsequent policy drift still refuses.
++            self.fixture_policy = authority.policy_generation()
++        finally:
++            authority.dispose()
++        self.lifecycle_reports = []
++
++    def composed_document(self, **members):
++        from baton_v12.contracts import digest_of_bytes
++
++        given = super().composed_document(**members)
++        given["policy_generation"] = self.fixture_policy
++        given["integration_profile"]["instructions_digest"] = digest_of_bytes(self.INSTRUCTIONS)
++        return given
++
++    def integration_port(self, held):
++        from baton_v12.integration import TARGET_SCHEMA, activate_target
++
++        deployment = self.deployment_of(held)
++        activate_target(deployment.integration, {"schema": TARGET_SCHEMA,
++                        "canonical_target_id": deployment.given["canonical_target_id"],
++                        "description": "the disposable composed lifecycle target"})
++        port = TheComposedJobTraversesReviewAndAcceptance.integration_port(self, held)
++        port.object_runner = self.object_runner
++        return port
++
++    def object_runner(self, argv, *, directory):
++        import subprocess
++
++        answer = subprocess.run(list(argv), cwd=f"/proc/self/fd/{directory}", pass_fds=(directory,),
++                                env=self.environment(), capture_output=True, timeout=10)
++        return {"returncode": answer.returncode, "stdout": answer.stdout, "stderr": answer.stderr}
++
++    def accepted_correction(self):
++        held = self.reviewed("changes-requested")
++        line_id = self.deployment_of(held).line()["line_id"]
++        self.drive(held.job, held.composed, "implementation", "waiting", ticks=12)
++        corrected = self.only_attempt_of(held.composed, "implementation", exclude=held.attempt_id)
++        self.assertEqual(self.turn(held.control, "implementation", corrected,
++                                  self.mounted(held.composed, "implementation", corrected),
++                                  edits={"harness.py": "print('the accepted correction')\n"}), 0)
++        self.drive(held.job, held.composed, "review", "waiting", ticks=12)
++        reviewer = self.only_attempt_of(held.composed, "review", exclude=held.review)
++        self.assertEqual(self.turn(held.control, "review", reviewer,
++                                  self.mounted(held.composed, "review", reviewer),
++                                  edits={"review-report.json": json.dumps(self.REPORT)}), 0)
++        self.drive(held.job, held.composed, "integration", "claimed", ticks=12)
++        self.assertEqual(self.deployment_of(held).line()["line_id"], line_id)
++        held.corrected = corrected
++        return held
++
++    def connect_integration(self, held):
++        port = self.integration_port(held)
++        composed = stage_execution.operations_from(
++            self.composed_document(line_declared_base=self.base), held.job, held.control,
++            engine_run=self.engine, credential_provider=lambda *_: self.secret,
++            clock=lambda: NOW, checkout=self.checkout, integration_port=port)
++        self.addCleanup(composed.close)
++        self._composed = composed
++        held.composed = composed
++        held.integration_port = port
++
++    def integration_turn(self, held, attempt_id):
++        import subprocess
++        import sys
++        import claude_agent
++        import integration_entry
++        from baton_v12.integration import runtime
++        from tests.manager.test_integration_worker import PROVIDER_SOURCE
++        from unittest.mock import patch
++
++        deployment = self.deployment_of(held)
++        delivery = runtime.adopt_delivery(deployment.integration_root, attempt_id=attempt_id,
++                                          workspace_group=deployment.workspace_group)
++        script = os.path.join(self.root, "integration-provider.py")
++        self.write(script, PROVIDER_SOURCE)
++
++        def runner(argv, **options):
++            return subprocess.run([sys.executable, "-I", "-B", script, "import", argv[-1]],
++                                  cwd=options.get("cwd"), env=dict(options.get("env") or {}),
++                                  stdout=options.get("stdout"), stderr=options.get("stderr"), timeout=10)
++
++        from baton_v12.worker_manager import launch
++
++        launched = launch.adopt(os.path.join(self.root, "integration-launch"), attempt_id=attempt_id,
++                               session="integration-session", contract=self.config["launch_contract"],
++                               role=integration_worker.LAUNCH_ROLE)
++        launch_place = launched.place
++        scratch = os.path.join(self.root, "integration-scratch")
++        os.mkdir(scratch, 0o700)
++        agent_home = os.path.join(self.root, "integration-agent")
++        os.mkdir(agent_home, 0o700)
++        credentials = os.path.join(self.root, "integration-credentials")
++        os.mkdir(credentials, 0o700)
++        self.write(os.path.join(credentials, "claude"), "not-a-credential\n")
++        with patch.object(claude_agent, "CREDENTIAL_ROOT", credentials):
++            return integration_entry.main(
++                agent=claude_agent.ClaudeAgent(run=runner, home=agent_home),
++                launch_place=launch_place, assignment_root=delivery.assignment_root,
++                result_root=delivery.result_root,
++                bundle_root=os.path.join(self.root, "integration-bundles", attempt_id),
++                target_root=self.source, scratch=scratch)
++
++    def test_one_job_completes_correction_integration_and_terminal_handoff(self):
++        from baton_v12.integration import entries_of, lease_of
++
++        held = self.accepted_correction()
++        self.connect_integration(held)
++        report = self.tick(held)
++        self.lifecycle_reports.append(report)
++        [started] = [one for one in report["started"] if one["stage_id"] == "job-a/integration"]
++        self.assertEqual(started["outcome"], "started", started)
++        self.assertEqual(self.states(held.job, held.composed)["integration"], "starting")
++        attempt_id = started["attempt_id"]
++        self.assertEqual(self.integration_turn(held, attempt_id), 0)
++        from baton_v12.integration import runtime
++
++        deployment = self.deployment_of(held)
++        delivery = runtime.adopt_delivery(deployment.integration_root, attempt_id=attempt_id,
++                                          workspace_group=deployment.workspace_group)
++        observed = runtime.observed_delivery(delivery, runtime.published_assignment(delivery))
++        self.assertEqual(observed["state"], "answered", observed)
++        self.assertEqual(observed["result"]["outcome"], "integrated", observed)
++        self.engine.stopped = True
++        report = self.tick(held)
++        self.lifecycle_reports.append(report)
++        [ended] = [one for one in report["spoken"] if one["stage_id"] == "job-a/integration"]
++        self.assertEqual(ended["outcome"], "performed", ended)
++        self.assertEqual(ended["detail"]["outcome"], "integrated", ended)
++        self.assertIsNotNone(ended["detail"]["authority_receipt"])
++        deployment = self.deployment_of(held)
++        [entry] = entries_of(deployment.integration, deployment.given["canonical_target_id"])
++        self.assertEqual(entry["state"], "integrated")
++        self.assertEqual(lease_of(deployment.integration, ended["detail"]["assignment"]["lease_id"])["state"], "released")
++        self.assertEqual(pathlib.Path(self.source, "harness.py").read_text(), "print('the accepted correction')\n")
++        states = self.drive(held.job, held.composed, "integration", "completed", ticks=3)
++        self.assertEqual(states, {"implementation": "completed", "review": "completed", "integration": "completed"})
++        self.assertIsNone(self.projected()["handler"])
+ 
+ 
+ class TheWrongRouteClaimDefersInsteadOfStoppingTheSweep(ComposedOneJobCase):

@@ -1,0 +1,18 @@
+{
+  "work": "W121887",
+  "claim": 121981,
+  "utc": "2026-09-08T19:41:50.390257+00:00",
+  "paths": {
+    "v12/python/tools/single_worker.py": {
+      "sha256": "ff383296aeb75885668d365d3cdc5ff1a280234f5282694acb7f37cc3f4ca47f",
+      "mode": "0o664",
+      "baseline_AST_preserved": true
+    },
+    "v12/python/tests/tools/test_single_worker.py": {
+      "sha256": "af445808743e15c7a95017b9ef3d685c4b96b0a45a439940cc60a553c8a8aa3b",
+      "mode": "0o664",
+      "baseline_AST_preserved": true
+    }
+  },
+  "verification": "Source inspection and independent preservation audit; reuse author three controls across retained initial/final runs (0.514s), no test rerun."
+}

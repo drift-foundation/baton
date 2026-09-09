@@ -1,0 +1,15 @@
+{
+  "claim": 119842,
+  "execution": "python3 work/records/2026/09/finding-v12-quiescence-gate-discharge/evidence/review-119842-probe.py",
+  "exit_code": 0,
+  "elapsed_seconds": 0.073146229,
+  "scope": "offline disposable Worker Manager fixtures; no coordination-store access",
+  "original_runtime": "runtime-1",
+  "cleanup_operation_id": "runtime.destroy:9c2e62c395508900f29a28eb4b2d148cc99498c4fd8953dcfccd93b1683c5af6",
+  "cleanup_signature_digest": "sha256:1ed4b5844ccc0a728e18305b2941a83bc6701f5ff50dca9030deb3f36982c689",
+  "observations": [
+    {"scenario": "changed-runtime", "accepted": true, "gate_remaining": null, "evidence": [{"kind": "runtime-absent", "runtime": "runtime-never-observed-absent"}], "discoverable_receipt": true},
+    {"scenario": "wrong-answer", "accepted": true, "gate_remaining": "runtime-quiescence:1", "evidence": [], "receipt_gate": "runtime-quiescence:1", "receipt_kind": [], "receipt_phase": "block", "discoverable_receipt": true},
+    {"scenario": "foreign-authority", "injected_authority_uuid": "99999999999999999999999999999999", "receipt_authority_uuid": "43c55d4b1234567890abcdef12345678", "accepted": true, "gate_remaining": null, "discoverable_receipt": true}
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "tests/manager/test_review_cycles.py": {
+    "all_first_candidate_tests_unchanged": true
+  },
+  "tests/manager/test_checkpoint_profiles.py": {
+    "all_first_candidate_tests_unchanged": true
+  }
+}

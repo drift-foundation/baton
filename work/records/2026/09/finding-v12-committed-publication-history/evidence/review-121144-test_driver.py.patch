@@ -1,0 +1,86 @@
+--- prior/tests/integration/test_driver.py
++++ tests/integration/test_driver.py
+@@ -2250,6 +2250,83 @@
+         self.reopened()
+         self.assertIsNone(self.read(held))
+ 
++
++    # -- W120763 review [P2]: a boolean is not a generation --------------------
++
++    def test_a_boolean_generation_in_the_readback_commits_nothing(self):
++        """`True == 1`, so equality alone accepted it at generation 1.
++
++        The journal signature does not close the gap either: it is derived for
++        integer generation 1 and says nothing about the types the recorded
++        RESULT carries. So the types are proved before anything is committed.
++        """
++        held = self.produced()
++
++        def boolean(proposal_id):
++            answer = copy.deepcopy(self.publisher.recorded)
++            answer["assignment_ref"] = dict(answer["assignment_ref"],
++                                            generation=True)
++            return dict(answer, decision={},
++                        published_at="2026-09-07T02:00:00.000Z")
++
++        with self.owners(), mock.patch.object(self.publisher, "proposal",
++                                              side_effect=boolean):
++            caught = self.refusal(
++                driver.publish_candidate, self.store, self.publisher,
++                attempt_id=self.ATTEMPT, proposal_manifest_digest=held)
++        self.assertIn("generation", caught.message)
++        self.assertEqual(self.rows(), 0)
++        self.reopened()
++        self.assertIsNone(self.read(held))
++
++    def test_a_boolean_generation_in_the_record_refuses_on_read(self):
++        held, _recorded = self.published()
++        self.reopened()
++        row = self.store._connection.execute(
++            "SELECT operation_id, result FROM operations WHERE kind = ?",
++            (driver.PUBLICATION_KIND,)).fetchone()
++        receipt = json.loads(row["result"])
++        for name, damaged in (
++                ("the receipt's own assignment",
++                 dict(receipt, assignment=dict(
++                     receipt["assignment"], generation=True))),
++                ("the recorded Authority answer",
++                 dict(receipt, published=dict(
++                     receipt["published"],
++                     assignment_ref=dict(
++                         receipt["published"]["assignment_ref"],
++                         generation=True))))):
++            with self.subTest(assignment=name):
++                with self.damaged(
++                        "UPDATE operations SET result = ? WHERE "
++                        "operation_id = ?",
++                        (json.dumps(damaged), row["operation_id"])):
++                    caught = self.refusal(self.read, held)
++                self.assertIn("generation", caught.message)
++
++    def test_an_honest_generation_still_reads_back_after_reopening(self):
++        """The positive half, so the type proof is a gate and not a wall.
++
++        Publisher methods are forbidden here, which is the same statement the
++        signature makes structurally: the reader performs no remote act.
++        """
++        held, recorded = self.published()
++        self.reopened()
++        with mock.patch.object(self.publisher, "publish",
++                               side_effect=AssertionError("no republish")), \
++                mock.patch.object(self.publisher, "proposal",
++                                  side_effect=AssertionError("no remote read")):
++            changes = self.store._connection.total_changes
++            answered = self.read(held)
++            again = self.read(held)
++        self.assertEqual(answered, again)
++        self.assertEqual(answered["assignment"]["generation"],
++                         self.assignment["generation"])
++        self.assertIs(type(answered["assignment"]["generation"]), int)
++        self.assertEqual(answered["published"]["assignment_ref"],
++                         recorded["assignment_ref"])
++        self.assertEqual(self.store._connection.total_changes, changes)
++
+     # -- present, and not this publication's ---------------------------------
+ 
+     def test_a_record_of_another_kind_refuses(self):

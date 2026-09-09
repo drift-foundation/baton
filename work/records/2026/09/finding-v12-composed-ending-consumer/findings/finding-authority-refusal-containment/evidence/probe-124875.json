@@ -1,0 +1,9 @@
+{
+  "tick": 2,
+  "type": "baton_v12.authority.errors.Refusal",
+  "message": "route 'baton.impl' does not resolve to 'baton.reviewer'",
+  "code": null,
+  "durable": false,
+  "is_contract_refusal": false,
+  "elapsed_seconds": 0.1851968119153753
+}

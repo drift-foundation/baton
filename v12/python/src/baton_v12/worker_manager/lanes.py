@@ -91,28 +91,118 @@ __all__ = ["LANE_PARTS", "lane_reference", "runtime_lane"]
 # convenient tuple. Order is fixed: it is what the digest is taken over.
 LANE_PARTS = ("authority_uuid", "work_id", "principal", "effective_scope")
 
+# W119476: THE FIVE ATTEMPT MEMBERS THIS PROJECTION CONSUMES. Named rather than
+# left as five lookups, because they are what the public boundary requires and a
+# member list that exists only inside a function body is a contract nobody can
+# read.
+#
+# EACH IS HELD TO ITS OWN COLUMN'S EXISTING RULE rather than to a second grammar
+# for the same value: `runtime_attempt_id` and `work_id` are `identity` in
+# `ATTEMPT_COLUMNS`, and the other three are `text`. `lane_reference` spells
+# those rules out rather than dispatching through the column mapping, for the
+# discovery reason its own body states; the agreement between the two is pinned
+# by a case in `test_runtime_lane` so it cannot drift silently.
+LANE_INPUT = ("runtime_attempt_id", "authority_uuid", "work_id",
+              "assignment_principal", "assignment_scope")
+
 
 def lane_reference(attempt):
     """The lane one activated attempt belongs to, or a refusal.
 
-    READ FROM THE ATTEMPT ROW, never from a caller. Every part was written by
-    `activate_assignment` out of the authority's own closed claim result
-    (W16823), so there is no operand on any public surface through which a
-    caller or a worker could name a lane -- which is the acceptance's
-    "without exposing a mutable caller-selected principal or scope", enforced
-    by there being nothing to expose.
+    A PURE, OWNED PROJECTION OF A CALLER DOCUMENT, and W119476 is why that
+    sentence replaces the one that used to be here. This is exported by both
+    this module and `worker_manager`, so "read from the attempt row, never from
+    a caller" described how the lifecycle happens to call it and not a rule
+    anything enforced: a direct caller could hand it `[]` or `{}` and receive a
+    raw `TypeError` or `KeyError`, or hand it a list in any of the five members
+    below and receive that list back inside a lane reference. Nine direct calls
+    measured exactly that. A comment cannot establish provenance, so the input
+    is owned here instead.
+
+    WHAT IT STILL IS NOT. A valid typed reference is not proof of a live
+    Authority assignment, and this answers no question about one. It resolves no
+    Authority, consults no store, acquires no occupancy and does not touch the
+    lane-id derivation; a caller holding a well-formed reference has a
+    projection of what it supplied and nothing more. The acceptance's "without
+    exposing a mutable caller-selected principal or scope" is kept where it is
+    actually kept -- by `_occupy_lane`, which takes its reference from a row
+    this manager read, and by there being no public operand anywhere that
+    reaches it.
+
+    THE FIVE MEMBERS ARE REQUIRED AND THE REST OF AN ATTEMPT ROW IS OPTIONAL,
+    which is what keeps every real caller working unchanged: `boundaries.row`
+    answers a dict carrying exactly `ATTEMPT_COLUMNS`, and all four production
+    call sites hand one straight over. An unknown member is refused rather than
+    ignored, on `_members`' own reason.
+
+    THE ORDER OF THE TWO REFUSALS IS THE CONTRACT. Every non-null consumed
+    member is proved first, so malformed input is `integrity/schema` even when
+    the attempt is also unactivated; only then does a null principal reach the
+    ordinary `refused/precondition` an unactivated attempt has always received.
+    A real unactivated row -- whose Work, Authority and scope are null too --
+    still reaches exactly that refusal and is not reported as malformed.
     """
-    if attempt["assignment_principal"] is None:
+    from . import schema
+
+    taken = boundaries.document(
+        attempt, "a runtime lane attempt", required=LANE_INPUT,
+        optional=tuple(one for one in schema.ATTEMPT_COLUMNS
+                       if one not in LANE_INPUT))
+    # EVERY CONSUMED MEMBER IS READ AND PROVED BY ITS OWN LITERAL NAME, and the
+    # spelling is deliberate rather than repetitive. The receiving-boundary
+    # inventory discovers a crossing from the member READ, so a loop over a name
+    # variable would validate these five exactly as well and make them INVISIBLE
+    # to the catalog that has to account for them -- trading one half of this
+    # boundary for the other, which is the "hides discovery" outcome this Work's
+    # finding rules out by name.
+    #
+    # THE ATTEMPT ID IS PROVED ON BOTH BRANCHES. It is what the refusal below
+    # NAMES, and it was previously read only there -- so an active call with a
+    # malformed one returned a lane while the value nobody could store went
+    # unmentioned. `ATTEMPT_COLUMNS` makes it non-nullable, so it has no null
+    # branch; the other four do, because a real unactivated row carries nulls.
+    boundaries.identity(taken["runtime_attempt_id"],
+                        "a runtime lane attempt's runtime_attempt_id")
+    if taken["authority_uuid"] is not None:
+        boundaries.text(taken["authority_uuid"],
+                        "a runtime lane attempt's authority_uuid")
+    if taken["work_id"] is not None:
+        boundaries.identity(taken["work_id"],
+                            "a runtime lane attempt's work_id")
+    if taken["assignment_principal"] is not None:
+        boundaries.text(taken["assignment_principal"],
+                        "a runtime lane attempt's assignment_principal")
+    if taken["assignment_scope"] is not None:
+        boundaries.text(taken["assignment_scope"],
+                        "a runtime lane attempt's assignment_scope")
+    if taken["assignment_principal"] is None:
         raise ContractRefusal(
             "refused", "precondition",
-            f"attempt {name_value(attempt['runtime_attempt_id'])} is not "
+            f"attempt {name_value(taken['runtime_attempt_id'])} is not "
             f"activated, so it belongs to no lane; capacity is a fact about "
             f"an assignment and an attempt without one is not in a queue for "
             f"anything")
-    return {"authority_uuid": attempt["authority_uuid"],
-            "work_id": attempt["work_id"],
-            "principal": attempt["assignment_principal"],
-            "effective_scope": attempt["assignment_scope"]}
+    # AND AN ACTIVATED ATTEMPT CARRIES ALL FOUR PARTS OR IT IS NOT ONE. The
+    # table's own CHECK keeps the activation columns together, so a mapping
+    # with a principal and no Work is a broken relation rather than an
+    # unactivated attempt -- `integrity/schema`, because the ordinary
+    # precondition above is the honest answer only when nothing was activated.
+    absent = [name for name, value in
+              (("authority_uuid", taken["authority_uuid"]),
+               ("work_id", taken["work_id"]),
+               ("assignment_scope", taken["assignment_scope"]))
+              if value is None]
+    if absent:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"a runtime lane attempt names assignment principal "
+            f"{name_value(taken['assignment_principal'])} and carries no "
+            f"{', '.join(absent)}; the four activation parts are one relation "
+            f"and three quarters of a lane is not one")
+    return {"authority_uuid": taken["authority_uuid"],
+            "work_id": taken["work_id"],
+            "principal": taken["assignment_principal"],
+            "effective_scope": taken["assignment_scope"]}
 
 
 def _lane_id(reference):

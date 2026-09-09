@@ -1,0 +1,20 @@
+{
+  "files": [
+    {
+      "path": "src/baton_v12/worker_manager/intake.py",
+      "sha256": "d326fe41d0ad8ca90950be9735f4c05b1c537e70e6827f760867969830eae7b7",
+      "mode": "664"
+    },
+    {
+      "path": "src/baton_v12/worker_manager/__init__.py",
+      "sha256": "3981073e933fb36daa4ad93091858487f3393e8ceabb69bbb26a3496bf9db798",
+      "mode": "644"
+    },
+    {
+      "path": "tests/manager/test_intake.py",
+      "sha256": "40cf5c6686875b8ed6a48cba3106a80ac4f98b6fcfe41334f5c869bb66d79fdf",
+      "mode": "664"
+    }
+  ],
+  "all_prior_test_methods_AST_unchanged": true
+}

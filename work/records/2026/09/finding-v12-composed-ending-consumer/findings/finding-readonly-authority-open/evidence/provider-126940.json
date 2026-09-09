@@ -1,0 +1,80 @@
+{
+  "work": "W126880",
+  "claim": 126940,
+  "claim_order": "claimed at seq126940 before reading the dossier and before any edit; the question and the 20s budget were declared in PROGRESS before any execution",
+  "paths": {
+    "src/baton_v12/authority/api.py": {
+      "claim_start": "7a0343dd8aa9253092e59f34e3c6f3f18ec932de0e6b1408f01ff4d2b882b80d",
+      "final": "54583b9a6f06dcb172e90ec13170541e6982a966ec3da76e7ee676f54085af90",
+      "mode": "664"
+    },
+    "src/baton_v12/authority/store.py": {
+      "claim_start": "9967f4660841cfddf67280ff59f730c2e36f18a28936a0b0c8600d9fe370e651",
+      "final": "8919778a6d4fb5885da703dd8f898c44fe18150f170790c3863cd8c881a4bfa4",
+      "mode": "664"
+    },
+    "tests/authority/test_store.py": {
+      "claim_start": "274deea8d12e646d07c3a0c2a521c1130ef0cc67aafddc0ae0857682136b1722",
+      "final": "e776cf7df48ccdc296747588b33ec2a38ff86a947b286f80be6e16f6294aa2bb",
+      "mode": "664"
+    }
+  },
+  "test_methods": {
+    "tests/authority/test_store.py": {
+      "claim_start": 26,
+      "now": 45
+    }
+  },
+  "api": "Authority.open_readonly(path, *, expected_authority_uuid=None, clock=None, new_uuid=None), backed by Store.open_readonly(path, *, expected_authority_uuid=None). Implemented exactly as pinned; no clarification was needed and none was taken.",
+  "how": {
+    "non_writing_connection": "sqlite3 `file:<path>?mode=ro`, so SQLite itself refuses every write. `immutable=1` is deliberately NOT used: it asserts the file cannot change, which is false of a live store and would hand back stale or torn reads while a serving process commits.",
+    "validation": "on the connection that is handed back, inside one `BEGIN DEFERRED` read snapshot -- `read_snapshot`'s own rule applied before there is a Store to ask -- ending in ROLLBACK. The existing path/regular-file/non-empty checks and `_check_compatibility` are reused unchanged, so non-adoption and the expected-UUID compare-and-swap keep their exact meaning.",
+    "no_persistent_change": "no schema, no migration, no write lock, no checkpoint, no persistent PRAGMA, no permissions change. `busy_timeout` and `foreign_keys` are per-connection.",
+    "mutation_refusal": "Store gained a `readonly` state; `run` and `transact` raise this authority's own `Refusal` before a statement is issued. A `sqlite3.OperationalError` from the middle of a transition is not a refusal a caller that handles `Refusal` would handle, and by then the transition has already decided things."
+  },
+  "reported_limitation": {
+    "what": "A store in WAL mode with neither `-wal` nor `-shm` present is REFUSED, with the reason named.",
+    "why": "measured, not assumed: opening such a store read-only made SQLite create BOTH an empty `-wal` and an `-shm`, and a read-only connection cannot remove them. Creating a journal artifact is exactly what the allocation forbids, and it says to refuse visibly rather than fall back.",
+    "detected_by": "the main file's own SQLite header (byte 18 == 2 means write-ahead logging), read as twenty inert bytes, plus the presence of either sidecar",
+    "consequence_for_the_consumer": "open_readonly reads a store while a process is holding it -- which is the case the allocation names, 'coherently with concurrent serving activity'. A store nobody is holding cannot be read this way. If the consumer's status process must also read a quiescent store, that is a real gap in this capability and needs its own disposition; I am reporting it rather than choosing a fallback the allocation excludes.",
+    "pinned_by": "test_a_closed_store_is_refused_with_the_sidecar_limit_named"
+  },
+  "declared_budget_seconds": 20,
+  "budget": {
+    "declared_before_any_execution": true,
+    "spent_seconds": 0.7,
+    "within": true
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.authority.test_store",
+      "result": "26 tests, OK, 0.05s -- the baseline before any test was added"
+    },
+    {
+      "run": "same, with the new controls",
+      "result": "44 tests, 3 failures and 1 error, 0.14s -- the sidecar creation, a wrong expected message, and project_work refusing rather than answering absence"
+    },
+    {
+      "run": "same, after correcting those expectations",
+      "result": "45 tests, 3 failures, 0.14s -- an empty `-wal` was still being created"
+    },
+    {
+      "run": "same, after refusing the absent-sidecar case",
+      "result": "45 tests, 6 errors, 0.06s -- every positive fixture closed its store first and now met that refusal"
+    },
+    {
+      "run": "same, with the positives held open by a serving handle",
+      "result": "45 tests, 1 failure, 0.07s"
+    },
+    {
+      "run": "same, after correcting the artifact assertion",
+      "result": "45 tests, OK, 0.07s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.authority.test_store tests.authority.test_assignment tests.authority.test_session",
+      "result": "133 tests, OK, 0.24s -- the Authority suites the store change touches"
+    }
+  ],
+  "existing_assertions": "unchanged; every addition to test_store.py is a new class",
+  "not_claimed": "this is one half of the read-only consumer join. It does not implement the consumer's status factory, the coordinator half (W126887), receipt policy, integration or the terminal handoff."
+}

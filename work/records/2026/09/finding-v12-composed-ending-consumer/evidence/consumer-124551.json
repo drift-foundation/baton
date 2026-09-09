@@ -1,0 +1,94 @@
+{
+  "work": "W122060",
+  "claim": 124551,
+  "claim_order": "claimed at seq124551 before reading past the thread and before any edit",
+  "paths": {
+    "tools/stage_execution.py": {
+      "sha256": "9b730aa2f2a78cebbb50412a0e5578a889ad0cfddac7163c58a468a6455fe137",
+      "mode": "664"
+    },
+    "tools/single_worker.py": {
+      "sha256": "1cd39743e9bc77466a5e749ccf3725340cde3f798df1db2f95ec53027f8036fe",
+      "mode": "664"
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "4d58d44a9ea74d07647e66fd51cc232d25082bd7e9249c592ab3388a0dc59228",
+      "mode": "664"
+    },
+    "tests/tools/test_single_worker.py": {
+      "sha256": "caece519ef46551f5c7cfdf375fd554a4f804b9c1a6f9d3500b2d6412b3c8fc2",
+      "mode": "664"
+    },
+    "tools/parallel_test.py": {
+      "sha256": "6ea5e9bef58a5182ae8b904a8db9ae92bcaf130d05ee1d61e9c36aa3efa0c10d",
+      "mode": "644"
+    }
+  },
+  "unchanged_this_claim": {
+    "tools/parallel_test.py": {
+      "edited_under_this_claim": false,
+      "note": "it differs from HEAD because the accepted W120519 registry addition is already in the working tree; no line of it was touched by this claim"
+    }
+  },
+  "test_methods": {
+    "tests/tools/test_stage_execution.py": {
+      "baseline_HEAD": 93,
+      "now": 117
+    },
+    "tests/tools/test_single_worker.py": {
+      "baseline_HEAD": 83,
+      "now": 94
+    }
+  },
+  "scheduled_conversions": {
+    "class": "TheComposedHandoffStopsAtTheUndischargedQuiescenceGate -> TheComposedHandoffCarriesItsOwnQuiescenceEvidence",
+    "1": "absent-capability -> exact satisfy_gate forwarding through _AuthoritySession, with OPTIONAL_SESSION_OPERATIONS named",
+    "2": "gated completed implementation -> queued, ungated, ready Work",
+    "3": "refused review offer -> an ordinary tick performing admit and leaving the review stage offered",
+    "owner": "event119712",
+    "other_assertions_changed": 0
+  },
+  "declared_budget_seconds": 20,
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_stage_execution",
+      "result": "117 tests, OK, 5.86s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_single_worker",
+      "result": "103 tests, OK, 3.86s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_stage_execution tests.tools.test_single_worker tests.job_manager.test_review_driver tests.integration.test_driver tests.job_manager.test_ending",
+      "result": "521 tests, OK, 16.31s"
+    }
+  ],
+  "cumulative_seconds": 26.0,
+  "budget_note": "26s against a proposed 20s. The third run is the affected sweep the FINDING allows after the focused ones; the two focused runs alone are 9.7s.",
+  "reported_boundaries": [
+    {
+      "id": "A",
+      "what": "intake.discharge_quiescence_gate requires the Authority's answered `kind` to be the GATE kind ('runtime-quiescence'), and Authority.satisfy_gate answers the EVIDENCE kind ('runtime-absent') -- core.py:1703 returns {gate, kind: kind, phase} where kind is evidence['kind'], and core.py:1635 requires that evidence kind to be 'runtime-absent' for a quiescence gate.",
+      "consequence": "the remote act commits -- the gate is cleared and the Work returns to queued -- and intake.py:1429 then refuses, so store.transact never runs and no discharge receipt is ever journalled. gate_discharge_of stays None forever, so the provider's own step-two replay ('a remote commit whose local receipt was lost must reproduce its answer') can never fire.",
+      "measured": "the composed fixture: after the first conclude the Work is phase=queued gate=None and gate_discharge_of is None; the conclude defers with the kind-mismatch message",
+      "paths": [
+        "src/baton_v12/worker_manager/intake.py",
+        "src/baton_v12/authority/core.py"
+      ],
+      "owner": "W119548 and the Authority; outside this leaf's four paths",
+      "regression": "tests/tools/test_stage_execution.py::TheDischargeReceiptIsNeverJournalled"
+    },
+    {
+      "id": "B",
+      "what": "with the gate discharged, the review offer is issued and accepted and the reviewer's CLAIM is refused by the Authority: route 'baton.impl' does not resolve to 'baton.reviewer'. A composed Job's review stage is another assignment of the SAME Work by configuration, one Work carries one route, and nothing in these four paths moves it -- a v11 pass is the bootstrap ending's own handoff.",
+      "second_fact": "the Authority answers authority.errors.Refusal, which is not a ContractRefusal, so job_manager/manager.py _delegate does not contain it and it leaves the sweep entirely.",
+      "owner": "unallocated; reported for owner disposition",
+      "regression": "tests/tools/test_stage_execution.py::TheReviewStageCannotClaimTheOneWork"
+    }
+  ],
+  "still_owed_by_W119114": [
+    "the same submitted Job through real review, correction, acceptance, integration and terminal handoff",
+    "the three reconstructed-manager cutpoints at cleanup-before-discharge, remote-discharge-before-local-settlement and correction-routing-before-settlement",
+    "operator-held uncertain integration and retained-byte/pin checks"
+  ]
+}

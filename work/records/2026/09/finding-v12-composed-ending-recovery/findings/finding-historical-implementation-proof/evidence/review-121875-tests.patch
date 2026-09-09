@@ -1,0 +1,293 @@
+--- 
++++ 
+@@ -3198,30 +3198,11 @@
+         self.published = []
+         self.retained = {}
+ 
+-    def _selector(self, attempt_id):
+-        """WHICH retained proposal this attempt's publication is about.
+-
+-        A SELECTOR AND NOT THE EVIDENCE. What proves a publication happened is
+-        the record `publication_of` reads; this only says which proposal to
+-        ask about, and it is re-derivable from durable state --
+-        `retain_proposal` is replay-safe by construction, so an attempt whose
+-        result is frozen answers the same digest in any process.
+-
+-        THE ANSWER IS KEPT ONLY TO AVOID WRITING ON A READ. Re-deriving it
+-        opens a write transaction to re-retain identical bytes, and a resume
+-        may not write; a control below empties this and proves the durable
+-        derivation still answers in a reopened process.
+-        """
+-        held = self.retained.get(attempt_id)
+-        if held is None:
+-            held = integration_driver.retain_proposal(
+-                self.case.control, self.publisher, attempt_id=attempt_id)
+-            self.retained[attempt_id] = held
+-        return held
+-
+     def publish(self, *, attempt_id, result_id, manifest_digest, artifacts,
+                 proposal):
+-        held = self._selector(attempt_id)
++        held = integration_driver.retain_proposal(
++            self.case.control, self.publisher, attempt_id=attempt_id)
++        self.retained[attempt_id] = held
+         answered = integration_driver.publish_candidate(
+             self.case.control, self.publisher, attempt_id=attempt_id,
+             proposal_manifest_digest=held)
+@@ -3229,10 +3210,18 @@
+         return answered
+ 
+     def published_of(self, *, attempt_id):
+-        """The durable half, and it asks the owner rather than remembering."""
+-        return integration_driver.publication_of(
+-            self.case.control, attempt_id=attempt_id,
+-            proposal_manifest_digest=self._selector(attempt_id))
++        """The COLD half, and it remembers nothing at all.
++
++        W120425 review 2026-09-08T17-37-36Z [P1]: this used to re-derive the
++        selector through `retain_proposal`, which reads the live canonical
++        target and opens a write transaction -- so the "cold" proof performed
++        external work, and keeping the answer in a dictionary that survives
++        reopening was the cache the review named. W121793's
++        `publication_for_attempt` answers from the attempt alone, so there is
++        nothing here to remember and nothing to ask a publisher.
++        """
++        return integration_driver.publication_for_attempt(
++            self.case.control, attempt_id=attempt_id)
+ 
+ 
+ class TheImplementationResumeReadsRealCommittedCustody(ReviewResultCase):
+@@ -3433,6 +3422,52 @@
+         self.assertEqual(self.publication.published, published)
+ 
+     @contextlib.contextmanager
++    def no_remote(self, held):
++        """Every publisher method and the proposal producer, forbidden.
++
++        Review [P1]: `no_external_act` watched the adapter and this deployment's
++        `publish`, and never the separate publisher transport a cold seam might
++        reach. These are the acts a historical recovery may not perform, named
++        one by one rather than counted.
++        """
++        with self.no_external_act(held), contextlib.ExitStack() as stack:
++            for verb in ("publish", "proposal", "canonical_target"):
++                stack.enter_context(mock.patch.object(
++                    self.publisher, verb, side_effect=AssertionError(
++                        f"a resumed ending reached the publisher's {verb}")))
++            stack.enter_context(mock.patch.object(
++                integration_driver, "retain_proposal",
++                side_effect=AssertionError(
++                    "a resumed ending composed a proposal")))
++            yield
++
++    @contextlib.contextmanager
++    def denied_writes(self):
++        """SQLite itself refuses every write for the duration.
++
++        `total_changes` staying zero proves no row moved; it does not prove
++        nothing tried, and the review is right that a read-only claim wants
++        the stronger statement. The connection's own authorizer denies INSERT,
++        UPDATE and DELETE, so an attempted write fails inside the driver
++        rather than being counted afterwards.
++        """
++        import sqlite3
++
++        connection = self.control._connection
++        denied = (sqlite3.SQLITE_INSERT, sqlite3.SQLITE_UPDATE,
++                  sqlite3.SQLITE_DELETE)
++
++        def authorize(action, *rest):
++            return (sqlite3.SQLITE_DENY if action in denied
++                    else sqlite3.SQLITE_OK)
++
++        connection.set_authorizer(authorize)
++        try:
++            yield
++        finally:
++            connection.set_authorizer(None)
++
++    @contextlib.contextmanager
+     def no_external_act(self, held):
+         """No runtime, no worker, no Authority, and no control write."""
+         with self.no_runtime_or_write(held):
+@@ -3483,20 +3518,12 @@
+         self.reopened()
+         with self.no_external_act(held):
+             resumed = self.resume(held)
+-        self.assertEqual(sorted(resumed), sorted(ended))
+-        for member in ("attempt_id", "disposition", "result_id",
+-                       "manifest_digest", "receipt_digest", "artifacts",
+-                       "retention", "checkpoint_id", "checkpoint"):
+-            self.assertEqual(resumed[member], ended[member], member)
+-        # THE PUBLICATION IS THE DURABLE HISTORY AND NOT THE PUBLISH ANSWER,
+-        # which is the one member the two paths cannot share: the ordinary
+-        # ending reports what the Authority answered and a resume reports the
+-        # retained manifest that answer was composed from.
+-        self.assertEqual(resumed["published"]["attempt_id"], self.ATTEMPT)
+-        self.assertEqual(resumed["published"]["proposal_manifest_digest"],
+-                         self.publication.retained[self.ATTEMPT])
+-        self.assertEqual(resumed["published"]["published"],
+-                         ended["published"])
++        # THE WHOLE DOCUMENT, MEMBER FOR MEMBER. Review [P2]: the resume used
++        # to answer the publication RECORD where the ordinary ending answers
++        # the Authority's own reply, which made `published` the one member the
++        # two paths did not share. The committed receipt carries that reply, so
++        # there is nothing the two paths cannot agree on.
++        self.assertEqual(resumed, ended)
+ 
+     def test_resuming_again_answers_the_same_and_still_spends_nothing(self):
+         held = self.implemented()
+@@ -3649,6 +3676,70 @@
+                 self.resume, held,
+                 terminal={"manifest_digest": "sha256:" + "8" * 64})
+         self.assertEqual(caught.code, "operation-collision")
++
++    def later_round(self, held):
++        """An ACTUAL later round, through the public lifecycle owners.
++
++        W120425 review 2026-09-08T17-37-36Z: the pointer-corruption control
++        proves independence from `current_checkpoint_id` and does not prove
++        recovery after a real round has advanced the line. This attaches an
++        independent reviewer to the frozen checkpoint, records a
++        changes-requested verdict, grants the correction writer that verdict
++        earns, and freezes its checkpoint -- so the line genuinely moves to
++        revision two under its own owners before the earlier ending is
++        recovered.
++        """
++        from baton_v12.worker_manager import (freeze_checkpoint, line_of,
++                                              record_verdict)
++        reviewer = self.attempt("later-review", 1, REVIEWER,
++                                "later-review-principal")
++        attached = review_driver.prepare_review(
++            self.control, checkpoint_id=held["ended"]["checkpoint_id"],
++            attempt_id=reviewer, generation=1,
++            reviewer_worker_id="later-review-worker", profile=self.profile)
++        self.completed(reviewer, review=True)
++        record_verdict(self.control,
++                       attachment_id=attached["attachment_id"],
++                       disposition="changes-requested", profile=self.profile,
++                       port=self.port(REVIEWER))
++        self.assertEqual(line_of(self.control,
++                                 self.line["line_id"])["state"],
++                         "correction-ready")
++        second = self.attempt("later-implementation", 2, WRITER,
++                              "later-implementation-principal")
++        writer = review_driver.prepare_implementation(
++            self.control, line_id=self.line["line_id"], attempt_id=second,
++            generation=2, worker_id="later-implementation-worker",
++            profile=self.profile,
++            based_checkpoint_id=held["ended"]["checkpoint_id"])
++        self.completed(second)
++        later = freeze_checkpoint(self.control, writer_id=writer["writer_id"],
++                                  generation=2, profile=self.profile,
++                                  port=self.port(WRITER))
++        line = line_of(self.control, self.line["line_id"])
++        self.assertEqual(line["revision"], 2)
++        self.assertEqual(line["current_checkpoint_id"],
++                         later["checkpoint_id"])
++        self.assertNotEqual(later["checkpoint_id"],
++                            held["ended"]["checkpoint_id"])
++        return later
++
++    def test_a_real_later_round_does_not_strand_the_earlier_ending(self):
++        """The required later-state proof, over an actual advanced line.
++
++        The line is at revision two, holding another writer's checkpoint,
++        before this reconstructs the manager and recovers the FIRST ending --
++        which still answers its own checkpoint and its own document.
++        """
++        held = self.implemented()
++        ended = held["ended"]
++        later = self.later_round(held)
++        self.reopened()
++        self.publication = _RealPublication(self, self.publisher)
++        with self.denied_writes(), self.no_remote(held):
++            resumed = self.resume(held)
++        self.assertEqual(resumed, ended)
++        self.assertNotEqual(resumed["checkpoint_id"], later["checkpoint_id"])
+ 
+     def test_the_resume_survives_the_line_moving_on(self):
+         """W120425 review 2026-09-08T16-18-42Z: the required later-state proof.
+@@ -3708,23 +3799,42 @@
+                               (integration_driver.PUBLICATION_KIND,))
+         self.assertIn("no committed publication history", caught.message)
+ 
+-    def test_the_publication_selector_is_derivable_after_reopening(self):
+-        """The seam keeps no evidence, only which proposal to ask about.
+-
+-        Emptying what it remembered and re-deriving it in a reopened process
+-        answers the same digest, so the record it then reads is reached from
+-        durable state rather than from anything this process carried.
++    def test_a_cold_manager_and_a_cold_seam_recover_the_ending(self):
++        """W120425 review 2026-09-08T17-37-36Z [P1]: the cold proof, for real.
++
++        The previous version reopened the STORE and kept the seam -- whose
++        dictionary survived, and whose fallback called `retain_proposal`, which
++        reads the live canonical target and opens a write transaction. So the
++        cold recovery performed external work and the guard did not watch the
++        publisher's target transport at all.
++
++        Here the seam is reconstructed with the store, every publisher method
++        is forbidden, `retain_proposal` is forbidden, and the store is denied
++        writes outright -- so "cold" is measured rather than described.
+         """
+         held = self.implemented()
+-        selector = self.publication.retained[self.ATTEMPT]
++        ended = held["ended"]
+         self.reopened()
+-        self.publication.retained.clear()
+-        self.assertEqual(
+-            self.publication.published_of(
+-                attempt_id=self.ATTEMPT)["proposal_manifest_digest"],
+-            selector)
+-        with self.no_external_act(held):
+-            self.assertIsNotNone(self.resume(held))
++        # A SEAM THAT PUBLISHED NOTHING AND REMEMBERS NOTHING.
++        self.publication = _RealPublication(self, self.publisher)
++        self.assertEqual(self.publication.retained, {})
++        with self.denied_writes(), self.no_remote(held):
++            self.assertEqual(self.resume(held), ended)
++
++    def test_a_cold_recovery_survives_the_target_moving_on(self):
++        """The Authority may have advanced; a resume asks it nothing.
++
++        `retain_proposal` is explicitly live-target-dependent, so a seam that
++        re-derived its selector refused precondition once the target moved.
++        `publication_for_attempt` reads the attempt's own committed record.
++        """
++        held = self.implemented()
++        ended = held["ended"]
++        self.reopened()
++        self.publication = _RealPublication(self, self.publisher)
++        self.publisher.target = "c3" * 20
++        with self.denied_writes(), self.no_remote(held):
++            self.assertEqual(self.resume(held), ended)
+ 
+     def test_a_publication_history_that_names_another_result_refuses(self):
+         held = self.implemented()
+@@ -3737,7 +3847,16 @@
+                  {"result_manifest_digest": "sha256:" + "3" * 64}),
+                 ("another assignment",
+                  {"assignment": dict(answered["assignment"],
+-                                     generation=99)})):
++                                     generation=99)}),
++                # RESTORED, review [P1]: an honest `publication_of` validates
++                # its own record and says nothing about a contradictory
++                # document arriving here.
++                ("another proposal", {"proposal_id": "proposal-elsewhere"}),
++                ("an unretained manifest",
++                 {"proposal_manifest_digest": "sha256:" + "3" * 64}),
++                ("an answer about another proposal",
++                 {"published": dict(answered["published"],
++                                    proposal_id="proposal-elsewhere")})):
+             with self.subTest(history=name):
+                 with mock.patch.object(
+                         self.publication, "published_of",
+@@ -3797,6 +3916,7 @@
+         self.assertEqual(answered["artifacts"],
+                          sorted(answered["artifacts"]))
+         self.assertEqual(answered["retention"], ended["retention"])
++        self.assertEqual(answered["published"], ended["published"])
+ 
+     def test_the_checkpoint_is_the_one_this_ending_already_froze(self):
+         held = self.implemented()

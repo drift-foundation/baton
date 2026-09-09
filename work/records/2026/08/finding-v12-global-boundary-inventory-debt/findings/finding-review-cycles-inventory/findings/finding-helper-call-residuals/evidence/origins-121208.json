@@ -1,0 +1,201 @@
+{
+  "calls": [
+    {
+      "site": "review_cycles.py:checkpoint_of",
+      "line": 85,
+      "call": "_evidence(json.loads(taken['evidence']))",
+      "result_origin": null,
+      "argument_origins": [
+        null
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:checkpoint_of",
+      "line": 85,
+      "call": "json.loads(taken['evidence'])",
+      "result_origin": null,
+      "argument_origins": [
+        "read:review_cycles.py:checkpoint_of|line_checkpoints[evidence]"
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:checkpoint_of",
+      "line": 87,
+      "call": "json.loads(taken['fence'])",
+      "result_origin": null,
+      "argument_origins": [
+        "read:review_cycles.py:checkpoint_of|line_checkpoints[fence]"
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:verdict_of",
+      "line": 296,
+      "call": "_review_result(json.loads(verdict['review_result']))",
+      "result_origin": null,
+      "argument_origins": [
+        null
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:verdict_of",
+      "line": 297,
+      "call": "json.loads(verdict['review_result'])",
+      "result_origin": null,
+      "argument_origins": [
+        "read:review_cycles.py:_verdict_row|checkpoint_verdicts[review_result]"
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:verdict_of",
+      "line": 298,
+      "call": "json.loads(verdict['review_fence'])",
+      "result_origin": null,
+      "argument_origins": [
+        "read:review_cycles.py:_verdict_row|checkpoint_verdicts[review_fence]"
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:create_line",
+      "line": 534,
+      "call": "_storage(store)",
+      "result_origin": null,
+      "argument_origins": [
+        "caller:store"
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:create_line",
+      "line": 535,
+      "call": "_profile(profile, ('materialize', 'validate'))",
+      "result_origin": "caller:profile",
+      "argument_origins": [
+        "caller:profile",
+        null
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:create_line",
+      "line": 546,
+      "call": "_line_place(storage, line_id, source.place)",
+      "result_origin": null,
+      "argument_origins": [
+        null,
+        null,
+        null
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:create_line",
+      "line": 591,
+      "call": "profile.materialize(source.place, path, declared_base)",
+      "result_origin": null,
+      "argument_origins": [
+        null,
+        null,
+        "caller:declared_base"
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:freeze_checkpoint",
+      "line": 747,
+      "call": "_profile(profile, ('freeze', 'validate'))",
+      "result_origin": "caller:profile",
+      "argument_origins": [
+        "caller:profile",
+        null
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:freeze_checkpoint",
+      "line": 860,
+      "call": "profile.freeze(line['line_path'], line_id=line['line_id'], revision=revision, declared_base=line['declared_base'])",
+      "result_origin": null,
+      "argument_origins": [
+        "read:review_cycles.py:line_of|review_lines[line_path]"
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:freeze_checkpoint",
+      "line": 869,
+      "call": "_evidence(evidence)",
+      "result_origin": null,
+      "argument_origins": [
+        null
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:record_verdict",
+      "line": 1171,
+      "call": "_profile(profile, ('validate',))",
+      "result_origin": "caller:profile",
+      "argument_origins": [
+        "caller:profile",
+        null
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:integration_checkpoint",
+      "line": 1310,
+      "call": "_review_result(json.loads(verdict['review_result']))",
+      "result_origin": null,
+      "argument_origins": [
+        null
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:integration_checkpoint",
+      "line": 1311,
+      "call": "json.loads(verdict['review_result'])",
+      "result_origin": null,
+      "argument_origins": [
+        "read:review_cycles.py:_verdict_row|checkpoint_verdicts[review_result]"
+      ],
+      "capability": []
+    },
+    {
+      "site": "review_cycles.py:integration_checkpoint",
+      "line": 1313,
+      "call": "json.loads(verdict['review_fence'])",
+      "result_origin": null,
+      "argument_origins": [
+        "read:review_cycles.py:_verdict_row|checkpoint_verdicts[review_fence]"
+      ],
+      "capability": []
+    }
+  ],
+  "profile_helper": [
+    {
+      "source": "review_cycles.py:_profile",
+      "unfiltered": [
+        [
+          "capability",
+          "a checkpoint profile's {method} capability",
+          "caller:profile"
+        ],
+        [
+          "text",
+          "a checkpoint profile name",
+          "caller:profile"
+        ]
+      ],
+      "propagated_occurrences": []
+    }
+  ],
+  "seconds": 0.5775640369392931,
+  "combined_seconds": 3.569074338884093
+}

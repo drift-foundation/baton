@@ -1,0 +1,14 @@
+[
+  {
+    "path": "src/baton_v12/integration/store.py",
+    "sha256": "c46e89bfbb05198fccac7f36e095c6ac81bdac30048ff5b030a70c0cd88f4c17",
+    "mode": "0o664",
+    "matches_author_final": true
+  },
+  {
+    "path": "tests/integration/test_coordinator.py",
+    "sha256": "6e4e4f14bf3993ac1dede44116370b65b6f4b3ad196b5dca522f96e853e6b708",
+    "mode": "0o664",
+    "matches_author_final": true
+  }
+]

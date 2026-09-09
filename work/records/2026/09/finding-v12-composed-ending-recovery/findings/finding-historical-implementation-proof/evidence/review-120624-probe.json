@@ -1,0 +1,96 @@
+{
+  "work": "W120425",
+  "claim": 120624,
+  "sha256": {
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "5d6bd47c05f34d4e819d13e3e1c12998156e73105553760240c584f7d951a1c2",
+    "v12/python/tests/job_manager/test_review_driver.py": "a0baa47fdcca55477f89e72c94c6261c8d8d2adab62d74781b0065b92a036ade"
+  },
+  "results": {
+    "real_discard_ending": {
+      "ordinary_cleanup": "complete",
+      "ordinary_kept": [],
+      "resume": {
+        "exception": "ContractRefusal",
+        "category": "refused",
+        "code": "operation-collision",
+        "message": "the resumed implementation ending of attempt 'public-implementation''s committed cleanup answers 'absent'/'complete' for 'public-implementation' keeping , and this ending is 'public-implementation' with cleanup 'complete' keeping 'public-implementation:findings', 'public-implementation:logs'; a resume answers from a positive absence that kept exactly what this manager retained"
+      }
+    },
+    "empty_nested_cleanup_custody": {
+      "substituted_directory_custody": {
+        "result": {},
+        "workspace": {}
+      },
+      "resume": {
+        "returned": {
+          "attempt_id": "public-implementation",
+          "disposition": "completed",
+          "result_id": "result-public-implementation",
+          "manifest_digest": "sha256:c773611294c725ccc5e264add2110398d909be027cf5dd21eb99cecfd77f7494",
+          "receipt_digest": "sha256:c7c4c81ccffa415806794e54315ab918321ca62348a9df38a5fb4ffb177a6345",
+          "artifacts": [
+            "public-implementation:findings",
+            "public-implementation:logs"
+          ],
+          "retention": "retain",
+          "published": {
+            "attempt_id": "public-implementation",
+            "proposal_id": "proposal-7fd38a61b51bfe1694c78fb83c685eb576a085864f92a6580b692baf7ca9798a",
+            "proposal_manifest_digest": "sha256:d440f1a49998cf8a1782f00e9b426f40d343a279625dfa6cbaf85d3ee94c9c00"
+          },
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+          "checkpoint": {
+            "checkpoint_digest": "sha256:22d92c10895a98044fd35527d6c45a82b1d8831aad3ef10d0681bac730e5a1f8",
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+            "evidence": {
+              "base": "184be6117b2c31d68ca8a78863c1d259efab04be",
+              "head": "160a73f0aff32649fa43006e1f169e733b6567a5",
+              "path_set_digest": "sha256:cbaf839ada452f2c1f27c765d4514401c51c3c1eb32b14ddd530beef66704af1",
+              "paths": [
+                "round-1.txt"
+              ],
+              "profile": "reference",
+              "reference": "checkpoint/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+              "tree": "187c9962e6f295e91283e6ee38b7b398846002b8"
+            },
+            "fence": {
+              "fenced": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.impl",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "cause": "cancelled",
+                "fenced": true,
+                "gate": "runtime-quiescence:1",
+                "phase": "block"
+              },
+              "intent": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.impl",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "attempt_id": "public-implementation",
+                "authority_operation_id": "authority.finalize-quiescent:914b9b2a07c5b9672c806cfe37125d41a9cae929be0867d7fdd96ac279a45a84",
+                "decision": "finalized",
+                "reason": "review checkpoint writer completed",
+                "runtime_id": "runtime-public-implementation",
+                "worker_disposition": "completed"
+              }
+            },
+            "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+            "revision": 1
+          }
+        }
+      }
+    }
+  },
+  "seconds": 0.134259129059501
+}

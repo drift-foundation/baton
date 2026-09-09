@@ -1,0 +1,6 @@
+test_one_job_completes_correction_integration_and_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.795s
+
+OK

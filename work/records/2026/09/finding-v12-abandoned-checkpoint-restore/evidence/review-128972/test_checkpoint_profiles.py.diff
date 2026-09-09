@@ -1,0 +1,195 @@
+--- base/tests/manager/test_checkpoint_profiles.py
++++ tests/manager/test_checkpoint_profiles.py
+@@ -4,7 +4,8 @@
+ import unittest
+ 
+ from baton_v12.checkpoint_profiles import (GitCheckpointProfile, checkpoint_ref,
+-                                           diff_vector, status_vector,
++                                           clean_vector, diff_vector,
++                                           reset_vector, status_vector,
+                                            tree_vector, update_ref_vector)
+ from baton_v12.source_profiles import ProfileRefusal
+ 
+@@ -144,3 +145,182 @@
+ 
+ if __name__ == "__main__":
+     unittest.main()
++
++
++class RestoringOneCheckoutToItsRetainedCheckpoint(unittest.TestCase):
++    """W128692: `restore_checkpoint`, over a REAL disposable repository.
++
++    A recorded runner proves which argv crossed; it cannot prove that the
++    scratch is gone and the tree is the checkpoint's, which is the whole claim.
++    So this builds an actual Git repository, dirties it the three ways an
++    abandoned worker really does -- a modified tracked file, an untracked file
++    and an ignored one -- and then asks whether the checkout came back.
++    """
++
++    def setUp(self):
++        self.temporary = tempfile.TemporaryDirectory()
++        self.repository = os.path.join(self.temporary.name, "line")
++        os.mkdir(self.repository)
++        self.environment = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"),
++                            "HOME": self.temporary.name,
++                            "GIT_CONFIG_GLOBAL": os.devnull,
++                            "GIT_CONFIG_SYSTEM": os.devnull,
++                            "GIT_TERMINAL_PROMPT": "0",
++                            "GIT_AUTHOR_NAME": "Baton Test",
++                            "GIT_AUTHOR_EMAIL": "test@baton.invalid",
++                            "GIT_COMMITTER_NAME": "Baton Test",
++                            "GIT_COMMITTER_EMAIL": "test@baton.invalid"}
++        self.git("init", "-q", "-b", "main")
++        self.write("kept.txt", "the reviewed candidate\n")
++        self.write(".gitignore", "ignored/\n")
++        self.git("add", "--all")
++        self.git("commit", "-q", "--message", "base")
++        self.base = self.git("rev-parse", "HEAD").strip()
++        self.write("kept.txt", "the corrected candidate\n")
++        self.git("add", "--all")
++        self.git("commit", "-q", "--message", "checkpoint")
++        self.profile = GitCheckpointProfile(self.runner)
++        self.evidence = self.profile.freeze(
++            self.repository, line_id="line-1", revision=1,
++            declared_base=self.base)
++
++    def tearDown(self):
++        self.temporary.cleanup()
++
++    def runner(self, argv):
++        """The deployment's command seam. NOT named `run`: that is
++        `TestCase.run`, and shadowing it makes the case call itself."""
++        answer = subprocess.run(list(argv), capture_output=True, text=True,
++                                env=self.environment, timeout=30)
++        return {"returncode": answer.returncode, "stdout": answer.stdout,
++                "stderr": answer.stderr}
++
++    def git(self, *arguments):
++        answer = subprocess.run(["git", "-C", self.repository, *arguments],
++                                capture_output=True, text=True,
++                                env=self.environment, timeout=30)
++        self.assertEqual(answer.returncode, 0, answer.stderr)
++        return answer.stdout
++
++    def write(self, name, body):
++        place = os.path.join(self.repository, name)
++        os.makedirs(os.path.dirname(place), exist_ok=True)
++        with open(place, "w", encoding="utf-8") as handle:
++            handle.write(body)
++
++    def dirty(self):
++        """The three kinds of scratch an abandoned worker really leaves."""
++        self.write("kept.txt", "the abandoned round never finished this\n")
++        self.write("scratch.txt", "untracked\n")
++        self.write("ignored/build.log", "ignored\n")
++
++    def test_a_dirty_checkout_comes_back_to_the_exact_checkpoint(self):
++        head = self.git("rev-parse", "HEAD").strip()
++        tree = self.git("rev-parse", "HEAD^{tree}").strip()
++        body = open(os.path.join(self.repository, "kept.txt")).read()
++        self.dirty()
++        self.assertNotEqual(self.git("status", "--porcelain"), "")
++
++        answered = self.profile.restore_checkpoint(self.repository,
++                                                   self.evidence)
++
++        self.assertEqual(answered, self.evidence)
++        self.assertEqual(self.git("rev-parse", "HEAD").strip(), head)
++        self.assertEqual(self.git("rev-parse", "HEAD^{tree}").strip(), tree)
++        self.assertEqual(open(os.path.join(self.repository,
++                                           "kept.txt")).read(), body)
++        # THE SCRATCH IS GONE, tracked, untracked and ignored alike.
++        self.assertEqual(self.git("status", "--porcelain",
++                                  "--untracked-files=all"), "")
++        self.assertFalse(os.path.exists(os.path.join(self.repository,
++                                                     "scratch.txt")))
++        self.assertFalse(os.path.exists(os.path.join(self.repository,
++                                                     "ignored")))
++
++    def test_the_retained_checkpoint_and_its_objects_survive_the_restore(self):
++        """A restore that had to destroy the thing it restores to would be no
++        recovery at all."""
++        reference = self.evidence["reference"]
++        self.dirty()
++        self.profile.restore_checkpoint(self.repository, self.evidence)
++        self.assertEqual(
++            self.git("rev-parse", "--verify", reference + "^{commit}").strip(),
++            self.evidence["head"])
++        self.assertEqual(
++            self.git("rev-parse", "--verify", reference + "^{tree}").strip(),
++            self.evidence["tree"])
++        # AND THE BASE OBJECT IS STILL REACHABLE, so nothing was pruned.
++        self.assertEqual(
++            self.git("rev-parse", "--verify",
++                     self.evidence["base"] + "^{commit}").strip(),
++            self.evidence["base"])
++        # THE VALIDATION IS THE PROFILE'S OWN, run again from scratch.
++        self.assertEqual(
++            self.profile.validate(self.repository, self.evidence,
++                                  current=True),
++            self.evidence)
++
++    def test_nothing_outside_the_nominated_checkout_is_named(self):
++        """Every argv is `-C` this repository and option-terminated, so there
++        is no operand through which another tree could be reached."""
++        sibling = os.path.join(self.temporary.name, "custody")
++        os.mkdir(sibling)
++        with open(os.path.join(sibling, "retained.txt"), "w") as handle:
++            handle.write("immutable sibling custody\n")
++        seen = []
++        real = self.runner
++
++        def recording(argv):
++            seen.append(tuple(argv))
++            return real(argv)
++
++        self.profile = GitCheckpointProfile(recording)
++        self.dirty()
++        self.profile.restore_checkpoint(self.repository, self.evidence)
++        self.assertTrue(seen)
++        for argv in seen:
++            self.assertEqual(argv[:3], ("git", "-C", self.repository), argv)
++            self.assertNotIn(sibling, argv)
++        self.assertIn(tuple(reset_vector(self.repository,
++                                         self.evidence["head"])), seen)
++        self.assertIn(tuple(clean_vector(self.repository)), seen)
++        self.assertEqual(
++            open(os.path.join(sibling, "retained.txt")).read(),
++            "immutable sibling custody\n")
++
++    def test_a_moved_checkpoint_reference_refuses_before_any_write(self):
++        """THE ORDERING IS THE CONTRACT. A restore that discovered its target
++        was wrong AFTER discarding the scratch would have destroyed the only
++        copy of the thing it cannot replace."""
++        self.dirty()
++        before = self.git("status", "--porcelain", "--untracked-files=all")
++        self.git("update-ref", self.evidence["reference"], self.base)
++        with self.assertRaises(ProfileRefusal):
++            self.profile.restore_checkpoint(self.repository, self.evidence)
++        self.assertEqual(
++            self.git("status", "--porcelain", "--untracked-files=all"), before)
++
++    def test_foreign_or_malformed_evidence_refuses_and_writes_nothing(self):
++        self.dirty()
++        before = self.git("status", "--porcelain", "--untracked-files=all")
++        for spoiled in (dict(self.evidence, profile="not-git"),
++                        {"profile": "git"},
++                        dict(self.evidence, head="z" * 40)):
++            with self.assertRaises(ProfileRefusal):
++                self.profile.restore_checkpoint(self.repository, spoiled)
++        self.assertEqual(
++            self.git("status", "--porcelain", "--untracked-files=all"), before)
++
++    def test_an_unsafe_repository_path_is_refused_by_the_vectors(self):
++        for place in ("relative/line", "/tmp/../etc", "/tmp/a:b", ""):
++            with self.assertRaises(ProfileRefusal):
++                reset_vector(place, self.evidence["head"])
++            with self.assertRaises(ProfileRefusal):
++                clean_vector(place)
++
++    def test_a_head_that_is_not_one_object_name_is_refused(self):
++        """`reset --hard` takes one full object name and nothing else -- not a
++        revision expression, not a ref, not a leading dash."""
++        for head in ("HEAD~1", "refs/heads/main", "-f", "a" * 39, "A" * 40):
++            with self.assertRaises(ProfileRefusal):
++                reset_vector(self.repository, head)

@@ -1,0 +1,45 @@
+{
+  "work": "W120425",
+  "claim": 121164,
+  "budget_seconds": {
+    "declared_before_running": 30,
+    "spent": 13.3
+  },
+  "sha256": {
+    "src/baton_v12/job_manager/review_driver.py": "cc6b21627d49c2a9864deb7b93ebb01c851e026ddbc86ced58ef9217c99dd67c",
+    "tests/job_manager/test_review_driver.py": "d6f0bb5d6c78d74cd48aff9e07d4afe4f4de1a4598a0b6939a21c2724addd3b7"
+  },
+  "modes": {
+    "src/baton_v12/job_manager/review_driver.py": "664",
+    "tests/job_manager/test_review_driver.py": "664"
+  },
+  "baseline": {
+    "prefix_unchanged_against_HEAD": true,
+    "baseline_test_methods": 101,
+    "current_test_methods": 139
+  },
+  "restored": [
+    "test_the_resume_answers_the_ordinary_endings_document",
+    "test_the_checkpoint_is_the_one_this_ending_already_froze",
+    "test_resuming_twice_answers_the_same_thing_and_does_nothing",
+    "test_the_line_and_its_writer_are_left_exactly_where_they_were",
+    "test_a_checkpoint_that_is_not_this_writers_frozen_one_refuses",
+    "test_a_seam_that_cannot_answer_the_committed_publication_refuses",
+    "test_the_resumed_steps_are_the_ones_the_resume_performs"
+  ],
+  "commands": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.job_manager.test_review_driver",
+      "result": "139 tests, OK, 4.2s"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.job_manager.test_review_driver tests.job_manager.test_ending tests.job_manager.test_sweep tests.job_manager.test_status tests.integration.test_driver tests.tools.test_stage_execution tests.manager.test_intake",
+      "result": "587 tests, OK, 13.1s"
+    }
+  ],
+  "fixture_limits": [
+    "the engine and Authority transports are deterministic, as everywhere in this suite; LinePublisher is the named publisher transport stand-in",
+    "the writer now declares a proposal-typed output and carries the worker's four-member claim, so retain_proposal and publish_candidate are the real owners rather than manufactured evidence",
+    "the seam keeps the retained-proposal SELECTOR to avoid writing on a read; a control empties it after reopening and proves the durable derivation still answers"
+  ]
+}

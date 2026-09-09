@@ -1,0 +1,323 @@
+{
+  "candidate_sha256": "f4ea12bd4e12be9e55e12bba853fe2d762466509a446a472397e622af8bd0c11",
+  "base_sha256": "bf6160f596ad917fdb4296963d2c272adf3f328b2e78e279dc1f1eb4da7bf00c",
+  "preserved_existing_AST_except": [
+    "_account_boundary_calls",
+    "_boundary_claims",
+    "_owned_here"
+  ],
+  "entries": 1382,
+  "occurrences": 731,
+  "changed_claim_entries": [
+    [
+      "adopted",
+      "review_cycles.py:checkpoint_of",
+      "line_checkpoints.fence"
+    ],
+    [
+      "adopted",
+      "review_cycles.py:integration_checkpoint",
+      "integration_eligibility.verdict_id"
+    ]
+  ],
+  "removed_pairs": [
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence"
+      ],
+      "a persisted assignment fence"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility.verdict_id"
+      ],
+      "a checkpoint verdict identity"
+    ]
+  ],
+  "added_pairs": [
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence"
+      ],
+      "a persisted line checkpoint"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility.verdict_id"
+      ],
+      "persisted integration eligibility"
+    ]
+  ],
+  "module_missing_after": [
+    [
+      [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.review_fence.intent"
+      ],
+      "a persisted checkpoint verdict"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence.intent"
+      ],
+      "a persisted assignment fence"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence.intent"
+      ],
+      "a persisted line checkpoint"
+    ],
+    [
+      [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "attempt_id"
+      ],
+      "a runtime attempt identity"
+    ],
+    [
+      [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "generation"
+      ],
+      "an assignment generation"
+    ]
+  ],
+  "module_orphan_after": [],
+  "explicit_links": [
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence"
+      ],
+      "row": {
+        "call": [
+          "review_cycles.py:checkpoint_of",
+          82,
+          12,
+          83,
+          58
+        ],
+        "site": "review_cycles.py:checkpoint_of",
+        "kind": "row",
+        "label": "a persisted line checkpoint",
+        "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+        "lexical_label": "a persisted line checkpoint",
+        "propagated": false
+      },
+      "repeat": {
+        "call": [
+          "review_cycles.py:_fence",
+          456,
+          12,
+          457,
+          62
+        ],
+        "site": "review_cycles.py:checkpoint_of",
+        "kind": "document",
+        "label": "a persisted assignment fence",
+        "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints[fence]",
+        "lexical_label": "a persisted assignment fence",
+        "propagated": true
+      },
+      "row_claims": [
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.base_object"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.checkpoint_digest"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.checkpoint_id"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.evidence"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.evidence.base"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.evidence.head"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.evidence.path_set_digest"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.evidence.profile"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.evidence.reference"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.evidence.tree"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.fence"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.fence.intent"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.fence_digest"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.head_object"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.line_id"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.path_set_digest"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.profile_name"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.reference_name"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.revision"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.state"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.tree_object"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:checkpoint_of",
+          "line_checkpoints.writer_id"
+        ]
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility.verdict_id"
+      ],
+      "row": {
+        "call": [
+          "review_cycles.py:integration_checkpoint",
+          1296,
+          12,
+          1297,
+          66
+        ],
+        "site": "review_cycles.py:integration_checkpoint",
+        "kind": "row",
+        "label": "persisted integration eligibility",
+        "subject": "read:review_cycles.py:integration_checkpoint|integration_eligibility",
+        "lexical_label": "persisted integration eligibility",
+        "propagated": false
+      },
+      "repeat": {
+        "call": [
+          "review_cycles.py:_verdict_row",
+          211,
+          4,
+          211,
+          68
+        ],
+        "site": "review_cycles.py:integration_checkpoint",
+        "kind": "identity",
+        "label": "a checkpoint verdict identity",
+        "subject": "read:review_cycles.py:integration_checkpoint|integration_eligibility[verdict_id]",
+        "lexical_label": "a checkpoint verdict identity",
+        "propagated": true
+      },
+      "row_claims": [
+        [
+          "adopted",
+          "review_cycles.py:integration_checkpoint",
+          "integration_eligibility"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:integration_checkpoint",
+          "integration_eligibility.checkpoint_id"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:integration_checkpoint",
+          "integration_eligibility.line_id"
+        ],
+        [
+          "adopted",
+          "review_cycles.py:integration_checkpoint",
+          "integration_eligibility.verdict_id"
+        ]
+      ]
+    }
+  ],
+  "residual_occurrences_before": 92,
+  "residual_occurrences_after": 92,
+  "removed_residuals": [],
+  "added_residuals": [],
+  "runtime_hashes_unchanged": true,
+  "seconds": 3.5170522609259933
+}

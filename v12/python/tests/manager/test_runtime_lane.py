@@ -23,6 +23,7 @@ established rather than parsing a participant prefix, which is the failure the
 bound acceptance names by name.
 """
 
+import copy
 import os
 import sqlite3
 import tempfile
@@ -36,6 +37,7 @@ from baton_v12.worker_manager import (ControlStore, accept_offer,
                                       record_attempt, request_runtime_start,
                                       runtime_lane, submit_claim)
 from baton_v12.worker_manager import decide_retention
+from baton_v12.worker_manager import schema
 from baton_v12.worker_manager.schema import RUNTIME_LANE_COLUMNS
 
 from .test_attempts import Adapter as RuntimeAdapter
@@ -732,3 +734,319 @@ class TheProjectionExplainsTheHolderAndTheBlocker(LaneCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# W119476: a lone surrogate is text Python holds and no store can keep. The
+# same value `test_text_sweep` sweeps the surface with, spelled here because
+# this module drives one boundary directly rather than the whole surface.
+SURROGATE = "\ud800"
+
+
+class ThePublicLaneReferenceOwnsItsInput(LaneCase):
+    """W119476: `lane_reference` is EXPORTED, so its input is a caller's.
+
+    THE MEASURED GAP. Both this module and `worker_manager` export it, and it
+    subscripted whatever it was handed: `[]` escaped as a raw `TypeError`, `{}`
+    as a raw `KeyError`, and a list in any of the five consumed members was
+    accepted -- four of them coming back out INSIDE a lane reference, while a
+    malformed `runtime_attempt_id` was ignored entirely on the active path. The
+    docstring said the input was read from an attempt row rather than supplied
+    by a caller, and a comment cannot establish provenance. Nine direct calls
+    are retained in the parent record's `evidence/revalidation-119463.json`.
+
+    WHAT THESE CASES ARE NOT. They do not assert that a valid reference proves a
+    live Authority assignment, and they do not touch occupancy: every case here
+    calls the projection alone. The lifecycle compatibility half is the class
+    below, and every existing case in this module is the rest of it.
+    """
+
+    # The five members the projection consumes, and one valid value for each.
+    # Written out rather than taken from a row so the MINIMAL input -- the one
+    # no production caller sends -- is exercised as its own shape.
+    MINIMAL = {"runtime_attempt_id": "attempt-probe",
+               "authority_uuid": AUTHORITY, "work_id": JOB,
+               "assignment_principal": PRINCIPAL, "assignment_scope": SCOPE}
+
+    def refused(self, supplied):
+        """One direct call that must refuse, with its input left alone.
+
+        The preservation half is asked only of values that HAVE members to
+        preserve: an `object()` is not equal to a copy of itself, so comparing
+        one would be asserting against identity rather than against this
+        boundary leaving its input alone.
+        """
+        before = copy.deepcopy(supplied) if type(supplied) in (dict, list) \
+            else None
+        with self.assertRaises(ContractRefusal) as caught:
+            lanes.lane_reference(supplied)
+        if before is not None:
+            self.assertEqual(supplied, before, "the input was mutated")
+        return caught.exception
+
+    # -- what a valid caller still gets --------------------------------------
+
+    def test_the_minimal_valid_input_answers_the_unchanged_projection(self):
+        answered = lanes.lane_reference(dict(self.MINIMAL))
+        self.assertEqual(answered,
+                         {"authority_uuid": AUTHORITY, "work_id": JOB,
+                          "principal": PRINCIPAL, "effective_scope": SCOPE})
+        self.assertEqual(sorted(answered), sorted(lanes.LANE_PARTS))
+
+    def test_a_complete_active_attempt_row_is_still_accepted_whole(self):
+        """The shape every production caller sends: `boundaries.row` answers a
+        dict carrying exactly `ATTEMPT_COLUMNS`, and the optional half of this
+        contract is what keeps that working unchanged."""
+        row = self.attempt_row(self.attempt())
+        self.assertEqual(sorted(row), sorted(schema.ATTEMPT_COLUMNS))
+        self.assertEqual(lanes.lane_reference(row), self.reference())
+
+    def test_the_answer_is_a_fresh_document_the_caller_cannot_reach_back_into(
+            self):
+        supplied = dict(self.MINIMAL)
+        answered = lanes.lane_reference(supplied)
+        answered["principal"] = "principal:rewritten"
+        self.assertEqual(supplied["assignment_principal"], PRINCIPAL)
+        self.assertEqual(lanes.lane_reference(supplied)["principal"],
+                         PRINCIPAL)
+
+    # -- the inactive refusal, preserved exactly -----------------------------
+
+    def test_a_well_shaped_unactivated_input_keeps_its_precondition_refusal(
+            self):
+        caught = self.refused(dict(self.MINIMAL, assignment_principal=None))
+        self.assertEqual((caught.category, caught.code),
+                         ("refused", "precondition"))
+        self.assertIn("belongs to no lane", caught.message)
+
+    def test_a_real_unactivated_row_with_null_parts_refuses_the_same_way(self):
+        """The row `record_attempt` writes carries null Work, Authority, scope
+        AND principal. It is not malformed; it is unactivated, and reporting it
+        as malformed would be this correction breaking the one refusal the
+        boundary already had."""
+        record_attempt(self.store, attempt_id="unactivated", adapter_name="acp",
+                       adapter_digest="sha256:" + "a" * 64,
+                       profile_digest=self.attempt_row(self.attempt())
+                       ["profile_digest"])
+        row = self.attempt_row("unactivated")
+        self.assertIsNone(row["work_id"])
+        self.assertIsNone(row["authority_uuid"])
+        self.assertIsNone(row["assignment_scope"])
+        caught = self.refused(row)
+        self.assertEqual((caught.category, caught.code),
+                         ("refused", "precondition"))
+        self.assertIn("belongs to no lane", caught.message)
+
+    # -- what used to escape as a raw Python exception -----------------------
+
+    def test_a_non_document_is_refused_rather_than_subscripted(self):
+        """`[]` produced `TypeError: list indices must be integers`, and an
+        exception nobody typed is not a refusal an operator can act on."""
+        for supplied in ([], (), "attempt-1", 1, None, object()):
+            with self.subTest(supplied=type(supplied).__name__):
+                caught = self.refused(supplied)
+                self.assertEqual((caught.category, caught.code),
+                                 ("integrity", "schema"))
+                self.assertIn("a runtime lane attempt", caught.message)
+
+    def test_an_empty_document_names_every_member_it_needs(self):
+        """`{}` produced `KeyError: 'assignment_principal'` -- the name of the
+        one member that happened to be read first, rather than the contract."""
+        caught = self.refused({})
+        self.assertEqual((caught.category, caught.code),
+                         ("integrity", "schema"))
+        for name in lanes.LANE_INPUT:
+            self.assertIn(name, caught.message)
+
+    def test_each_required_member_is_named_when_it_is_the_missing_one(self):
+        for name in lanes.LANE_INPUT:
+            with self.subTest(missing=name):
+                supplied = dict(self.MINIMAL)
+                del supplied[name]
+                caught = self.refused(supplied)
+                self.assertEqual((caught.category, caught.code),
+                                 ("integrity", "schema"))
+                self.assertIn(name, caught.message)
+
+    # -- the members that were accepted and returned -------------------------
+
+    def test_a_malformed_consumed_member_refuses_instead_of_travelling(self):
+        """The four that came back INSIDE the answer, and the fifth that was
+        ignored. Each one is named by the boundary label rather than by the
+        value, so a refusal says which member it is about."""
+        for name in lanes.LANE_INPUT:
+            for spoiled in ([], {}, 1, True, ""):
+                with self.subTest(member=name, spoiled=repr(spoiled)):
+                    caught = self.refused(dict(self.MINIMAL,
+                                               **{name: spoiled}))
+                    self.assertEqual((caught.category, caught.code),
+                                     ("integrity", "schema"))
+                    self.assertIn(f"a runtime lane attempt's {name}",
+                                  caught.message)
+
+    def test_unstorable_text_is_refused_where_the_document_is_owned(self):
+        """A lone surrogate is caught one step EARLIER than the member rules,
+        by the ownership that copies the document at all -- so its refusal
+        names the document rather than the member. That is the right boundary
+        for it: text that does not round-trip is not a fact about which member
+        happened to carry it."""
+        for name in lanes.LANE_INPUT:
+            with self.subTest(member=name):
+                caught = self.refused(dict(self.MINIMAL,
+                                           **{name: SURROGATE}))
+                self.assertEqual((caught.category, caught.code),
+                                 ("integrity", "schema"))
+                self.assertIn("not encodable", caught.message)
+
+    def test_a_malformed_attempt_id_refuses_on_the_inactive_branch_too(self):
+        """It was read only inside the inactive refusal, so an ACTIVE call with
+        an unstorable one answered a lane and never mentioned it. Both branches
+        prove it now, and the inactive branch proves it FIRST -- a malformed
+        member is integrity/schema even when the attempt is also unactivated."""
+        caught = self.refused(dict(self.MINIMAL, runtime_attempt_id=[]))
+        self.assertEqual((caught.category, caught.code),
+                         ("integrity", "schema"))
+        caught = self.refused(dict(self.MINIMAL, runtime_attempt_id=[],
+                                   assignment_principal=None))
+        self.assertEqual((caught.category, caught.code),
+                         ("integrity", "schema"))
+        self.assertIn("runtime_attempt_id", caught.message)
+
+    def test_a_malformed_member_beats_the_inactive_refusal(self):
+        """Ordering, stated as its own case: an unactivated attempt carrying a
+        malformed non-null member is malformed input, not an ordinary
+        precondition. Reporting it as the latter would hide the value nobody
+        can store behind an answer an operator reads as routine."""
+        caught = self.refused(dict(self.MINIMAL, assignment_principal=None,
+                                   authority_uuid=[]))
+        self.assertEqual((caught.category, caught.code),
+                         ("integrity", "schema"))
+        self.assertIn("authority_uuid", caught.message)
+
+    # -- the closed member set -----------------------------------------------
+
+    def test_known_attempt_metadata_is_optional_and_not_an_error(self):
+        """A complete row carries far more than five members; the contract
+        names the rest as metadata it does not read rather than refusing the
+        callers that legitimately send them."""
+        supplied = dict(self.MINIMAL, adapter_name="acp",
+                        assignment_participant=WHO, cleanup="pending",
+                        assignment_generation=1, runtime_id=None)
+        self.assertEqual(lanes.lane_reference(supplied)["principal"],
+                         PRINCIPAL)
+
+    def test_a_member_this_build_does_not_name_is_refused(self):
+        caught = self.refused(dict(self.MINIMAL, lane_id="lane:invented"))
+        self.assertEqual((caught.category, caught.code),
+                         ("integrity", "schema"))
+        self.assertIn("lane_id", caught.message)
+
+    # -- an activated attempt carries all four parts or it is not one --------
+
+    def test_an_activated_input_missing_a_reference_part_is_refused(self):
+        """A principal with no Work is a broken relation rather than an
+        unactivated attempt: the table's CHECK keeps the four activation
+        columns together, so three quarters of a lane is integrity/schema and
+        not the ordinary precondition."""
+        for name in ("authority_uuid", "work_id", "assignment_scope"):
+            with self.subTest(absent=name):
+                caught = self.refused(dict(self.MINIMAL, **{name: None}))
+                self.assertEqual((caught.category, caught.code),
+                                 ("integrity", "schema"))
+                self.assertIn(name, caught.message)
+
+    # -- the rules are the attempt columns' own ------------------------------
+
+    def test_each_consumed_member_is_held_to_its_own_column_rule(self):
+        """`lane_reference` spells `text` and `identity` out rather than
+        dispatching through `ATTEMPT_COLUMNS`, so that the inventory can still
+        discover each member read. That leaves one thing to pin: the two must
+        agree, and a column whose kind changes must not leave this boundary
+        quietly checking the old one.
+
+        Driven rather than asserted from the source: an `identity` member and a
+        `text` member differ in nothing this fixture can see today, so what is
+        measured is that every consumed member IS refused by its column's kind
+        and that the kinds themselves are the two this boundary implements.
+        """
+        for name in lanes.LANE_INPUT:
+            with self.subTest(member=name):
+                kind = schema.ATTEMPT_COLUMNS[name].kind
+                self.assertIn(kind, ("text", "identity"))
+                caught = self.refused(dict(self.MINIMAL, **{name: 1}))
+                self.assertEqual((caught.category, caught.code),
+                                 ("integrity", "schema"))
+                self.assertIn(f"a runtime lane attempt's {name}",
+                              caught.message)
+
+    def test_every_consumed_member_stays_visible_to_the_inventory(self):
+        """The correction must not buy stronger checking with less discovery.
+
+        `LANE_INPUT` is the contract a reader sees; the receiving-boundary
+        catalog derives its entries from the member READS in the body. This
+        holds the two together, so a later refactor that replaced the five
+        literal reads with a loop would fail here rather than silently emptying
+        the catalog this Work's parent has to account for.
+        """
+        import ast
+        import inspect
+
+        source = inspect.getsource(lanes.lane_reference)
+        read = {node.slice.value
+                for node in ast.walk(ast.parse(source.lstrip()))
+                if isinstance(node, ast.Subscript)
+                and isinstance(node.slice, ast.Constant)
+                and type(node.slice.value) is str}
+        for name in lanes.LANE_INPUT:
+            self.assertIn(name, read)
+
+    # -- and nothing about a lane was decided by any of it -------------------
+
+    def test_the_projection_touches_no_store_and_no_lane(self):
+        """It resolves no Authority, consults no store and occupies nothing: a
+        valid typed reference is not proof of a live Authority assignment, and
+        this is the case that says so."""
+        self.attempt()
+        before = self.lanes()
+        self.assertEqual(len(before), 1)
+        for _ in range(3):
+            lanes.lane_reference(dict(self.MINIMAL))
+        self.assertEqual(self.lanes(), before)
+        # AND A REFERENCE A CALLER COMPOSED NAMES A LANE NOBODY HOLDS. The
+        # principal is deliberately not this attempt's: a valid typed answer
+        # is a projection of what was supplied, never evidence of occupancy.
+        invented = lanes.lane_reference(
+            dict(self.MINIMAL, assignment_principal="principal:invented"))
+        self.assertIsNone(lanes._holder_of(self.store, invented))
+        self.assertEqual(self.lanes(), before)
+
+
+class TheValidatedBoundaryLeavesEveryLifecycleCallerAlone(LaneCase):
+    """W119476's compatibility half: the four production call sites.
+
+    Each one obtains its row from `_require_attempt` or `_attempt_of`, both of
+    which come through `boundaries.row` and answer a dict carrying exactly
+    `ATTEMPT_COLUMNS`. That is what the optional half of the input contract
+    exists for, and these drive it rather than asserting it.
+    """
+
+    def test_a_start_still_occupies_the_lane_through_the_validated_input(self):
+        self.attempt()
+        [held] = self.lanes()
+        self.assertEqual(held["holder"], ATTEMPT)
+        self.assertEqual(held["lane_id"], lanes._lane_id(self.reference()))
+
+    def test_the_public_projection_still_reads_the_same_lane(self):
+        self.attempt()
+        answered = runtime_lane(self.store, ATTEMPT)
+        self.assertTrue(answered["held_by_this_attempt"])
+        self.assertEqual(answered["lane"]["lane_id"],
+                         lanes._lane_id(self.reference()))
+
+    def test_cleanup_still_releases_the_lane_through_the_same_helper(self):
+        """The two intake release sites reach `lane_reference` with an
+        `_attempt_of` row, so a settled cleanup still gives the lane back."""
+        self.retained_ready("discard-after-intake")
+        self.assertEqual(len(self.lanes()), 1)
+        settled = self.cleanup_settled()
+        self.assertEqual(settled["cleanup"], "complete")
+        self.assertEqual(self.lanes(), [])

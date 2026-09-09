@@ -1,0 +1,100 @@
+{
+  "work": "W126887",
+  "claim": 127073,
+  "corrects": "review-2026-09-09T10-10-57Z.md, P1 and P2",
+  "claim_order": "claimed at seq127073 before reading the review and before any edit; the carried budget was declared in PROGRESS before any execution",
+  "baseline": "the candidate bytes at handoff; the reviewer's retained manifest is evidence/review-127025-audit.json",
+  "paths": {
+    "src/baton_v12/integration/store.py": {
+      "baseline_candidate": "4b22ed2ffc11c5c67c29570140b19601d447d1ea1dac46136d4973821c04fec9",
+      "final": "c46e89bfbb05198fccac7f36e095c6ac81bdac30048ff5b030a70c0cd88f4c17",
+      "mode": "664"
+    },
+    "tests/integration/test_coordinator.py": {
+      "baseline_candidate": "698a5921f0290ce600ba19aab42407b6816d160ef72e6a7dc2b2d5f6a778558c",
+      "final": "6e4e4f14bf3993ac1dede44116370b65b6f4b3ad196b5dca522f96e853e6b708",
+      "mode": "664"
+    }
+  },
+  "test_methods": {
+    "tests/integration/test_coordinator.py": 213
+  },
+  "diagnosis_reused": {
+    "from": "../finding-readonly-authority-open/evidence/diagnosis-127026.json and race-127026.json, measured on this machine at sqlite 3.46.1",
+    "what": "mode=ro creates whichever sidecar is missing and creates nothing only when both are present or a writer is attached; nolock=1 refuses a WAL store either way; and the sidecars are attached at the FIRST STATEMENT THAT READS A TABLE, not at connect and not at SELECT 1",
+    "status": "that sibling correction is itself UNACCEPTED (returned at seq127067). What is reused here is the measurement, not an accepted artifact, and both halves should be judged together."
+  },
+  "p1_partial_sidecars": {
+    "was": "the pre-check permitted a WAL store when EITHER sidecar existed, so SQLite created the other and the open succeeded on an artifact it had just made",
+    "now": "both are required, and the same fact is read again AFTER the first table read, comparing device and inode -- names cannot see a pair that was removed and recreated",
+    "no_cleanup": "an artifact the race produced is reported and left; removing it is the post-hoc cleanup the allocation and both reviews exclude, and it would race another opener's own file",
+    "controls": [
+      "test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing (-wal only and -shm only)"
+    ]
+  },
+  "p2_escaped_refusal": {
+    "was": "`_objects` is the first statement to touch the schema, and it raised sqlite3.DatabaseError outside any translation -- an uncontrolled error out of a public opener",
+    "now": "that read is translated at its owning boundary into this coordinator's refused/precondition, the handle is closed and the file is preserved. Only sqlite3 errors are translated.",
+    "controls": [
+      "test_a_file_sqlite_cannot_read_refuses_in_this_taxonomy",
+      "test_an_unrelated_failure_is_not_swallowed -- a MemoryError from the same read travels out untouched"
+    ]
+  },
+  "also_scheduled_and_added": [
+    "test_a_store_at_another_schema_version_is_refused_untouched, over a store this build OWNS, because `_adopt` refuses on kind before version",
+    "test_a_read_only_filesystem_store_is_readable, skipping where the platform will not make the root read-only",
+    "test_the_committed_history_backs_every_read_it_answers -- `entries_of` agrees its rows with the committed journal, so emptying that journal makes the same read refuse"
+  ],
+  "reviewer_probe_replayed": {
+    "run": "PYTHONPATH=.:src:tests python3 evidence/review-127025-probe.py",
+    "wall": "0.193s",
+    "retained": "evidence/replay-127025-probe-127073.json",
+    "result": "all four cases refuse with ContractRefusal and none creates a file: only-wal and only-shm at the pre-check, serving-close-after-guard at the post-check, and not-database in this coordinator's own taxonomy"
+  },
+  "residual_reported": {
+    "what": "in the race the refusal follows creation, so that open can leave sidecars behind even though it refuses",
+    "why": "the check and the open are separate operations in this sqlite3 build; immutable=1, post-hoc cleanup and a custom VFS are all outside this allocation",
+    "same_as": "the Authority half's residual, and the same three smallest decisions apply -- accept the race, permit removal of artifacts identified by device and inode, or require the consumer to read only while a process holds the store",
+    "not_taken": "not mine to choose"
+  },
+  "budget": {
+    "carried_forward": true,
+    "spent_before_this_pass": 7.2,
+    "allowance": 20.0,
+    "spent_this_pass": 4.3,
+    "cumulative": 11.5,
+    "note": "every run below is an exact command with its wall time from `time` and its raw log retained beside this file"
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 evidence/review-127025-probe.py",
+      "wall": "0.193s",
+      "log": "evidence/replay-127025-probe-127073.json",
+      "result": "all four cases refuse"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.integration.test_coordinator.ReadOnlyOpening",
+      "wall": "0.202s",
+      "result": "18 tests, 1 error -- the history control used a snapshot method that does not exist"
+    },
+    {
+      "run": "same, with that control rewritten as a journal-agreement proof",
+      "wall": "0.204s",
+      "log": "evidence/run-127073-readonly-class.log",
+      "result": "18 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.integration.test_coordinator",
+      "wall": "1.529s",
+      "log": "evidence/run-127073-test-coordinator.log",
+      "result": "213 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.integration.test_driver",
+      "wall": "2.168s",
+      "log": "evidence/run-127073-test-driver.log",
+      "result": "109 tests, OK"
+    }
+  ],
+  "existing_assertions": "unchanged; every addition is in the ReadOnlyOpening class, and the only other change is one import"
+}

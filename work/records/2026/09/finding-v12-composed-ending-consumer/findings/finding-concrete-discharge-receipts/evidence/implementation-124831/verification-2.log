@@ -1,0 +1,874 @@
+test_a_blocked_cleanup_is_not_a_refusal (tests.manager.test_intake.BlockedOnIntakeIsAStateAndNotARetry.test_a_blocked_cleanup_is_not_a_refusal)
+Blocked is an ANSWER. A caller that had to catch an exception to ... ok
+test_blocked_cleanup_completes_once_intake_happens (tests.manager.test_intake.BlockedOnIntakeIsAStateAndNotARetry.test_blocked_cleanup_completes_once_intake_happens) ... ok
+test_cleanup_without_custody_is_recorded_as_blocked (tests.manager.test_intake.BlockedOnIntakeIsAStateAndNotARetry.test_cleanup_without_custody_is_recorded_as_blocked)
+The frozen axis HAS `blocked-on-intake`, so cleanup waits on intake ... ok
+test_a_decision_made_under_another_policy_is_not_this_authorization (tests.manager.test_intake.CleanupIsAuthorizedByProofRatherThanByAsking.test_a_decision_made_under_another_policy_is_not_this_authorization)
+`runtimeDestroyBody` requires the retention policy digest, and ... ok
+test_an_undecided_artifact_stops_the_destroy (tests.manager.test_intake.CleanupIsAuthorizedByProofRatherThanByAsking.test_an_undecided_artifact_stops_the_destroy)
+Cleanup destroys nothing nobody ruled on. ... ok
+test_a_gate_kind_reply_cannot_be_committed_as_absence_evidence (tests.manager.test_intake.ConcreteAuthorityDischargeReceipts.test_a_gate_kind_reply_cannot_be_committed_as_absence_evidence) ... ok
+test_an_unreachable_runtime_supplies_no_discharge_proof (tests.manager.test_intake.ConcreteAuthorityDischargeReceipts.test_an_unreachable_runtime_supplies_no_discharge_proof) ... ok
+test_another_concrete_authority_cannot_commit_this_receipt (tests.manager.test_intake.ConcreteAuthorityDischargeReceipts.test_another_concrete_authority_cannot_commit_this_receipt) ... ok
+test_concrete_answer_commits_and_survives_reopening_both_owners (tests.manager.test_intake.ConcreteAuthorityDischargeReceipts.test_concrete_answer_commits_and_survives_reopening_both_owners) ... ok
+test_original_cleanup_cannot_discharge_a_later_generation (tests.manager.test_intake.ConcreteAuthorityDischargeReceipts.test_original_cleanup_cannot_discharge_a_later_generation) ... ok
+test_remote_success_local_loss_replays_after_later_movement_and_reopening (tests.manager.test_intake.ConcreteAuthorityDischargeReceipts.test_remote_success_local_loss_replays_after_later_movement_and_reopening) ... ok
+test_an_attempt_never_intaken_answers_absence (tests.manager.test_intake.CustodyIsTakenOfWhatWasFrozen.test_an_attempt_never_intaken_answers_absence)
+Absence is an ANSWER here, and it is the one cleanup asks for. ... ok
+test_an_edited_row_cannot_authorize_a_destroy (tests.manager.test_intake.CustodyIsTakenOfWhatWasFrozen.test_an_edited_row_cannot_authorize_a_destroy) ... ok
+test_an_unfrozen_attempt_has_nothing_to_collect (tests.manager.test_intake.CustodyIsTakenOfWhatWasFrozen.test_an_unfrozen_attempt_has_nothing_to_collect) ... ok
+test_the_adapter_is_handed_the_whole_identity (tests.manager.test_intake.CustodyIsTakenOfWhatWasFrozen.test_the_adapter_is_handed_the_whole_identity)
+An adapter handed only a retry key cannot know which frozen result ... ok
+test_the_output_axis_reaches_sealed (tests.manager.test_intake.CustodyIsTakenOfWhatWasFrozen.test_the_output_axis_reaches_sealed)
+W6628 ends at `frozen` and says so. Sealing is the record that this ... ok
+test_the_receipt_digest_is_recomputed_on_read_back (tests.manager.test_intake.CustodyIsTakenOfWhatWasFrozen.test_the_receipt_digest_is_recomputed_on_read_back)
+The destroy command carries this digest, so what a caller receives ... ok
+test_the_receipt_names_what_arrived (tests.manager.test_intake.CustodyIsTakenOfWhatWasFrozen.test_the_receipt_names_what_arrived) ... ok
+test_authorize_cleanup_refuses_a_bearer_in_the_policy_digest (tests.manager.test_intake.EveryJournalledDoorRefusesALiveBearer.test_authorize_cleanup_refuses_a_bearer_in_the_policy_digest)
+The strongest of the four, because `runtimeDestroyBody` puts both ... ok
+test_decide_retention_refuses_a_bearer_in_the_policy_digest (tests.manager.test_intake.EveryJournalledDoorRefusesALiveBearer.test_decide_retention_refuses_a_bearer_in_the_policy_digest)
+The policy is bound by identity and never read -- and an identity ... ok
+test_record_intake_refuses_a_bearer_in_the_collection (tests.manager.test_intake.EveryJournalledDoorRefusesALiveBearer.test_record_intake_refuses_a_bearer_in_the_collection)
+The adapter's OWN answer is the caller text here. A custody locator ... ok
+test_request_intake_refuses_what_the_adapter_hands_back (tests.manager.test_intake.EveryJournalledDoorRefusesALiveBearer.test_request_intake_refuses_what_the_adapter_hands_back)
+The same door, entered the way an operator enters it. The adapter is ... ok
+test_the_walk_is_what_refuses_and_not_a_precondition (tests.manager.test_intake.EveryJournalledDoorRefusesALiveBearer.test_the_walk_is_what_refuses_and_not_a_precondition)
+THE CASE THAT MAKES THE FOUR ABOVE MEAN SOMETHING. ... ok
+test_a_later_policy_can_replace_part_of_a_grouped_decision (tests.manager.test_intake.IndependentContractReview.test_a_later_policy_can_replace_part_of_a_grouped_decision)
+Retention stores one current decision per artifact. Replacing one ... ok
+test_a_retention_cannot_borrow_another_attempts_committed_act (tests.manager.test_intake.IndependentContractReview.test_a_retention_cannot_borrow_another_attempts_committed_act)
+Artifact ids, policy and disposition are not globally unique. A row ... ok
+test_a_retention_row_edit_cannot_authorize_cleanup (tests.manager.test_intake.IndependentContractReview.test_a_retention_row_edit_cannot_authorize_cleanup)
+Retention is authorization state too. Rewriting its policy and ... ok
+test_a_self_consistent_receipt_edit_is_not_journal_evidence (tests.manager.test_intake.IndependentContractReview.test_a_self_consistent_receipt_edit_is_not_journal_evidence)
+A row and the digest stored beside it can be edited together. The ... ok
+test_cleanup_waits_until_the_assignment_is_ended_or_fenced (tests.manager.test_intake.IndependentContractReview.test_cleanup_waits_until_the_assignment_is_ended_or_fenced)
+The predecessor W4 decision is explicit: destroying the runtime of ... ok
+test_destroy_is_delivered_with_the_authorizing_contract_body (tests.manager.test_intake.IndependentContractReview.test_destroy_is_delivered_with_the_authorizing_contract_body)
+A bare runtime id omits both digests that authorize destruction and ... ok
+test_one_policy_can_decide_different_artifact_groups (tests.manager.test_intake.IndependentContractReview.test_one_policy_can_decide_different_artifact_groups)
+`outputRetainBody` puts the artifact set and disposition in the ... ok
+test_retention_is_delivered_to_the_adapter_as_a_command (tests.manager.test_intake.IndependentContractReview.test_retention_is_delivered_to_the_adapter_as_a_command)
+Validating that `retain` exists is not delivery. The frozen ... ok
+test_a_changed_byte_count_refuses (tests.manager.test_intake.NothingTheAdapterSaysIsAdopted.test_a_changed_byte_count_refuses) ... ok
+test_a_collection_for_another_result_refuses (tests.manager.test_intake.NothingTheAdapterSaysIsAdopted.test_a_collection_for_another_result_refuses) ... ok
+test_a_missing_artifact_is_not_an_empty_hand (tests.manager.test_intake.NothingTheAdapterSaysIsAdopted.test_a_missing_artifact_is_not_an_empty_hand)
+A collection that simply did not mention an artifact has not proved ... ok
+test_an_artifact_nobody_froze_is_substitution (tests.manager.test_intake.NothingTheAdapterSaysIsAdopted.test_an_artifact_nobody_froze_is_substitution) ... ok
+test_changed_content_is_not_the_frozen_material (tests.manager.test_intake.NothingTheAdapterSaysIsAdopted.test_changed_content_is_not_the_frozen_material) ... ok
+test_one_artifact_is_taken_into_custody_once (tests.manager.test_intake.NothingTheAdapterSaysIsAdopted.test_one_artifact_is_taken_into_custody_once) ... ok
+test_a_runtime_that_survived_the_destroy_is_a_failed_cleanup (tests.manager.test_intake.PositiveAbsenceOrNoEnding.test_a_runtime_that_survived_the_destroy_is_a_failed_cleanup)
+Positively still there. The destroy was ordered and the runtime ... ok
+test_absence_is_what_moves_the_runtime_axis (tests.manager.test_intake.PositiveAbsenceOrNoEnding.test_absence_is_what_moves_the_runtime_axis)
+Only an engine that says this exact identity does not exist produces ... ok
+test_an_already_destroyed_runtime_is_not_destroyed_twice (tests.manager.test_intake.PositiveAbsenceOrNoEnding.test_an_already_destroyed_runtime_is_not_destroyed_twice) ... ok
+test_an_answer_about_another_runtime_is_not_this_one (tests.manager.test_intake.PositiveAbsenceOrNoEnding.test_an_answer_about_another_runtime_is_not_this_one) ... ok
+test_an_uncertain_answer_ends_nothing (tests.manager.test_intake.PositiveAbsenceOrNoEnding.test_an_uncertain_answer_ends_nothing)
+A cleanup axis that advanced on an account which did not settle the ... ok
+test_an_uncertain_destroy_can_actually_be_tried_again (tests.manager.test_intake.PositiveAbsenceOrNoEnding.test_an_uncertain_destroy_can_actually_be_tried_again)
+W6636: the sentence above was true of the AXIS and false of the ... ok
+test_an_uncertain_runtime_cannot_be_cleaned_up_at_all (tests.manager.test_intake.PositiveAbsenceOrNoEnding.test_an_uncertain_runtime_cannot_be_cleaned_up_at_all)
+THE FROZEN ASYMMETRY, refused rather than worked around. `uncertain` ... ok
+test_quiescent_with_nothing_attached_is_refused_not_assumed_absent (tests.manager.test_intake.PositiveAbsenceOrNoEnding.test_quiescent_with_nothing_attached_is_refused_not_assumed_absent)
+Asking an engine to remove an identity this manager never attached ... ok
+test_a_retry_of_intake_replays_after_the_axis_moved (tests.manager.test_intake.RestartOrderingIsPreserved.test_a_retry_of_intake_replays_after_the_axis_moved)
+The same property for custody: the axis is `sealed` by the time a ... ok
+test_a_retry_of_retention_replays_rather_than_refusing_on_state (tests.manager.test_intake.RestartOrderingIsPreserved.test_a_retry_of_retention_replays_rather_than_refusing_on_state)
+The ordering W6628's receiver was corrected for twice: a state read ... ok
+test_a_different_destroy_after_an_ending_is_refused (tests.manager.test_intake.RetainedAndCompleteAreDifferentEndings.test_a_different_destroy_after_an_ending_is_refused)
+And this is what the terminal check is actually for: a DIFFERENT ... ok
+test_an_exact_retry_of_a_settled_destroy_replays (tests.manager.test_intake.RetainedAndCompleteAreDifferentEndings.test_an_exact_retry_of_a_settled_destroy_replays)
+Effectively-once, and it is the reason the terminal refusal sits ... ok
+test_material_kept_by_policy_ends_retained (tests.manager.test_intake.RetainedAndCompleteAreDifferentEndings.test_material_kept_by_policy_ends_retained)
+Reporting retention as completion would erase the reason the ... ok
+test_material_kept_by_policy_survives_at_its_custody_locator (tests.manager.test_intake.RetainedAndCompleteAreDifferentEndings.test_material_kept_by_policy_survives_at_its_custody_locator)
+A retained ending is an account of bytes that still exist. ... ok
+test_nothing_left_behind_is_complete (tests.manager.test_intake.RetainedAndCompleteAreDifferentEndings.test_nothing_left_behind_is_complete) ... ok
+test_quarantined_custody_ends_retained_whatever_the_disposition (tests.manager.test_intake.RetainedAndCompleteAreDifferentEndings.test_quarantined_custody_ends_retained_whatever_the_disposition)
+The custody answer outlives the per-artifact decision: material ... ok
+test_quarantined_material_ends_retained_too (tests.manager.test_intake.RetainedAndCompleteAreDifferentEndings.test_quarantined_material_ends_retained_too)
+`quarantine` is doubt keeping the bytes and `retain` is policy ... ok
+test_an_exact_retry_replays_the_receipt_it_already_produced (tests.manager.test_intake.TakingCustodyHappensOnce.test_an_exact_retry_replays_the_receipt_it_already_produced) ... ok
+test_different_material_under_the_same_identity_refuses (tests.manager.test_intake.TakingCustodyHappensOnce.test_different_material_under_the_same_identity_refuses)
+The identity is the ACT and the signature carries the bytes. If the ... ok
+test_the_operation_identity_is_derived_from_the_attempt (tests.manager.test_intake.TakingCustodyHappensOnce.test_the_operation_identity_is_derived_from_the_attempt)
+Derived rather than minted, so a restart names what it already did ... ok
+test_a_changed_runtime_moves_the_signature_and_refuses (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_a_changed_runtime_moves_the_signature_and_refuses)
+`operation_id` binds the attempt, assignment, receipt and policy; ... ok
+test_a_decision_made_under_another_policy_refuses (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_a_decision_made_under_another_policy_refuses) ... ok
+test_a_discarded_ending_reads_back_exactly_as_it_settled (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_a_discarded_ending_reads_back_exactly_as_it_settled)
+The kept-material comparison, which is where a discard used to fail. ... ok
+test_a_failed_cleanup_carries_no_custody_and_reads_back (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_a_failed_cleanup_carries_no_custody_and_reads_back)
+A runtime that survived its destroy normalizes nothing. ... ok
+test_a_kept_set_the_decisions_do_not_name_refuses (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_a_kept_set_the_decisions_do_not_name_refuses) ... ok
+test_a_malformed_receipt_refuses (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_a_malformed_receipt_refuses) ... ok
+test_a_missing_normalization_journal_refuses (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_a_missing_normalization_journal_refuses) ... ok
+test_a_receipt_naming_another_attempt_refuses (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_a_receipt_naming_another_attempt_refuses) ... ok
+test_a_record_of_another_kind_refuses (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_a_record_of_another_kind_refuses) ... ok
+test_a_reopened_manager_reads_the_same_answer (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_a_reopened_manager_reads_the_same_answer) ... ok
+test_a_result_its_own_signature_does_not_name_refuses (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_a_result_its_own_signature_does_not_name_refuses) ... ok
+test_a_retained_ending_reads_back_exactly_as_it_settled (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_a_retained_ending_reads_back_exactly_as_it_settled) ... ok
+test_a_signature_this_manager_does_not_derive_refuses (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_a_signature_this_manager_does_not_derive_refuses)
+[P1]: `_committed` replays under the ROW's own signature. ... ok
+test_an_attempt_with_no_cleanup_answers_absence (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_an_attempt_with_no_cleanup_answers_absence) ... ok
+test_an_attempt_with_no_intake_receipt_answers_absence (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_an_attempt_with_no_intake_receipt_answers_absence)
+Half the destroy identity is the receipt digest, so without one ... ok
+test_an_ordinary_receipt_carries_no_kind_member (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_an_ordinary_receipt_carries_no_kind_member)
+[P2]: `kind` belongs to the recordless sibling's settlement. ... ok
+test_an_unknown_attempt_refuses_rather_than_answering_absence (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_an_unknown_attempt_refuses_rather_than_answering_absence) ... ok
+test_an_unknown_receipt_member_refuses (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_an_unknown_receipt_member_refuses) ... ok
+test_an_unsettled_or_invented_runtime_state_is_never_an_ending (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_an_unsettled_or_invented_runtime_state_is_never_an_ending)
+[P1]: `uncertain` is not an ending and `_settle` never commits one. ... ok
+test_another_policy_selects_an_act_this_manager_never_committed (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_another_policy_selects_an_act_this_manager_never_committed) ... ok
+test_empty_or_foreign_nested_custody_refuses (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_empty_or_foreign_nested_custody_refuses)
+The gap this provider exists to close: nothing was compared. ... ok
+test_every_artifact_must_carry_a_decision_under_this_policy (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_every_artifact_must_carry_a_decision_under_this_policy)
+W120762 review 2026-09-08T16-43-59Z [P1]: empty is not evidence. ... ok
+test_it_takes_no_port_and_no_adapter (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_it_takes_no_port_and_no_adapter)
+The structural half of "performs no external act". ... ok
+test_quarantined_custody_settles_retained_and_reads_back (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_quarantined_custody_settles_retained_and_reads_back)
+The other half of `_settle`'s rule: doubt keeps the bytes too. ... ok
+test_the_ending_must_be_the_one_those_facts_settle (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_the_ending_must_be_the_one_those_facts_settle)
+[P1]: an ending is derived from the facts, not recorded beside them. ... ok
+test_the_nested_directory_custody_is_the_committed_normalization (tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing.test_the_nested_directory_custody_is_the_committed_normalization) ... ok
+test_a_destroyed_runtime_is_still_asked_about (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_a_destroyed_runtime_is_still_asked_about)
+The narrow fact underneath the case above, on its own. ... ok
+test_a_pending_cleanup_re_enters_provider_teardown_every_time (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_a_pending_cleanup_re_enters_provider_teardown_every_time)
+RE-REVIEW [P0]: the retry skipped the adapter entirely. ... ok
+test_a_provider_that_never_delivered_is_not_a_reason_to_wait (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_a_provider_that_never_delivered_is_not_a_reason_to_wait)
+`not-delivered` is terminal. There is no root to prove gone, and ... ok
+test_an_adapter_with_no_providers_still_settles (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_an_adapter_with_no_providers_still_settles)
+The endings are OPTIONAL, and they have to be: an adapter that ... ok
+test_an_ending_that_is_not_a_document_is_refused (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_an_ending_that_is_not_a_document_is_refused) ... ok
+test_an_ending_this_build_does_not_recognise_is_refused (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_an_ending_this_build_does_not_recognise_is_refused)
+Not read as unresolved and not read as settled. ... ok
+test_an_omission_after_an_unresolved_ending_survives_a_restart (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_an_omission_after_an_unresolved_ending_survives_a_restart)
+The review's exact required regression. ... ok
+test_an_omitted_provider_is_refused_rather_than_read_as_absent (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_an_omitted_provider_is_refused_rather_than_read_as_absent)
+RE-REVIEW [P0]: omission erased a teardown that was owed. ... ok
+test_an_unresolved_credential_root_keeps_cleanup_open (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_an_unresolved_credential_root_keeps_cleanup_open)
+The other root, driven separately: one guard covering both would ... ok
+test_an_unresolved_launch_root_keeps_cleanup_open (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_an_unresolved_launch_root_keeps_cleanup_open)
+THE DEFECT. Positive container absence with a launch root still on ... ok
+test_an_unsettled_cleanup_can_be_retried_once_the_root_is_gone (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_an_unsettled_cleanup_can_be_retried_once_the_root_is_gone)
+The axis staying where it is IS the offer to try again, which is ... ok
+test_both_unresolved_roots_are_named (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_both_unresolved_roots_are_named)
+Two roots can be unresolved for two different reasons, and an ... ok
+test_directory_custody_is_required_before_runtime_destruction (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_directory_custody_is_required_before_runtime_destruction)
+A mandatory ending capability is proved before the first mutation. ... ok
+test_the_real_adapter_s_answer_is_admitted_at_all (tests.manager.test_intake.TheDeliveryProvidersMustEndBeforeCleanupIsClean.test_the_real_adapter_s_answer_is_admitted_at_all)
+The shape `OciAdapter.destroy` actually returns. ... ok
+test_a_changed_custodian_collides_rather_than_settling (tests.manager.test_intake.TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct.test_a_changed_custodian_collides_rather_than_settling)
+A helper swapped between the two acts is a different act over the ... ok
+test_a_crash_between_the_removal_and_the_commit_retries_clean (tests.manager.test_intake.TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct.test_a_crash_between_the_removal_and_the_commit_retries_clean)
+THE CASE ONLY THIS ENDING HAS. ... ok
+test_a_deployment_without_the_seam_destroys_nothing (tests.manager.test_intake.TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct.test_a_deployment_without_the_seam_destroys_nothing) ... ok
+test_an_interrupted_normalization_commits_no_ending_and_resumes (tests.manager.test_intake.TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct.test_an_interrupted_normalization_commits_no_ending_and_resumes) ... ok
+test_retry_after_removal_replays_receipts_without_absent_root_access (tests.manager.test_intake.TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct.test_retry_after_removal_replays_receipts_without_absent_root_access)
+The real crash state already has both custody receipts. ... ok
+test_the_ending_binds_both_receipts_and_replays_them (tests.manager.test_intake.TheOrdinaryEndingSurvivesInterruptionAtEveryDirectoryAct.test_the_ending_binds_both_receipts_and_replays_them) ... ok
+test_a_cleanup_that_never_committed_authorizes_nothing (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_cleanup_that_never_committed_authorizes_nothing)
+The mutable axis is not the proof. This attempt's runtime axis is ... ok
+test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused)
+[P1] Both public exits adopt the receipt. Generic JSON parsing ... 
+  test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused) (spoiled=['kind'])
+[P1] Both public exits adopt the receipt. Generic JSON parsing ... ERROR
+  test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused) (spoiled=['kind'])
+[P1] Both public exits adopt the receipt. Generic JSON parsing ... ERROR
+  test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused) (spoiled=['phase'])
+[P1] Both public exits adopt the receipt. Generic JSON parsing ... ERROR
+  test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused) (spoiled=['cleanup'])
+[P1] Both public exits adopt the receipt. Generic JSON parsing ... ERROR
+  test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused) (spoiled=['runtime_id'])
+[P1] Both public exits adopt the receipt. Generic JSON parsing ... ERROR
+  test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused) (spoiled=['gate'])
+[P1] Both public exits adopt the receipt. Generic JSON parsing ... ERROR
+test_a_lost_local_receipt_is_finished_without_a_second_remote_act (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_lost_local_receipt_is_finished_without_a_second_remote_act)
+THE CRASH WINDOW THIS DESIGN IS WRITTEN AROUND. The remote act ... ERROR
+test_a_lost_receipt_is_finished_after_the_work_has_moved_on (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_lost_receipt_is_finished_after_the_work_has_moved_on)
+The review's rule, driven: a remote commit whose local receipt was ... ERROR
+test_a_lost_receipt_is_not_finished_through_a_foreign_authority (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_lost_receipt_is_not_finished_through_a_foreign_authority)
+The other side of that rule, and the distinction is the point. ... ok
+test_a_malformed_nested_cleanup_proof_refuses_before_the_authority (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_malformed_nested_cleanup_proof_refuses_before_the_authority) ... ok
+test_a_malformed_operand_is_refused_before_anything_is_asked (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_malformed_operand_is_refused_before_anything_is_asked) ... ok
+test_a_never_activated_attempt_has_no_discharge_to_discover (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_never_activated_attempt_has_no_discharge_to_discover) ... ok
+test_a_null_assignment_refuses_rather_than_faulting (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_null_assignment_refuses_rather_than_faulting)
+`documents.assignment` takes keywords and `**None` is a TypeError. ... ERROR
+test_a_present_invalid_record_is_never_reported_as_absence (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_present_invalid_record_is_never_reported_as_absence)
+W119548 review 2026-09-08T14:53:10Z [P2]. The two exits had each ... 
+  test_a_present_invalid_record_is_never_reported_as_absence (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_present_invalid_record_is_never_reported_as_absence) (column='result', value='null')
+W119548 review 2026-09-08T14:53:10Z [P2]. The two exits had each ... ERROR
+  test_a_present_invalid_record_is_never_reported_as_absence (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_present_invalid_record_is_never_reported_as_absence) (column='kind', value='unrelated.operation')
+W119548 review 2026-09-08T14:53:10Z [P2]. The two exits had each ... ERROR
+  test_a_present_invalid_record_is_never_reported_as_absence (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_present_invalid_record_is_never_reported_as_absence) (column='result', value='[]')
+W119548 review 2026-09-08T14:53:10Z [P2]. The two exits had each ... ERROR
+test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) ... 
+  test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['assignment']) ... ERROR
+  test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['assignment']) ... ERROR
+  test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['assignment']) ... ERROR
+  test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['attempt_id']) ... ERROR
+  test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['gate']) ... ERROR
+  test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['operation_id']) ... ERROR
+  test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['cleanup_operation_id']) ... ERROR
+  test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['runtime_id']) ... ERROR
+test_a_reply_missing_a_member_refuses_at_the_port (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_reply_missing_a_member_refuses_at_the_port) ... ok
+test_a_reply_that_does_not_release_the_work_is_not_a_discharge (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_reply_that_does_not_release_the_work_is_not_a_discharge) ... ok
+test_a_reply_whose_kind_is_not_this_gates_kind_refuses (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_reply_whose_kind_is_not_this_gates_kind_refuses) ... ok
+test_a_retained_ending_is_admitted_beside_a_complete_one (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_retained_ending_is_admitted_beside_a_complete_one)
+Both followed positive absence; only the kept material differs, and ... ERROR
+test_a_runtime_changed_after_cleanup_cannot_be_certified_absent (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_runtime_changed_after_cleanup_cannot_be_certified_absent)
+[P1] `destroy_operation` splits its binding: the identity covers the ... ok
+test_a_second_call_replays_and_asks_the_authority_nothing_again (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_second_call_replays_and_asks_the_authority_nothing_again) ... ERROR
+test_a_session_acting_for_another_participant_is_refused_first (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_session_acting_for_another_participant_is_refused_first) ... ok
+test_a_session_on_another_authority_never_reaches_the_act (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_session_on_another_authority_never_reaches_the_act)
+[P2] The probe's third scenario: same participant, same Work ... ok
+test_a_session_projecting_no_such_work_refuses (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_session_projecting_no_such_work_refuses) ... ok
+test_a_session_that_cannot_reach_the_discharge_says_so (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_session_that_cannot_reach_the_discharge_says_so)
+Both production deployments in this distribution compose narrower ... ok
+test_a_settled_cleanup_discharges_the_gate_and_frees_the_work (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_settled_cleanup_discharges_the_gate_and_frees_the_work) ... ERROR
+test_a_surviving_runtime_discharges_nothing (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_surviving_runtime_discharges_nothing)
+`failed` is the settled ending of a cleanup whose runtime survived ... ok
+test_a_valid_receipt_still_replays_after_the_work_has_moved (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_valid_receipt_still_replays_after_the_work_has_moved)
+The binding must use the receipt's own durable context, not today's ... ERROR
+test_absence_stays_a_different_answer_from_a_malformed_receipt (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_absence_stays_a_different_answer_from_a_malformed_receipt)
+"No discharge is recorded" is what a consumer acts on; "one is ... ERROR
+test_an_answer_about_another_gate_is_not_this_gates_discharge (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_an_answer_about_another_gate_is_not_this_gates_discharge)
+[P1] The probe's exact reply. Without this the manager journalled a ... ok
+test_an_attempt_whose_runtime_is_gone_from_the_row_refuses (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_an_attempt_whose_runtime_is_gone_from_the_row_refuses)
+The null half of the same binding. A cleanup cannot reach positive ... ok
+test_an_attempt_with_no_intake_receipt_is_refused_as_that (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_an_attempt_with_no_intake_receipt_is_refused_as_that) ... ok
+test_an_ungated_work_is_refused_by_the_authority_and_not_recorded (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_an_ungated_work_is_refused_by_the_authority_and_not_recorded) ... ok
+test_another_retention_policy_selects_a_cleanup_nobody_committed (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_another_retention_policy_selects_a_cleanup_nobody_committed)
+The policy is half the key to the destroy identity, so naming a ... ok
+test_changing_any_signed_operand_breaks_the_recorded_signature (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_changing_any_signed_operand_breaks_the_recorded_signature)
+The one comparison that binds the five together. ... ERROR
+test_old_cleanup_evidence_cannot_discharge_a_newer_gate (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_old_cleanup_evidence_cannot_discharge_a_newer_gate)
+The attempt composes the token for the generation it was fenced at, ... ok
+test_only_a_genuinely_absent_operation_answers_absence (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_only_a_genuinely_absent_operation_answers_absence)
+The other half, kept explicit so the correction cannot be read as ... ERROR
+test_ordinary_cleanup_keeps_its_own_api_and_authority_effect (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_ordinary_cleanup_keeps_its_own_api_and_authority_effect)
+The discharge is a separate act. Cleanup neither performs it nor ... ok
+test_the_caller_supplies_no_absence_runtime_gate_or_assignment (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_caller_supplies_no_absence_runtime_gate_or_assignment)
+Its two operands are the attempt and the policy that selects the ... ok
+test_the_discharge_writes_no_manager_axis (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_discharge_writes_no_manager_axis) ... ERROR
+test_the_evidence_is_positive_absence_naming_the_exact_runtime (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_evidence_is_positive_absence_naming_the_exact_runtime)
+The one thing the authority takes for this gate, and it is the ... ERROR
+test_the_gate_is_derived_from_the_receipts_own_assignment (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_gate_is_derived_from_the_receipts_own_assignment)
+A generation-1 assignment carrying gate 99 is not a document about ... ERROR
+test_the_gate_token_is_derived_from_the_attempts_own_generation (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_gate_token_is_derived_from_the_attempts_own_generation) ... ERROR
+test_the_outstanding_obligation_is_discoverable_after_cleanup (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_outstanding_obligation_is_discoverable_after_cleanup)
+`authorize_cleanup` commits its terminal axis and its receipt ... ERROR
+test_the_receipt_records_what_the_authority_answered (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_receipt_records_what_the_authority_answered)
+Not what this manager asked for. The two are proved equal at the ... ERROR
+test_the_replay_precedes_every_check_on_mutable_work_state (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_replay_precedes_every_check_on_mutable_work_state)
+A remote commit whose local receipt was lost must reproduce its ... ERROR
+test_a_decision_records_the_policy_that_made_it (tests.manager.test_intake.TheRetentionPolicyIsBoundNeverRead.test_a_decision_records_the_policy_that_made_it)
+This resolves the question this dossier was returned with. ... ok
+test_a_disposition_outside_the_frozen_three_refuses (tests.manager.test_intake.TheRetentionPolicyIsBoundNeverRead.test_a_disposition_outside_the_frozen_three_refuses) ... ok
+test_a_new_policy_decides_again_and_does_not_accumulate (tests.manager.test_intake.TheRetentionPolicyIsBoundNeverRead.test_a_new_policy_decides_again_and_does_not_accumulate)
+Two live dispositions for one artifact would make "may this be ... ok
+test_an_artifact_not_in_custody_cannot_be_decided (tests.manager.test_intake.TheRetentionPolicyIsBoundNeverRead.test_an_artifact_not_in_custody_cannot_be_decided) ... ok
+test_nothing_here_opens_the_policy_document (tests.manager.test_intake.TheRetentionPolicyIsBoundNeverRead.test_nothing_here_opens_the_policy_document)
+The digest is all this module is ever given, and a case that passes ... ok
+test_retention_cannot_precede_custody (tests.manager.test_intake.TheRetentionPolicyIsBoundNeverRead.test_retention_cannot_precede_custody)
+Deciding the fate of artifacts that were never taken into custody ... ok
+test_the_same_decision_under_the_same_policy_replays (tests.manager.test_intake.TheRetentionPolicyIsBoundNeverRead.test_the_same_decision_under_the_same_policy_replays) ... ok
+test_a_cancelled_attempt_is_recoverable_and_that_is_not_retention (tests.manager.test_intake.TwoDifferentReasonsMaterialIsStillHere.test_a_cancelled_attempt_is_recoverable_and_that_is_not_retention)
+The acceptance requires these to stay distinguishable. They are two ... ok
+test_an_ordinary_result_is_not_recoverable_material (tests.manager.test_intake.TwoDifferentReasonsMaterialIsStillHere.test_an_ordinary_result_is_not_recoverable_material) ... ok
+test_material_from_an_ended_assignment_is_quarantined (tests.manager.test_intake.TwoDifferentReasonsMaterialIsStillHere.test_material_from_an_ended_assignment_is_quarantined)
+W6628 pinned this in the module that hands intake its work: its ... ok
+test_material_from_another_generation_is_quarantined (tests.manager.test_intake.TwoDifferentReasonsMaterialIsStillHere.test_material_from_another_generation_is_quarantined) ... ok
+
+======================================================================
+ERROR: test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused) (spoiled=['kind'])
+[P1] Both public exits adopt the receipt. Generic JSON parsing
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2185, in test_a_journalled_receipt_that_is_not_a_discharge_is_refused
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused) (spoiled=['kind'])
+[P1] Both public exits adopt the receipt. Generic JSON parsing
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2185, in test_a_journalled_receipt_that_is_not_a_discharge_is_refused
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused) (spoiled=['phase'])
+[P1] Both public exits adopt the receipt. Generic JSON parsing
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2185, in test_a_journalled_receipt_that_is_not_a_discharge_is_refused
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused) (spoiled=['cleanup'])
+[P1] Both public exits adopt the receipt. Generic JSON parsing
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2185, in test_a_journalled_receipt_that_is_not_a_discharge_is_refused
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused) (spoiled=['runtime_id'])
+[P1] Both public exits adopt the receipt. Generic JSON parsing
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2185, in test_a_journalled_receipt_that_is_not_a_discharge_is_refused
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_journalled_receipt_that_is_not_a_discharge_is_refused (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused) (spoiled=['gate'])
+[P1] Both public exits adopt the receipt. Generic JSON parsing
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2185, in test_a_journalled_receipt_that_is_not_a_discharge_is_refused
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_lost_local_receipt_is_finished_without_a_second_remote_act (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_lost_local_receipt_is_finished_without_a_second_remote_act)
+THE CRASH WINDOW THIS DESIGN IS WRITTEN AROUND. The remote act
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1840, in test_a_lost_local_receipt_is_finished_without_a_second_remote_act
+    answered = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_lost_receipt_is_finished_after_the_work_has_moved_on (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_lost_receipt_is_finished_after_the_work_has_moved_on)
+The review's rule, driven: a remote commit whose local receipt was
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2424, in test_a_lost_receipt_is_finished_after_the_work_has_moved_on
+    answered = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_null_assignment_refuses_rather_than_faulting (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_null_assignment_refuses_rather_than_faulting)
+`documents.assignment` takes keywords and `**None` is a TypeError.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2313, in test_a_null_assignment_refuses_rather_than_faulting
+    self.spoil_receipt(assignment=None)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_present_invalid_record_is_never_reported_as_absence (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_present_invalid_record_is_never_reported_as_absence) (column='result', value='null')
+W119548 review 2026-09-08T14:53:10Z [P2]. The two exits had each
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2272, in test_a_present_invalid_record_is_never_reported_as_absence
+    self.spoil_journal(column, value)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2249, in spoil_journal
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_present_invalid_record_is_never_reported_as_absence (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_present_invalid_record_is_never_reported_as_absence) (column='kind', value='unrelated.operation')
+W119548 review 2026-09-08T14:53:10Z [P2]. The two exits had each
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2272, in test_a_present_invalid_record_is_never_reported_as_absence
+    self.spoil_journal(column, value)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2249, in spoil_journal
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_present_invalid_record_is_never_reported_as_absence (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_present_invalid_record_is_never_reported_as_absence) (column='result', value='[]')
+W119548 review 2026-09-08T14:53:10Z [P2]. The two exits had each
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2272, in test_a_present_invalid_record_is_never_reported_as_absence
+    self.spoil_journal(column, value)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2249, in spoil_journal
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['assignment'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2245, in test_a_receipt_about_something_else_is_refused_by_both_exits
+    self.both_exits_refuse(**members)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2225, in both_exits_refuse
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['assignment'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2245, in test_a_receipt_about_something_else_is_refused_by_both_exits
+    self.both_exits_refuse(**members)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2225, in both_exits_refuse
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['assignment'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2245, in test_a_receipt_about_something_else_is_refused_by_both_exits
+    self.both_exits_refuse(**members)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2225, in both_exits_refuse
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['attempt_id'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2245, in test_a_receipt_about_something_else_is_refused_by_both_exits
+    self.both_exits_refuse(**members)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2225, in both_exits_refuse
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['gate'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2245, in test_a_receipt_about_something_else_is_refused_by_both_exits
+    self.both_exits_refuse(**members)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2225, in both_exits_refuse
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['operation_id'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2245, in test_a_receipt_about_something_else_is_refused_by_both_exits
+    self.both_exits_refuse(**members)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2225, in both_exits_refuse
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['cleanup_operation_id'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2245, in test_a_receipt_about_something_else_is_refused_by_both_exits
+    self.both_exits_refuse(**members)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2225, in both_exits_refuse
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_receipt_about_something_else_is_refused_by_both_exits (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits) (spoiled=['runtime_id'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2245, in test_a_receipt_about_something_else_is_refused_by_both_exits
+    self.both_exits_refuse(**members)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2225, in both_exits_refuse
+    self.spoil_receipt(**members)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_retained_ending_is_admitted_beside_a_complete_one (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_retained_ending_is_admitted_beside_a_complete_one)
+Both followed positive absence; only the kept material differs, and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1940, in test_a_retained_ending_is_admitted_beside_a_complete_one
+    self.assertEqual(self.discharge()["cleanup"], "retained")
+                     ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_second_call_replays_and_asks_the_authority_nothing_again (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_second_call_replays_and_asks_the_authority_nothing_again)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1796, in test_a_second_call_replays_and_asks_the_authority_nothing_again
+    first = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_settled_cleanup_discharges_the_gate_and_frees_the_work (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_settled_cleanup_discharges_the_gate_and_frees_the_work)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1747, in test_a_settled_cleanup_discharges_the_gate_and_frees_the_work
+    answered = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_a_valid_receipt_still_replays_after_the_work_has_moved (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_valid_receipt_still_replays_after_the_work_has_moved)
+The binding must use the receipt's own durable context, not today's
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2366, in test_a_valid_receipt_still_replays_after_the_work_has_moved
+    answered = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_absence_stays_a_different_answer_from_a_malformed_receipt (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_absence_stays_a_different_answer_from_a_malformed_receipt)
+"No discharge is recorded" is what a consumer acts on; "one is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2354, in test_absence_stays_a_different_answer_from_a_malformed_receipt
+    self.discharge()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_changing_any_signed_operand_breaks_the_recorded_signature (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_changing_any_signed_operand_breaks_the_recorded_signature)
+The one comparison that binds the five together.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2342, in test_changing_any_signed_operand_breaks_the_recorded_signature
+    self.spoil_receipt(runtime_id="foreign-runtime")
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_only_a_genuinely_absent_operation_answers_absence (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_only_a_genuinely_absent_operation_answers_absence)
+The other half, kept explicit so the correction cannot be read as
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2305, in test_only_a_genuinely_absent_operation_answers_absence
+    self.assertIsNotNone(self.discharge())
+                         ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_the_discharge_writes_no_manager_axis (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_discharge_writes_no_manager_axis)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2474, in test_the_discharge_writes_no_manager_axis
+    self.discharge()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_the_evidence_is_positive_absence_naming_the_exact_runtime (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_evidence_is_positive_absence_naming_the_exact_runtime)
+The one thing the authority takes for this gate, and it is the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1765, in test_the_evidence_is_positive_absence_naming_the_exact_runtime
+    self.discharge()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_the_gate_is_derived_from_the_receipts_own_assignment (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_gate_is_derived_from_the_receipts_own_assignment)
+A generation-1 assignment carrying gate 99 is not a document about
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2325, in test_the_gate_is_derived_from_the_receipts_own_assignment
+    self.spoil_receipt(gate="runtime-quiescence:99")
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2168, in spoil_receipt
+    state = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_the_gate_token_is_derived_from_the_attempts_own_generation (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_gate_token_is_derived_from_the_attempts_own_generation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1775, in test_the_gate_token_is_derived_from_the_attempts_own_generation
+    self.discharge()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_the_outstanding_obligation_is_discoverable_after_cleanup (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_outstanding_obligation_is_discoverable_after_cleanup)
+`authorize_cleanup` commits its terminal axis and its receipt
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1857, in test_the_outstanding_obligation_is_discoverable_after_cleanup
+    answered = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_the_receipt_records_what_the_authority_answered (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_receipt_records_what_the_authority_answered)
+Not what this manager asked for. The two are proved equal at the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2158, in test_the_receipt_records_what_the_authority_answered
+    answered = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+======================================================================
+ERROR: test_the_replay_precedes_every_check_on_mutable_work_state (tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_replay_precedes_every_check_on_mutable_work_state)
+A remote commit whose local receipt was lost must reproduce its
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1809, in test_the_replay_precedes_every_check_on_mutable_work_state
+    first = self.discharge()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 1732, in discharge
+    return discharge_quiescence_gate(self.store, self.port, **operands)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 1429, in discharge_quiescence_gate
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"{name_value(RUNTIME_ABSENT)}")
+baton_v12.contracts.errors.ContractRefusal: the authority answered evidence kind 'runtime-quiescence' for attempt 'attempt-1' and this act requires 'runtime-absent'
+
+----------------------------------------------------------------------
+Ran 156 tests in 2.752s
+
+FAILED (errors=34)

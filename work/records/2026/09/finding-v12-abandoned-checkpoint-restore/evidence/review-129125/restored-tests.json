@@ -1,0 +1,4 @@
+{
+  "test_a_revoked_writer_has_no_correction_to_restore": true,
+  "test_a_failed_restoration_admits_nobody": true
+}

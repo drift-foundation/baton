@@ -1,0 +1,40 @@
+{
+  "inflight_duplicate": {
+    "events": [
+      {
+        "profile_write_while_line": "writing"
+      },
+      {
+        "second_completed": "correction-ready",
+        "successor": "writer-857ed6ab2b143e040b916ff5229bfb11ae5a8ec414d2464a134c505e5483ea0e",
+        "successor_scratch_revision": 999
+      },
+      {
+        "profile_write_while_line": "writing"
+      }
+    ],
+    "returned": "correction-ready",
+    "final_line": "writing",
+    "final_scratch_revision": 1,
+    "profile_restore_count": 2
+  },
+  "historical_writer_disagrees": {
+    "writer_owner": {
+      "category": "integrity",
+      "code": "schema"
+    },
+    "reader_accepted_original": true,
+    "act_replayed_original": true
+  },
+  "symlink_substitution": {
+    "accepted": true,
+    "nominated_path_is_symlink": true,
+    "outside_scratch_removed": true,
+    "outside_tracked_text": "the corrected candidate\n"
+  }
+}
+...............................................
+----------------------------------------------------------------------
+Ran 47 tests in 0.533s
+
+OK

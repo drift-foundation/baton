@@ -1,0 +1,40 @@
+[
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+    "sha256": "b5b0706f9e10a6a08d409194918be6496011c9570d5af9504298602cb85e35b0",
+    "mode": "0o664",
+    "changed_existing": [
+      "_adopted_discharge",
+      "discharge_quiescence_gate"
+    ],
+    "removed": [],
+    "added": []
+  },
+  {
+    "path": "v12/python/tests/manager/test_intake.py",
+    "sha256": "494dd5c204ba43fbb7a999be8e4bbfea40ad1552ab5e4c3656089c894d7f46db",
+    "mode": "0o664",
+    "changed_existing": [
+      "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused",
+      "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_reply_that_does_not_release_the_work_is_not_a_discharge",
+      "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_reply_whose_kind_is_not_this_gates_kind_refuses",
+      "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_receipt_records_what_the_authority_answered"
+    ],
+    "removed": [],
+    "added": [
+      "ConcreteAuthorityDischargeReceipts.assert_receipt",
+      "ConcreteAuthorityDischargeReceipts.connected",
+      "ConcreteAuthorityDischargeReceipts.moved",
+      "ConcreteAuthorityDischargeReceipts.ready",
+      "ConcreteAuthorityDischargeReceipts.reopened",
+      "ConcreteAuthorityDischargeReceipts.setUp",
+      "ConcreteAuthorityDischargeReceipts.test_a_gate_kind_reply_cannot_be_committed_as_absence_evidence",
+      "ConcreteAuthorityDischargeReceipts.test_an_unreachable_runtime_supplies_no_discharge_proof",
+      "ConcreteAuthorityDischargeReceipts.test_another_concrete_authority_cannot_commit_this_receipt",
+      "ConcreteAuthorityDischargeReceipts.test_concrete_answer_commits_and_survives_reopening_both_owners",
+      "ConcreteAuthorityDischargeReceipts.test_original_cleanup_cannot_discharge_a_later_generation",
+      "ConcreteAuthorityDischargeReceipts.test_remote_success_local_loss_replays_after_later_movement_and_reopening",
+      "TheDeliveryProvidersMustEndBeforeCleanupIsClean.setUp"
+    ]
+  }
+]

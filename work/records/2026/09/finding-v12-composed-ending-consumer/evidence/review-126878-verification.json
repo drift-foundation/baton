@@ -1,0 +1,18 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_committed_handoff_recovers_before_local_acknowledgement",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_uncertain_integration_effect_stays_held"
+  ],
+  "cwd": "v12/python",
+  "PYTHONPATH": "src:.",
+  "budget_seconds": 4,
+  "elapsed_seconds": 1.904908206895925,
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "test_one_job_completes_correction_integration_and_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff) ... ok\ntest_committed_handoff_recovers_before_local_acknowledgement (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_committed_handoff_recovers_before_local_acknowledgement) ... ok\ntest_uncertain_integration_effect_stays_held (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_uncertain_integration_effect_stays_held) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 1.725s\n\nOK\n"
+}

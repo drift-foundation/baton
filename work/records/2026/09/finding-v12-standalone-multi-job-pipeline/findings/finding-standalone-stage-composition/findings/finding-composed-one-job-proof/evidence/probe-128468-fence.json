@@ -1,0 +1,31 @@
+{
+  "fenced": {
+    "cause": "cancelled",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.claude",
+      "generation": 3
+    },
+    "phase": "block",
+    "gate": "runtime-quiescence:3",
+    "fenced": true
+  },
+  "intent": {
+    "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.claude",
+      "generation": 3
+    },
+    "runtime_id": "runtime-single-3",
+    "decision": "abandoned",
+    "authority_operation_id": "authority.abandon-fence:e25c7c4b477b593ff23a35ab05ae4df45d4fac8817dff9324a1a7d93d66a012d",
+    "reason": "the correction worker stopped answering and is declared abandoned"
+  }
+}

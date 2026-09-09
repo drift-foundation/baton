@@ -151,3 +151,15 @@ its counts and exact residual assignments remain unchanged. Module claimants
 consume those appendices along with historical inputs and revalidate the
 current source. All actual module, aggregate and final regression gates remain.
 Live scheduling state belongs to Baton.
+
+## 2026-09-08 — lanes independently accepted, W116972 claim120547
+
+`findings/finding-lanes-inventory/review-2026-09-08T16-05-39Z.md` accepts
+candidatebc1844e7: 25 lanes entries with one owner each, 24 matched/reached
+probe pairs and zero module residuals. Its accepted fixture/runtime/scanner
+prerequisites and exact additive scope are retained in that dossier. This
+supersedes the table's initial lanes counts as current acceptance state only;
+the historical inputs remain unchanged. Shared-file serial continuation is
+W116975 under its existing authority. Current retained global residuals are
+182 unowned entries and 84 orphan-call triples; other module work and the
+aggregate/final regression gates are not accepted or waived here.

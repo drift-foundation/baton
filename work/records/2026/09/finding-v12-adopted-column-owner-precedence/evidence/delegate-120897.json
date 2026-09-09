@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses.test_exact_delegate_queries_keep_their_existing_selection"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 1.771s\n\nOK\n",
+  "seconds": 2.039940154994838,
+  "candidate_sha256": "918f8d9a9b8d342c6ed276c49f5c84c2326312d70ecb650a63d7f961480f2e7d",
+  "prior_verified_candidate_sha256": "f4ea12bd4e12be9e55e12bba853fe2d762466509a446a472397e622af8bd0c11",
+  "reuse": "Only added covering guard in _owned_here and this new control. layer_labels always sets covering=True for the two adopted targets; the new control proves exact queries retain baseline labels and no existing DELEGATED target selects either relation. Prior full census and 21 control results remain applicable; all other AST unchanged."
+}

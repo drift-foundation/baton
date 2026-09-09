@@ -1,0 +1,53 @@
+[
+  {
+    "case": "only-wal",
+    "before": [
+      "authority.sqlite3",
+      "authority.sqlite3-wal"
+    ],
+    "exception": "Refusal: the authority store at '/tmp/review-126983-rgdik9z3/authority.sqlite3' is a write-ahead-log store and its journal sidecars are incomplete (-wal); opening it would make SQLite create the rest, and a read-only open creates no journal artifact. Read it while its serving process holds it, or open it for writing deliberately",
+    "after": [
+      "authority.sqlite3",
+      "authority.sqlite3-wal"
+    ],
+    "sizes": {
+      "authority.sqlite3-wal": 0,
+      "authority.sqlite3": 208896
+    }
+  },
+  {
+    "case": "only-shm",
+    "before": [
+      "authority.sqlite3",
+      "authority.sqlite3-shm"
+    ],
+    "exception": "Refusal: the authority store at '/tmp/review-126983-ufw50x1f/authority.sqlite3' is a write-ahead-log store and its journal sidecars are incomplete (-shm); opening it would make SQLite create the rest, and a read-only open creates no journal artifact. Read it while its serving process holds it, or open it for writing deliberately",
+    "after": [
+      "authority.sqlite3",
+      "authority.sqlite3-shm"
+    ],
+    "sizes": {
+      "authority.sqlite3-shm": 0,
+      "authority.sqlite3": 208896
+    }
+  },
+  {
+    "case": "serving-close-after-guard",
+    "before": [
+      "authority.sqlite3",
+      "authority.sqlite3-shm",
+      "authority.sqlite3-wal"
+    ],
+    "exception": "Refusal: opening the authority store at '/tmp/review-126983-q5djmv4b/authority.sqlite3' for reading created -shm, -wal; its serving process released the store between this open's check and its connection, so SQLite made these files rather than reusing the ones the check saw. A read-only open creates no journal artifact. They were left as SQLite made them rather than removed, because deleting a file another opener may have just created for its own reasons is not this boundary's to do",
+    "after": [
+      "authority.sqlite3",
+      "authority.sqlite3-shm",
+      "authority.sqlite3-wal"
+    ],
+    "sizes": {
+      "authority.sqlite3-shm": 32768,
+      "authority.sqlite3-wal": 0,
+      "authority.sqlite3": 208896
+    }
+  }
+]

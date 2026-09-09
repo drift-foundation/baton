@@ -1,0 +1,18 @@
+test_one_job_completes_correction_integration_and_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff) ... FAIL
+
+======================================================================
+FAIL: test_one_job_completes_correction_integration_and_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3676, in test_one_job_completes_correction_integration_and_terminal_handoff
+    self.assertEqual(observed["result"]["outcome"], "integrated", observed)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'held' != 'integrated'
+- held
++ integrated
+ : {'state': 'answered', 'result': {'attempt_id': 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0', 'canonical_target_id': 'target-1', 'detail': {'detail': {'observed': 'an unexpected TaskRefusal ended this turn after the provider had writable work'}, 'reason': 'provider-uncertain'}, 'entry_id': 'integration-driver.entry:176fa62b6cd59c73b5fb9f6059422c357a08b943604049d072b26ed88e5a196b', 'fence': 1, 'lease_id': 'integration-driver.lease:d8c0d1e354dca170f03c12b413c9e733912aa281cb89cbe59772f37245b16bf5', 'outcome': 'held', 'schema': 'baton.v12.integration-result/1'}, 'hold': None}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.692s
+
+FAILED (failures=1)

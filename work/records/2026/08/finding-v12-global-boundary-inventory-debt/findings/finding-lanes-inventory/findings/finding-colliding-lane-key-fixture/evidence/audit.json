@@ -1,0 +1,8 @@
+{
+  "base_sha256": "830496b44569e7a88c29771577d616f94b52bcd3066c48f6fa338aab24a30d04",
+  "candidate_sha256": "162f527e3476dcffcc937996df6c36d2d26505dfd7ea156eee6657e7433b30d5",
+  "existing_function_changed": "EveryProbeProvesItArrived.spoiling_colliding_lane",
+  "additive_class": "TheCollidingLaneKeyProbeReachesAdoption",
+  "all_other_ast_unchanged": true,
+  "runtime_and_schema_unchanged": true
+}

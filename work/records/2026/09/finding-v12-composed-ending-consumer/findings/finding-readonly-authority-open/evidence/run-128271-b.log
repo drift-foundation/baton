@@ -1,0 +1,49 @@
+......................F......FF..F.................
+======================================================================
+FAIL: test_a_closed_store_reads_its_committed_evidence (tests.authority.test_store.ReadOnlyOpening.test_a_closed_store_reads_its_committed_evidence)
+CONVERTED under owner M128249, which permits SQLite's own WAL and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_store.py", line 686, in test_a_closed_store_reads_its_committed_evidence
+    self.assertEqual(self.snapshot(), before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'aut[803498 chars]00\x00\x00\x00\x00', 384), 'authority.sqlite3-wal': (b'', 384)} != {'aut[803498 chars]00\x00\x00\x00\x00', 384)}
+Diff is 1288457 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_a_partial_sidecar_pair_reads_the_same_committed_evidence (tests.authority.test_store.ReadOnlyOpening.test_a_partial_sidecar_pair_reads_the_same_committed_evidence) (present='-wal')
+CONVERTED for the same reason, over the two states the earlier
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_store.py", line 710, in test_a_partial_sidecar_pair_reads_the_same_committed_evidence
+    self.assertEqual(self.snapshot(), before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'aut[803498 chars]00\x00\x00\x00\x00', 384), 'authority.sqlite3-wal': (b'', 384)} != {'aut[803498 chars]00\x00\x00\x00\x00', 384), 'authority.sqlite3-wal': (b'', 436)}
+Diff is 1288480 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_a_partial_sidecar_pair_reads_the_same_committed_evidence (tests.authority.test_store.ReadOnlyOpening.test_a_partial_sidecar_pair_reads_the_same_committed_evidence) (present='-shm')
+CONVERTED for the same reason, over the two states the earlier
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_store.py", line 710, in test_a_partial_sidecar_pair_reads_the_same_committed_evidence
+    self.assertEqual(self.snapshot(), before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'aut[803498 chars]00\x00\x00\x00\x00', 384), 'authority.sqlite3-wal': (b'', 384)} != {'aut[803498 chars]00\x00\x00\x00\x00', 384)}
+Diff is 1288457 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_a_serving_shutdown_during_the_open_still_reads (tests.authority.test_store.ReadOnlyOpening.test_a_serving_shutdown_during_the_open_still_reads)
+CONVERTED. The window a pre-check cannot close is no longer a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_store.py", line 738, in test_a_serving_shutdown_during_the_open_still_reads
+    self.assertEqual(self.snapshot(), before)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'aut[72 chars]00\x02\x00\x00\x003\x00\x00\x00\x00\x00\x00\x0[803438 chars]384)} != {'aut[72 chars]00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00[939009 chars]384)}
+Diff is 2846615 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 50 tests in 1.395s
+
+FAILED (failures=4)

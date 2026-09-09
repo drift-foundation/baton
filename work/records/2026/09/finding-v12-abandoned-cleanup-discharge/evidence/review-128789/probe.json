@@ -1,0 +1,174 @@
+{
+  "changed_policy_replay": {
+    "refused": false,
+    "same_receipt": true,
+    "returned_policy": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+    "requested_policy": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+    "new_remote_calls": 0
+  },
+  "fence_cause": {
+    "refused": false,
+    "accepted_fence": {
+      "assignment": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "work_id": "43c55d4b-W1439"
+        }
+      },
+      "cause": "pass",
+      "fenced": true,
+      "gate": "runtime-quiescence:1",
+      "phase": "block"
+    },
+    "authority_phase": "queued",
+    "remote_calls": 1
+  },
+  "fence_phase": {
+    "refused": false,
+    "accepted_fence": {
+      "assignment": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "work_id": "43c55d4b-W1439"
+        }
+      },
+      "cause": "cancelled",
+      "fenced": true,
+      "gate": "runtime-quiescence:1",
+      "phase": "queued"
+    },
+    "authority_phase": "queued",
+    "remote_calls": 1
+  },
+  "fence_fenced": {
+    "refused": false,
+    "accepted_fence": {
+      "assignment": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "work_id": "43c55d4b-W1439"
+        }
+      },
+      "cause": "cancelled",
+      "fenced": "false",
+      "gate": "runtime-quiescence:1",
+      "phase": "block"
+    },
+    "authority_phase": "queued",
+    "remote_calls": 1
+  },
+  "real_authority_positive": {
+    "gate_before": {
+      "token": "runtime-quiescence:3",
+      "kind": "runtime-quiescence",
+      "detail": "3"
+    },
+    "gate_after": null,
+    "proof": {
+      "schema": "baton.v12.abandoned-cleanup/1",
+      "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.claude",
+        "generation": 3
+      },
+      "runtime_id": "runtime-single-3",
+      "retention_policy_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "intent": {
+        "assignment": {
+          "generation": 3,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "authority_operation_id": "authority.abandon-fence:e25c7c4b477b593ff23a35ab05ae4df45d4fac8817dff9324a1a7d93d66a012d",
+        "decision": "abandoned",
+        "reason": "the correction worker stopped answering and is declared abandoned",
+        "runtime_id": "runtime-single-3"
+      },
+      "intent_digest": "sha256:ed323587ee9f72f47145294082ca6fa000a03e8b96314ef82332e380b1772cc1",
+      "fence": {
+        "assignment": {
+          "generation": 3,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "cause": "cancelled",
+        "fenced": true,
+        "gate": "runtime-quiescence:3",
+        "phase": "block"
+      },
+      "cleanup": {
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "cleanup": "retained",
+        "directory_custody": {
+          "result": {
+            "account": "{\"custody\": \"normalize\", \"entries\": 3, \"not_ours\": 0, \"running_as\": [65532, 65532]}",
+            "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+            "operation": "normalize",
+            "root": "result",
+            "verb": "normalize"
+          },
+          "workspace": {
+            "account": "{\"custody\": \"normalize\", \"entries\": 3, \"not_ours\": 0, \"running_as\": [65532, 65532]}",
+            "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+            "operation": "normalize",
+            "root": "workspace",
+            "verb": "normalize"
+          }
+        },
+        "kept": [],
+        "operation": {
+          "operation_id": "runtime.destroy-abandoned:d3f6aff1b0620c9676637ed6faafb62d00de4c2e10d455db2f09e198ddcb2a62",
+          "signature_digest": "sha256:f5e4bd2d408ba92473a7cdade479d048dc337a07b6a3fe6b72c58ff514bf98db"
+        },
+        "state": "absent",
+        "why": "the engine answered that this exact identity does not exist"
+      }
+    },
+    "receipt": {
+      "schema": "baton.v12.abandoned-gate-discharge/1",
+      "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.claude",
+        "generation": 3
+      },
+      "runtime_id": "runtime-single-3",
+      "retention_policy_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "cleanup_operation": {
+        "operation_id": "runtime.destroy-abandoned:d3f6aff1b0620c9676637ed6faafb62d00de4c2e10d455db2f09e198ddcb2a62",
+        "signature_digest": "sha256:f5e4bd2d408ba92473a7cdade479d048dc337a07b6a3fe6b72c58ff514bf98db"
+      },
+      "operation_id": "authority.discharge-quiescence-abandoned:e25c7c4b477b593ff23a35ab05ae4df45d4fac8817dff9324a1a7d93d66a012d",
+      "gate": "runtime-quiescence:3",
+      "evidence": {
+        "kind": "runtime-absent",
+        "runtime": "runtime-single-3"
+      },
+      "authority_receipt": {
+        "gate": "runtime-quiescence:3",
+        "kind": "runtime-absent",
+        "phase": "queued"
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+--- base/v12/python/src/baton_v12/authority/core.py
++++ v12/python/src/baton_v12/authority/core.py
+@@ -1483,6 +1483,68 @@
+             operation_id,
+             signature_of("pass", {"expect": expect, "to_route": to_route,
+                                   "comment": comment}), body)
++
++    def route_fenced(self, expect, *, operation_id, fence_operation_id,
++                     from_route, to_route):
++        """Commit the original assignment's handoff while its runtime gate holds.
++
++        This changes only Route. The committed cancellation and original claim
++        authorize the move; today's route alone cannot supply that provenance.
++        Exact replay precedes every mutable eligibility check.
++        """
++        expect = normalize_assignment(expect)
++        check_opaque_id(fence_operation_id, "a fence operation id")
++        _text(from_route, "the original route")
++        _text(to_route, "the next route")
++
++        def body():
++            if expect is None or expect["generation"] is None:
++                raise Refusal("fenced routing needs an exact v12 assignment")
++            if expect["work_ref"]["authority_uuid"] != self._uuid:
++                raise Refusal("fenced routing names another authority")
++            work_id = expect["work_ref"]["work_id"]
++            generation = expect["generation"]
++            gate = gate_token(GATE_QUIESCENCE, str(generation))
++            work = self._work(work_id)
++            if (not is_v12_contract(work["contract"]) or work["status"] != "open"
++                    or work["handler"] is not None or work["live_generation"] is not None
++                    or work["generation_counter"] != generation
++                    or work["phase"] != "block" or work["gate"] != gate):
++                raise Refusal("fenced routing requires the original unclaimed generation and runtime gate")
++
++            fence = self._store.get(
++                "SELECT cause, reason FROM fenced_generation WHERE work_id = ? AND generation = ?",
++                work_id, generation)
++            if fence is None or fence["cause"] != "cancelled":
++                raise Refusal("fenced routing requires the original cancellation fence")
++            cancellation = self._store.operation_record(fence_operation_id)
++            expected_fence = {"cause": "cancelled", "assignment": expect,
++                              "phase": "block", "gate": gate, "fenced": True}
++            if (cancellation is None or cancellation["state"] != "committed"
++                    or cancellation["signature"] != signature_of("cancel", {"expect": expect, "reason": fence["reason"]})
++                    or cancellation["result"] != expected_fence):
++                raise Refusal("the named operation is not this assignment's committed cancellation")
++
++            claims = self._store.all(
++                "SELECT seq FROM assignment_event WHERE work_id = ? AND generation = ? "
++                "AND participant = ? AND cause = 'claimed'",
++                work_id, generation, expect["participant"])
++            if len(claims) != 1:
++                raise Refusal("fenced routing requires exactly one original claim")
++            decision = self._decision("claim", str(claims[0]["seq"]))
++            if (decision is None or decision["endpoint"] != expect["participant"]
++                    or decision["role"] != from_route or work["route"] != from_route):
++                raise Refusal("the source route is not the unchanged route of the original claim")
++
++            self._store.run("UPDATE work SET route = ? WHERE work_id = ?", to_route, work_id)
++            return {"assignment": expect, "fence_operation_id": fence_operation_id,
++                    "from_route": from_route, "to_route": to_route,
++                    "phase": "block", "gate": gate}
++
++        return self._replay(
++            operation_id,
++            signature_of("route-fenced", {"expect": expect, "fence_operation_id": fence_operation_id,
++                                          "from_route": from_route, "to_route": to_route}), body)
+ 
+     def cancel(self, expect, *, operation_id, reason=None):
+         """Fence the exact generation AND end the assignment in ONE transaction.

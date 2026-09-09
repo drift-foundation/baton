@@ -1,0 +1,425 @@
+{
+  "start": {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "outcome": "started",
+        "runtime_id": null
+      }
+    ],
+    "spoken": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "act": "dispatch",
+        "outcome": "deferred",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "attempt 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0' has no exchange delivery to publish a command into; a command nothing mounts is a file no container will ever read"
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 2,
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 2,
+        "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      }
+    ]
+  },
+  "worker_exit": 0,
+  "worker_result": {
+    "state": "answered",
+    "result": {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "canonical_target_id": "target-1",
+      "detail": {
+        "imported_paths": [
+          "harness.py"
+        ],
+        "verification": {
+          "argv": [
+            "python3",
+            "harness.py"
+          ],
+          "status": 0
+        }
+      },
+      "entry_id": "integration-driver.entry:722bb575f9a7f2ef4d60bf037b847a91e5d13b63fbf9755f4123cf4101a52b44",
+      "fence": 1,
+      "lease_id": "integration-driver.lease:572e995f864be8c697c24e26d41ad851d9e7ca4d8b5dcfed163708abb5dd03a7",
+      "outcome": "integrated",
+      "schema": "baton.v12.integration-result/1"
+    },
+    "hold": null
+  },
+  "ordinary_tick": {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "act": "dispatch",
+        "outcome": "deferred",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "attempt 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0' has no exchange delivery to publish a command into; a command nothing mounts is a file no container will ever read"
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 2,
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 2,
+        "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "quiescent"
+      }
+    ]
+  },
+  "ordinary_consumer_calls": 0,
+  "diagnostic_tick": {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "act": "dispatch",
+        "outcome": "performed",
+        "detail": {
+          "outcome": "integrated",
+          "entry": "integration-driver.entry:722bb575f9a7f2ef4d60bf037b847a91e5d13b63fbf9755f4123cf4101a52b44",
+          "assignment": {
+            "schema": "baton.v12.integration-assignment/1",
+            "canonical_target_id": "target-1",
+            "entry_id": "integration-driver.entry:722bb575f9a7f2ef4d60bf037b847a91e5d13b63fbf9755f4123cf4101a52b44",
+            "lease_id": "integration-driver.lease:572e995f864be8c697c24e26d41ad851d9e7ca4d8b5dcfed163708abb5dd03a7",
+            "fence": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "integrator_participant": "baton.integrator",
+            "profile_kind": "git",
+            "profile_version": 1,
+            "instructions_digest": "sha256:97477292475144259f11d76c95b73311ac6e8d55d16cf527ccbbe158c996313b",
+            "target_access": "writable"
+          },
+          "observed": {
+            "state": "answered",
+            "result": {
+              "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+              "canonical_target_id": "target-1",
+              "detail": {
+                "imported_paths": [
+                  "harness.py"
+                ],
+                "verification": {
+                  "argv": [
+                    "python3",
+                    "harness.py"
+                  ],
+                  "status": 0
+                }
+              },
+              "entry_id": "integration-driver.entry:722bb575f9a7f2ef4d60bf037b847a91e5d13b63fbf9755f4123cf4101a52b44",
+              "fence": 1,
+              "lease_id": "integration-driver.lease:572e995f864be8c697c24e26d41ad851d9e7ca4d8b5dcfed163708abb5dd03a7",
+              "outcome": "integrated",
+              "schema": "baton.v12.integration-result/1"
+            },
+            "hold": null
+          },
+          "settlement": {
+            "imported_paths": [
+              "harness.py"
+            ],
+            "verification": {
+              "argv": [
+                "python3",
+                "harness.py"
+              ],
+              "status": 0
+            }
+          },
+          "authority_receipt": {
+            "receipt_id": "integration-driver.integration-receipt:b62f0cd533d561d04eebfbdc14dc100dadcb9655e3d2a7425ed5ecbcc5cfeaf2",
+            "kind": "integration",
+            "proposal_id": "integration-driver.proposal:99e68898bfa199176770b8bf2187845bfde3451c7bf445217e3509233493cfc6",
+            "actor": "baton.integrator",
+            "disposition": "integrated",
+            "candidate_digest": "9d6d4aa2f2434fe2d870e3f3fcaa8dd9593265d1",
+            "target": "90cd3b2507c5242ddf3611ed6a933f2d6384050a",
+            "policy_generation": null,
+            "recorded_at": "2026-09-09T06:12:15.165Z",
+            "decision": {
+              "endpoint": "baton.integrator",
+              "principal": "principal:baton.integrator",
+              "effective_scope": "scope:deployment",
+              "role": "integrate",
+              "grant": "direct",
+              "policy_generation": 9
+            }
+          },
+          "receipts": {
+            "verification": {
+              "kind": "verification",
+              "receipt_id": "integration-driver.ordinary-tests-verification-receipt:e2a76a78136ece107f401e58d8c460240bba241492584c0b2d26f64604fee620",
+              "proposal_id": "integration-driver.proposal:99e68898bfa199176770b8bf2187845bfde3451c7bf445217e3509233493cfc6",
+              "actor": "baton.verifier",
+              "disposition": "passed",
+              "policy_generation": null,
+              "candidate_digest": "9d6d4aa2f2434fe2d870e3f3fcaa8dd9593265d1",
+              "target": "90cd3b2507c5242ddf3611ed6a933f2d6384050a"
+            },
+            "review": {
+              "kind": "review",
+              "receipt_id": "integration-driver.review-receipt:7259c6c3c6c1dc85723f0173d3d4b99096d0c4b07476d3de55697dd4f11ef160",
+              "proposal_id": "integration-driver.proposal:99e68898bfa199176770b8bf2187845bfde3451c7bf445217e3509233493cfc6",
+              "actor": "baton.approver-review",
+              "disposition": "accepted",
+              "policy_generation": null,
+              "candidate_digest": "9d6d4aa2f2434fe2d870e3f3fcaa8dd9593265d1",
+              "target": "90cd3b2507c5242ddf3611ed6a933f2d6384050a"
+            },
+            "approval": {
+              "kind": "approval",
+              "receipt_id": "integration-driver.approval-receipt:9c3cae96d5bbeed47d234a13a44934567ce2e50e705b0092afa5cae493c654e8",
+              "proposal_id": "integration-driver.proposal:99e68898bfa199176770b8bf2187845bfde3451c7bf445217e3509233493cfc6",
+              "actor": "baton.approver",
+              "disposition": "approved",
+              "policy_generation": 9,
+              "candidate_digest": "9d6d4aa2f2434fe2d870e3f3fcaa8dd9593265d1",
+              "target": "90cd3b2507c5242ddf3611ed6a933f2d6384050a"
+            }
+          }
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 2,
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 2,
+        "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "quiescent"
+      }
+    ]
+  },
+  "after_driver_stage_states": {
+    "implementation": "completed",
+    "review": "completed",
+    "integration": "starting"
+  },
+  "after_driver_entries": [
+    {
+      "entry_id": "integration-driver.entry:722bb575f9a7f2ef4d60bf037b847a91e5d13b63fbf9755f4123cf4101a52b44",
+      "canonical_target_id": "target-1",
+      "rank": 1,
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "assignment_generation": 3,
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+      "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+      "checkpoint_digest": "sha256:2ce1d9dd7bef41ca2befd23ebe914b3424624f1e8401c3bc25272ad4bf4c3307",
+      "proposal_id": "integration-driver.proposal:99e68898bfa199176770b8bf2187845bfde3451c7bf445217e3509233493cfc6",
+      "candidate_digest": "9d6d4aa2f2434fe2d870e3f3fcaa8dd9593265d1",
+      "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "result_digest": "sha256:c4a7ac5e998bd1581bb416e9e23db27d8e5a89475637fd993a38a0e4566da135",
+      "profile_kind": "git",
+      "expected_target_revision": "90cd3b2507c5242ddf3611ed6a933f2d6384050a",
+      "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+      "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28",
+      "state": "integrated",
+      "enqueued_at": "2026-09-02T00:00:00.000Z",
+      "settled_at": "2026-09-02T00:00:00.000Z",
+      "settlement": {
+        "imported_paths": [
+          "harness.py"
+        ],
+        "verification": {
+          "argv": [
+            "python3",
+            "harness.py"
+          ],
+          "status": 0
+        }
+      },
+      "eligibility": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1",
+        "assignment_generation": 3,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+        "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+        "checkpoint_digest": "sha256:2ce1d9dd7bef41ca2befd23ebe914b3424624f1e8401c3bc25272ad4bf4c3307",
+        "proposal_id": "integration-driver.proposal:99e68898bfa199176770b8bf2187845bfde3451c7bf445217e3509233493cfc6",
+        "candidate_digest": "9d6d4aa2f2434fe2d870e3f3fcaa8dd9593265d1",
+        "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "result_digest": "sha256:c4a7ac5e998bd1581bb416e9e23db27d8e5a89475637fd993a38a0e4566da135",
+        "profile_kind": "git",
+        "expected_target_revision": "90cd3b2507c5242ddf3611ed6a933f2d6384050a",
+        "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+        "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28"
+      }
+    }
+  ],
+  "after_driver_work": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "work_id": "0000000a-W1",
+    "route": "integration",
+    "status": "open",
+    "phase": "active",
+    "outcome": null,
+    "rationale": null,
+    "handler": "baton.integrator",
+    "contract": "v12-assignment-1",
+    "scope": "scope:deployment",
+    "labels": [],
+    "creation": {
+      "work_id": "0000000a-W1",
+      "operation_id": "create-single-worker",
+      "kind": "trusted-bootstrap",
+      "scope": "scope:deployment",
+      "at": "2026-09-02T00:00:00.000Z"
+    },
+    "close_decision": null,
+    "generation_counter": 5,
+    "live_generation": 5,
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.integrator",
+      "generation": 5
+    },
+    "gate": null,
+    "fenced_generations": [
+      {
+        "generation": 1,
+        "cause": "cancelled",
+        "reason": "review checkpoint writer completed"
+      },
+      {
+        "generation": 2,
+        "cause": "cancelled",
+        "reason": "independent checkpoint review completed"
+      },
+      {
+        "generation": 3,
+        "cause": "cancelled",
+        "reason": "review checkpoint writer completed"
+      },
+      {
+        "generation": 4,
+        "cause": "cancelled",
+        "reason": "independent checkpoint review completed"
+      }
+    ],
+    "ready": false
+  },
+  "after_driver_activity": {
+    "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "bytes_observed": null,
+    "observed_at": null
+  },
+  "after_driver_frozen_output": null,
+  "next_ordinary_tick": {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "act": "dispatch",
+        "outcome": "deferred",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "attempt 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0' has no exchange delivery to publish a command into; a command nothing mounts is a file no container will ever read"
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 2,
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 2,
+        "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "quiescent"
+      }
+    ]
+  }
+}

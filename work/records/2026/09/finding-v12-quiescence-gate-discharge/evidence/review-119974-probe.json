@@ -1,0 +1,103 @@
+{
+  "claim": 119974,
+  "sha256": {
+    "src/baton_v12/worker_manager/authority_port.py": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6",
+    "src/baton_v12/worker_manager/intake.py": "d9a4fdd17f0e817f0275540a1c8f42cc8f8210f3e30c4bb1ca97d1a8c80f67d9",
+    "src/baton_v12/worker_manager/__init__.py": "19dc529bebb57f3aa05638008ac9c8f4623f69ca70096efef60d5cc394f4f498",
+    "tests/manager/test_intake.py": "a5ebee13844b0eeba181853102286db0781157dc557ff058ad65784b8e541855",
+    "tests/manager/test_offers.py": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+    "tests/manager/test_secrets.py": "37d5a1609f2417545ee907a0cee0d403b1a67e22aaaac6e1d3d41f23be64c498"
+  },
+  "results": [
+    {
+      "spoiled": {
+        "assignment": null
+      },
+      "outcomes": {
+        "discovery": {
+          "exception": "ContractRefusal",
+          "message": "attempt 'attempt-1''s committed gate discharge's assignment is one exact document; this is none"
+        },
+        "replay": {
+          "exception": "ContractRefusal",
+          "message": "attempt 'attempt-1''s replayed gate discharge's assignment is one exact document; this is none"
+        }
+      }
+    },
+    {
+      "spoiled": {
+        "assignment": {}
+      },
+      "outcomes": {
+        "discovery": {
+          "exception": "ContractRefusal",
+          "message": "attempt 'attempt-1''s committed gate discharge's assignment needs work_ref, participant, generation"
+        },
+        "replay": {
+          "exception": "ContractRefusal",
+          "message": "attempt 'attempt-1''s replayed gate discharge's assignment needs work_ref, participant, generation"
+        }
+      }
+    },
+    {
+      "spoiled": {
+        "attempt_id": "another-attempt"
+      },
+      "outcomes": {
+        "discovery": {
+          "exception": "ContractRefusal",
+          "message": "attempt 'attempt-1''s committed gate discharge records attempt 'another-attempt' and a discharge this manager committed records 'attempt-1'; a receipt that does not say a quiescence gate was released is not evidence that one was"
+        },
+        "replay": {
+          "exception": "ContractRefusal",
+          "message": "attempt 'attempt-1''s replayed gate discharge records attempt 'another-attempt' and a discharge this manager committed records 'attempt-1'; a receipt that does not say a quiescence gate was released is not evidence that one was"
+        }
+      }
+    },
+    {
+      "spoiled": {
+        "gate": "runtime-quiescence:99"
+      },
+      "outcomes": {
+        "discovery": {
+          "exception": "ContractRefusal",
+          "message": "attempt 'attempt-1''s committed gate discharge records gate 'runtime-quiescence:99' and a discharge this manager committed records 'runtime-quiescence:1'; a receipt that does not say a quiescence gate was released is not evidence that one was"
+        },
+        "replay": {
+          "exception": "ContractRefusal",
+          "message": "attempt 'attempt-1''s replayed gate discharge records gate 'runtime-quiescence:99' and a discharge this manager committed records 'runtime-quiescence:1'; a receipt that does not say a quiescence gate was released is not evidence that one was"
+        }
+      }
+    },
+    {
+      "spoiled": {
+        "operation_id": "some-other-operation"
+      },
+      "outcomes": {
+        "discovery": {
+          "exception": "ContractRefusal",
+          "message": "attempt 'attempt-1''s committed gate discharge records operation identity 'some-other-operation' and a discharge this manager committed records 'authority.discharge-quiescence:9682630efa0f755d14c112133528\u2026; a receipt that does not say a quiescence gate was released is not evidence that one was"
+        },
+        "replay": {
+          "exception": "ContractRefusal",
+          "message": "attempt 'attempt-1''s replayed gate discharge records operation identity 'some-other-operation' and a discharge this manager committed records 'authority.discharge-quiescence:9682630efa0f755d14c112133528\u2026; a receipt that does not say a quiescence gate was released is not evidence that one was"
+        }
+      }
+    },
+    {
+      "spoiled": {
+        "runtime_id": "foreign-runtime"
+      },
+      "outcomes": {
+        "discovery": {
+          "exception": "ContractRefusal",
+          "message": "attempt 'attempt-1''s committed gate discharge composes a signature its own operands do not match the one this manager committed for 'authority.discharge-quiescence:9682630efa0f755d14c112133528\u2026; the attempt, the assignment, the gate, the runtime and the cleanup operation are ONE signed relationship, and a receipt whose members were changed individually cannot reproduce it"
+        },
+        "replay": {
+          "exception": "ContractRefusal",
+          "message": "attempt 'attempt-1''s replayed gate discharge composes a signature its own operands do not match the one this manager committed for 'authority.discharge-quiescence:9682630efa0f755d14c112133528\u2026; the attempt, the assignment, the gate, the runtime and the cleanup operation are ONE signed relationship, and a receipt whose members were changed individually cannot reproduce it"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,4772 @@
+{
+  "hashes": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+    "v12/python/src/baton_v12/worker_manager/schema.py": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+    "v12/python/src/baton_v12/worker_manager/boundaries.py": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a",
+    "v12/python/tests/manager/test_boundary_inventory.py": "e92579485bc5074b26a83d953fc08f428723c84c459fc5750f20278b81b1d401"
+  },
+  "entries": 1382,
+  "occurrences": 731,
+  "residual_occurrences": 92,
+  "module_residual_occurrences": 22,
+  "module_residual_triples": [
+    [
+      "review_cycles.py:_evidence",
+      "document",
+      "persisted checkpoint evidence"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "a persisted checkpoint evidence path"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's base"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's head"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's path_set_digest"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's profile"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's reference"
+    ],
+    [
+      "review_cycles.py:_evidence",
+      "text",
+      "persisted checkpoint evidence's tree"
+    ],
+    [
+      "review_cycles.py:_line_place",
+      "text",
+      "the manager's workspace storage"
+    ],
+    [
+      "review_cycles.py:_profile",
+      "capability",
+      "a checkpoint profile's {method} capability"
+    ],
+    [
+      "review_cycles.py:_profile",
+      "text",
+      "a checkpoint profile name"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "document",
+      "a frozen review artifact"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "document",
+      "a frozen review result"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review output name"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's attempt_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's freeze_operation_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's manifest_digest"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "identity",
+      "a frozen review result's result_id"
+    ],
+    [
+      "review_cycles.py:_review_result",
+      "instant",
+      "a frozen review result's frozen_at"
+    ],
+    [
+      "review_cycles.py:create_line",
+      "text",
+      "a materialized line head"
+    ],
+    [
+      "review_cycles.py:integration_checkpoint",
+      "document",
+      "a persisted assignment fence"
+    ],
+    [
+      "review_cycles.py:record_verdict",
+      "document",
+      "a persisted assignment fence"
+    ]
+  ],
+  "groups": [
+    {
+      "call": [
+        "review_cycles.py:_evidence",
+        112,
+        12,
+        115,
+        39
+      ],
+      "instances": [
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_evidence",
+              112,
+              12,
+              115,
+              39
+            ],
+            "site": "review_cycles.py:_evidence",
+            "kind": "document",
+            "label": "persisted checkpoint evidence",
+            "subject": "caller:value",
+            "lexical_label": "persisted checkpoint evidence",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        }
+      ]
+    },
+    {
+      "call": [
+        "review_cycles.py:_evidence",
+        118,
+        8,
+        119,
+        68
+      ],
+      "instances": [
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_evidence",
+              118,
+              8,
+              119,
+              68
+            ],
+            "site": "review_cycles.py:_evidence",
+            "kind": "text",
+            "label": "persisted checkpoint evidence's base",
+            "subject": "caller:value[base]",
+            "lexical_label": "persisted checkpoint evidence's {member}",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        },
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_evidence",
+              118,
+              8,
+              119,
+              68
+            ],
+            "site": "review_cycles.py:_evidence",
+            "kind": "text",
+            "label": "persisted checkpoint evidence's head",
+            "subject": "caller:value[head]",
+            "lexical_label": "persisted checkpoint evidence's {member}",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        },
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_evidence",
+              118,
+              8,
+              119,
+              68
+            ],
+            "site": "review_cycles.py:_evidence",
+            "kind": "text",
+            "label": "persisted checkpoint evidence's path_set_digest",
+            "subject": "caller:value[path_set_digest]",
+            "lexical_label": "persisted checkpoint evidence's {member}",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        },
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_evidence",
+              118,
+              8,
+              119,
+              68
+            ],
+            "site": "review_cycles.py:_evidence",
+            "kind": "text",
+            "label": "persisted checkpoint evidence's profile",
+            "subject": "caller:value[profile]",
+            "lexical_label": "persisted checkpoint evidence's {member}",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        },
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_evidence",
+              118,
+              8,
+              119,
+              68
+            ],
+            "site": "review_cycles.py:_evidence",
+            "kind": "text",
+            "label": "persisted checkpoint evidence's reference",
+            "subject": "caller:value[reference]",
+            "lexical_label": "persisted checkpoint evidence's {member}",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        },
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_evidence",
+              118,
+              8,
+              119,
+              68
+            ],
+            "site": "review_cycles.py:_evidence",
+            "kind": "text",
+            "label": "persisted checkpoint evidence's tree",
+            "subject": "caller:value[tree]",
+            "lexical_label": "persisted checkpoint evidence's {member}",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        }
+      ]
+    },
+    {
+      "call": [
+        "review_cycles.py:_evidence",
+        125,
+        8,
+        125,
+        69
+      ],
+      "instances": [
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_evidence",
+              125,
+              8,
+              125,
+              69
+            ],
+            "site": "review_cycles.py:_evidence",
+            "kind": "text",
+            "label": "a persisted checkpoint evidence path",
+            "subject": "caller:value[paths]",
+            "lexical_label": "a persisted checkpoint evidence path",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        }
+      ]
+    },
+    {
+      "call": [
+        "review_cycles.py:_fence",
+        456,
+        12,
+        457,
+        62
+      ],
+      "instances": [
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_fence",
+              456,
+              12,
+              457,
+              62
+            ],
+            "site": "review_cycles.py:_fence",
+            "kind": "document",
+            "label": "a persisted assignment fence",
+            "subject": "caller:value",
+            "lexical_label": "a persisted assignment fence",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [
+            {
+              "call": [
+                "review_cycles.py:_fence",
+                456,
+                12,
+                457,
+                62
+              ],
+              "site": "review_cycles.py:checkpoint_of",
+              "kind": "document",
+              "label": "a persisted assignment fence",
+              "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints[fence]",
+              "lexical_label": "a persisted assignment fence",
+              "propagated": true
+            }
+          ],
+          "residual": false
+        },
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_fence",
+              456,
+              12,
+              457,
+              62
+            ],
+            "site": "review_cycles.py:checkpoint_of",
+            "kind": "document",
+            "label": "a persisted assignment fence",
+            "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints[fence]",
+            "lexical_label": "a persisted assignment fence",
+            "propagated": true
+          },
+          "claims": [
+            [
+              "adopted",
+              "review_cycles.py:checkpoint_of",
+              "line_checkpoints.fence.intent"
+            ]
+          ],
+          "resolved_to": [
+            {
+              "call": [
+                "review_cycles.py:checkpoint_of",
+                82,
+                12,
+                83,
+                58
+              ],
+              "site": "review_cycles.py:checkpoint_of",
+              "kind": "row",
+              "label": "a persisted line checkpoint",
+              "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+              "lexical_label": "a persisted line checkpoint",
+              "propagated": false
+            }
+          ],
+          "residual": false
+        },
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_fence",
+              456,
+              12,
+              457,
+              62
+            ],
+            "site": "review_cycles.py:integration_checkpoint",
+            "kind": "document",
+            "label": "a persisted assignment fence",
+            "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts[review_fence]",
+            "lexical_label": "a persisted assignment fence",
+            "propagated": true
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        },
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_fence",
+              456,
+              12,
+              457,
+              62
+            ],
+            "site": "review_cycles.py:record_verdict",
+            "kind": "document",
+            "label": "a persisted assignment fence",
+            "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts[review_fence]",
+            "lexical_label": "a persisted assignment fence",
+            "propagated": true
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        }
+      ]
+    },
+    {
+      "call": [
+        "review_cycles.py:_line_place",
+        376,
+        4,
+        376,
+        63
+      ],
+      "instances": [
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_line_place",
+              376,
+              4,
+              376,
+              63
+            ],
+            "site": "review_cycles.py:_line_place",
+            "kind": "text",
+            "label": "the manager's workspace storage",
+            "subject": "caller:storage",
+            "lexical_label": "the manager's workspace storage",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        }
+      ]
+    },
+    {
+      "call": [
+        "review_cycles.py:_profile",
+        45,
+        4,
+        45,
+        54
+      ],
+      "instances": [
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_profile",
+              45,
+              4,
+              45,
+              54
+            ],
+            "site": "review_cycles.py:_profile",
+            "kind": "text",
+            "label": "a checkpoint profile name",
+            "subject": "caller:profile",
+            "lexical_label": "a checkpoint profile name",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        }
+      ]
+    },
+    {
+      "call": [
+        "review_cycles.py:_profile",
+        47,
+        8,
+        48,
+        76
+      ],
+      "instances": [
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_profile",
+              47,
+              8,
+              48,
+              76
+            ],
+            "site": "review_cycles.py:_profile",
+            "kind": "capability",
+            "label": "a checkpoint profile's {method} capability",
+            "subject": "caller:profile",
+            "lexical_label": "a checkpoint profile's {method} capability",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        }
+      ]
+    },
+    {
+      "call": [
+        "review_cycles.py:_review_result",
+        499,
+        12,
+        502,
+        67
+      ],
+      "instances": [
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_review_result",
+              499,
+              12,
+              502,
+              67
+            ],
+            "site": "review_cycles.py:_review_result",
+            "kind": "document",
+            "label": "a frozen review result",
+            "subject": "caller:value",
+            "lexical_label": "a frozen review result",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        }
+      ]
+    },
+    {
+      "call": [
+        "review_cycles.py:_review_result",
+        505,
+        8,
+        505,
+        80
+      ],
+      "instances": [
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_review_result",
+              505,
+              8,
+              505,
+              80
+            ],
+            "site": "review_cycles.py:_review_result",
+            "kind": "identity",
+            "label": "a frozen review result's attempt_id",
+            "subject": "caller:value[attempt_id]",
+            "lexical_label": "a frozen review result's {member}",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        },
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_review_result",
+              505,
+              8,
+              505,
+              80
+            ],
+            "site": "review_cycles.py:_review_result",
+            "kind": "identity",
+            "label": "a frozen review result's freeze_operation_id",
+            "subject": "caller:value[freeze_operation_id]",
+            "lexical_label": "a frozen review result's {member}",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        },
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_review_result",
+              505,
+              8,
+              505,
+              80
+            ],
+            "site": "review_cycles.py:_review_result",
+            "kind": "identity",
+            "label": "a frozen review result's manifest_digest",
+            "subject": "caller:value[manifest_digest]",
+            "lexical_label": "a frozen review result's {member}",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        },
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_review_result",
+              505,
+              8,
+              505,
+              80
+            ],
+            "site": "review_cycles.py:_review_result",
+            "kind": "identity",
+            "label": "a frozen review result's result_id",
+            "subject": "caller:value[result_id]",
+            "lexical_label": "a frozen review result's {member}",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        }
+      ]
+    },
+    {
+      "call": [
+        "review_cycles.py:_review_result",
+        506,
+        4,
+        506,
+        80
+      ],
+      "instances": [
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_review_result",
+              506,
+              4,
+              506,
+              80
+            ],
+            "site": "review_cycles.py:_review_result",
+            "kind": "instant",
+            "label": "a frozen review result's frozen_at",
+            "subject": "caller:value[frozen_at]",
+            "lexical_label": "a frozen review result's frozen_at",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        }
+      ]
+    },
+    {
+      "call": [
+        "review_cycles.py:_review_result",
+        515,
+        15,
+        518,
+        51
+      ],
+      "instances": [
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_review_result",
+              515,
+              15,
+              518,
+              51
+            ],
+            "site": "review_cycles.py:_review_result",
+            "kind": "document",
+            "label": "a frozen review artifact",
+            "subject": "caller:value[artifacts]",
+            "lexical_label": "a frozen review artifact",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        }
+      ]
+    },
+    {
+      "call": [
+        "review_cycles.py:_review_result",
+        519,
+        8,
+        519,
+        79
+      ],
+      "instances": [
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:_review_result",
+              519,
+              8,
+              519,
+              79
+            ],
+            "site": "review_cycles.py:_review_result",
+            "kind": "identity",
+            "label": "a frozen review output name",
+            "subject": "caller:value[artifacts][output_name]",
+            "lexical_label": "a frozen review output name",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        }
+      ]
+    },
+    {
+      "call": [
+        "review_cycles.py:create_line",
+        597,
+        4,
+        597,
+        69
+      ],
+      "instances": [
+        {
+          "occurrence": {
+            "call": [
+              "review_cycles.py:create_line",
+              597,
+              4,
+              597,
+              69
+            ],
+            "site": "review_cycles.py:create_line",
+            "kind": "text",
+            "label": "a materialized line head",
+            "subject": "materialized[head]",
+            "lexical_label": "a materialized line head",
+            "propagated": false
+          },
+          "claims": [],
+          "resolved_to": [],
+          "residual": true
+        }
+      ]
+    }
+  ],
+  "module_entries": [
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted review attachment"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_attachment_row",
+            348,
+            11,
+            349,
+            59
+          ],
+          "site": "review_cycles.py:_attachment_row",
+          "kind": "row",
+          "label": "a persisted review attachment",
+          "subject": "read:review_cycles.py:_attachment_row|review_attachments",
+          "lexical_label": "a persisted review attachment",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.assignment_generation"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted review attachment"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_attachment_row",
+            348,
+            11,
+            349,
+            59
+          ],
+          "site": "review_cycles.py:_attachment_row",
+          "kind": "row",
+          "label": "a persisted review attachment",
+          "subject": "read:review_cycles.py:_attachment_row|review_attachments",
+          "lexical_label": "a persisted review attachment",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.attachment_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted review attachment"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_attachment_row",
+            348,
+            11,
+            349,
+            59
+          ],
+          "site": "review_cycles.py:_attachment_row",
+          "kind": "row",
+          "label": "a persisted review attachment",
+          "subject": "read:review_cycles.py:_attachment_row|review_attachments",
+          "lexical_label": "a persisted review attachment",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.checkpoint_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted review attachment"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_attachment_row",
+            348,
+            11,
+            349,
+            59
+          ],
+          "site": "review_cycles.py:_attachment_row",
+          "kind": "row",
+          "label": "a persisted review attachment",
+          "subject": "read:review_cycles.py:_attachment_row|review_attachments",
+          "lexical_label": "a persisted review attachment",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.line_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted review attachment"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_attachment_row",
+            348,
+            11,
+            349,
+            59
+          ],
+          "site": "review_cycles.py:_attachment_row",
+          "kind": "row",
+          "label": "a persisted review attachment",
+          "subject": "read:review_cycles.py:_attachment_row|review_attachments",
+          "lexical_label": "a persisted review attachment",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.reviewer_participant"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted review attachment"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_attachment_row",
+            348,
+            11,
+            349,
+            59
+          ],
+          "site": "review_cycles.py:_attachment_row",
+          "kind": "row",
+          "label": "a persisted review attachment",
+          "subject": "read:review_cycles.py:_attachment_row|review_attachments",
+          "lexical_label": "a persisted review attachment",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.reviewer_principal"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted review attachment"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_attachment_row",
+            348,
+            11,
+            349,
+            59
+          ],
+          "site": "review_cycles.py:_attachment_row",
+          "kind": "row",
+          "label": "a persisted review attachment",
+          "subject": "read:review_cycles.py:_attachment_row|review_attachments",
+          "lexical_label": "a persisted review attachment",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.reviewer_worker_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted review attachment"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_attachment_row",
+            348,
+            11,
+            349,
+            59
+          ],
+          "site": "review_cycles.py:_attachment_row",
+          "kind": "row",
+          "label": "a persisted review attachment",
+          "subject": "read:review_cycles.py:_attachment_row|review_attachments",
+          "lexical_label": "a persisted review attachment",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.runtime_attempt_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted review attachment"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_attachment_row",
+            348,
+            11,
+            349,
+            59
+          ],
+          "site": "review_cycles.py:_attachment_row",
+          "kind": "row",
+          "label": "a persisted review attachment",
+          "subject": "read:review_cycles.py:_attachment_row|review_attachments",
+          "lexical_label": "a persisted review attachment",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_attachment_row",
+        "review_attachments.state"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted review attachment"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_attachment_row",
+            348,
+            11,
+            349,
+            59
+          ],
+          "site": "review_cycles.py:_attachment_row",
+          "kind": "row",
+          "label": "a persisted review attachment",
+          "subject": "read:review_cycles.py:_attachment_row|review_attachments",
+          "lexical_label": "a persisted review attachment",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.attachment_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.authority_uuid"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.base_object"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.checkpoint_digest"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.checkpoint_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.disposition"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.head_object"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.line_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.path_set_digest"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.review_assignment_generation"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.review_fence"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.review_fence.intent"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.review_fence_digest"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.review_result"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.review_result_digest"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.reviewer_participant"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.reviewer_principal"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.reviewer_worker_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.revision"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.tree_object"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.verdict_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.work_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted checkpoint verdict"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            217,
+            11,
+            218,
+            60
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "row",
+          "label": "a persisted checkpoint verdict",
+          "subject": "read:review_cycles.py:_verdict_row|checkpoint_verdicts",
+          "lexical_label": "a persisted checkpoint verdict",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:attach_review",
+        "line_writers"
+      ],
+      "owner": [
+        "stated",
+        "a SELECT 1 existence answer; no row member crosses into this manager"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.base_object"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.checkpoint_digest"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.checkpoint_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.evidence"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.evidence.base"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.evidence.head"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.evidence.path_set_digest"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.evidence.profile"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.evidence.reference"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.evidence.tree"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence.intent"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted assignment fence",
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        },
+        {
+          "call": [
+            "review_cycles.py:_fence",
+            456,
+            12,
+            457,
+            62
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "document",
+          "label": "a persisted assignment fence",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints[fence]",
+          "lexical_label": "a persisted assignment fence",
+          "propagated": true
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence_digest"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.head_object"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.line_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.path_set_digest"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.profile_name"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.reference_name"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.revision"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.state"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.tree_object"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.writer_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            82,
+            12,
+            83,
+            58
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "row",
+          "label": "a persisted line checkpoint",
+          "subject": "read:review_cycles.py:checkpoint_of|line_checkpoints",
+          "lexical_label": "a persisted line checkpoint",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:consumption_subject",
+        "line_writers"
+      ],
+      "owner": [
+        "stated",
+        "exactly one active row for the caller attempt/generation; its sole projected identity is forwarded to writer_of"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:consumption_subject",
+        "line_writers.writer_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a line writer identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            64,
+            4,
+            64,
+            60
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "identity",
+          "label": "a line writer identity",
+          "subject": "caller:writer_id",
+          "lexical_label": "a line writer identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:create_line",
+        "review_lines"
+      ],
+      "owner": [
+        "stated",
+        "the complete row is forwarded through line_of's canonical row decoder"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:freeze_checkpoint",
+        "line_checkpoints"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:freeze_checkpoint",
+            766,
+            22,
+            767,
+            78
+          ],
+          "site": "review_cycles.py:freeze_checkpoint",
+          "kind": "identity",
+          "label": "a persisted line checkpoint identity",
+          "subject": "read:review_cycles.py:freeze_checkpoint|line_checkpoints[checkpoint_id]",
+          "lexical_label": "a persisted line checkpoint identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:freeze_checkpoint",
+        "line_checkpoints.checkpoint_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line checkpoint identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:freeze_checkpoint",
+            766,
+            22,
+            767,
+            78
+          ],
+          "site": "review_cycles.py:freeze_checkpoint",
+          "kind": "identity",
+          "label": "a persisted line checkpoint identity",
+          "subject": "read:review_cycles.py:freeze_checkpoint|line_checkpoints[checkpoint_id]",
+          "lexical_label": "a persisted line checkpoint identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility"
+      ],
+      "owner": [
+        "layer",
+        [
+          "persisted integration eligibility"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:integration_checkpoint",
+            1296,
+            12,
+            1297,
+            66
+          ],
+          "site": "review_cycles.py:integration_checkpoint",
+          "kind": "row",
+          "label": "persisted integration eligibility",
+          "subject": "read:review_cycles.py:integration_checkpoint|integration_eligibility",
+          "lexical_label": "persisted integration eligibility",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility.checkpoint_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "persisted integration eligibility"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:integration_checkpoint",
+            1296,
+            12,
+            1297,
+            66
+          ],
+          "site": "review_cycles.py:integration_checkpoint",
+          "kind": "row",
+          "label": "persisted integration eligibility",
+          "subject": "read:review_cycles.py:integration_checkpoint|integration_eligibility",
+          "lexical_label": "persisted integration eligibility",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility.line_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "persisted integration eligibility"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:integration_checkpoint",
+            1296,
+            12,
+            1297,
+            66
+          ],
+          "site": "review_cycles.py:integration_checkpoint",
+          "kind": "row",
+          "label": "persisted integration eligibility",
+          "subject": "read:review_cycles.py:integration_checkpoint|integration_eligibility",
+          "lexical_label": "persisted integration eligibility",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility.verdict_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "persisted integration eligibility"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:integration_checkpoint",
+            1296,
+            12,
+            1297,
+            66
+          ],
+          "site": "review_cycles.py:integration_checkpoint",
+          "kind": "row",
+          "label": "persisted integration eligibility",
+          "subject": "read:review_cycles.py:integration_checkpoint|integration_eligibility",
+          "lexical_label": "persisted integration eligibility",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.authority_uuid"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.current_checkpoint_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.declared_base"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.line_device"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.line_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.line_inode"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.line_path"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.profile_name"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.revision"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.source_device"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.source_inode"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.source_path"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.state"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:line_of",
+        "review_lines.work_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted development line"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            59,
+            11,
+            60,
+            53
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "row",
+          "label": "a persisted development line",
+          "subject": "read:review_cycles.py:line_of|review_lines",
+          "lexical_label": "a persisted development line",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:review_boundary",
+        "line_writers"
+      ],
+      "owner": [
+        "stated",
+        "the same"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:writer_of",
+        "line_writers"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line writer"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            70,
+            11,
+            71,
+            53
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "row",
+          "label": "a persisted line writer",
+          "subject": "read:review_cycles.py:writer_of|line_writers",
+          "lexical_label": "a persisted line writer",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:writer_of",
+        "line_writers.assignment_generation"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line writer"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            70,
+            11,
+            71,
+            53
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "row",
+          "label": "a persisted line writer",
+          "subject": "read:review_cycles.py:writer_of|line_writers",
+          "lexical_label": "a persisted line writer",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:writer_of",
+        "line_writers.line_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line writer"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            70,
+            11,
+            71,
+            53
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "row",
+          "label": "a persisted line writer",
+          "subject": "read:review_cycles.py:writer_of|line_writers",
+          "lexical_label": "a persisted line writer",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:writer_of",
+        "line_writers.participant"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line writer"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            70,
+            11,
+            71,
+            53
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "row",
+          "label": "a persisted line writer",
+          "subject": "read:review_cycles.py:writer_of|line_writers",
+          "lexical_label": "a persisted line writer",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:writer_of",
+        "line_writers.principal"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line writer"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            70,
+            11,
+            71,
+            53
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "row",
+          "label": "a persisted line writer",
+          "subject": "read:review_cycles.py:writer_of|line_writers",
+          "lexical_label": "a persisted line writer",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:writer_of",
+        "line_writers.runtime_attempt_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line writer"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            70,
+            11,
+            71,
+            53
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "row",
+          "label": "a persisted line writer",
+          "subject": "read:review_cycles.py:writer_of|line_writers",
+          "lexical_label": "a persisted line writer",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:writer_of",
+        "line_writers.state"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line writer"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            70,
+            11,
+            71,
+            53
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "row",
+          "label": "a persisted line writer",
+          "subject": "read:review_cycles.py:writer_of|line_writers",
+          "lexical_label": "a persisted line writer",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:writer_of",
+        "line_writers.worker_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line writer"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            70,
+            11,
+            71,
+            53
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "row",
+          "label": "a persisted line writer",
+          "subject": "read:review_cycles.py:writer_of|line_writers",
+          "lexical_label": "a persisted line writer",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:writer_of",
+        "line_writers.writer_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a persisted line writer"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            70,
+            11,
+            71,
+            53
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "row",
+          "label": "a persisted line writer",
+          "subject": "read:review_cycles.py:writer_of|line_writers",
+          "lexical_label": "a persisted line writer",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:attach_review",
+        "attempt_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a runtime attempt id"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "attempts.py:_attempt_row",
+            185,
+            4,
+            185,
+            59
+          ],
+          "site": "attempts.py:_attempt_row",
+          "kind": "identity",
+          "label": "a runtime attempt id",
+          "subject": "caller:attempt_id",
+          "lexical_label": "a runtime attempt id",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:attach_review",
+        "checkpoint_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a line checkpoint identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            75,
+            4,
+            75,
+            68
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "identity",
+          "label": "a line checkpoint identity",
+          "subject": "caller:checkpoint_id",
+          "lexical_label": "a line checkpoint identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:attach_review",
+        "generation"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "an assignment generation"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_same_assignment",
+            358,
+            4,
+            358,
+            65
+          ],
+          "site": "review_cycles.py:_same_assignment",
+          "kind": "generation",
+          "label": "an assignment generation",
+          "subject": "caller:generation",
+          "lexical_label": "an assignment generation",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:attach_review",
+        "profile"
+      ],
+      "owner": [
+        "stated",
+        "an injected profile aggregate whose validate capability is typed before use"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:attach_review",
+        "reviewer_worker_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a reviewer worker identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:attach_review",
+            909,
+            4,
+            909,
+            73
+          ],
+          "site": "review_cycles.py:attach_review",
+          "kind": "identity",
+          "label": "a reviewer worker identity",
+          "subject": "caller:reviewer_worker_id",
+          "lexical_label": "a reviewer worker identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:attach_review",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:audit_checkpoint",
+        "checkpoint_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a line checkpoint identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            75,
+            4,
+            75,
+            68
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "identity",
+          "label": "a line checkpoint identity",
+          "subject": "caller:checkpoint_id",
+          "lexical_label": "a line checkpoint identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:audit_checkpoint",
+        "profile"
+      ],
+      "owner": [
+        "stated",
+        "the same"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:audit_checkpoint",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:checkpoint_of",
+        "checkpoint_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a line checkpoint identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:checkpoint_of",
+            75,
+            4,
+            75,
+            68
+          ],
+          "site": "review_cycles.py:checkpoint_of",
+          "kind": "identity",
+          "label": "a line checkpoint identity",
+          "subject": "caller:checkpoint_id",
+          "lexical_label": "a line checkpoint identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:checkpoint_of",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "attempt_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a runtime attempt identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:consumption_subject",
+            1447,
+            4,
+            1447,
+            65
+          ],
+          "site": "review_cycles.py:consumption_subject",
+          "kind": "identity",
+          "label": "a runtime attempt identity",
+          "subject": "caller:attempt_id",
+          "lexical_label": "a runtime attempt identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "generation"
+      ],
+      "owner": [
+        "layer",
+        [
+          "an assignment generation"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:consumption_subject",
+            1448,
+            4,
+            1448,
+            65
+          ],
+          "site": "review_cycles.py:consumption_subject",
+          "kind": "generation",
+          "label": "an assignment generation",
+          "subject": "caller:generation",
+          "lexical_label": "an assignment generation",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:create_line",
+        "authority_uuid"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a line's authority UUID"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:create_line",
+            531,
+            4,
+            531,
+            62
+          ],
+          "site": "review_cycles.py:create_line",
+          "kind": "text",
+          "label": "a line's authority UUID",
+          "subject": "caller:authority_uuid",
+          "lexical_label": "a line's authority UUID",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:create_line",
+        "declared_base"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a line's declared base"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:create_line",
+            533,
+            4,
+            533,
+            60
+          ],
+          "site": "review_cycles.py:create_line",
+          "kind": "text",
+          "label": "a line's declared base",
+          "subject": "caller:declared_base",
+          "lexical_label": "a line's declared base",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:create_line",
+        "profile"
+      ],
+      "owner": [
+        "stated",
+        "an injected profile aggregate whose named capabilities are typed before use"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:create_line",
+        "source"
+      ],
+      "owner": [
+        "stated",
+        "identity against the manager-minted NominatedSource exact type"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:create_line",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:create_line",
+        "work_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a line's Work identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:create_line",
+            532,
+            4,
+            532,
+            58
+          ],
+          "site": "review_cycles.py:create_line",
+          "kind": "identity",
+          "label": "a line's Work identity",
+          "subject": "caller:work_id",
+          "lexical_label": "a line's Work identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:freeze_checkpoint",
+        "generation"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a checkpoint assignment generation"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:freeze_checkpoint",
+            748,
+            4,
+            748,
+            75
+          ],
+          "site": "review_cycles.py:freeze_checkpoint",
+          "kind": "generation",
+          "label": "a checkpoint assignment generation",
+          "subject": "caller:generation",
+          "lexical_label": "a checkpoint assignment generation",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:freeze_checkpoint",
+        "port"
+      ],
+      "owner": [
+        "constructed",
+        "authority_port.py:AuthorityPort.__init__"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:freeze_checkpoint",
+        "profile"
+      ],
+      "owner": [
+        "stated",
+        "the same, for freeze and validate"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:freeze_checkpoint",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:freeze_checkpoint",
+        "writer_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a line writer identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            64,
+            4,
+            64,
+            60
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "identity",
+          "label": "a line writer identity",
+          "subject": "caller:writer_id",
+          "lexical_label": "a line writer identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:grant_writer",
+        "attempt_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a runtime attempt id"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "attempts.py:_attempt_row",
+            185,
+            4,
+            185,
+            59
+          ],
+          "site": "attempts.py:_attempt_row",
+          "kind": "identity",
+          "label": "a runtime attempt id",
+          "subject": "caller:attempt_id",
+          "lexical_label": "a runtime attempt id",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:grant_writer",
+        "based_checkpoint_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a based checkpoint identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:grant_writer",
+            635,
+            8,
+            635,
+            79
+          ],
+          "site": "review_cycles.py:grant_writer",
+          "kind": "identity",
+          "label": "a based checkpoint identity",
+          "subject": "caller:based_checkpoint_id",
+          "lexical_label": "a based checkpoint identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:grant_writer",
+        "generation"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "an assignment generation"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_same_assignment",
+            358,
+            4,
+            358,
+            65
+          ],
+          "site": "review_cycles.py:_same_assignment",
+          "kind": "generation",
+          "label": "an assignment generation",
+          "subject": "caller:generation",
+          "lexical_label": "an assignment generation",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:grant_writer",
+        "line_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a development line identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            53,
+            4,
+            53,
+            63
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "identity",
+          "label": "a development line identity",
+          "subject": "caller:line_id",
+          "lexical_label": "a development line identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:grant_writer",
+        "profile"
+      ],
+      "owner": [
+        "stated",
+        "an injected profile aggregate whose validate capability is typed before use"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:grant_writer",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:grant_writer",
+        "worker_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a writer worker identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:grant_writer",
+            633,
+            4,
+            633,
+            62
+          ],
+          "site": "review_cycles.py:grant_writer",
+          "kind": "identity",
+          "label": "a writer worker identity",
+          "subject": "caller:worker_id",
+          "lexical_label": "a writer worker identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:integration_checkpoint",
+        "line_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a development line identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            53,
+            4,
+            53,
+            63
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "identity",
+          "label": "a development line identity",
+          "subject": "caller:line_id",
+          "lexical_label": "a development line identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:integration_checkpoint",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:line_of",
+        "line_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a development line identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            53,
+            4,
+            53,
+            63
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "identity",
+          "label": "a development line identity",
+          "subject": "caller:line_id",
+          "lexical_label": "a development line identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:line_of",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:line_status",
+        "line_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a development line identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_of",
+            53,
+            4,
+            53,
+            63
+          ],
+          "site": "review_cycles.py:line_of",
+          "kind": "identity",
+          "label": "a development line identity",
+          "subject": "caller:line_id",
+          "lexical_label": "a development line identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:line_status",
+        "storage_usage"
+      ],
+      "owner": [
+        "layer",
+        [
+          "the deployment's development-line storage meter"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:line_status",
+            1367,
+            4,
+            1368,
+            76
+          ],
+          "site": "review_cycles.py:line_status",
+          "kind": "capability",
+          "label": "the deployment's development-line storage meter",
+          "subject": "caller:storage_usage",
+          "lexical_label": "the deployment's development-line storage meter",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:line_status",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:record_progress",
+        "document"
+      ],
+      "owner": [
+        "stated",
+        "canonicalized before it reaches either the signature or durable row"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:record_progress",
+        "generation"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a progress assignment generation"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:record_progress",
+            712,
+            4,
+            712,
+            73
+          ],
+          "site": "review_cycles.py:record_progress",
+          "kind": "generation",
+          "label": "a progress assignment generation",
+          "subject": "caller:generation",
+          "lexical_label": "a progress assignment generation",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:record_progress",
+        "sequence"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a progress sequence"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:record_progress",
+            713,
+            4,
+            713,
+            58
+          ],
+          "site": "review_cycles.py:record_progress",
+          "kind": "generation",
+          "label": "a progress sequence",
+          "subject": "caller:sequence",
+          "lexical_label": "a progress sequence",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:record_progress",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:record_progress",
+        "writer_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a line writer identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            64,
+            4,
+            64,
+            60
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "identity",
+          "label": "a line writer identity",
+          "subject": "caller:writer_id",
+          "lexical_label": "a line writer identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:record_verdict",
+        "attachment_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a review attachment identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_attachment",
+            353,
+            4,
+            353,
+            70
+          ],
+          "site": "review_cycles.py:_attachment",
+          "kind": "identity",
+          "label": "a review attachment identity",
+          "subject": "caller:attachment_id",
+          "lexical_label": "a review attachment identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:record_verdict",
+        "disposition"
+      ],
+      "owner": [
+        "stated",
+        "compared against the closed review disposition vocabulary before use"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:record_verdict",
+        "port"
+      ],
+      "owner": [
+        "constructed",
+        "authority_port.py:AuthorityPort.__init__"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:record_verdict",
+        "profile"
+      ],
+      "owner": [
+        "stated",
+        "the same"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:record_verdict",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:review_boundary",
+        "attachment_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a review attachment identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_attachment",
+            353,
+            4,
+            353,
+            70
+          ],
+          "site": "review_cycles.py:_attachment",
+          "kind": "identity",
+          "label": "a review attachment identity",
+          "subject": "caller:attachment_id",
+          "lexical_label": "a review attachment identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:review_boundary",
+        "profile"
+      ],
+      "owner": [
+        "stated",
+        "an injected profile aggregate whose validate capability is typed before use"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:review_boundary",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:review_of",
+        "attachment_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a review attachment identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_attachment",
+            353,
+            4,
+            353,
+            70
+          ],
+          "site": "review_cycles.py:_attachment",
+          "kind": "identity",
+          "label": "a review attachment identity",
+          "subject": "caller:attachment_id",
+          "lexical_label": "a review attachment identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:review_of",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:verdict_of",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:verdict_of",
+        "verdict_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a checkpoint verdict identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            211,
+            4,
+            211,
+            68
+          ],
+          "site": "review_cycles.py:_verdict_row",
+          "kind": "identity",
+          "label": "a checkpoint verdict identity",
+          "subject": "caller:verdict_id",
+          "lexical_label": "a checkpoint verdict identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:writer_boundary",
+        "generation"
+      ],
+      "owner": [
+        "layer",
+        [
+          "an assignment generation"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_boundary",
+            1504,
+            4,
+            1504,
+            65
+          ],
+          "site": "review_cycles.py:writer_boundary",
+          "kind": "generation",
+          "label": "an assignment generation",
+          "subject": "caller:generation",
+          "lexical_label": "an assignment generation",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:writer_boundary",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:writer_boundary",
+        "writer_id"
+      ],
+      "owner": [
+        "delegated",
+        [
+          "a line writer identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            64,
+            4,
+            64,
+            60
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "identity",
+          "label": "a line writer identity",
+          "subject": "caller:writer_id",
+          "lexical_label": "a line writer identity",
+          "propagated": false
+        }
+      ]
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:writer_of",
+        "store"
+      ],
+      "owner": [
+        "constructed",
+        "store.py:ControlStore.open"
+      ],
+      "claims": []
+    },
+    {
+      "entry": [
+        "caller",
+        "review_cycles.py:writer_of",
+        "writer_id"
+      ],
+      "owner": [
+        "layer",
+        [
+          "a line writer identity"
+        ]
+      ],
+      "claims": [
+        {
+          "call": [
+            "review_cycles.py:writer_of",
+            64,
+            4,
+            64,
+            60
+          ],
+          "site": "review_cycles.py:writer_of",
+          "kind": "identity",
+          "label": "a line writer identity",
+          "subject": "caller:writer_id",
+          "lexical_label": "a line writer identity",
+          "propagated": false
+        }
+      ]
+    }
+  ],
+  "seconds": 2.9915103019447997
+}

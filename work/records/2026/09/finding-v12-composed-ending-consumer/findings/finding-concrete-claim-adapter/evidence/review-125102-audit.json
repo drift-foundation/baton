@@ -1,0 +1,17 @@
+{
+  "tools/single_worker.py": {
+    "sha256": "724516aca3769a5d6a427bd143dad40534e7acb5dee31714c432a4a3dc221593",
+    "mode": "0o664",
+    "matches": true
+  },
+  "tests/tools/test_single_worker.py": {
+    "sha256": "8287f043e7c798be1155ad78cd3d8f960cf26e0da73e818a11d7d439d739e1a2",
+    "mode": "0o664",
+    "matches": true
+  },
+  "tests/tools/test_stage_execution.py": {
+    "sha256": "60e9be1462174997d57cbedf3395d23f954f021b3d8d38d73c381529558817a7",
+    "mode": "0o664",
+    "matches": true
+  }
+}

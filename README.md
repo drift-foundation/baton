@@ -155,7 +155,7 @@ values are accepted, and which combinations are refused.
 | [docs/BATON-WORK.md](docs/BATON-WORK.md) | The operator contract: full verb surface, the console, filters, projections |
 | [docs/BATON-SETUP.md](docs/BATON-SETUP.md) | Creating and activating a coordination home |
 | [docs/AGENTS-MAILBOX-PROTO.md](docs/AGENTS-MAILBOX-PROTO.md) | The agent protocol contract — the stable path participating repositories point their policy at |
-| [docs/EFFECTIVE-BATON.md](docs/EFFECTIVE-BATON.md) | The practical operating guide: how a participant works safely, and why |
+| [docs/EFFECTIVE-BATON.md](docs/EFFECTIVE-BATON.md) | Worked examples and adaptable strategies for coordinating work across projects |
 | [AGENTS.md](AGENTS.md) | This repository's own agent rules |
 
 Release records under `docs/RELEASE*.md` describe the release they were

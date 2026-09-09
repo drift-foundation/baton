@@ -1,0 +1,64 @@
+[
+  {
+    "case": "only-wal",
+    "before": [
+      "coordinator.sqlite3",
+      "coordinator.sqlite3-wal"
+    ],
+    "exception": "ContractRefusal: the integration coordinator store at '/tmp/review-127025-nxej3zsk/coordinator.sqlite3' is a write-ahead-log store and its journal sidecars are incomplete (-wal); opening it would make SQLite create the rest, and a read-only open creates no journal artifact. Read it while its coordinator holds it, or open it for writing deliberately",
+    "contract_refusal": true,
+    "after": [
+      "coordinator.sqlite3",
+      "coordinator.sqlite3-wal"
+    ],
+    "sizes": {
+      "coordinator.sqlite3-wal": 0,
+      "coordinator.sqlite3": 73728
+    }
+  },
+  {
+    "case": "only-shm",
+    "before": [
+      "coordinator.sqlite3",
+      "coordinator.sqlite3-shm"
+    ],
+    "exception": "ContractRefusal: the integration coordinator store at '/tmp/review-127025-4r7yex7j/coordinator.sqlite3' is a write-ahead-log store and its journal sidecars are incomplete (-shm); opening it would make SQLite create the rest, and a read-only open creates no journal artifact. Read it while its coordinator holds it, or open it for writing deliberately",
+    "contract_refusal": true,
+    "after": [
+      "coordinator.sqlite3",
+      "coordinator.sqlite3-shm"
+    ],
+    "sizes": {
+      "coordinator.sqlite3-shm": 0,
+      "coordinator.sqlite3": 73728
+    }
+  },
+  {
+    "case": "serving-close-after-guard",
+    "before": [
+      "coordinator.sqlite3"
+    ],
+    "exception": "ContractRefusal: the integration coordinator store at '/tmp/review-127025-qatse3rl/coordinator.sqlite3' is a write-ahead-log store and its journal sidecars are absent (neither -wal nor -shm); opening it would make SQLite create the rest, and a read-only open creates no journal artifact. Read it while its coordinator holds it, or open it for writing deliberately",
+    "contract_refusal": true,
+    "after": [
+      "coordinator.sqlite3"
+    ],
+    "sizes": {
+      "coordinator.sqlite3": 73728
+    }
+  },
+  {
+    "case": "not-database",
+    "before": [
+      "coordinator.sqlite3"
+    ],
+    "exception": "ContractRefusal: the database at '/tmp/review-127025-4anhx0bh/coordinator.sqlite3' could not be read by this coordinator (DatabaseError: file is not a database); a read-only open refuses an unreadable store and repairs nothing. Nothing was changed",
+    "contract_refusal": true,
+    "after": [
+      "coordinator.sqlite3"
+    ],
+    "sizes": {
+      "coordinator.sqlite3": 23
+    }
+  }
+]

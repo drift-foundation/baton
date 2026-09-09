@@ -1,0 +1,240 @@
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -431,6 +431,10 @@
+ def _invoked_capabilities(node, origins):
+     if not isinstance(node, ast.Call):
+         return frozenset()
++    if isinstance(origins, _OriginBindings) and origins.evaluating:
++        # The function expression was selected before argument side effects.
++        # This evaluation's selection owns its result, not the later binding.
++        return origins.invocations.get(id(node), frozenset())
+     return _origin_values(_capability_call(node)) | _callable_members(node.func, origins)
+ 
+ 
+@@ -551,6 +555,7 @@
+         super().__init__(values)
+         self.at = {}
+         self.contexts = {}
++        self.invocations = {}
+         self.evaluating = True
+         self.returned = set()
+ 
+@@ -856,10 +861,6 @@
+         origins.update(seed)
+ 
+     def bind(target, origin):
+-        if isinstance(target, (ast.Tuple, ast.List)):
+-            for piece in ast.walk(target):
+-                if isinstance(piece, ast.Name):
+-                    origins.pop(("callable", piece.id), None)
+         if isinstance(target, ast.Name):
+             origins.pop(("collection", target.id), None)
+             origins.pop(("literal", target.id), None)
+@@ -971,6 +972,7 @@
+             elif isinstance(piece.value, ast.Name):
+                 collection = origins.get(("collection", piece.value.id))
+             for target in piece.targets:
++                self.visit(target)
+                 bind(target, origin)
+                 if isinstance(target, ast.Name):
+                     if callable_members is not None:
+@@ -984,7 +986,12 @@
+                         origins[key] = collection
+ 
+         def visit_Call(self, piece):
+-            self.generic_visit(piece)
++            self.visit(piece.func)
++            origins.invocations[id(piece)] = _origin_values(_capability_call(piece)) | _callable_members(piece.func, origins)
++            for argument in piece.args:
++                self.visit(argument)
++            for keyword in piece.keywords:
++                self.visit(keyword)
+             if not isinstance(piece.func, ast.Attribute) or not isinstance(piece.func.value, ast.Name):
+                 return
+             collection = origins.get(("collection", piece.func.value.id))
+@@ -1021,17 +1028,30 @@
+                 self.visit(piece.value)
+                 literal = _literal_text(piece.value, origins)
+                 callable_members = _join_origins(_callable_members(piece.value, origins))
+-                bind(piece.target, _source(piece.value, origins, site, returns))
++                origin = _source(piece.value, origins, site, returns)
++                self.visit(piece.target)
++                bind(piece.target, origin)
+                 if isinstance(piece.target, ast.Name) and callable_members is not None:
+                     origins[("callable", piece.target.id)] = callable_members
+                 if isinstance(piece.target, ast.Name) and literal is not None:
+                     origins[("literal", piece.target.id)] = literal
+ 
++        def visit_AugAssign(self, piece):
++            if isinstance(piece.target, ast.Name):
++                # Load the old name for the operation; rebind only after RHS.
++                self.visit(piece.value)
++                self.visit(piece.target)
++            else:
++                self.visit(piece.target)
++                self.visit(piece.value)
++
+         def visit_NamedExpr(self, piece):
+             self.visit(piece.value)
+             literal = _literal_text(piece.value, origins)
+             callable_members = _join_origins(_callable_members(piece.value, origins))
+-            bind(piece.target, _source(piece.value, origins, site, returns))
++            origin = _source(piece.value, origins, site, returns)
++            self.visit(piece.target)
++            bind(piece.target, origin)
+             if isinstance(piece.target, ast.Name) and callable_members is not None:
+                 origins[("callable", piece.target.id)] = callable_members
+             if isinstance(piece.target, ast.Name) and literal is not None:
+@@ -1043,7 +1063,9 @@
+             if isinstance(piece.target, ast.Name) and isinstance(piece.iter, (ast.Tuple, ast.List)) and all(isinstance(element, ast.Constant) and type(element.value) is str for element in piece.iter.elts):
+                 self.literal_loop(piece, before)
+                 return
+-            bind(piece.target, _source(piece.iter, origins, site, returns))
++            origin = _source(piece.iter, origins, site, returns)
++            self.visit(piece.target)
++            bind(piece.target, origin)
+             self.loop(piece, before)
+ 
+         visit_AsyncFor = visit_For
+@@ -1170,12 +1192,14 @@
+ 
+         def visit_comprehension(self, piece):
+             self.visit(piece.iter)
+-            bind(piece.target, _source(piece.iter, origins, site, returns))
++            origin = _source(piece.iter, origins, site, returns)
++            self.visit(piece.target)
++            bind(piece.target, origin)
+             for condition in piece.ifs:
+                 self.visit(condition)
+ 
+         def comprehension(self, piece, values):
+-            local = {name.id for generator in piece.generators for name in ast.walk(generator.target) if isinstance(name, ast.Name)}
++            local = {name.id for generator in piece.generators for name in ast.walk(generator.target) if isinstance(name, ast.Name) and isinstance(name.ctx, ast.Store)}
+             enclosing = {name: origins.get(("callable", name)) for name in local}
+             for generator in piece.generators:
+                 self.visit(generator)
+@@ -1209,10 +1233,8 @@
+             pass
+ 
+         def visit_Delete(self, piece):
+-            for target in piece.targets:
+-                for name in ast.walk(target):
+-                    if isinstance(name, ast.Name):
+-                        origins.pop(("callable", name.id), None)
++            # Receivers/indexes are evaluated loads; only Name(Del) unbinds.
++            self.generic_visit(piece)
+ 
+         def visit_Import(self, piece):
+             for name in piece.names:
+@@ -13240,3 +13262,111 @@
+     return before["kept"]
+ ''')
+         self.assertEqual(self.injected(entries), self.expected(".kept"))
++
++    def test_argument_rebinding_preserves_the_selected_call_but_not_the_next(self):
++        for argument in ("(performing := other)", "key=(performing := other)"):
++            with self.subTest(argument=argument):
++                _, entries = self.model(f'''
++def public(session, other):
++    performing = getattr(session, "release_token", None)
++    answer = performing({argument})
++    later = performing({{}})
++    return answer["kept"], later["wrong"]
++''')
++                self.assertEqual(self.injected(entries), self.expected(".kept"))
++
++    def test_argument_rebinding_to_another_capability_separates_the_two_results(self):
++        _, entries = self.model('''
++def public(session):
++    performing = getattr(session, "release_token", None)
++    next_call = getattr(session, "inspect_token", None)
++    answer = performing((performing := next_call))
++    later = performing({})
++    return answer["first"], later["second"]
++''')
++        self.assertEqual(self.injected(entries), self.expected(".first") | self.expected(".second", method="inspect_token"))
++
++    def test_argument_rebinding_keeps_each_branchs_selected_callable(self):
++        _, entries = self.model('''
++def public(session, choice, other):
++    performing = getattr(session, "release_token", None)
++    if choice:
++        performing = getattr(session, "inspect_token", None)
++    answer = performing((performing := other))
++    return answer["kept"], performing({})["wrong"]
++''')
++        self.assertEqual(self.injected(entries), self.expected(".kept") | self.expected(".kept", method="inspect_token"))
++
++    def test_nonbinding_deletion_preserves_receiver_and_index_aliases(self):
++        for target in ("other[performing]", "performing.cached", "performing[other]", "(other[performing], performing.cached)"):
++            with self.subTest(target=target):
++                _, entries = self.model(f'''
++def public(session, other):
++    performing = getattr(session, "release_token", None)
++    del {target}
++    return performing({{}})["kept"]
++''')
++                self.assertEqual(self.injected(entries), self.expected(".kept"))
++
++    def test_deletion_target_calls_are_still_discovered(self):
++        for target in ('other[performing({})["key"]]', 'performing({})["record"]'):
++            with self.subTest(target=target):
++                _, entries = self.model(f'''
++def public(session, other):
++    performing = getattr(session, "release_token", None)
++    del {target}
++    return performing({{}})["kept"]
++''')
++                self.assertEqual(self.injected(entries), self.expected(".kept", ".key" if target.startswith("other") else ".record"))
++
++    def test_deletion_target_rebinding_affects_later_calls(self):
++        _, entries = self.model('''
++def public(session, other):
++    performing = getattr(session, "release_token", None)
++    before = performing({})
++    del other[(performing := other)]
++    return before["kept"], performing({})["wrong"]
++''')
++        self.assertEqual(self.injected(entries), self.expected(".kept"))
++
++    def test_destructuring_preserves_loads_and_visits_target_calls(self):
++        for target, extra in (("other[performing], spare", ()), ("performing.cached, spare", ()),
++                              ('other[performing({})["key"]], spare', (".key",))):
++            with self.subTest(target=target):
++                _, entries = self.model(f'''
++def public(session, other, supplied):
++    performing = getattr(session, "release_token", None)
++    {target} = supplied
++    return performing({{}})["kept"]
++''')
++                self.assertEqual(self.injected(entries), self.expected(".kept", *extra))
++
++    def test_destructuring_true_binding_still_invalidates_the_old_alias(self):
++        _, entries = self.model('''
++def public(session, other, supplied):
++    performing = getattr(session, "release_token", None)
++    before = performing({})
++    performing, other[performing] = supplied
++    return before["kept"], performing({})["wrong"]
++''')
++        self.assertEqual(self.injected(entries), self.expected(".kept"))
++
++    def test_later_destructuring_target_can_bind_a_new_alias_after_an_earlier_store(self):
++        _, entries = self.model('''
++def public(session, other, supplied):
++    performing = getattr(session, "release_token", None)
++    alias = performing
++    performing, other[(performing := alias)] = supplied
++    return performing({})["kept"]
++''')
++        self.assertEqual(self.injected(entries), self.expected(".kept"))
++
++
++    def test_augmented_assignment_rhs_uses_the_alias_before_rebinding(self):
++        _, entries = self.model('''
++def public(session):
++    performing = getattr(session, "release_token", None)
++    performing += performing({})["kept"]
++    return performing({})["wrong"]
++''')
++        self.assertEqual(self.injected(entries), self.expected(".kept"))

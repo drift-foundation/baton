@@ -1,0 +1,23 @@
+{
+  "work": "W119548",
+  "claim": 119552,
+  "review": "review-2026-09-08T13-45-00Z.md",
+  "kind": "read-only source snapshot, not executed test evidence",
+  "files": {
+    "v12/python/src/baton_v12/authority/core.py": "26a8a7a91b3bc7d9859bf9f5a747d9fda6ef88cdb5fe430bff1310d007c1d013",
+    "v12/python/src/baton_v12/authority/session.py": "333cd6e44ac73e093ceb45ba3b7c639985c4220de2dc87b3266bf7cd7634948a",
+    "v12/python/src/baton_v12/worker_manager/authority_port.py": "ae68d53a97498deb50d8d932547d7bf2a4436735d0b84b41d86b870a8918e79d",
+    "v12/python/src/baton_v12/worker_manager/intake.py": "be9bafa313b15e3a12d443fc7f704049b504b05835812e1e41ebcf391c5e99d9",
+    "v12/python/src/baton_v12/worker_manager/__init__.py": "965dd3599ad627a2f22b66ed37fac31041ccd8a342fab853a0ca1ca866b38d8b",
+    "v12/python/src/baton_v12/worker_manager/attempts.py": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+    "v12/python/src/baton_v12/job_manager/projection.py": "1354712ad0f05131f55460e79f0dc732d92ea15fce1bcc9681462fb8690c1248",
+    "v12/python/src/baton_v12/job_manager/scheduler.py": "fe6d8f33204d1ecb0647eefd11cf6ca781abc22a3841f9310ed32bb1e1f36457",
+    "v12/python/tools/single_worker.py": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27",
+    "v12/python/tools/stage_execution.py": "db280363bf8e1f7bc534a25dd163275a87aad3a21d784d330801823ce9f3cb60",
+    "v12/python/tests/manager/test_intake.py": "7ae62724d296fb3a57eb5919673ef6bd7b712ca2db080152c15e9ea3e95cf769",
+    "v12/python/tests/manager/test_offers.py": "e364d7b115ee861b7779b29bdd9b5e6e71fabe44dae540d3501a37ba400eecaa",
+    "v12/python/tests/manager/test_secrets.py": "f525c5b252b1c52dfa853a22916e9eb2bc05bd9d1b4cf016a2115219adab2c81",
+    "v12/python/tests/job_manager/test_exchange.py": "729c348f53ab52c90f3cc8e93b1b414801cf196d91e356efa9d563c01c0fae8b",
+    "v12/python/tests/tools/test_stage_execution.py": "7856364dcecb34b9f7c9e6b343eb00a38557149e119f98a9caab9b377a481001"
+  }
+}

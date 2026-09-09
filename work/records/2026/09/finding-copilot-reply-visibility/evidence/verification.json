@@ -1,0 +1,19 @@
+{
+  "focused": {
+    "command": "python3 -m unittest tools.test_codex_copilot_notifier.ObligationReminderTests -v",
+    "tests": 12,
+    "seconds_reported": 0.003,
+    "exit_code": 0
+  },
+  "regression": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "tools.test_codex_copilot_notifier",
+      "-v"
+    ],
+    "seconds": 0.04238664696458727,
+    "exit_code": 1
+  }
+}

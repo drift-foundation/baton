@@ -1,0 +1,22 @@
+--- 
++++ 
+@@ -16,8 +16,8 @@
+                      TARGET_STATES)
+ from .execution import INTEGRATION_PORT, OUTCOMES, integrate_next
+ from .driver import (PUBLICATION_KIND, PUBLICATION_RECEIPT, admit_accepted,
+-                     continue_accepted, publication_of, publish_candidate,
+-                     retain_proposal)
++                     continue_accepted, publication_for_attempt,
++                     publication_of, publish_candidate, retain_proposal)
+ from .runtime import (ASSIGNMENT_SCHEMA, HOLD_SCHEMA, PROFILE_SCHEMA,
+                       RESULT_SCHEMA, compose_assignment, hold_account,
+                       integration_profile, observed_result, target_access)
+@@ -33,6 +33,7 @@
+            "lease_of", "live_grant", "observed_result", "refuse_entry",
+            "release_lease", "settle_integrated", "target_access",
+            "target_of", "admit_accepted", "continue_accepted",
+-           "PUBLICATION_KIND", "PUBLICATION_RECEIPT", "publication_of",
++           "PUBLICATION_KIND", "PUBLICATION_RECEIPT",
++           "publication_for_attempt", "publication_of",
+            "publish_candidate",
+            "retain_proposal"]

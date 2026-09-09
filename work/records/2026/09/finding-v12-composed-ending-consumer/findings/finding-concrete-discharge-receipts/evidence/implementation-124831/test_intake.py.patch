@@ -1,0 +1,233 @@
+--- base/v12/python/tests/manager/test_intake.py
++++ v12/python/tests/manager/test_intake.py
+@@ -623,6 +623,12 @@
+         self.assertEqual(
+             adapter.destroyed_with, [],
+             "cleanup destroyed the runtime before proving directory custody")
++
++    def setUp(self):
++        super().setUp()
++        # W124782: the concrete Authority returns the evidence kind. Keep this
++        # bounded correction in the discharge fixture, not the shared fake.
++        self.session.discharge_answer["kind"] = "runtime-absent"
+ 
+     def settled(self, **endings):
+         self.retained_ready("discard-after-intake")
+@@ -2113,7 +2119,7 @@
+         for phase in ("block", "parked", "", None, 1):
+             with self.subTest(phase=repr(phase)):
+                 self.answering(gate="runtime-quiescence:1",
+-                               kind="runtime-quiescence", phase=phase)
++                               kind="runtime-absent", phase=phase)
+                 caught = self.refused()
+                 self.assertEqual((caught.category, caught.code),
+                                  ("integrity", "schema"))
+@@ -2122,7 +2128,7 @@
+     def test_a_reply_whose_kind_is_not_this_gates_kind_refuses(self):
+         self.settled()
+         self.gated()
+-        for kind in ([], 1, "", "contract-runtime"):
++        for kind in ([], 1, "", "contract-runtime", "runtime-quiescence"):
+             with self.subTest(kind=repr(kind)):
+                 self.answering(gate="runtime-quiescence:1", kind=kind,
+                                phase="queued")
+@@ -2152,7 +2158,7 @@
+         answered = self.discharge()
+         [(_act, operands)] = self.satisfied()
+         self.assertEqual(answered["gate"], operands["gate"])
+-        self.assertEqual(answered["kind"], "runtime-quiescence")
++        self.assertEqual(answered["kind"], "runtime-absent")
+         self.assertEqual(answered["phase"], "queued")
+ 
+     # -- the adopted receipt, on both public exits ---------------------------
+@@ -2169,7 +2175,7 @@
+         """[P1] Both public exits adopt the receipt. Generic JSON parsing
+         establishes that bytes decode and nothing about what they say, and the
+         consumer recovery that reads this is exactly who would be misled."""
+-        for members in ({"kind": "contract-runtime"}, {"phase": "block"},
++        for members in ({"kind": "contract-runtime"}, {"kind": "runtime-quiescence"}, {"phase": "block"},
+                         {"cleanup": "failed"}, {"runtime_id": None},
+                         {"gate": 1}):
+             with self.subTest(spoiled=sorted(members)):
+@@ -2479,6 +2485,181 @@
+                 self.assertEqual((caught.category, caught.code),
+                                  ("integrity", "schema"))
+         self.assertEqual(self.satisfied(), [])
++
++
++class ConcreteAuthorityDischargeReceipts(IntakeCase):
++    """W124782: concrete remote acts and local receipts over disposable stores.
++
++    Preparation reuses the manager fixture; the discharge and every Authority
++    claim, fence, evidence read and operation replay below are real.
++    """
++
++    settled = TheQuiescenceGateIsDischargedFromTheCommittedCleanup.settled
++    discharge = TheQuiescenceGateIsDischargedFromTheCommittedCleanup.discharge
++
++    def setUp(self):
++        from baton_v12.authority import Authority, V12
++
++        super().setUp()
++        self.authority_path = os.path.join(self._root.name, "authority.sqlite3")
++        self.authority = Authority.create(self.authority_path, authority_uuid=AUTHORITY, clock=lambda: NOW)
++        self.addCleanup(self.authority.dispose)
++        self.authority.create_work(JOB, "impl", contract=V12, operation_id="create-discharge-work")
++        self.authority.add_route_handler("impl", WHO)
++        self.concrete = self.authority.session(WHO)
++        self.assignment = self.concrete.claim({"work_id": JOB, "operation_id": "claim-original"})["assignment"]
++        self.remote_calls = []
++        self.reply_kind = None
++
++    def connected(self, session):
++        from baton_v12.authority.identity import claim_signature
++        from baton_v12.worker_manager import AuthorityPort
++        from tools.single_worker import _AuthoritySession
++
++        owner = self
++        wrapper = _AuthoritySession(session)
++
++        class Recording:
++            def __getattr__(self, name):
++                return getattr(wrapper, name)
++
++            def satisfy_gate(self, operands):
++                owner.remote_calls.append(copy.deepcopy(operands))
++                answer = wrapper.satisfy_gate(operands)
++                if owner.reply_kind is not None:
++                    return dict(answer, kind=owner.reply_kind)
++                return answer
++
++        self.port = AuthorityPort(Recording(), claim_signature)
++
++    def ready(self, **endings):
++        self.cleanup_receipt = self.settled(**endings)
++        self.concrete.cancel({"expect": self.assignment, "operation_id": "fence-original", "reason": "original runtime ended"})
++        self.connected(self.concrete)
++        self.assertEqual(self.concrete.project_work(JOB)["gate"]["token"], "runtime-quiescence:1")
++        self.assertIsNone(gate_discharge_of(self.store, ATTEMPT))
++
++    def reopened(self):
++        from baton_v12.authority import Authority
++
++        self.store.close()
++        self.authority.dispose()
++        self.store = ControlStore.open(self.path, incarnation="manager-reopened", clock=lambda: NOW)
++        self.addCleanup(self.store.close)
++        self.authority = Authority.open(self.authority_path, expected_authority_uuid=AUTHORITY, clock=lambda: NOW)
++        self.addCleanup(self.authority.dispose)
++        self.concrete = self.authority.session(WHO)
++        self.connected(self.concrete)
++
++    def moved(self):
++        later = self.concrete.claim({"work_id": JOB, "operation_id": "claim-later"})["assignment"]
++        self.assertEqual(later["generation"], self.assignment["generation"] + 1)
++        self.concrete.cancel({"expect": later, "operation_id": "fence-later", "reason": "later runtime ended"})
++        return self.concrete.project_work(JOB)
++
++    def assert_receipt(self, receipt):
++        self.assertEqual(receipt, {
++            "attempt_id": ATTEMPT, "assignment": self.assignment,
++            "gate": "runtime-quiescence:1", "kind": "runtime-absent", "phase": "queued",
++            "runtime_id": self.attempt_row()["runtime_id"], "cleanup": "complete",
++            "cleanup_operation_id": self.cleanup_receipt["operation"]["operation_id"],
++            "operation_id": self.remote_calls[0]["operation_id"],
++        })
++        self.assertEqual(gate_discharge_of(self.store, ATTEMPT), receipt)
++        evidence = self.concrete.gate_evidence(JOB)
++        self.assertEqual(len(evidence), 1)
++        self.assertEqual(evidence[0]["evidence"], {"kind": "runtime-absent", "runtime": receipt["runtime_id"]})
++
++    def test_concrete_answer_commits_and_survives_reopening_both_owners(self):
++        self.ready()
++        receipt = self.discharge()
++        self.assert_receipt(receipt)
++        self.assertIsNone(self.concrete.project_work(JOB)["gate"])
++        self.reopened()
++        later = self.moved()
++        self.assertEqual(self.discharge(), receipt)
++        self.assert_receipt(receipt)
++        self.assertEqual(len(self.remote_calls), 1)
++        self.assertEqual(self.concrete.project_work(JOB), later)
++
++    def test_remote_success_local_loss_replays_after_later_movement_and_reopening(self):
++        self.ready()
++        interruption = ContractRefusal("unavailable", "transport", "lost local receipt write")
++        with patch.object(self.store, "transact", side_effect=interruption):
++            with self.assertRaises(ContractRefusal) as caught:
++                self.discharge()
++        self.assertIs(caught.exception, interruption)
++        self.assertIsNone(gate_discharge_of(self.store, ATTEMPT))
++        self.assertIsNone(self.concrete.project_work(JOB)["gate"])
++        original_operands = copy.deepcopy(self.remote_calls[0])
++        later = self.moved()
++        self.reopened()
++        self.assertIsNone(gate_discharge_of(self.store, ATTEMPT))
++        receipt = self.discharge()
++        self.assert_receipt(receipt)
++        self.assertEqual(self.remote_calls, [original_operands, original_operands])
++        self.assertEqual(self.concrete.project_work(JOB), later)
++        self.reopened()
++        self.assertEqual(self.discharge(), receipt)
++        self.assert_receipt(receipt)
++        self.assertEqual(len(self.remote_calls), 2)
++
++    def test_a_gate_kind_reply_cannot_be_committed_as_absence_evidence(self):
++        self.ready()
++        self.reply_kind = "runtime-quiescence"
++        with self.assertRaises(ContractRefusal) as caught:
++            self.discharge()
++        self.assertEqual((caught.exception.category, caught.exception.code), ("integrity", "schema"))
++        self.assertIsNone(gate_discharge_of(self.store, ATTEMPT))
++        self.assertIsNone(self.concrete.project_work(JOB)["gate"])
++        self.reply_kind = None
++        self.assert_receipt(self.discharge())
++        self.assertEqual(self.remote_calls[0], self.remote_calls[1])
++
++    def test_original_cleanup_cannot_discharge_a_later_generation(self):
++        from baton_v12.authority import Refusal
++
++        self.ready()
++        self.concrete.satisfy_gate({"work_id": JOB, "operation_id": "separate-discharge", "gate": "runtime-quiescence:1",
++                                   "evidence": {"kind": "runtime-absent", "runtime": self.attempt_row()["runtime_id"]}})
++        later = self.moved()
++        evidence = self.concrete.gate_evidence(JOB)
++        with self.assertRaises(Refusal):
++            self.discharge()
++        self.assertIsNone(gate_discharge_of(self.store, ATTEMPT))
++        self.assertEqual(self.concrete.project_work(JOB), later)
++        self.assertEqual(self.concrete.gate_evidence(JOB), evidence)
++
++    def test_another_concrete_authority_cannot_commit_this_receipt(self):
++        from baton_v12.authority import Authority, V12
++
++        self.ready()
++        foreign = Authority.create(os.path.join(self._root.name, "foreign.sqlite3"), authority_uuid=AUTHORITY[:8] + "f" * 24, clock=lambda: NOW)
++        self.addCleanup(foreign.dispose)
++        foreign.create_work(JOB, "impl", contract=V12, operation_id="create-foreign-work")
++        foreign.add_route_handler("impl", WHO)
++        session = foreign.session(WHO)
++        self.connected(session)
++        with self.assertRaises(ContractRefusal) as caught:
++            self.discharge()
++        self.assertEqual((caught.exception.category, caught.exception.code), ("refused", "capability"))
++        self.assertEqual(self.remote_calls, [])
++        self.assertIsNone(gate_discharge_of(self.store, ATTEMPT))
++        self.assertEqual(self.concrete.project_work(JOB)["gate"]["token"], "runtime-quiescence:1")
++        self.assertEqual(self.concrete.gate_evidence(JOB), [])
++        self.assertEqual(session.gate_evidence(JOB), [])
++
++    def test_an_unreachable_runtime_supplies_no_discharge_proof(self):
++        self.ready(state="uncertain", why="runtime engine is unreachable")
++        with self.assertRaises(ContractRefusal) as caught:
++            self.discharge()
++        self.assertEqual((caught.exception.category, caught.exception.code), ("integrity", "schema"))
++        self.assertIn("committed no such operation", caught.exception.message)
++        self.assertEqual(self.attempt_axis("cleanup"), "pending")
++        self.assertEqual(self.remote_calls, [])
++        self.assertIsNone(gate_discharge_of(self.store, ATTEMPT))
++        self.assertEqual(self.concrete.project_work(JOB)["gate"]["token"], "runtime-quiescence:1")
++        self.assertEqual(self.concrete.gate_evidence(JOB), [])
+ 
+ 
+ # -- W120762: reading the committed cleanup, without acting -------------------

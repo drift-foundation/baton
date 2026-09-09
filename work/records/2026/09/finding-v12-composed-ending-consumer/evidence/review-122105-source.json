@@ -1,0 +1,137 @@
+{
+  "work": "W122060",
+  "claim": 122105,
+  "utc": "2026-09-08T19:57:12.539494+00:00",
+  "paths": {
+    "src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+      "mode": "0o644"
+    },
+    "src/baton_v12/worker_manager/__init__.py": {
+      "sha256": "d23aa64e0eba64d969313a129f1bc57a40d1a168f582982bfdcb65319ae932c6",
+      "mode": "0o644"
+    },
+    "src/baton_v12/worker_manager/schema.py": {
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "mode": "0o644"
+    },
+    "src/baton_v12/worker_manager/store.py": {
+      "sha256": "a692a6021e57544e6c92cba89611e9e0ca3fe87ca72ca748c8155843b6a93b32",
+      "mode": "0o664"
+    },
+    "tests/manager/test_review_cycles.py": {
+      "sha256": "fe14f790dff402c36f2e96a98926641f0131a0b729753e11c18c83113a0f9a16",
+      "mode": "0o644"
+    },
+    "tools/stage_execution.py": {
+      "sha256": "c2706af1732ed1a802050f404f89028ff7db3a56a864bca01105ff08e835fbd8",
+      "mode": "0o664"
+    },
+    "tools/single_worker.py": {
+      "sha256": "ff383296aeb75885668d365d3cdc5ff1a280234f5282694acb7f37cc3f4ca47f",
+      "mode": "0o664"
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "a5f9aba5d853da72e80839b68f22e1280818d0763aceb4d21d309527ddf65779",
+      "mode": "0o664"
+    },
+    "tests/tools/test_single_worker.py": {
+      "sha256": "af445808743e15c7a95017b9ef3d685c4b96b0a45a439940cc60a553c8a8aa3b",
+      "mode": "0o664"
+    }
+  },
+  "public_functions": [
+    {
+      "name": "line_of",
+      "line": 52,
+      "arguments": "store, line_id"
+    },
+    {
+      "name": "writer_of",
+      "line": 63,
+      "arguments": "store, writer_id"
+    },
+    {
+      "name": "checkpoint_of",
+      "line": 74,
+      "arguments": "store, checkpoint_id"
+    },
+    {
+      "name": "review_of",
+      "line": 221,
+      "arguments": "store, attachment_id"
+    },
+    {
+      "name": "verdict_of",
+      "line": 268,
+      "arguments": "store, verdict_id"
+    },
+    {
+      "name": "create_line",
+      "line": 528,
+      "arguments": "store, *, source, declared_base, profile, authority_uuid, work_id"
+    },
+    {
+      "name": "grant_writer",
+      "line": 629,
+      "arguments": "store, *, line_id, attempt_id, generation, worker_id, profile, based_checkpoint_id=None"
+    },
+    {
+      "name": "record_progress",
+      "line": 711,
+      "arguments": "store, *, writer_id, generation, sequence, document"
+    },
+    {
+      "name": "freeze_checkpoint",
+      "line": 745,
+      "arguments": "store, *, writer_id, generation, profile, port"
+    },
+    {
+      "name": "attach_review",
+      "line": 905,
+      "arguments": "store, *, checkpoint_id, attempt_id, generation, reviewer_worker_id, profile"
+    },
+    {
+      "name": "record_verdict",
+      "line": 1169,
+      "arguments": "store, *, attachment_id, disposition, profile, port"
+    },
+    {
+      "name": "integration_checkpoint",
+      "line": 1289,
+      "arguments": "store, line_id"
+    },
+    {
+      "name": "audit_checkpoint",
+      "line": 1350,
+      "arguments": "store, checkpoint_id, profile"
+    },
+    {
+      "name": "line_status",
+      "line": 1365,
+      "arguments": "store, line_id, storage_usage"
+    },
+    {
+      "name": "consumption_subject",
+      "line": 1414,
+      "arguments": "store, *, attempt_id, generation"
+    },
+    {
+      "name": "writer_boundary",
+      "line": 1502,
+      "arguments": "store, *, writer_id, generation"
+    },
+    {
+      "name": "review_boundary",
+      "line": 1541,
+      "arguments": "store, *, attachment_id, profile"
+    }
+  ],
+  "confirmed": [
+    "No writer/review attempt-keyed public historical reader; consumption_subject filters active and validates current line access",
+    "Both tables already enforce UNIQUE(runtime_attempt_id, assignment_generation); schema change unnecessary",
+    "grant_writer replay occurs before idle/correction-ready admission checks but after materializing/assignment/profile/object validation",
+    "writer_of validates row shape only; review_of additionally binds committed attachment operands",
+    "No protocol/application/test edits by author122089; four consumer hashes match review122032"
+  ]
+}

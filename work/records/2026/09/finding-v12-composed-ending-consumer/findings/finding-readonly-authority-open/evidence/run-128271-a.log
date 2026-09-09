@@ -1,0 +1,45 @@
+......................F......FF..F................
+======================================================================
+FAIL: test_a_closed_store_is_refused_with_the_sidecar_limit_named (tests.authority.test_store.ReadOnlyOpening.test_a_closed_store_is_refused_with_the_sidecar_limit_named)
+THE LIMIT, STATED PRECISELY AND MEASURED.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_store.py", line 672, in test_a_closed_store_is_refused_with_the_sidecar_limit_named
+    with self.assertRaises(Refusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: Refusal not raised
+
+======================================================================
+FAIL: test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing (tests.authority.test_store.ReadOnlyOpening.test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing) (present='-wal')
+REVIEW 2026-09-09T10:04Z [P1]. The first cut returned when EITHER
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_store.py", line 688, in test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing
+    with self.assertRaises(Refusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: Refusal not raised
+
+======================================================================
+FAIL: test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing (tests.authority.test_store.ReadOnlyOpening.test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing) (present='-shm')
+REVIEW 2026-09-09T10:04Z [P1]. The first cut returned when EITHER
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_store.py", line 688, in test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing
+    with self.assertRaises(Refusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: Refusal not raised
+
+======================================================================
+FAIL: test_a_serving_shutdown_during_the_open_refuses (tests.authority.test_store.ReadOnlyOpening.test_a_serving_shutdown_during_the_open_refuses)
+THE WINDOW A PRE-CHECK CANNOT CLOSE, and what is done about it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/authority/test_store.py", line 713, in test_a_serving_shutdown_during_the_open_refuses
+    with self.assertRaises(Refusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: Refusal not raised
+
+----------------------------------------------------------------------
+Ran 49 tests in 0.046s
+
+FAILED (failures=4)

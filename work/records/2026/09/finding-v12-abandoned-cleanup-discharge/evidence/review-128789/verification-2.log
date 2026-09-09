@@ -1,0 +1,72 @@
+........................
+----------------------------------------------------------------------
+Ran 24 tests in 0.279s
+
+OK
+{
+  "changed_policy_replay": {
+    "refused": false,
+    "same_receipt": true,
+    "returned_policy": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+    "requested_policy": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+    "new_remote_calls": 0
+  },
+  "fence_cause": {
+    "refused": false,
+    "accepted_fence": {
+      "assignment": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "work_id": "43c55d4b-W1439"
+        }
+      },
+      "cause": "pass",
+      "fenced": true,
+      "gate": "runtime-quiescence:1",
+      "phase": "block"
+    },
+    "authority_phase": "queued",
+    "remote_calls": 1
+  },
+  "fence_phase": {
+    "refused": false,
+    "accepted_fence": {
+      "assignment": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "work_id": "43c55d4b-W1439"
+        }
+      },
+      "cause": "cancelled",
+      "fenced": true,
+      "gate": "runtime-quiescence:1",
+      "phase": "queued"
+    },
+    "authority_phase": "queued",
+    "remote_calls": 1
+  },
+  "fence_fenced": {
+    "refused": false,
+    "accepted_fence": {
+      "assignment": {
+        "generation": 1,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "43c55d4b1234567890abcdef12345678",
+          "work_id": "43c55d4b-W1439"
+        }
+      },
+      "cause": "cancelled",
+      "fenced": "false",
+      "gate": "runtime-quiescence:1",
+      "phase": "block"
+    },
+    "authority_phase": "queued",
+    "remote_calls": 1
+  }
+}
+real_authority_positive: passed

@@ -1,0 +1,76 @@
+{
+  "work": "W126887",
+  "claim": 126986,
+  "claim_order": "claimed at seq126986 before reading the dossier and before any edit; the question and the 20s budget were declared in PROGRESS before any execution",
+  "paths": {
+    "src/baton_v12/integration/store.py": {
+      "claim_start": "ee558081e8ad4db2edc928495c79691581ed2a1646f75b793bbaf17db0ff548a",
+      "final": "4b22ed2ffc11c5c67c29570140b19601d447d1ea1dac46136d4973821c04fec9",
+      "mode": "664"
+    },
+    "tests/integration/test_coordinator.py": {
+      "claim_start": "7c7d9b9ada3e8977b35137abee117b42f0b4d09359b9cda50a933a676db27a8c",
+      "final": "698a5921f0290ce600ba19aab42407b6816d160ef72e6a7dc2b2d5f6a778558c",
+      "mode": "664"
+    }
+  },
+  "test_methods": {
+    "tests/integration/test_coordinator.py": {
+      "claim_start": 195,
+      "now": 207
+    }
+  },
+  "api": "IntegrationStore.open_readonly(path, *, incarnation, clock), implemented exactly as pinned. The store stays target-keyed and acquires no Authority identity; no clarification was needed and none was taken.",
+  "how": {
+    "non_writing_connection": "sqlite3 `file:<path>?mode=ro`, so SQLite itself refuses every write. `immutable=1` is deliberately NOT used: it asserts the file cannot change, which is false of a coordinator two Authorities may be contending for.",
+    "ownership": "`_adopt` on the connection that is handed back, inside this store's own `snapshot` -- so a foreign store, one carrying metadata this build does not own, and one at another schema version are each refused untouched, by the same decision `open` makes.",
+    "the_one_difference": "an EMPTY database is refused rather than initialized. That is the single place this opener's answer differs from `open`'s, and it is the reason it exists.",
+    "no_persistent_change": "no initialization, migration, write lock, checkpoint, persistent PRAGMA or permissions change. `busy_timeout`, `row_factory` and `foreign_keys` are per-connection. `_now` is proved at the open exactly as `open` proves it.",
+    "mutation_refusal": "`transact` refuses at this coordinator's own `ContractRefusal` boundary -- refused/capability -- before the operands are owned, before the transaction and before anything external. `_record` is reached only from inside it and there is no public `run`."
+  },
+  "reported_limitation": {
+    "what": "a coordinator in WAL mode with neither `-wal` nor `-shm` present is REFUSED, with the reason named",
+    "why": "the same measured fact its Authority sibling reports: opening such a store read-only makes SQLite create both, and a read-only connection cannot remove them. Creating a journal artifact is what the allocation forbids, and it says to refuse visibly rather than fall back.",
+    "detected_by": "the main file's own SQLite header, read as twenty inert bytes, plus the presence of either sidecar",
+    "consequence_for_the_consumer": "open_readonly reads a coordinator while a process is holding it -- the case the allocation names, 'coherently with concurrent serving activity', and the control proves it sees entries committed after the reader opened. A store nobody is holding cannot be read this way. Reported for the consumer's disposition rather than resolved by a fallback the allocation excludes.",
+    "pinned_by": "test_a_store_nobody_holds_is_refused_with_the_sidecar_limit_named, which skips where the filesystem leaves the sidecars in place rather than asserting a platform fact"
+  },
+  "controls": [
+    "the public entry, target, lease and live-grant readers all answer over the read-only handle -- including `live_grant`, the composed possession proof this store's snapshot exists for",
+    "committed data written by the serving coordinator after the reader opened is visible to it",
+    "absent path refused and none created; empty database refused rather than initialized, byte-for-byte; foreign database and another kind refused untouched",
+    "operands owned exactly as the serving opener owns them",
+    "a transition refuses before the transaction and the action is never reached",
+    "reading changes no store byte and adds no directory entry, and the serving coordinator still commits afterwards"
+  ],
+  "declared_budget_seconds": 20,
+  "budget": {
+    "declared_before_any_execution": true,
+    "spent_seconds": 7.2,
+    "within": true
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.integration.test_coordinator",
+      "result": "195 tests, OK, 1.49s -- the baseline, and again after the first guard placement missed its target"
+    },
+    {
+      "run": "same, after the transact guard was placed correctly",
+      "result": "195 tests, OK, 1.49s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.integration.test_coordinator.ReadOnlyOpening",
+      "result": "five iterations at 0.18-0.19s: `_Snapshot` has no `all` (the controls moved to the public readers), a duplicate checkpoint in the second entry, `live_grant`'s keyword-only operands twice, then 12 tests OK"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.integration.test_coordinator",
+      "result": "207 tests, OK, 1.49s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.integration.test_driver",
+      "result": "109 tests, OK, 2.17s -- the neighbouring suite over the same store"
+    }
+  ],
+  "existing_assertions": "unchanged; every addition to test_coordinator.py is a new class",
+  "not_claimed": "this is the coordinator half of the read-only consumer join. It implements neither the consumer's status factory nor the terminal handoff, and it invents no dependency on the Authority sibling W126880."
+}

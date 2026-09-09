@@ -1,0 +1,21 @@
+{
+  "path": {
+    "accepted": true,
+    "foreign_preserved": true,
+    "original_restored": true
+  },
+  "foreign_runtime": [
+    "integrity",
+    "schema"
+  ],
+  "foreign_intent_signature": {
+    "outcome": "correction-ready",
+    "effects": 1
+  },
+  "controls_pass": true
+}
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.299s
+
+OK

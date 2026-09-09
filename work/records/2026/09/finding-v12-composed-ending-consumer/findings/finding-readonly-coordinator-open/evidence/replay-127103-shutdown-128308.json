@@ -1,0 +1,16 @@
+{
+  "before": [
+    "coordinator.sqlite3",
+    "coordinator.sqlite3-shm",
+    "coordinator.sqlite3-wal"
+  ],
+  "after_serving_exit": [
+    "coordinator.sqlite3"
+  ],
+  "opened": true,
+  "after_open": {
+    "coordinator.sqlite3-shm": 32768,
+    "coordinator.sqlite3-wal": 0,
+    "coordinator.sqlite3": 73728
+  }
+}

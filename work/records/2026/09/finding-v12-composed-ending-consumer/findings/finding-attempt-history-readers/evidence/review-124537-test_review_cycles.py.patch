@@ -1,0 +1,52 @@
+--- 
++++ 
+@@ -1748,6 +1748,49 @@
+                 self.tearDown()
+                 self.setUp()
+ 
++    def test_a_result_recording_another_state_refuses(self):
++        """THE ACT'S ACCOUNT OF ITSELF, which is not the row's state now.
++
++        W124331 review 2026-09-09T03:14Z [P1]: closing the member set proved
++        `state` PRESENT and said nothing about what it was, so nothing, a list
++        and `revoked` were each accepted as what the grant returned. Preserving
++        the row's historical state costs this nothing -- they describe
++        different moments.
++        """
++        for name, (reader, attempt, kind, identity) in self.acts().items():
++            for label, value in (("nothing", None), ("a list", []),
++                                 ("another state", "revoked")):
++                with self.subTest(reader=name, state=label):
++                    held = self.store.operation_record(
++                        kind + ":" + identity)["result"]
++                    answer = json.loads(held)
++                    answer["state"] = value
++                    self.damage(kind, identity, "result",
++                                json.dumps(answer))
++                    self.assertIn("records state",
++                                  self.refusing(reader, attempt))
++                    self.damage(kind, identity, "result", held)
++
++    def test_a_boolean_result_generation_refuses(self):
++        """The same value under a different key. `_committed_history` typed the
++        operand generation and left the grant's RESULT generation to ordinary
++        equality, which accepts `true` for one."""
++        acts = self.acts()
++        reader, attempt, kind, identity = acts["writer"]
++        held = self.store.operation_record(kind + ":" + identity)["result"]
++        answer = json.loads(held)
++        answer["generation"] = True
++        self.damage(kind, identity, "result", json.dumps(answer))
++        self.assertIn("whole assignment generation",
++                      self.refusing(reader, attempt))
++        self.damage(kind, identity, "result", held)
++        # The attachment's result carries no generation, so there is nothing
++        # here to type -- its closed member contract says so rather than this
++        # test assuming it.
++        self.assertNotIn("generation", json.loads(
++            self.store.operation_record(
++                acts["review"][2] + ":" + acts["review"][3])["result"]))
++
+     def test_the_acts_original_state_is_not_required_of_the_row(self):
+         """THE ONE THING THE RESULT MUST NOT BE READ FOR. The grant recorded
+         `active` and the attachment recorded `active`; history is exactly what

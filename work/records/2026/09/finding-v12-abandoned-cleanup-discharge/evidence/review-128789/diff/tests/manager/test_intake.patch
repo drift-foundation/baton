@@ -1,0 +1,485 @@
+--- baseline/tests/manager/test_intake.py
++++ candidate/tests/manager/test_intake.py
+@@ -27,8 +27,12 @@
+ 
+ from baton_v12.contracts import ContractRefusal, digest, held_secret
+ from baton_v12.worker_manager import ControlStore
+-from baton_v12.worker_manager import (authorize_cleanup, cleanup_of,
++from baton_v12.worker_manager import (abandon_attempt,
++                                      abandoned_gate_discharge_of,
++                                      abandonment_cleanup_of,
++                                      authorize_cleanup, cleanup_of,
+                                       decide_retention,
++                                      discharge_abandoned_quiescence_gate,
+                                       discharge_quiescence_gate,
+                                       gate_discharge_of,
+                                       intake_operation, intake_receipt_of,
+@@ -3092,3 +3096,468 @@
+                 self.no_act():
+             caught = self.refusal(self.read)
+         self.assertIn("normalizes nothing", caught.message)
++
++
++class TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence(IntakeCase):
++    """W128682: the fourth ending's own absence evidence, and its own gate.
++
++    THE MEASURED GAP, discovered by W119114's composed one-Job proof. An
++    operator declaration ends the attempt, `port.cancel` fences its generation
++    and the authority installs `runtime-quiescence:<generation>` in that same
++    transaction. The abandonment then POSITIVELY OBSERVES the exact runtime
++    absent -- and nothing could read that observation, so the gate stayed shut
++    with no ordinary ending anywhere in the Work's future to discharge it.
++
++    WHY A SEPARATE FAMILY RATHER THAN A WIDER ONE. `_absence_proof` requires an
++    `intake_receipt_of` and reads `runtime.destroy` BY NAME. An abandonment has
++    neither: nothing was frozen or collected, which is the whole reason it
++    exists, and its removal commits under `runtime.destroy-abandoned`. Widening
++    the ordinary reader would let one family ride the other's identity, and
++    manufacturing a receipt would be inventing the evidence these cases are
++    about. So the ordinary reader, act and receipt are untouched, and the last
++    two cases here say so.
++    """
++
++    REASON = "the supervised worker conversation was lost"
++
++    class Abandoner(Custodian):
++        """The custodian, plus the one verb abandonment needs.
++
++        The whole command is recorded, so a case asserting what crossed asserts
++        what crossed rather than what this fixture would have liked to send.
++        """
++
++        def __init__(self, *arguments, abandoned=None, **operands):
++            super().__init__(*arguments, **operands)
++            self.abandoned_with = []
++            self.abandoned = abandoned
++
++        def destroy_abandoned(self, command):
++            self.abandoned_with.append(dict(command))
++            runtime_id = command["runtime_id"]
++            if self.abandoned is not None:
++                return {"runtime_id": runtime_id, **self.abandoned}
++            return {"runtime_id": runtime_id, "state": "absent",
++                    "why": "the engine answered that this exact identity does "
++                           "not exist",
++                    "credentials": {"lifecycle_state": "not-delivered"},
++                    "launch": {"lifecycle_state": "not-delivered"}}
++
++    def setUp(self):
++        super().setUp()
++        # The concrete authority answers the evidence KIND it was given, as the
++        # ordinary discharge fixture already establishes.
++        self.session.discharge_answer["kind"] = "runtime-absent"
++
++    def running_attempt(self):
++        """An attempt whose runtime STARTED and whose worker never answered.
++
++        That is the only state abandonment ends, and `_declared` proves all
++        three of its conditions inside the write transaction -- so a fixture
++        that handed it a completed disposition would be exercising a refusal
++        rather than this ending.
++        """
++        return self.attempt(quiescent=False, disposition=None)
++
++    def fence_for_this_attempt(self):
++        """THE FENCE THE AUTHORITY WOULD ANSWER FOR THIS ATTEMPT.
++
++        The shared fake composes its default from the OFFER's live assignment,
++        and this suite's attempts are fixed to their own Work -- so an answer
++        left at the default is a fence of somebody else's assignment, which the
++        port refuses before this ending is reached at all.
++        """
++        from baton_v12.worker_manager import documents as manager_documents
++
++        row = self.attempt_row()
++        expect = manager_documents.assignment(
++            work_ref=manager_documents.work_ref(
++                authority_uuid=row["authority_uuid"],
++                work_id=row["work_id"]),
++            participant=row["assignment_participant"],
++            generation=row["assignment_generation"])
++        self.session.fence_answer = {
++            "cause": "cancelled", "assignment": dict(expect), "phase": "block",
++            "gate": f"runtime-quiescence:{expect['generation']}",
++            "fenced": True}
++        return expect
++
++    def abandoned(self, adapter=None, **overrides):
++        """One committed abandonment, through the accepted public operation."""
++        self.running_attempt()
++        self.fence_for_this_attempt()
++        adapter = self.Abandoner(**overrides) if adapter is None else adapter
++        self.adapter = adapter
++        answered = abandon_attempt(
++            self.store, self.port, adapter, attempt_id=ATTEMPT,
++            reason=self.REASON, retention_policy_digest=RETENTION)
++        return answered
++
++    def gated(self, generation=1):
++        """The Work as the authority leaves it after the abandonment fence."""
++        self.session._work = dict(self.session._work, phase="block",
++                                  gate=f"runtime-quiescence:{generation}")
++
++    def read(self, **overrides):
++        operands = {"attempt_id": ATTEMPT,
++                    "retention_policy_digest": RETENTION}
++        operands.update(overrides)
++        return abandonment_cleanup_of(self.store, **operands)
++
++    def discharge(self, **overrides):
++        operands = {"attempt_id": ATTEMPT,
++                    "retention_policy_digest": RETENTION}
++        operands.update(overrides)
++        return discharge_abandoned_quiescence_gate(self.store, self.port,
++                                                   **operands)
++
++    def refused(self, act, **overrides):
++        with self.assertRaises(ContractRefusal) as caught:
++            act(**overrides)
++        return caught.exception
++
++    def satisfied(self):
++        return [one for one in self.session.calls if one[0] == "satisfy_gate"]
++
++    def rewrite_operation(self, operation_id, **columns):
++        """Edit one journal row, which is what every integrity case is about.
++
++        The reader's whole premise is that a stored row and the digest beside
++        it can be edited together, so the cases that prove it say so by really
++        editing one.
++        """
++        sets = ", ".join(f"{name} = ?" for name in columns)
++        self.store._connection.execute(
++            f"UPDATE operations SET {sets} WHERE operation_id = ?",
++            (*columns.values(), operation_id))
++
++    def destroy_operation_id(self):
++        from baton_v12.worker_manager import intake
++
++        attempt = self.attempt_row()
++        declared = intake._abandonment_declaration(self.store, attempt, ATTEMPT)
++        return intake._abandoned_destroy_operation(
++            attempt, declared["digest"], RETENTION)["operation_id"]
++
++    # -- the read -----------------------------------------------------------
++
++    def test_a_committed_abandonment_reads_as_its_own_absence_evidence(self):
++        answered = self.abandoned()
++        held = self.read()
++        self.assertEqual(held["schema"], "baton.v12.abandoned-cleanup/1")
++        self.assertEqual(held["attempt_id"], ATTEMPT)
++        self.assertEqual(held["runtime_id"], self.attempt_row()["runtime_id"])
++        self.assertEqual(held["retention_policy_digest"], RETENTION)
++        # THE THREE COMMITTED FACTS, adopted from the journal rather than
++        # recomposed: the declaration, the authority's own fence answer and
++        # the removal's settled cleanup.
++        self.assertEqual(held["intent"], answered["intent"])
++        self.assertEqual(held["intent"]["reason"], self.REASON)
++        self.assertEqual(held["fence"], answered["fenced"])
++        self.assertEqual(held["cleanup"], answered["cleanup"])
++        self.assertEqual(held["cleanup"]["state"], "absent")
++        self.assertEqual(held["cleanup"]["cleanup"], "retained")
++        self.assertEqual(held["assignment"], held["fence"]["assignment"])
++
++    def test_reading_writes_nothing_and_calls_nothing(self):
++        """It takes no port and no adapter, and there is no branch in it that
++        could reach one."""
++        self.abandoned()
++        before = self.store._connection.execute(
++            "SELECT count(*) AS held FROM operations").fetchone()["held"]
++        calls = len(self.session.calls)
++        self.assertIsNotNone(self.read())
++        self.assertEqual(
++            self.store._connection.execute(
++                "SELECT count(*) AS held FROM operations").fetchone()["held"],
++            before)
++        self.assertEqual(len(self.session.calls), calls)
++        signature = inspect.signature(abandonment_cleanup_of)
++        self.assertEqual(
++            [name for name in signature.parameters
++             if signature.parameters[name].kind.name == "KEYWORD_ONLY"],
++            ["attempt_id", "retention_policy_digest"])
++
++    def test_an_undeclared_attempt_has_no_abandoned_cleanup(self):
++        """ABSENCE IS HONEST. An attempt nobody declared abandoned has no
++        declaration, and that is not a fault."""
++        self.running_attempt()
++        self.assertIsNone(self.read())
++
++    def test_a_declaration_whose_removal_never_committed_is_absence(self):
++        """The intent commits BEFORE any external call, so this state is real:
++        a merely recorded declaration never supplies successful absence."""
++        adapter = self.Abandoner()
++        adapter.destroy_abandoned = lambda command: (_ for _ in ()).throw(
++            RuntimeError("the engine was unreachable"))
++        self.running_attempt()
++        self.fence_for_this_attempt()
++        with self.assertRaises(RuntimeError):
++            abandon_attempt(self.store, self.port, adapter, attempt_id=ATTEMPT,
++                            reason=self.REASON,
++                            retention_policy_digest=RETENTION)
++        self.assertIsNone(self.read())
++
++    def test_a_runtime_that_survived_its_removal_supplies_no_absence(self):
++        """MEASURED RATHER THAN ASSUMED. I expected a surviving runtime to
++        leave nothing journalled at all; it does not. `_settle_recordless_
++        cleanup` commits the composite with the ending `failed`, which is a
++        correct record saying the runtime SURVIVED -- so the row is present and
++        this read refuses on the fact rather than answering absence.
++
++        AND THE CATEGORY IS `refused/precondition`, not an integrity fault:
++        the record is this family's own committed act and there is nothing
++        wrong with it, exactly as `_absence_proof` decides for the ordinary
++        family's `failed` ending.
++        """
++        answered = self.abandoned(adapter=self.Abandoner(abandoned={
++            "state": "running",
++            "why": "the engine still reports this identity",
++            "credentials": {"lifecycle_state": "not-delivered"},
++            "launch": {"lifecycle_state": "not-delivered"}}))
++        self.assertEqual(answered["cleanup"]["cleanup"], "failed")
++        refusal = self.refused(self.read)
++        self.assertEqual((refusal.category, refusal.code),
++                         ("refused", "precondition"))
++        self.assertIn("evidence against absence", refusal.message)
++        # AND THE GATE STAYS SHUT, which is the consequence that matters.
++        self.gated()
++        self.assertEqual(self.refused(self.discharge).category, "refused")
++        self.assertEqual(self.satisfied(), [])
++        self.assertEqual(self.session._work["gate"], "runtime-quiescence:1")
++
++    def test_another_policy_selects_an_act_this_manager_never_committed(self):
++        """The declaration's digest and the policy are the two halves of the
++        removal identity, exactly as the receipt's digest and the policy are
++        for an ordinary cleanup."""
++        self.abandoned()
++        self.assertIsNone(self.read(retention_policy_digest=OTHER_POLICY))
++
++    def test_an_edited_runtime_cannot_keep_a_real_removals_evidence(self):
++        """The declaration names ONE runtime, and this read compares it against
++        the attempt as it stands now."""
++        self.abandoned()
++        self.store._connection.execute(
++            "UPDATE attempts SET runtime_id = ? WHERE runtime_attempt_id = ?",
++            ("runtime-somebody-else", ATTEMPT))
++        refusal = self.refused(self.read)
++        self.assertEqual((refusal.category, refusal.code),
++                         ("integrity", "schema"))
++        self.assertIn("one abandonment", refusal.message)
++
++    def test_a_removal_row_signed_over_anything_else_refuses(self):
++        """Replaying under the row's OWN signature proves the row is
++        self-consistent and nothing else; `cleanup_of` learned that and this
++        reader is held to it."""
++        self.abandoned()
++        self.rewrite_operation(self.destroy_operation_id(), signature="{}")
++        refusal = self.refused(self.read)
++        self.assertEqual((refusal.category, refusal.code),
++                         ("integrity", "schema"))
++        self.assertIn("signature this manager does not derive",
++                      refusal.message)
++
++    def test_a_removal_row_committed_under_another_kind_refuses(self):
++        self.abandoned()
++        self.rewrite_operation(self.destroy_operation_id(),
++                               kind="runtime.destroy")
++        refusal = self.refused(self.read)
++        self.assertEqual((refusal.category, refusal.code),
++                         ("integrity", "schema"))
++        self.assertIn("runtime.destroy", refusal.message)
++
++    # -- the act ------------------------------------------------------------
++
++    def test_the_committed_abandonment_discharges_its_own_gate(self):
++        self.abandoned()
++        self.gated()
++        receipt = self.discharge()
++        self.assertEqual(receipt["schema"],
++                         "baton.v12.abandoned-gate-discharge/1")
++        self.assertEqual(receipt["attempt_id"], ATTEMPT)
++        self.assertEqual(receipt["gate"], "runtime-quiescence:1")
++        self.assertEqual(receipt["authority_receipt"]["phase"], "queued")
++        self.assertEqual(receipt["authority_receipt"]["kind"], "runtime-absent")
++        # THE WORK IS ACTUALLY UNGATED, read from the authority rather than
++        # from what this manager asked for.
++        self.assertIsNone(self.session._work["gate"])
++        self.assertEqual(self.session._work["phase"], "queued")
++
++    def test_the_evidence_is_positive_absence_naming_the_exact_runtime(self):
++        self.abandoned()
++        self.gated()
++        self.discharge()
++        [evidence] = self.session.gate_evidence
++        self.assertEqual(evidence,
++                         {"kind": "runtime-absent",
++                          "runtime": self.attempt_row()["runtime_id"]})
++
++    def test_the_receipt_binds_the_original_cleanup_operation(self):
++        """The contract's own requirement: the cleanup's identity AND its
++        signature ride the discharge, because the signature is the half that
++        names the runtime."""
++        self.abandoned()
++        self.gated()
++        receipt = self.discharge()
++        held = self.read()
++        self.assertEqual(receipt["cleanup_operation"],
++                         held["cleanup"]["operation"])
++        self.assertEqual(receipt["operation_id"].split(":")[0],
++                         "authority.discharge-quiescence-abandoned")
++
++    def test_it_is_read_back_and_replayed_without_a_second_remote_act(self):
++        self.abandoned()
++        self.gated()
++        first = self.discharge()
++        self.assertEqual(abandoned_gate_discharge_of(self.store, ATTEMPT),
++                         first)
++        asked = len(self.satisfied())
++        self.assertEqual(self.discharge(), first)
++        self.assertEqual(len(self.satisfied()), asked)
++
++    def test_a_lost_local_receipt_reissues_the_identical_remote_operation(self):
++        """FOUR AND FIVE CANNOT BE ONE TRANSACTION. The remote act commits
++        first; a crash before the journal must reproduce the answer, and the
++        authority's own replay is what makes that idempotent -- even though the
++        Work has since been ungated."""
++        self.abandoned()
++        self.gated()
++        with patch.object(type(self.store), "transact",
++                          side_effect=RuntimeError("the local receipt is lost")):
++            with self.assertRaises(RuntimeError):
++                self.discharge()
++        self.assertIsNone(abandoned_gate_discharge_of(self.store, ATTEMPT))
++        self.assertIsNone(self.session._work["gate"])
++        receipt = self.discharge()
++        self.assertEqual(receipt["gate"], "runtime-quiescence:1")
++        [first, second] = [operands for _act, operands in self.satisfied()]
++        self.assertEqual(first, second)
++        self.assertEqual(abandoned_gate_discharge_of(self.store, ATTEMPT),
++                         receipt)
++
++    def test_an_old_generations_evidence_cannot_clear_a_newer_gate(self):
++        """The authority's own equality check is what refuses it, which is the
++        owner of that fact deciding rather than a comparison composed here."""
++        self.abandoned()
++        self.gated(generation=2)
++        refusal = self.refused(self.discharge)
++        self.assertIn("not the one holding this Work", refusal.message)
++        self.assertIsNone(abandoned_gate_discharge_of(self.store, ATTEMPT))
++
++    def test_no_committed_abandonment_is_not_a_gate_to_discharge(self):
++        self.running_attempt()
++        self.gated()
++        refusal = self.refused(self.discharge)
++        self.assertEqual((refusal.category, refusal.code),
++                         ("refused", "precondition"))
++        self.assertIn("never on the absence of one", refusal.message)
++        self.assertEqual(self.satisfied(), [])
++
++    def test_a_session_acting_for_another_participant_is_refused_first(self):
++        from baton_v12.worker_manager import AuthorityPort
++
++        from .test_offers import FakeSession, fake_claim_signature
++
++        self.abandoned()
++        self.gated()
++        foreign = AuthorityPort(FakeSession(participant="somebody.else"),
++                                fake_claim_signature)
++        with self.assertRaises(ContractRefusal) as caught:
++            discharge_abandoned_quiescence_gate(
++                self.store, foreign, attempt_id=ATTEMPT,
++                retention_policy_digest=RETENTION)
++        self.assertEqual((caught.exception.category, caught.exception.code),
++                         ("refused", "capability"))
++        self.assertEqual(self.satisfied(), [])
++
++    def test_a_session_on_another_authority_never_reaches_the_act(self):
++        """Same participant, same Work selector, same generation, another
++        authority. A four-part assignment is not three quarters of one."""
++        self.abandoned()
++        self.gated()
++        self.session._work = dict(self.session._work, authority_uuid="9" * 32)
++        refusal = self.refused(self.discharge)
++        self.assertEqual((refusal.category, refusal.code),
++                         ("refused", "capability"))
++        self.assertEqual(self.satisfied(), [])
++        self.assertEqual(self.session._work["gate"], "runtime-quiescence:1")
++        self.assertIsNone(abandoned_gate_discharge_of(self.store, ATTEMPT))
++
++    def test_a_receipt_edited_member_by_member_cannot_reproduce_its_signature(
++            self):
++        """One comparison for a relationship six field checks cannot state."""
++        self.abandoned()
++        self.gated()
++        receipt = self.discharge()
++        from baton_v12.worker_manager import intake
++
++        operation_id = receipt["operation_id"]
++        spoiled = dict(receipt, runtime_id="runtime-somebody-else",
++                       evidence={"kind": "runtime-absent",
++                                 "runtime": "runtime-somebody-else"})
++        self.rewrite_operation(operation_id, result=json.dumps(spoiled))
++        refusal = self.refused(
++            lambda: abandoned_gate_discharge_of(self.store, ATTEMPT))
++        self.assertEqual((refusal.category, refusal.code),
++                         ("integrity", "schema"))
++        self.assertIn("ONE signed relationship", refusal.message)
++        self.assertEqual(intake.ABANDONED_GATE_DISCHARGE_KIND,
++                         "authority.discharge-quiescence-abandoned")
++
++    def test_a_discharge_row_committed_under_another_kind_refuses(self):
++        self.abandoned()
++        self.gated()
++        receipt = self.discharge()
++        self.rewrite_operation(receipt["operation_id"],
++                               kind="authority.discharge-quiescence")
++        refusal = self.refused(
++            lambda: abandoned_gate_discharge_of(self.store, ATTEMPT))
++        self.assertEqual((refusal.category, refusal.code),
++                         ("integrity", "schema"))
++
++    def test_the_caller_supplies_no_absence_runtime_gate_or_assignment(self):
++        signature = inspect.signature(discharge_abandoned_quiescence_gate)
++        self.assertEqual(
++            [name for name in signature.parameters
++             if signature.parameters[name].kind.name == "KEYWORD_ONLY"],
++            ["attempt_id", "retention_policy_digest"])
++
++    # -- the ordinary family is untouched ------------------------------------
++
++    def test_the_ordinary_readers_answer_nothing_about_an_abandonment(self):
++        """THE FOUR FAMILIES STAY APART. `cleanup_of` reads `runtime.destroy`
++        by name and `gate_discharge_of` derives the ordinary identity, so
++        neither admits this ending by accident -- and the abandoned reader is
++        equally blind to an ordinary one."""
++        self.abandoned()
++        self.gated()
++        self.discharge()
++        self.assertIsNone(cleanup_of(self.store, attempt_id=ATTEMPT,
++                                     retention_policy_digest=RETENTION))
++        self.assertIsNone(gate_discharge_of(self.store, ATTEMPT))
++
++    def test_the_ordinary_discharge_still_refuses_an_abandoned_attempt(self):
++        """It refuses for its OWN reason -- there is no intake receipt -- which
++        is the sentence that made a separate family necessary."""
++        self.abandoned()
++        self.gated()
++        refusal = self.refused(
++            lambda: discharge_quiescence_gate(
++                self.store, self.port, attempt_id=ATTEMPT,
++                retention_policy_digest=RETENTION))
++        self.assertEqual((refusal.category, refusal.code),
++                         ("refused", "precondition"))
++        self.assertIn("no intake receipt", refusal.message)
++        self.assertEqual(self.satisfied(), [])
++
++    def test_an_ordinary_cleanup_is_not_read_as_an_abandoned_one(self):
++        """The other direction of the same rule."""
++        self.retained_ready("discard-after-intake")
++        self.ended()
++        authorize_cleanup(self.store, self.port, Custodian(),
++                          attempt_id=ATTEMPT,
++                          retention_policy_digest=RETENTION)
++        self.assertIsNotNone(cleanup_of(self.store, attempt_id=ATTEMPT,
++                                        retention_policy_digest=RETENTION))
++        self.assertIsNone(self.read())
++        self.assertIsNone(abandoned_gate_discharge_of(self.store, ATTEMPT))

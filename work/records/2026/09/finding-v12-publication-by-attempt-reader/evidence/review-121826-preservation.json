@@ -1,0 +1,6 @@
+{
+  "src/baton_v12/integration/driver.py": "Entire previous AST preserved after removing approved definitions/export additions",
+  "tests/integration/test_driver.py": "Entire previous AST preserved after removing approved definitions/export additions",
+  "all_hashes_match": true,
+  "initial_audit_correction": "Initial stripping omitted the approved module __all__ export; inspected delta and included exactly that addition"
+}

@@ -31,7 +31,8 @@ deployment's actual values. The notifier config is NOT `baton.json`.
   "socket": "/absolute/coordination/run/codex-events.sock",
   "state_file": "/absolute/coordination/run/codex-copilot-notifier.json",
   "poll_seconds": 30,
-  "timeout_seconds": 15
+  "timeout_seconds": 15,
+  "obligation_reminder_seconds": 600
 }
 ```
 
@@ -72,6 +73,64 @@ python3 tools/codex_copilot_notifier.py --config /absolute/notifier.json
 No service has been added to `infra.py`. Start/stop integration can follow
 the first live proof; don't restart other agents merely to run the dry-run.
 
+## Unresolved-obligation reminders
+
+Pending response obligations owed by the configured operator remind again every
+10 minutes by default. Set `obligation_reminder_seconds` to `300` for 5 minutes,
+or `0` to disable repeat reminders. The setting accepts finite nonnegative
+seconds. New or changed obligations still notify immediately when the prompt
+is idle; trials, Work and failure attention retain change-based deduplication.
+
+Each reminder poll reads current canonical obligations and handler membership.
+Resolved or no-longer-owed obligations are removed. Due reminders coalesce into
+one advisory, with at most 50 locators per event; later polls offer any remaining
+items. An obligation's timer advances only when an event containing its locator
+is accepted. Busy, disconnected or rejected delivery leaves it due, and accepted
+advice about unrelated attention does not postpone it. Acceptance remains bridge
+admission, not proof of model completion, UI display or an operator response.
+
+**How the 50 are chosen, because the order is part of the contract.** New or
+changed attention comes first, keeping its immediate promise. Due reminders
+follow, ordered by each obligation's own anchor — its acceptance time, or the
+migration anchor a legacy entry was given — oldest first, with the locator
+breaking ties. Acceptance moves a record to the back of that order, so the
+obligations that have waited longest lead the next eligible advisory and the
+remainder genuinely arrives.
+
+Ordering the batch by locator alone does not do this, and the difference is not
+cosmetic. Change-based attention drains, because acceptance records its hash and
+it stops being changed; an accepted reminder deliberately becomes eligible
+again. Merging both into one alphabetical list and taking the first 50 therefore
+hands the same early locators every batch indefinitely. With 60 pending
+obligations and a supported 300-second reminder and poll interval, ten never
+received an initial advisory — or, if all 60 had been accepted first, never
+received a due reminder at all. That was W119521's review finding and it is
+fixed; the ordering above is what fixes it.
+
+Anchors move only when an offered locator is accepted, so a refused or busy
+batch is retried as the same event rather than reshuffled. A batch that has
+genuinely gained a longer-overdue obligation is a different batch and carries a
+different identity.
+
+The cursor now also stores each response obligation's accepted hash, acceptance
+time and generation. Generations distinguish successive reminders; retries of
+the same pending batch keep a stable event identity. Times are wall-clock Unix
+seconds so process restarts preserve deadlines. A backward clock adjustment can
+delay the next reminder; a forward adjustment can make it due on the next poll.
+
+Existing hash-only cursors migrate without clearing seen hashes or replaying all
+attention. On the first poll, each still-present legacy obligation gets a saved
+migration anchor; its first repeat becomes due one configured interval later.
+Its acceptance time stays unknown until a corresponding advisory is accepted.
+Restart, busy polls and unrelated accepted events preserve that anchor. With
+reminders disabled, saved acceptance times remain available; re-enabling may
+make an older obligation immediately due. Bridge/thread scope changes retain
+the existing fresh-attention behavior described below.
+
+After review, restart only the notifier to load its updated code/config, keeping
+the same cursor and prompt mapping. This change needs no bridge or stack restart;
+deployment/restart remains an explicit operator action.
+
 ## Bounded delivery behavior
 
 - Polls every 30 seconds by default; CLI/socket operations have timeouts.
@@ -110,14 +169,17 @@ the first live proof; don't restart other agents merely to run the dry-run.
   rejected or busy deliveries remain unacknowledged. Reported recovery, absence
   or changed ownership prunes runtime memory; a changed failed version (including
   a replacement incarnation) is new attention. Stale rows themselves never alert.
-- Stores only hashes/locators as its delivery cursor (0600 atomic replacement).
+- Stores hashes/locators, reminder timestamps and generations as its delivery
+  cursor (0600 atomic replacement).
   This is not coordination authority. No direct SQLite access.
 - Deduplication is scoped to authority, operator, prompt and bridge incarnation.
   A bridge restart or prompt thread replacement re-offers current attention.
   Reconnection to the same incarnation retains the saved cursor.
 - Lost acknowledgements and crash windows can duplicate summaries. Delivery is
   not exactly-once. A failed model turn after socket acceptance is not retried
-  automatically: inspect it, then request a manual scan. No automated recovery.
+  as a failed turn: inspect it, then request a manual scan. A still-pending
+  response obligation can independently become due for its next reminder.
+  No automated recovery.
 - An advisory without enough read permission reports the command needed. It
   does not obtain permission or act on your behalf.
 
@@ -140,3 +202,5 @@ Failure detection extension: [W114322](../work/records/2026/09/finding-v11-copil
 After independent review, restart only the existing notifier process to load this
 change, keeping its config and cursor. No bridge or stack restart is required.
 The first poll offers existing unresolved incidents/failures as well as new ones.
+
+Reminder decision/evidence: [W119521](../work/records/2026/09/finding-copilot-reply-visibility/FINDING.md).

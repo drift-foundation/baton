@@ -1,0 +1,19 @@
+{
+  "directory_custody": {
+    "refused": false,
+    "accepted_value": null,
+    "remote_calls": 1
+  },
+  "kept": {
+    "refused": false,
+    "accepted_value": [
+      "invented-artifact"
+    ],
+    "remote_calls": 1
+  },
+  "kind": {
+    "refused": false,
+    "accepted_value": "foreign-cleanup",
+    "remote_calls": 1
+  }
+}

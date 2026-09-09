@@ -1,0 +1,90 @@
+{
+  "claim": 120163,
+  "sha256": {
+    "src/baton_v12/worker_manager/authority_port.py": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6",
+    "src/baton_v12/worker_manager/intake.py": "6c00c441bc7b2356fddfd9f0867db59e05d6b96128dbf8918fc3b67ea46c89c7",
+    "src/baton_v12/worker_manager/__init__.py": "19dc529bebb57f3aa05638008ac9c8f4623f69ca70096efef60d5cc394f4f498",
+    "tests/manager/test_intake.py": "facd32dd1d65c02e85253e0db91e12856258c7f6aa0c16c6a2d323236403e675",
+    "tests/manager/test_offers.py": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+    "tests/manager/test_secrets.py": "37d5a1609f2417545ee907a0cee0d403b1a67e22aaaac6e1d3d41f23be64c498",
+    "tests/manager/test_text_sweep.py": "f3eff0216f98f4cd4174d4d016283612f88306ee75380cbb7ea26f802e5dbd50"
+  },
+  "manifest_sha256": "3595f529914c94ac590237a58416e6669b10ed18e4a83f1459495d310ae65c85",
+  "manifest_encoding": "UTF-8 json.dumps(sha256, sort_keys=True, separators=(',', ':'))",
+  "baseline": "9a637a15689302f9b9d34b92aa8df4a121728ba5",
+  "test_scope": {
+    "tests/manager/test_intake.py": {
+      "baseline_methods": 82,
+      "changed_or_removed": [],
+      "added_methods": [
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_cleanup_that_never_committed_authorizes_nothing",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_journalled_receipt_that_is_not_a_discharge_is_refused",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_lost_local_receipt_is_finished_without_a_second_remote_act",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_lost_receipt_is_finished_after_the_work_has_moved_on",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_lost_receipt_is_not_finished_through_a_foreign_authority",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_malformed_nested_cleanup_proof_refuses_before_the_authority",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_malformed_operand_is_refused_before_anything_is_asked",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_never_activated_attempt_has_no_discharge_to_discover",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_null_assignment_refuses_rather_than_faulting",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_present_invalid_record_is_never_reported_as_absence",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_receipt_about_something_else_is_refused_by_both_exits",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_reply_missing_a_member_refuses_at_the_port",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_reply_that_does_not_release_the_work_is_not_a_discharge",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_reply_whose_kind_is_not_this_gates_kind_refuses",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_retained_ending_is_admitted_beside_a_complete_one",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_runtime_changed_after_cleanup_cannot_be_certified_absent",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_second_call_replays_and_asks_the_authority_nothing_again",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_session_acting_for_another_participant_is_refused_first",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_session_on_another_authority_never_reaches_the_act",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_session_projecting_no_such_work_refuses",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_session_that_cannot_reach_the_discharge_says_so",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_settled_cleanup_discharges_the_gate_and_frees_the_work",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_surviving_runtime_discharges_nothing",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_a_valid_receipt_still_replays_after_the_work_has_moved",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_absence_stays_a_different_answer_from_a_malformed_receipt",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_an_answer_about_another_gate_is_not_this_gates_discharge",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_an_attempt_whose_runtime_is_gone_from_the_row_refuses",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_an_attempt_with_no_intake_receipt_is_refused_as_that",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_an_ungated_work_is_refused_by_the_authority_and_not_recorded",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_another_retention_policy_selects_a_cleanup_nobody_committed",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_changing_any_signed_operand_breaks_the_recorded_signature",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_old_cleanup_evidence_cannot_discharge_a_newer_gate",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_only_a_genuinely_absent_operation_answers_absence",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_ordinary_cleanup_keeps_its_own_api_and_authority_effect",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_caller_supplies_no_absence_runtime_gate_or_assignment",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_discharge_writes_no_manager_axis",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_evidence_is_positive_absence_naming_the_exact_runtime",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_gate_is_derived_from_the_receipts_own_assignment",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_gate_token_is_derived_from_the_attempts_own_generation",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_outstanding_obligation_is_discoverable_after_cleanup",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_receipt_records_what_the_authority_answered",
+        "TheQuiescenceGateIsDischargedFromTheCommittedCleanup.test_the_replay_precedes_every_check_on_mutable_work_state"
+      ]
+    },
+    "tests/manager/test_offers.py": {
+      "baseline_methods": 77,
+      "changed_or_removed": [],
+      "added_methods": []
+    },
+    "tests/manager/test_secrets.py": {
+      "baseline_methods": 91,
+      "changed_or_removed": [],
+      "added_methods": [
+        "EveryPublicSurfaceIsAccountedFor.test_the_gate_discharge_refuses_a_live_bearer_at_its_identity"
+      ]
+    },
+    "tests/manager/test_text_sweep.py": {
+      "baseline_methods": 3,
+      "changed_or_removed": [],
+      "added_methods": [],
+      "only_two_approved_entries_added": true
+    }
+  },
+  "unchanged_helpers": {
+    "authorize_cleanup": true,
+    "destroy_operation": true,
+    "_committed": true
+  },
+  "diff_check": "passed",
+  "test_execution": "none; retained candidate evidence audited"
+}

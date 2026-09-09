@@ -1,0 +1,12 @@
+{
+  "euid": 1000,
+  "disposable_root": "/tmp/w122060-read-open-80ypxlym",
+  "authority_readonly_open": {
+    "opened": true,
+    "authority_uuid": "0000000a000000000000000000000000"
+  },
+  "coordinator_existed_before_open": false,
+  "coordinator_exists_after_open": true,
+  "coordinator_bytes_after_open": 73728,
+  "public_entries": []
+}

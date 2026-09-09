@@ -1,0 +1,120 @@
+{
+  "work": "W126880",
+  "claim": 128271,
+  "implements": "owner M128249's SQLite-sidecar amendment, per the current FINDING/PLAN and the amendment at the top of READ-ONLY-OPENING-ALLOCATION-2026-09-09.md",
+  "claim_order": "claimed at seq128271 before reading the review and before any edit; the ledger was reconciled and the question and budget declared in PROGRESS before any test or probe",
+  "baseline": "the candidate bytes at handoff; the reviewer's retained manifest is evidence/review-127071-audit.json",
+  "paths": {
+    "src/baton_v12/authority/api.py": {
+      "baseline_candidate": "54583b9a6f06dcb172e90ec13170541e6982a966ec3da76e7ee676f54085af90",
+      "final": "54583b9a6f06dcb172e90ec13170541e6982a966ec3da76e7ee676f54085af90",
+      "mode": "664"
+    },
+    "src/baton_v12/authority/store.py": {
+      "baseline_candidate": "745c87ce695c6019cbf4576cac279c73a8ab08428909203fdf10cc5e2bed71fd",
+      "final": "4d651a2a985f38c118d60be466e0c6f6e3012eea0efaa87ae80cec3a4ba0e726",
+      "mode": "664"
+    },
+    "tests/authority/test_store.py": {
+      "baseline_candidate": "1cb3ab313768209fd048ee77969e191e717060f1dd7e23d68ac1cddfc3f27208",
+      "final": "f353132132899f2c98a9a7837edda7b6cd35a43228462e741c03fc98feebdfc0",
+      "mode": "664"
+    }
+  },
+  "test_methods": {
+    "tests/authority/test_store.py": 50
+  },
+  "ledger_reconciled": {
+    "reported_at_claim127026": 1.41,
+    "reviewer_figure": 1.564,
+    "accepted": 1.564,
+    "how": "the nine runs listed in provider-127026.json sum to 0.694s; the reviewer's 0.794s adds the 0.100s I did not list for two import checks run in the same shell. I take the reviewer's figure. The original evidence is preserved unchanged.",
+    "carry_in": 0.77,
+    "remaining_before_this_pass": 18.436
+  },
+  "claims_withdrawn": [
+    "the device/inode comparison was offered as attribution; it is diagnostic only and cannot establish WHICH opener created a replacement",
+    "'a writer is attached', observed at preflight, is not a lifetime guarantee, and my report leaned on it as if it were"
+  ],
+  "source_change": {
+    "removed": [
+      "_require_readable_without_creating and its refusal",
+      "_require_nothing_was_created and its refusal",
+      "_sidecars_present, _sidecar_identities, _is_write_ahead_log",
+      "_SIDECARS, _HEADER_BYTES, _HEADER_WAL",
+      "the pre-connect identity snapshot and the post-read check in open_readonly"
+    ],
+    "why": "each existed only for the blanket no-artifact prohibition the amendment supersedes for SQLite's own WAL/SHM creation and maintenance, including refused opens",
+    "unchanged": [
+      "mode=ro, so the connection cannot write the DATABASE",
+      "immutable=1 still unused -- it asserts the file cannot change, which is false of a live store",
+      "identity and schema validated on the returned connection inside one BEGIN DEFERRED snapshot ending in ROLLBACK",
+      "the existing path, regular-file, non-empty and _check_compatibility non-adoption rules",
+      "no schema, migration, write lock, checkpoint, persistent PRAGMA, permissions change or write-capable fallback",
+      "no application sidecar cleanup: nothing removes a file",
+      "mutation refusal at this authority's own boundary, before any statement",
+      "api.py is byte-identical to the reviewed candidate"
+    ]
+  },
+  "scheduled_conversion": {
+    "authority": "PLAN, under owner M128249: only sidecar-effect expectations may change",
+    "converted": [
+      "test_a_closed_store_is_refused_with_the_sidecar_limit_named -> test_a_closed_store_reads_its_committed_evidence",
+      "test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing -> test_a_partial_sidecar_pair_reads_the_same_committed_evidence, over the same two states",
+      "test_a_serving_shutdown_during_the_open_refuses -> test_a_serving_shutdown_during_the_open_still_reads",
+      "the fixture's `snapshot` helper now excludes BOTH sidecars rather than only -shm; it measures the store's own bytes and mode, which is what the amendment still protects"
+    ],
+    "added": [
+      "test_no_database_is_created_where_none_exists, keeping the protection the amendment did NOT touch explicit beside the conversions"
+    ],
+    "note": "the shutdown case compares the store's bytes from AFTER the serving dispose, because a clean dispose checkpoints the write-ahead log into the database -- that is the writer's act, not the reader's, and measuring across it would attribute it to this opener",
+    "other_assertions": "unchanged"
+  },
+  "earlier_probe_replayed": {
+    "run": "PYTHONPATH=.:src:tests python3 evidence/review-126983-probe.py",
+    "wall": "0.056s",
+    "retained": "evidence/replay-126983-probe-128271.json",
+    "result": "all three cases now OPEN and answer the store's UUID, which is what the amendment intends: those refusals existed only for the superseded prohibition"
+  },
+  "budget": {
+    "allowance": 20.0,
+    "carried_in": 1.564,
+    "spent_this_pass": 1.9,
+    "cumulative": 3.46,
+    "within": true,
+    "note": "every run is an exact command with its wall time from `time` and its log retained beside this file"
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.authority.test_store",
+      "wall": "0.082s",
+      "log": "evidence/run-128271-a.log",
+      "result": "49 tests, 4 failures -- exactly the three scheduled cases, one with two subtests"
+    },
+    {
+      "run": "same, after the scheduled conversion",
+      "wall": "1.437s",
+      "log": "evidence/run-128271-b.log",
+      "result": "50 tests, 4 failures -- the fixture helper still compared `-wal`, and the shutdown case measured the writer's own checkpoint"
+    },
+    {
+      "run": "same, after excluding both sidecars and measuring the reader alone",
+      "wall": "0.084s",
+      "log": "evidence/run-128271-c.log",
+      "result": "50 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.authority.test_store tests.authority.test_assignment tests.authority.test_session",
+      "wall": "0.241s",
+      "log": "evidence/run-128271-d.log",
+      "result": "138 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 evidence/review-126983-probe.py",
+      "wall": "0.056s",
+      "log": "evidence/replay-126983-probe-128271.json",
+      "result": "all three cases open"
+    }
+  ],
+  "sibling": "W126887 carries the same amendment (M128251) and its own conversion; it is independently allocated and not edited here."
+}

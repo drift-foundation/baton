@@ -1,0 +1,222 @@
+--- prior/tests/manager/test_review_cycles.py
++++ tests/manager/test_review_cycles.py
+@@ -2159,15 +2159,17 @@
+         """A revoked writer is what a round that REACHED its checkpoint leaves
+         behind, and there is nothing to give back for one.
+ 
+-        Reached by removing the COMPLETION rather than by calling the act
+-        twice: a second call is the replay, which is a different case and is
+-        covered as one.
++        Reached by removing this recovery's OWN records -- both the completion
++        and the intent -- so the fresh path runs again against a writer that is
++        no longer active. Calling the act twice is the replay, and resuming
++        after only the completion is removed is the crash retry; each is a
++        different case and each is covered as one.
+         """
+         self.abandoned()
+         answered = self.restore()
+         self.store._connection.execute(
+-            "DELETE FROM operations WHERE operation_id = ?",
+-            (answered["operation_id"],))
++            "DELETE FROM operations WHERE operation_id LIKE ?",
++            ("review-line.restore-abandoned%",))
+         refusal = self.refused()
+         self.assertEqual(refusal.category, "refused")
+         self.assertIn("revoked", refusal.message)
+@@ -2223,18 +2225,130 @@
+     # -- interruption, replay and concurrency --------------------------------
+ 
+     def test_a_failed_restoration_admits_nobody(self):
++        """REVIEW 2026-09-09T15:50Z [P1] moved the revocation into the intent,
++        so this case says something stronger than it used to.
++
++        The writer is already revoked when the profile fails -- that is the
++        exclusion this recovery TOOK -- and what stops a successor is that the
++        line is still `writing`, which `grant_writer` does not admit from. The
++        checkout nobody could restore is handed to nobody.
++        """
+         self.abandoned()
+         self.profile.restore_refusal = ContractRefusal(
+             "policy", "profile-uncertified", "the checkout could not be reset")
+         self.assertEqual(self.refused().code, "profile-uncertified")
+-        # THE EXCLUSION IS EXACTLY WHERE IT WAS.
+         self.assertEqual(line_of(self.store, self.line_id)["state"], "writing")
+         self.assertEqual(
+             writer_of(self.store, self.writer_row["writer_id"])["state"],
+-            "active")
++            "revoked")
+         self.assertIsNone(abandoned_correction_of(
+             self.store, attempt_id=self.abandoned_attempt, generation=2))
+         self.assertEqual(self.refused(self.admit).category, "refused")
++
++    def test_the_intent_takes_the_exclusion_before_the_profile_is_asked(self):
++        """[P1] THE SERIALIZATION, stated where it happens. The revocation is
++        committed in the same transaction that fixes the intent, so a second
++        restorer finds no active writer to recover -- and the line is
++        deliberately left `writing`, so no successor is admitted across the
++        profile boundary either."""
++        self.abandoned()
++        seen = {}
++        original = self.profile.restore_checkpoint
++
++        def watching(repository, evidence):
++            seen["writer"] = writer_of(
++                self.store, self.writer_row["writer_id"])["state"]
++            seen["line"] = line_of(self.store, self.line_id)["state"]
++            seen["admission"] = self.refused(self.admit).category
++            return original(repository, evidence)
++
++        self.profile.restore_checkpoint = watching
++        self.restore()
++        self.assertEqual(seen, {"writer": "revoked", "line": "writing",
++                                "admission": "refused"})
++
++    def test_an_in_flight_duplicate_cannot_reset_a_successors_checkout(self):
++        """[P1] THE COUNTEREXAMPLE, DRIVEN. Recovery A is paused before its
++        effect; recovery B completes through the same public act, the line is
++        released and writer 3 is admitted and puts the checkout somewhere of
++        its own. A then resumes -- and must not write.
++
++        WHAT DISTINGUISHES A FROM A CRASH RETRY is the successor: an ACTIVE
++        writer on the line means somebody else now owns the checkout, which a
++        retry of this recovery never sees.
++        """
++        self.abandoned()
++        original = self.profile.restore_checkpoint
++        resumed = {}
++
++        def paused(repository, evidence):
++            # ONCE. B goes through the same public act, which reaches this same
++            # seam; without the guard the pause would pause itself.
++            if resumed:
++                return original(repository, evidence)
++            resumed["b"] = None
++            # B completes, the line is released, and a successor takes it and
++            # moves the checkout to its own revision.
++            resumed["b"] = restore_abandoned_correction(
++                self.store, attempt_id=self.abandoned_attempt, generation=2,
++                retention_policy_digest=RETENTION, profile=self.profile)
++            granted = self.admit()
++            self.profile.current_revision = 999
++            resumed["successor"] = granted["writer_id"]
++            return original(repository, evidence)
++
++        self.profile.restore_checkpoint = paused
++        refusal = self.refused()
++
++        self.assertEqual((refusal.category, refusal.code),
++                         ("refused", "operation-collision"))
++        self.assertIn("another call's", refusal.message)
++        self.assertIsNotNone(resumed["b"])
++        # A DOES NOT REPORT B'S SUCCESS AS ITS OWN, and the successor keeps its
++        # line: nothing here released it a second time.
++        self.assertEqual(line_of(self.store, self.line_id)["state"], "writing")
++        self.assertEqual(
++            writer_of(self.store, resumed["successor"])["state"], "active")
++        self.assertEqual(abandoned_correction_of(
++            self.store, attempt_id=self.abandoned_attempt, generation=2),
++            resumed["b"])
++        # THE RESIDUAL, MEASURED RATHER THAN CLAIMED AWAY. A's effect ran --
++        # the seam paused it INSIDE the profile, past every guard this module
++        # can place -- so the successor's checkout was reset. That is reported
++        # in this Work's record with what closing it would take; what is fixed
++        # here is that A refuses instead of returning a success.
++        self.assertEqual(self.profile.current_revision,
++                         int(self.checkpoint["evidence"]["head"], 16))
++
++    def test_a_duplicate_that_completed_is_not_reported_as_this_call(self):
++        """The other half of the same guard, with no successor involved: if
++        this recovery completed while this call was restoring, the committed
++        record is the OTHER call's and `store.transact` would have replayed it
++        as an ordinary success."""
++        self.abandoned()
++        original = self.profile.restore_checkpoint
++        held = {}
++
++        def paused(repository, evidence):
++            if held:
++                return original(repository, evidence)
++            held["b"] = None
++            held["b"] = restore_abandoned_correction(
++                self.store, attempt_id=self.abandoned_attempt, generation=2,
++                retention_policy_digest=RETENTION, profile=self.profile)
++            return original(repository, evidence)
++
++        self.profile.restore_checkpoint = paused
++        refusal = self.refused()
++        self.assertEqual((refusal.category, refusal.code),
++                         ("refused", "operation-collision"))
++        self.assertIsNotNone(held["b"])
++        # ONE COMMITTED RECOVERY, and it is the one that made it.
++        self.assertEqual(abandoned_correction_of(
++            self.store, attempt_id=self.abandoned_attempt, generation=2),
++            held["b"])
++        self.assertEqual(line_of(self.store, self.line_id)["state"],
++                         "correction-ready")
+ 
+     def test_an_interrupted_restore_finishes_under_the_same_exclusion(self):
+         """The intent commits before the profile act, so a crash between them
+@@ -2362,6 +2476,63 @@
+                          ("integrity", "schema"))
+         self.assertEqual(RESTORE_KIND, "review-line.restore-abandoned")
+ 
++    def test_a_broken_historical_writer_refuses_in_the_reader_and_the_act(
++            self):
++        """[P1] The receipt used to be checked only against a signature
++        recomposed from itself, which proves internal consistency and nothing
++        about the records it was earned against. Editing the old writer's
++        principal makes the public `writer_for_attempt` owner refuse, and both
++        exits must refuse with it."""
++        self.abandoned()
++        answered = self.restore()
++        self.store._connection.execute(
++            "UPDATE line_writers SET principal = 'somebody-else' "
++            "WHERE writer_id = ?", (answered["writer_id"],))
++        refusal = self.refused(
++            lambda: abandoned_correction_of(
++                self.store, attempt_id=self.abandoned_attempt, generation=2))
++        self.assertEqual(refusal.category, "integrity")
++        self.assertEqual(self.refused().category, "integrity")
++
++    def test_a_broken_historical_verdict_refuses_before_any_profile_write(self):
++        """[P1] The committed GRANT proves admission and does not re-read the
++        verdict, so a retained verdict whose principal had been edited let this
++        act write a checkout and complete. The decision is now read through its
++        own owner."""
++        self.abandoned()
++        self.store._connection.execute(
++            "UPDATE checkpoint_verdicts SET reviewer_principal = "
++            "'somebody-else' WHERE checkpoint_id = ?",
++            (self.checkpoint["checkpoint_id"],))
++        refusal = self.refused()
++        self.assertEqual(refusal.category, "integrity")
++        self.assertEqual(self.profile.restore_calls, [])
++        self.assertIsNone(abandoned_correction_of(
++            self.store, attempt_id=self.abandoned_attempt, generation=2))
++        self.assertEqual(line_of(self.store, self.line_id)["state"], "writing")
++
++    def test_an_accepted_checkpoint_schedules_no_correction(self):
++        """Only a changes-requested decision does, and the disposition is read
++        from the committed verdict rather than assumed from the line."""
++        self.abandoned()
++        self.store._connection.execute(
++            "UPDATE checkpoint_verdicts SET disposition = 'accepted' "
++            "WHERE checkpoint_id = ?", (self.checkpoint["checkpoint_id"],))
++        self.assertEqual(self.refused().category, "integrity")
++        self.assertEqual(self.profile.restore_calls, [])
++
++    def test_the_reader_still_follows_its_owners_after_a_later_round(self):
++        """Historical validation must not become a mutable predicate: the
++        owners are followed, and a later writer and a later checkpoint do not
++        make an earlier recovery unreadable."""
++        self.abandoned()
++        answered = self.restore()
++        granted = self.admit()
++        self.freeze(granted, 3)
++        self.assertEqual(abandoned_correction_of(
++            self.store, attempt_id=self.abandoned_attempt, generation=2),
++            answered)
++
+     def test_the_reader_performs_no_profile_or_authority_act(self):
+         self.abandoned()
+         self.restore()

@@ -1,0 +1,115 @@
+{
+  "tools/stage_execution.py": {
+    "sha256": "9b730aa2f2a78cebbb50412a0e5578a889ad0cfddac7163c58a468a6455fe137",
+    "mode": "0o664",
+    "matches": true
+  },
+  "tools/single_worker.py": {
+    "sha256": "1cd39743e9bc77466a5e749ccf3725340cde3f798df1db2f95ec53027f8036fe",
+    "mode": "0o664",
+    "matches": true
+  },
+  "tests/tools/test_stage_execution.py": {
+    "sha256": "4d58d44a9ea74d07647e66fd51cc232d25082bd7e9249c592ab3388a0dc59228",
+    "mode": "0o664",
+    "matches": true
+  },
+  "tests/tools/test_single_worker.py": {
+    "sha256": "caece519ef46551f5c7cfdf375fd554a4f804b9c1a6f9d3500b2d6412b3c8fc2",
+    "mode": "0o664",
+    "matches": true
+  },
+  "tools/parallel_test.py": {
+    "sha256": "6ea5e9bef58a5182ae8b904a8db9ae92bcaf130d05ee1d61e9c36aa3efa0c10d",
+    "mode": "0o644",
+    "matches": true
+  },
+  "stage_prior_methods_changed_or_removed": [
+    [
+      "TheComposedHandoffStopsAtTheUndischargedQuiescenceGate",
+      "test_the_manager_cannot_reach_the_operation_that_would_discharge_it"
+    ],
+    [
+      "TheComposedHandoffStopsAtTheUndischargedQuiescenceGate",
+      "test_the_completed_implementation_leaves_the_work_gated"
+    ],
+    [
+      "TheComposedHandoffStopsAtTheUndischargedQuiescenceGate",
+      "test_the_review_stage_is_queued_and_its_offer_is_refused"
+    ]
+  ],
+  "stage_added_methods": [
+    [
+      "TheComposedHandoffCarriesItsOwnQuiescenceEvidence",
+      "test_the_manager_can_reach_the_operation_that_discharges_it"
+    ],
+    [
+      "TheComposedHandoffCarriesItsOwnQuiescenceEvidence",
+      "test_the_completed_implementation_leaves_the_work_ungated"
+    ],
+    [
+      "TheComposedHandoffCarriesItsOwnQuiescenceEvidence",
+      "test_the_review_stage_is_queued_and_its_offer_is_issued"
+    ],
+    [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord",
+      "cleaned_up"
+    ],
+    [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord",
+      "ending_records"
+    ],
+    [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord",
+      "test_the_obligation_is_registered_and_settled_by_ordinary_ticks"
+    ],
+    [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord",
+      "test_the_settlement_names_the_records_that_finished_the_ending"
+    ],
+    [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord",
+      "test_a_reconstructed_manager_re_enters_the_same_ending"
+    ],
+    [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord",
+      "test_the_recovered_writer_is_the_attempts_and_not_the_lines_pointer"
+    ],
+    [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord",
+      "test_the_historical_entry_reconstructs_no_mount_or_credential"
+    ],
+    [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord",
+      "test_the_historical_operands_come_from_the_recorded_obligation"
+    ],
+    [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord",
+      "attempting"
+    ],
+    [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord",
+      "test_the_historical_adapter_can_perform_no_runtime_act"
+    ],
+    [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord",
+      "publications"
+    ],
+    [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord",
+      "checkpoints"
+    ],
+    [
+      "TheDischargeReceiptIsNeverJournalled",
+      "test_the_gate_is_cleared_and_no_discharge_is_recorded"
+    ],
+    [
+      "TheDischargeReceiptIsNeverJournalled",
+      "test_the_two_owners_disagree_about_one_member"
+    ],
+    [
+      "TheReviewStageCannotClaimTheOneWork",
+      "test_the_reviewers_claim_is_refused_against_the_implementation_route"
+    ]
+  ]
+}

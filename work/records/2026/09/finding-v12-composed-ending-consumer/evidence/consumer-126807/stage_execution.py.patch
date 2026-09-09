@@ -1,0 +1,196 @@
+--- v12/python/tools/stage_execution.py
++++ v12/python/tools/stage_execution.py
+@@ -48,10 +48,11 @@
+ from baton_v12.authority import MAX_SAFE_INTEGER, Authority, Refusal
+ from baton_v12.contracts import ContractRefusal, digest
+ from baton_v12.integration import (IntegrationStore, admit_accepted,
+-                                   continue_accepted, integration_profile,
++                                   continue_accepted, entries_of, lease_of, integration_profile,
+                                    publication_for_attempt, publish_candidate,
+                                    retain_proposal, runtime)
+ from baton_v12.job_manager import ending, review_driver, scheduler
++from baton_v12.job_manager.delegation import INTEGRATION_OBSERVATION_SCHEMA
+ from baton_v12.job_manager.scheduler import PooledManagerOperations
+ from baton_v12.worker_manager import (assignment_of,
+                                       attempt_runtime_of, claimed_offers_for,
+@@ -1190,10 +1191,12 @@
+     the published proposal's own identity is read. Nothing is carried in a
+     variable across a tick, and nothing is carried across a restart.
+ 
+-    IT DECIDES NOTHING ABOUT THE OUTCOME. `admit_accepted` writes the accepted
++    THE DRIVER OWNS THE INTEGRATION OUTCOME. `admit_accepted` writes the accepted
+     receipts, admits the candidate, leases it and drives or adopts one
+     serialized integration; an interrupted one comes back `held` and stays
+-    held, which is the operator's to look at.
++    held, which is the operator's to look at. This deployment then proves the
++    committed receipt, released lease and worker exclusion before passing the
++    integrator's own fixed assignment to its configured outgoing route.
+     """
+ 
+     def __init__(self, deployment, port=None):
+@@ -1290,6 +1293,12 @@
+         return delivery, runtime.published_assignment(delivery)
+ 
+     def run(self, stage, job):
++        answered = self._run(stage, job)
++        if answered.get("outcome") == "integrated":
++            self.finish(stage)
++        return answered
++
++    def _run(self, stage, job):
+         deployment = self.deployment
+         if self.port is None:
+             # W103083: THE ONE CAPABILITY THIS BUILD DOES NOT HAVE. Every
+@@ -1377,6 +1386,120 @@
+             deployment.integration, control, deployment.jobs,
+             deployment.authority, *sessions, self.port, **operands)
+ 
++    def account(self, stage):
++        """Cross-bind public owners without starting, refreshing or settling.
++
++        The coordinator's producer generation is proposal provenance. Only the
++        manager's fixed assignment identifies the integrator this stage ends.
++        This reader uses existing handles; opening a separate status process
++        remains the independently allocated read-only opener work.
++        """
++        if stage.get("kind") != "integration":
++            return None
++        deployment = self.deployment
++        row = attempt_runtime_of(deployment.control, stage["attempt_id"])
++        if row is None or row["assignment"] is None:
++            return None
++        fixed = row["assignment"]
++        claims = claimed_offers_for(deployment.control, stage["attempt_id"])
++        if len(claims) != 1 or claims[0]["offer_id"] != stage["offer_id"]:
++            _refuse("integration observation has no exact claimed offer", category="refused", code="operation-collision")
++        worker = next(one["deployment"] for one in deployment.given["workers"] if one["role"] == "integration")
++        if fixed["participant"] != worker["participant"] or fixed["work_ref"] != {
++                "authority_uuid": deployment.given["authority_uuid"], "work_id": deployment.given["job_work_id"]}:
++            _refuse("integration observation names another fixed assignment", category="refused", code="operation-collision")
++        document = {"schema": INTEGRATION_OBSERVATION_SCHEMA,
++                    **{name: stage[name] for name in ("stage_id", "episode", "attempt_id", "offer_id")},
++                    "assignment": fixed, "state": "unstarted", "completion": None}
++        operation_id = "integration-pass:" + stage["attempt_id"]
++        account = {"document": document, "runtime": row, "operation_id": operation_id,
++                   "to_route": worker["review_route"], "committed": False}
++        delivery, assignment = self._published(stage)
++        if assignment is None:
++            return account
++        profile = deployment.integration_profile
++        expected = {"canonical_target_id": deployment.given["canonical_target_id"],
++                    "attempt_id": stage["attempt_id"], "integrator_participant": fixed["participant"],
++                    **{name: profile[name] for name in ("profile_kind", "profile_version", "instructions_digest")}}
++        if any(assignment[name] != value for name, value in expected.items()):
++            _refuse("integration delivery disagrees with the configured fixed attempt", category="refused", code="operation-collision")
++        with deployment.integration.snapshot():
++            lease = lease_of(deployment.integration, assignment["lease_id"])
++            entries = [one for one in entries_of(deployment.integration, assignment["canonical_target_id"])
++                       if one["entry_id"] == assignment["entry_id"]]
++        if lease is None or len(entries) != 1 or any(lease[name] != assignment[name] for name in
++                ("lease_id", "entry_id", "canonical_target_id", "attempt_id", "fence", "integrator_participant")):
++            _refuse("integration delivery has no matching owned lease and entry", category="refused", code="operation-collision")
++        entry = entries[0]
++        if entry["authority_uuid"] != fixed["work_ref"]["authority_uuid"] or entry["work_id"] != fixed["work_ref"]["work_id"]:
++            _refuse("integration entry belongs to another Work", category="refused", code="operation-collision")
++        seen = runtime.observed_delivery(delivery, assignment)
++        document["state"] = ("unstarted" if row["execution_runtime"] == _UNSTARTED else
++                             "answered" if seen["state"] == "answered" else
++                             "held" if seen["state"] == "held" else "pending")
++        if entry["state"] in ("held", "refused") or lease["state"] == "abandoned":
++            document["state"] = "held"
++            return account
++        if entry["state"] != "integrated":
++            return account
++        document["state"] = "answered"
++        authority = deployment.authority
++        proposal = _authority_read("integration proposal", lambda: authority.proposal(entry["proposal_id"]))
++        receipt = _authority_read("integration receipt", lambda: authority.receipt(entry["proposal_id"], "integration"))
++        producer = proposal["assignment_ref"]
++        if producer["work_ref"] != fixed["work_ref"] or producer["generation"] != entry["assignment_generation"] or any(
++                proposal[name] != entry[name] for name in ("proposal_id", "candidate_digest", "result_id", "result_digest")) or proposal["target"] != entry["expected_target_revision"]:
++            _refuse("committed integration proposal disagrees with entry provenance", category="refused", code="operation-collision")
++        expected_receipt = {"kind": "integration", "proposal_id": proposal["proposal_id"],
++                            "actor": fixed["participant"], "disposition": "integrated",
++                            "candidate_digest": proposal["candidate_digest"], "target": proposal["target"]}
++        if receipt is None or any(receipt[name] != value for name, value in expected_receipt.items()):
++            _refuse("integrated entry lacks its exact Authority receipt", category="refused", code="operation-collision")
++        verification = entry["settlement"]["verification"]
++        if verification["status"] != 0 or verification["argv"] != self.required_tests()["argv"]:
++            _refuse("integration settlement does not prove the configured required test")
++        if lease["state"] != "released":
++            return account
++        if lease["ending"]["outcome"] != "integrated" or row["runtime_id"] is None:
++            _refuse("integration completion lacks its released runtime grant")
++        # The committed coordinator settlement required this exact attempt's
++        # exclusion. It remains historical evidence after a later observation;
++        # before a NEW pass, finish also requires current proved exclusion.
++        account["committed"] = True
++        passed = _authority_read("integration handoff", lambda: authority.operation_result(operation_id))
++        if passed is None:
++            return account
++        expected_pass = {"assignment": fixed, "route": account["to_route"], "cause": "pass",
++                         "fenced": False, "phase": "queued", "gate": None}
++        if any(passed.get(name) != value for name, value in expected_pass.items()):
++            _refuse("integration handoff does not end the exact fixed assignment on its outgoing route", category="refused", code="operation-collision")
++        document["state"] = "completed"
++        document["completion"] = {"proposal_id": proposal["proposal_id"], "integration_receipt_id": receipt["receipt_id"],
++                                  "entry_id": entry["entry_id"], "lease_id": lease["lease_id"], "fence": lease["fence"],
++                                  "handoff_operation_id": operation_id, "to_route": account["to_route"],
++                                  "runtime_id": row["runtime_id"], "execution_runtime": "quiescent"}
++        return account
++
++    def observe(self, stage):
++        account = self.account(stage)
++        return None if account is None else account["document"]
++
++    def finish(self, stage):
++        account = self.account(stage)
++        if account is None or not account["committed"]:
++            _refuse("terminal integration handoff requires owned committed integration and lease release", category="refused", code="precondition")
++        if account["document"]["state"] == "completed":
++            return account["document"]
++        if account["runtime"]["execution_runtime"] not in runtime.QUIESCENT_STATES:
++            _refuse("terminal integration handoff requires proved worker exclusion", category="refused", code="precondition")
++        _authority_read("integration terminal pass", lambda: self.deployment.sessions["integrator"].pass_work({
++            "expect": account["document"]["assignment"], "operation_id": account["operation_id"],
++            "to_route": account["to_route"], "comment": "Accepted integration completed after worker exclusion."}))
++        observed = self.observe(stage)
++        if observed["state"] != "completed":
++            _refuse("terminal integration pass has no committed readback", category="refused", code="precondition")
++        return observed
++
+ 
+ class StageDeployment:
+     """Everything the three compositions above share, resolved once.
+@@ -1486,8 +1609,8 @@
+     AND IT WRAPS THE POOLED SURFACE RATHER THAN BEING IT. Review [P1]:
+     `__getattr__` delegation over `PooledManagerOperations` made every serving
+     method the bootstrap worker's own, which is how a serving object came to
+-    carry driver-facing attributes nothing reached. The two methods a stage
+-    driver changes are spelled here; the rest still delegate, because the
++    carry driver-facing attributes nothing reached. The two driver methods and
++    integration observation are spelled here; the rest still delegate, because the
+     scheduler owns them and a member re-spelled would be a second answer to a
+     question that already has one.
+     """
+@@ -1511,7 +1634,7 @@
+     def __getattr__(self, name):
+         # THE POOLED SURFACE IS STILL THE SURFACE for everything a stage does
+         # not change: `recover`, `attach`, `drain`, `binding_intent`, `admit`,
+-        # `claim`, `dispatch`, `observe`, `refresh_runtime`,
++        # `claim`, `dispatch`, `refresh_runtime`,
+         # `canonical_operation` and `receipt_of` are the scheduler's.
+         #
+         # A PARTIALLY CONSTRUCTED DEPLOYMENT HAS NO POOL, and this must say so
+@@ -1524,7 +1647,10 @@
+             raise AttributeError(name)
+         return getattr(pooled, name)
+ 
+-    # -- the two the stage drivers change ------------------------------------
++    # -- the owned observation and the two stage driver operations -----------
++
++    def observe(self, stage):
++        return dict(self.pooled.observe(stage), integration=self.integrator.observe(stage))
+ 
+     def launch(self, stage, job):
+         """Drive one claimed stage into its own accepted composition."""

@@ -1,0 +1,20 @@
+[
+  {
+    "path": "src/baton_v12/authority/api.py",
+    "sha256": "54583b9a6f06dcb172e90ec13170541e6982a966ec3da76e7ee676f54085af90",
+    "mode": "0o664",
+    "matches_author_final": true
+  },
+  {
+    "path": "src/baton_v12/authority/store.py",
+    "sha256": "4d651a2a985f38c118d60be466e0c6f6e3012eea0efaa87ae80cec3a4ba0e726",
+    "mode": "0o664",
+    "matches_author_final": true
+  },
+  {
+    "path": "tests/authority/test_store.py",
+    "sha256": "f353132132899f2c98a9a7837edda7b6cd35a43228462e741c03fc98feebdfc0",
+    "mode": "0o664",
+    "matches_author_final": true
+  }
+]

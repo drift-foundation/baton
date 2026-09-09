@@ -1,0 +1,66 @@
+[
+  {
+    "path": "v12/python/tools/stage_execution.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tools/single_worker.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tests/tools/test_stage_execution.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tests/tools/test_single_worker.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/delegation.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/projection.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tools/job_manager.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_delegation.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_status.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_exchange.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_tool.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/authority/api.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/authority/store.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tests/authority/test_store.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/integration/store.py",
+    "matches": true
+  },
+  {
+    "path": "v12/python/tests/integration/test_coordinator.py",
+    "matches": true
+  }
+]

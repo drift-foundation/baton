@@ -1,0 +1,168 @@
+{
+  "work": "W128692",
+  "claim": 128901,
+  "authority": "owner128669 in T119114; FINDING.md and the pinned CONTRACT.md",
+  "claim_order": "claimed at seq128901 before any edit; the revalidation, one contract resolution, the question, the 20s budget and the selectors were declared in PROGRESS before the first run",
+  "revalidation": {
+    "baseline": "evidence/base-128888/manifest.json",
+    "all_four_matched_before_edit": true,
+    "provider_a": "W128682 closed satisfying at 128885; only its public abandonment_cleanup_of and abandoned_gate_discharge_of are consumed. review_cycles already imported intake, so no new import edge exists and no private helper or table is reached across that boundary.",
+    "gap_confirmed_by_reading": "grant_writer admits only idle or correction-ready; freeze_checkpoint is still the only writer revocation; the checkpoint profile had no restore and validate(current=True) requires a clean checkout at the retained head"
+  },
+  "paths": {
+    "src/baton_v12/worker_manager/review_cycles.py": {
+      "baseline": "66cb3262f0742b8f9d9081169586af1779d7a3a0e91755c82b259395ff710efd",
+      "final": "0567a0dd17e94f5a52ccf8bb63b1abe95112eecc35c7be176fce448f7d0c2b2c",
+      "mode": "644"
+    },
+    "src/baton_v12/checkpoint_profiles.py": {
+      "baseline": "ba20b9288f4eab72c078472f725c5f021df6c6342a4445684156b2e6bbee5d38",
+      "final": "fbf58dc01aba2f1fd76c14e572517c107aee3fd02aa2640b5f969acf58c35630",
+      "mode": "644"
+    },
+    "tests/manager/test_review_cycles.py": {
+      "baseline": "06cb3b73998a0d5636b174f72be787cbc50221870686f9af87f8afa86c262a84",
+      "final": "20f91a3ce8eea09181f3d4394da0e79a6633bb6fabcacff79c4fc84d217231ba",
+      "mode": "644"
+    },
+    "tests/manager/test_checkpoint_profiles.py": {
+      "baseline": "0938cb6cffac68336ebbec06311bb464c093be626c73d8708908ed0c9241a3f0",
+      "final": "50412e91f5154bfada877e5167ed97a043953bb2873f211c8f7db87c5f0da4c3",
+      "mode": "644"
+    }
+  },
+  "public_names": {
+    "review_cycles": [
+      "restore_abandoned_correction(store, *, attempt_id, generation, retention_policy_digest, profile)",
+      "abandoned_correction_of(store, *, attempt_id, generation)"
+    ],
+    "constants": [
+      "ABANDONED_CORRECTION",
+      "ABANDONED_CORRECTION_SCHEMA",
+      "RESTORE_KIND"
+    ],
+    "schema": "baton.v12.abandoned-correction/1",
+    "operation_kinds": {
+      "intent": "review-line.restore-abandoned-intent",
+      "completion": "review-line.restore-abandoned"
+    },
+    "checkpoint_profiles": [
+      "GitCheckpointProfile.restore_checkpoint(repository, evidence)",
+      "reset_vector(repository, head)",
+      "clean_vector(repository)"
+    ],
+    "matches_contract": "names, operands and the closed document members are exactly CONTRACT.md's; nothing else was added"
+  },
+  "contract_point_resolved_and_flagged": {
+    "asked": "'the committed changes-requested verdict/handoff provenance available through existing owners'",
+    "found": "no existing owner maps a CHECKPOINT to its verdict. _verdict_row selects by verdict_id, verdict_id is derived from the ATTACHMENT, and checkpoint_verdicts has exactly one adoption site which this module's own comment says is deliberate ('One site, one adoption').",
+    "used_instead": "the committed grant act behind writer_for_attempt. grant_writer admits a correction writer ONLY from a correction-ready line whose current_checkpoint_id equals the writer's based_checkpoint_id, and a line reaches correction-ready ONLY through a changes-requested verdict (record_verdict's own transition table). So an active writer with a based frozen checkpoint, read through the committed grant, IS that provenance -- proved from committed acts rather than from a second copy of the verdict table.",
+    "declared_before_editing": true,
+    "correction_offered": "if the reviewer wants the verdict row itself, that needs a second adoption site and is a correction I will take"
+  },
+  "profile": {
+    "restore_checkpoint": {
+      "order": "validate() first -- the retained reference, its commit, its tree and the reviewed path set -- THEN two writes, THEN validate(current=True). A restore that discovered its target was wrong after discarding the scratch would have destroyed the only copy of what it cannot replace.",
+      "writes": "reset --hard <head> -- and clean -f -d -x --, both -C the nominated repository and both option-terminated with no pathspec",
+      "why_ignored_files_too": "an abandoned worker's build output, virtualenv or editor state is exactly the uncommitted scratch this discards; a checkout still carrying it would not be the checkpoint's tree",
+      "operand_safety": "the head goes through check_declared_base, which admits one full lower-case object name -- not a revision expression, a ref, an abbreviation or a leading dash -- and the repository through the module's existing _path",
+      "preserved": [
+        "no object is deleted and no retained checkpoint ref is moved; the tool never removes its own metadata directory",
+        "nothing outside the repository is ever an operand, so immutable sibling custody is untouched because it is never named"
+      ]
+    }
+  },
+  "act": {
+    "order": [
+      "own the operands and the profile's two capabilities",
+      "REPLAY a completed recovery and return it before anything mutable is read -- a finished restore must answer without touching a checkout a later writer now holds",
+      "prove A's committed abandonment and gate discharge, cross-bound to this attempt, generation and policy, with the discharge's cleanup_operation compared whole against the cleanup's own identity AND signature",
+      "prove the exclusion: the historical writer via writer_for_attempt (never the line's current pointer), still active on a based frozen checkpoint; the line is that writer's own, still writing at that same checkpoint, with its object identity revalidated; and nothing else attached",
+      "commit the INTENT",
+      "ask the profile to restore, outside every transaction",
+      "commit the completion: revoke the writer, return the line to correction-ready at the SAME checkpoint"
+    ],
+    "two_transactions_because": "the profile writes a filesystem this database does not own; holding a write lock across a checkout would block every other manager act for its duration",
+    "failed_restore": "nothing after the intent runs, so the writer stays active and the line stays writing -- the next grant_writer still refuses and no successor is handed a checkout this act could not prove",
+    "concurrency": "the exclusion is proved again inside the completing transaction, because the profile call is the one place this act waits on somebody else",
+    "does_nothing_else": "no operator declaration, runtime act, Authority act, publication, verdict or Job episode replacement, and NO new checkpoint: current_checkpoint_id is deliberately not written because it already names this checkpoint"
+  },
+  "measured_rather_than_assumed": {
+    "what": "I wrote a case inserting a second active writer and expecting the recovery to refuse. The store will not have it: line_one_active_writer is a partial unique index on line_writers(line_id) WHERE state = 'active'.",
+    "so": "that guard is not this act's protection against a second writer -- the index is -- and the case now says so and exercises the guard from the other side, where the line's active writer is not this recovery's. A live REVIEW attachment is a different index and is constructible, so that half is driven directly.",
+    "registered_as": "test_two_active_writers_cannot_exist_for_this_act_to_find"
+  },
+  "proof": {
+    "checkpoint_profiles": {
+      "class": "RestoringOneCheckoutToItsRetainedCheckpoint",
+      "cases": 7,
+      "real": "a REAL disposable version-controlled repository with no ambient configuration. A recorded runner proves which argv crossed; it cannot prove the scratch is gone and the tree is the checkpoint's, which is the whole claim.",
+      "covers": [
+        "a modified tracked file, an untracked file and an ignored one, all discarded to the exact checkpoint",
+        "the retained ref, its tree and the base object all still reachable afterwards, and validate(current=True) passing from scratch",
+        "every argv confined to the nominated repository, with an immutable sibling directory untouched",
+        "a moved checkpoint reference refusing with the dirty worktree byte-for-byte as it was",
+        "foreign, malformed and short/upper-case operands"
+      ]
+    },
+    "review_cycles": {
+      "class": "AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint",
+      "cases": 26,
+      "real": "the real ControlStore and journal, the real line/writer/checkpoint/verdict lifecycle, and W128682's real abandon_attempt and discharge_abandoned_quiescence_gate; the profile and the authority seam are the module's own existing fixture shapes",
+      "covers": [
+        "the line coming back correction-ready at the same checkpoint with the writer revoked, and a fresh assignment then being GRANTED it -- the transition W119114 measured as impossible",
+        "the pin, the revision and the checkpoint row all unmoved and no second freeze",
+        "no abandonment, an undischarged gate, another generation, another policy, another profile",
+        "a live review attachment refusing before the profile is asked",
+        "a failed restoration admitting nobody, and an interrupted one finishing under the same exclusion",
+        "a completed recovery replaying without touching a checkout a later writer holds, and a replay under another policy colliding",
+        "an admission landing during the restore stopping the completion",
+        "the reader answering absence then history, still answering after the line advances, refusing an edited record or a foreign kind, and performing no profile or authority act"
+      ]
+    }
+  },
+  "budget": {
+    "cap": 20.0,
+    "spent": 3.787,
+    "remaining": 16.213,
+    "within": true,
+    "reset": false
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_checkpoint_profiles",
+      "wall": "0.193s",
+      "result": "errored -- the fixture's command seam was named `run`, which is TestCase.run, so each case called itself"
+    },
+    {
+      "run": "same, with that seam renamed `runner`",
+      "wall": "0.279s",
+      "log": "evidence/run-128901-profiles.log",
+      "result": "12 tests, OK -- 5 existing and 7 new"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_review_cycles.AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint",
+      "wall": "0.588s",
+      "result": "40 tests, 5 failures -- three fixture rows colliding with real uniqueness constraints, one case that was really the replay path, and one refusal category I had guessed"
+    },
+    {
+      "run": "same, after those five corrections",
+      "wall": "0.591s",
+      "result": "40 tests, 1 error -- the review attachment referenced an attempt row that did not exist"
+    },
+    {
+      "run": "same, with that attempt made",
+      "wall": "0.594s",
+      "log": "evidence/run-128901-class.log",
+      "result": "40 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_review_cycles tests.manager.test_checkpoint_profiles",
+      "wall": "1.542s",
+      "log": "evidence/run-128901-both.log",
+      "result": "158 tests, OK"
+    }
+  ],
+  "not_run": "no whole-suite pass, as the PLAN requires",
+  "existing_assertions": "unchanged. The only edits to existing bytes are two import lines and two additive members on the shared test Profile fixture (`restore_calls` and `restore_checkpoint`); no existing method or assertion changed."
+}

@@ -1,0 +1,9 @@
+test_a_stage_with_no_allocation_is_answered_by_no_worker (tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly.test_a_stage_with_no_allocation_is_answered_by_no_worker)
+The rule `PooledManagerOperations._reader` keeps, for the same ... ok
+test_it_carries_the_exchange_read_and_no_act (tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly.test_it_carries_the_exchange_read_and_no_act) ... ok
+test_it_reads_through_the_worker_the_scheduler_allocated (tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly.test_it_reads_through_the_worker_the_scheduler_allocated) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.110s
+
+OK

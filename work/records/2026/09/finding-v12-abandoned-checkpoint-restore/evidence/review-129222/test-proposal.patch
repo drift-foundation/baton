@@ -1,0 +1,43 @@
+--- a/v12/python/tests/manager/test_checkpoint_profiles.py
++++ b/v12/python/tests/manager/test_checkpoint_profiles.py
+@@ -261,16 +261,22 @@
+             self.evidence)
+ 
+     def test_nothing_outside_the_nominated_checkout_is_named(self):
+-        """Every argv is `-C` this repository and option-terminated, so there
+-        is no operand through which another tree could be reached."""
++        """Each command addresses the held nominated object, preserving custody."""
+         sibling = os.path.join(self.temporary.name, "custody")
+         os.mkdir(sibling)
+         with open(os.path.join(sibling, "retained.txt"), "w") as handle:
+             handle.write("immutable sibling custody\n")
+         seen = []
+         real = self.runner
++        nominated = os.stat(self.repository)
+ 
+         def recording(argv):
++            self.assertEqual(tuple(argv[:2]), ("git", "-C"), argv)
++            # The descriptor must still be open at the receiving boundary.
++            addressed = os.stat(argv[2])
++            self.assertEqual((addressed.st_dev, addressed.st_ino),
++                             (nominated.st_dev, nominated.st_ino), argv)
++            self.assertNotIn(sibling, argv)
+             seen.append(tuple(argv))
+             return real(argv)
+ 
+@@ -279,11 +285,11 @@
+         self.profile.restore_checkpoint(self.repository, self.evidence)
+         self.assertTrue(seen)
+         for argv in seen:
+-            self.assertEqual(argv[:3], ("git", "-C", self.repository), argv)
++            self.assertEqual(argv[:2], ("git", "-C"), argv)
+             self.assertNotIn(sibling, argv)
+-        self.assertIn(tuple(reset_vector(self.repository,
+-                                         self.evidence["head"])), seen)
+-        self.assertIn(tuple(clean_vector(self.repository)), seen)
++        target = seen[0][2]
++        self.assertIn(tuple(reset_vector(target, self.evidence["head"])), seen)
++        self.assertIn(tuple(clean_vector(target)), seen)
+         self.assertEqual(
+             open(os.path.join(sibling, "retained.txt")).read(),
+             "immutable sibling custody\n")

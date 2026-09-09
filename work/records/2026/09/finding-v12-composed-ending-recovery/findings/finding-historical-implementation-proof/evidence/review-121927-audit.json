@@ -1,0 +1,19 @@
+{
+  "v12/python/src/baton_v12/job_manager/review_driver.py": {
+    "sha256": "a0d5570bf10e4665401c04a712b4dc507ba355d159d06891c1d10b12dd5860d9",
+    "mode": "0o664"
+  },
+  "v12/python/tests/job_manager/test_review_driver.py": {
+    "sha256": "3c695fde1b1dfe5f6a7dbbb3b8ce8eaa6f8339459d6c52db0b947c662ae88cb0",
+    "mode": "0o664"
+  },
+  "removed": [],
+  "changed": [],
+  "added": [
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_boolean_generation_is_not_this_endings_assignment",
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_publication_this_manager_no_longer_retains_refuses",
+    "TheImplementationResumeReadsRealCommittedCustody.test_every_fact_the_retained_proposal_fixes_is_correlated",
+    "TheImplementationResumeReadsRealCommittedCustody.test_the_publication_selector_is_derivable_after_reopening"
+  ],
+  "prior_methods_preserved": 237
+}

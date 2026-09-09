@@ -1,0 +1,57 @@
+[
+  {
+    "case": "only-wal",
+    "before": [
+      "authority.sqlite3",
+      "authority.sqlite3-wal"
+    ],
+    "opened": "0123456789abcdef0123456789abcdef",
+    "after": [
+      "authority.sqlite3",
+      "authority.sqlite3-shm",
+      "authority.sqlite3-wal"
+    ],
+    "sizes": {
+      "authority.sqlite3-shm": 32768,
+      "authority.sqlite3-wal": 0,
+      "authority.sqlite3": 208896
+    }
+  },
+  {
+    "case": "only-shm",
+    "before": [
+      "authority.sqlite3",
+      "authority.sqlite3-shm"
+    ],
+    "opened": "0123456789abcdef0123456789abcdef",
+    "after": [
+      "authority.sqlite3",
+      "authority.sqlite3-shm",
+      "authority.sqlite3-wal"
+    ],
+    "sizes": {
+      "authority.sqlite3-wal": 0,
+      "authority.sqlite3-shm": 32768,
+      "authority.sqlite3": 208896
+    }
+  },
+  {
+    "case": "serving-close-after-guard",
+    "before": [
+      "authority.sqlite3",
+      "authority.sqlite3-shm",
+      "authority.sqlite3-wal"
+    ],
+    "opened": "0123456789abcdef0123456789abcdef",
+    "after": [
+      "authority.sqlite3",
+      "authority.sqlite3-shm",
+      "authority.sqlite3-wal"
+    ],
+    "sizes": {
+      "authority.sqlite3-shm": 32768,
+      "authority.sqlite3-wal": 0,
+      "authority.sqlite3": 208896
+    }
+  }
+]

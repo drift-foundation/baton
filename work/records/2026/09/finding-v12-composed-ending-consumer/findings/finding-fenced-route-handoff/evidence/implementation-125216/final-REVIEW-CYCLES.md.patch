@@ -1,0 +1,43 @@
+--- base/v12/python/REVIEW-CYCLES.md
++++ v12/python/REVIEW-CYCLES.md
+@@ -51,6 +51,40 @@
+ An accepted technical review alone does not establish passed tests or authorize
+ integration. The separate ordinary-test admission implementation is owned by
+ W112029, and W112039 gates joined acceptance of both capabilities.
++
++## Committed next-role handoff
++
++After the owning driver finishes, the original participant calls the Authority
++session's `route_fenced` with `expect`, `operation_id`, `fence_operation_id`,
++`from_route` and `to_route`. The source route must match that generation's
++committed claim authorization. The named cancellation must have committed for
++the exact original v12 assignment, and the Work must remain open and unclaimed
++at that generation, on its original route, with its original runtime-quiescence
++gate and `block` phase intact. The act changes only the route and atomically
++records the assignment, cancellation operation, routes, phase and gate.
++
++That receipt is the selected handoff commit; the consumer associates it with
++the retained checkpoint or verdict. The order is owning driver completion,
++committed route change with the gate intact, positive absence discharge, then
++local ending acknowledgement. Neither role can claim through the gate; after
++discharge, the next claim must be authorized for the new route. Cancellation
++and ordinary live-assignment `pass_work` retain their existing behavior.
++
++An exact retry replays the committed receipt before checking current Work
++eligibility, including after later movement; changing operands under the same
++operation identity refuses. A fresh operation cannot route a later generation
++or treat an already moved route as the original claim route. On a lost answer,
++reconcile or replay that stable operation before selecting another stage.
++Unfinished computation may be abandoned and repeated from the last committed
++handoff and its retained checkpoint after safely stopping or fencing the old
++worker. Preserve committed effects and custody; an intermediate checkpoint
++alone does not establish a committed handoff.
++
++The consumer uses existing route operands: `review_route` selects the configured
++next role, while a changes-requested handoff uses the producer attempt's unique
++correlated committed `work_route` from `claimed_offers_for`. This introduces no
++configuration schema or generalized historical routing capability. Consumer
++wiring and the ordinary one-Job lifecycle proof require separate acceptance.
+ 
+ ## Deployment wiring
+ 

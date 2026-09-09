@@ -1,0 +1,16 @@
+{
+  "non_integration_completion": [
+    "refused",
+    "operation-collision"
+  ],
+  "completed_after_uncertain_refresh": "completed",
+  "held_with_frozen_output": "exceptional",
+  "selectors": [
+    "tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead",
+    "tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation",
+    "tests.job_manager.test_exchange.AnIntegrationStageOwesConcludeAndNeverDispatch",
+    "tests.job_manager.test_tool.TheStatusSurfaceMayReadIntegrationAndStillActOnNothing"
+  ],
+  "tests_run": 43,
+  "success": true
+}

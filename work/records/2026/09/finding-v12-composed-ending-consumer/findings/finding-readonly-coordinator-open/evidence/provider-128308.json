@@ -1,0 +1,122 @@
+{
+  "work": "W126887",
+  "claim": 128308,
+  "implements": "owner M128251, which applies M128249 to this provider: SQLite-managed WAL/SHM creation and maintenance during a mode=ro open is permitted, INCLUDING REFUSED OPENS",
+  "claim_order": "claimed at seq128308 before reading the review and before any edit; the ledger was reconciled and the question and budget declared in PROGRESS before any test or probe",
+  "baseline": "the candidate bytes at handoff; the reviewer's retained manifest is evidence/review-127103-audit.json",
+  "paths": {
+    "src/baton_v12/integration/store.py": {
+      "baseline_candidate": "c46e89bfbb05198fccac7f36e095c6ac81bdac30048ff5b030a70c0cd88f4c17",
+      "final": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "mode": "664"
+    },
+    "tests/integration/test_coordinator.py": {
+      "baseline_candidate": "6e4e4f14bf3993ac1dede44116370b65b6f4b3ad196b5dca522f96e853e6b708",
+      "final": "cda33b582b41fecfca06759fc20fe254a6a683d4b919742386a01b36acb7506e",
+      "mode": "664"
+    }
+  },
+  "test_methods": {
+    "tests/integration/test_coordinator.py": 214
+  },
+  "ledger_reconciled": {
+    "reviewer_figure_for_the_correction_pass": 4.296,
+    "my_reported_figure": 4.3,
+    "accepted": 4.296,
+    "carry_in": 7.2,
+    "carry_in_caveat": "the 7.2s stands but remains subject to the evidence limitation recorded in review-2026-09-09T10-10-57Z: it was reported as grouped, rounded summaries without raw logs, and cannot be reconstructed now. It is carried at face value with that named.",
+    "cumulative_before_this_pass": 11.5,
+    "remaining_before_this_pass": 8.5,
+    "reset": false
+  },
+  "claims_withdrawn": [
+    "provider-127073.json said the reviewer's `serving-close-after-guard` replay refused at the POST-CHECK. The reviewer is right that that fixture refuses at the absent-sidecar preflight; my reading of which guard fired was not supported by it. Their separate-process harness is what actually reproduced the shutdown sequence."
+  ],
+  "source_change": {
+    "file": "src/baton_v12/integration/store.py",
+    "removed": [
+      "_sidecars_present, _sidecar_identities, _is_write_ahead_log",
+      "_require_nothing_was_created and its refusal",
+      "_SIDECARS, _HEADER_BYTES, _HEADER_WAL",
+      "the write-ahead-log preflight and its refusal inside _connect_readonly",
+      "the pre-connect identity snapshot and the post-read check in open_readonly"
+    ],
+    "why": "each existed only for the blanket no-artifact prohibition the amendment supersedes for SQLite's own WAL/SHM creation and maintenance, including refused opens",
+    "unchanged": [
+      "the public ContractRefusal correction [P2]: sqlite3.Error at the first schema read is translated at its owning boundary into refused/precondition; anything else travels out untouched",
+      "the coherent snapshot -- identity, objects and _adopt all inside one store.snapshot()",
+      "the existing-path, absent-store, empty-database, foreign-kind, unowned-metadata and schema-version refusals, each leaving the file as found",
+      "mode=ro, so the connection cannot write the DATABASE; immutable=1 still deliberately unused",
+      "no initialization, migration, write lock, checkpoint, persistent PRAGMA, permissions change or write-capable fallback",
+      "no application sidecar cleanup: nothing removes a file",
+      "mutation refusal in transact (refused/capability) before any statement",
+      "the store stays target-keyed and acquires no Authority identity"
+    ]
+  },
+  "scheduled_conversion": {
+    "authority": "PLAN under M128251: only sidecar-effect expectations (including sidecar-only refusal expectations) may change",
+    "converted": [
+      "test_a_store_nobody_holds_is_refused_with_the_sidecar_limit_named -> test_a_store_nobody_holds_reads_its_committed_evidence: proves committed evidence is readable after an ORDINARY SERVING SHUTDOWN, which is the case the Work exists for",
+      "test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing -> test_a_partial_sidecar_pair_reads_the_same_committed_evidence, over the same two states (-wal only, -shm only)"
+    ],
+    "added": [
+      "test_no_coordinator_is_created_where_none_exists, keeping the protection the amendment did NOT touch explicit beside the conversions"
+    ],
+    "note": "both conversions measure `snapshot_bytes` -- the store's own bytes and mode, sidecars excluded -- and the shutdown case takes `before` AFTER the serving close, because a clean shutdown checkpoints the write-ahead log into the database: the writer's act, not the reader's, and measuring across it would charge it to this opener",
+    "other_assertions": "unchanged. The baseline run below shows exactly the two scheduled cases failing after the guards came out and nothing else, so no other existing expectation conflicted with the amendment"
+  },
+  "residual_answered": {
+    "was": "review-2026-09-09T10-22-03Z independently reproduced, with a separate process, that a serving exit between the reader's preflight and its connection leaves SQLite recreating both sidecars before the opener refuses",
+    "now": "the reviewer's own harness, replayed unchanged against this candidate, reports opened=true: the sequence they proved was a refusal is now a successful read, which is what the amendment intends. Nothing about the sidecars is decided by this code.",
+    "retained": "evidence/replay-127103-shutdown-128308.json"
+  },
+  "budget": {
+    "allowance": 20.0,
+    "carried_in": 11.5,
+    "spent_this_pass": 4.606,
+    "cumulative": 16.106,
+    "remaining": 3.894,
+    "within": true,
+    "reset": false,
+    "note": "every run is an exact command with its wall time from `time` and its raw log retained beside this file"
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.integration.test_coordinator.ReadOnlyOpening",
+      "wall": "0.197s",
+      "log": "evidence/run-128308-a.log",
+      "result": "18 tests, 3 failures -- exactly the two scheduled cases, one with two subtests, and nothing else"
+    },
+    {
+      "run": "same, after the scheduled conversion",
+      "wall": "0.204s",
+      "log": "evidence/run-128308-b.log",
+      "result": "19 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.integration.test_coordinator",
+      "wall": "1.540s",
+      "log": "evidence/run-128308-c.log",
+      "result": "214 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.integration.test_driver",
+      "wall": "2.173s",
+      "log": "evidence/run-128308-d.log",
+      "result": "109 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=... python3 evidence/review-127025-probe.py",
+      "wall": "0.164s",
+      "log": "evidence/replay-127025-probe-128308.json",
+      "result": "only-wal, only-shm and serving-close-after-guard now OPEN; not-database still refuses with ContractRefusal and its 23 bytes are unchanged"
+    },
+    {
+      "run": "PYTHONPATH=... python3 evidence/review-127103-shutdown-final.py",
+      "wall": "0.328s",
+      "log": "evidence/replay-127103-shutdown-128308.json",
+      "result": "serving exits between preflight and connect; the read now opens instead of refusing"
+    }
+  ],
+  "sibling": "W126880 carries the Authority half of the same amendment (M128249), completed at seq128301 and not edited here."
+}

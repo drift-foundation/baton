@@ -1,0 +1,7 @@
+{
+  "budget_seconds": 2,
+  "elapsed_seconds": 0.153414843021892,
+  "returncode": 0,
+  "stdout": "{\"non_integration_completion\": \"completed\", \"completed_after_uncertain_refresh\": \"exceptional\", \"held_with_frozen_output\": \"answering\"}\n",
+  "stderr": ""
+}

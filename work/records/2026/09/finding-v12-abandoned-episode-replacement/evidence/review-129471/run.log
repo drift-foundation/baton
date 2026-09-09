@@ -1,0 +1,41 @@
+test_the_abandoned_episode_ends_and_the_sweep_opens_one_successor (tests.job_manager.test_recovery.OneAbandonedCorrectionEpisodeIsReplaced.test_the_abandoned_episode_ends_and_the_sweep_opens_one_successor)
+THE WHOLE DEFECT, END TO END. Before this act the stage is ... ok
+test_an_exact_replay_answers_after_the_successor_has_started (tests.job_manager.test_recovery.OneAbandonedCorrectionEpisodeIsReplaced.test_an_exact_replay_answers_after_the_successor_has_started)
+The identity is derived from the attempt and its fenced generation, ... ok
+test_an_accepted_review_supersedes_the_correction (tests.job_manager.test_recovery.OneAbandonedCorrectionEpisodeIsReplaced.test_an_accepted_review_supersedes_the_correction)
+An accepted checkpoint makes the line eligible for integration; a ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.058s
+
+OK
+{
+  "accepted_review_before_commit": {
+    "outcome": "abandoned-after-exclusion",
+    "line_state": "accepted",
+    "live_episode": null
+  },
+  "different_checkpoint_than_job_handoff": {
+    "handoff_checkpoint": "checkpoint-59771608bff9dd3005411ec1b162143716dddf41125445ca7370e2a570d67209",
+    "restored_checkpoint": "checkpoint-8a599d046c71efe798c8bc4e830c66b56362b5fcde75cd441a00b173ccb3e390",
+    "outcome": "abandoned-after-exclusion",
+    "live_episode": null
+  },
+  "malformed_replay": {
+    "returned": {
+      "schema": "foreign-schema",
+      "operation_id": "episode.restart-abandoned:attempt-5f2ca250f1eba903fbe1bc7f141c7c438899894b9027073af3e551591f186398:2",
+      "job_id": "job-a",
+      "stage_id": "job-a/implementation",
+      "episode": 2,
+      "attempt_id": "attempt-5f2ca250f1eba903fbe1bc7f141c7c438899894b9027073af3e551591f186398",
+      "assignment": null,
+      "line_id": "line-d889e9019b9c5bf68b5a77733887e481d05bf051e8832f3110413a81cbb4f50c",
+      "checkpoint_id": "foreign-checkpoint",
+      "preparation_operation_id": "review-line.restore-abandoned:restore-c58ab1d38c58b50bf4272da38f001c890014bdead28ffed282274031d3590b1f",
+      "discharge_operation_id": "authority.discharge-quiescence-abandoned:b0851aeb20a4340369d3a7bbd390641ffa54290df22fdf1560f35031617cf7d8",
+      "ended_state": "abandoned-after-exclusion"
+    }
+  },
+  "controls_pass": true
+}

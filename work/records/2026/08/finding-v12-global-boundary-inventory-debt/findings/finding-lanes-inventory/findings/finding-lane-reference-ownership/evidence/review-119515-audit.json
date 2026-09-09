@@ -1,0 +1,37 @@
+{
+  "review_claim": 119515,
+  "source_hashes": {
+    "v12/python/tests/manager/test_boundary_inventory.py": "162f527e3476dcffcc937996df6c36d2d26505dfd7ea156eee6657e7433b30d5",
+    "v12/python/src/baton_v12/worker_manager/lanes.py": "72fa035958dbd4f1c08b4824aa4fff3fe5178f94790e550224f72fcc0c08f285",
+    "v12/python/src/baton_v12/worker_manager/schema.py": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+    "v12/python/src/baton_v12/worker_manager/__init__.py": "965dd3599ad627a2f22b66ed37fac31041ccd8a342fab853a0ca1ca866b38d8b",
+    "v12/python/src/baton_v12/worker_manager/attempts.py": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+    "v12/python/src/baton_v12/worker_manager/intake.py": "be9bafa313b15e3a12d443fc7f704049b504b05835812e1e41ebcf391c5e99d9"
+  },
+  "diagnostic_hashes_still_match": true,
+  "production_calls": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/lanes.py",
+      "line": 254,
+      "call": "lane_reference(attempt)"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "line": 1430,
+      "call": "lanes.lane_reference(attempt)"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "line": 2094,
+      "call": "lanes.lane_reference(attempt)"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "line": 2517,
+      "call": "lanes.lane_reference(attempt)"
+    }
+  ],
+  "test_runtime_lane_sha256": "1e2af4580ba224ccdbb4524855073abe16b9e72f114a6bd9fed8bfc0fe0a714f",
+  "retained_diagnostic_sha256": "2ba55e18a0a390af382b63614dc0a3182e2316c277a3d64317fb06153aeabb7a",
+  "execution": "Static caller/export/validator and retained-observation audit; no probe or suite rerun."
+}

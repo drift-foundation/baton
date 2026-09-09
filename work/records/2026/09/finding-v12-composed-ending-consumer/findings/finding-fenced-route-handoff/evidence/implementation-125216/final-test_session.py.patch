@@ -1,0 +1,69 @@
+--- base/v12/python/tests/authority/test_session.py
++++ v12/python/tests/authority/test_session.py
+@@ -62,6 +62,57 @@
+         for participant in handlers:
+             self.authority.add_route_handler(ROUTE, participant)
+         return work_id
++
++
++class FencedRouteSession(SessionCase):
++    """The original participant owns routing, including committed replay."""
++
++    def setUp(self):
++        super().setUp()
++        self.work()
++        self.mine = self.claude.claim({"work_id": WORK, "operation_id": "claim-route"})["assignment"]
++        self.claude.cancel({"expect": self.mine, "operation_id": "cancel-route", "reason": "retained checkpoint"})
++        self.operands = {"expect": self.mine, "operation_id": "route-original", "fence_operation_id": "cancel-route",
++                         "from_route": ROUTE, "to_route": "rview"}
++
++    def test_the_explicit_session_act_commits_and_replays_the_original_receipt(self):
++        before = self.claude.project_work(WORK)
++        receipt = self.claude.route_fenced(self.operands)
++        self.assertEqual(receipt, {"assignment": self.mine, "fence_operation_id": "cancel-route",
++                                   "from_route": ROUTE, "to_route": "rview", "phase": "block",
++                                   "gate": "runtime-quiescence:1"})
++        self.assertEqual(self.claude.operation_result("route-original"), receipt)
++        self.assertEqual(self.claude.project_work(WORK), {**before, "route": "rview"})
++        self.claude.satisfy_gate({"work_id": WORK, "operation_id": "absence-route", "gate": receipt["gate"],
++                                 "evidence": {"kind": "runtime-absent", "runtime": "runtime-original"}})
++        current = self.claude.project_work(WORK)
++        self.assertEqual(self.claude.route_fenced(self.operands), receipt)
++        self.assertEqual(self.claude.project_work(WORK), current)
++
++    def test_another_session_cannot_route_or_replay_the_original_participants_handoff(self):
++        for committed in (False, True):
++            with self.subTest(committed=committed):
++                if committed:
++                    self.claude.route_fenced(self.operands)
++                before = self.claude.project_work(WORK)
++                record = self.claude.operation_record("route-original")
++                with self.assertRaisesRegex(Refusal, "this session acts for"):
++                    self.gemini.route_fenced(self.operands)
++                self.assertEqual(self.claude.project_work(WORK), before)
++                self.assertEqual(self.claude.operation_record("route-original"), record)
++
++    def test_missing_extra_and_caller_supplied_identity_operands_refuse(self):
++        before = self.claude.project_work(WORK)
++        for member in self.operands:
++            with self.subTest(missing=member):
++                with self.assertRaises(Refusal):
++                    self.claude.route_fenced({key: value for key, value in self.operands.items() if key != member})
++        for extra in ({"actor": GEMINI}, {"participant": GEMINI}, {"gate": "runtime-quiescence:2"}, {"phase": "queued"}):
++            with self.subTest(extra=extra):
++                with self.assertRaises(Refusal):
++                    self.claude.route_fenced({**self.operands, **extra})
++        self.assertEqual(self.claude.project_work(WORK), before)
++        self.assertIsNone(self.claude.operation_result("route-original"))
+ 
+ 
+ class Minting(SessionCase):
+@@ -93,7 +144,7 @@
+         self.assertEqual(list(SESSION_TRANSITIONS), sorted([
+             "activity", "advance_contract", "approve", "cancel", "claim",
+             "close", "end", "install_gate", "integrate", "pass_work",
+-            "publish", "reject_plan", "review", "satisfy_gate",
++            "publish", "reject_plan", "review", "route_fenced", "satisfy_gate",
+             "settle_operation", "verify",
+             # W29400: the two Work-label mutations, entered deliberately.
+             "label_work", "unlabel_work"]))

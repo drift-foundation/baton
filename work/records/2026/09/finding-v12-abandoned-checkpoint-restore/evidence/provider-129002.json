@@ -1,0 +1,132 @@
+{
+  "work": "W128692",
+  "claim": 129002,
+  "corrects": "review-2026-09-09T15-50-59Z.md, three P1 findings",
+  "claim_order": "claimed at seq129002 before reading the review and before any edit; the clarification the review required was pinned in FINDING.md and PLAN.md before the first source edit",
+  "findings_accepted": "all three, without argument",
+  "paths": {
+    "src/baton_v12/worker_manager/review_cycles.py": {
+      "submitted": "0567a0dd17e94f5a52ccf8bb63b1abe95112eecc35c7be176fce448f7d0c2b2c",
+      "final": "60439ae9934e37b9b8160be3b8935f853365fcdbadd779bcbcef83daa58b4374",
+      "mode": "644"
+    },
+    "src/baton_v12/checkpoint_profiles.py": {
+      "submitted": "fbf58dc01aba2f1fd76c14e572517c107aee3fd02aa2640b5f969acf58c35630",
+      "final": "cf8e3c5d3009ddb0dfe6166fff2993b34297885b45cb551dd5e27cb3bc8d1030",
+      "mode": "644"
+    },
+    "tests/manager/test_review_cycles.py": {
+      "submitted": "20f91a3ce8eea09181f3d4394da0e79a6633bb6fabcacff79c4fc84d217231ba",
+      "final": "2d56801f1d414bc689f06842e19d9b86e6e7bfaccf76c63744281699bbdd4988",
+      "mode": "644"
+    },
+    "tests/manager/test_checkpoint_profiles.py": {
+      "submitted": "50412e91f5154bfada877e5167ed97a043953bb2873f211c8f7db87c5f0da4c3",
+      "final": "2f8cc51aa27a5d56ce7ca8216c6f6df8ba8c1e9cee948a9bcfa3dfbbad9b5307",
+      "mode": "644"
+    }
+  },
+  "p1_serialization": {
+    "was": "the revocation happened at COMPLETION, so two restorers both passed the entry checks; one completed, the line was released, a successor was admitted, and the other -- still inside the profile -- reset that successor's checkout and then returned the first one's committed result as its own success",
+    "now": [
+      "THE INTENT TAKES THE EXCLUSION: the writer is revoked in the same transaction that fixes the intent, so a second restorer finds no active writer and never reaches the profile",
+      "THE LINE IS LEFT `writing` until completion, so no successor can be admitted across the profile boundary -- grant_writer admits only from idle or correction-ready",
+      "IMMEDIATELY BEFORE THE WRITE, the committed completion and the line's active writers are read again: an active writer is exactly what a successor admitted after a release looks like, and is what distinguishes one from this recovery's own crash retry",
+      "AFTER THE WRITE, a committed completion is refused as operation-collision rather than replayed -- store.transact would otherwise hand back another call's success as this one's"
+    ],
+    "crash_retry": "a resumed call adopts its own committed intent from the journal, re-proves the exclusion is still HERE, and finishes; it deliberately does not re-take an exclusion it already holds",
+    "residual_reported_not_papered_over": {
+      "what": "every check this module can make happens BEFORE restore_checkpoint is called. A second restorer paused INSIDE that call -- past its own guard, before its effect -- is not excluded by any of them, and its effect still resets a successor's checkout.",
+      "measured": "test_an_in_flight_duplicate_cannot_reset_a_successors_checkout drives the reviewer's exact interleaving and asserts both halves: the duplicate now REFUSES with operation-collision instead of reporting success, and its effect did run",
+      "what_closing_it_would_take": [
+        "a durable in-flight lease, which needs a schema this Work does not own",
+        "or an admission that consults this recovery's completion record, which means changing grant_writer -- and CONTRACT.md freezes ordinary grant behaviour"
+      ],
+      "not_taken": "neither is mine to choose inside this allocation"
+    }
+  },
+  "p1_path_substitution": {
+    "was": "the profile validated the PATHNAME and the checkpoint CONTENTS, so renaming the nominated directory and leaving a symlink with its old name pointed the destructive commands at a tree outside the line; -C follows the link",
+    "now": "the nominated path must be a real directory rather than a link, its device and inode are pinned by lstat before anything is verified, and they are compared again immediately before each destructive command and once after the last one",
+    "why_lstat": "a symlink whose target is a directory answers a perfectly good directory to stat; what is pinned is the object the NAME resolves to without following anything",
+    "controls": [
+      "the reviewer's rename-and-symlink substitution, with the outside scratch, tracked bytes and metadata directory all proved untouched",
+      "a substitution landing BETWEEN the two writes",
+      "a repository that is itself a link, refused outright"
+    ]
+  },
+  "p1_historical_owners": {
+    "was": "the reader checked the receipt against a signature recomposed from that same receipt -- internal consistency and nothing about the records it was earned against -- and the act inferred the changes-requested provenance from the committed grant",
+    "reader_now": "follows writer_for_attempt, checkpoint_of and the committed verdict, comparing identity and immutable relationship only; no mutable predicate, so a later writer and a later checkpoint leave an earlier recovery readable",
+    "act_now": "reads the committed changes-requested verdict through verdict_of before the intent, so a retained verdict whose principal was edited refuses before any profile write",
+    "how_the_verdict_is_reached": "one SELECT answers a verdict IDENTITY and verdict_of owns and validates the record. No second column contract for checkpoint_verdicts is created, which is what _verdict_row's own comment is about. Pinned in FINDING.md before editing, as the review required.",
+    "superseded": "the claim128901 grant-based provenance substitution",
+    "controls": [
+      "an edited historical writer principal refusing in BOTH the reader and the act",
+      "an edited verdict principal refusing before any profile write, with the line left untouched",
+      "an accepted disposition scheduling no correction",
+      "a valid read still answering after a later writer and a later frozen checkpoint"
+    ]
+  },
+  "proof": {
+    "class_cases": 47,
+    "profile_cases": 15,
+    "both_modules": "168 tests, OK",
+    "existing_assertions": "unchanged; two of my own earlier cases were retargeted because the corrected ordering makes them say something stronger, and both say so"
+  },
+  "budget": {
+    "cap": 20.0,
+    "carried_in": 3.787,
+    "spent_this_pass": 7.234,
+    "cumulative": 11.021,
+    "remaining": 8.979,
+    "within": true,
+    "reset": false
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_review_cycles tests.manager.test_checkpoint_profiles",
+      "wall": "1.552s",
+      "result": "158 tests, 2 failures -- my own two cases asserting the old revocation ordering"
+    },
+    {
+      "run": "the recovery class, after the resume path was added",
+      "wall": "0.589s",
+      "result": "40 tests, 2 failures"
+    },
+    {
+      "run": "same, with the P1 regressions added",
+      "wall": "1.078s",
+      "result": "47 tests, 2 errors -- the pause seam re-entered itself"
+    },
+    {
+      "run": "same, with the pause made one-shot",
+      "wall": "0.686s",
+      "result": "47 tests, 2 failures -- both premises corrected by what the interleaving actually does"
+    },
+    {
+      "run": "same, after the post-write collision",
+      "wall": "0.680s",
+      "result": "47 tests, 1 error"
+    },
+    {
+      "run": "same, after retargeting the duplicate-completion case",
+      "wall": "0.682s",
+      "log": "evidence/run-129002-class.log",
+      "result": "47 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_checkpoint_profiles",
+      "wall": "0.315s",
+      "log": "evidence/run-129002-profiles.log",
+      "result": "15 tests, OK -- 5 existing and 10 new"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_review_cycles tests.manager.test_checkpoint_profiles",
+      "wall": "1.652s",
+      "log": "evidence/run-129002-both.log",
+      "result": "168 tests, OK"
+    }
+  ],
+  "not_run": "no whole-suite or inventory pass"
+}

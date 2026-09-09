@@ -1,0 +1,14 @@
+{
+  "claim": 129181,
+  "owner_response": 129177,
+  "obligation": 129152,
+  "B_candidate": "evidence/review-129125/manifest.json",
+  "all_four_B_hashes_modes_match": true,
+  "all_three_A_hashes_match": true,
+  "author_budget": {
+    "cumulative_cap": 25,
+    "carried_used": 19.534,
+    "remaining": 5.466
+  },
+  "test_runs": 0
+}

@@ -1,0 +1,23 @@
+test_a_gate_kind_reply_cannot_be_committed_as_absence_evidence (tests.manager.test_intake.ConcreteAuthorityDischargeReceipts.test_a_gate_kind_reply_cannot_be_committed_as_absence_evidence) ... ok
+test_an_unreachable_runtime_supplies_no_discharge_proof (tests.manager.test_intake.ConcreteAuthorityDischargeReceipts.test_an_unreachable_runtime_supplies_no_discharge_proof) ... FAIL
+test_another_concrete_authority_cannot_commit_this_receipt (tests.manager.test_intake.ConcreteAuthorityDischargeReceipts.test_another_concrete_authority_cannot_commit_this_receipt) ... ok
+test_concrete_answer_commits_and_survives_reopening_both_owners (tests.manager.test_intake.ConcreteAuthorityDischargeReceipts.test_concrete_answer_commits_and_survives_reopening_both_owners) ... ok
+test_original_cleanup_cannot_discharge_a_later_generation (tests.manager.test_intake.ConcreteAuthorityDischargeReceipts.test_original_cleanup_cannot_discharge_a_later_generation) ... ok
+test_remote_success_local_loss_replays_after_later_movement_and_reopening (tests.manager.test_intake.ConcreteAuthorityDischargeReceipts.test_remote_success_local_loss_replays_after_later_movement_and_reopening) ... ok
+
+======================================================================
+FAIL: test_an_unreachable_runtime_supplies_no_discharge_proof (tests.manager.test_intake.ConcreteAuthorityDischargeReceipts.test_an_unreachable_runtime_supplies_no_discharge_proof)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_intake.py", line 2656, in test_an_unreachable_runtime_supplies_no_discharge_proof
+    self.assertEqual(caught.exception.category, "refused")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'integrity' != 'refused'
+- integrity
++ refused
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.120s
+
+FAILED (failures=1)

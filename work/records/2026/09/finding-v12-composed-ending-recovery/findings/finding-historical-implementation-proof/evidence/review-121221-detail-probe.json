@@ -1,0 +1,27 @@
+{
+  "work": "W120425",
+  "claim": 121221,
+  "sha256": {
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "cc6b21627d49c2a9864deb7b93ebb01c851e026ddbc86ced58ef9217c99dd67c",
+    "v12/python/tests/job_manager/test_review_driver.py": "d6f0bb5d6c78d74cd48aff9e07d4afe4f4de1a4598a0b6939a21c2724addd3b7"
+  },
+  "results": {
+    "cold_transaction_and_return_contract": {
+      "ordinary_resume_different_members": [
+        "published"
+      ],
+      "cold_returned": true,
+      "cold_write_statements": [
+        "BEGIN IMMEDIATE",
+        "COMMIT"
+      ],
+      "later_target_drift": {
+        "exception": "ContractRefusal",
+        "category": "refused",
+        "code": "precondition",
+        "message": "the worker built on 'a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1' and the Authority target is 'c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3'; a proposal is offered against the revision it was built from"
+      }
+    }
+  },
+  "seconds": 0.11072754301130772
+}

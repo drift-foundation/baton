@@ -1,0 +1,27 @@
+{
+  "work": "W120762",
+  "claim": 120907,
+  "preserved_function_bodies": 186,
+  "removed_test": [
+    ".TheCommittedCleanupIsReadableWithoutActing.test_a_retention_the_cleanup_did_not_keep_refuses"
+  ],
+  "changed_surviving_test_bodies": [],
+  "added_methods": [
+    ".TheCommittedCleanupIsReadableWithoutActing.test_a_decision_made_under_another_policy_refuses",
+    ".TheCommittedCleanupIsReadableWithoutActing.test_a_kept_set_the_decisions_do_not_name_refuses",
+    ".TheCommittedCleanupIsReadableWithoutActing.test_a_signature_this_manager_does_not_derive_refuses",
+    ".TheCommittedCleanupIsReadableWithoutActing.test_an_ordinary_receipt_carries_no_kind_member",
+    ".TheCommittedCleanupIsReadableWithoutActing.test_an_unsettled_or_invented_runtime_state_is_never_an_ending",
+    ".TheCommittedCleanupIsReadableWithoutActing.test_every_artifact_must_carry_a_decision_under_this_policy",
+    ".TheCommittedCleanupIsReadableWithoutActing.test_quarantined_custody_settles_retained_and_reads_back",
+    ".TheCommittedCleanupIsReadableWithoutActing.test_the_ending_must_be_the_one_those_facts_settle"
+  ],
+  "changed_runtime_functions": [
+    "._kept_material",
+    "._settled_ending",
+    ".cleanup_of"
+  ],
+  "unchanged_export_and_secrets_bytes": true,
+  "candidate_hashes_match_handback": true,
+  "scope": "One existing test replaced despite preservation requirement; owner disposition needed"
+}

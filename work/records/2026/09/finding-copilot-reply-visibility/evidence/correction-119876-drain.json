@@ -1,0 +1,66 @@
+{
+  "question": "does the corrected ordering drain both reproduced starvation scenarios",
+  "corrected_sha256": {
+    "tools/codex_copilot_notifier.py": "112e00ecf69bb2a0fae2bf02cfb257e14508435daf4c766b498fd19103f631d9",
+    "tools/test_codex_copilot_notifier.py": "618bc9900d1ed345fdfc27b607525ab4abc2fc40dee9f81c742bf3728e481993",
+    "tools/CODEX-COPILOT-NOTIFIER.md": "c636f56d217a1e1b46d18dba2ad640a8e3e8026711267e71499ecb4ad82ec573"
+  },
+  "new_obligation_starvation": {
+    "all_initially_seen": false,
+    "rounds": [
+      {
+        "time": 1301,
+        "status": "accepted",
+        "offered_count": 50,
+        "leads": "obligation:54",
+        "cumulative_distinct": 50
+      },
+      {
+        "time": 1601,
+        "status": "accepted",
+        "offered_count": 50,
+        "leads": "obligation:45",
+        "cumulative_distinct": 60
+      },
+      {
+        "time": 1901,
+        "status": "accepted",
+        "offered_count": 50,
+        "leads": "obligation:54",
+        "cumulative_distinct": 60
+      }
+    ],
+    "permanently_omitted": [],
+    "every_obligation_advised": true,
+    "oldest_remaining_anchor": 1601
+  },
+  "due_reminder_starvation": {
+    "all_initially_seen": true,
+    "rounds": [
+      {
+        "time": 1301,
+        "status": "accepted",
+        "offered_count": 50,
+        "leads": "obligation:0",
+        "cumulative_distinct": 50
+      },
+      {
+        "time": 1601,
+        "status": "accepted",
+        "offered_count": 50,
+        "leads": "obligation:54",
+        "cumulative_distinct": 60
+      },
+      {
+        "time": 1901,
+        "status": "accepted",
+        "offered_count": 50,
+        "leads": "obligation:45",
+        "cumulative_distinct": 60
+      }
+    ],
+    "permanently_omitted": [],
+    "every_obligation_advised": true,
+    "oldest_remaining_anchor": 1601
+  }
+}

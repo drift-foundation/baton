@@ -1,0 +1,37 @@
+{
+  "reviewed_at": "2026-09-08T13:16:48Z",
+  "candidate_sha256": {
+    "v12/python/tools/stage_execution.py": "db280363bf8e1f7bc534a25dd163275a87aad3a21d784d330801823ce9f3cb60",
+    "v12/python/tests/tools/test_stage_execution.py": "44dd0d4ccef341f4d33e41560a46fef4987b37fd8dc2d64f812e9b8884534b54",
+    "v12/python/tools/single_worker.py": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27",
+    "v12/python/tests/tools/test_single_worker.py": "95808aee8529d27bab0519f3fe8d45ae4e51507594c4825495530a8882d9af6c",
+    "v12/python/tools/parallel_test.py": "f00fec0efebca9df1e25c025d1c9f07d350d1c79f0f0c880e673888bac884547"
+  },
+  "unchanged": [
+    "v12/python/tools/single_worker.py",
+    "v12/python/tests/tools/test_single_worker.py",
+    "v12/python/tools/parallel_test.py"
+  ],
+  "prior_classes_unchanged": 26,
+  "changed_classes": [
+    "TheIntegrationStageConsumesTheAcceptedPort"
+  ],
+  "changed_existing_methods": [
+    "test_a_delivery_with_no_started_runtime_is_not_refreshed"
+  ],
+  "added_classes": [
+    "AFreshPortReentersANeverStartedDelivery",
+    "TheFactorysOwnOperandsReachTheIntegrationStage"
+  ],
+  "added_methods": [
+    "test_a_started_or_uncertain_runtime_is_never_prepared_here"
+  ],
+  "reconstructed_source_matches_prior_review": true,
+  "evidence_sha256": {
+    "focused.txt": "5a927752dd91321340814a46ebb1a0c0f520bf7854ca8e907b837ea7a0e7c7fa",
+    "prior-source-regression.txt": "d16a4d5b2d02cb901b7f165994315c351ad13c7b86e2b7c38f06a11e01a9d543",
+    "EXECUTION.md": "5082c31c249f13c506fa13bbf6505f7e33f55e15faeabd7b7e2738aefe62696b",
+    "assertion-audit.json": "7cbf27ac6c072c4e4ac015706b08751af4774b6497459db3cd8cb88ba1bb2725"
+  },
+  "retained_broad_sha256": "b4f19ea440037846d4e1a5b0abfb3a84e4a0d8da05e1e66fa01770c4fe4f70c6"
+}

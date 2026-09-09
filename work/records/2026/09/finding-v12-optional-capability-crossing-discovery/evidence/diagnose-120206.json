@@ -1,0 +1,49 @@
+{
+  "work": "W120204",
+  "claim": 120206,
+  "sha256": {
+    "v12/python/tests/manager/test_boundary_inventory.py": "162f527e3476dcffcc937996df6c36d2d26505dfd7ea156eee6657e7433b30d5",
+    "v12/python/src/baton_v12/worker_manager/authority_port.py": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6",
+    "v12/python/src/baton_v12/worker_manager/intake.py": "6c00c441bc7b2356fddfd9f0867db59e05d6b96128dbf8918fc3b67ea46c89c7"
+  },
+  "satisfy_gate_crossing": null,
+  "sites": {
+    "authority_port.py:AuthorityPort.satisfy_gate": {
+      "calls": [
+        {
+          "line": 358,
+          "call": "performing",
+          "lexical_capability": null,
+          "origin": null
+        }
+      ],
+      "bindings": {
+        "performing": [],
+        "answer": [],
+        "answered": []
+      }
+    },
+    "intake.py:discharge_quiescence_gate": {
+      "calls": [
+        {
+          "line": 1422,
+          "call": "port.satisfy_gate",
+          "lexical_capability": null,
+          "origin": "session:satisfy_gate"
+        }
+      ],
+      "bindings": {
+        "performing": [],
+        "answer": [],
+        "answered": [
+          "session:satisfy_gate"
+        ]
+      }
+    }
+  },
+  "census": {
+    "exception": "AssertionError",
+    "message": "satisfy_gate.kind belongs to no crossing"
+  },
+  "seconds": 0.7983354970347136
+}

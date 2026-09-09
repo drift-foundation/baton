@@ -1,0 +1,208 @@
+{
+  "work": "W119114",
+  "claim": 128468,
+  "claim_order": "claimed at seq128468 before any edit; the revalidation, the question and the 600s budget were declared in PROGRESS before the first run",
+  "authority": "RESTART-ACCEPTANCE-2026-09-09.md under the campaign 04:13Z ruling and M124896/M125007; the earlier same-attempt intermediate continuation text in FINDING.md is historical",
+  "revalidated": {
+    "blockers": {
+      "W119113": "closed satisfying",
+      "W119548": "closed satisfying",
+      "W119733": "closed satisfying",
+      "W121887": "closed satisfying",
+      "W122060": "closed satisfying"
+    },
+    "first_open_blocker": null,
+    "how": "baton detail work=W119114, read before claiming"
+  },
+  "paths": {
+    "tools/stage_execution.py": {
+      "sha256": "da339acb16b3a97c8eba9f71aa7c555d0293af50b869cff5a2e869ab8d8fe3ab",
+      "mode": "664",
+      "edited_under_this_claim": false
+    },
+    "tools/single_worker.py": {
+      "sha256": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+      "mode": "664",
+      "edited_under_this_claim": false
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "a1aca8b195dc0effcf9fbd24a4f65998a50bd302e2533893d146d43978cfd381",
+      "mode": "664",
+      "edited_under_this_claim": true
+    },
+    "tests/tools/test_single_worker.py": {
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "mode": "664",
+      "edited_under_this_claim": false
+    },
+    "tools/parallel_test.py": {
+      "sha256": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+      "mode": "644",
+      "edited_under_this_claim": true
+    }
+  },
+  "test_methods": {
+    "tests/tools/test_stage_execution.py": 154
+  },
+  "no_source_file_was_touched": "the two edited paths are a test module and a registry comment; nothing under src/ changed under this claim, which is what makes the source-scan failures below provably not mine",
+  "reused_rather_than_rebuilt": {
+    "why": "the PLAN says to reuse the accepted composition and fixture and 'run only what is missing or invalidated by changed bytes'",
+    "already_accepted_in_the_tree": [
+      "TheComposedJobTraversesReviewAndAcceptance: implementation, handoff, a real reviewer container, accepted verdict, changes-requested routing back to the producer, a second round",
+      "OrdinaryTerminalLifecycle: accepted correction, integration through the accepted port, terminal handoff, uncertain-effect hold, committed-handoff recovery before local acknowledgement, and a separate-process read-only observation of owned completion",
+      "TheRetainedResultReopensAfterOrdinaryCleanup: the mandatory W105982 custody check over the first implementation round"
+    ]
+  },
+  "delivered": {
+    "UnfinishedWorkIsFencedBeforeAnythingRepeatsIt": {
+      "what": "the one required result with no control: safe abandonment of unfinished scratch work",
+      "shape": "one Job driven to the committed changes-requested handoff, the correction round started and left unfinished with uncommitted scratch in its writable mount, then an OPERATOR declaration through W44716's accepted abandon_attempt against the deployment's own control store, port and adapter",
+      "why_an_operator_act": "abandon_attempt says calling it IS the declaration, and single_worker.conclude says deciding it is not this composition's; nothing was added to the composition",
+      "proved": [
+        "the engine really removed that exact runtime identity and the attempt is destroyed with cleanup retained on POSITIVE ABSENCE",
+        "the Authority fenced the exact generation the attempt held, replayed through the operation the declaration itself named, and blocked the Work behind runtime-quiescence:<generation>",
+        "the reviewed checkpoint, the committed route and the first round's publication are all byte-identical afterwards",
+        "the scratch that worker left reaches no proposal and the line's current checkpoint does not move"
+      ]
+    },
+    "OrdinaryTerminalLifecycle (two added cases)": {
+      "what": "the mandatory custody check on the JOINED chain rather than only the first round",
+      "proved": [
+        "the CORRECTION round's retained artifact reopens at its own recorded custody_locator and its measured tree digest equals the digest its intake receipt carries",
+        "that tree was never inside the mount that round had writable",
+        "the integration eligibility names the CORRECTION's checkpoint, whose writer is the corrected attempt, and its pin revalidates through the accepted profile against the real repository after both rounds"
+      ]
+    },
+    "tools/parallel_test.py": {
+      "what": "one comment corrected; the registry itself is unchanged",
+      "why": "the entry still said this module 'owns no engine ... and starts nothing', which stopped being true when the composed lifecycle landed. It is still PARALLEL and the reason is narrower: the OCI boundary is a recording callable, and the real version-control and worker children each run in their own temporary root with no ambient configuration",
+      "not_done": "no member added, removed or moved between lanes"
+    }
+  },
+  "blocking_defect_reported_not_worked_around": {
+    "requirement": "RESTART-ACCEPTANCE: 'restart from the last committed handoff/checkpoint' after fencing the old worker",
+    "measured": "after the declaration, ordinary ticks reach implementation exceptional with review and integration blocked, and no fresh attempt is ever prepared",
+    "three_named_causes": [
+      "THE EPISODE NEVER ENDS. The declaration ends the ATTEMPT; nothing ends the stage's live EPISODE. projection.replaceable requires an ended episode whose ending is in documents.REPLACEABLE_ENDINGS, whose single member is 'abandoned-after-restart' -- the ending a manager records when a RESTART cannot account for an offer's bearer. An operator's W44716 declaration is not that ending and produces none, so manager._replace never opens a successor.",
+      "THE LINE IS STILL HELD. The abandoned attempt's writer is still 'active' and the line is still 'writing'. grant_writer admits a writer only from 'idle' or 'correction-ready', and the only thing in this build that revokes a writer is freeze_checkpoint -- which an abandoned attempt by definition never reaches.",
+      "THE WORK IS STILL GATED. The fence installs runtime-quiescence:<generation> and nothing discharges it: the ordinary discharge is an ENDING's, and this attempt has no ending to carry the positive-absence evidence the gate wants -- even though the abandonment observed exactly that absence."
+    ],
+    "owners_outside_this_works_five_paths": [
+      "src/baton_v12/job_manager/projection.py and documents.py (REPLACEABLE_ENDINGS) and job_manager/manager.py (_replace)",
+      "src/baton_v12/worker_manager/review_cycles.py (no writer release other than freeze_checkpoint)",
+      "the quiescence-gate discharge owner, W119548's successor"
+    ],
+    "registered_as": "test_no_fresh_assignment_follows_the_declaration_and_why, which FAILS when the capability lands -- the same pattern this record used for the undischarged quiescence gate",
+    "not_claimed": "this does not say which of the three owners should change; it says the capability does not exist and names where a correction has to reach"
+  },
+  "assembled_regression": {
+    "harness": "tools/parallel_test.py, the existing safe harness",
+    "serial": {
+      "run": "PYTHONPATH=src:tests:. python3 tools/parallel_test.py --phase serial",
+      "result": "19 shards, 507 tests, 0 failures, 0 errors, 17 skipped -> OK",
+      "log": "evidence/run-128468-serial.log",
+      "includes": "the real image gate, real containers, test_dogfood_arc_engine and both registered stage drivers"
+    },
+    "parallel": {
+      "run": "PYTHONPATH=src:tests:. python3 tools/parallel_test.py --phase parallel",
+      "wall": "21.627s",
+      "result": "730 shards, 5206 tests, 28 failures, 0 errors, 4 skipped -> FAILED",
+      "log": "evidence/run-128468-parallel.log",
+      "harness_note": "the harness then refused to run the serial registry from the same invocation, which is why the serial lane was run separately and is reported separately"
+    },
+    "unresolved_baseline_failures": {
+      "shards": 11,
+      "attribution": "every one is a WHOLE-UNIVERSE SOURCE SCAN failing on uncommitted candidates from OTHER Works in this shared tree. W119114 changed no file under src/ at all, so none of them can be this claim's.",
+      "measured_examples": [
+        {
+          "shard": "tests.authority.test_boundary.ExportedSurface",
+          "diagnostic": "the exported surface gained 'open_readonly'",
+          "owner": "W126880, MY OWN candidate, currently unaccepted at baton.bug"
+        },
+        {
+          "shard": "tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule",
+          "diagnostic": "unbounded refusal diagnostics at store.py:_writable",
+          "owner": "W126880, same candidate"
+        },
+        {
+          "shard": "tests.manager.test_dependencies.NoPublicOperationTakesInternalState",
+          "diagnostic": "authority_port.py:AuthorityPort:satisfy_gate parameter 'gate' is not a declared operand",
+          "owner": "W119548's forwarding, accepted, operand table not updated with it"
+        },
+        {
+          "shard": "tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText",
+          "diagnostic": "the callable table does not name 'cleanup_of'",
+          "owner": "another in-flight worker_manager candidate"
+        },
+        {
+          "shard": "tests.manager.test_boundary_inventory (7 shards)",
+          "diagnostic": "declared owner ('caller', 'oci.py:OciAdapter.observe', 'document.Running') is stale",
+          "owner": "an in-flight oci.py candidate"
+        }
+      ],
+      "operational_finding": "W126880 and W126887 were reviewed on their focused suites only. Their candidates have consequences in four whole-universe scans OUTSIDE their two-path allocations -- tests/authority/test_boundary.py, tests/manager/test_text_sweep.py, tests/manager/test_dependencies.py and tests/manager/test_boundary_inventory.py. Reported to their owners rather than corrected here; those paths are outside this Work's five."
+    }
+  },
+  "budget": {
+    "declared": 600.0,
+    "spent": 173.7,
+    "within": true,
+    "reset": false,
+    "note": "every run below is an exact command with its wall time from `time`, except the three diagnostic probes, which were not wrapped in `time` and are charged at their unittest-reported duration plus interpreter start"
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution",
+      "wall": "15.702s",
+      "log": "evidence/run-128468-baseline.log",
+      "result": "148 tests, OK -- the baseline before any edit"
+    },
+    {
+      "run": "the new class, six iterations while it was corrected",
+      "wall": "8.709s total",
+      "result": "1.477 (2 failures) -> 1.454 -> 1.432 -> 1.444 -> 1.458 -> 1.444 (4 tests, OK)"
+    },
+    {
+      "run": "three diagnostic probes: the abandonment answer, the blocked restart, and the fence/intent documents",
+      "wall": "~1.8s, charged",
+      "log": "evidence/probe-128468-*.json",
+      "result": "the cleanup member names, the live unended episode, the 'writing' line with an active writer, and the runtime-quiescence gate"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest OrdinaryTerminalLifecycle's two added cases",
+      "wall": "1.240s",
+      "result": "2 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution",
+      "wall": "17.901s",
+      "log": "evidence/run-128468-module.log",
+      "result": "154 tests, OK -- 148 plus the 6 added"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution tests.tools.test_single_worker tests.job_manager.test_review_driver tests.integration.test_driver",
+      "wall": "29.008s",
+      "log": "evidence/run-128468-wide.log",
+      "result": "541 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 tools/parallel_test.py --phase parallel",
+      "wall": "21.627s",
+      "log": "evidence/run-128468-parallel.log",
+      "result": "5206 tests, 28 failures across 11 shards, all attributed above"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 tools/parallel_test.py --phase serial",
+      "wall": "~255s",
+      "log": "evidence/run-128468-serial.log",
+      "result": "507 tests, OK"
+    },
+    {
+      "run": "four attribution runs over the failing scans",
+      "wall": "~2.5s",
+      "log": "evidence/run-128468-attribution.log",
+      "result": "the five diagnostics quoted above"
+    }
+  ],
+  "existing_assertions": "unchanged. Every test change is additive: one new class and two methods on an existing one. The only non-test change is a comment."
+}

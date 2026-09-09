@@ -1,0 +1,20 @@
+--- base/v12/python/src/baton_v12/authority/session.py
++++ v12/python/src/baton_v12/authority/session.py
+@@ -91,6 +91,8 @@
+                   "actor": True},
+     "pass_work": {"required": ("expect", "operation_id", "to_route"),
+                   "optional": ("comment",)},
++    "route_fenced": {"required": ("expect", "operation_id", "fence_operation_id",
++                                  "from_route", "to_route"), "optional": ()},
+     "publish": {"required": ("expect", "operation_id", "proposal_id",
+                              "result_id", "result_digest", "candidate_digest",
+                              "input_digest", "policy_digest"),
+@@ -155,7 +157,7 @@
+ # The transitions whose FIRST argument to the core is the assignment.
+ _ASSIGNMENT_FIRST = frozenset({
+     "activity", "advance_contract", "cancel", "end", "pass_work", "publish",
+-    "reject_plan"})
++    "reject_plan", "route_fenced"})
+ 
+ 
+ def _sample_of(keys):

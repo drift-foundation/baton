@@ -1,0 +1,10 @@
+--- a/v12/python/tools/parallel_test.py
++++ b/v12/python/tools/parallel_test.py
+@@ -210,6 +210,7 @@
+                     # this phase is for.
+                     "tests.job_manager.test_delegation",
+                     "tests.job_manager.test_documents",
++                    "tests.job_manager.test_ending",
+                     "tests.job_manager.test_exchange",
+                     "tests.job_manager.test_launch",
+                     "tests.job_manager.test_recovery",

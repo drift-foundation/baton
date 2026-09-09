@@ -1,0 +1,275 @@
+{
+  "receipt_before": null,
+  "retry": {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "act": "conclude",
+        "outcome": "performed",
+        "detail": {
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "disposition": "completed",
+          "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "manifest_digest": "sha256:3c9b714193a3d41c5b7d685056a44d167ca08b5dff616b54af3107bd252e37e8",
+          "receipt_digest": "sha256:422cc697394186416d6acec58deb77f2937d5522b09714aab90bc5417da05b1b",
+          "artifacts": [
+            "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal"
+          ],
+          "retention": "retain",
+          "published": {
+            "assignment_ref": {
+              "generation": 1,
+              "participant": "baton.claude",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "candidate_digest": "af18d00fd75bdf0d68509816a9182c9cd2d55d68",
+            "decision": {
+              "effective_scope": "scope:deployment",
+              "endpoint": "baton.claude",
+              "grant": "direct",
+              "policy_generation": 7,
+              "principal": "principal:baton.claude",
+              "role": "baton.impl"
+            },
+            "input_digest": "sha256:f5e8448bf5290312de5c7412504d9227e23e1cc28f23d6f633ed6acbf93a195e",
+            "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "proposal_id": "integration-driver.proposal:10f630a4761b82f470283e6daae58ada3313b964c3daf8e6d04d85efbd10f52c",
+            "published_at": "2026-09-09T03:42:55.031Z",
+            "result_digest": "sha256:3c9b714193a3d41c5b7d685056a44d167ca08b5dff616b54af3107bd252e37e8",
+            "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "target": "d1b34d909228a7c963e79a93dbe3dba0a82af0cd"
+          },
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+          "checkpoint": {
+            "checkpoint_digest": "sha256:b67ba1e418658ceedf4f5f361d1dd6ce5b1a1067876ebb6b01ba16ecc455b6c4",
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+            "evidence": {
+              "base": "d1b34d909228a7c963e79a93dbe3dba0a82af0cd",
+              "head": "af18d00fd75bdf0d68509816a9182c9cd2d55d68",
+              "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+              "paths": [
+                "harness.py"
+              ],
+              "profile": "git",
+              "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+              "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220"
+            },
+            "fence": {
+              "fenced": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.claude",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "cause": "cancelled",
+                "fenced": true,
+                "gate": "runtime-quiescence:1",
+                "phase": "block"
+              },
+              "intent": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.claude",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "authority_operation_id": "authority.finalize-quiescent:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+                "decision": "finalized",
+                "reason": "review checkpoint writer completed",
+                "runtime_id": "runtime-single-1",
+                "worker_disposition": "completed"
+              }
+            },
+            "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+            "revision": 1
+          }
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      }
+    ]
+  },
+  "receipt_after": null,
+  "settlement": {
+    "stage_id": "job-a/implementation",
+    "job_id": "job-a",
+    "kind": "implementation",
+    "episode": 1,
+    "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "work_id": "0000000a-W1",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.claude",
+      "generation": 1
+    },
+    "intent": "ending.intent:job-a/implementation:1",
+    "evidence": {
+      "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "manifest_digest": "sha256:3c9b714193a3d41c5b7d685056a44d167ca08b5dff616b54af3107bd252e37e8",
+      "receipt_digest": "sha256:422cc697394186416d6acec58deb77f2937d5522b09714aab90bc5417da05b1b",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a"
+    }
+  },
+  "cleanup_cut": {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "act": "conclude",
+        "outcome": "deferred",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "review probe: cleanup temporarily unavailable"
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      }
+    ]
+  },
+  "runtime_after_freeze": {
+    "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+    "runtime_id": "runtime-single-1",
+    "execution_runtime": "quiescent",
+    "cleanup": "pending",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.claude",
+      "generation": 1
+    }
+  },
+  "freeze_retry": {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "act": "conclude",
+        "outcome": "deferred",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571''s implementation record is historical and mounts nothing; an ending after the custody it earned is resumed from committed evidence rather than started over a boundary"
+        }
+      }
+    ],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "quiescent"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      }
+    ]
+  },
+  "freeze_ending": {
+    "intent": {
+      "stage_id": "job-a/implementation",
+      "job_id": "job-a",
+      "kind": "implementation",
+      "episode": 1,
+      "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "work_id": "0000000a-W1",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.claude",
+        "generation": 1
+      },
+      "disposition": "completed",
+      "terminal_manifest_digest": "sha256:4713aa1d41caa7424a70bc37e0bc2aa3cb1c8e2739c06584387cd89ba73b75be",
+      "retention_disposition": "retain",
+      "retention_policy_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    "settlement": null
+  },
+  "elapsed_seconds": 0.343983567901887
+}

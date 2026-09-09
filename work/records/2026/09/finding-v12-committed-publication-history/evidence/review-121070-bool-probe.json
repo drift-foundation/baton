@@ -1,0 +1,32 @@
+{
+  "work": "W120763",
+  "claim": 121070,
+  "sha256": {
+    "src/baton_v12/integration/driver.py": "92254f2252137f9aaf066088c67cba997bea8b735234e959015621e795bb8467",
+    "src/baton_v12/integration/__init__.py": "102a47835530c97d5a0ea2f1f127e447ec61b86ddf211c401d9fd82fcc9269bc",
+    "tests/integration/test_driver.py": "92c998d562ff4615e05b4b27987639e2467a53c040e0c3be807a5fb8fade424f"
+  },
+  "fixture_limits": "Reuses author's actual retained manifests and publication fixture; frozen_output_of and assignment_of remain its declared stand-ins",
+  "results": {
+    "honest_local_replay": {
+      "accepted": true,
+      "no_writes_or_publisher_calls": true
+    },
+    "receipt_assignment_bool_generation": {
+      "accepted": true,
+      "generation_type": "bool",
+      "generation": true
+    },
+    "published_assignment_bool_generation": {
+      "accepted": true,
+      "generation_type": "bool",
+      "generation": true
+    },
+    "publish_commits_bool_readback": {
+      "accepted": true,
+      "rows": 1,
+      "generation_type": "bool"
+    }
+  },
+  "seconds": 0.030232095043174922
+}

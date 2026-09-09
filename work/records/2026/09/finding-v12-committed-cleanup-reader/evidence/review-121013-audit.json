@@ -1,0 +1,32 @@
+{
+  "work": "W120762",
+  "claim": 121013,
+  "owner_disposition": 121008,
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "e9a515987f9f6d1bb5d5d0e3bd77217a449f8b7ec9e42be7b6ab97954211c60a",
+      "mode": "0o664",
+      "unchanged": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/__init__.py",
+      "sha256": "d23aa64e0eba64d969313a129f1bc57a40d1a168f582982bfdcb65319ae932c6",
+      "mode": "0o644",
+      "unchanged": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_intake.py",
+      "sha256": "c8a2ea4134d59c3e241b609226da9f0c0136960d9309b4b89f922d86d1b9a157",
+      "mode": "0o664",
+      "unchanged": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_secrets.py",
+      "sha256": "47f743de21546862863e489da3248ea91c7e3cb80aefa30b167566da1ede66eb",
+      "mode": "0o644",
+      "unchanged": true
+    }
+  ],
+  "verification": "Exact reviewed bytes retained; no test rerun necessary"
+}

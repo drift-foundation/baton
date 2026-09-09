@@ -1,0 +1,38 @@
+{
+  "claim": 119842,
+  "focused_test": {
+    "command": "PYTHONPATH=src python3 -m unittest tests.manager.test_intake.TheQuiescenceGateIsDischargedFromTheCommittedCleanup",
+    "tests": 21,
+    "result": "OK",
+    "seconds": 0.317
+  },
+  "paths": {
+    "v12/python/src/baton_v12/worker_manager/authority_port.py": {
+      "sha256": "a82a7080328780d848285de30c70686411484863d97c7f1c110fae756ec94575"
+    },
+    "v12/python/src/baton_v12/worker_manager/intake.py": {
+      "sha256": "43755ee7dd2ef1a263649b57a1c6657d8eba06af53775ad783b24c6f7fee8865"
+    },
+    "v12/python/src/baton_v12/worker_manager/__init__.py": {
+      "sha256": "19dc529bebb57f3aa05638008ac9c8f4623f69ca70096efef60d5cc394f4f498"
+    },
+    "v12/python/tests/manager/test_intake.py": {
+      "sha256": "302c4cea7098fdce41cd2f78be7d91f4923fa4e9dcdb29784c0cd620f2d31728",
+      "existing_tests": 82,
+      "changed_or_removed": [],
+      "added_tests": 21
+    },
+    "v12/python/tests/manager/test_offers.py": {
+      "sha256": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+      "existing_tests": 77,
+      "changed_or_removed": [],
+      "added_tests": 0
+    },
+    "v12/python/tests/manager/test_secrets.py": {
+      "sha256": "37d5a1609f2417545ee907a0cee0d403b1a67e22aaaac6e1d3d41f23be64c498",
+      "existing_tests": 91,
+      "changed_or_removed": [],
+      "added_tests": 1
+    }
+  }
+}

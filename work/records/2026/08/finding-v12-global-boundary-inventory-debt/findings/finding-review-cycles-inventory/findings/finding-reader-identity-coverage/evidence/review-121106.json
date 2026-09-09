@@ -1,0 +1,18 @@
+{
+  "base_sha256": "918f8d9a9b8d342c6ed276c49f5c84c2326312d70ecb650a63d7f961480f2e7d",
+  "candidate_sha256": "912cce9a3fcd6b26c8cab3b36418ff35b0db3f2d6a91d3d6e895aef80dbb9532",
+  "runtime_hashes": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+    "v12/python/src/baton_v12/worker_manager/schema.py": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+    "v12/python/src/baton_v12/worker_manager/boundaries.py": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a"
+  },
+  "all_existing_ast_preserved": true,
+  "reused_initial_passes": 5,
+  "initial_seconds": 2.9350906159961596,
+  "reused_corrected_control": "Passed in verify-final-121055.py before its resolution-equality assertion failed; no product change since.",
+  "work": "W121031",
+  "claim": 121106,
+  "test_log": "test_exact_reader_entries_have_only_their_forwarded_identity_owner (tests.manager.test_boundary_inventory.ReviewReaderIdentitiesReachTheirOwners.test_exact_reader_entries_have_only_their_forwarded_identity_owner) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 2.363s\n\nOK\n",
+  "success": true,
+  "seconds": 2.8786096359835938
+}

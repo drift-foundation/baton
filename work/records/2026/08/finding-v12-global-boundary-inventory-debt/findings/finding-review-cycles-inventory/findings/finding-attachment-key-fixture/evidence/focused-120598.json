@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_boundary_inventory.TheAttachmentKeyProbeReachesAdoption"
+  ],
+  "elapsed_seconds": 1.682246932061389,
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "......F\n======================================================================\nFAIL: test_valid_returned_key_passes_adoption_and_reaches_the_ended_review_guard (tests.manager.test_boundary_inventory.TheAttachmentKeyProbeReachesAdoption.test_valid_returned_key_passes_adoption_and_reaches_the_ended_review_guard)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py\", line 13652, in test_valid_returned_key_passes_adoption_and_reaches_the_ended_review_guard\n    self.assertEqual((caught.exception.category, caught.exception.code), (\"refused\", \"precondition\"))\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Tuples differ: ('refused', 'operation-collision') != ('refused', 'precondition')\n\nFirst differing element 1:\n'operation-collision'\n'precondition'\n\n- ('refused', 'operation-collision')\n?              -  ^^^^  ^^^^^ ^\n\n+ ('refused', 'precondition')\n?               + ^  ^ ^\n\n\n----------------------------------------------------------------------\nRan 7 tests in 1.415s\n\nFAILED (failures=1)\n"
+}

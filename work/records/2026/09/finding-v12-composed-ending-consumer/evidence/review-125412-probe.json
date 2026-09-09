@@ -1,0 +1,769 @@
+{
+  "accepted": {
+    "route": "integration",
+    "states": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "claimed"
+    },
+    "reports": [
+      {
+        "observed_at": "2026-09-02T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [],
+        "started": [],
+        "spoken": [
+          {
+            "stage_id": "job-a/review",
+            "episode": 1,
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "act": "conclude",
+            "outcome": "performed",
+            "detail": {
+              "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+              "verdict": "accepted",
+              "verdict_id": "verdict-7bbcf60ea2c26dcd77b5b40addf4307365c4109ecd60a75b9543ca67ada90fe5",
+              "verdict_record": {
+                "verdict_id": "verdict-7bbcf60ea2c26dcd77b5b40addf4307365c4109ecd60a75b9543ca67ada90fe5",
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1",
+                "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+                "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+                "checkpoint_digest": "sha256:3593deb75f40e7e96ab14947f6ff3a1c14c9b9e3a8b808eef10b980a161da0d2",
+                "revision": 1,
+                "base": "6e8bea6a2c53b25550e4439632aedece7d618681",
+                "head": "bc0156c25ab7084ddcc77cf80567f2afd084a5b4",
+                "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+                "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+                "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+                "review_generation": 2,
+                "reviewer_worker_id": "review-worker",
+                "reviewer_participant": "baton.reviewer",
+                "reviewer_principal": "principal:baton.reviewer",
+                "disposition": "accepted",
+                "review_result": {
+                  "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                  "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                  "disposition": "completed",
+                  "manifest_digest": "sha256:6c3486658bb0bb8484f64062d76c0635bfe19868a6f53cefa88201d132b67946",
+                  "freeze_operation_id": "output.freeze:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+                  "frozen_at": "2026-09-02T00:00:00.000Z",
+                  "artifacts": [
+                    {
+                      "output_name": "findings",
+                      "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+                      "media_type": "application/octet-stream",
+                      "bytes": 147,
+                      "content_digest": "sha256:68f5c2d1488948333af26a9d67ac5699597abb25146cbb4e09106164df25afa8",
+                      "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-ku4ckttd/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/findings"
+                    },
+                    {
+                      "output_name": "logs",
+                      "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs",
+                      "media_type": "application/octet-stream",
+                      "bytes": 410,
+                      "content_digest": "sha256:7b39b43527e5cec72d51d945d6ac3b5ac89a145fb65cd1ba614b58231c411d67",
+                      "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-ku4ckttd/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/logs"
+                    }
+                  ]
+                },
+                "review_result_digest": "sha256:1e57c645537a1886ac882807c470473da893e44b951c02a976a91b7ae4a8866d",
+                "review_fence": {
+                  "intent": {
+                    "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                    "assignment": {
+                      "work_ref": {
+                        "authority_uuid": "0000000a000000000000000000000000",
+                        "work_id": "0000000a-W1"
+                      },
+                      "participant": "baton.reviewer",
+                      "generation": 2
+                    },
+                    "runtime_id": "runtime-single-2",
+                    "decision": "finalized",
+                    "worker_disposition": "completed",
+                    "authority_operation_id": "authority.finalize-quiescent:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+                    "reason": "independent checkpoint review completed"
+                  },
+                  "fenced": {
+                    "cause": "cancelled",
+                    "assignment": {
+                      "work_ref": {
+                        "authority_uuid": "0000000a000000000000000000000000",
+                        "work_id": "0000000a-W1"
+                      },
+                      "participant": "baton.reviewer",
+                      "generation": 2
+                    },
+                    "phase": "block",
+                    "gate": "runtime-quiescence:2",
+                    "fenced": true
+                  }
+                },
+                "review_fence_digest": "sha256:4c2a752935888d9fc8e9beb670b06ca55569386d425d13f999a497ebd65deaa2"
+              },
+              "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+              "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+              "cleaned_up": true,
+              "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "manifest_digest": "sha256:6c3486658bb0bb8484f64062d76c0635bfe19868a6f53cefa88201d132b67946",
+              "receipt_digest": "sha256:b30874d15ec30f0069032670f16def60b6cef4469750302cf6d91404ab34af5e",
+              "artifacts": [
+                "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+                "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs"
+              ],
+              "retention": "retain",
+              "outcome": "accepted",
+              "held_reason": null
+            }
+          }
+        ],
+        "refreshed": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 1,
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/review",
+            "episode": 1,
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "state": "running"
+          },
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "state": "not-asked"
+          }
+        ]
+      },
+      {
+        "observed_at": "2026-09-02T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "act": "admit",
+            "outcome": "performed",
+            "operation_id": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0"
+          }
+        ],
+        "started": [],
+        "spoken": [],
+        "refreshed": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 1,
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/review",
+            "episode": 1,
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "state": "not-asked"
+          }
+        ]
+      },
+      {
+        "observed_at": "2026-09-02T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "act": "claim",
+            "outcome": "performed",
+            "operation_id": "offer.settle:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0"
+          }
+        ],
+        "started": [
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "capability",
+              "message": "this deployment holds no integration runtime port; `integrate_next` starts the integrator through one and no accepted composition in this build builds one over the integration delivery's namespaces"
+            }
+          }
+        ],
+        "spoken": [],
+        "refreshed": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 1,
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/review",
+            "episode": 1,
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "state": "not-asked"
+          }
+        ]
+      },
+      {
+        "observed_at": "2026-09-02T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [],
+        "started": [
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "capability",
+              "message": "this deployment holds no integration runtime port; `integrate_next` starts the integrator through one and no accepted composition in this build builds one over the integration delivery's namespaces"
+            }
+          }
+        ],
+        "spoken": [],
+        "refreshed": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 1,
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/review",
+            "episode": 1,
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "state": "not-asked"
+          }
+        ]
+      }
+    ]
+  },
+  "changes-requested": {
+    "route": "integration",
+    "states": {
+      "implementation": "offered",
+      "review": "blocked",
+      "integration": "blocked"
+    },
+    "reports": [
+      {
+        "observed_at": "2026-09-02T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [],
+        "started": [],
+        "spoken": [
+          {
+            "stage_id": "job-a/review",
+            "episode": 1,
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "act": "conclude",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the review episode's allocation 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb\u2026 is still 'reserved'; a correction round opens after the round it replaces has released its worker"
+            }
+          }
+        ],
+        "refreshed": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 1,
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/review",
+            "episode": 1,
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "state": "running"
+          },
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "state": "not-asked"
+          }
+        ]
+      },
+      {
+        "observed_at": "2026-09-02T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [],
+        "started": [],
+        "spoken": [
+          {
+            "stage_id": "job-a/review",
+            "episode": 1,
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "act": "conclude",
+            "outcome": "performed",
+            "detail": {
+              "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+              "verdict": "changes-requested",
+              "verdict_id": "verdict-b6cc9560f4074b3c99582006c24ffba11f02133cd42c425e0a02cc1901bbec9a",
+              "verdict_record": {
+                "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+                "authority_uuid": "0000000a000000000000000000000000",
+                "base": "6e8bea6a2c53b25550e4439632aedece7d618681",
+                "checkpoint_digest": "sha256:3593deb75f40e7e96ab14947f6ff3a1c14c9b9e3a8b808eef10b980a161da0d2",
+                "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+                "disposition": "changes-requested",
+                "head": "bc0156c25ab7084ddcc77cf80567f2afd084a5b4",
+                "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+                "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+                "review_fence": {
+                  "fenced": {
+                    "assignment": {
+                      "generation": 2,
+                      "participant": "baton.reviewer",
+                      "work_ref": {
+                        "authority_uuid": "0000000a000000000000000000000000",
+                        "work_id": "0000000a-W1"
+                      }
+                    },
+                    "cause": "cancelled",
+                    "fenced": true,
+                    "gate": "runtime-quiescence:2",
+                    "phase": "block"
+                  },
+                  "intent": {
+                    "assignment": {
+                      "generation": 2,
+                      "participant": "baton.reviewer",
+                      "work_ref": {
+                        "authority_uuid": "0000000a000000000000000000000000",
+                        "work_id": "0000000a-W1"
+                      }
+                    },
+                    "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                    "authority_operation_id": "authority.finalize-quiescent:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+                    "decision": "finalized",
+                    "reason": "independent checkpoint review completed",
+                    "runtime_id": "runtime-single-2",
+                    "worker_disposition": "completed"
+                  }
+                },
+                "review_fence_digest": "sha256:4c2a752935888d9fc8e9beb670b06ca55569386d425d13f999a497ebd65deaa2",
+                "review_generation": 2,
+                "review_result": {
+                  "artifacts": [
+                    {
+                      "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+                      "bytes": 156,
+                      "content_digest": "sha256:f17457694bfc29f2e3cb4819b015205e5acc992ad815e50a1c91699e2e0849c8",
+                      "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-9pipo3jl/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/findings",
+                      "media_type": "application/octet-stream",
+                      "output_name": "findings"
+                    },
+                    {
+                      "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs",
+                      "bytes": 419,
+                      "content_digest": "sha256:da7f9e736f3d53729027202a7f01db23359c89fef5796d442c74cf47cfa4fc26",
+                      "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-9pipo3jl/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/logs",
+                      "media_type": "application/octet-stream",
+                      "output_name": "logs"
+                    }
+                  ],
+                  "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                  "disposition": "completed",
+                  "freeze_operation_id": "output.freeze:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+                  "frozen_at": "2026-09-02T00:00:00.000Z",
+                  "manifest_digest": "sha256:2700cca6eec02627bfa93b12ade36da1069d9b0fbd851bb7b502a9ecd1d7a62d",
+                  "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+                },
+                "review_result_digest": "sha256:871e54ffb84094944263893050d4bb51a73070248eebe4bda34cefcd2ba2f684",
+                "reviewer_participant": "baton.reviewer",
+                "reviewer_principal": "principal:baton.reviewer",
+                "reviewer_worker_id": "review-worker",
+                "revision": 1,
+                "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220",
+                "verdict_id": "verdict-b6cc9560f4074b3c99582006c24ffba11f02133cd42c425e0a02cc1901bbec9a",
+                "work_id": "0000000a-W1"
+              },
+              "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+              "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+              "cleaned_up": true,
+              "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+              "manifest_digest": "sha256:2700cca6eec02627bfa93b12ade36da1069d9b0fbd851bb7b502a9ecd1d7a62d",
+              "receipt_digest": "sha256:efe1f77d3f51d2bd9fefa8fabb3ac12236254c95e55ba887ba77606579c5f466",
+              "artifacts": [
+                "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+                "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs"
+              ],
+              "retention": "retain",
+              "outcome": "correction",
+              "held_reason": null,
+              "correction": {
+                "job_id": "job-a",
+                "work_id": "0000000a-W1",
+                "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+                "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+                "verdict_id": "verdict-b6cc9560f4074b3c99582006c24ffba11f02133cd42c425e0a02cc1901bbec9a",
+                "corrected_at": "2026-09-02T00:00:00.000Z",
+                "ended": {
+                  "implementation": 1,
+                  "review": 1
+                },
+                "implementation": {
+                  "stage_id": "job-a/implementation",
+                  "episode": 2,
+                  "offer_id": "offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+                  "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+                  "opened_at": "2026-09-02T00:00:00.000Z",
+                  "incarnation": "stage-composed",
+                  "ended_state": null,
+                  "ended_revision": null,
+                  "ended_at": null
+                },
+                "review": {
+                  "stage_id": "job-a/review",
+                  "episode": 2,
+                  "offer_id": "offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+                  "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+                  "opened_at": "2026-09-02T00:00:00.000Z",
+                  "incarnation": "stage-composed",
+                  "ended_state": null,
+                  "ended_revision": null,
+                  "ended_at": null
+                }
+              }
+            }
+          }
+        ],
+        "refreshed": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 1,
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/review",
+            "episode": 1,
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "state": "not-asked"
+          }
+        ]
+      },
+      {
+        "observed_at": "2026-09-02T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 2,
+            "act": "admit",
+            "outcome": "performed",
+            "operation_id": "offer.issue:offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa"
+          }
+        ],
+        "started": [],
+        "spoken": [],
+        "refreshed": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 2,
+            "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/review",
+            "episode": 2,
+            "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "state": "not-asked"
+          }
+        ]
+      },
+      {
+        "observed_at": "2026-09-02T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 2,
+            "act": "claim",
+            "outcome": "deferred",
+            "operation_id": "offer.settle:offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the authority refused this claim: route 'integration' does not resolve to 'baton.claude'"
+            }
+          }
+        ],
+        "started": [],
+        "spoken": [],
+        "refreshed": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 2,
+            "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/review",
+            "episode": 2,
+            "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "state": "not-asked"
+          }
+        ]
+      }
+    ]
+  },
+  "lost_discharge_answer": {
+    "receipt_before": null,
+    "receipt_after": null,
+    "ending": {
+      "intent": {
+        "stage_id": "job-a/implementation",
+        "job_id": "job-a",
+        "kind": "implementation",
+        "episode": 1,
+        "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "work_id": "0000000a-W1",
+        "assignment": {
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          },
+          "participant": "baton.claude",
+          "generation": 1
+        },
+        "disposition": "completed",
+        "terminal_manifest_digest": "sha256:81559f0971d71935903ffd442113254b71ee1cafaa5d75a900c4ad56009670a9",
+        "retention_disposition": "retain",
+        "retention_policy_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+      },
+      "settlement": {
+        "stage_id": "job-a/implementation",
+        "job_id": "job-a",
+        "kind": "implementation",
+        "episode": 1,
+        "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "work_id": "0000000a-W1",
+        "assignment": {
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          },
+          "participant": "baton.claude",
+          "generation": 1
+        },
+        "intent": "ending.intent:job-a/implementation:1",
+        "evidence": {
+          "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "manifest_digest": "sha256:b32fd8017d2af2a5d0235bf5ddf31b6bbfef516f1e9adeb5e79368000713f807",
+          "receipt_digest": "sha256:bf8ad759c16de5a93da15e38a1795ba32836ee667644bb8d834381cd7bf32978",
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a"
+        }
+      }
+    },
+    "retry": {
+      "observed_at": "2026-09-02T00:00:00.000Z",
+      "recovered": null,
+      "observed": 0,
+      "replaced": [],
+      "acts": [],
+      "started": [],
+      "spoken": [
+        {
+          "stage_id": "job-a/implementation",
+          "episode": 1,
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "act": "conclude",
+          "outcome": "performed",
+          "detail": {
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "disposition": "completed",
+            "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "manifest_digest": "sha256:b32fd8017d2af2a5d0235bf5ddf31b6bbfef516f1e9adeb5e79368000713f807",
+            "receipt_digest": "sha256:bf8ad759c16de5a93da15e38a1795ba32836ee667644bb8d834381cd7bf32978",
+            "artifacts": [
+              "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571:proposal"
+            ],
+            "retention": "retain",
+            "published": {
+              "assignment_ref": {
+                "generation": 1,
+                "participant": "baton.claude",
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                }
+              },
+              "candidate_digest": "bc0156c25ab7084ddcc77cf80567f2afd084a5b4",
+              "decision": {
+                "effective_scope": "scope:deployment",
+                "endpoint": "baton.claude",
+                "grant": "direct",
+                "policy_generation": 9,
+                "principal": "principal:baton.claude",
+                "role": "baton.impl"
+              },
+              "input_digest": "sha256:9742f6cb9fe426d7cb578c0be94623e16de084892b1222279151278da091fa58",
+              "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "proposal_id": "integration-driver.proposal:1155497b0fa028ae3374ffe58dc6ef0fff87d99e77cbb707961605793cc09df1",
+              "published_at": "2026-09-09T05:32:20.835Z",
+              "result_digest": "sha256:b32fd8017d2af2a5d0235bf5ddf31b6bbfef516f1e9adeb5e79368000713f807",
+              "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+              "target": "6e8bea6a2c53b25550e4439632aedece7d618681"
+            },
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+            "checkpoint": {
+              "checkpoint_digest": "sha256:3593deb75f40e7e96ab14947f6ff3a1c14c9b9e3a8b808eef10b980a161da0d2",
+              "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+              "evidence": {
+                "base": "6e8bea6a2c53b25550e4439632aedece7d618681",
+                "head": "bc0156c25ab7084ddcc77cf80567f2afd084a5b4",
+                "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+                "paths": [
+                  "harness.py"
+                ],
+                "profile": "git",
+                "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+                "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220"
+              },
+              "fence": {
+                "fenced": {
+                  "assignment": {
+                    "generation": 1,
+                    "participant": "baton.claude",
+                    "work_ref": {
+                      "authority_uuid": "0000000a000000000000000000000000",
+                      "work_id": "0000000a-W1"
+                    }
+                  },
+                  "cause": "cancelled",
+                  "fenced": true,
+                  "gate": "runtime-quiescence:1",
+                  "phase": "block"
+                },
+                "intent": {
+                  "assignment": {
+                    "generation": 1,
+                    "participant": "baton.claude",
+                    "work_ref": {
+                      "authority_uuid": "0000000a000000000000000000000000",
+                      "work_id": "0000000a-W1"
+                    }
+                  },
+                  "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                  "authority_operation_id": "authority.finalize-quiescent:5216d33ac31b80877f9d9633afccdfea6c91568f5337c9fae4ea7aba14e000c1",
+                  "decision": "finalized",
+                  "reason": "review checkpoint writer completed",
+                  "runtime_id": "runtime-single-1",
+                  "worker_disposition": "completed"
+                }
+              },
+              "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+              "revision": 1
+            }
+          }
+        }
+      ],
+      "refreshed": [
+        {
+          "stage_id": "job-a/implementation",
+          "episode": 1,
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/review",
+          "episode": 1,
+          "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "state": "not-asked"
+        },
+        {
+          "stage_id": "job-a/integration",
+          "episode": 1,
+          "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+          "state": "not-asked"
+        }
+      ]
+    }
+  },
+  "elapsed_seconds": 0.7614662009291351,
+  "hashes": {
+    "tools/stage_execution.py": {
+      "sha256": "77171f2aa8f3948d4bb767b97f636ddad67497d9af2ab7a8c3ceee0b436ed9b2",
+      "matches": true
+    },
+    "tools/single_worker.py": {
+      "sha256": "453d5caa5dbafea4e1472a44707c8e7f8d1410f8bdc1795026fddd0fc049f7c2",
+      "matches": true
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "2944afe7fd97f0c48bf71388dd5495b1b95e414f93483f99d3342e6c3f9a89fb",
+      "matches": true
+    },
+    "tests/tools/test_single_worker.py": {
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "matches": true
+    }
+  },
+  "integration_port_sha256": "2c3156da8c4f9bf4430b325ca0e32fc9c8bfbb59f5caa7ccccdd71b4fca65796"
+}

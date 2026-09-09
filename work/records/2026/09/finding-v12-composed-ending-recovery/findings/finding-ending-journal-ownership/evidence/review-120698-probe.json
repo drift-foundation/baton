@@ -1,0 +1,223 @@
+{
+  "work": "W120424",
+  "claim": 120698,
+  "sha256": {
+    "src/baton_v12/job_manager/ending.py": "3d9c4f1914806e2b38543642c483d74628da9e1cbd36a24fa4cc04bf75ea2b99",
+    "src/baton_v12/job_manager/projection.py": "b47c469641df61b6516f590602c6930968a71d5b7f24cf7e8856b6e95197ae9e",
+    "src/baton_v12/job_manager/manager.py": "f77a12f80c66e8dfb9ed700177b90fa4bda841788396304189f00230dfbd9c83",
+    "tests/job_manager/test_ending.py": "30a0b759754bb78fd27e99ab6e9ea1a76949d4b644bda5f3b42fea0e72a796d9"
+  },
+  "results": {
+    "null_references_on_read": {
+      "read": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "a composed ending's settled manifest_digest is durable text; this is none"
+      },
+      "pending": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "a composed ending's settled manifest_digest is durable text; this is none"
+      },
+      "states": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "a composed ending's settled manifest_digest is durable text; this is none"
+      }
+    },
+    "non_document_evidence": {
+      "read": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "a composed ending's settled evidence is one exact document; this is a list"
+      },
+      "pending": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "a composed ending's settled evidence is one exact document; this is a list"
+      },
+      "states": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "a composed ending's settled evidence is one exact document; this is a list"
+      }
+    },
+    "unknown_evidence_member": {
+      "read": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "a composed ending's settled evidence also carries unowned, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did"
+      },
+      "pending": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "a composed ending's settled evidence also carries unowned, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did"
+      },
+      "states": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "a composed ending's settled evidence also carries unowned, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did"
+      }
+    },
+    "malformed_intent_payload": {
+      "read": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "stage 'job-a/implementation' episode 1's registered composed ending's worker disposition is durable text; this is a list"
+      },
+      "pending": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "stage 'job-a/implementation' episode 1's registered composed ending's worker disposition is durable text; this is a list"
+      },
+      "states": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "stage 'job-a/implementation' episode 1's registered composed ending's worker disposition is durable text; this is a list"
+      }
+    },
+    "caller_intent_bypasses_orphan_refusal": {
+      "ordinary": {
+        "exception": "ContractRefusal",
+        "category": "refused",
+        "code": "precondition",
+        "message": "stage 'job-a/implementation' episode 1's settled composed ending settles an obligation this store never registered; a settlement is the end of one and never the whole of one"
+      },
+      "supplied": {
+        "exception": "TypeError",
+        "category": null,
+        "code": null,
+        "message": "settlement_of() got an unexpected keyword argument 'intent'"
+      },
+      "stored_intent": null
+    },
+    "caller_stage_bypasses_stored_work_binding": {
+      "ordinary": {
+        "exception": "ContractRefusal",
+        "category": "refused",
+        "code": "operation-collision",
+        "message": "stage 'job-a/implementation' is 'implementation' of Job 'job-a' at Work '0000000a-W1', and this composed ending names 'implementation' of 'job-a' at '0000000a-W2'"
+      },
+      "supplied": {
+        "exception": "TypeError",
+        "category": null,
+        "code": null,
+        "message": "intent_of() got an unexpected keyword argument 'stage'. Did you mean 'store'?"
+      }
+    },
+    "honest_read_and_settlement": {
+      "before": {
+        "read": {
+          "returned": {
+            "intent": {
+              "stage_id": "job-a/implementation",
+              "job_id": "job-a",
+              "kind": "implementation",
+              "episode": 1,
+              "offer_id": "offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+              "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+              "work_id": "0000000a-W1",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000000000000000000000000000a",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.claude",
+                "generation": 1
+              },
+              "disposition": "completed",
+              "terminal_manifest_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+              "retention_disposition": "retain",
+              "retention_policy_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+            },
+            "settlement": null
+          }
+        },
+        "pending": {
+          "returned": [
+            "job-a/implementation"
+          ]
+        },
+        "states": {
+          "returned": {
+            "job-a/implementation": "answering",
+            "job-a/review": "blocked"
+          }
+        }
+      },
+      "after": {
+        "read": {
+          "returned": {
+            "intent": {
+              "stage_id": "job-a/implementation",
+              "job_id": "job-a",
+              "kind": "implementation",
+              "episode": 1,
+              "offer_id": "offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+              "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+              "work_id": "0000000a-W1",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000000000000000000000000000a",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.claude",
+                "generation": 1
+              },
+              "disposition": "completed",
+              "terminal_manifest_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+              "retention_disposition": "retain",
+              "retention_policy_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+            },
+            "settlement": {
+              "stage_id": "job-a/implementation",
+              "job_id": "job-a",
+              "kind": "implementation",
+              "episode": 1,
+              "offer_id": "offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+              "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+              "work_id": "0000000a-W1",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000000000000000000000000000a",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.claude",
+                "generation": 1
+              },
+              "intent": "ending.intent:job-a/implementation:1",
+              "evidence": {
+                "result_id": "result-1",
+                "manifest_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                "receipt_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+              }
+            }
+          }
+        },
+        "pending": {
+          "returned": []
+        },
+        "states": {
+          "returned": {
+            "job-a/implementation": "completed",
+            "job-a/review": "queued"
+          }
+        }
+      },
+      "no_conclude": true
+    }
+  },
+  "seconds": 0.017688343999907374
+}

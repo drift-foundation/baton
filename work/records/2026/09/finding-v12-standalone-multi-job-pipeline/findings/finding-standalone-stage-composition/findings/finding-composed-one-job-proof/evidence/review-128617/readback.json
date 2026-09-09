@@ -1,0 +1,289 @@
+{
+  "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_the_accepted_checkpoint_is_the_corrections_and_its_pin_holds": {
+    "pins": {
+      "checkpoint": {
+        "base_object": "acd0d784e3d3ad4658cbddb29ac55021ee5d20b3",
+        "checkpoint_digest": "sha256:98cd3694b876f37afc9a1c37ed0b62b404e934ec8a42fb1ab32450daff3da3e7",
+        "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+        "evidence": {
+          "base": "acd0d784e3d3ad4658cbddb29ac55021ee5d20b3",
+          "head": "29c0f7996a0306d80d4e67fef43dcea4ea9b3efe",
+          "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+          "paths": [
+            "harness.py"
+          ],
+          "profile": "git",
+          "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/2",
+          "tree": "960f6dab21fdbdc666d244b3eda9f75536943ce4"
+        },
+        "fence": {
+          "fenced": {
+            "assignment": {
+              "generation": 3,
+              "participant": "baton.claude",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "gate": "runtime-quiescence:3",
+            "phase": "block"
+          },
+          "intent": {
+            "assignment": {
+              "generation": 3,
+              "participant": "baton.claude",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+            "authority_operation_id": "authority.finalize-quiescent:e25c7c4b477b593ff23a35ab05ae4df45d4fac8817dff9324a1a7d93d66a012d",
+            "decision": "finalized",
+            "reason": "review checkpoint writer completed",
+            "runtime_id": "runtime-single-3",
+            "worker_disposition": "completed"
+          }
+        },
+        "fence_digest": "sha256:ee8ee3cbbf5e69d25befda20d70f39bb2633bd768a953c16136e63f3e924048f",
+        "frozen_at": "2026-09-02T00:00:00.000Z",
+        "head_object": "29c0f7996a0306d80d4e67fef43dcea4ea9b3efe",
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+        "prepared_at": "2026-09-02T00:00:00.000Z",
+        "profile_name": "git",
+        "reference_name": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/2",
+        "revision": 2,
+        "state": "frozen",
+        "tree_object": "960f6dab21fdbdc666d244b3eda9f75536943ce4",
+        "writer_id": "writer-bd646428cb9b289c405472b6cd59d8031cfe7708ecf4082c875bd6c01aff7534"
+      },
+      "line": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "created_at": "2026-09-02T00:00:00.000Z",
+        "current_checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+        "declared_base": "acd0d784e3d3ad4658cbddb29ac55021ee5d20b3",
+        "line_device": 66306,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "line_inode": 47980221,
+        "line_path": "/home/sl/src/baton/v12/python/v12-w71917-r9i1sb7e/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+        "profile_name": "git",
+        "revision": 2,
+        "source_device": 66306,
+        "source_inode": 47980151,
+        "source_path": "/home/sl/src/baton/v12/python/v12-w71917-r9i1sb7e/source",
+        "state": "accepted",
+        "work_id": "0000000a-W1"
+      },
+      "writer": {
+        "assignment_generation": 3,
+        "based_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "granted_at": "2026-09-02T00:00:00.000Z",
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "participant": "baton.claude",
+        "principal": "principal:baton.claude",
+        "revocation_reason": "checkpoint",
+        "revoked_at": "2026-09-02T00:00:00.000Z",
+        "runtime_attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "state": "revoked",
+        "worker_id": "implementation-worker",
+        "writer_id": "writer-bd646428cb9b289c405472b6cd59d8031cfe7708ecf4082c875bd6c01aff7534"
+      }
+    }
+  },
+  "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_the_corrected_rounds_retained_bytes_reopen_at_their_locator": {
+    "custody": {
+      "artifact": {
+        "artifact_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa:proposal",
+        "bytes": 2052,
+        "content_digest": "sha256:e463269a4732383da2eb0c4611b31dad89787c809ce08dd8dc8b8ac63cbadd7c",
+        "custody_locator": "file:///home/sl/src/baton/v12/python/v12-w71917-jlyxoiqn/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa/proposal"
+      },
+      "entries": 4,
+      "receipt": {
+        "artifacts": [
+          {
+            "artifact_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa:proposal",
+            "bytes": 2052,
+            "content_digest": "sha256:e463269a4732383da2eb0c4611b31dad89787c809ce08dd8dc8b8ac63cbadd7c",
+            "custody_locator": "file:///home/sl/src/baton/v12/python/v12-w71917-jlyxoiqn/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa/proposal"
+          }
+        ],
+        "assignment": {
+          "generation": 3,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "custody": "accepted",
+        "manifest_digest": "sha256:39bf19e6a8ae7a6de0d0d3380d3b331a7e707df70ad561bd076ab4c7dd0c06b0",
+        "operation": {
+          "operation_id": "intake.record:e25c7c4b477b593ff23a35ab05ae4df45d4fac8817dff9324a1a7d93d66a012d",
+          "signature_digest": "sha256:f328948ac8e57d39860ba38514bb69deb43d28a227ccb193ffe57ccc0a5f8543"
+        },
+        "receipt_digest": "sha256:5aef1e5f5cc1b8be5cf71011c7e00177b72e57182da7ac713806f29f279fad7d",
+        "recoverable": false,
+        "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "why": "collected under the live assignment this attempt is fixed to"
+      },
+      "writable": "/home/sl/src/baton/v12/python/v12-w71917-jlyxoiqn/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout"
+    }
+  },
+  "tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_no_fresh_assignment_follows_the_declaration_and_why": {
+    "blocked": {
+      "episode": {
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "ended_at": null,
+        "ended_revision": null,
+        "ended_state": null,
+        "episode": 2,
+        "incarnation": "stage-composed",
+        "offer_id": "offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "opened_at": "2026-09-02T00:00:00.000Z",
+        "stage_id": "job-a/implementation"
+      },
+      "gate": {
+        "detail": "3",
+        "kind": "runtime-quiescence",
+        "token": "runtime-quiescence:3"
+      },
+      "line": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "created_at": "2026-09-02T00:00:00.000Z",
+        "current_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "declared_base": "acd0d784e3d3ad4658cbddb29ac55021ee5d20b3",
+        "line_device": 66306,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "line_inode": 47980221,
+        "line_path": "/home/sl/src/baton/v12/python/v12-w71917-lc5hvmge/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+        "profile_name": "git",
+        "revision": 1,
+        "source_device": 66306,
+        "source_inode": 47980151,
+        "source_path": "/home/sl/src/baton/v12/python/v12-w71917-lc5hvmge/source",
+        "state": "writing",
+        "work_id": "0000000a-W1"
+      },
+      "replaceable_endings": [
+        "abandoned-after-restart"
+      ],
+      "states": {
+        "implementation": "exceptional",
+        "integration": "blocked",
+        "review": "blocked"
+      },
+      "writer": {
+        "assignment_generation": 3,
+        "based_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "granted_at": "2026-09-02T00:00:00.000Z",
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "participant": "baton.claude",
+        "principal": "principal:baton.claude",
+        "revocation_reason": null,
+        "revoked_at": null,
+        "runtime_attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "state": "active",
+        "worker_id": "implementation-worker",
+        "writer_id": "writer-bd646428cb9b289c405472b6cd59d8031cfe7708ecf4082c875bd6c01aff7534"
+      }
+    }
+  },
+  "tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_abandoned_scratch_reaches_no_proposal": {},
+  "tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_committed_effects_the_declaration_crossed_are_all_intact": {},
+  "tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_declaration_fences_the_generation_and_destroys_the_runtime": {
+    "abandonment": {
+      "answer": {
+        "cleanup": {
+          "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "cleanup": "retained",
+          "directory_custody": {
+            "result": {
+              "account": "{\"custody\": \"normalize\", \"entries\": 3, \"not_ours\": 0, \"running_as\": [65532, 65532]}",
+              "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+              "operation": "normalize",
+              "root": "result",
+              "verb": "normalize"
+            },
+            "workspace": {
+              "account": "{\"custody\": \"normalize\", \"entries\": 3, \"not_ours\": 0, \"running_as\": [65532, 65532]}",
+              "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+              "operation": "normalize",
+              "root": "workspace",
+              "verb": "normalize"
+            }
+          },
+          "kept": [],
+          "operation": {
+            "operation_id": "runtime.destroy-abandoned:d3f6aff1b0620c9676637ed6faafb62d00de4c2e10d455db2f09e198ddcb2a62",
+            "signature_digest": "sha256:f5e4bd2d408ba92473a7cdade479d048dc337a07b6a3fe6b72c58ff514bf98db"
+          },
+          "state": "absent",
+          "why": "the engine answered that this exact identity does not exist"
+        },
+        "fenced": {
+          "assignment": {
+            "generation": 3,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "cause": "cancelled",
+          "fenced": true,
+          "gate": "runtime-quiescence:3",
+          "phase": "block"
+        },
+        "intent": {
+          "assignment": {
+            "generation": 3,
+            "participant": "baton.claude",
+            "work_ref": {
+              "authority_uuid": "0000000a000000000000000000000000",
+              "work_id": "0000000a-W1"
+            }
+          },
+          "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "authority_operation_id": "authority.abandon-fence:e25c7c4b477b593ff23a35ab05ae4df45d4fac8817dff9324a1a7d93d66a012d",
+          "decision": "abandoned",
+          "reason": "the correction worker stopped answering and is declared abandoned",
+          "runtime_id": "runtime-single-3"
+        }
+      },
+      "fence": {
+        "assignment": {
+          "generation": 3,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "cause": "cancelled",
+        "fenced": true,
+        "gate": "runtime-quiescence:3",
+        "phase": "block"
+      },
+      "runtime": {
+        "assignment": {
+          "generation": 3,
+          "participant": "baton.claude",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "cleanup": "retained",
+        "execution_runtime": "destroyed",
+        "runtime_id": "runtime-single-3"
+      }
+    }
+  }
+}

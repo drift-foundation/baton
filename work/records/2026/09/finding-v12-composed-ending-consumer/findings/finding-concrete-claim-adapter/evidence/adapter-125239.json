@@ -1,0 +1,72 @@
+{
+  "work": "W125032",
+  "claim": 125239,
+  "corrects": "review-2026-09-09T05-01-39Z.md: the one remaining deliverable",
+  "claim_order": "claimed at seq125239 before reading the review and before any edit; the budget was declared in PROGRESS before any execution this pass",
+  "paths": {
+    "tools/single_worker.py": {
+      "sha256": "5cb38f3f782d91b239c24af0fecabc083ff9706584bddc65f597d29a09e76b10",
+      "mode": "664"
+    },
+    "tests/tools/test_single_worker.py": {
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "mode": "664"
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "b8c44e24b8bbc31967e24598ddc79bd6a5681022dd618f31873bda5041d8e706",
+      "mode": "664"
+    }
+  },
+  "test_methods": {
+    "tests/tools/test_single_worker.py": 110,
+    "tests/tools/test_stage_execution.py": 129
+  },
+  "source_unchanged_this_pass": true,
+  "delivered": {
+    "class": "tests/tools/test_stage_execution.py::TwoIndependentlyBoundWorkersShareOneSweep",
+    "composed_from": [
+      "single_worker.worker_preflight",
+      "single_worker.worker_operations",
+      "scheduler.activate_pool",
+      "scheduler.PooledManagerOperations"
+    ],
+    "not_used": "the restricted deployment document builder; tools/stage_execution.py is neither edited nor copied and its one-worker-per-role rule is not relaxed",
+    "shape": "Work B routed to 'rview', which no participant handles, so its claim meets the same concrete Authority refusal as the composed Job's wrong-route review claim; Work C routed to baton.second, whose claim performs. Each worker has its own Work, participant, session, principal, input manifest, runtime profile and launch/credential homes.",
+    "measured": "in the same sweep, job-a-refusing/implementation claim deferred refused/precondition naming the route mismatch while job-b-progressing/implementation claim performed; the progressing Job then leaves offered",
+    "controls": [
+      "test_one_claim_refuses_while_the_other_performs_in_one_sweep",
+      "test_the_other_job_advances_past_the_one_that_refuses",
+      "test_the_refused_claim_records_no_success_and_releases_nothing (allocation stays reserved, no claimed offer recorded)",
+      "test_correcting_the_route_lets_the_same_offer_claim (the fixed claim identity: the same offer id succeeds)",
+      "test_without_the_containment_the_other_job_is_never_reached (the refusing Job sorts first, so the escaping Refusal leaves the sweep before the other Job's claim is reached)"
+    ]
+  },
+  "reframed_not_removed": {
+    "class": "OneRefusedClaimLeavesEveryOtherJobAlone",
+    "change": "its two description-level claims about an excluded capability are replaced by a pointer to the joined proof; the three measured owner refusals stay as the reason that proof is composed separately. No assertion was weakened or removed.",
+    "assertions_changed": 0
+  },
+  "declared_budget_seconds": 10,
+  "budget": {
+    "declared_before_any_execution_this_pass": true,
+    "spent_seconds": 3.7,
+    "within": true,
+    "breakdown": "two composition probes 0.22+0.25+0.25s; the new proof class 0.48s; the three claim-boundary classes together 1.78s; the adapter mapping controls 0.16s",
+    "no_combined_rerun": "as the review directs -- a broad rerun cannot answer the missing-fixture question, and the 119/243 results from claim125155 stand for their own scope"
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep",
+      "result": "5 tests, OK, 0.48s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone tests.tools.test_stage_execution.TheWrongRouteClaimDefersInsteadOfStoppingTheSweep",
+      "result": "13 tests, OK, 1.78s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_single_worker.TheManagerClaimSessionMapsOneRefusalAndNothingElse",
+      "result": "16 tests, OK, 0.16s"
+    }
+  ],
+  "unchanged": "the five known W122060 fixture failures remain outside this correction and were not run or touched"
+}

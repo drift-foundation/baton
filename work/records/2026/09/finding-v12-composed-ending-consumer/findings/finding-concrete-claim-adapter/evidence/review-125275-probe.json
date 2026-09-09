@@ -1,0 +1,13 @@
+{
+  "same_sweep": {"job-a-refusing/implementation": "deferred", "job-b-progressing/implementation": "performed"},
+  "actual_attempt_claims": {"job-a-refusing/implementation": 0, "job-b-progressing/implementation": 1},
+  "participant_selector_claims": 0,
+  "states": {"job-a-refusing": "offered", "job-b-progressing": "waiting"},
+  "elapsed_seconds": 0.06007052899803966,
+  "declared_budget_seconds": 2,
+  "candidate": {
+    "tools/single_worker.py": {"sha256": "5cb38f3f782d91b239c24af0fecabc083ff9706584bddc65f597d29a09e76b10", "mode": "0o664", "matches": true},
+    "tests/tools/test_single_worker.py": {"sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2", "mode": "0o664", "matches": true},
+    "tests/tools/test_stage_execution.py": {"sha256": "b8c44e24b8bbc31967e24598ddc79bd6a5681022dd618f31873bda5041d8e706", "mode": "0o664", "matches": true}
+  }
+}

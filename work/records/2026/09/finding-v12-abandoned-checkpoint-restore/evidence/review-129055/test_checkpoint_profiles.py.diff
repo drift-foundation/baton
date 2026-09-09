@@ -1,0 +1,69 @@
+--- prior/tests/manager/test_checkpoint_profiles.py
++++ tests/manager/test_checkpoint_profiles.py
+@@ -311,6 +311,66 @@
+         self.assertEqual(
+             self.git("status", "--porcelain", "--untracked-files=all"), before)
+ 
++    def test_a_substituted_line_path_is_refused_before_any_destructive_act(
++            self):
++        """REVIEW 2026-09-09T15:50Z [P1], driven exactly as the reviewer drove
++        it.
++
++        The first cut validated the PATHNAME and the checkpoint CONTENTS. So
++        renaming the nominated directory and leaving a symlink with its old
++        name pointed the destructive commands at a tree OUTSIDE the line
++        entirely: `-C` follows the link, and the outside checkout's scratch and
++        tracked bytes went with it.
++        """
++        outside = os.path.join(self.temporary.name, "outside")
++        os.rename(self.repository, outside)
++        os.symlink(outside, self.repository)
++        with open(os.path.join(outside, "outside-scratch.txt"), "w") as handle:
++            handle.write("somebody else's uncommitted work\n")
++        with open(os.path.join(outside, "kept.txt"), "w") as handle:
++            handle.write("somebody else's tracked bytes\n")
++
++        with self.assertRaises(ProfileRefusal):
++            self.profile.restore_checkpoint(self.repository, self.evidence)
++
++        # NOTHING OUTSIDE THE LINE WAS TOUCHED.
++        self.assertTrue(os.path.exists(os.path.join(outside,
++                                                    "outside-scratch.txt")))
++        self.assertEqual(open(os.path.join(outside, "kept.txt")).read(),
++                         "somebody else's tracked bytes\n")
++        self.assertTrue(os.path.isdir(os.path.join(outside, ".git")))
++
++    def test_a_substitution_between_the_writes_is_refused(self):
++        """The object is held ACROSS the write boundary, not only checked
++        before it: a pathname that is replaced between the two commands is a
++        redirection this profile refuses rather than follows."""
++        outside = os.path.join(self.temporary.name, "outside")
++        os.mkdir(outside)
++        with open(os.path.join(outside, "outside-scratch.txt"), "w") as handle:
++            handle.write("somebody else's uncommitted work\n")
++        self.dirty()
++        real = self.runner
++
++        def substituting(argv):
++            answer = real(argv)
++            if argv[3] == "reset":
++                os.rename(self.repository,
++                          os.path.join(self.temporary.name, "moved"))
++                os.symlink(outside, self.repository)
++            return answer
++
++        with self.assertRaises(ProfileRefusal):
++            GitCheckpointProfile(substituting).restore_checkpoint(
++                self.repository, self.evidence)
++        self.assertTrue(os.path.exists(os.path.join(outside,
++                                                    "outside-scratch.txt")))
++
++    def test_a_repository_that_is_a_link_is_refused_outright(self):
++        linked = os.path.join(self.temporary.name, "linked")
++        os.symlink(self.repository, linked)
++        with self.assertRaises(ProfileRefusal):
++            self.profile.restore_checkpoint(linked, self.evidence)
++
+     def test_an_unsafe_repository_path_is_refused_by_the_vectors(self):
+         for place in ("relative/line", "/tmp/../etc", "/tmp/a:b", ""):
+             with self.assertRaises(ProfileRefusal):

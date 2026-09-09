@@ -1,0 +1,17 @@
+{
+  "paths": [
+    {
+      "path": "src/baton_v12/integration/store.py",
+      "sha256": "4b22ed2ffc11c5c67c29570140b19601d447d1ea1dac46136d4973821c04fec9",
+      "mode": "0o664",
+      "matches": true
+    },
+    {
+      "path": "tests/integration/test_coordinator.py",
+      "sha256": "698a5921f0290ce600ba19aab42407b6816d160ef72e6a7dc2b2d5f6a778558c",
+      "mode": "0o664",
+      "matches": true
+    }
+  ],
+  "existing_test_bytes_unchanged_except_two_added_imports": true
+}

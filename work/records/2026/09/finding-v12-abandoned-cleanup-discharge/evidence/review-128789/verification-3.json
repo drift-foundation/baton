@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-abandoned-cleanup-discharge/evidence/review-128789/custody-probe.py"
+  ],
+  "cwd": "v12/python",
+  "PYTHONPATH": "src:.",
+  "total_cap_seconds": 5,
+  "prior_seconds": 1.0412232319358736,
+  "elapsed_seconds": 0.20140835095662624,
+  "cumulative_seconds": 1.2426315828924999,
+  "returncode": 0
+}

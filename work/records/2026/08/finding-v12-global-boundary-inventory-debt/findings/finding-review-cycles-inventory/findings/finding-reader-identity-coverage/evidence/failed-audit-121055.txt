@@ -1,0 +1,12 @@
+Captured terminal result from verify-final-121055.py, exit1:
+
+Traceback (most recent call last):
+  File "work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-review-cycles-inventory/findings/finding-reader-identity-coverage/evidence/verify-final-121055.py", line 106, in <module>
+    assert before_resolved == after_resolved
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+The runner passed its corrected-control success check before reaching this
+line; it did not emit/save that captured test stream before the audit failure.
+Execution.md reports this evidence limitation. No failed product/runtime
+assertion is inferred from this new evidence-runner expectation.

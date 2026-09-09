@@ -1,0 +1,29 @@
+{
+  "results": [
+    {
+      "injected": "KeyboardInterrupt",
+      "suppressed": true,
+      "replacement": [
+        "refused",
+        "precondition"
+      ]
+    },
+    {
+      "injected": "MemoryError",
+      "suppressed": true,
+      "replacement": [
+        "refused",
+        "precondition"
+      ]
+    },
+    {
+      "injected": "RuntimeError",
+      "suppressed": true,
+      "replacement": [
+        "refused",
+        "precondition"
+      ]
+    }
+  ],
+  "elapsed_seconds": 0.0003068899968639016
+}

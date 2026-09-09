@@ -1,0 +1,17 @@
+{
+  "scope_audit": "PASS",
+  "new_controls": 6,
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "b5b0706f9e10a6a08d409194918be6496011c9570d5af9504298602cb85e35b0",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_intake.py",
+      "sha256": "8598ff95e8fd7e554cc78d3639fe1d1e0e4b45baf071f227f4087658942fd314",
+      "mode": "0o664"
+    }
+  ],
+  "elapsed_seconds": 0.06413846998475492
+}

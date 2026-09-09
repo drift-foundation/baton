@@ -1,0 +1,115 @@
+{
+  "work": "W126558",
+  "claim": 126590,
+  "claim_order": "claimed at seq126590 before reading the dossier and before any edit; the question and the 20s budget were declared in PROGRESS before any execution",
+  "paths": {
+    "src/baton_v12/job_manager/delegation.py": {
+      "baseline_HEAD": "8bee111d72fa9c417223bbb54c130a0fc4da100773a4609c38a6c66b4f0f27e0",
+      "final": "db8a4a7c6cb69e58c16e69c354b15a0e08454421e1d872728590a75b3c710456",
+      "mode": "664"
+    },
+    "src/baton_v12/job_manager/projection.py": {
+      "baseline_HEAD": "1354712ad0f05131f55460e79f0dc732d92ea15fce1bcc9681462fb8690c1248",
+      "final": "a35c3d89951cd82a268c7b48d037cdf32ab0292fdf0dfe1b15e72bab9af1668a",
+      "mode": "664"
+    },
+    "tools/job_manager.py": {
+      "baseline_HEAD": "a745e36ac192044e53a5ea640244c77149b1fdd334e75da0e7043c511f6cbb14",
+      "final": "1060e26a4196bafbc55db7955271853b1a2dde45e316d39cba7681939aeb6bb7",
+      "mode": "664"
+    },
+    "tests/job_manager/test_delegation.py": {
+      "baseline_HEAD": "3ac6b2c505b14b3a954bb1187ddfb7fc3e069809ba495b9577419ea4fd218ea6",
+      "final": "d0e2056b91bcb366325b11899afbe3da4fb5ba0bdcd0f84414837de8e2c53758",
+      "mode": "664"
+    },
+    "tests/job_manager/test_status.py": {
+      "baseline_HEAD": "4d23c3c87c24e3eace4a4c82df870260afefd77caeeb12b6a2e92fcc8c8912d6",
+      "final": "0da7d9e2f07528d9df80c0fc661f0fb84e2d87446d18625ad55f0163f230ae2a",
+      "mode": "664"
+    },
+    "tests/job_manager/test_exchange.py": {
+      "baseline_HEAD": "729c348f53ab52c90f3cc8e93b1b414801cf196d91e356efa9d563c01c0fae8b",
+      "final": "945c0b0ef55a1434e72ce51d2ac841a608b2f35bd17af160bc96123f09b07016",
+      "mode": "664"
+    },
+    "tests/job_manager/test_tool.py": {
+      "baseline_HEAD": "366e7a295fe86953ca6770b49d0250f80abb12282c66b5ccc2086e7e075ca4dc",
+      "final": "02991e0256a4b71fce3e7e1cfb6429adf4caa818db6da4a5300456ff24b1b50a",
+      "mode": "664"
+    }
+  },
+  "test_methods": {
+    "tests/job_manager/test_delegation.py": {
+      "baseline_HEAD": 18,
+      "now": 36
+    },
+    "tests/job_manager/test_status.py": {
+      "baseline_HEAD": 21,
+      "now": 31
+    },
+    "tests/job_manager/test_exchange.py": {
+      "baseline_HEAD": 36,
+      "now": 41
+    },
+    "tests/job_manager/test_tool.py": {
+      "baseline_HEAD": 24,
+      "now": 27
+    }
+  },
+  "interface": "implemented as pinned in OBSERVATION.md revision 1; no clarification was needed and none was taken",
+  "existing_tests_changed": {
+    "tests/job_manager/test_delegation.py": "two expected-member lists gain `integration: None` and nothing else -- test_an_unstarted_stage_observes_absence_rather_than_a_guess and test_a_status_surface_with_no_control_store_refuses_every_act. Bounded to the optional member, as PLAN step 4 schedules; no other assertion in any owned file changed.",
+    "tests/job_manager/test_exchange.py": "the import line gains UUID and identities for the new class; no existing assertion changed.",
+    "tests/job_manager/test_status.py": "import of copy only.",
+    "tests/job_manager/test_tool.py": "imports the tools.job_manager module beside its existing `main` import; no existing assertion changed."
+  },
+  "compatibility": "the member is OPTIONAL on the canonical observation and normalized to None, so an observation composed before it existed keeps its exact previous behaviour; `_Observing` takes the integration read by name and accepts its absence, where the exchange read stays required",
+  "reported_seam": {
+    "what": "OBSERVATION_OPTIONAL, INTEGRATION_OBSERVATION_SCHEMA and the member/state tuples live in job_manager/delegation.py and are NOT re-exported from job_manager/__init__.py",
+    "why": "that file is not among this Work's seven paths. The owned test imports them from delegation directly and says so in a comment.",
+    "for_the_consumer": "W122060 can import them from delegation, or a bounded follow-up can re-export them. Reported rather than taken on the way past."
+  },
+  "declared_budget_seconds": 20,
+  "budget": {
+    "declared_before_any_execution": true,
+    "spent_seconds": 4.3,
+    "within": true,
+    "how": "focused selectors only; no unchanged provider suite and no full-suite repeat"
+  },
+  "runs": [
+    {
+      "run": "tests.job_manager.test_delegation tests.job_manager.test_status",
+      "result": "failed fast on the closed member set, 0.24s"
+    },
+    {
+      "run": "the four owned suites",
+      "result": "99 tests, 2 failures, 0.40s"
+    },
+    {
+      "run": "the four owned suites",
+      "result": "99 tests, OK, 0.40s"
+    },
+    {
+      "run": "tests.job_manager.test_delegation",
+      "result": "36 tests, OK, 0.21s"
+    },
+    {
+      "run": "tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation",
+      "result": "10 tests, OK, 0.18s"
+    },
+    {
+      "run": "tests.job_manager.test_exchange tests.job_manager.test_tool",
+      "result": "68 tests, four iterations, OK at the last, 0.32s each"
+    },
+    {
+      "run": "the four owned suites",
+      "result": "135 tests, OK, 0.43s"
+    },
+    {
+      "run": "the four owned suites, after tidying two cases",
+      "result": "135 tests, OK, 0.43s"
+    }
+  ],
+  "limitations": "the provider's acceptance uses concrete manager/projection fixtures and honest reader documents, as the FINDING directs. Real integration provenance is the parent's consumer proof; nothing here claims the terminal handoff or the final lifecycle is proved."
+}

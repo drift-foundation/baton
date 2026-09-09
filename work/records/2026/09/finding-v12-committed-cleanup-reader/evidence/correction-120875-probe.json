@@ -1,0 +1,90 @@
+{
+  "work": "W120762",
+  "claim": 120875,
+  "sha256": {
+    "src/baton_v12/worker_manager/intake.py": "e9a515987f9f6d1bb5d5d0e3bd77217a449f8b7ec9e42be7b6ab97954211c60a",
+    "src/baton_v12/worker_manager/__init__.py": "d23aa64e0eba64d969313a129f1bc57a40d1a168f582982bfdcb65319ae932c6",
+    "tests/manager/test_intake.py": "c8a2ea4134d59c3e241b609226da9f0c0136960d9309b4b89f922d86d1b9a157",
+    "tests/manager/test_secrets.py": "47f743de21546862863e489da3248ea91c7e3cb80aefa30b167566da1ede66eb"
+  },
+  "results": {
+    "retained_material_reported_complete": {
+      "ordinary_ending": "retained",
+      "result": {
+        "refused": [
+          "integrity",
+          "schema",
+          "attempt 'attempt-1''s committed cleanup settled 'complete' over a 'absent' runtime keeping 'artifact-1' in 'accepted' custody, and those facts settle 'retained'; an ending is derived from them rather than recorded beside them"
+        ]
+      },
+      "no_external_calls_or_writes": true
+    },
+    "discard_reported_retained": {
+      "ordinary_ending": "complete",
+      "result": {
+        "refused": [
+          "integrity",
+          "schema",
+          "attempt 'attempt-1''s committed cleanup settled 'retained' over a 'absent' runtime keeping nothing in 'accepted' custody, and those facts settle 'complete'; an ending is derived from them rather than recorded beside them"
+        ]
+      },
+      "no_external_calls_or_writes": true
+    },
+    "uncertain_runtime_reported_settled_failed": {
+      "ordinary_ending": "failed",
+      "result": {
+        "refused": [
+          "integrity",
+          "schema",
+          "attempt 'attempt-1''s committed cleanup is journalled as an ending over an uncertain runtime; an account that did not settle the question is never committed as one, so this is a receipt for a commit that cannot have happened"
+        ]
+      },
+      "no_external_calls_or_writes": true
+    },
+    "unknown_runtime_reported_settled_failed": {
+      "ordinary_ending": "failed",
+      "result": {
+        "refused": [
+          "integrity",
+          "schema",
+          "attempt 'attempt-1''s committed cleanup observed its runtime 'invented'; a destroy answers one of absent, quiescent, running, uncertain"
+        ]
+      },
+      "no_external_calls_or_writes": true
+    },
+    "foreign_signature_with_unchanged_receipt": {
+      "ordinary_ending": "retained",
+      "result": {
+        "refused": [
+          "integrity",
+          "schema",
+          "attempt 'attempt-1''s committed cleanup is journalled under a signature this manager does not derive for it; the operands an ordinary cleanup signs are its attempt, assignment, runtime, intake receipt and retention policy, and a row signed over anything else is not that act"
+        ]
+      },
+      "no_external_calls_or_writes": true
+    },
+    "discard_with_missing_retention_decisions": {
+      "ordinary_ending": "complete",
+      "result": {
+        "refused": [
+          "policy",
+          "retention",
+          "artifact 'artifact-1' is in custody with no retention decision; cleanup destroys nothing nobody ruled on"
+        ]
+      },
+      "no_external_calls_or_writes": true
+    },
+    "unowned_optional_kind": {
+      "ordinary_ending": "retained",
+      "result": {
+        "refused": [
+          "integrity",
+          "schema",
+          "attempt 'attempt-1''s committed cleanup also carries kind, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did"
+        ]
+      },
+      "no_external_calls_or_writes": true
+    }
+  },
+  "seconds": 0.11559808196034282
+}

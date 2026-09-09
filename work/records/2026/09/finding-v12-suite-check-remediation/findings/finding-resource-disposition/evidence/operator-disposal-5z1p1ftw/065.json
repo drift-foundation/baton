@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "docker",
+    "container",
+    "inspect",
+    "--format",
+    "{{.Id}}",
+    "ab6ece5db883ca1857dd263bb502baf16b91fd412574f3f0eaf0b5c59faaa8e8"
+  ],
+  "returncode": 1,
+  "stdout": "\n",
+  "stderr": "Error response from daemon: No such container: ab6ece5db883ca1857dd263bb502baf16b91fd412574f3f0eaf0b5c59faaa8e8\n"
+}

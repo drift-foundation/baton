@@ -1,0 +1,58 @@
+{
+  "work": "W124331",
+  "claim": 124428,
+  "seconds": 0.01608040905557573,
+  "results": {
+    "writer_malformed_signature": {
+      "exception": "JSONDecodeError",
+      "category": null,
+      "message": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+    },
+    "writer_null_result": {
+      "returned": true,
+      "equals_honest": true
+    },
+    "writer_foreign_result": {
+      "returned": true,
+      "equals_honest": true
+    },
+    "writer_bool_committed_generation": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the line writer for attempt 'writer-attempt-1' generation 1's committed generation is a whole assignment generation, counting from zero; this is true"
+    },
+    "review_malformed_signature": {
+      "exception": "JSONDecodeError",
+      "category": null,
+      "message": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+    },
+    "review_null_result": {
+      "returned": true,
+      "equals_honest": true
+    },
+    "review_foreign_result": {
+      "returned": true,
+      "equals_honest": true
+    },
+    "review_bool_committed_generation": {
+      "returned": true,
+      "equals_honest": true
+    },
+    "writer_changed_fixed_generation": {
+      "returned": true,
+      "equals_honest": true
+    },
+    "writer_cold_earlier_round": {
+      "returned": true,
+      "equals_honest": true
+    },
+    "review_cold_earlier_round": {
+      "returned": true,
+      "equals_honest": true
+    }
+  },
+  "sha256": {
+    "src/baton_v12/worker_manager/review_cycles.py": "d91e915581b1ff1487f642124c6b60366c61e18f1a382c3f0325fb73224cf828",
+    "tests/manager/test_review_cycles.py": "2115e43018a16cfa66acbf7f0caa5ce6b3daf2234adf353f23182ab91d3887ef"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "command": [
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-abandoned-checkpoint-restore/evidence/review-129055/probe.py"
+  ],
+  "cwd": "v12/python",
+  "PYTHONPATH": "src:.",
+  "cap_seconds": 3,
+  "cumulative_seconds": 0.2453442340483889,
+  "returncode": 0
+}

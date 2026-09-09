@@ -1,0 +1,103 @@
+{
+  "work": "W126558",
+  "claim": 126679,
+  "corrects": "review-2026-09-09T09-13-35Z.md, findings 1, 2 and 3",
+  "claim_order": "claimed at seq126679 before reading the review and before any edit; the remaining budget was declared in PROGRESS before any execution",
+  "baseline": "the candidate bytes at handoff, per the review's instruction; the reviewer's retained manifest is evidence/review-126648-candidate.json",
+  "paths": {
+    "src/baton_v12/job_manager/delegation.py": {
+      "baseline_candidate": "db8a4a7c6cb69e58c16e69c354b15a0e08454421e1d872728590a75b3c710456",
+      "final": "fd83e32d0ab52b1f611c21adc3cb07b094dee9c2dd7ca904f923b82bb1e42705",
+      "mode": "664"
+    },
+    "src/baton_v12/job_manager/projection.py": {
+      "baseline_candidate": "a35c3d89951cd82a268c7b48d037cdf32ab0292fdf0dfe1b15e72bab9af1668a",
+      "final": "d22c3e7d83731e9ecf5c74255b2d40a46f8b24b858fd091226cd60e9eba91af3",
+      "mode": "664"
+    },
+    "tools/job_manager.py": {
+      "baseline_candidate": "1060e26a4196bafbc55db7955271853b1a2dde45e316d39cba7681939aeb6bb7",
+      "final": "1060e26a4196bafbc55db7955271853b1a2dde45e316d39cba7681939aeb6bb7",
+      "mode": "664"
+    },
+    "tests/job_manager/test_delegation.py": {
+      "baseline_candidate": "d0e2056b91bcb366325b11899afbe3da4fb5ba0bdcd0f84414837de8e2c53758",
+      "final": "ce18e8dbf6d05a73dcba217b227f7c9e4d430e4aa0bc44c56fda897028d91a4a",
+      "mode": "664"
+    },
+    "tests/job_manager/test_status.py": {
+      "baseline_candidate": "0da7d9e2f07528d9df80c0fc661f0fb84e2d87446d18625ad55f0163f230ae2a",
+      "final": "859869bf8538320b39ab931d54772c5bd935b2ad24f7dad72ba47414c65d62bf",
+      "mode": "664"
+    },
+    "tests/job_manager/test_exchange.py": {
+      "baseline_candidate": "945c0b0ef55a1434e72ce51d2ac841a608b2f35bd17af160bc96123f09b07016",
+      "final": "945c0b0ef55a1434e72ce51d2ac841a608b2f35bd17af160bc96123f09b07016",
+      "mode": "664"
+    },
+    "tests/job_manager/test_tool.py": {
+      "baseline_candidate": "02991e0256a4b71fce3e7e1cfb6429adf4caa818db6da4a5300456ff24b1b50a",
+      "final": "02991e0256a4b71fce3e7e1cfb6429adf4caa818db6da4a5300456ff24b1b50a",
+      "mode": "664"
+    }
+  },
+  "test_methods": {
+    "tests/job_manager/test_delegation.py": 38,
+    "tests/job_manager/test_status.py": 36,
+    "tests/job_manager/test_exchange.py": 41,
+    "tests/job_manager/test_tool.py": 27
+  },
+  "finding_1_stage_kind": {
+    "was": "_integration_observation bound ids and assignment and never the stage kind, so the same completed account projected an implementation stage completed with no worker output",
+    "now": "the kind is the FIRST binding: a stage of any other kind, or one naming none, refuses refused/operation-collision before anything reads the document's state",
+    "controls": [
+      "test_a_document_supplied_for_another_kind_refuses (implementation, review and a missing kind)",
+      "test_an_integration_stage_still_accepts_its_own",
+      "test_a_supplied_document_for_another_kind_refuses_at_the_status -- the same rule through the public projection"
+    ],
+    "fixture": "the binding fixture's STAGE now names its actual kind, as the review requires, rather than silently omitting it"
+  },
+  "finding_2_uncertain_precedence": {
+    "was": "_observed_state tested the uncertain runtime before the integration branch, so a validated completed account projected exceptional after a later uncertain refresh",
+    "now": "the integration branch sits above the generic rules, and the uncertainty hold is where OBSERVATION.md puts it -- inside _integrating, on unstarted/pending/answered, the three that would otherwise earn an automatic act. Completed and held are answered from the document alone: a completed account is historical evidence about the fixed assignment and a mutable axis read afterwards is not a fact about it.",
+    "controls": [
+      "test_an_uncertain_runtime_holds_the_three_that_earn_an_act -- the scheduled case corrected to exclude completed",
+      "test_a_completed_account_survives_a_later_uncertain_refresh -- the historical positive the review asked for"
+    ]
+  },
+  "finding_3_generic_bypass": {
+    "was": "the integration branch sat below _ending_owed and the frozen output, so a held document beside a frozen output projected answering and owed a conclude the pinned held outcome does not",
+    "now": "the branch runs after the named earlier failure guards -- ended episode, durable refusal, failed start and failed preparation -- and before every worker-exchange and frozen-output inference. Those generic rules are unchanged for every other stage.",
+    "controls": [
+      "test_a_held_document_is_not_turned_into_an_owed_ending",
+      "test_a_foreign_frozen_output_cannot_complete_an_integration",
+      "test_a_foreign_exchange_cannot_move_an_integration"
+    ]
+  },
+  "reviewer_probe": {
+    "run": "PYTHONPATH=.:src:tests python3 evidence/review-126648-probe.py",
+    "result": "0.21s. It now RAISES at its first case rather than reporting it: `stage 'job-a/implementation''s integration observation was supplied for a 'implementation' stage`. The probe was written to demonstrate the defect, so refusing there is the correction reaching it; the other two cases are behind that raise and are covered by the owned controls above.",
+    "exit": "non-zero, because the probe asserts the defective projection"
+  },
+  "budget": {
+    "allowance_after_the_charge": 15.7,
+    "spent_this_pass": 1.1,
+    "within": true,
+    "not_reset_by_this_claim": true
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.job_manager.test_delegation tests.job_manager.test_status tests.job_manager.test_exchange tests.job_manager.test_tool",
+      "result": "after the three source corrections: 8 failures and 1 error, all in the new binding class whose fixture omitted the stage kind, 0.43s"
+    },
+    {
+      "run": "the same four suites, after correcting that fixture and adding the scheduled controls",
+      "result": "142 tests, OK, 0.44s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 evidence/review-126648-probe.py",
+      "result": "raises at case one, 0.21s"
+    }
+  ],
+  "history_note": "the previous pass's evidence summarized its iterations rather than retaining each command; that history is preserved in provider-126590.json and is not recoverable in more detail. Each run of this pass is recorded separately above."
+}

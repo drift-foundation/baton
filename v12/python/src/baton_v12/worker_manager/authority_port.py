@@ -32,6 +32,7 @@ from ..contracts.errors import name_value, type_name_of
 from . import boundaries
 
 __all__ = ["AuthorityPort", "SESSION_MEMBERS", "SESSION_OPERATIONS",
+           "OPTIONAL_SESSION_OPERATIONS", "GATE_DISCHARGE",
            "PROJECTION_READ", "PROJECTION_UNREAD", "SETTLEMENT", "FENCE",
            "CLAIM_RESULT", "DECISION", "GRANT_PROVENANCE"]
 
@@ -50,6 +51,46 @@ SESSION_OPERATIONS = ("project_work", "slot_holder", "claim",
                       # Baton and no SQLite capability at any point, and this
                       # member is where that stops being an assertion.
                       "publish_answer")
+
+# W119548: AND THE ONE THIS PORT NAMES WITHOUT REQUIRING.
+#
+# `intake.discharge_quiescence_gate` carries this manager's own committed
+# positive-absence proof to the act that discharges the gate a fence installed.
+# It is the first member this port has ever named optionally, and the exception
+# is deliberate rather than convenient.
+#
+# WHY IT IS NOT IN `SESSION_OPERATIONS`. That tuple is a CONSTRUCTION
+# requirement: a session missing any member of it refuses the whole port. Two
+# production deployments in this distribution -- `tools/single_worker.py`'s
+# `_AuthoritySession` and `tools/dogfood_operator.py`'s facade -- compose their
+# own narrow session surfaces and carry neither this member nor a way for this
+# Work to add one. Requiring it here would stop both from constructing a port
+# at all, which is a much larger change than typing one new act, and it would be
+# this module deciding a widening those deployments' own Work has not made.
+#
+# WHY A LATE REFUSAL IS SAFE HERE AND NOWHERE ELSE ABOVE. The rule this port is
+# built on -- a capability discovered missing once durable state depends on it
+# was not typed at all -- is a statement about `claim`, which is reached with
+# an offer already accepted and an identity already frozen. The discharge is the
+# opposite shape: ordinary cleanup has already committed its terminal axis and
+# its receipt, this act has its own derived identity, and refusing it leaves
+# the obligation exactly as discoverable and retryable as it was a moment
+# before. Nothing durable is spent on the way to finding out.
+OPTIONAL_SESSION_OPERATIONS = ("satisfy_gate",)
+
+# WHAT DISCHARGING A GATE ANSWERS WITH. The authority clears the one gate
+# holding the Work and returns it to `queued` in one transaction, and says so in
+# one document. Owned at this port like every other injected answer.
+GATE_DISCHARGE = ("gate", "kind", "phase")
+
+# AND THE PHASE A DISCHARGE ACTUALLY PRODUCES. Review 2026-09-08T14:27:00Z
+# [P1]: the member set alone was owned and the VALUES were not, so a session
+# answering
+# `{gate: another-gate, kind: [], phase: block}` without performing any act
+# passed this crossing and became a durable success receipt one layer up. A
+# document whose shape is right and whose content describes a different Work
+# state is not the act this port asked for.
+GATE_DISCHARGED_PHASE = "queued"
 
 # WHAT A FENCE ANSWERS WITH. The authority ends the assignment, fences the exact
 # generation and installs the typed quiescence gate in ONE transaction, and says
@@ -161,6 +202,11 @@ DECISION = ("endpoint", "principal", "effective_scope", "role", "grant",
 # -- which is the correction this Work exists to make, applied backwards.
 GRANT_PROVENANCE = ("direct", "inherited", "masked")
 
+# A sentinel that is not `None`, because a session carrying `satisfy_gate =
+# None` and a session carrying no `satisfy_gate` at all are different facts, and
+# only one of them is an ordinary narrower deployment.
+_ABSENT = object()
+
 
 class AuthorityPort:
     """One participant-bound session, plus the authority's own signature rule.
@@ -196,6 +242,22 @@ class AuthorityPort:
                     f"the injected session's {member} is "
                     f"{name_value(found)}; a {type_name_of(session)} is not "
                     f"the participant-bound session this manager was given")
+        # W119548: THE OPTIONAL MEMBER IS TYPED WHEN IT IS THERE, and its
+        # ABSENCE is recorded rather than discovered later. A session carrying
+        # `satisfy_gate = None` is a malformed session and refuses here for the
+        # same reason a malformed `claim` does; a session carrying nothing at
+        # all is an ordinary narrower deployment, and `satisfy_gate` below says
+        # so as a typed refusal rather than an AttributeError.
+        for member in OPTIONAL_SESSION_OPERATIONS:
+            found = getattr(session, member, _ABSENT)
+            if found is not _ABSENT and not callable(found):
+                raise ContractRefusal(
+                    "integrity", "schema",
+                    f"the injected session's {member} is "
+                    f"{name_value(found)}; a session that names this "
+                    f"capability carries one, and a value that is not "
+                    f"callable is a malformed session rather than a narrower "
+                    f"one")
         # Injected with the session, and typed with it.
         boundaries.capability(claim_signature,
                               "the authority's claim-signature derivation")
@@ -261,6 +323,71 @@ class AuthorityPort:
             return None
         return self._assignment(answer, work_id, authority_uuid,
                                 "the live assignment")
+
+    def satisfy_gate(self, work_id, operation_id, gate, evidence):
+        """W119548: discharge the one gate holding this Work, at the authority.
+
+        THE OTHER END OF `cancel`. A fence ends the assignment and installs
+        `runtime-quiescence:<generation>` in one transaction; this is the act
+        that clears it once this manager has POSITIVELY OBSERVED the exact
+        runtime absent. The two are deliberately separate operations, because
+        the observation the gate takes does not exist at the moment the fence
+        is made.
+
+        THE AUTHORITY DECIDES, AND THIS PORT DOES NOT ARGUE. `satisfy_gate`
+        compares the gate token for exact equality against the one actually
+        holding the Work, so a discharge derived for one generation cannot
+        clear another's -- and that refusal arrives from the owner of the fact
+        rather than from a comparison this manager composed. What crosses here
+        is the operand set and the owning of the answer.
+
+        NOTHING IS DERIVED HERE EITHER. The Work, the identity, the token and
+        the evidence are all composed by the caller from durable records it
+        owns; this is the typed crossing and not a second author of any of
+        them.
+        """
+        performing = getattr(self._session, "satisfy_gate", _ABSENT)
+        if performing is _ABSENT:
+            raise ContractRefusal(
+                "refused", "capability",
+                f"this session acts for {name_value(self.participant)} and "
+                f"carries no satisfy_gate; a deployment whose session cannot "
+                f"reach the authority's gate discharge is reported as missing "
+                f"that capability rather than treated as having performed it")
+        answer = boundaries.document(
+            performing({"work_id": work_id, "operation_id": operation_id,
+                        "gate": gate, "evidence": evidence}),
+            "the session's gate-discharge answer", required=GATE_DISCHARGE)
+        # AND ITS VALUES, AND THEIR RELATION TO WHAT WAS ASKED. Review
+        # 2026-09-08T14:27:00Z [P1]: only the member set was owned, so an
+        # answer about ANOTHER gate, carrying a kind that is not text and a
+        # phase that is not a discharge, crossed here intact and was journalled
+        # as this gate's completion while the real one stayed closed. Every
+        # other answer at this port is owned member by member for exactly this
+        # reason; this one was not.
+        #
+        # THE GATE IS COMPARED RATHER THAN ADOPTED. A discharge is an act about
+        # ONE gate, and an answer naming a different one is evidence about that
+        # other gate and nothing at all about this request -- the same rule
+        # `cancel` applies to the assignment it fenced.
+        if answer["gate"] != gate:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the authority answered about gate "
+                f"{name_value(answer['gate'])} and this discharge asked about "
+                f"{name_value(gate)}; an answer "
+                f"about another gate is not evidence that this one was "
+                f"discharged")
+        boundaries.text(answer["kind"], "the discharged gate's kind")
+        if answer["phase"] != GATE_DISCHARGED_PHASE:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"the authority answered phase {name_value(answer['phase'])} "
+                f"and a discharged gate leaves the Work "
+                f"{name_value(GATE_DISCHARGED_PHASE)}; a reply that does not "
+                f"say the gate was released is not a discharge however well "
+                f"formed it is")
+        return answer
 
     def cancel(self, expect, operation_id, reason, work_id, authority_uuid):
         """Fence the exact generation and end the assignment, at the authority.

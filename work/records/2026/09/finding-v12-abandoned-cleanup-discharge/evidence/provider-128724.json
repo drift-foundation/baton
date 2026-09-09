@@ -1,0 +1,164 @@
+{
+  "work": "W128682",
+  "claim": 128724,
+  "authority": "owner128669 in T119114; FINDING.md and the pinned CONTRACT.md",
+  "claim_order": "claimed at seq128724 before reading further and before any edit; the revalidation, question, budget and selectors were declared in PROGRESS before the first run",
+  "revalidation": {
+    "how": "all three baseline hashes and modes compared against the tree before editing",
+    "result": {
+      "src/baton_v12/worker_manager/intake.py": {
+        "baseline": "b5b0706f9e10a6a08d409194918be6496011c9570d5af9504298602cb85e35b0",
+        "matched_before_edit": true
+      },
+      "src/baton_v12/worker_manager/__init__.py": {
+        "baseline": "0c417699ed667a857863c845d94408b4f06191706b169e1cd478c0d9e998eb05",
+        "matched_before_edit": true
+      },
+      "tests/manager/test_intake.py": {
+        "baseline": "8598ff95e8fd7e554cc78d3639fe1d1e0e4b45baf071f227f4087658942fd314",
+        "matched_before_edit": true
+      }
+    },
+    "semantics_checked_in_code_not_in_the_record": [
+      "abandon_attempt commits attempt.abandon BEFORE any external call, fences through port.cancel with the adopted record's own operation id and reason, and journals the whole composite {intent, fenced, cleanup} under runtime.destroy-abandoned only after the removal",
+      "discharge_quiescence_gate is authorized by _absence_proof, which requires intake_receipt_of and reads runtime.destroy BY NAME -- an abandonment has neither, which is why a separate family is needed rather than a widened one"
+    ]
+  },
+  "paths": {
+    "src/baton_v12/worker_manager/intake.py": {
+      "sha256": "3e51a2746cc6e4ed39ce5c8fc9b121a89b14dd0a667ffd9dfaf8c66f13dd9769",
+      "mode": "664",
+      "baseline": "b5b0706f9e10a6a08d409194918be6496011c9570d5af9504298602cb85e35b0"
+    },
+    "src/baton_v12/worker_manager/__init__.py": {
+      "sha256": "3981073e933fb36daa4ad93091858487f3393e8ceabb69bbb26a3496bf9db798",
+      "mode": "644",
+      "baseline": "0c417699ed667a857863c845d94408b4f06191706b169e1cd478c0d9e998eb05"
+    },
+    "tests/manager/test_intake.py": {
+      "sha256": "598775fda73043b76cc8d107bbde9faf0d84fba8444783c9c74f96d860198bad",
+      "mode": "664",
+      "baseline": "8598ff95e8fd7e554cc78d3639fe1d1e0e4b45baf071f227f4087658942fd314"
+    }
+  },
+  "public_names": {
+    "operations": [
+      "abandonment_cleanup_of(store, *, attempt_id, retention_policy_digest)",
+      "discharge_abandoned_quiescence_gate(store, port, *, attempt_id, retention_policy_digest)",
+      "abandoned_gate_discharge_of(store, attempt_id)"
+    ],
+    "constants": [
+      "ABANDONED_CLEANUP",
+      "ABANDONED_CLEANUP_SCHEMA",
+      "ABANDONED_GATE_DISCHARGE_KIND",
+      "ABANDONED_GATE_DISCHARGE_RECEIPT",
+      "ABANDONED_GATE_DISCHARGE_SCHEMA"
+    ],
+    "schemas": {
+      "cleanup": "baton.v12.abandoned-cleanup/1",
+      "receipt": "baton.v12.abandoned-gate-discharge/1"
+    },
+    "operation_kind": "authority.discharge-quiescence-abandoned",
+    "exported_from": "worker_manager.intake, re-exported from worker_manager/__init__.py",
+    "matches_contract": "the names, operands, members and schemas are the ones CONTRACT.md pins; nothing was renamed or added beyond them"
+  },
+  "how_the_contract_is_met": {
+    "no_fabricated_receipt": "the declaration's digest rides the removal identity, exactly as the intake receipt's digest rides the ordinary one. No intake receipt is read, derived or invented.",
+    "no_mutable_absence": "execution_runtime, the cleanup axis and the Work's current route/gate are never read as evidence. What is read is the journal: the committed declaration, the committed composite, and the relationships between them.",
+    "signatures_derived_and_compared": "both rows are held to a signature recomposed from their own members rather than replayed under whatever the row carries -- cleanup_of's 2026-09-08T16-43-59Z [P1] rule",
+    "whole_operation_compared": "cleanup['operation'] is compared whole against the derived one, because operation_id binds the attempt, assignment, declaration and policy while signature_digest is the half that binds the runtime",
+    "distinct_identity": "the discharge identity is derived over the attempt and fixed assignment alone -- so a resuming manager re-derives it without re-establishing the evidence -- and the KIND prefix is what keeps it from colliding with the ordinary discharge, whose identity signs the same two operands",
+    "remote_before_local": "satisfy_gate commits first and the journal second; the committed replay is read BEFORE any mutable state, so a lost local receipt reissues the identical remote operation and the Authority's own replay answers it",
+    "performs_nothing_else": "no destruction, runtime refresh, reconciliation, writer or line transition, collection, publication, stage replacement, checkout restore or new Authority policy. No timer anywhere.",
+    "ordinary_family_untouched": "cleanup_of, gate_discharge_of, discharge_quiescence_gate, _absence_proof and _adopted_discharge are unchanged; the only edit to existing bytes is one import line adding FENCE and GATE_DISCHARGE"
+  },
+  "measured_rather_than_assumed": {
+    "what": "I expected a surviving runtime to leave nothing journalled. It does not: _settle_recordless_cleanup commits the composite with the ending `failed`.",
+    "so": "the reader refuses on that fact rather than answering absence, and the category is refused/precondition rather than an integrity fault -- the record is this family's own committed act and there is nothing wrong with it, exactly as _absence_proof decides for the ordinary family's `failed` ending",
+    "registered_as": "test_a_runtime_that_survived_its_removal_supplies_no_absence, which also proves the gate stays shut"
+  },
+  "proof": {
+    "class": "TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence",
+    "cases": 24,
+    "real_stores": "the real ControlStore, the real journal, the real derived identities and the real AuthorityPort crossing; the Authority is the shared fake session, which models its two rules -- the gate token must be the one holding the Work, and a committed operation identity replays",
+    "covers": [
+      "successful declaration -> exact absence -> discharge -> read -> replay with no second remote act",
+      "a lost local receipt reissuing the identical remote operation after the Work was already ungated",
+      "a later Work generation refused by the Authority's own equality check",
+      "another participant (refused/capability) and another authority (refused/capability), each before the remote act",
+      "another retention policy selecting an act never committed",
+      "an edited runtime, a row signed over anything else, and a row committed under another kind",
+      "an undeclared attempt and a declaration whose removal never committed, both honest absence",
+      "a surviving runtime, refused",
+      "a receipt edited member by member failing to reproduce its signature",
+      "the ordinary readers answering nothing about an abandonment, the ordinary discharge still refusing for its own reason, and an ordinary cleanup not reading as an abandoned one"
+    ],
+    "fixture_correction": "the shared fake composes its fence answer from the OFFER's live assignment, and this suite's attempts are fixed to their own Work -- so the fixture composes the fence for THIS attempt's own fixed assignment rather than leaving the default, which the port refuses first"
+  },
+  "operational_finding_reported_not_worked_around": {
+    "what": "two whole-universe SOURCE scans require every public callable and every boundary call to be declared, and both files are OUTSIDE owner128669's three authorized paths",
+    "measured": [
+      {
+        "shard": "tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText",
+        "test": "test_the_table_names_every_exported_callable",
+        "diagnostic": "the callable table does not name abandoned_gate_discharge_of, abandonment_cleanup_of or discharge_abandoned_quiescence_gate",
+        "owning_path": "tests/manager/test_text_sweep.py"
+      },
+      {
+        "shard": "tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner",
+        "test": "test_every_boundary_call_belongs_to_an_entry_or_is_declared",
+        "diagnostic": "121 boundary calls attributed to no entry, 31 of them in the abandonment family",
+        "already_failing_for_this_family": "the list includes _abandon_intent, _abandon_operation_id, _abandon_fence_operation_id and _abandoned_destroy_operation -- all W44716's, untouched by this claim -- so the shard was already failing for the abandonment family before this change. What this claim adds is the calls in _abandonment_declaration, _abandoned_fence, _abandoned_absence and _adopted_abandoned_discharge.",
+        "owning_path": "tests/manager/test_boundary_inventory.py"
+      }
+    ],
+    "not_done": "neither file was edited. Owner128669 authorized three paths and the FINDING requires consumer coordination for public-name changes; editing an unauthorized whole-universe scan to accept my own names is exactly the thing that should be decided rather than taken on the way past.",
+    "also_present_and_not_mine": "tests.manager.test_dependencies fails on authority_port.py:AuthorityPort:satisfy_gate parameter 'gate', which is W119548's and predates this claim; my two keyword operands are already declared operands"
+  },
+  "budget": {
+    "declared": 20.0,
+    "spent": 12.69,
+    "remaining": 7.31,
+    "within": true,
+    "reset": false,
+    "note": "every run is an exact command with its wall time from `time`; the cap covers every test and probe process"
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_intake",
+      "wall": "3.113s",
+      "log": "evidence/run-128724-a.log",
+      "result": "179 tests, 19 errors -- the new class only; the fake's fence answer named the offer's assignment rather than this attempt's"
+    },
+    {
+      "run": "the new class alone, after composing the fence for this attempt",
+      "wall": "0.411s + 0.431s",
+      "result": "23 tests, 19 errors -> 3 remaining"
+    },
+    {
+      "run": "the new class alone, after the three corrections",
+      "wall": "0.454s",
+      "log": "evidence/run-128724-class.log",
+      "result": "24 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_intake",
+      "wall": "3.151s",
+      "log": "evidence/run-128724-module.log",
+      "result": "180 tests, OK -- 156 existing and 24 new, no existing assertion changed"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText tests.manager.test_dependencies.NoPublicOperationTakesInternalState",
+      "wall": "0.316s",
+      "log": "evidence/run-128724-scans.log",
+      "result": "the two scan consequences above, measured"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared",
+      "wall": "2.408s + 2.402s (the second with maxDiff lifted to read the actual list)",
+      "log": "evidence/run-128724-inventory.log",
+      "result": "121 unattributed calls, 31 in the abandonment family, four of them pre-existing W44716 sites"
+    }
+  ],
+  "existing_assertions": "unchanged. The only edit to existing bytes in the three paths is one import line in intake.py, one import block and one __all__ block in __init__.py, and one import block in test_intake.py; everything else is appended."
+}

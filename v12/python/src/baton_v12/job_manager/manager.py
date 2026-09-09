@@ -31,7 +31,8 @@ from ..contracts import ContractRefusal
 from ..contracts.errors import name_value
 from ..worker_manager import boundaries
 from ..worker_manager import events
-from . import delegation, documents, episodes, projection, scheduler, submission
+from . import (delegation, documents, ending, episodes, projection,
+               scheduler, submission)
 from .store import job_signature
 
 __all__ = ["TICK_SECONDS", "reconcile", "serve", "sweep"]
@@ -166,6 +167,13 @@ def sweep(store, operations, *, now, recovered=None, attach=False):
     # and the next one end it without either being edge-triggered on the other.
     spoken = _converse(store, operations, projection.stage_states(store,
                                                                   operations))
+    # W119733: AND THE COMPOSED ENDINGS NO PROJECTION OF A LIVE EPISODE CAN
+    # REACH, LAST AND FROM THE JOB JOURNAL RATHER THAN FROM `held`. A
+    # correction round ends the episode that owed the ending and opens its
+    # successor, so the obligation belongs to a stage that has already moved
+    # on; the pass above answers for the current attempt and is the wrong
+    # place to ask about a previous one.
+    spoken.extend(_recover_endings(store, operations, spoken))
     return documents.sweep_report(observed_at=now, recovered=recovered,
                                   observed=observed, replaced=replaced,
                                   acts=acts, started=started, spoken=spoken,
@@ -230,6 +238,65 @@ def _converse(store, operations, held):
             attempt_id=attempt["attempt_id"], act=act, outcome="performed",
             detail=performed if type(performed) is dict else None))
     return spoken
+
+
+def _recover_endings(store, operations, spoken):
+    """Ask again for every registered composed ending that never settled.
+
+    W119733. THE ONE PASS THAT IS NOT DERIVED FROM A LIVE EPISODE, and it
+    exists because the obligation outlives the attempt that owed it. A
+    composed ending commits its intent before it can reach cleanup and its
+    settlement only after the gate discharge and the routing have succeeded;
+    `advance_correction` may end that episode and open its successor in
+    between. The stage then has a live episode with nothing owed and a
+    PREVIOUS one holding an unfinished ending, and every projection this
+    manager takes is about the live one.
+
+    THE SAME SERVING ACT AND NO OTHER. What this asks for is `conclude`, with
+    the stage-and-episode view the recorded selectors still bind to -- so the
+    deployment re-enters the ending it was already performing rather than a
+    second one this pass composed. It reopens nothing, restarts nothing and
+    starts no runtime: an ended episode's attempt is over, and what is left is
+    the acts after the cleanup.
+
+    NOT TWICE IN ONE TICK. `_converse` has already spoken for every live
+    episode the projection reported `answering`, which a registered unsettled
+    ending is; this pass skips exactly what that one performed or deferred.
+    Owner replay makes a second call harmless anyway -- but a report saying a
+    tick concluded one stage twice is a report of something that did not
+    happen.
+
+    A FAILURE IS CONTAINED TO ITS STAGE, for `_converse`'s reason and with its
+    boundary. A refusal here is a condition somebody else's record already
+    describes, and the obligation stays registered and unsettled, so the next
+    tick asks again. An unexpected fault is not contained.
+    """
+    done = {(one["stage_id"], one["episode"]) for one in spoken
+            if one["act"] == "conclude"}
+    resumed = []
+    for intent in ending.pending_endings(store):
+        key = (intent["stage_id"], intent["episode"])
+        if key in done:
+            continue
+        done.add(key)
+        attempt = ending.attempt_of(store, intent)
+        job = submission.job_of(store, intent["job_id"])
+        try:
+            performed = operations.conclude(attempt, job)
+        except ContractRefusal as refusal:
+            resumed.append(documents.stage_exchange(
+                stage_id=intent["stage_id"], episode=intent["episode"],
+                attempt_id=intent["attempt_id"], act="conclude",
+                outcome="deferred",
+                detail={"category": refusal.category, "code": refusal.code,
+                        "message": refusal.message}))
+            continue
+        resumed.append(documents.stage_exchange(
+            stage_id=intent["stage_id"], episode=intent["episode"],
+            attempt_id=intent["attempt_id"], act="conclude",
+            outcome="performed",
+            detail=performed if type(performed) is dict else None))
+    return resumed
 
 
 def _launch(store, operations, held):

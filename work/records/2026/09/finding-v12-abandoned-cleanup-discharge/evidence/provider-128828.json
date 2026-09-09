@@ -1,0 +1,90 @@
+{
+  "work": "W128682",
+  "claim": 128828,
+  "corrects": "review-2026-09-09T15-22-41Z.md, P1 and P2",
+  "claim_order": "claimed at seq128828 before reading the review and before any edit; the selectors and the carried budget were declared in PROGRESS before the first run",
+  "baseline": "my own submitted candidate; the reviewer's audit confirms the three hashes matched what I passed back",
+  "paths": {
+    "src/baton_v12/worker_manager/intake.py": {
+      "submitted": "3e51a2746cc6e4ed39ce5c8fc9b121a89b14dd0a667ffd9dfaf8c66f13dd9769",
+      "final": "d326fe41d0ad8ca90950be9735f4c05b1c537e70e6827f760867969830eae7b7",
+      "mode": "664"
+    },
+    "src/baton_v12/worker_manager/__init__.py": {
+      "submitted": "3981073e933fb36daa4ad93091858487f3393e8ceabb69bbb26a3496bf9db798",
+      "final": "3981073e933fb36daa4ad93091858487f3393e8ceabb69bbb26a3496bf9db798",
+      "mode": "644"
+    },
+    "tests/manager/test_intake.py": {
+      "submitted": "598775fda73043b76cc8d107bbde9faf0d84fba8444783c9c74f96d860198bad",
+      "final": "40cf5c6686875b8ed6a48cba3106a80ac4f98b6fcfe41334f5c869bb66d79fdf",
+      "mode": "664"
+    }
+  },
+  "findings_accepted": "both, without argument. The probes are right and the second one found a defect my own signature check could not have caught.",
+  "p1_fence": {
+    "was": "`if not fence['fenced']` accepted the truthy STRING 'false', and neither cause nor phase was checked at all -- so a stored cause of 'pass' or phase of 'queued' reached the remote discharge",
+    "now": "`fence['fenced'] is not True` refuses any truthy non-boolean, and cause and phase are required to be 'cancelled' and 'block' beside the assignment and gate bindings that were already there",
+    "authority_for_those_values": "not invented here. `authority/core.py`'s route_fenced compares a committed cancellation against exactly {'cause': 'cancelled', 'assignment': expect, 'phase': 'block', 'gate': gate, 'fenced': True}, so all five members are that owner's own semantics",
+    "historical_reads_preserved": "every comparison is against the receipt's OWN assignment and the gate it composes; nothing reads the Work's current phase or gate, and a control proves a valid read still answers after the Work advances"
+  },
+  "p1_cleanup": {
+    "was": "the ending, the observed state and the operation pair were checked; kept, directory_custody and a foreign `kind` were not, so custody=None, an invented kept artifact or an extra member each returned positive proof and drove one real satisfy_gate",
+    "why_the_signature_could_not_catch_it": "the recorded kind and operand signature are unchanged in those probes. Validating the REQUEST signature does not validate every member of the OUTCOME -- the review's own sentence, and the thing I had missed",
+    "now": [
+      "the member set is exactly CLEANUP_RECEIPT with no optional: documents.cleanup_settled has no optional member and _settle_recordless_cleanup writes no `kind` on this family's endings, so admitting one was borrowing a sibling's allowance",
+      "kept must be exactly [] -- this family's own fact, not the ordinary reader's retention comparison: an abandonment intakes nothing and decides no retention",
+      "both normalization receipts are compared against custody.historical_directory_custody, the normalization owner's own read, so this module holds no second copy of that protocol"
+    ],
+    "not_done": "the ordinary cleanup family is not widened and no other owner's protocol is copied"
+  },
+  "p1_comments": {
+    "was": "two comments said a failed removal never journals",
+    "now": "corrected in both places, naming that my own measured case in the same claim already established otherwise"
+  },
+  "p2_replay": {
+    "was": "after a discharge under policy 7, the same act under policy 9 returned the policy-7 receipt unrefused. The discharge identity is derived over the attempt and its fixed assignment alone -- deliberately, so a resuming manager re-derives it without the evidence -- which means the policy is not in it, and the receipt-signature check recomposes the receipt's own members, which were all consistent",
+    "now": "the supplied policy is compared against the committed receipt and a difference is refused/operation-collision, as CONTRACT.md requires changed operands to do",
+    "no_mutable_read": "compared against the receipt alone -- not today's cleanup row and not the Work -- so the lost-receipt retry and the later-generation replay both still work, each with its own control"
+  },
+  "controls_added": 10,
+  "controls_total": 34,
+  "added": [
+    "test_a_truthy_non_boolean_is_not_a_fence",
+    "test_a_fence_recording_another_cause_or_phase_is_not_this_one",
+    "test_a_fence_of_another_assignment_or_gate_is_refused",
+    "test_a_settlement_claiming_custody_nobody_performed_is_refused",
+    "test_a_settlement_naming_another_normalization_is_refused",
+    "test_an_abandonment_that_claims_kept_material_is_refused",
+    "test_a_foreign_member_on_the_settlement_is_refused",
+    "test_a_valid_read_still_answers_after_the_work_advances",
+    "test_another_policy_cannot_replay_the_committed_discharge",
+    "test_the_same_policy_still_replays_after_the_work_moves_on"
+  ],
+  "each_negative_also_proves": "no remote act and no local discharge receipt follow the refusal, which is the half the probes were actually about: the finding was one real satisfy_gate call behind bad evidence",
+  "budget": {
+    "cap": 20.0,
+    "carried_in": 12.69,
+    "spent_this_pass": 3.895,
+    "cumulative": 16.585,
+    "remaining": 3.415,
+    "within": true,
+    "reset": false
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_intake.TheAbandonedGateIsDischargedFromItsOwnCommittedEvidence",
+      "wall": "0.603s",
+      "log": "evidence/run-128828-class.log",
+      "result": "34 tests, OK on the first run after both corrections"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_intake",
+      "wall": "3.292s",
+      "log": "evidence/run-128828-module.log",
+      "result": "190 tests, OK -- 156 existing and 34 new"
+    }
+  ],
+  "not_run_deliberately": "no inventory or full-suite pass. The review rules it out, and the scan accounting for the new exported callables and receiving sites stays outside this allocation -- its logs remain in provider-128724.json and are not waived",
+  "existing_assertions": "unchanged. Every test change is additive within the one class; the source corrections are confined to _abandoned_fence, _abandoned_absence, its one call site, the constants block's comment and the replay branch of discharge_abandoned_quiescence_gate."
+}

@@ -1,0 +1,49 @@
+{
+  "work": "W124331",
+  "claim": 124501,
+  "utc": "2026-09-09T03:14:39.406657+00:00",
+  "paths": {
+    "src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "66f1ba4630ee7b53eed5b68fac44f28364a6bd92077a4f7365522d654ebb4b23",
+      "mode": "0o644"
+    },
+    "src/baton_v12/worker_manager/__init__.py": {
+      "sha256": "0c417699ed667a857863c845d94408b4f06191706b169e1cd478c0d9e998eb05",
+      "mode": "0o644"
+    },
+    "tests/manager/test_review_cycles.py": {
+      "sha256": "950eb57ba03189a6f84fbd711fadc0456410f9a3373a6435380b8dfe78524d46",
+      "mode": "0o644"
+    },
+    "tests/manager/test_secrets.py": {
+      "sha256": "9104bf90aa9c437eb221c8dbcd2e3528f07bc5d1c2d5174d37e71bc7ee243724",
+      "mode": "0o644"
+    }
+  },
+  "all_prior_test_helpers_unchanged": 98,
+  "added_methods": [
+    "HistoryIsReachableFromTheAttemptThatMadeIt.damage",
+    "HistoryIsReachableFromTheAttemptThatMadeIt.acts",
+    "HistoryIsReachableFromTheAttemptThatMadeIt.refusing",
+    "HistoryIsReachableFromTheAttemptThatMadeIt.test_a_signature_that_is_not_readable_refuses_in_our_words",
+    "HistoryIsReachableFromTheAttemptThatMadeIt.test_an_act_that_recorded_no_result_refuses",
+    "HistoryIsReachableFromTheAttemptThatMadeIt.test_a_result_belonging_to_something_else_refuses",
+    "HistoryIsReachableFromTheAttemptThatMadeIt.test_a_journalled_boolean_generation_refuses",
+    "HistoryIsReachableFromTheAttemptThatMadeIt.test_a_signature_signed_as_another_kind_refuses",
+    "HistoryIsReachableFromTheAttemptThatMadeIt.test_an_operand_set_that_is_not_this_builds_refuses",
+    "HistoryIsReachableFromTheAttemptThatMadeIt.test_an_identity_its_own_operands_do_not_derive_refuses",
+    "HistoryIsReachableFromTheAttemptThatMadeIt.test_an_attempt_whose_fixed_generation_moved_refuses",
+    "HistoryIsReachableFromTheAttemptThatMadeIt.test_a_line_held_for_another_work_or_authority_refuses",
+    "HistoryIsReachableFromTheAttemptThatMadeIt.test_the_acts_original_state_is_not_required_of_the_row"
+  ],
+  "changed_functions": [
+    "writer_for_attempt",
+    "review_for_attempt"
+  ],
+  "new_functions": [
+    "_journalled",
+    "_committed_history",
+    "_derived_identity",
+    "_assignment_agrees"
+  ]
+}

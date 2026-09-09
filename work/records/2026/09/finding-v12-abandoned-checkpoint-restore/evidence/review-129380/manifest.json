@@ -1,0 +1,18 @@
+{
+  "src/baton_v12/worker_manager/review_cycles.py": {
+    "sha256": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+    "mode": "0o644"
+  },
+  "src/baton_v12/checkpoint_profiles.py": {
+    "sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+    "mode": "0o644"
+  },
+  "tests/manager/test_review_cycles.py": {
+    "sha256": "ed16ca105fc36a9113fe39049d02b739fe45d95d1b4c12c670aabe88620734d4",
+    "mode": "0o644"
+  },
+  "tests/manager/test_checkpoint_profiles.py": {
+    "sha256": "321ac78270ee842110cd289e32ee727f5bbde842ce154c089e228607c1b5860a",
+    "mode": "0o644"
+  }
+}

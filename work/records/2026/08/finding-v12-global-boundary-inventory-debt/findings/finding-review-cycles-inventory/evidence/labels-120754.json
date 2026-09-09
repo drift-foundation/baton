@@ -1,0 +1,45 @@
+{
+  "rows": [
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence"
+      ],
+      "stimulus": "",
+      "actual": [
+        "integrity",
+        "schema",
+        "a persisted line checkpoint's fence is durable text; this is ''"
+      ],
+      "discovered": [
+        "a persisted assignment fence"
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility.verdict_id"
+      ],
+      "stimulus": "",
+      "actual": [
+        "integrity",
+        "schema",
+        "persisted integration eligibility's verdict_id is durable text; this is ''"
+      ],
+      "discovered": [
+        "a checkpoint verdict identity"
+      ]
+    },
+    {
+      "stimulus": "JSON-valid fence with list intent",
+      "actual": [
+        "integrity",
+        "digest",
+        "persisted checkpoint fence does not match its digest"
+      ]
+    }
+  ],
+  "seconds": 1.0918744900263846
+}

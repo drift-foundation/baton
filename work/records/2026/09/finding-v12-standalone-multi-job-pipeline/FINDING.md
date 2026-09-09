@@ -461,3 +461,231 @@ Priority is an ordering signal, not preemption: finish a bounded held review,
 then prefer ready critical-path work over repair reviews. Newly created
 noncritical repair children keep Normal priority unless an observed blocker
 justifies promotion. No lifecycle release or new implementation authority follows.
+
+## 2026-09-08 — approved companion evidence adjustment, M119128
+
+**Confirmed owner ruling:** Slawomir approved the adjustment in the proof's
+review-2026-09-08T12-33-00Z.md. The existing component refusal may serve as
+separately labelled negative boundary evidence. This explicitly supersedes the
+requirement for an automatically admitted, independently approved live negative
+companion and any implication in earlier demonstration/acceptance paragraphs
+that this fixture proves refusal before all canonical mutations. It also
+supersedes the pending companion-placement/conflict status in the earlier
+reviews, preflight and plan. Preserve those documents as historical evidence;
+this is the current freeze interpretation.
+
+Use the existing `test_an_unscheduled_existing_test_change_is_the_providers_to_refuse`
+in `v12/python/tests/manager/test_integration_worker.py`, with the
+`test_a_clean_provider_refusal_after_writable_work_is_still_held` control.
+The derived bundle and deterministic refusing provider are labelled component
+fixtures. They show the whole-candidate instruction, the measured selected
+ending bytes and conservative held/import-incomplete outcome. They do not
+show an automatically admitted independently approved live negative proposal,
+live-model refusal, absence of intermediate writes or universal prevention.
+Retain applicable accepted evidence and exact source/fixture identities at
+freeze; rerun only if a named evidence gap or changed bytes require it.
+
+The integrator model still judges permitted scope from the whole candidate,
+accepted task/scope and frozen independent review. Actual candidate identity,
+review correlation and target preflight remain required. Actual A/B successful
+imports, independent review and same-line correction, fault-C containment,
+required overlaps, one A/B/C submission and zero ordinary operator transitions
+remain unchanged. C remains the deliberately exceptional Job, not a third
+successful import. No fabricated approval, fourth Job, live negative companion,
+new mechanical enforcement subsystem or new runtime grant is required by this
+adjustment. Component evidence is reported separately from the live result.
+
+## 2026-09-08 — Immediate milestone: one complete, restart-safe Job
+
+Confirmed by Slawomir in the interactive conversation at14:20:09UTC and pinned
+by baton.prompt. The immediate milestone is one complete, restart-safe Job:
+finish gate discharge and ending recovery, then resume W119114 and complete
+its joined lifecycle proof. Every additional critical-path blocker must name
+the exact failed transition in that proof. Keep unrelated hardening and notifier
+work off the critical path. Reuse accepted evidence, run focused checks, and
+require a concrete unanswered question for additional review passes.
+
+This clarifies the earlier critical-path priority ruling; it does not waive
+independent implementation acceptance, broaden any author's path/test authority,
+or replace the later multi-Job composition and actual A/B/C demonstration.
+Report progress by the furthest demonstrated lifecycle transition and remaining
+gates, rather than treating a component closure as proof of near completion.
+
+## 2026-09-08 — Keep the current direction and bound further expansion
+
+Confirmed by Slawomir after discussing whether W120424/W120425 belong to
+first-pass delivery or later hardening: "we are on the right path then, but we
+need to be careful not to sweep to wide". Recorded by baton.prompt.
+
+Continue the accepted restart-safe one-Job milestone and its currently approved
+ownership, recovery and retained-evidence corrections. This clarification does
+not select the proposed uninterrupted-only milestone or remove already approved
+acceptance cases. Do not change a live Handler's scope beneath its claim.
+
+For each proposed additional prerequisite, implementation expansion or extended
+verification campaign, identify the exact lifecycle transition or indispensable
+evidence claim it prevents from being demonstrated. Choose the smallest repair
+and focused evidence that answer that question, reuse applicable retained
+results, and return to the joined demonstration once the approved gap is closed.
+Required regression checks remain required; breadth must answer a named gap,
+not follow automatically from another correction round or a desire for general
+completeness. Further resilience permutations, generalization and exhaustive
+coverage remain recorded later-pass Work unless they invalidate the current
+demonstration. Existing source/test authority and independent acceptance remain
+unchanged. This reinforces the milestone's existing minimal-scope rule.
+
+## 2026-09-09T04:13Z — Restart from committed handoffs; repeated work is allowed
+
+**Confirmed by Slawomir; pinned by baton.prompt.** After discussing recovery
+from the last committed handoff and its associated checkpoint, Slawomir ruled:
+"In the event of a crash/malfunction, we can sacrafice temp work" and
+"repeated work is allowed". Losing unfinished computation is an acceptable
+recovery cost. Restart safety does not require continuing the same attempt
+from every intermediate step.
+
+Recover from the last durably committed handoff and its corresponding retained
+checkpoint. Uncommitted work after that boundary may be abandoned and executed
+again through the ordinary assignment protocol. A newer intermediate checkpoint
+alone does not prove that its handoff committed. Safely stop or fence the old
+worker before replacement work can write. Preserve committed results, custody
+and Authority history; repeating computation must not duplicate a committed
+publication, integration or handoff. When a commit's answer was lost, reconcile
+its durable outcome or replay its stable operation before choosing the next
+stage. Unresolved external effects retain the existing conservative hold.
+
+This explicitly supersedes the earlier "No current case is waived" scope
+constraint insofar as it preserved stronger crash recovery, owner119712's
+mandatory same-attempt continuation/adoption and no-repeat-start requirement,
+and W122060's later reaffirmations of those requirements. Intermediate recovery
+cuts and pre-intent adoption are no longer independent acceptance requirements;
+retain only mechanisms needed to establish a committed boundary, abandon work
+safely or preserve an already committed effect. Existing accepted recovery code
+may be reused; its existence does not make every stronger guarantee mandatory.
+
+Current action: the managed reviewer revises W122060/W119114 acceptance and
+the necessity of W124782/W124784/W124786/W124788 against this ruling, naming
+the concrete commit boundary and smallest restart proof. Ordinary receipt and
+next-role routing defects still need correction. Reassess recovery-only work at
+the next safe handoff; preserve current candidates and evidence. No new research
+portfolio, source-path allocation or blanket existing-test mutation follows.
+
+## 2026-09-09T04:29Z — Bring execution back to the first complete Job
+
+Slawomir reports that the finish line is receding while one Job still cannot
+run E2E. This reinforces the existing one-Job-first milestone. Prompt's concrete
+coordination request M125007 directs bounded acceptance of the ready receipt/
+cleanup candidates, the smallest routing allocation and dispatch of the already
+approved refusal adapter. After necessary ordinary-path fixes, demonstrate the
+actual composed lifecycle through terminal handoff before extending recovery
+verification; each failed transition drives its smallest repair. This sequence
+does not waive final restart/custody acceptance or independently release gates.
+Use existing records and report the furthest demonstrated transition and exact
+next blocker. Component completion alone is not evidence of approaching E2E.
+
+## 2026-09-09T04:54Z — Use nested Jobs before adding activity semantics
+
+**Confirmed by Slawomir; pinned by baton.prompt.** Existing Job nesting and
+explicit dependencies are the default way to represent separately schedulable
+research, preparation, implementation and review. Do not replace this model
+or add v11 activity/stage scheduling unless a concrete required workflow proves
+it insufficient. This discussion selects no new v11 feature or critical-path
+prerequisite. Dependencies name actual required inputs; optional discussion
+need not become a blocking child. Keep decomposition and reporting lightweight.
+The existing v12 ordinary handoff correction remains a separate pending
+allocation; this operating ruling neither approves nor rejects M125063.
+
+## 2026-09-09T05:02Z — Consolidate the current execution path
+
+**Planning action by baton.prompt under existing owner rulings.** Slawomir asks
+whether to stop and reorganize because completed fixes have not demonstrated
+convergence. The recommendation is a bounded execution reorganization while
+W125189 implementation and W125032 review finish under their current claims.
+W122060 and W119114 PLANs now contain one current sequence instead of accumulated
+pending/retired directions. Findings, progress and prior reviews remain history.
+
+The sequence is those two accepted providers, W122060's serving changes and
+actual ordinary lifecycle run, its minimum component restart proof, W119114's
+final joined lifecycle/custody acceptance, then W103083. Reuse the same fixture
+and applicable evidence across handoffs. Compare each repair with the furthest
+completed transition; a repeated failure at the same boundary calls for diagnosis
+of that handoff before another local repair allocation. Existing gates, source/
+test authority and final narrowed acceptance remain. No new planning Job, v11
+feature, broad verification campaign or later multi-Job waiver is introduced.
+
+## 2026-09-09T05:07Z — Owner approves the bounded reorganization
+
+Slawomir explicitly approved the 05:02Z execution reorganization in the
+interactive conversation. This supersedes its recommendation-only status.
+Finish the active fixes, drive the ordinary complete Job before extending
+restart verification, reuse its evidence for final acceptance, and diagnose
+a repeatedly failing handoff before another local repair allocation. Existing
+claims, gates, source/test authority and final acceptance remain in force.
+The reviewer acknowledged the consolidated plans and handoff sequence at125263.
+
+## 2026-09-09T16:36Z — Standing test-change authority through W71830 completion
+
+**Confirmed by Slawomir in the interactive conversation; pinned by baton.prompt.**
+Slawomir directed: "I don't want us to halt on every test edit for now" and
+"these tests should be prepapproved until we reach the end of the 71830".
+
+Until W71830 completes or Slawomir explicitly revokes this ruling, test changes
+needed for its accepted campaign scope are preapproved for every executing,
+reviewing and integrating role. This includes W71830, its descendants and
+explicitly recorded prerequisite Work, including W128692. Additions, edits,
+replacements and removals of tests, fixtures, assertions, expected behavior and
+test registry entries require no further per-test owner approval. Record the
+affected paths and reason in the owning plan/handoff and coordinate file
+ownership as ordinary execution; this is use of existing authority, not a new
+approval gate. It covers the exact amendment requested by M129247 now.
+
+This explicitly supersedes campaign additive-only restrictions, per-method
+approval requirements and blanket preservation of other test methods in
+M128669, M129177 and older campaign allocations insofar as they prevent test
+changes needed by the accepted scope. It also supersedes the per-change
+permission requirement in this FINDING's 2026-09-02 test-authority ruling for
+this campaign's remaining duration. Historical decisions and reviews remain.
+
+Independent review still evaluates changed expectations against accepted
+behavior and binds the actual candidate. Test authority does not waive a
+required acceptance result, authorize hiding a defect with a weaker assertion,
+expand product source scope or test-runtime budgets, or grant Git/claim/route
+authority. The general existing-test rule resumes after campaign completion;
+unrelated Work remains under that rule throughout. AGENTS.md owns the scoped
+policy exception and EFFECTIVE-BATON points agents to it at startup/handoff.
+
+## 2026-09-09T16:44Z — Keep the temporary approval in project policy
+
+Slawomir clarified that the standing test approval is project-specific, not
+general Baton strategy. This supersedes only the 16:36Z entry's placement of
+the exception in EFFECTIVE-BATON. Remove the campaign-specific section from
+that general operating guide; AGENTS.md owns the temporary project rule and
+this record preserves its decision history. The approval, campaign scope,
+expiry and independent-review requirements remain unchanged. Recorded by
+baton.prompt before correcting the guide and current plan.
+
+Same-turn clarification: EFFECTIVE-BATON is a book for all projects and users.
+Its guidance must be generally applicable. This repository's AGENTS.md records
+that boundary so project exceptions and temporary owner permissions remain in
+project policy and campaign records rather than entering the shared book.
+
+Follow-up direction: audit the whole book and remove or generalize any other
+project-specific material. The audit found fixed coding/review pool counts,
+prescribed route/persona assignments, a self-hosting rollout example, local
+lifecycle-manager commands and repository conventions presented universally.
+Generalize these into reusable scheduling, pilot, shutdown and evidence guidance;
+describe independent preparation through separate Work and explicit dependencies.
+Keep reusable CLI examples and protocol requirements. This documentation cleanup
+does not change the campaign's accepted plan, permissions or required proof.
+
+Same-turn owner clarification: role splits may be examples, but are not a
+protocol requirement. The shared book must distinguish optional project role
+designs from Baton's configured endpoint/handler resolution and readiness rules.
+
+Further owner clarification: EFFECTIVE-BATON tells worked examples and effective
+strategies rather than prescribing a setup, and must not refer to concrete Job
+identifiers or transient state. Recast the command-heavy material as durable
+scenarios; leave setup, exact operands and version details in their reference
+manuals. Keep role arrangements illustrative, and remove example Job/Thread IDs,
+event numbers, dated candidate values, release snapshots and local recipes from
+the shared book. This changes its presentation, not any live protocol or project
+authorization.

@@ -1,0 +1,133 @@
+[
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 0.8114658819977194,
+    "returncode": 1,
+    "log": "verification-1.log"
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 0.8137499180156738,
+    "returncode": 1,
+    "log": "verification-2.log"
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 0.8691490159835666,
+    "returncode": 1,
+    "log": "verification-3.log"
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 0.8648981340229511,
+    "returncode": 1,
+    "log": "verification-4.log"
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 0.8937316960655153,
+    "returncode": 1,
+    "log": "verification-5.log"
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-composed-ending-consumer/evidence/takeover-125537/probe.py"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 0.9247232310008258,
+    "returncode": 0,
+    "log": "verification-6.log"
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-composed-ending-consumer/evidence/takeover-125537/probe.py"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 0.9016453980002552,
+    "returncode": 0,
+    "log": "verification-7.log"
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 0.8733340469188988,
+    "returncode": 1,
+    "log": "verification-8.log"
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 0.908458985039033,
+    "returncode": 1,
+    "log": "verification-9.log"
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-composed-ending-consumer/evidence/takeover-125537/probe.py"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 0.9091049359412864,
+    "returncode": 0,
+    "log": "verification-10.log"
+  }
+]

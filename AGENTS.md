@@ -23,6 +23,30 @@
   or removing tests within a bounded scope is that confirmation; it is not
   blanket authority for a test mutation outside the scheduled scope.
 
+### W71830 standing test-change authority
+
+Owner ruling 2026-09-09T16:36Z: until W71830 completes or Slawomir revokes this
+authority, all test changes needed for its accepted scope are preapproved.
+This covers W71830, its descendants and explicitly recorded prerequisites,
+for every implementing, reviewing and integrating role. Agents may add, edit,
+replace or remove tests, fixtures, assertions, expected behavior and test
+registry entries without further per-test owner approval. This exception
+supersedes campaign additive-only, per-method approval and other-test
+preservation restrictions, including M128669/M129177 and the amendment in M129247.
+
+Record affected test paths and their reason in the owning plan/handoff and
+coordinate file ownership; do not turn that record into another approval gate.
+Independent review must evaluate the changed expectations against accepted
+behavior. Required acceptance results and genuine defect coverage cannot be
+waived merely to pass tests. Product source scope, execution budgets, claims,
+Git ownership and integration candidate/provenance checks remain applicable.
+For integration preflight, this ruling supplies the campaign's test-change
+authority; the independently reviewed candidate still binds the imported bytes.
+Do not request another per-test approval or block solely on older permission
+wording. Outside this campaign, and after its completion, the general rule above
+applies. Decision history:
+[W71830 FINDING](work/records/2026/09/finding-v12-standalone-multi-job-pipeline/FINDING.md#2026-09-09t1636z--standing-test-change-authority-through-w71830-completion).
+
 ## Coordination identities
 
 - Read `docs/AGENTS-MAILBOX-PROTO.md` in full before publishing or consuming Baton handoffs. The local deployment supplies the executable and explicit absolute config path; never infer or hard-code either in repository policy.
@@ -52,7 +76,8 @@
 - Before changing any working-tree path, `baton.merge` completes the authority
   preflight for the whole proposed path set. An accepted Work description or
   plan that explicitly schedules adding, editing, or removing tests within a
-  bounded scope grants the case-specific test-change authority; the newest
+  bounded scope grants the case-specific test-change authority; the W71830
+  standing exception above supplies that authority for its campaign. The newest
   independent review still binds the immutable proposal digest, enumerates
   every existing test path actually changed, and evaluates any assertion or
   expected-behaviour changes. Generic sign-off, exact path or candidate-byte
@@ -87,6 +112,13 @@
 
 ## Confirmed decisions are pinned before implementation
 
+- `docs/EFFECTIVE-BATON.md` is a shared methodology book for all projects and
+  users: worked examples and adaptable strategies, not a prescribed setup.
+  Role splits are examples, not protocol requirements. Keep concrete Job IDs,
+  transient state and deployment recipes out of the book; exact operations
+  belong in reference manuals. Project-specific decisions,
+  temporary permissions and campaign exceptions belong in this project's
+  `AGENTS.md` and owning Work records, not in the shared book.
 - Baton discussion is coordination EVIDENCE, not the durable specification. A ruling that exists only in a message thread is one context loss away from being re-litigated or silently reversed.
 - Before implementing a confirmed product, UX, protocol, or operational decision, write it into the owning record's `FINDING.md` under `work/records/YYYY/MM/finding-<slug>/`, and reflect its queued/in-progress/done state in the applicable `PLAN.md` or umbrella. If no owning record exists, create one before editing implementation.
 - Findings preserve the CHRONOLOGICAL history of decisions; plans and umbrellas name the one that is currently actionable. The two answer different questions — "how did we get here" and "what is true now" — and collapsing them loses whichever the reader needed.

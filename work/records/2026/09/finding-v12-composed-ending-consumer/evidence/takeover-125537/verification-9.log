@@ -1,0 +1,18 @@
+test_one_job_completes_correction_integration_and_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff) ... FAIL
+
+======================================================================
+FAIL: test_one_job_completes_correction_integration_and_terminal_handoff (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_one_job_completes_correction_integration_and_terminal_handoff)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3689, in test_one_job_completes_correction_integration_and_terminal_handoff
+    self.assertEqual(ended["outcome"], "performed", ended)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'deferred' != 'performed'
+- deferred
++ performed
+ : {'stage_id': 'job-a/integration', 'episode': 1, 'attempt_id': 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0', 'act': 'dispatch', 'outcome': 'deferred', 'detail': {'category': 'refused', 'code': 'precondition', 'message': "attempt 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0' has no exchange delivery to publish a command into; a command nothing mounts is a file no container will ever read"}}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.724s
+
+FAILED (failures=1)

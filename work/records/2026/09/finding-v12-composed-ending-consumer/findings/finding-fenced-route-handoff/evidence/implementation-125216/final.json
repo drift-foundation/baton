@@ -1,0 +1,32 @@
+{
+  "scope_audit": "PASS",
+  "new_tests": 15,
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/authority/core.py",
+      "sha256": "82de49009cdb8bac507096ecf735f332e31248ff080d2321853deb54f264df16",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/session.py",
+      "sha256": "9e26aab4255c677b76b2e05208a0088b361bd805d6a81865cae5cc2452e5d4b2",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/authority/test_assignment.py",
+      "sha256": "131ef58e753d83c03f73c037128522c3881195ae114c36e31be954b95e0c0539",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/authority/test_session.py",
+      "sha256": "861160064fae66a464874286f9911efec3b4ac913630da97deefc3f7b84e068c",
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/REVIEW-CYCLES.md",
+      "sha256": "f85ba7b5cb417fc76079338c2eef2e5624e84a97f722220ca36ceb8e70e41253",
+      "mode": "0o644"
+    }
+  ],
+  "elapsed_seconds": 0.046077696955762804
+}

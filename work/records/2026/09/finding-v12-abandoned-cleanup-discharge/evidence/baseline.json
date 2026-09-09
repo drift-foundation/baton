@@ -1,0 +1,17 @@
+[
+  {
+    "path": "src/baton_v12/worker_manager/intake.py",
+    "sha256": "b5b0706f9e10a6a08d409194918be6496011c9570d5af9504298602cb85e35b0",
+    "mode": "0o664"
+  },
+  {
+    "path": "src/baton_v12/worker_manager/__init__.py",
+    "sha256": "0c417699ed667a857863c845d94408b4f06191706b169e1cd478c0d9e998eb05",
+    "mode": "0o644"
+  },
+  {
+    "path": "tests/manager/test_intake.py",
+    "sha256": "8598ff95e8fd7e554cc78d3639fe1d1e0e4b45baf071f227f4087658942fd314",
+    "mode": "0o664"
+  }
+]

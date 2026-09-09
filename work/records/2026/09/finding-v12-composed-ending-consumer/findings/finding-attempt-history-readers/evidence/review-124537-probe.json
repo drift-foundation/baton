@@ -1,0 +1,99 @@
+{
+  "work": "W124331",
+  "claim": 124537,
+  "seconds": 0.01611193805001676,
+  "results": {
+    "writer_malformed_signature": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.grant-writer signature for the line writer for attempt 'writer-attempt-1' generation 1 is not readable as a journal document"
+    },
+    "writer_null_result": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.grant-writer result for the line writer for attempt 'writer-attempt-1' generation 1 is one exact document; this is none"
+    },
+    "writer_foreign_result": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.grant-writer result for the line writer for attempt 'writer-attempt-1' generation 1 needs writer_id, line_id, generation, state"
+    },
+    "writer_null_result_state": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.grant-writer result for the line writer for attempt 'writer-attempt-1' generation 1 records state none rather than the 'active' that act returns"
+    },
+    "writer_list_result_state": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.grant-writer result for the line writer for attempt 'writer-attempt-1' generation 1 records state a list rather than the 'active' that act returns"
+    },
+    "writer_revoked_result_state": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.grant-writer result for the line writer for attempt 'writer-attempt-1' generation 1 records state 'revoked' rather than the 'active' that act returns"
+    },
+    "writer_bool_result_generation": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.grant-writer result generation for the line writer for attempt 'writer-attempt-1' generation 1 is a whole assignment generation, counting from zero; this is true"
+    },
+    "writer_bool_committed_generation": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.grant-writer generation for the line writer for attempt 'writer-attempt-1' generation 1 is a whole assignment generation, counting from zero; this is true"
+    },
+    "review_malformed_signature": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.attach-review signature for the review attachment for attempt 'review-attempt-1' generation 1 is not readable as a journal document"
+    },
+    "review_null_result": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.attach-review result for the review attachment for attempt 'review-attempt-1' generation 1 is one exact document; this is none"
+    },
+    "review_foreign_result": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.attach-review result for the review attachment for attempt 'review-attempt-1' generation 1 needs attachment_id, checkpoint_id, state"
+    },
+    "review_null_result_state": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.attach-review result for the review attachment for attempt 'review-attempt-1' generation 1 records state none rather than the 'active' that act returns"
+    },
+    "review_list_result_state": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.attach-review result for the review attachment for attempt 'review-attempt-1' generation 1 records state a list rather than the 'active' that act returns"
+    },
+    "review_revoked_result_state": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.attach-review result for the review attachment for attempt 'review-attempt-1' generation 1 records state 'revoked' rather than the 'active' that act returns"
+    },
+    "review_bool_committed_generation": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the committed review-line.attach-review generation for the review attachment for attempt 'review-attempt-1' generation 1 is a whole assignment generation, counting from zero; this is true"
+    },
+    "writer_changed_fixed_generation": {
+      "exception": "ContractRefusal",
+      "category": "integrity",
+      "message": "the line writer for attempt 'writer-attempt-1' generation 1 and the fixed assignment its review-line.grant-writer act read disagree about generation"
+    },
+    "writer_cold_earlier_round": {
+      "returned": true,
+      "equals_honest": true
+    },
+    "review_cold_earlier_round": {
+      "returned": true,
+      "equals_honest": true
+    }
+  },
+  "sha256": {
+    "src/baton_v12/worker_manager/review_cycles.py": "66cb3262f0742b8f9d9081169586af1779d7a3a0e91755c82b259395ff710efd",
+    "tests/manager/test_review_cycles.py": "06cb3b73998a0d5636b174f72be787cbc50221870686f9af87f8afa86c262a84"
+  }
+}

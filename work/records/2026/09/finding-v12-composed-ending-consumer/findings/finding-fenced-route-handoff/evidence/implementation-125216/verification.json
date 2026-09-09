@@ -1,0 +1,32 @@
+[
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.authority.test_assignment.FencedRouteHandoff",
+      "tests.authority.test_session.FencedRouteSession"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 0.07170019892510027,
+    "returncode": 0,
+    "log": "verification-1.log"
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.authority.test_assignment",
+      "tests.authority.test_session"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 0.19737912295386195,
+    "returncode": 0,
+    "log": "verification-2.log"
+  }
+]

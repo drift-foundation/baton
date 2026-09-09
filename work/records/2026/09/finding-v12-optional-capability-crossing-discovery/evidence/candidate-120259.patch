@@ -1,0 +1,449 @@
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -405,6 +405,40 @@
+     return None
+ 
+ 
++
++def _callable_members(value, origins):
++    """Capability references, kept separate from the value owned by getattr.
++
++    A presence check still owns its receiver operand. Only invoking a proved
++    reference creates the session result origin; an unused optional lookup is
++    not an answer. The temporary AST wrappers reuse recognizers without changing
++    any node in the shared source snapshot.
++    """
++    if isinstance(origins, _OriginBindings) and id(value) not in origins.at:
++        return frozenset()
++    if isinstance(value, ast.Name):
++        return _origin_values(_bindings_at(origins, value).get(("callable", value.id)))
++    if isinstance(value, ast.Call) and isinstance(value.func, ast.Name) and value.func.id == "getattr":
++        if len(value.args) not in (2, 3) or value.keywords or not isinstance(value.args[1], ast.Constant) or type(value.args[1].value) is not str:
++            return frozenset()
++        value = ast.Attribute(value=value.args[0], attr=value.args[1].value)
++    if isinstance(value, ast.Attribute):
++        member = _capability_call(ast.Call(func=value, args=[], keywords=[]))
++        return _origin_values(member)
++    return frozenset()
++
++
++def _invoked_capabilities(node, origins):
++    if not isinstance(node, ast.Call):
++        return frozenset()
++    return _origin_values(_capability_call(node)) | _callable_members(node.func, origins)
++
++
++def _discovered_capabilities(node, origins):
++    """The same invocation universe for crossing sites and receiving entries."""
++    return _invoked_capabilities(node, origins) | _origin_values(_capability_value(node))
++
++
+ def _member_read(node):
+     """(name, member) for `x["m"]` and `x.get("m")`, or None."""
+     if isinstance(node, ast.Subscript) and isinstance(node.slice, ast.Constant) \
+@@ -592,9 +626,9 @@
+             # crossing belongs where it happened, so an adopted origin names the
+             # read rather than only the table.
+             return f"read:{site}|{table}"
+-    member = _capability_call(value)
+-    if member is not None:
+-        return f"session:{member}"
++    invoked = _invoked_capabilities(value, origins)
++    if invoked:
++        return _join_origins(f"session:{member}" for member in invoked)
+     bound = _capability_value(value)
+     if bound is not None:
+         return f"session:{bound}"
+@@ -822,9 +856,14 @@
+         origins.update(seed)
+ 
+     def bind(target, origin):
++        if isinstance(target, (ast.Tuple, ast.List)):
++            for piece in ast.walk(target):
++                if isinstance(piece, ast.Name):
++                    origins.pop(("callable", piece.id), None)
+         if isinstance(target, ast.Name):
+             origins.pop(("collection", target.id), None)
+             origins.pop(("literal", target.id), None)
++            origins.pop(("callable", target.id), None)
+             if origin is None:
+                 origins.pop(target.id, None)
+             else:
+@@ -925,6 +964,7 @@
+             self.visit(piece.value)
+             origin = _source(piece.value, origins, site, returns)
+             literal = _literal_text(piece.value, origins)
++            callable_members = _join_origins(_callable_members(piece.value, origins))
+             collection = None
+             if isinstance(piece.value, ast.List) and not piece.value.elts:
+                 collection = f"list:{site}:{piece.lineno}:{piece.col_offset}"
+@@ -933,6 +973,8 @@
+             for target in piece.targets:
+                 bind(target, origin)
+                 if isinstance(target, ast.Name):
++                    if callable_members is not None:
++                        origins[("callable", target.id)] = callable_members
+                     if literal is not None:
+                         origins[("literal", target.id)] = literal
+                     key = ("collection", target.id)
+@@ -978,14 +1020,20 @@
+             if piece.value is not None:
+                 self.visit(piece.value)
+                 literal = _literal_text(piece.value, origins)
++                callable_members = _join_origins(_callable_members(piece.value, origins))
+                 bind(piece.target, _source(piece.value, origins, site, returns))
++                if isinstance(piece.target, ast.Name) and callable_members is not None:
++                    origins[("callable", piece.target.id)] = callable_members
+                 if isinstance(piece.target, ast.Name) and literal is not None:
+                     origins[("literal", piece.target.id)] = literal
+ 
+         def visit_NamedExpr(self, piece):
+             self.visit(piece.value)
+             literal = _literal_text(piece.value, origins)
++            callable_members = _join_origins(_callable_members(piece.value, origins))
+             bind(piece.target, _source(piece.value, origins, site, returns))
++            if isinstance(piece.target, ast.Name) and callable_members is not None:
++                origins[("callable", piece.target.id)] = callable_members
+             if isinstance(piece.target, ast.Name) and literal is not None:
+                 origins[("literal", piece.target.id)] = literal
+ 
+@@ -1065,7 +1113,10 @@
+                 self.merge(protected)
+                 entering = dict(origins)
+                 for handler in piece.handlers:
+-                    flow, state = self.run(handler.body, entering)
++                    handler_state = dict(entering)
++                    if handler.name is not None:
++                        handler_state.pop(("callable", handler.name), None)
++                    flow, state = self.run(handler.body, handler_state)
+                     if flow is None:
+                         normal.append(state)
+             if not piece.handlers:
+@@ -1123,26 +1174,51 @@
+             for condition in piece.ifs:
+                 self.visit(condition)
+ 
+-        def visit_ListComp(self, piece):
++        def comprehension(self, piece, values):
++            local = {name.id for generator in piece.generators for name in ast.walk(generator.target) if isinstance(name, ast.Name)}
++            enclosing = {name: origins.get(("callable", name)) for name in local}
+             for generator in piece.generators:
+                 self.visit(generator)
+-            self.visit(piece.elt)
++            for value in values:
++                self.visit(value)
++            for name, member in enclosing.items():
++                origins.pop(("callable", name), None)
++                if member is not None:
++                    origins[("callable", name)] = member
++
++        def visit_ListComp(self, piece):
++            self.comprehension(piece, (piece.elt,))
+ 
+         visit_SetComp = visit_ListComp
+         visit_GeneratorExp = visit_ListComp
+ 
+         def visit_DictComp(self, piece):
+-            for generator in piece.generators:
+-                self.visit(generator)
+-            self.visit(piece.key)
+-            self.visit(piece.value)
++            self.comprehension(piece, (piece.key, piece.value))
++
++        def visit_Name(self, piece):
++            if isinstance(piece.ctx, (ast.Store, ast.Del)):
++                origins.pop(("callable", piece.id), None)
+ 
+         def visit_FunctionDef(self, piece):
+-            pass
++            origins.pop(("callable", piece.name), None)
+ 
+         visit_AsyncFunctionDef = visit_FunctionDef
+         visit_ClassDef = visit_FunctionDef
+-        visit_Lambda = visit_FunctionDef
++
++        def visit_Lambda(self, piece):
++            pass
++
++        def visit_Delete(self, piece):
++            for target in piece.targets:
++                for name in ast.walk(target):
++                    if isinstance(name, ast.Name):
++                        origins.pop(("callable", name.id), None)
++
++        def visit_Import(self, piece):
++            for name in piece.names:
++                origins.pop(("callable", name.asname or name.name.split(".")[0]), None)
++
++        visit_ImportFrom = visit_Import
+ 
+     visitor = Assignments()
+     visitor.block(node.body)
+@@ -1185,10 +1261,7 @@
+                         found.add(("caller", site, name))
+             origins = _origins(node, site, returns)
+             for piece in ast.walk(node):
+-                member = _capability_call(piece)
+-                if member is None:
+-                    member = _capability_value(piece)
+-                if member is not None:
++                for member in _discovered_capabilities(piece, origins):
+                     found.add(("injected", crossings[member], member))
+                 table = _read_table(piece)
+                 if table is not None:
+@@ -1312,16 +1385,13 @@
+     found = {}
+     for source, tree in _sources():
+         for site, node in _functions(tree, source.name):
++            origins = _origins(node, site)
+             for piece in ast.walk(node):
+-                member = _capability_call(piece)
+-                if member is None:
+-                    member = _capability_value(piece)
+-                if member is None:
+-                    continue
+-                if found.setdefault(member, site) != site:
+-                    raise AssertionError(
+-                        f"{member} crosses at {found[member]} and at {site}; a "
+-                        f"capability with two crossings has two owners")
++                for member in _discovered_capabilities(piece, origins):
++                    if found.setdefault(member, site) != site:
++                        raise AssertionError(
++                            f"{member} crosses at {found[member]} and at {site}; a "
++                            f"capability with two crossings has two owners")
+     return types.MappingProxyType(found)
+ 
+ 
+@@ -12941,3 +13011,232 @@
+         other = owner._replace(label="another label")
+         _, residual = _account_boundary_calls(records | {other}, claimed, {})
+         self.assertEqual(residual, frozenset({other}))
++
++
++class OptionalCapabilityAliasesKeepTheirCrossing(unittest.TestCase):
++    def model(self, text):
++        sources = ((pathlib.Path("sample.py"), ast.parse(text)),)
++        _clear_boundary_projections()
++        try:
++            with patch.object(sys.modules[__name__], "_sources", lambda: sources):
++                return dict(_crossings()), receiving_entries()
++        finally:
++            _clear_boundary_projections()
++
++    def injected(self, entries):
++        return {entry for entry in entries if entry[0] == "injected"}
++
++    def expected(self, *members, method="release_token", site="sample.py:public"):
++        return {("injected", site, method + suffix) for suffix in ("",) + members}
++
++    def test_optional_alias_and_direct_member_have_the_same_result_entries(self):
++        for invocation in ('session.release_token({})', 'getattr(session, "release_token", None)({})', 'performing({})'):
++            with self.subTest(invocation=invocation):
++                crossings, entries = self.model(f'''
++def public(session):
++    performing = getattr(session, "release_token", None)
++    answer = {invocation}
++    return answer["kind"]
++''')
++                self.assertEqual(crossings, {"release_token": "sample.py:public"})
++                self.assertEqual(self.injected(entries), self.expected(".kind"))
++
++    def test_self_receiver_general_literal_method_and_chained_alias(self):
++        crossings, entries = self.model('''
++class Port:
++    def inspect(self):
++        performing = getattr(self._session, "inspect_receipt", _ABSENT)
++        alias = performing
++        answer = boundaries.document(alias({}), "an answer")
++        return answer["phase"]
++''')
++        self.assertEqual(crossings, {"inspect_receipt": "sample.py:Port.inspect"})
++        self.assertEqual(self.injected(entries), self.expected(".phase", method="inspect_receipt", site="sample.py:Port.inspect"))
++
++    def test_direct_bound_callable_alias_keeps_result_origin(self):
++        _, entries = self.model('''
++def public(session):
++    performing = session.release_token
++    answer = performing({})
++    return answer["kind"]
++''')
++        self.assertEqual(self.injected(entries), self.expected(".kind"))
++
++    def test_forwarded_and_helper_consumed_members_belong_to_original_crossing(self):
++        crossings, entries = self.model('''
++def _view(answer):
++    return answer["original_member"]
++def public(session):
++    performing = getattr(session, "release_token", None)
++    answer = performing({})
++    return _view(answer)
++def forwarded(port):
++    answer = port.release_token({})
++    return answer["forwarded_member"]
++''')
++        self.assertEqual(crossings, {"release_token": "sample.py:public"})
++        self.assertEqual(self.injected(entries), self.expected(".original_member", ".forwarded_member"))
++
++    def test_overwritten_alias_does_not_reappear_at_a_later_call(self):
++        for replacement in ("performing = other", "performing: object = other", "(performing := other)", "del performing",
++                            "def performing(value):\n        return value", "class performing:\n        pass", "from other import performing"):
++            with self.subTest(replacement=replacement):
++                _, entries = self.model(f'''
++def public(session, other):
++    performing = getattr(session, "release_token", None)
++    before = performing({{}})
++    {replacement}
++    after = performing({{}})
++    return before["kept"], after["must_not_borrow"]
++''')
++                self.assertEqual(self.injected(entries), self.expected(".kept"))
++
++    def test_alias_parameters_do_not_borrow_another_functions_binding(self):
++        crossings, entries = self.model('''
++def public(session):
++    performing = getattr(session, "release_token", None)
++    return performing({})["kind"]
++def unrelated(performing):
++    return performing({})["not_a_session_member"]
++''')
++        self.assertEqual(crossings, {"release_token": "sample.py:public"})
++        self.assertEqual(self.injected(entries), self.expected(".kind"))
++
++    def test_conditional_aliases_keep_each_reaching_capability(self):
++        crossings, entries = self.model('''
++def public(session, choice):
++    performing = getattr(session, "first_token", None)
++    if choice:
++        performing = getattr(session, "second_token", None)
++    answer = performing({})
++    return answer["kind"]
++''')
++        self.assertEqual(crossings, {method: "sample.py:public" for method in ("first_token", "second_token")})
++        self.assertEqual(self.injected(entries), self.expected(".kind", method="first_token") | self.expected(".kind", method="second_token"))
++
++    def test_annotated_and_named_expression_bindings_retain_the_callable(self):
++        for binding in ('performing: object = getattr(session, "release_token", None)', '(performing := getattr(session, "release_token", None))'):
++            with self.subTest(binding=binding):
++                _, entries = self.model(f'''
++def public(session):
++    {binding}
++    return performing({{}})["kind"]
++''')
++                self.assertEqual(self.injected(entries), self.expected(".kind"))
++
++    def test_unknown_receiver_or_selector_does_not_invent_a_crossing(self):
++        for expression in ('getattr(other, "release_token", None)', 'getattr(session, selector, None)'):
++            with self.subTest(expression=expression):
++                crossings, entries = self.model(f'''
++def public(session, other, selector):
++    performing = {expression}
++    return performing({{}})["kind"]
++''')
++                self.assertEqual(crossings, {})
++                self.assertEqual(self.injected(entries), set())
++
++    def test_unused_presence_check_is_not_an_optional_result(self):
++        crossings, entries = self.model('''
++def public(adapter):
++    performing = getattr(adapter, "start", None)
++    boundaries.capability(performing, "the adapter")
++''')
++        self.assertEqual(crossings, {})
++        self.assertEqual(self.injected(entries), set())
++        expression = ast.parse('getattr(adapter, "start", None)', mode="eval").body
++        self.assertEqual(_source(expression, {"adapter": "caller:adapter"}), "caller:adapter")
++
++    def test_qualified_receiver_preserves_its_distinct_crossing(self):
++        crossings, entries = self.model('''
++def public(adapter):
++    performing = getattr(adapter, "cancel", None)
++    return performing({})["acknowledged"]
++''')
++        self.assertEqual(crossings, {"adapter.cancel": "sample.py:public"})
++        self.assertEqual(self.injected(entries), self.expected(".acknowledged", method="adapter.cancel"))
++
++    def test_lexical_collision_still_refuses_two_origins_for_one_member(self):
++        with self.assertRaisesRegex(AssertionError, "capability with two crossings"):
++            self.model('''
++def first(session):
++    performing = getattr(session, "release_token", None)
++    return performing({})
++def second(session):
++    performing = getattr(session, "release_token", None)
++    return performing({})
++''')
++
++    def test_unresolved_forwarding_still_refuses_instead_of_minting_a_crossing(self):
++        with self.assertRaisesRegex(AssertionError, "release_token.kind belongs to no crossing"):
++            self.model('''
++def public(port):
++    return port.release_token({})["kind"]
++''')
++
++    def test_removing_ownership_does_not_remove_discovery(self):
++        source = '''
++def public(session):
++    performing = getattr(session, "release_token", None)
++    answer = performing({})
++    boundaries.text(answer["kind"], "the answer kind")
++    return answer["kind"]
++'''
++        self.assertEqual(self.model(source), self.model(source.replace('    boundaries.text(answer["kind"], "the answer kind")\n', '')))
++
++    def test_removing_alias_recognition_removes_the_expected_entries(self):
++        with patch.object(sys.modules[__name__], "_callable_members", return_value=frozenset()):
++            _, entries = self.model('''
++def public(session):
++    performing = getattr(session, "release_token", None)
++    return performing({})["kind"]
++''')
++        with self.assertRaises(AssertionError):
++            self.assertEqual(self.injected(entries), self.expected(".kind"))
++
++
++    def test_destructuring_and_augmented_rebinding_remove_callable_metadata(self):
++        for change in ("performing, spare = other", "performing += other"):
++            with self.subTest(change=change):
++                _, entries = self.model(f'''
++def public(session, other):
++    performing = getattr(session, "release_token", None)
++    before = performing({{}})
++    {change}
++    after = performing({{}})
++    return before["kept"], after["wrong"]
++''')
++                self.assertEqual(self.injected(entries), self.expected(".kept"))
++
++    def test_comprehension_target_shadows_only_inside_the_comprehension(self):
++        _, entries = self.model('''
++def public(session, others):
++    performing = getattr(session, "release_token", None)
++    ignored = [performing({})["wrong"] for performing in others]
++    return performing({})["kept"]
++''')
++        self.assertEqual(self.injected(entries), self.expected(".kept"))
++
++    def test_exception_target_does_not_borrow_the_old_callable(self):
++        _, entries = self.model('''
++def public(session):
++    performing = getattr(session, "release_token", None)
++    before = performing({})
++    try:
++        raise RuntimeError()
++    except RuntimeError as performing:
++        performing({})["wrong"]
++    return before["kept"]
++''')
++        self.assertEqual(self.injected(entries), self.expected(".kept"))
++
++
++    def test_loop_target_cannot_borrow_the_callable_inside_its_body(self):
++        _, entries = self.model('''
++def public(session, others):
++    performing = getattr(session, "release_token", None)
++    before = performing({})
++    for performing in others:
++        performing({})["wrong"]
++    return before["kept"]
++''')
++        self.assertEqual(self.injected(entries), self.expected(".kept"))

@@ -1,0 +1,312 @@
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -1565,14 +1565,91 @@
+     return frozenset(result)
+ 
+ 
++_DUPLICATE_COLUMN_ENTRIES = (
++    ("adopted", "review_cycles.py:checkpoint_of", "line_checkpoints.fence"),
++    ("adopted", "review_cycles.py:integration_checkpoint", "integration_eligibility.verdict_id"),
++)
++
++# W120785: reviewed relations, never automatically refreshed after source drift.
++# Each tuple names the row label, later helper/kind/label, column declaration,
++# and normalized receiver/helper/column fingerprints. Boundary semantics are
++# separately pinned below; source spans are always taken from the current AST.
++_DUPLICATE_COLUMN_CHECKS = {
++    _DUPLICATE_COLUMN_ENTRIES[0]: (
++        "a persisted line checkpoint", "_fence", "document", "a persisted assignment fence", "LINE_CHECKPOINT_COLUMNS",
++        "sha256:fb9dae348f9d5b414b1e1dc5222e1c068f778780e58458223e39982cab4b3167",
++        "sha256:c78baefcecee401ebc78736a2d5cb234f8abb08c62cc519fa46ca16dbdde9eca",
++        "sha256:be6932d1a17b8b457fd9358de46fcb812c77868707c78b1c8f2f17486a60d5e2"),
++    _DUPLICATE_COLUMN_ENTRIES[1]: (
++        "persisted integration eligibility", "_verdict_row", "identity", "a checkpoint verdict identity", "INTEGRATION_ELIGIBILITY_COLUMNS",
++        "sha256:a285d14d94fa0a881c5936d16f31217017aac8c360448c37d7a51cc68d5da5f6",
++        "sha256:cbf8c8bda0b9e4f8b8640bce901fe523cd5c609e390a86158158c3552a1f4aaf",
++        "sha256:82f4d9b3ae3b9f6c3fb574022a0cde25607dec2ac8c230190018b44672e3d303"),
++}
++_DUPLICATE_COLUMN_RULE = "sha256:58cd8a456eccd398647c36292ba22a74fafaeb7ec8ae387b4171684d819a3a60"
++
++
++def _column_check_sources():
++    return _sources() + ((pathlib.Path(boundaries.__file__), ast.parse(pathlib.Path(boundaries.__file__).read_text(encoding="utf-8"))),)
++
++
++def _column_check_node(sources, module, symbol, fingerprint):
++    trees = [tree for path, tree in sources if path.name == module]
++    assert len(trees) == 1, f"duplicate column check needs one {module} source"
++    nodes = trees if symbol == "__module__" else [n for n in trees[0].body if getattr(n, "name", None) == symbol or isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == symbol for t in n.targets)]
++    assert len(nodes) == 1, f"duplicate column check needs one {module}:{symbol} witness"
++    assert _contracts_digest(ast.dump(nodes[0], include_attributes=False)) == fingerprint, f"stale duplicate column check witness {module}:{symbol}; fresh review required"
++    return nodes[0]
++
++
++def _column_check_span(node, site, kind, label):
++    calls = [n for n in _scope_nodes(node) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and isinstance(n.func.value, ast.Name) and n.func.value.id == "boundaries" and n.func.attr == kind and len(n.args) > 1 and _label(n.args[1], {}) == label]
++    assert len(calls) == 1, f"duplicate column check needs one {site}/{kind}/{label} call"
++    call = calls[0]
++    return (site, call.lineno, call.col_offset, call.end_lineno, call.end_col_offset)
++
++
++def _column_check_relations(records, entries, sources=None):
++    """Exact witnessed row/repeat pairs, shared by labels and call accounting."""
++    targets = set(entries).intersection(_DUPLICATE_COLUMN_ENTRIES)
++    if not targets:
++        return {}
++    assert set(_DUPLICATE_COLUMN_CHECKS) == set(_DUPLICATE_COLUMN_ENTRIES), "missing or extra duplicate column check declaration"
++    sources = _column_check_sources() if sources is None else sources
++    _column_check_node(sources, "boundaries.py", "__module__", _DUPLICATE_COLUMN_RULE)
++    witnessed = {}
++    for entry in sorted(targets):
++        row_label, helper, kind, label, columns, receiver_hash, helper_hash, column_hash = _DUPLICATE_COLUMN_CHECKS[entry]
++        module, receiver = entry[1].split(":")
++        row_node = _column_check_node(sources, module, receiver, receiver_hash)
++        helper_node = _column_check_node(sources, module, helper, helper_hash)
++        _column_check_node(sources, "schema.py", columns, column_hash)
++        witnessed[entry] = (row_node, helper_node)
++    # Validate every semantic witness before using any source position. A
++    # changed receiver can shift an unchanged receiver's call spans as well.
++    result = {}
++    for entry, (row_node, helper_node) in witnessed.items():
++        row_label, helper, kind, label, *_ = _DUPLICATE_COLUMN_CHECKS[entry]
++        module = entry[1].split(":")[0]
++        row_call = _column_check_span(row_node, entry[1], "row", row_label)
++        repeat_call = _column_check_span(helper_node, module + ":" + helper, kind, label)
++        table = _claims((entry[0], entry[1], entry[2].split(".")[0]))
++        rows = [r for r in records if r.call == row_call and r.site == entry[1] and r.kind == "row" and r.label == row_label and r.subject == table and not r.propagated]
++        repeats = [r for r in records if r.call == repeat_call and r.site == entry[1] and r.kind == kind and r.label == label and r.subject == _claims(entry) and r.propagated]
++        assert len(rows) == len(repeats) == 1, f"missing or ambiguous duplicate column check occurrences for {entry}"
++        result[entry] = (rows[0], repeats[0])
++    return result
++
++
+ def _boundary_claims(records, entries, delegated):
+-    """Keep the existing subject matching and exact-before-covering precedence.
++    """Preserve selection except for the two witnessed duplicate column checks.
+ 
+     Select the matching occurrences themselves, not every call sharing a label.
+     """
+     by_site = {}
+     for record in records:
+         by_site.setdefault(record.site, set()).add(record)
++    relations = _column_check_relations(records, entries)
+     result = {}
+     for entry in entries:
+         places = [(entry[1], _claims(entry))]
+@@ -1581,7 +1658,9 @@
+         for site, stem in places:
+             available = by_site.get(site, ())
+             selected = {r for r in available if r.subject == stem or r.subject.startswith(stem + ".")}
+-            if not selected and entry[0] != "injected":
++            if entry in relations and site == entry[1] and stem == _claims(entry):
++                selected = {relations[entry][0]}
++            elif not selected and entry[0] != "injected":
+                 selected = {r for r in available if stem.startswith(r.subject + "[") or r.subject.startswith(stem + "[")}
+             for record in selected:
+                 result.setdefault(record, set()).add(entry)
+@@ -1594,16 +1673,27 @@
+     A lexical private parameter origin is a declaration template. Real local
+     read/session origins and every propagated context retain their own duty.
+     A declaration-only exemption cannot spread to another source call.
++    The two reviewed repeated checks retain exact links to claimed row owners;
++    those links do not create a general same-origin propagation exemption.
+     """
++    targets = {entry for entry in _DUPLICATE_COLUMN_ENTRIES if any(r.site == entry[1] for r in records)}
++    relations = _column_check_relations(records, targets)
++    repeated = {}
++    for entry, (row, repeat) in relations.items():
++        assert entry in claimed.get(row, ()), f"duplicate column check has no claimed row owner for {entry}"
++        repeated[repeat] = {row}
+     links = {}
+     actuals = {}
+-    for record in claimed:
++    for record in set(claimed) | set(repeated):
+         if record.propagated:
+             links.setdefault(record.call, set()).add(record)
+-        if record.subject.startswith(("read:", "session:")):
++        if record in claimed and record.subject.startswith(("read:", "session:")):
+             actuals.setdefault((record.call, record.kind, record.label, record.subject), set()).add(record)
+     resolved, residual = {}, set()
+     for record in records:
++        if record in repeated:
++            resolved[record] = repeated[record]
++            continue
+         if record in claimed or (record.site, record.kind, record.label) in exceptions:
+             continue
+         equivalent = actuals.get((record.call, record.kind, record.label, record.subject))
+@@ -1724,6 +1814,7 @@
+ def _owned_here(site, stem, covering=False):
+     """Labels owned at `site` for `stem`.
+ 
++    The two witnessed duplicate column checks keep their row owner. Otherwise,
+     EXACT FIRST, and a parent never claims its members' labels. Each member of a
+     structured value is its own entry, so an ancestor that also answered for
+     them would report the members owned and demand one probe prove five things.
+@@ -1733,6 +1824,10 @@
+     owns a seal's members, so a member with no owner of its own is owned by
+     theirs. A member that HAS one is answered by it.
+     """
++    entry = next((entry for entry in _DUPLICATE_COLUMN_ENTRIES if entry[1] == site and _claims(entry) == stem), None)
++    if entry is not None:
++        row, _ = _column_check_relations(boundary_occurrences(), {entry})[entry]
++        return [row.label]
+     owners = owning_validators().get(site, ())
+     exact = {label for _, label, subject in owners
+              if subject == stem or subject.startswith(stem + ".")}
+@@ -13686,3 +13781,156 @@
+         full, probe = self.case.review_cycle_probes()[(entry, label)]
+         self.assertEqual(full, label)
+         self.case.refusing(full, probe)
++
++
++class DuplicateColumnChecksRequireOwnedWitnesses(unittest.TestCase):
++    def setUp(self):
++        self.records = boundary_occurrences()
++        self.entries = set(_DUPLICATE_COLUMN_ENTRIES)
++        self.sources = tuple((p, t) for p, t in _column_check_sources() if p.name in ("review_cycles.py", "schema.py", "boundaries.py"))
++        self.relations = _column_check_relations(self.records, self.entries, self.sources)
++
++    def changed_source(self, module, before, after):
++        sources = []
++        for path, tree in self.sources:
++            if path.name == module:
++                source = ast.unparse(tree)
++                self.assertIn(before, source)
++                tree = ast.parse(source.replace(before, after, 1))
++            sources.append((path, tree))
++        return tuple(sources)
++
++    def test_two_exact_entries_use_the_same_row_in_labels_and_accounting(self):
++        self.assertEqual(self.entries, {
++            ("adopted", "review_cycles.py:checkpoint_of", "line_checkpoints.fence"),
++            ("adopted", "review_cycles.py:integration_checkpoint", "integration_eligibility.verdict_id"),
++        })
++        claimed = _boundary_claims(self.records, receiving_entries(), DELEGATED)
++        resolved, _ = _account_boundary_calls(self.records, claimed, NOT_AN_ENTRY)
++        for entry, (row, repeat) in self.relations.items():
++            with self.subTest(entry=entry):
++                self.assertEqual(layer_labels(entry), [row.label])
++                self.assertIn(entry, claimed[row])
++                self.assertNotIn(entry, claimed.get(repeat, ()))
++                self.assertEqual(resolved[repeat], {row})
++                self.assertIn(repeat, self.records)
++
++    def test_missing_or_ambiguous_row_or_later_occurrence_refuses(self):
++        for entry, pair in self.relations.items():
++            for occurrence in pair:
++                with self.subTest(entry=entry, kind=occurrence.kind):
++                    with self.assertRaisesRegex(AssertionError, "missing or ambiguous"):
++                        _column_check_relations(self.records - {occurrence}, self.entries, self.sources)
++                    with self.assertRaisesRegex(AssertionError, "missing or ambiguous"):
++                        _column_check_relations(list(self.records) + [occurrence], self.entries, self.sources)
++
++    def test_a_relation_without_its_claimed_row_cannot_discharge_the_repeat(self):
++        claimed = _boundary_claims(self.records, receiving_entries(), DELEGATED)
++        for entry, (row, _) in self.relations.items():
++            changed = {r: set(owners) for r, owners in claimed.items()}
++            changed[row].remove(entry)
++            with self.subTest(entry=entry), self.assertRaisesRegex(AssertionError, "no claimed row owner"):
++                _account_boundary_calls(self.records, changed, NOT_AN_ENTRY)
++
++    def test_missing_declaration_or_source_witness_refuses(self):
++        with patch.dict(_DUPLICATE_COLUMN_CHECKS, {}, clear=True):
++            with self.assertRaisesRegex(AssertionError, "declaration"):
++                _column_check_relations(self.records, self.entries, self.sources)
++        for module in ("review_cycles.py", "schema.py", "boundaries.py"):
++            with self.subTest(module=module), self.assertRaisesRegex(AssertionError, "needs one"):
++                _column_check_relations(self.records, self.entries, tuple((p, t) for p, t in self.sources if p.name != module))
++
++    def test_unchanged_ast_uses_current_call_spans_and_ambiguous_sources_refuse(self):
++        import copy
++        shifted = tuple((p, ast.increment_lineno(copy.deepcopy(t), 7) if p.name == "review_cycles.py" else t) for p, t in self.sources)
++        records = {r._replace(call=(r.call[0], r.call[1] + 7, r.call[2], r.call[3] + 7, r.call[4])) if r.call[0].startswith("review_cycles.py:") else r for r in self.records}
++        relations = _column_check_relations(records, self.entries, shifted)
++        for entry, pair in relations.items():
++            for before, after in zip(self.relations[entry], pair):
++                self.assertEqual(after.call[1], before.call[1] + 7)
++                self.assertEqual(after.subject, before.subject)
++        with self.assertRaisesRegex(AssertionError, "needs one"):
++            _column_check_relations(self.records, self.entries, self.sources + self.sources)
++
++    def test_source_changes_require_fresh_review_instead_of_refreshing_witnesses(self):
++        changes = (
++            ("review_cycles.py", "taken = boundaries.row(row, 'a persisted line checkpoint', schema.LINE_CHECKPOINT_COLUMNS)", "taken = dict(row)"),
++            ("review_cycles.py", "boundaries.identity(verdict_id, 'a checkpoint verdict identity')", "str(verdict_id)"),
++            ("review_cycles.py", "if taken['fence'] is not None:", "if True:"),
++            ("review_cycles.py", "_verdict_row(store, owned['verdict_id'])", "_verdict_row(store, line_id)"),
++            ("review_cycles.py", "verdict = _verdict_row(store, owned['verdict_id'])", "owned = other\n    verdict = _verdict_row(store, owned['verdict_id'])"),
++            ("review_cycles.py", "required=('intent', 'fenced')", "required=('intent', 'fenced', 'extra')"),
++            ("schema.py", "INTEGRATION_ELIGIBILITY_COLUMNS =", "OTHER_ELIGIBILITY_COLUMNS ="),
++            ("schema.py", "'fence': Column('json', nullable=True, members=('intent', 'fenced'))", "'fence': Column('text')"),
++            ("schema.py", "'fence': Column('json', nullable=True, members=('intent', 'fenced'))", "'fence': Column('json', nullable=True, members=('intent',))"),
++            ("boundaries.py", "if type(value) is not str or value == '':", "if type(value) is not str:"),
++        )
++        for module, before, after in changes:
++            with self.subTest(module=module, before=before):
++                sources = self.changed_source(module, before, after)
++                with self.assertRaisesRegex(AssertionError, "stale duplicate|needs one"):
++                    _column_check_relations(self.records, self.entries, sources)
++
++    def test_an_unrelated_same_label_call_and_another_origin_cannot_borrow_the_link(self):
++        claimed = _boundary_claims(self.records, receiving_entries(), DELEGATED)
++        extras = set()
++        for _, repeat in self.relations.values():
++            extras.add(repeat._replace(call=("unrelated.py:_check", 1, 0, 1, 1)))
++            extras.add(repeat._replace(site="unrelated.py:public", subject="read:unrelated.py:public|table[value]"))
++        resolved, residual = _account_boundary_calls(self.records | extras, claimed, NOT_AN_ENTRY)
++        self.assertTrue(extras.issubset(residual))
++        self.assertFalse(extras.intersection(resolved))
++
++    def test_identity_column_and_later_rule_are_identical_and_the_row_owns_a_fresh_value(self):
++        self.assertEqual(schema.INTEGRATION_ELIGIBILITY_COLUMNS["verdict_id"].kind, "identity")
++        self.assertIs(boundaries._COLUMN_RULE["identity"], boundaries.identity)
++        for value in ("verdict", "", [], SURROGATE):
++            with self.subTest(value=value):
++                raw = {"verdict_id": value}
++                if value == "verdict":
++                    taken = boundaries.row(raw, "row", {"verdict_id": schema.INTEGRATION_ELIGIBILITY_COLUMNS["verdict_id"]})
++                    self.assertIsNot(taken, raw)
++                    self.assertEqual(boundaries.identity(taken["verdict_id"], "later"), value)
++                else:
++                    for run in (lambda: boundaries.row(raw, "row", {"verdict_id": schema.INTEGRATION_ELIGIBILITY_COLUMNS["verdict_id"]}), lambda: boundaries.identity(value, "later")):
++                        with self.assertRaises(ContractRefusal) as caught:
++                            run()
++                        self.assertEqual((caught.exception.category, caught.exception.code), ("integrity", "schema"))
++
++    def test_row_result_flow_and_nullable_guard_match_the_reviewed_relations(self):
++        tree = next(t for p, t in self.sources if p.name == "review_cycles.py")
++        functions = dict(_functions(tree, "review_cycles.py"))
++        receiver = functions["review_cycles.py:integration_checkpoint"]
++        assignments = [n for n in receiver.body if isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "owned" for t in n.targets)]
++        self.assertEqual(len(assignments), 1)
++        self.assertEqual(ast.unparse(assignments[0].value), "boundaries.row(eligibility_row, 'persisted integration eligibility', schema.INTEGRATION_ELIGIBILITY_COLUMNS)")
++        calls = [n for n in ast.walk(receiver) if isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "_verdict_row"]
++        self.assertEqual(len(calls), 1)
++        self.assertEqual(ast.unparse(calls[0].args[1]), "owned['verdict_id']")
++        self.assertLess(assignments[0].lineno, calls[0].lineno)
++        self.assertFalse(any(isinstance(n, ast.Subscript) and isinstance(n.ctx, ast.Store) and isinstance(n.value, ast.Name) and n.value.id == "owned" for n in ast.walk(receiver)))
++        receiver = functions["review_cycles.py:checkpoint_of"]
++        guard = next(n for n in receiver.body if isinstance(n, ast.If) and ast.unparse(n.test) == "taken['fence'] is not None")
++        self.assertEqual(ast.unparse(guard.body[0]), "taken['fence'] = _fence(json.loads(taken['fence']), 'a persisted checkpoint fence')")
++        contract = schema.LINE_CHECKPOINT_COLUMNS["fence"]
++        self.assertEqual((contract.kind, contract.nullable, contract.members), ("json", True, ("intent", "fenced")))
++        helper = functions["review_cycles.py:_fence"]
++        call = next(n for n in ast.walk(helper) if isinstance(n, ast.Call) and ast.unparse(n.func) == "boundaries.document")
++        self.assertEqual({k.arg: ast.literal_eval(k.value) for k in call.keywords}, {"required": contract.members})
++
++    def test_outer_document_equivalence_does_not_cover_nested_intent_validation(self):
++        columns = {"fence": schema.LINE_CHECKPOINT_COLUMNS["fence"]}
++        for fence in ({}, {"intent": {}, "fenced": {}, "extra": 1}):
++            for run in (lambda: boundaries.row({"fence": json.dumps(fence)}, "row", columns), lambda: review_cycles._fence(fence, "later")):
++                with self.assertRaises(ContractRefusal) as caught:
++                    run()
++                self.assertEqual((caught.exception.category, caught.exception.code), ("integrity", "schema"))
++        raw = {"fence": json.dumps({"intent": [], "fenced": {}})}
++        owned = boundaries.row(raw, "row", columns)
++        outer = review_cycles._fence(json.loads(owned["fence"]), "later")
++        with self.assertRaises(ContractRefusal) as caught:
++            attempts.adopt_finalization_record(outer["intent"])
++        self.assertEqual((caught.exception.category, caught.exception.code), ("integrity", "schema"))
++        nested = ("adopted", "review_cycles.py:checkpoint_of", "line_checkpoints.fence.intent")
++        self.assertNotIn(nested, _column_check_relations(self.records, {nested}, self.sources))
++        self.assertEqual(set(layer_labels(nested)), {"a persisted assignment fence", "a persisted line checkpoint"})

@@ -1,0 +1,11 @@
+diff --git a/v12/python/tools/parallel_test.py b/v12/python/tools/parallel_test.py
+--- a/v12/python/tools/parallel_test.py
++++ b/v12/python/tools/parallel_test.py
+@@ -211,6 +211,7 @@ PARALLEL_MODULES = (
+                     "tests.job_manager.test_delegation",
+                     "tests.job_manager.test_documents",
++                    "tests.job_manager.test_ending",
+                     "tests.job_manager.test_exchange",
+                     "tests.job_manager.test_launch",
+                     "tests.job_manager.test_recovery",
+                     "tests.job_manager.test_restart",

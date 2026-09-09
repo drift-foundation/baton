@@ -1,0 +1,9 @@
+{
+  "work": "W120519",
+  "claim": 120577,
+  "candidate_sha256": "6ea5e9bef58a5182ae8b904a8db9ae92bcaf130d05ee1d61e9c36aa3efa0c10d",
+  "base_sha256": "f00fec0efebca9df1e25c025d1c9f07d350d1c79f0f0c880e673888bac884547",
+  "mode": "0o644",
+  "exact_single_authorized_insertion": true,
+  "retained_existing_registry_check_passed": true
+}

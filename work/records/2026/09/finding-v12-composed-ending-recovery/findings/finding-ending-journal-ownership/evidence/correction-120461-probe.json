@@ -1,0 +1,59 @@
+{
+  "work": "W120424",
+  "claim": 120461,
+  "sha256": {
+    "src/baton_v12/job_manager/ending.py": "545c63801b87cb2db4e02d19ddfac022c99ebd8a51ee6d09e0cc36b817126192",
+    "src/baton_v12/job_manager/projection.py": "4fd1a92a59c9bc0295016c345660db8f502502ee75a8b2804d528952c62609ed",
+    "src/baton_v12/job_manager/manager.py": "f77a12f80c66e8dfb9ed700177b90fa4bda841788396304189f00230dfbd9c83",
+    "tests/job_manager/test_ending.py": "d7617628b7d6675bd2bf2f37615a88444ec051907cb02e49ef3ed8a893a27abc"
+  },
+  "results": {
+    "foreign_authority_registration": {
+      "exception": "ContractRefusal",
+      "category": "refused",
+      "code": "operation-collision",
+      "message": "a composed ending's fixed assignment names Authority '99999999999999999999999999999999' and this Job store is bound to '0000000000000000000000000000000a'; one composed ending belongs to the Authority whose namespace its episode identities were derived in"
+    },
+    "null_required_evidence": {
+      "settlement": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "a composed ending's settled manifest_digest is durable text; this is none"
+      },
+      "implementation_state": "answering",
+      "dependent_state": "blocked",
+      "pending_stage_ids": [
+        "job-a/implementation"
+      ]
+    },
+    "foreign_settlement_under_selected_identity": {
+      "read": {
+        "exception": "ContractRefusal",
+        "category": "refused",
+        "code": "operation-collision",
+        "message": "stage 'job-a/implementation' episode 1's settled composed ending was selected at 'ending.settled:job-a/implementation:1' and its own stage and episode derive 'ending.settled:job-a/review:1'; a record is filed under an identity built from its own members, so one filed under another stage's is that stage's record and not this one's"
+      },
+      "discovery": {
+        "exception": "ContractRefusal",
+        "category": "refused",
+        "code": "operation-collision",
+        "message": "stage 'job-a/implementation' episode 1's settled composed ending was selected at 'ending.settled:job-a/implementation:1' and its own stage and episode derive 'ending.settled:job-a/review:1'; a record is filed under an identity built from its own members, so one filed under another stage's is that stage's record and not this one's"
+      },
+      "implementation_state": {
+        "exception": "ContractRefusal",
+        "category": "refused",
+        "code": "operation-collision",
+        "message": "stage 'job-a/implementation' episode 1's settled composed ending was selected at 'ending.settled:job-a/implementation:1' and its own stage and episode derive 'ending.settled:job-a/review:1'; a record is filed under an identity built from its own members, so one filed under another stage's is that stage's record and not this one's"
+      },
+      "dependent_state": {
+        "exception": "ContractRefusal",
+        "category": "refused",
+        "code": "operation-collision",
+        "message": "stage 'job-a/implementation' episode 1's settled composed ending was selected at 'ending.settled:job-a/implementation:1' and its own stage and episode derive 'ending.settled:job-a/review:1'; a record is filed under an identity built from its own members, so one filed under another stage's is that stage's record and not this one's"
+      },
+      "review_settlement_is_still_its_own": true
+    }
+  },
+  "seconds": 0.009741811081767082
+}

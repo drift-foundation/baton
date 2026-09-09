@@ -1,0 +1,617 @@
+--- baseline/src/baton_v12/worker_manager/intake.py
++++ candidate/src/baton_v12/worker_manager/intake.py
+@@ -64,7 +64,7 @@
+ from ..contracts.errors import name_value, sample_of
+ from . import attempts, boundaries, documents, lanes, schema
+ from .attempts import observe
+-from .authority_port import GATE_DISCHARGED_PHASE
++from .authority_port import FENCE, GATE_DISCHARGE, GATE_DISCHARGED_PHASE
+ from .output import frozen_output_of
+ from .store import manager_signature
+ 
+@@ -2461,6 +2461,605 @@
+                 custody=adapter)))
+ 
+ 
++# W128682: THE ABANDONED FAMILY'S OWN EVIDENCE AND ITS OWN DISCHARGE.
++#
++# The ordinary discharge is authorized by `_absence_proof`, which requires an
++# `intake_receipt_of` and reads `runtime.destroy` BY NAME. An abandonment has
++# neither: nothing was frozen or collected, so there is no receipt, and its
++# removal commits under `runtime.destroy-abandoned`. Widening either would let
++# an abandonment ride the ordinary family's identity; fabricating a receipt
++# would be inventing the evidence. So this is a separate family with separate
++# identities, and the ordinary readers and act below are untouched.
++ABANDONED_CLEANUP_SCHEMA = "baton.v12.abandoned-cleanup/1"
++
++# EXACTLY WHAT A READ ABANDONED CLEANUP CARRIES. Owner128669's contract, and
++# every exit is held to it.
++ABANDONED_CLEANUP = ("schema", "attempt_id", "assignment", "runtime_id",
++                     "retention_policy_digest", "intent", "intent_digest",
++                     "fence", "cleanup")
++
++ABANDONED_GATE_DISCHARGE_KIND = "authority.discharge-quiescence-abandoned"
++ABANDONED_GATE_DISCHARGE_SCHEMA = "baton.v12.abandoned-gate-discharge/1"
++ABANDONED_GATE_DISCHARGE_RECEIPT = (
++    "schema", "attempt_id", "assignment", "runtime_id",
++    "retention_policy_digest", "cleanup_operation", "operation_id", "gate",
++    "evidence", "authority_receipt")
++
++# The ending an abandonment settles at, and the observed runtime state that
++# authorizes calling it absence. `retained` is the ONLY ending
++# `_settle_recordless_cleanup` reaches here -- the family deletes nothing --
++# and `absent` is the engine's own positive sentence. A `failed` removal never
++# journals at all, and an unsettled one returns without a transaction, so a
++# present record is required to say both.
++_ABANDONED_ENDING = "retained"
++_ABANDONED_ABSENT = "absent"
++
++
++def _abandonment_declaration(store, attempt, attempt_id):
++    """The committed declaration this family's whole identity hangs off.
++
++    THE JOURNAL IS THE AUTHORIZATION, exactly as `_abandon_intent` treats it
++    during the act. Absence answers `None` -- an attempt nobody declared
++    abandoned simply has no abandoned cleanup -- and a record this manager
++    cannot own is an integrity fault rather than an absence, on
++    `_recorded_discharge`'s rule: reporting the second as the first would
++    invite a consumer to act as though nothing had happened.
++
++    THE SIGNATURE IS DERIVED FROM THE RECORD'S OWN MEMBERS AND COMPARED.
++    `cleanup_of` learned this at review 2026-09-08T16-43-59Z: replaying under
++    the row's own signature proves the row is self-consistent and nothing else.
++    `attempt.abandon` signs the attempt, the fixed assignment, the runtime, the
++    reason and the authority operation together, so a row signed over anything
++    else is not that act -- and the reason and the operation id are members of
++    the document, which is what makes recomposing it possible here without
++    asking a caller for either.
++    """
++    operation_id = _abandon_operation_id(attempt)
++    record = store.operation_record(operation_id)
++    if record is None:
++        return None
++    what = f"attempt {name_value(attempt_id)}'s committed abandonment"
++    if record["kind"] != "attempt.abandon":
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} names operation {name_value(operation_id)}, which this "
++            f"manager committed as {name_value(record['kind'])}")
++    _, committed = store.replay(operation_id, record["signature"],
++                                kind="attempt.abandon")
++    if committed is None:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} names operation {name_value(operation_id)}, which this "
++            f"manager committed with no recorded answer to replay")
++    held = boundaries.document(committed, what,
++                               required=documents.ABANDON_INTENT)
++    expect = _fixed_assignment(attempt)
++    for member, mine in (("attempt_id", attempt_id),
++                         ("assignment", expect),
++                         ("runtime_id", attempt["runtime_id"]),
++                         ("decision", "abandoned")):
++        if held[member] != mine:
++            raise ContractRefusal(
++                "integrity", "schema",
++                f"{what} names {member} {name_value(held[member])} and this "
++                f"read is for {name_value(mine)}; the declaration and the "
++                f"attempt it authorizes must describe one abandonment")
++    boundaries.text(held["reason"], f"{what}'s reason")
++    boundaries.identity(held["authority_operation_id"],
++                        f"{what}'s authority operation identity")
++    signature = manager_signature(
++        "attempt.abandon",
++        {"attempt_id": attempt_id, "expect": expect,
++         "runtime_id": attempt["runtime_id"], "reason": held["reason"],
++         "authority_operation_id": held["authority_operation_id"]})
++    if record["signature"] != signature:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} is journalled under a signature this manager does not "
++            f"derive for it; the operands a declaration signs are its attempt, "
++            f"assignment, runtime, reason and authority operation, and a row "
++            f"signed over anything else is not that act")
++    return {"document": held, "digest": digest(held)}
++
++
++def _abandoned_fence(taken, expect, what):
++    """The authority's own fence answer, owned and related to this attempt.
++
++    `AuthorityPort.cancel` already proved these members when the act ran; this
++    is a READ of what it committed, and a read that adopted the answer would
++    be trusting a stored value rather than owning it. What is compared is the
++    same relationship `cancel` compared: the fence is about THIS assignment,
++    and the gate it installed is the one this attempt's own generation
++    composes.
++    """
++    fence = boundaries.document(taken, f"{what}'s committed fence",
++                                required=FENCE)
++    if not fence["fenced"]:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} records a fence answer that did not fence; an "
++            f"abandonment that never ended its generation has no gate of its "
++            f"own to discharge")
++    if fence["assignment"] != expect:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} records a fence of assignment "
++            f"{name_value(fence['assignment'])} and this attempt is fixed to "
++            f"{name_value(expect)}; a fence that ended somebody else's "
++            f"assignment is not this abandonment's")
++    gate = _quiescence_gate_token(expect)
++    if fence["gate"] != gate:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} records gate {name_value(fence['gate'])} and this "
++            f"attempt's own generation composes {name_value(gate)}")
++    return fence
++
++
++def _abandoned_absence(taken, attempt_id, operation, what):
++    """The removal's settled cleanup, and it says absence or it is not one.
++
++    A FAILED REMOVAL NEVER JOURNALS and an unsettled one returns before the
++    transaction, so a present record is required to carry both facts: the
++    engine's own positive-absence sentence, and the `retained` ending this
++    family settles at. Anything else present here is a record this manager
++    cannot own rather than weaker evidence.
++    """
++    cleanup = boundaries.document(taken, f"{what}'s committed cleanup",
++                                  required=CLEANUP_RECEIPT, optional=("kind",))
++    if cleanup["attempt_id"] != attempt_id:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} records a cleanup committed for "
++            f"{name_value(cleanup['attempt_id'])}")
++    # A `failed` ENDING IS NOT AN INTEGRITY FAULT, and `_absence_proof` already
++    # settled which category it is. The record is this family's own committed
++    # act, correctly saying the runtime SURVIVED its own removal -- so it is a
++    # precondition this read cannot meet rather than a row it cannot own, and
++    # the caller is told which fact stopped it.
++    if cleanup["cleanup"] != _ABANDONED_ENDING:
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"{what} settled {name_value(cleanup['cleanup'])}; an abandonment "
++            f"that reached its ending settles "
++            f"{name_value(_ABANDONED_ENDING)}, and any other ending is "
++            f"evidence against absence rather than for it")
++    if cleanup["state"] != _ABANDONED_ABSENT:
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"{what} observed runtime state {name_value(cleanup['state'])} and "
++            f"a gate takes {name_value(_ABANDONED_ABSENT)}; a stop order, an "
++            f"uncertain observation and a surviving runtime are not absence")
++    boundaries.text(cleanup["why"], f"{what}'s account")
++    committed = boundaries.document(
++        cleanup["operation"], f"{what}'s cleanup operation",
++        required=("operation_id", "signature_digest"))
++    # WHOLE, AND FOR `_absence_proof`'S OWN REASON. `operation_id` binds the
++    # attempt, the assignment, the declaration and the policy;
++    # `signature_digest` is the half that binds the runtime. Comparing one and
++    # dropping the other lets an edited runtime keep a real removal's evidence.
++    if committed != dict(operation):
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} records cleanup operation "
++            f"{name_value(committed['operation_id'])} signed "
++            f"{name_value(committed['signature_digest'])}, and this read "
++            f"derives {name_value(operation['operation_id'])} signed "
++            f"{name_value(operation['signature_digest'])}; the identity and "
++            f"the signature are one binding")
++    return cleanup
++
++
++def abandonment_cleanup_of(store, *, attempt_id, retention_policy_digest):
++    """The committed ABANDONED cleanup for this attempt and policy, or absence.
++
++    W128682, `work/records/2026/09/finding-v12-abandoned-cleanup-discharge/`.
++    Discovered by W119114's composed proof: an operator declaration ends the
++    attempt and fences its generation, and nothing could then read that ending
++    as evidence, so the gate the fence installed stayed shut forever.
++
++    IT IS `cleanup_of` ONE FAMILY OVER, and it is a separate function for the
++    reason that reader states in its own last paragraph: the four cleanup
++    families each end through their own operation kind, and it reads
++    `runtime.destroy` by name so none of the others is admitted by accident.
++    The same rule read from this side means the abandoned family needs its own
++    reader rather than a widened one.
++
++    THE SELECTION IS THE DECLARATION AND THE POLICY. There is no intake
++    receipt here -- nothing was frozen or collected, which is the whole reason
++    abandonment exists -- so the declaration's digest is what rides the removal
++    identity, exactly as the receipt's digest rides the ordinary one. A caller
++    naming another policy selects an act this manager never committed.
++
++    ABSENCE IS HONEST AND IS THREE THINGS. An attempt with no fixed assignment
++    can have no identity; an attempt nobody declared abandoned has no
++    declaration; and a declaration whose removal never committed is an
++    abandonment that has not finished. None of the three is a fault, none is
++    evidence, and each answers `None`.
++
++    NOTHING MUTABLE IS EVIDENCE. Not `execution_runtime = destroyed`, which is
++    a column a store edit reaches; not the cleanup axis; not the Work's current
++    route or gate. What is read is the journal: the committed declaration, the
++    committed composite the removal wrote, and the relationships between them.
++    A merely recorded intent, a failed removal and an uncertain runtime each
++    fail to supply absence, and say so.
++
++    IT WRITES NOTHING AND CALLS NOTHING. No transaction, no session, no port,
++    no adapter, no engine -- there is no branch in it that could.
++    """
++    boundaries.identity(attempt_id, "a runtime attempt id")
++    boundaries.text(retention_policy_digest, "a retention policy digest")
++    attempt = _attempt_of(store._connection, attempt_id)
++    expect = _fixed_assignment(attempt)
++    if expect is None:
++        return None
++    declared = _abandonment_declaration(store, attempt, attempt_id)
++    if declared is None:
++        return None
++    what = f"attempt {name_value(attempt_id)}'s committed abandoned cleanup"
++    operation = _abandoned_destroy_operation(attempt, declared["digest"],
++                                             retention_policy_digest)
++    record = store.operation_record(operation["operation_id"])
++    if record is None:
++        return None
++    if record["kind"] != "runtime.destroy-abandoned":
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} names operation "
++            f"{name_value(operation['operation_id'])}, which this manager "
++            f"committed as {name_value(record['kind'])}")
++    # THE ROW'S SIGNATURE, DERIVED AND COMPARED, before the answer is replayed
++    # under it. These are the exact operands `abandon_attempt` signs.
++    signature = manager_signature(
++        "runtime.destroy-abandoned",
++        {"attempt_id": attempt_id, "expect": expect,
++         "runtime_id": attempt["runtime_id"],
++         "abandonment_record_digest": declared["digest"],
++         "retention_policy_digest": retention_policy_digest})
++    if record["signature"] != signature:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} is journalled under a signature this manager does not "
++            f"derive for it; the operands an abandoned removal signs are its "
++            f"attempt, assignment, runtime, declaration and retention policy")
++    settled = _committed(store, operation, "runtime.destroy-abandoned", what)
++    composite = boundaries.document(
++        settled, what, required=documents.CONTRACTS["attempt.abandonment"][0])
++    # THE COMPOSITE'S OWN DECLARATION IS THE ONE THIS READ SELECTED ON. The
++    # removal journalled the record it adopted, so the two must be the same
++    # document -- and if they are not, the identity that selected this row was
++    # derived from something the row does not describe.
++    if composite["intent"] != declared["document"]:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} records a declaration that is not the one this read "
++            f"selected on; the removal's identity carries the declaration's "
++            f"digest, so the two are one act or neither is")
++    return own({
++        "schema": ABANDONED_CLEANUP_SCHEMA,
++        "attempt_id": attempt_id,
++        "assignment": expect,
++        "runtime_id": boundaries.identity(
++            attempt["runtime_id"], f"{what}'s runtime identity"),
++        "retention_policy_digest": retention_policy_digest,
++        "intent": declared["document"],
++        "intent_digest": declared["digest"],
++        "fence": _abandoned_fence(composite["fenced"], expect, what),
++        "cleanup": _abandoned_absence(composite["cleanup"], attempt_id,
++                                      operation, what),
++    }, what=what)
++
++
++def _abandoned_discharge_operation_id(attempt):
++    """This attempt's ONE abandoned-discharge identity, derived and not minted.
++
++    Over the attempt and its FIXED assignment alone, exactly as
++    `_discharge_operation_id` is, and for the same reason: a manager resuming
++    after a crash re-derives it without first re-establishing the evidence, so
++    a discharge that committed replays even if the records it was derived from
++    can no longer be read.
++
++    THE KIND PREFIX IS WHAT KEEPS THE TWO FAMILIES APART. The operands are the
++    same two an ordinary discharge signs an identity over, so without a
++    distinct kind the two acts would collide on one identity -- and an
++    abandoned discharge replaying as an ordinary one, or the reverse, is
++    exactly the confusion this Work exists to prevent.
++    """
++    check_no_durable_secret(
++        {"kind": ABANDONED_GATE_DISCHARGE_KIND,
++         "operands": {"attempt_id": attempt["runtime_attempt_id"],
++                      "expect": _fixed_assignment(attempt)}},
++        what="an operation signature")
++    return ABANDONED_GATE_DISCHARGE_KIND + ":" + digest({
++        "attempt_id": attempt["runtime_attempt_id"],
++        "assignment": _fixed_assignment(attempt)})[len("sha256:"):]
++
++
++def _abandoned_receipt_signature(taken):
++    """The signature this receipt's own operands compose.
++
++    THE SAME OPERANDS THE ACT SIGNED, recomposed from the receipt rather than
++    from anything read fresh. One comparison for a relationship six separate
++    field checks cannot state: the attempt, the fixed assignment, the gate, the
++    runtime and the cleanup operation's whole identity AND signature belong
++    together, and the contract requires the cleanup's signature in it because
++    that is the half that names the runtime.
++    """
++    cleanup = taken["cleanup_operation"]
++    return manager_signature(ABANDONED_GATE_DISCHARGE_KIND, {
++        "attempt_id": taken["attempt_id"], "expect": taken["assignment"],
++        "gate": taken["gate"], "runtime_id": taken["runtime_id"],
++        "retention_policy_digest": taken["retention_policy_digest"],
++        "cleanup_operation_id": cleanup["operation_id"],
++        "cleanup_signature_digest": cleanup["signature_digest"]})
++
++
++def _adopted_abandoned_discharge(value, what, *, operation_id=None,
++                                 signature=None, expect=None, attempt_id=None):
++    """One abandoned gate-discharge receipt, owned with its relationships.
++
++    BOTH PUBLIC EXITS COME THROUGH HERE -- the replay short-circuit and
++    `abandoned_gate_discharge_of` -- on `_adopted_discharge`'s rule: generic
++    parsing establishes that bytes decode and establishes nothing about what
++    they say, and checking each field individually proves every member
++    well-formed while proving nothing about WHOSE receipt it is.
++
++    NOTHING MUTABLE IS CONSULTED. Not today's runtime row, not the cleanup
++    row, not the remote gate or phase. A correct receipt therefore still
++    replays after the Work has been claimed and fenced again, which is the
++    distinction the ordinary family established and this must not undo.
++    """
++    taken = boundaries.document(value, what,
++                                required=ABANDONED_GATE_DISCHARGE_RECEIPT)
++    if taken["schema"] != ABANDONED_GATE_DISCHARGE_SCHEMA:
++        _refuse_receipt(what, "schema", taken["schema"],
++                        ABANDONED_GATE_DISCHARGE_SCHEMA)
++    boundaries.identity(taken["attempt_id"], f"{what}'s attempt")
++    boundaries.identity(taken["operation_id"], f"{what}'s operation identity")
++    boundaries.identity(taken["runtime_id"], f"{what}'s runtime identity")
++    boundaries.text(taken["retention_policy_digest"],
++                    f"{what}'s retention policy digest")
++    boundaries.text(taken["gate"], f"{what}'s gate")
++    cleanup = boundaries.document(
++        taken["cleanup_operation"], f"{what}'s cleanup operation",
++        required=("operation_id", "signature_digest"))
++    boundaries.identity(cleanup["operation_id"],
++                        f"{what}'s cleanup operation identity")
++    boundaries.text(cleanup["signature_digest"],
++                    f"{what}'s cleanup operation signature")
++    # THE ASSIGNMENT IS OWNED BEFORE IT IS UNPACKED, on `_adopted_discharge`'s
++    # rule: `**None` is a `TypeError` rather than a refusal, and a raw
++    # exception at a persisted-input boundary bypasses the portable refusal
++    # path every other reader uses.
++    assignment = boundaries.document(
++        taken["assignment"], f"{what}'s assignment",
++        required=("work_ref", "participant", "generation"))
++    work_ref = boundaries.document(
++        assignment["work_ref"], f"{what}'s Work reference",
++        required=("authority_uuid", "work_id"))
++    documents.assignment(work_ref=documents.work_ref(**work_ref),
++                         participant=assignment["participant"],
++                         generation=assignment["generation"])
++    derived = _quiescence_gate_token(assignment)
++    if taken["gate"] != derived:
++        _refuse_receipt(what, "gate", taken["gate"], derived)
++    # THE EVIDENCE IS THE ONE THIS FAMILY CARRIES, and it names the runtime the
++    # receipt itself is about rather than any runtime.
++    evidence = boundaries.document(taken["evidence"], f"{what}'s evidence",
++                                   required=("kind", "runtime"))
++    if evidence["kind"] != RUNTIME_ABSENT:
++        _refuse_receipt(what, "evidence kind", evidence["kind"], RUNTIME_ABSENT)
++    if evidence["runtime"] != taken["runtime_id"]:
++        _refuse_receipt(what, "evidence runtime", evidence["runtime"],
++                        taken["runtime_id"])
++    # THE AUTHORITY'S OWN ANSWER, held to the accepted gate-discharge
++    # semantics and never manufactured: the port compared the gate and the
++    # phase when the act ran, and this holds the journalled answer to exactly
++    # the same three facts.
++    answer = boundaries.document(
++        taken["authority_receipt"], f"{what}'s authority answer",
++        required=GATE_DISCHARGE)
++    if answer["gate"] != taken["gate"]:
++        _refuse_receipt(what, "authority gate", answer["gate"], taken["gate"])
++    if answer["kind"] != RUNTIME_ABSENT:
++        _refuse_receipt(what, "authority kind", answer["kind"], RUNTIME_ABSENT)
++    if answer["phase"] != GATE_DISCHARGED_PHASE:
++        _refuse_receipt(what, "authority phase", answer["phase"],
++                        GATE_DISCHARGED_PHASE)
++    if operation_id is not None and taken["operation_id"] != operation_id:
++        _refuse_receipt(what, "operation identity", taken["operation_id"],
++                        operation_id)
++    if attempt_id is not None and taken["attempt_id"] != attempt_id:
++        _refuse_receipt(what, "attempt", taken["attempt_id"], attempt_id)
++    if expect is not None and assignment != expect:
++        _refuse_receipt(what, "assignment", assignment, expect)
++    if signature is not None and _abandoned_receipt_signature(taken) != signature:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} composes a signature its own operands do not match the "
++            f"one this manager committed for "
++            f"{name_value(taken['operation_id'])}; the attempt, the "
++            f"assignment, the gate, the runtime, the policy and the cleanup "
++            f"operation are ONE signed relationship, and a receipt whose "
++            f"members were changed individually cannot reproduce it")
++    return taken
++
++
++def _recorded_abandoned_discharge(store, attempt_id, operation_id):
++    """The journal's committed abandoned discharge, or ABSENCE.
++
++    ONE READER FOR BOTH PUBLIC EXITS, on the correction `_recorded_discharge`
++    records: two spellings of one question are two answers to it. Absence is
++    the only `None`; a present record this manager cannot own is an integrity
++    failure an operator has to look at, and reporting it as absence would
++    invite a consumer to re-run a remote act.
++    """
++    record = store.operation_record(operation_id)
++    if record is None:
++        return None
++    if record["kind"] != ABANDONED_GATE_DISCHARGE_KIND:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"attempt {name_value(attempt_id)} names abandoned discharge "
++            f"operation {name_value(operation_id)}, which this manager "
++            f"committed as {name_value(record['kind'])}")
++    _, committed = store.replay(operation_id, record["signature"],
++                                kind=ABANDONED_GATE_DISCHARGE_KIND)
++    if committed is None:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"attempt {name_value(attempt_id)} names abandoned discharge "
++            f"operation {name_value(operation_id)}, which this manager "
++            f"committed with no recorded answer to replay")
++    return record, committed
++
++
++def abandoned_gate_discharge_of(store, attempt_id):
++    """The committed abandoned discharge for this attempt, or absence.
++
++    THE DISCOVERABILITY HALF, and it is a read. It opens no session, takes no
++    port and performs no external act. What it does NOT do is decide whether a
++    discharge is owed: that depends on whether the Work is gated at all, which
++    is the authority's fact and not this store's.
++    """
++    boundaries.identity(attempt_id, "a runtime attempt id")
++    attempt = _attempt_of(store._connection, attempt_id)
++    expect = _fixed_assignment(attempt)
++    if expect is None:
++        return None
++    operation_id = _abandoned_discharge_operation_id(attempt)
++    held = _recorded_abandoned_discharge(store, attempt_id, operation_id)
++    if held is None:
++        return None
++    record, committed = held
++    return _adopted_abandoned_discharge(
++        committed,
++        f"attempt {name_value(attempt_id)}'s committed abandoned gate "
++        f"discharge",
++        operation_id=operation_id, signature=record["signature"],
++        expect=expect, attempt_id=attempt_id)
++
++
++def discharge_abandoned_quiescence_gate(store, port, *, attempt_id,
++                                        retention_policy_digest):
++    """Carry a committed ABANDONMENT's absence proof to the gate it installed.
++
++    W128682. `abandon_attempt` fences the generation, and the authority
++    installs `runtime-quiescence:<generation>` in that same transaction -- so
++    an operator declaration leaves a Work gated with no ordinary ending
++    anywhere in its future to discharge it. The abandonment DID positively
++    observe the exact runtime absent; nothing carried that across.
++
++    THE CALLER SELECTS AND SUPPLIES NOTHING ELSE, exactly as the ordinary act
++    does. Its two operands are the attempt and the retention policy identity,
++    and the second is only half the key that selects the committed removal.
++    The authority, the Work, the participant, the generation, the gate token,
++    the runtime identity and the absence evidence are all DERIVED from
++    `abandonment_cleanup_of`'s validated answer.
++
++    THE ORDER IS THE ORDINARY ACT'S, and each step is the next's precondition:
++
++      1. own the operands, read the attempt, require its fixed assignment and
++         prove this session acts for that assignment's participant;
++      2. REPLAY an already committed discharge and return it, before anything
++         mutable is read. A remote commit whose local receipt was lost must
++         reproduce its answer even after the Work has moved on, and checking
++         today's gate before recognising that replay would strand successful
++         work;
++      3. prove the committed abandoned cleanup and the exact runtime it
++         observed absent;
++      4. prove the whole Work reference, then ask the authority -- whose own
++         equality check on the gate token is what refuses an old generation's
++         evidence against a newer gate; and
++      5. journal the answer under this act's own identity.
++
++    FOUR AND FIVE CANNOT BE ONE TRANSACTION. The remote act commits first and
++    the local receipt second; a crash between them leaves the authority's own
++    replay to make the next attempt idempotent, which is what step two then
++    records. Putting the remote call inside a local transaction would hold a
++    write lock across a network act, and journalling first would record an act
++    that may never have happened.
++
++    IT DOES NOTHING ELSE, and the list is the design. No destruction, no
++    runtime refresh, no reconciliation, no writer or line transition, no
++    collection, no publication, no stage replacement, no checkout restore and
++    no new authority policy. A timer is not a declaration and there is no
++    timer here; the declaration already happened and this reads it.
++    """
++    boundaries.identity(attempt_id, "a runtime attempt id")
++    boundaries.text(retention_policy_digest, "a retention policy digest")
++    boundaries.capability(getattr(port, "satisfy_gate", None),
++                          "the authority session's gate discharge")
++    attempt = _attempt_of(store._connection, attempt_id)
++    expect = _require_assignment(attempt, attempt_id)
++    _require_participant(port, expect, attempt_id)
++
++    operation_id = _abandoned_discharge_operation_id(attempt)
++    held = _recorded_abandoned_discharge(store, attempt_id, operation_id)
++    if held is not None:
++        record, committed = held
++        return _adopted_abandoned_discharge(
++            committed,
++            f"attempt {name_value(attempt_id)}'s replayed abandoned gate "
++            f"discharge",
++            operation_id=operation_id, signature=record["signature"],
++            expect=expect, attempt_id=attempt_id)
++
++    proof = abandonment_cleanup_of(
++        store, attempt_id=attempt_id,
++        retention_policy_digest=retention_policy_digest)
++    if proof is None:
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"attempt {name_value(attempt_id)} has no committed abandoned "
++            f"cleanup under retention policy "
++            f"{name_value(retention_policy_digest)}; this gate is discharged "
++            f"on the abandonment this manager committed and never on the "
++            f"absence of one")
++    runtime_id = proof["runtime_id"]
++    gate = _quiescence_gate_token(expect)
++    evidence = {"kind": RUNTIME_ABSENT, "runtime": runtime_id}
++    cleanup_operation = dict(proof["cleanup"]["operation"])
++    signature = manager_signature(ABANDONED_GATE_DISCHARGE_KIND, {
++        "attempt_id": attempt_id, "expect": expect, "gate": gate,
++        "runtime_id": runtime_id,
++        "retention_policy_digest": retention_policy_digest,
++        "cleanup_operation_id": cleanup_operation["operation_id"],
++        "cleanup_signature_digest": cleanup_operation["signature_digest"]})
++    # THE WHOLE WORK REFERENCE BEFORE THE REMOTE ACT, and AFTER the committed
++    # replay above: this is a mutable remote read, and a discharge that already
++    # committed must reproduce its answer without one.
++    _same_authority(port, expect, attempt_id)
++    answered = port.satisfy_gate(expect["work_ref"]["work_id"], operation_id,
++                                 gate, evidence)
++    if answered["kind"] != RUNTIME_ABSENT:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"the authority answered evidence kind "
++            f"{name_value(answered['kind'])} for attempt "
++            f"{name_value(attempt_id)} and this act requires "
++            f"{name_value(RUNTIME_ABSENT)}")
++    # WHAT IS JOURNALLED IS WHAT THE AUTHORITY ANSWERED, adopted whole rather
++    # than re-spelled: the port proved it is about the requested gate, and
++    # recomposing its fields here would be writing a second account of
++    # somebody else's answer.
++    return store.transact(
++        operation_id, ABANDONED_GATE_DISCHARGE_KIND, signature,
++        lambda connection: _adopted_abandoned_discharge({
++            "schema": ABANDONED_GATE_DISCHARGE_SCHEMA,
++            "attempt_id": attempt_id,
++            "assignment": expect,
++            "runtime_id": runtime_id,
++            "retention_policy_digest": retention_policy_digest,
++            "cleanup_operation": cleanup_operation,
++            "operation_id": operation_id,
++            "gate": gate,
++            "evidence": evidence,
++            "authority_receipt": dict(answered),
++        }, "an abandoned gate discharge receipt", operation_id=operation_id,
++            signature=signature, expect=expect, attempt_id=attempt_id))
++
++
+ def _abandon_operation_id(attempt):
+     """The ONE declaration identity for an attempt and its fixed generation.
+ 

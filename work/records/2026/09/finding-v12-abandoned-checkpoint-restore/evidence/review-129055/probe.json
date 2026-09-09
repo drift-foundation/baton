@@ -1,0 +1,27 @@
+{
+  "duplicate": {
+    "outcome": [
+      "refused",
+      "operation-collision"
+    ],
+    "events": [
+      "A paused",
+      "B completed; successor admitted; scratch999"
+    ],
+    "successor_scratch_after": 1,
+    "line": "writing"
+  },
+  "retry_skips_verdict": {
+    "restore": "correction-ready",
+    "profile_effects_on_retry": 1,
+    "completed_reader": [
+      "integrity",
+      "schema"
+    ]
+  },
+  "path_check_effect_gap": {
+    "outcome": "ProfileRefusal",
+    "outside_tracked_before": "the abandoned round never finished this\n",
+    "outside_tracked_after": "the corrected candidate\n"
+  }
+}

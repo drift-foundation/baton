@@ -1,0 +1,27 @@
+[
+  {
+    "path": "v12/python/src/baton_v12/authority/core.py",
+    "sha256": "26a8a7a91b3bc7d9859bf9f5a747d9fda6ef88cdb5fe430bff1310d007c1d013",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/src/baton_v12/authority/session.py",
+    "sha256": "333cd6e44ac73e093ceb45ba3b7c639985c4220de2dc87b3266bf7cd7634948a",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/tests/authority/test_assignment.py",
+    "sha256": "a9f50ee29dcb54b41c5953025d6482999f99cbfe5d33f578447b6f66bf7e2877",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/tests/authority/test_session.py",
+    "sha256": "f85824b354007400055b1639ff9c6a27074dc7c5da3b100bc379da8bd20331f3",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/REVIEW-CYCLES.md",
+    "sha256": "8a1a61911e6c7c6810593fdb73e04e733e83d02825c28eec088eb86e39b37629",
+    "mode": "0o644"
+  }
+]

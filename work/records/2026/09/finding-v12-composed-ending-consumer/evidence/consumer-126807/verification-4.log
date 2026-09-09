@@ -1,0 +1,22 @@
+{
+  "states": {
+    "implementation": "completed",
+    "review": "completed",
+    "integration": "completed"
+  },
+  "handoff": {
+    "cause": "pass",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.integrator",
+      "generation": 5
+    },
+    "phase": "queued",
+    "gate": null,
+    "fenced": false,
+    "route": "rview"
+  }
+}

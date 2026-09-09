@@ -1,0 +1,35 @@
+...../home/sl/src/baton/v12/python/tests/manager/test_checkpoint_profiles.py:220: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmptdozuvr3/line/kept.txt' mode='r' encoding='UTF-8'>
+  body = open(os.path.join(self.repository, "kept.txt")).read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/manager/test_checkpoint_profiles.py:231: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmptdozuvr3/line/kept.txt' mode='r' encoding='UTF-8'>
+  "kept.txt")).read(), body)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..../home/sl/src/baton/v12/python/tests/manager/test_checkpoint_profiles.py:339: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpu3zo8es9/outside/kept.txt' mode='r' encoding='UTF-8'>
+  self.assertEqual(open(os.path.join(outside, "kept.txt")).read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....F.
+======================================================================
+FAIL: test_nothing_outside_the_nominated_checkout_is_named (tests.manager.test_checkpoint_profiles.RestoringOneCheckoutToItsRetainedCheckpoint.test_nothing_outside_the_nominated_checkout_is_named)
+Every argv is `-C` this repository and option-terminated, so there
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_checkpoint_profiles.py", line 282, in test_nothing_outside_the_nominated_checkout_is_named
+    self.assertEqual(argv[:3], ("git", "-C", self.repository), argv)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('git', '-C', '/proc/3492931/fd/3') != ('git', '-C', '/tmp/tmpa9qtos6g/line')
+
+First differing element 2:
+'/proc/3492931/fd/3'
+'/tmp/tmpa9qtos6g/line'
+
+- ('git', '-C', '/proc/3492931/fd/3')
++ ('git', '-C', '/tmp/tmpa9qtos6g/line') : ('git', '-C', '/proc/3492931/fd/3', 'rev-parse', '--verify', 'refs/baton/checkpoints/line-1/1^{commit}')
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.174s
+
+FAILED (failures=1)
+
+real	0m0.317s
+user	0m0.250s
+sys	0m0.075s

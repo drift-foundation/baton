@@ -1,0 +1,27 @@
+{
+  "work": "W128692",
+  "claim": 128888,
+  "purpose": "pre-implementation four-path baseline; owner128669",
+  "files": [
+    {
+      "path": "src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "66cb3262f0742b8f9d9081169586af1779d7a3a0e91755c82b259395ff710efd",
+      "mode": "0o644"
+    },
+    {
+      "path": "src/baton_v12/checkpoint_profiles.py",
+      "sha256": "ba20b9288f4eab72c078472f725c5f021df6c6342a4445684156b2e6bbee5d38",
+      "mode": "0o644"
+    },
+    {
+      "path": "tests/manager/test_review_cycles.py",
+      "sha256": "06cb3b73998a0d5636b174f72be787cbc50221870686f9af87f8afa86c262a84",
+      "mode": "0o644"
+    },
+    {
+      "path": "tests/manager/test_checkpoint_profiles.py",
+      "sha256": "0938cb6cffac68336ebbec06311bb464c093be626c73d8708908ed0c9241a3f0",
+      "mode": "0o644"
+    }
+  ]
+}

@@ -1,0 +1,427 @@
+{
+  "provider": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.codex",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.codex",
+        "created_ts": "2026-09-08T14:05:52Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-composed-ending-recovery",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 119733
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.codex",
+          "created_ts": "2026-09-08T14:05:52Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-composed-ending-recovery",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 119733
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W71830",
+          "title": "Run a standalone multi-job v12 pipeline"
+        },
+        {
+          "id": "2b077949-W103068",
+          "title": "V12: Compose standalone stage execution"
+        },
+        {
+          "id": "2b077949-W119733",
+          "title": "V12: recover composed endings after terminal cleanup"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "confirmed-defect",
+      "duplicate_of": null,
+      "episode_seq": 119745,
+      "first_open_blocker": "W119548",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W119548",
+        "started_at": "2026-09-08T14:05:59.385Z",
+        "started_seq": 119734,
+        "work": "2b077949-W119548"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W119733",
+      "last_change_seq": 119745,
+      "last_changed_at": "2026-09-08T14:07:32.512Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": {
+              "member": "claude",
+              "participant": "baton.claude",
+              "team": "baton"
+            },
+            "id": "2b077949-W119548",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: no accepted act discharges the runtime-quiescence gate",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W119114",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Prove the composed one-Job lifecycle and retained custody",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W119733",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W103068",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.feat",
+            "handlers": [
+              "codex"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "V12: Compose standalone stage execution"
+        }
+      },
+      "local_id": "W119733",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W119733",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 119746,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "high",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.impl",
+        "handlers": [
+          "claude"
+        ],
+        "role": "impl",
+        "route": "impl"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 119733,
+          "id": "2b077949-T119733",
+          "last_seq": 119733,
+          "new": 1,
+          "subject": "V12: recover composed endings after terminal cleanup"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12: recover composed endings after terminal cleanup",
+      "trials": []
+    },
+    "snapshot_seq": 119746
+  },
+  "consumer": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.codex",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.codex",
+        "created_ts": "2026-09-08T12:41:43Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-composed-one-job-proof",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 119114
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.codex",
+          "created_ts": "2026-09-08T12:41:43Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-composed-one-job-proof",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 119114
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W71830",
+          "title": "Run a standalone multi-job v12 pipeline"
+        },
+        {
+          "id": "2b077949-W103068",
+          "title": "V12: Compose standalone stage execution"
+        },
+        {
+          "id": "2b077949-W119114",
+          "title": "V12: Prove the composed one-Job lifecycle and retained custody"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "design-choice",
+      "duplicate_of": null,
+      "episode_seq": 119746,
+      "first_open_blocker": "W119548",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W119548",
+        "started_at": "2026-09-08T13:49:32.495Z",
+        "started_seq": 119620,
+        "work": "2b077949-W119548"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W119114",
+      "last_change_seq": 119746,
+      "last_changed_at": "2026-09-08T14:07:42.386Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W119113",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12: Complete never-started assembly preparation",
+            "via_obligation": null
+          },
+          {
+            "handler": {
+              "member": "claude",
+              "participant": "baton.claude",
+              "team": "baton"
+            },
+            "id": "2b077949-W119548",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: no accepted act discharges the runtime-quiescence gate",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W119733",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: recover composed endings after terminal cleanup",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W103083",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "codex"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Assemble the standalone stage process",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W119114",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W103068",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.feat",
+            "handlers": [
+              "codex"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "V12: Compose standalone stage execution"
+        }
+      },
+      "local_id": "W119114",
+      "message_count": 5,
+      "my_pending_obligations": 0,
+      "new": 5,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W119114",
+        "overlap": 0,
+        "own": 5,
+        "snapshot_seq": 119747,
+        "subtree_total": 5
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 2,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "high",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.impl",
+        "handlers": [
+          "claude"
+        ],
+        "role": "impl",
+        "route": "impl"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 119114,
+          "id": "2b077949-T119114",
+          "last_seq": 119677,
+          "new": 5,
+          "subject": "V12: Prove the composed one-Job lifecycle and retained custody"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12: Prove the composed one-Job lifecycle and retained custody",
+      "trials": []
+    },
+    "snapshot_seq": 119747
+  }
+}

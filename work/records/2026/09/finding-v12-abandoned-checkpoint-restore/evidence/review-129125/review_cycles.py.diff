@@ -1,0 +1,286 @@
+--- prior/src/baton_v12/worker_manager/review_cycles.py
++++ src/baton_v12/worker_manager/review_cycles.py
+@@ -1938,31 +1938,29 @@
+     return fixed
+ 
+ 
+-def _held_line(store, fixed, profile_name, what):
+-    """The line this recovery already holds, still held and still unmoved.
+-
+-    A resumed call proves the exclusion is STILL HERE rather than taking it
+-    again: the line has not been released to anybody, it still points at the
+-    checkpoint the intent fixed, and its pathname still names the same object.
+-    """
+-    line = line_of(store, fixed["line_id"])
+-    if line["profile_name"] != profile_name:
+-        raise ContractRefusal(
+-            "policy", "profile-uncertified",
+-            f"{what}'s line was materialized by profile "
+-            f"{name_value(line['profile_name'])} and this restore offers "
+-            f"{name_value(profile_name)}")
+-    if line["state"] != "writing" \
+-            or line["current_checkpoint_id"] != fixed["checkpoint_id"]:
+-        raise ContractRefusal(
+-            "refused", "precondition",
+-            f"{what}'s line is {name_value(line['state'])} at checkpoint "
+-            f"{name_value(line['current_checkpoint_id'])}; a resumed recovery "
+-            f"finishes over the exclusion it took and not over one somebody "
+-            f"else has since moved")
+-    _validate_line_object(line)
+-    _sole_attachment(store, line, None, what)
+-    return line
++def _intent_agrees(fixed, writer, line, checkpoint, cleanup, discharge, what):
++    """The committed intent, bound back to the world it named.
++
++    REVIEW 2026-09-09T16:04Z. A retry that adopted its intent and then acted on
++    freshly read rows would be finishing an intent whose writer, line,
++    checkpoint or evidence had moved under it -- which is the same class of
++    defect as trusting a receipt because it is internally consistent.
++    """
++    for member, mine in (("writer_id", writer["writer_id"]),
++                         ("line_id", line["line_id"]),
++                         ("checkpoint_id", checkpoint["checkpoint_id"]),
++                         ("checkpoint_digest", checkpoint["checkpoint_digest"]),
++                         ("runtime_id", cleanup["runtime_id"]),
++                         ("assignment", cleanup["assignment"]),
++                         ("cleanup_operation", cleanup["cleanup"]["operation"]),
++                         ("discharge_operation_id", discharge["operation_id"])):
++        if fixed[member] != mine:
++            raise ContractRefusal(
++                "integrity", "schema",
++                f"{what}'s recorded intent names {member} "
++                f"{name_value(fixed[member])} and the owners now describe "
++                f"{name_value(mine)}; a retry finishes the recovery it began "
++                f"and not one the world has moved out from under")
+ 
+ 
+ def _adopted_correction(value, what, *, operation_id=None, attempt_id=None,
+@@ -2237,9 +2235,31 @@
+         # moved and still points at the checkpoint the intent fixed.
+         fixed = _fixed_intent(store, intent_id, recorded, attempt_id,
+                               generation, retention_policy_digest, what)
+-        writer = writer_of(store, fixed["writer_id"])
+-        line = _held_line(store, fixed, profile_name, what)
++        # REVIEW 2026-09-09T16:04Z: A RETRY IS NOT A SHORTCUT PAST PROVENANCE.
++        # The first cut read the writer row directly and skipped both of
++        # W128682's readers and the verdict entirely, so a retry after a failed
++        # profile call restored a checkout on evidence that had since been
++        # broken. Every unfinished retry re-proves the SAME fixed
++        # relationships, before any effect.
++        cleanup, discharge = _abandoned_evidence(
++            store, attempt_id, generation, retention_policy_digest, what)
++        writer = _abandoned_writer(store, attempt_id, generation, what)
++        line = _restorable_line(store, writer, what)
++        if line["profile_name"] != profile_name:
++            raise ContractRefusal(
++                "policy", "profile-uncertified",
++                f"{what}'s line was materialized by profile "
++                f"{name_value(line['profile_name'])} and this restore offers "
++                f"{name_value(profile_name)}")
++        _sole_attachment(store, line, writer, what)
+         checkpoint = checkpoint_of(store, fixed["checkpoint_id"])
++        _correcting_verdict(store, checkpoint["checkpoint_id"],
++                            line["line_id"], what)
++        # AND THE INTENT IS BOUND BACK TO THE WORLD IT NAMED, so a retry cannot
++        # finish an intent whose writer, line, checkpoint or evidence have
++        # moved under it.
++        _intent_agrees(fixed, writer, line, checkpoint, cleanup, discharge,
++                       what)
+     else:
+         cleanup, discharge = _abandoned_evidence(
+             store, attempt_id, generation, retention_policy_digest, what)
+@@ -2275,89 +2295,11 @@
+                   "cleanup_operation": dict(cleanup["cleanup"]["operation"]),
+                   "discharge_operation_id": discharge["operation_id"]}
+ 
+-        def take(connection):
+-            """Fix what this recovery is for AND take its exclusion, in one
+-            transaction.
+-
+-            The revocation is what makes a second in-flight restorer
+-            impossible: it finds the writer revoked and never reaches the
+-            profile. The line is deliberately NOT moved here -- it stays
+-            `writing`, which admits nobody -- so no successor can be granted
+-            the checkout this act is about to write.
+-            """
+-            current = writer_of(store, writer["writer_id"])
+-            if current["state"] != "active":
+-                raise ContractRefusal(
+-                    "refused", "precondition",
+-                    f"{what}'s writer was revoked while this recovery was "
+-                    f"being proved; the exclusion it needs is somebody "
+-                    f"else's")
+-            connection.execute(
+-                "UPDATE line_writers SET state = 'revoked', revoked_at = ?, "
+-                "revocation_reason = 'abandoned' WHERE writer_id = ? "
+-                "AND state = 'active'", (store._now(), writer["writer_id"]))
+-            return dict(intent)
+-
+         fixed = store.transact(intent_id, RESTORE_INTENT_KIND,
+                                manager_signature(RESTORE_INTENT_KIND, intent),
+-                               take)
++                               lambda connection: dict(intent))
+         fixed = boundaries.document(fixed, f"{what}'s recovery intent",
+                                     required=_RESTORE_INTENT)
+-
+-    # THE LAST THING BEFORE THE DESTRUCTIVE ACT, and review [P1] is why it is
+-    # here rather than only at entry and at completion.
+-    #
+-    # THE INTERLEAVING IT CLOSES. Two restorers both pass the entry checks; one
+-    # completes, the line is released and a SUCCESSOR is admitted; the other is
+-    # still holding a checkout reference and would then reset that successor's
+-    # work. The completion is what releases the line, so both of its
+-    # consequences are read again here: a committed completion means this
+-    # recovery is already finished and answers from history without writing,
+-    # and an ACTIVE WRITER on the line means somebody else now owns the
+-    # checkout -- which is exactly what a successor admitted after a release
+-    # looks like, and what distinguishes it from this recovery's own crash
+-    # retry.
+-    settled = store.operation_record(operation_id)
+-    if settled is not None:
+-        return abandoned_correction_of(store, attempt_id=attempt_id,
+-                                       generation=generation)
+-    _held_line(store, fixed, profile_name, what)
+-
+-    # THE PROFILE ACT, OUTSIDE EVERY TRANSACTION. It verifies the retained
+-    # checkpoint and the exact nominated object before it writes, restores this
+-    # one checkout, and answers only after proving the result is clean and at
+-    # that exact head.
+-    evidence = profile.restore_checkpoint(line["line_path"],
+-                                          checkpoint["evidence"])
+-    # AND AGAIN AFTERWARDS, because the guard above cannot be the last word.
+-    #
+-    # WHAT THIS CANNOT DO, said plainly. Every check this module can make
+-    # happens BEFORE `restore_checkpoint` is called, and a second restorer
+-    # paused inside that call -- past its own guard, before its effect -- is
+-    # not excluded by any of them. Closing that would take either a durable
+-    # in-flight lease, which needs a schema this Work does not own, or an
+-    # admission that consults this recovery's completion record, which means
+-    # changing `grant_writer` and this Work's contract freezes it. The residual
+-    # is reported in the record rather than papered over here.
+-    #
+-    # WHAT THIS DOES DO is refuse to REPORT somebody else's success as this
+-    # call's own. `store.transact` replays a committed result, so a duplicate
+-    # that wrote after the line was released would otherwise return the
+-    # completion another call made and look like an ordinary success.
+-    settled = store.operation_record(operation_id)
+-    if settled is not None:
+-        raise ContractRefusal(
+-            "refused", "operation-collision",
+-            f"{what} completed while this call was restoring its checkout; "
+-            f"this call's restoration ran against a line it no longer held, "
+-            f"and the committed recovery is another call's rather than this "
+-            f"one's")
+-    if evidence != checkpoint["evidence"]:
+-        raise ContractRefusal(
+-            "integrity", "schema",
+-            f"{what}'s restore answered evidence that is not the checkpoint "
+-            f"it was asked to restore; a profile that changed the evidence "
+-            f"restored something else")
+ 
+     # COMPOSED FROM THE FIXED INTENT, so a resumed call and a fresh one answer
+     # the same document rather than two accounts assembled from different
+@@ -2377,31 +2319,63 @@
+     signature = _correction_signature(completed)
+ 
+     def act(connection):
+-        # THE WORLD IS READ AGAIN INSIDE THE WRITE. The profile call is the one
+-        # place this act waits on somebody else, so the exclusion the intent
+-        # took is proved once more here, atomically with the release it
+-        # authorizes.
++        """THE RESTORATION AND THE RELEASE, IN ONE SERIALIZED ACT.
++
++        REVIEW 2026-09-09T16:04Z, and the reviewer's proposal is right where my
++        two previous attempts were not. Neither a declaration nor a check taken
++        moments before the effect can serialize it: a second live restorer and
++        a crashed one both arrive at the same recorded intent, and any guard
++        this module places runs BEFORE the profile is asked to write.
++
++        `store.transact` IS THE SERIALIZATION OWNER AND IT ALREADY HAS WHAT
++        THIS NEEDS. It takes `BEGIN IMMEDIATE`, RE-READS the replay inside that
++        lock, runs this action under a savepoint, and journals and commits
++        together -- so a second identical call blocks, then returns the
++        committed result WITHOUT entering here at all. One restorer writes the
++        checkout, and the release that lets a successor in happens in the same
++        transaction as the write.
++
++        THE TRADEOFF IS REAL AND IS THE REVIEWER'S TO HAVE ACCEPTED: the
++        store's write lock is held across a bounded local restoration.
++
++        A TRANSIENT FAILURE STAYS RETRYABLE. `ProfileRefusal` is not a
++        `ContractRefusal`, so it takes `transact`'s fault branch and the whole
++        transaction rolls back: no completion, no journalled refusal, and the
++        committed intent still standing. Nothing here raises a DURABLE refusal,
++        because a durable one is recorded as a refused row and would turn a
++        transient filesystem fault into a permanent one.
++        """
++        # THE EXCLUSION, RE-PROVED UNDER THE LOCK rather than before it.
+         current_writer = writer_of(store, writer["writer_id"])
+         current_line = line_of(store, line["line_id"])
+-        if current_writer["state"] != "revoked" \
+-                or current_writer["revocation_reason"] != "abandoned" \
++        if current_writer["state"] != "active" \
+                 or current_line["state"] != "writing" \
+                 or current_line["current_checkpoint_id"] \
+                 != checkpoint["checkpoint_id"]:
+             raise ContractRefusal(
+                 "refused", "precondition",
+                 f"{what}'s line no longer holds the exclusion this recovery "
+-                f"took; a restoration does not release a line to a successor "
+-                f"on an exclusion somebody else has since moved")
+-        held = connection.execute(
+-            "SELECT count(*) AS held FROM line_writers WHERE line_id = ? AND "
+-            "state = 'active'", (line["line_id"],)).fetchone()["held"]
+-        if held:
++                f"was proved against; a restoration does not write a checkout "
++                f"somebody else now owns")
++        _sole_attachment(store, current_line, current_writer, what)
++        _validate_line_object(current_line)
++        # THE EFFECT, INSIDE THE SERIALIZED ACT. It verifies the retained
++        # checkpoint and the exact nominated object before it writes, restores
++        # this one checkout, and answers only after proving the result is
++        # clean and at that exact head.
++        evidence = profile.restore_checkpoint(current_line["line_path"],
++                                              checkpoint["evidence"])
++        if evidence != checkpoint["evidence"]:
+             raise ContractRefusal(
+-                "refused", "precondition",
+-                f"{what}'s line acquired an active writer while its checkout "
+-                f"was being restored; a recovery does not complete over an "
+-                f"exclusion it no longer holds")
++                "integrity", "schema",
++                f"{what}'s restore answered evidence that is not the "
++                f"checkpoint it was asked to restore; a profile that changed "
++                f"the evidence restored something else")
++        now = store._now()
++        connection.execute(
++            "UPDATE line_writers SET state = 'revoked', revoked_at = ?, "
++            "revocation_reason = 'abandoned' WHERE writer_id = ? "
++            "AND state = 'active'", (now, writer["writer_id"]))
+         # THE SAME LINE, THE SAME CHECKPOINT AND THE SAME REVISION. Nothing
+         # here freezes anything, and `current_checkpoint_id` is deliberately
+         # not written: it already names this checkpoint, and writing it would
+@@ -2414,7 +2388,22 @@
+             operation_id=operation_id, attempt_id=attempt_id,
+             assignment=fixed["assignment"])
+ 
+-    return store.transact(operation_id, RESTORE_KIND, signature, act)
++    # SAME-CONNECTION REENTRY IS CONTAINED BEFORE THE ACTION RUNS. This store
++    # is one connection, so a `restore_abandoned_correction` reached from
++    # inside a profile runner would be a nested `transact` on it -- which is
++    # not a second transaction and would release the outer act's savepoint.
++    # It is refused here rather than allowed to corrupt the serialization.
++    if getattr(store, "_restoring", None) is not None:
++        raise ContractRefusal(
++            "refused", "operation-collision",
++            f"{what} is already being restored on this connection; a nested "
++            f"restoration is not a second transaction and this boundary does "
++            f"not pretend otherwise")
++    store._restoring = operation_id
++    try:
++        return store.transact(operation_id, RESTORE_KIND, signature, act)
++    finally:
++        store._restoring = None
+ 
+ 
+ def integration_checkpoint(store, line_id):

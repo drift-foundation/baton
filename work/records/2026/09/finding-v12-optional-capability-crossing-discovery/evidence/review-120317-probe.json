@@ -1,0 +1,55 @@
+{
+  "work": "W120204",
+  "claim": 120317,
+  "candidate_sha256": "a4cdff060027f8b87f009fdacaff1af3d01ffe09148dcaf9360cc560bb58831f",
+  "question": "Does callable provenance survive argument side effects and deletion that does not rebind the callable?",
+  "results": {
+    "ordinary": {
+      "source": "\ndef public(session, other):\n    performing = getattr(session, \"release_token\", None)\n    answer = performing(other)\n    return answer[\"kind\"]\n",
+      "crossings": {
+        "release_token": "sample.py:public"
+      },
+      "injected": [
+        [
+          "injected",
+          "sample.py:public",
+          "release_token"
+        ],
+        [
+          "injected",
+          "sample.py:public",
+          "release_token.kind"
+        ]
+      ]
+    },
+    "argument_rebinds_alias": {
+      "source": "\ndef public(session, other):\n    performing = getattr(session, \"release_token\", None)\n    answer = performing((performing := other))\n    return answer[\"kind\"]\n",
+      "crossings": {
+        "release_token": "sample.py:public"
+      },
+      "injected": [
+        [
+          "injected",
+          "sample.py:public",
+          "release_token"
+        ]
+      ]
+    },
+    "delete_attribute_keeps_callable": {
+      "source": "\ndef public(session):\n    performing = getattr(session, \"release_token\", None)\n    del performing.cached\n    return performing({})[\"kind\"]\n",
+      "crossings": {},
+      "injected": []
+    },
+    "delete_subscript_keeps_callable": {
+      "source": "\ndef public(session, other):\n    performing = getattr(session, \"release_token\", None)\n    del other[performing]\n    return performing({})[\"kind\"]\n",
+      "crossings": {},
+      "injected": []
+    },
+    "delete_binding_kills_callable": {
+      "source": "\ndef public(session):\n    performing = getattr(session, \"release_token\", None)\n    del performing\n    return performing({})[\"kind\"]\n",
+      "crossings": {},
+      "injected": []
+    }
+  },
+  "seconds": 0.002401755074970424
+}

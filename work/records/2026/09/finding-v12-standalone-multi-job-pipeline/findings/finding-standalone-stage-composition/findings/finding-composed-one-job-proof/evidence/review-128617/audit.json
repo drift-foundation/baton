@@ -1,0 +1,35 @@
+{
+  "files": [
+    {
+      "path": "tools/stage_execution.py",
+      "sha256": "da339acb16b3a97c8eba9f71aa7c555d0293af50b869cff5a2e869ab8d8fe3ab",
+      "mode": "664"
+    },
+    {
+      "path": "tools/single_worker.py",
+      "sha256": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+      "mode": "664"
+    },
+    {
+      "path": "tests/tools/test_stage_execution.py",
+      "sha256": "a1aca8b195dc0effcf9fbd24a4f65998a50bd302e2533893d146d43978cfd381",
+      "mode": "664"
+    },
+    {
+      "path": "tests/tools/test_single_worker.py",
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "mode": "664"
+    },
+    {
+      "path": "tools/parallel_test.py",
+      "sha256": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+      "mode": "644"
+    }
+  ],
+  "added": [
+    "test_the_corrected_rounds_retained_bytes_reopen_at_their_locator",
+    "test_the_accepted_checkpoint_is_the_corrections_and_its_pin_holds",
+    "UnfinishedWorkIsFencedBeforeAnythingRepeatsIt"
+  ],
+  "prior_test_definitions_AST_unchanged": true
+}

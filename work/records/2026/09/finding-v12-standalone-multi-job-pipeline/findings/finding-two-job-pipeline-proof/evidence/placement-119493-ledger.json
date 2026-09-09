@@ -1,0 +1,936 @@
+{
+  "w71879verify": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.codex",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.codex",
+        "created_ts": "2026-09-02T21:40:36Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 71879
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.codex",
+          "created_ts": "2026-09-02T21:40:36Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 71879
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W71830",
+          "title": "Run a standalone multi-job v12 pipeline"
+        },
+        {
+          "id": "2b077949-W71879",
+          "title": "Prove the standalone two-Job v12 pipeline"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "design-choice",
+      "duplicate_of": null,
+      "episode_seq": 103023,
+      "first_open_blocker": "W103068",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W103068",
+        "started_at": "2026-09-06T16:22:22.563Z",
+        "started_seq": 103075,
+        "work": "2b077949-W103068"
+      },
+      "handler": null,
+      "handoff_at": "2026-09-06T16:13:44Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W71879",
+      "last_change_seq": 103075,
+      "last_changed_at": "2026-09-06T16:22:22.563Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W71875",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Build the persistent v12 Job manager and submit/status API",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W71877",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Schedule concurrent v12 implementation and review stages",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W71878",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Serialize accepted v12 proposals through integration",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W71917",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Mount immutable v12 sources and persistent disk workspaces",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W71918",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Persist v12 review checkpoints and correction lines",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W103068",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.feat",
+              "handlers": [
+                "codex"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Compose standalone stage execution",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W119400",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "codex"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Accept multi-Job deployment composition",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W71830",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.ops",
+              "handlers": [
+                "slaw"
+              ],
+              "role": "approv",
+              "route": "approv"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Run a standalone multi-job v12 pipeline",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W71879",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W71830",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.ops",
+            "handlers": [
+              "slaw"
+            ],
+            "role": "approv",
+            "route": "approv"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "Run a standalone multi-job v12 pipeline"
+        }
+      },
+      "local_id": "W71879",
+      "message_count": 3,
+      "my_pending_obligations": 0,
+      "new": 2,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W71879",
+        "overlap": 0,
+        "own": 2,
+        "snapshot_seq": 119493,
+        "subtree_total": 2
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 2,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": "pending",
+      "priority": "high",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.ops",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 71879,
+          "id": "2b077949-T71879",
+          "last_seq": 115083,
+          "new": 2,
+          "subject": "Prove the standalone two-Job v12 pipeline"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "Prove the standalone two-Job v12 pipeline",
+      "trials": []
+    },
+    "snapshot_seq": 119493
+  },
+  "w119400verify": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.codex",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "add_dependency",
+        "classify",
+        "create_child",
+        "create_trial",
+        "pass",
+        "prioritize",
+        "remove_dependency",
+        "request",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.codex",
+        "created_ts": "2026-09-08T13:19:32Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-multi-job-deployment",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 119400
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.codex",
+          "created_ts": "2026-09-08T13:19:32Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-multi-job-deployment",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 119400
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W71830",
+          "title": "Run a standalone multi-job v12 pipeline"
+        },
+        {
+          "id": "2b077949-W103068",
+          "title": "V12: Compose standalone stage execution"
+        },
+        {
+          "id": "2b077949-W119400",
+          "title": "V12: Accept multi-Job deployment composition"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "limitation",
+      "duplicate_of": null,
+      "episode_seq": 119400,
+      "first_open_blocker": "W119403",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W119403",
+        "started_at": "2026-09-08T13:21:43.650Z",
+        "started_seq": 119421,
+        "work": "2b077949-W119403"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W119400",
+      "last_change_seq": 119421,
+      "last_changed_at": "2026-09-08T13:21:43.650Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W119403",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Compose multiple workers in the deployment pool",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W119405",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Bind each Job to its own deployment and persistent line",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W71879",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.ops",
+              "handlers": [
+                "slaw"
+              ],
+              "role": "approv",
+              "route": "approv"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Prove the standalone two-Job v12 pipeline",
+            "via_obligation": null
+          }
+        ],
+        "contains": [
+          {
+            "handler": null,
+            "id": "2b077949-W119403",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Compose multiple workers in the deployment pool"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W119405",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Bind each Job to its own deployment and persistent line"
+          }
+        ],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W119400",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W103068",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.feat",
+            "handlers": [
+              "codex"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "V12: Compose standalone stage execution"
+        }
+      },
+      "local_id": "W119400",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [
+          {
+            "id": "2b077949-W119403",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W119405",
+            "new": 1
+          }
+        ],
+        "id": "2b077949-W119400",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 119493,
+        "subtree_total": 3
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 2,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "high",
+      "progress": {
+        "children": 2,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.bug",
+        "handlers": [
+          "codex"
+        ],
+        "role": "rview",
+        "route": "rview"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 119400,
+          "id": "2b077949-T119400",
+          "last_seq": 119400,
+          "new": 1,
+          "subject": "V12: Accept multi-Job deployment composition"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12: Accept multi-Job deployment composition",
+      "trials": []
+    },
+    "snapshot_seq": 119493
+  },
+  "w119403verify": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.codex",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.codex",
+        "created_ts": "2026-09-08T13:19:42Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-multi-job-deployment/findings/finding-multi-worker-pool",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 119403
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.codex",
+          "created_ts": "2026-09-08T13:19:42Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-multi-job-deployment/findings/finding-multi-worker-pool",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 119403
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W71830",
+          "title": "Run a standalone multi-job v12 pipeline"
+        },
+        {
+          "id": "2b077949-W103068",
+          "title": "V12: Compose standalone stage execution"
+        },
+        {
+          "id": "2b077949-W119400",
+          "title": "V12: Accept multi-Job deployment composition"
+        },
+        {
+          "id": "2b077949-W119403",
+          "title": "V12: Compose multiple workers in the deployment pool"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "limitation",
+      "duplicate_of": null,
+      "episode_seq": 119424,
+      "first_open_blocker": "W103083",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W103083",
+        "started_at": "2026-09-08T13:21:29.288Z",
+        "started_seq": 119415,
+        "work": "2b077949-W103083"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W119403",
+      "last_change_seq": 119424,
+      "last_changed_at": "2026-09-08T13:22:12.827Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W103083",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "codex"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Assemble the standalone stage process",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W119405",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Bind each Job to its own deployment and persistent line",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W119400",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "codex"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Accept multi-Job deployment composition",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W119403",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W119400",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.bug",
+            "handlers": [
+              "codex"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "V12: Accept multi-Job deployment composition"
+        }
+      },
+      "local_id": "W119403",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W119403",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 119495,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 2,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "high",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.impl",
+        "handlers": [
+          "claude"
+        ],
+        "role": "impl",
+        "route": "impl"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 119403,
+          "id": "2b077949-T119403",
+          "last_seq": 119403,
+          "new": 1,
+          "subject": "V12: Compose multiple workers in the deployment pool"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12: Compose multiple workers in the deployment pool",
+      "trials": []
+    },
+    "snapshot_seq": 119495
+  },
+  "w119405verify": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.codex",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.codex",
+        "created_ts": "2026-09-08T13:19:52Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-multi-job-deployment/findings/finding-per-job-binding",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 119405
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.codex",
+          "created_ts": "2026-09-08T13:19:52Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-multi-job-deployment/findings/finding-per-job-binding",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 119405
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W71830",
+          "title": "Run a standalone multi-job v12 pipeline"
+        },
+        {
+          "id": "2b077949-W103068",
+          "title": "V12: Compose standalone stage execution"
+        },
+        {
+          "id": "2b077949-W119400",
+          "title": "V12: Accept multi-Job deployment composition"
+        },
+        {
+          "id": "2b077949-W119405",
+          "title": "V12: Bind each Job to its own deployment and persistent line"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "limitation",
+      "duplicate_of": null,
+      "episode_seq": 119426,
+      "first_open_blocker": "W119403",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W119403",
+        "started_at": "2026-09-08T13:21:34.925Z",
+        "started_seq": 119416,
+        "work": "2b077949-W119403"
+      },
+      "handler": null,
+      "handoff_at": null,
+      "heartbeat_at": null,
+      "id": "2b077949-W119405",
+      "last_change_seq": 119426,
+      "last_changed_at": "2026-09-08T13:22:19.782Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W119403",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Compose multiple workers in the deployment pool",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W119400",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "codex"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Accept multi-Job deployment composition",
+            "via_obligation": null
+          }
+        ],
+        "contains": [],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W119405",
+        "parent": {
+          "handler": null,
+          "id": "2b077949-W119400",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.bug",
+            "handlers": [
+              "codex"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "V12: Accept multi-Job deployment composition"
+        }
+      },
+      "local_id": "W119405",
+      "message_count": 1,
+      "my_pending_obligations": 0,
+      "new": 1,
+      "new_breakdown": {
+        "children": [],
+        "id": "2b077949-W119405",
+        "overlap": 0,
+        "own": 1,
+        "snapshot_seq": 119497,
+        "subtree_total": 1
+      },
+      "next": null,
+      "obligations": [],
+      "open_blockers": 1,
+      "open_dependents": 1,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": null,
+      "priority": "high",
+      "progress": {
+        "children": 0,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.impl",
+        "handlers": [
+          "claude"
+        ],
+        "role": "impl",
+        "route": "impl"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 119405,
+          "id": "2b077949-T119405",
+          "last_seq": 119405,
+          "new": 1,
+          "subject": "V12: Bind each Job to its own deployment and persistent line"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12: Bind each Job to its own deployment and persistent line",
+      "trials": []
+    },
+    "snapshot_seq": 119497
+  }
+}

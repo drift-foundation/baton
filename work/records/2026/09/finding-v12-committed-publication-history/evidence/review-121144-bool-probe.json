@@ -1,0 +1,42 @@
+{
+  "work": "W120763",
+  "claim": 121144,
+  "sha256": {
+    "src/baton_v12/integration/driver.py": "de88367ab8f0ad3acf65347ea7ef493b649751c6272fdb37b618127403f2a401",
+    "src/baton_v12/integration/__init__.py": "102a47835530c97d5a0ea2f1f127e447ec61b86ddf211c401d9fd82fcc9269bc",
+    "tests/integration/test_driver.py": "b1485eee264b0c8df281730dc5c24c16c85074616f0895901ba93c69f01a949f"
+  },
+  "fixture_limits": "Reuses author's actual retained manifests and publication fixture; frozen_output_of and assignment_of remain its declared stand-ins",
+  "results": {
+    "honest_local_replay": {
+      "accepted": true,
+      "no_writes_or_publisher_calls": true
+    },
+    "receipt_assignment_bool_generation": {
+      "accepted": false,
+      "refused": [
+        "integrity",
+        "schema",
+        "attempt 'attempt-1''s committed publication's assignment's generation is a whole assignment generation, counting from zero; this is true"
+      ]
+    },
+    "published_assignment_bool_generation": {
+      "accepted": false,
+      "refused": [
+        "integrity",
+        "schema",
+        "attempt 'attempt-1''s committed publication's recorded assignment's generation is a whole assignment generation, counting from zero; this is true"
+      ]
+    },
+    "publish_commits_bool_readback": {
+      "accepted": false,
+      "rows": 0,
+      "refused": [
+        "integrity",
+        "schema",
+        "a published proposal's assignment's generation is a whole assignment generation, counting from zero; this is true"
+      ]
+    }
+  },
+  "seconds": 0.02942898601759225
+}

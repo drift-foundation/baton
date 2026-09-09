@@ -1,0 +1,13 @@
+{
+  "claim": 120004,
+  "owner_handoff": 119986,
+  "candidate_sha256": {
+    "tools/codex_copilot_notifier.py": "112e00ecf69bb2a0fae2bf02cfb257e14508435daf4c766b498fd19103f631d9",
+    "tools/test_codex_copilot_notifier.py": "618bc9900d1ed345fdfc27b607525ab4abc2fc40dee9f81c742bf3728e481993",
+    "tools/CODEX-COPILOT-NOTIFIER.md": "c636f56d217a1e1b46d18dba2ad640a8e3e8026711267e71499ecb4ad82ec573"
+  },
+  "operator_artifact_sha256": "29494efcd7aa5f98e72cf6fa7c1fd65dcccf5a9b041fa760376a2864b01b844d",
+  "operator_result": "1 test OK at 2026-09-08 14:43:13 UTC",
+  "same_as_independently_reviewed_candidate": true,
+  "new_test_execution": false
+}

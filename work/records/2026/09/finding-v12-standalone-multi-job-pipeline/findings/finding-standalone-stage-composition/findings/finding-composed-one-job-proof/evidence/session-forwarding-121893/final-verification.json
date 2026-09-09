@@ -1,0 +1,20 @@
+{
+  "reused_initial_passes": 2,
+  "initial_seconds": 0.25557324499823153,
+  "hashes": {
+    "v12/python/tools/single_worker.py": {
+      "base": "5dfd0df1b393f87e6a48e75f0845b266c73d2929e5cd6ad53509e1c02ef9dc27",
+      "candidate": "ff383296aeb75885668d365d3cdc5ff1a280234f5282694acb7f37cc3f4ca47f"
+    },
+    "v12/python/tests/tools/test_single_worker.py": {
+      "base": "95808aee8529d27bab0519f3fe8d45ae4e51507594c4825495530a8882d9af6c",
+      "candidate": "af445808743e15c7a95017b9ef3d685c4b96b0a45a439940cc60a553c8a8aa3b"
+    }
+  },
+  "preserved_existing_code_and_assertions": true,
+  "tests": 1,
+  "successful": true,
+  "output": "test_wrapper_preserves_the_exact_operand_document_and_session_answer (tests.tools.test_single_worker.TheWorkerSessionForwardsGateDischarge.test_wrapper_preserves_the_exact_operand_document_and_session_answer) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.002s\n\nOK\n",
+  "seconds": 0.2584413770819083,
+  "combined_seconds": 0.5140146220801398
+}

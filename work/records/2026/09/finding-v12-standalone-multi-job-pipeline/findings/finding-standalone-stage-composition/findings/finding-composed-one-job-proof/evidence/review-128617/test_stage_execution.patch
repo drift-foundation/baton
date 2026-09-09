@@ -1,0 +1,332 @@
+--- 
++++ 
+@@ -3713,6 +3713,71 @@
+             "lease": lease_of(deployment.integration, runtime.published_assignment(delivery)["lease_id"]),
+             "integration_receipt": ended["detail"]["authority_receipt"], "handoff": handoff,
+             "runtime": attempt_runtime_of(held.control, attempt_id), "work": self.projected()}
++
++    def test_the_corrected_rounds_retained_bytes_reopen_at_their_locator(self):
++        """W119114: the mandatory custody check, on the JOINED chain.
++
++        `TheRetainedResultReopensAfterOrdinaryCleanup` proves this for the
++        first implementation round. What integration actually consumes is the
++        CORRECTION's result, and that round has its own attempt, its own
++        ending and its own retained tree -- so the check is made again over
++        the bytes that carry the accepted proposal, by the same rule: reopen
++        at the RECORDED locator and measure against the digest the intake
++        receipt carries, never a pathname and never a row read back.
++        """
++        from baton_v12.contracts import digest
++        from baton_v12.worker_manager import intake_receipt_of
++
++        held = self.accepted_correction()
++        receipt = intake_receipt_of(held.control, held.corrected)
++        [artifact] = receipt["artifacts"]
++        locator = artifact["custody_locator"]
++        self.assertTrue(locator.startswith("file://"), locator)
++        place = locator[len("file://"):]
++        entries = TheRetainedResultReopensAfterOrdinaryCleanup.measured(place)
++        self.assertTrue(entries, place)
++        self.assertEqual(digest(entries), artifact["content_digest"])
++        # AND IT WAS NEVER INSIDE THE TREE THAT ROUND HAD WRITABLE, asked of
++        # the real mount this attempt's container was started over.
++        writable = os.path.realpath(self.mounted(
++            held.composed, "implementation", held.corrected)["workspace"])
++        self.assertFalse(
++            os.path.realpath(place).startswith(writable + os.sep),
++            f"{place} is inside the writable mount {writable}")
++        self.custody = {"receipt": receipt, "artifact": artifact,
++                        "entries": len(entries), "writable": writable}
++
++    def test_the_accepted_checkpoint_is_the_corrections_and_its_pin_holds(
++            self):
++        """W119114: one line, two rounds, and the pin the integration reads.
++
++        The eligibility the integration stage consumes must name the
++        CORRECTION's checkpoint rather than the round the review sent back,
++        and that checkpoint's pin must still revalidate through the accepted
++        profile over the real repository after both endings have run.
++        """
++        from baton_v12.worker_manager import review_cycles
++
++        held = self.accepted_correction()
++        deployment = self.deployment_of(held)
++        line = deployment.line()
++        accepted = review_cycles.integration_checkpoint(deployment.control,
++                                                        line["line_id"])
++        self.assertIsNotNone(accepted)
++        checkpoint = review_cycles.checkpoint_of(deployment.control,
++                                                 accepted["checkpoint_id"])
++        writer = review_cycles.writer_of(deployment.control,
++                                         checkpoint["writer_id"])
++        self.assertEqual(writer["runtime_attempt_id"], held.corrected)
++        self.assertNotEqual(writer["runtime_attempt_id"], held.attempt_id)
++        # THE PIN IS REOPENED, not read: the profile revalidates it against
++        # the line checkout that survived both rounds' endings.
++        validated = deployment.profile.validate(line["line_path"],
++                                                checkpoint["evidence"])
++        self.assertEqual(validated, checkpoint["evidence"])
++        self.assertEqual(validated["base"], self.base)
++        self.assertGreater(line["revision"], 1)
++        self.pins = {"line": line, "checkpoint": checkpoint, "writer": writer}
+ 
+     def answered_integration(self, *, behavior="import"):
+         held = self.accepted_correction()
+@@ -3974,6 +4039,257 @@
+         self.assertEqual({path: (pathlib.Path(path).read_bytes(), os.stat(path).st_mode) for path in protected}, before)
+         self.assertFalse(os.path.exists(spec["missing_coordinator"]))
+         self.readonly_evidence = json.loads(result.stdout)
++
++
++class UnfinishedWorkIsFencedBeforeAnythingRepeatsIt(ComposedOneJobCase):
++    """W119114's remaining acceptance: safe abandonment of scratch work.
++
++    `RESTART-ACCEPTANCE-2026-09-09.md` asks for one thing W122060's
++    committed-handoff cut does not cover. That cut proves a manager can be
++    reconstructed and finish a handoff it already committed. This asks the
++    other half: a worker that is still THERE, holding a writable mount over
++    the line, with unfinished scratch nobody committed -- stop and fence it,
++    prove the exclusion, and then let a fresh assignment repeat the work from
++    the last committed handoff and its retained checkpoint.
++
++    THE ABANDONMENT IS AN OPERATOR ACT AND IS PERFORMED AS ONE. W44716's
++    `abandon_attempt` says calling it IS the declaration, and
++    `single_worker.conclude` says in as many words that deciding it is not
++    this composition's. So nothing here asks the composition to abandon
++    anything: the declaration is made against the deployment's OWN control
++    store, port and adapter, which is the shape a Route policy or an operator
++    would use, and every consequence is then read back off the ordinary ticks.
++    """
++
++    REPORT = TheComposedJobTraversesReviewAndAcceptance.REPORT
++    reviewed = TheComposedJobTraversesReviewAndAcceptance.reviewed
++    projected = TheComposedJobTraversesReviewAndAcceptance.projected
++    only_attempt_of = TheComposedJobTraversesReviewAndAcceptance.only_attempt_of
++    deployment_of = staticmethod(
++        TheComposedJobTraversesReviewAndAcceptance.deployment_of)
++    tick = TheComposedJobTraversesReviewAndAcceptance.tick
++    REASON = "the correction worker stopped answering and is declared abandoned"
++
++    def committed_handoff(self):
++        """One Job driven to the last committed handoff before a correction.
++
++        The reviewed checkpoint is retained, the Work is back on the producer's
++        route, and the correction round is the thing about to repeat.
++        """
++        from baton_v12.worker_manager import review_cycles
++
++        held = self.reviewed(verdict="changes-requested")
++        self.tick(held)
++        deployment = self.deployment_of(held)
++        line = deployment.line()
++        held.line_id = line["line_id"]
++        held.checkpoint = line["current_checkpoint_id"]
++        self.assertIsNotNone(held.checkpoint)
++        held.frozen = review_cycles.checkpoint_of(deployment.control,
++                                                  held.checkpoint)
++        self.assertEqual(held.frozen["state"], "frozen")
++        held.route = self.projected()["route"]
++        held.publication = stage_execution.publication_for_attempt(
++            held.control, attempt_id=held.attempt_id)
++        return held
++
++    def started_correction(self, held):
++        """The correction round, started and then left unfinished.
++
++        `drive` runs ordinary ticks until the stage is waiting on its worker,
++        which is exactly the state a worker that stopped answering leaves
++        behind: the runtime is attached, the line writer is granted, and the
++        mount is writable.
++        """
++        self.drive(held.job, held.composed, "implementation", "waiting",
++                   ticks=12)
++        held.abandoned = self.only_attempt_of(held.composed, "implementation",
++                                              exclude=held.attempt_id)
++        held.abandoned_roots = self.mounted(held.composed, "implementation",
++                                            held.abandoned)
++        # THE SCRATCH NOBODY COMMITTED. A real abandoned worker leaves bytes in
++        # the tree it had writable; writing one here is what makes "unfinished
++        # work may be lost" a measured claim rather than an empty one.
++        self.write(os.path.join(held.abandoned_roots["workspace"],
++                                "scratch-nobody-committed.py"),
++                   "print('the abandoned round never finished this')\n")
++        return held
++
++    def declare_abandoned(self, held):
++        """The operator's declaration, through the accepted public operation."""
++        from baton_v12 import worker_manager
++        from baton_v12.worker_manager import attempt_runtime_of
++
++        worker = self.worker_of(held.composed, "implementation")
++        state = attempt_runtime_of(held.control, held.abandoned)
++        self.assertIsNotNone(state["runtime_id"])
++        delivery, orphan = worker._credential(held.abandoned, state,
++                                              held.abandoned_roots)
++        adapter = worker._adapter(held.abandoned_roots, delivery, orphan, None)
++        return worker_manager.abandon_attempt(
++            held.control, worker.port, adapter, attempt_id=held.abandoned,
++            reason=self.REASON,
++            retention_policy_digest=self.deployment_of(
++                held).retention_policy_digest)
++
++    def test_the_declaration_fences_the_generation_and_destroys_the_runtime(
++            self):
++        """STOP AND FENCE, read back off the owners rather than the answer."""
++        from baton_v12.worker_manager import (assignment_of,
++                                              attempt_runtime_of)
++
++        held = self.started_correction(self.committed_handoff())
++        before = assignment_of(held.control, held.abandoned)
++        answered = self.declare_abandoned(held)
++        # POSITIVE ABSENCE, IN THE ENGINE'S OWN SENTENCE, and a cleanup that
++        # settled at `retained` -- the ending deletes nothing.
++        self.assertEqual(answered["cleanup"]["state"], "absent")
++        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
++        runtime = attempt_runtime_of(held.control, held.abandoned)
++        self.assertEqual(runtime["execution_runtime"], "destroyed")
++        # THE IDENTITY IS REMEMBERED RATHER THAN CLEARED, and the engine was
++        # really asked to remove that exact one -- which is what makes the
++        # destruction attributable to this runtime rather than to a state
++        # word.
++        self.assertIn(runtime["runtime_id"], self.engine.gone)
++        # THE FENCE IS THE AUTHORITY'S OWN RECORD, replayed through the
++        # operation the declaration itself named, at the exact generation the
++        # abandoned attempt held -- not a generation this fixture chose.
++        fenced = self.deployment_of(held).authority.operation_result(
++            answered["intent"]["authority_operation_id"])
++        self.assertEqual(fenced, answered["fenced"])
++        self.assertTrue(fenced["fenced"])
++        self.assertEqual(fenced["assignment"]["generation"],
++                         before["generation"])
++        # AND THE WORK IS HELD BEHIND THIS ATTEMPT'S OWN QUIESCENCE GATE, so
++        # the exclusion is the Authority's rather than this deployment's
++        # promise: nothing can claim the Work at the fenced generation.
++        self.assertEqual(fenced["phase"], "block")
++        self.assertEqual(fenced["gate"],
++                         "runtime-quiescence:%d" % before["generation"])
++        self.assertEqual(self.projected()["gate"]["token"], fenced["gate"])
++        self.assertEqual(answered["intent"]["reason"], self.REASON)
++        self.assertEqual(answered["intent"]["decision"], "abandoned")
++        self.abandonment = {"answer": answered, "runtime": runtime,
++                            "fence": fenced}
++
++    def test_the_committed_effects_the_declaration_crossed_are_all_intact(
++            self):
++        """REPEATED COMPUTATION IS PERMITTED; COMMITTED EFFECT IS NOT REDONE.
++
++        The reviewed checkpoint, the route the handoff committed and the
++        proposal the implementation round published are all effects that
++        committed BEFORE this attempt existed. An abandonment that disturbed
++        any of them would be losing committed work rather than scratch.
++        """
++        from baton_v12.worker_manager import review_cycles
++
++        held = self.started_correction(self.committed_handoff())
++        self.declare_abandoned(held)
++        deployment = self.deployment_of(held)
++        self.assertEqual(review_cycles.checkpoint_of(deployment.control,
++                                                     held.checkpoint),
++                         held.frozen)
++        self.assertEqual(self.projected()["route"], held.route)
++        self.assertEqual(stage_execution.publication_for_attempt(
++            held.control, attempt_id=held.attempt_id), held.publication)
++
++    def test_the_abandoned_scratch_reaches_no_proposal(self):
++        """WHAT THE ABANDONED WORKER WROTE IS LEFT UNTRUSTED AND UNUSED.
++
++        M33800's rule for all four endings, read at this composition: the
++        declaration freezes nothing and collects nothing, so the bytes that
++        worker left behind never become a candidate.
++        """
++        from baton_v12.worker_manager import review_cycles
++
++        held = self.started_correction(self.committed_handoff())
++        published = stage_execution.publication_for_attempt(
++            held.control, attempt_id=held.abandoned)
++        self.assertIsNone(published)
++        self.declare_abandoned(held)
++        self.assertIsNone(stage_execution.publication_for_attempt(
++            held.control, attempt_id=held.abandoned))
++        line = review_cycles.line_of(self.deployment_of(held).control,
++                                     held.line_id)
++        self.assertEqual(line["current_checkpoint_id"], held.checkpoint)
++
++    def test_no_fresh_assignment_follows_the_declaration_and_why(self):
++        """THE HALF THE ACCEPTANCE IS FOR, AND IT DOES NOT HAPPEN.
++
++        This is the blocking transition, measured rather than asserted, and it
++        is REPORTED rather than worked around: both places that stop it are
++        owned outside this Work's five paths.
++
++        FIRST, THE EPISODE NEVER ENDS. The declaration ends the ATTEMPT -- the
++        runtime is destroyed and the generation fenced -- but nothing ends the
++        stage's live EPISODE. `projection.replaceable` requires an episode that
++        has ended AND ended in `documents.REPLACEABLE_ENDINGS`, which is the
++        single member `abandoned-after-restart`: the ending a manager records
++        when a RESTART cannot account for an offer's bearer. An operator's
++        W44716 declaration is not that ending and produces none, so
++        `manager._replace` never opens a successor, no offer is ever issued,
++        and the stage projects `exceptional` with review and integration
++        blocked behind it. That is the projection behaving exactly as written
++        -- an episode that ended any other way is a stage that stopped, and an
++        operator has to see it -- but nothing then lets the operator restart it.
++
++        SECOND, THE LINE IS STILL HELD. The abandoned attempt's writer is
++        still `active` and the line is still `writing`. `grant_writer` admits a
++        writer only from `idle` or `correction-ready`, and the ONLY thing in
++        this build that revokes a writer is `freeze_checkpoint` -- which an
++        abandoned attempt by definition never reaches. So even given a fresh
++        assignment, the line it must correct is one no writer can be granted
++        on.
++
++        WHAT IS NOT CLAIMED. This does not say the fix belongs in either place
++        specifically; it says the capability the current acceptance asks for
++        does not exist and names the two owners a correction has to reach.
++        This case FAILS when it lands, which is what it is for.
++        """
++        from baton_v12.job_manager import episodes, projection
++        from baton_v12.worker_manager import review_cycles
++
++        held = self.started_correction(self.committed_handoff())
++        deployment = self.deployment_of(held)
++        generation = deployment.generation_of(held.abandoned)
++        self.declare_abandoned(held)
++        for _ in range(4):
++            self.tick(held)
++
++        self.assertEqual(self.states(held.job, held.composed),
++                         {"implementation": "exceptional", "review": "blocked",
++                          "integration": "blocked"})
++        stage_id = "job-a/implementation"
++        live = episodes.live_of(held.job, stage_id)
++        self.assertIsNotNone(live)
++        self.assertIsNone(live["ended_state"])
++        self.assertFalse(projection.replaceable(
++            projection.stage_states(held.job, held.composed)[stage_id]))
++        line = review_cycles.line_of(deployment.control, held.line_id)
++        self.assertEqual(line["state"], "writing")
++        writer = review_cycles.writer_for_attempt(
++            deployment.control, attempt_id=held.abandoned,
++            generation=generation)
++        self.assertEqual(writer["state"], "active")
++        # NO NEW ATTEMPT WAS EVEN PREPARED, so the line's state is not the
++        # first thing in the way -- it is the second.
++        self.assertEqual(
++            sorted(self.worker_of(held.composed,
++                                  "implementation").stage._prepared),
++            sorted([held.attempt_id, held.abandoned]))
++        # AND THIRD, THE WORK ITSELF IS STILL GATED at the fenced generation.
++        # The declaration installs `runtime-quiescence:<generation>` and
++        # nothing discharges it: the ordinary discharge is an ENDING's, and
++        # this attempt has no ending to carry the positive-absence evidence
++        # the gate wants -- even though the abandonment observed exactly that.
++        self.assertEqual(self.projected()["gate"]["token"],
++                         "runtime-quiescence:%d" % generation)
++        self.blocked = {"states": self.states(held.job, held.composed),
++                        "episode": live, "line": line, "writer": writer,
++                        "gate": self.projected()["gate"],
++                        "replaceable_endings":
++                            list(projection.documents.REPLACEABLE_ENDINGS)}
+ 
+ 
+ class TheWrongRouteClaimDefersInsteadOfStoppingTheSweep(ComposedOneJobCase):

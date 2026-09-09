@@ -1,0 +1,38 @@
+{
+  "work": "W120763",
+  "claim": 121029,
+  "interface": "publication_of(manager, *, attempt_id, proposal_manifest_digest) -> owned publication record or None",
+  "operation_kind": "integration.publication",
+  "budget_seconds": {
+    "declared_before_running": 20,
+    "spent": 8.4
+  },
+  "sha256": {
+    "src/baton_v12/integration/driver.py": "92254f2252137f9aaf066088c67cba997bea8b735234e959015621e795bb8467",
+    "src/baton_v12/integration/__init__.py": "102a47835530c97d5a0ea2f1f127e447ec61b86ddf211c401d9fd82fcc9269bc",
+    "tests/integration/test_driver.py": "92c998d562ff4615e05b4b27987639e2467a53c040e0c3be807a5fb8fade424f"
+  },
+  "modes": {
+    "src/baton_v12/integration/driver.py": "664",
+    "src/baton_v12/integration/__init__.py": "664",
+    "tests/integration/test_driver.py": "664"
+  },
+  "commands": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.integration.test_driver.TheCommittedPublicationSurvivesTheProcessThatMadeIt",
+      "result": "12 tests, OK, 0.16s"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.integration.test_driver tests.integration.test_coordinator tests.tools.test_stage_execution tests.manager.test_secrets",
+      "result": "487 tests, OK, 8.0s"
+    }
+  ],
+  "fixture_limits": [
+    "PublicationCase's manager was a SimpleNamespace and is now a real ControlStore, because publication commits a record; both of that class's existing assertions are unchanged.",
+    "TheCommittedPublicationSurvivesTheProcessThatMadeIt replaces frozen_output_of and assignment_of exactly as TheProducerFeedsThePublicationDriver does: the fixture retains real manifests without writing the attempt rows those two read. The proposal manifest, result manifest and publication record are durable and are read back from a reopened store."
+  ],
+  "not_rerun": {
+    "what": "the broad suite and the boundary-inventory baseline",
+    "reason": "no question this provider raises is answered by either; tests.manager.test_secrets was run because a new export can reach its accounting, and it needed none (it scans worker_manager.__all__)."
+  }
+}

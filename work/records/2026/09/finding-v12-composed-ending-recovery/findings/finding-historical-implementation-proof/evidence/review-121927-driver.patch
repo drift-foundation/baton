@@ -1,0 +1,108 @@
+--- 
++++ 
+@@ -726,6 +726,52 @@
+             "checkpoint": checkpoint}
+ 
+ 
++def _typed_assignment(value, what):
++    """The four-part assignment with its member TYPES proved, not just equal.
++
++    W120425 review 2026-09-08T19-29-00Z [P2]. `boundaries.generation` excludes
++    `bool` in its own words -- "a generation of `True` would compare equal to
++    the first one ever minted" -- and that is exactly what an equality check
++    here accepted. Owning the document before comparing it is the fix; a
++    second rule about numbers in this module would not be.
++    """
++    held = boundaries.document(value, what,
++                               required=("work_ref", "participant",
++                                         "generation"))
++    ref = boundaries.document(held["work_ref"], f"{what}'s Work reference",
++                              required=("authority_uuid", "work_id"))
++    boundaries.text(ref["authority_uuid"], f"{what}'s Authority")
++    boundaries.text(ref["work_id"], f"{what}'s Work id")
++    boundaries.text(held["participant"], f"{what}'s participant")
++    boundaries.generation(held["generation"], f"{what}'s generation")
++    return held
++
++
++def _proposal_facts(manifest, what):
++    """The four facts a retained proposal FIXES about its publication.
++
++    W120425 review [P1]. The Authority's answer names a candidate, a target,
++    an input and a policy, and every one of them is the proposal manifest's to
++    say -- so they are read from it. `proposal_head` and `target_revision` are
++    object names, whose `hex` is what a publication carries; taking either from
++    the seam's own answer would be letting one unverified member certify
++    another.
++    """
++    head = boundaries.document(manifest["proposal_head"],
++                               f"{what}'s proposal head",
++                               required=("algorithm", "hex"))
++    target = boundaries.document(manifest["target_revision"],
++                                 f"{what}'s target revision",
++                                 required=("algorithm", "hex"))
++    return {"candidate_digest": boundaries.text(
++                head["hex"], f"{what}'s candidate digest"),
++            "target": boundaries.text(target["hex"], f"{what}'s target"),
++            "input_digest": boundaries.text(
++                manifest["input_manifest_digest"], f"{what}'s input digest"),
++            "policy_digest": boundaries.text(
++                manifest["policy_digest"], f"{what}'s policy digest")}
++
++
+ def _published(control, publication, *, attempt_id, frozen, assignment,
+                what):
+     """The committed publication, as its own owner recorded it.
+@@ -781,6 +827,12 @@
+                 f"{name_value(frozen['result_id'])}; a publication belongs to "
+                 f"the result it was composed from",
+                 code="operation-collision")
++    # THE TYPES BEFORE THE VALUES, on both accounts of the assignment. Review
++    # 2026-09-08T19-29-00Z [P2]: `True == 1` in Python, so at generation 1 a
++    # boolean generation compared equal on the receipt AND on the nested
++    # answer -- and the nested one is what this ending returns. W120763 closed
++    # this inside its own owner; this is the distinct receiving seam.
++    _typed_assignment(held["assignment"], f"{what}'s publication assignment")
+     if held["assignment"] != assignment:
+         _refuse(f"{what}'s publication names another assignment; one "
+                 f"publication belongs to one generation of one Work",
+@@ -812,14 +864,36 @@
+     if manifest["assignment_ref"] != assignment:
+         _refuse(f"{what}'s retained proposal manifest names another "
+                 f"assignment", code="operation-collision")
+-    # AND THE ACTUAL ANSWER THE AUTHORITY GAVE, which is the member no local
+-    # document can re-derive and the one this ending returns.
++    # AND EVERY FACT THE PROPOSAL FIXES, on the receipt and on the answer.
++    # Review [P1]: correlating four members left `candidate_digest`, `target`,
++    # `input_digest` and `policy_digest` unchecked, so substituting any of them
++    # completed a recovery and RETURNED the substituted answer. The retained
++    # manifest owns all four, so they are read from it rather than taken from
++    # one unverified seam member as the expected value for another.
++    fixed_by = _proposal_facts(manifest, what)
++    for member, value in (("candidate_digest", fixed_by["candidate_digest"]),
++                          ("target", fixed_by["target"])):
++        if held[member] != value:
++            _refuse(f"{what}'s publication records {member} "
++                    f"{name_value(held[member])} and its retained proposal "
++                    f"fixes {name_value(value)}",
++                    code="operation-collision")
++    # THE ACTUAL ANSWER THE AUTHORITY GAVE, which is the member no local
++    # document can re-derive and the one this ending returns. Additional
++    # Authority metadata is preserved: this compares the facts the proposal
++    # fixes and does not hold the answer to a closed member set.
+     answered = boundaries.document(held["published"],
+                                    f"{what}'s Authority answer")
++    _typed_assignment(answered.get("assignment_ref"),
++                      f"{what}'s recorded assignment")
+     for member, value in (("proposal_id", held["proposal_id"]),
+                           ("result_id", frozen["result_id"]),
+                           ("result_digest", frozen["manifest_digest"]),
+-                          ("assignment_ref", assignment)):
++                          ("assignment_ref", assignment),
++                          ("candidate_digest", fixed_by["candidate_digest"]),
++                          ("target", fixed_by["target"]),
++                          ("input_digest", fixed_by["input_digest"]),
++                          ("policy_digest", fixed_by["policy_digest"])):
+         if answered.get(member) != value:
+             _refuse(f"{what}'s recorded Authority answer disagrees about "
+                     f"{member}", code="operation-collision")

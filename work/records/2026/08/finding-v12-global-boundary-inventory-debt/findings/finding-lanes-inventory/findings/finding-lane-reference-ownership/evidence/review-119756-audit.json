@@ -1,0 +1,59 @@
+{
+  "claim": 119756,
+  "candidate_hashes": {
+    "v12/python/src/baton_v12/worker_manager/lanes.py": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c",
+    "v12/python/tests/manager/test_runtime_lane.py": "291915203a8321824f96c26bde2b50b09911396be047b2bab3628d90299e7a06"
+  },
+  "base_hashes": {
+    "v12/python/src/baton_v12/worker_manager/lanes.py": "72fa035958dbd4f1c08b4824aa4fff3fe5178f94790e550224f72fcc0c08f285",
+    "v12/python/tests/manager/test_runtime_lane.py": "1e2af4580ba224ccdbb4524855073abe16b9e72f114a6bd9fed8bfc0fe0a714f"
+  },
+  "other_source_ast_unchanged": true,
+  "existing_methods_unchanged": 36,
+  "added_test_methods": [
+    "ThePublicLaneReferenceOwnsItsInput.test_the_minimal_valid_input_answers_the_unchanged_projection",
+    "ThePublicLaneReferenceOwnsItsInput.test_a_complete_active_attempt_row_is_still_accepted_whole",
+    "ThePublicLaneReferenceOwnsItsInput.test_the_answer_is_a_fresh_document_the_caller_cannot_reach_back_into",
+    "ThePublicLaneReferenceOwnsItsInput.test_a_well_shaped_unactivated_input_keeps_its_precondition_refusal",
+    "ThePublicLaneReferenceOwnsItsInput.test_a_real_unactivated_row_with_null_parts_refuses_the_same_way",
+    "ThePublicLaneReferenceOwnsItsInput.test_a_non_document_is_refused_rather_than_subscripted",
+    "ThePublicLaneReferenceOwnsItsInput.test_an_empty_document_names_every_member_it_needs",
+    "ThePublicLaneReferenceOwnsItsInput.test_each_required_member_is_named_when_it_is_the_missing_one",
+    "ThePublicLaneReferenceOwnsItsInput.test_a_malformed_consumed_member_refuses_instead_of_travelling",
+    "ThePublicLaneReferenceOwnsItsInput.test_unstorable_text_is_refused_where_the_document_is_owned",
+    "ThePublicLaneReferenceOwnsItsInput.test_a_malformed_attempt_id_refuses_on_the_inactive_branch_too",
+    "ThePublicLaneReferenceOwnsItsInput.test_a_malformed_member_beats_the_inactive_refusal",
+    "ThePublicLaneReferenceOwnsItsInput.test_known_attempt_metadata_is_optional_and_not_an_error",
+    "ThePublicLaneReferenceOwnsItsInput.test_a_member_this_build_does_not_name_is_refused",
+    "ThePublicLaneReferenceOwnsItsInput.test_an_activated_input_missing_a_reference_part_is_refused",
+    "ThePublicLaneReferenceOwnsItsInput.test_each_consumed_member_is_held_to_its_own_column_rule",
+    "ThePublicLaneReferenceOwnsItsInput.test_every_consumed_member_stays_visible_to_the_inventory",
+    "ThePublicLaneReferenceOwnsItsInput.test_the_projection_touches_no_store_and_no_lane",
+    "TheValidatedBoundaryLeavesEveryLifecycleCallerAlone.test_a_start_still_occupies_the_lane_through_the_validated_input",
+    "TheValidatedBoundaryLeavesEveryLifecycleCallerAlone.test_the_public_projection_still_reads_the_same_lane",
+    "TheValidatedBoundaryLeavesEveryLifecycleCallerAlone.test_cleanup_still_releases_the_lane_through_the_same_helper"
+  ],
+  "hostile_probes": [
+    {
+      "category": "integrity",
+      "code": "schema"
+    },
+    {
+      "category": "integrity",
+      "code": "schema"
+    },
+    {
+      "category": "integrity",
+      "code": "schema"
+    }
+  ],
+  "caller_hooks": [],
+  "retained_failure_lists_identical": true,
+  "failure_list_sha256": "fe1c51bd5498d73c98d798963df9a61323453c35988adda1cd544f5ca358c7d0",
+  "verification": {
+    "command": "PYTHONPATH=.:src python3 -m unittest tests.manager.test_runtime_lane",
+    "tests": 50,
+    "seconds": 0.46,
+    "result": "OK"
+  }
+}

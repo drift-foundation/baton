@@ -1,0 +1,550 @@
+--- base/tests/manager/test_review_cycles.py
++++ tests/manager/test_review_cycles.py
+@@ -18,7 +18,10 @@
+                                       review_for_attempt, review_of,
+                                       verdict_of, writer_boundary,
+                                       writer_for_attempt, writer_of)
+-from baton_v12.worker_manager.review_cycles import ATTACH_KIND, GRANT_KIND
++from baton_v12.worker_manager.review_cycles import (ATTACH_KIND, GRANT_KIND,
++                                                     RESTORE_KIND,
++                                                     abandoned_correction_of,
++                                                     restore_abandoned_correction)
+ from baton_v12.worker_manager.source_boundary import (adopt_source_boundary,
+                                                        boundary_mounts,
+                                                        compose_runtime_storage_boundary,
+@@ -60,6 +63,7 @@
+         self.freeze_calls = []
+         self.materialize_calls = 0
+         self.current_revision = None
++        self.restore_calls = []
+ 
+     def materialize(self, source, repository, declared_base):
+         self.materialize_calls += 1
+@@ -89,6 +93,22 @@
+             raise ContractRefusal("policy", "profile-uncertified",
+                                   "the line no longer matches this checkpoint")
+         return dict(evidence)
++
++    # W128692: the capability the abandoned-correction restore requires.
++    # ADDITIVE, and it models exactly what the real profile does: the
++    # checkpoint is verified before any write, the ONE nominated checkout is
++    # put back on it, and the same evidence is answered only after a
++    # `current=True` validation succeeds. `restore_refusal` is how a case asks
++    # for a failed restoration without reaching a real filesystem.
++    restore_refusal = None
++
++    def restore_checkpoint(self, repository, evidence):
++        self.restore_calls.append((repository, dict(evidence)))
++        self.validate(repository, evidence)
++        if self.restore_refusal is not None:
++            raise self.restore_refusal
++        self.current_revision = int(evidence["head"], 16)
++        return self.validate(repository, evidence, current=True)
+ 
+ 
+ class ReviewCycles(unittest.TestCase):
+@@ -1850,3 +1870,504 @@
+         for reader in (writer_for_attempt, review_for_attempt):
+             with self.assertRaises(TypeError):
+                 reader(self.store, "writer-attempt-1", 1)
++
++
++RETENTION = "sha256:" + "7" * 64
++OTHER_POLICY = "sha256:" + "9" * 64
++
++
++class AbandoningPort:
++    """The deployment seam an abandonment and its gate discharge cross.
++
++    W128692. It answers the three closed documents those accepted operations
++    own -- the authority's cancellation fence, its Work projection and its
++    gate-discharge reply -- and decides nothing else. The two rules it models
++    are the authority's own: the gate token must be the one holding the Work,
++    and an operation identity that already committed replays its answer.
++    """
++
++    def __init__(self, participant, *, authority_uuid, work_id):
++        self.participant = participant
++        self.authority_uuid = authority_uuid
++        self.work_id = work_id
++        self.gate = None
++        self.calls = []
++        self.discharged = {}
++
++    def cancel(self, expect, operation_id, reason, work_id, authority_uuid):
++        self.calls.append(("cancel", operation_id))
++        self.gate = f"runtime-quiescence:{expect['generation']}"
++        return {"cause": "cancelled", "assignment": dict(expect),
++                "phase": "block", "gate": self.gate, "fenced": True}
++
++    def project_work(self, work_id):
++        self.calls.append(("project_work", work_id))
++        return {"authority_uuid": self.authority_uuid, "work_id": work_id}
++
++    def satisfy_gate(self, work_id, operation_id, gate, evidence):
++        self.calls.append(("satisfy_gate", operation_id))
++        held = self.discharged.get(operation_id)
++        if held is not None:
++            return dict(held)
++        if self.gate != gate:
++            raise ContractRefusal("refused", "precondition",
++                                  "that gate is not the one holding this Work")
++        answer = {"gate": gate, "kind": "runtime-absent", "phase": "queued"}
++        self.discharged[operation_id] = answer
++        self.gate = None
++        return dict(answer)
++
++
++class Custodian:
++    """The adapter seam an abandonment removes and normalizes through."""
++
++    custodian_image_digest = "sha256:" + "c" * 64
++
++    def __init__(self):
++        self.abandoned_with = []
++        self.normalized = []
++
++    def normalize_directory(self, store, *, assignment_id, which):
++        from baton_v12.worker_manager import custody
++
++        self.normalized.append((assignment_id, which))
++        return custody._answered(
++            "normalize", 0,
++            {"custody": "normalize", "entries": 0, "not_ours": 0,
++             "running_as": [0, 0]}, None)
++
++    def destroy_abandoned(self, command):
++        self.abandoned_with.append(dict(command))
++        return {"runtime_id": command["runtime_id"], "state": "absent",
++                "why": "the engine answered that this exact identity does not "
++                       "exist",
++                "credentials": {"lifecycle_state": "not-delivered"},
++                "launch": {"lifecycle_state": "not-delivered"}}
++
++
++class AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint(ReviewCycles):
++    """W128692: give a declared abandoned correction's line back.
++
++    W119114's composed proof measured what an operator declaration leaves: the
++    runtime is destroyed and the generation fenced, and the LINE is still
++    `writing` with the abandoned attempt's writer still `active`. Nothing but
++    `freeze_checkpoint` revokes a writer, and an abandoned correction never
++    reaches one -- so no successor could ever be granted the line.
++
++    EVERYTHING BELOW GOES THROUGH ACCEPTED PUBLIC OPERATIONS. The abandonment
++    is W128682's `abandon_attempt` and its gate discharge is that provider's
++    own `discharge_abandoned_quiescence_gate`; nothing here writes either
++    provider's rows or derives either provider's identities.
++    """
++
++    REASON = "the correction worker stopped answering and is declared abandoned"
++
++    def corrected(self):
++        """One line through round one, reviewed changes-requested, with a
++        second writer granted and then left unfinished."""
++        line = self.line()
++        first = self.writer(line["line_id"], 1)
++        checkpoint = self.freeze(first, 1)
++        review = self.review(checkpoint["checkpoint_id"], 1)
++        self.verdict(review, 1, "changes-requested")
++        writer = self.writer(line["line_id"], 2,
++                             based=checkpoint["checkpoint_id"])
++        self.line_id = line["line_id"]
++        self.checkpoint = checkpoint
++        self.writer_row = writer
++        self.abandoned_attempt = "writer-attempt-2"
++        return writer
++
++    def running(self, attempt_id):
++        """The attempt as an abandonment finds it: a runtime attached, no
++        worker answer and nothing accounted for."""
++        self.store._connection.execute(
++            "UPDATE attempts SET runtime_id = ?, execution_runtime = 'running' "
++            "WHERE runtime_attempt_id = ?", ("runtime-" + attempt_id,
++                                             attempt_id))
++
++    def abandonment_port(self):
++        return self.ports.setdefault(
++            "abandon", AbandoningPort("baton.impl", authority_uuid=AUTHORITY,
++                                      work_id=WORK))
++
++    def abandoned(self, *, discharge=True, policy=RETENTION):
++        from baton_v12.worker_manager import (abandon_attempt,
++                                              discharge_abandoned_quiescence_gate)
++
++        self.corrected()
++        self.running(self.abandoned_attempt)
++        port = self.abandonment_port()
++        self.custodian = Custodian()
++        abandon_attempt(self.store, port, self.custodian,
++                        attempt_id=self.abandoned_attempt, reason=self.REASON,
++                        retention_policy_digest=policy)
++        if discharge:
++            discharge_abandoned_quiescence_gate(
++                self.store, port, attempt_id=self.abandoned_attempt,
++                retention_policy_digest=policy)
++        return self.writer_row
++
++    def restore(self, **overrides):
++        operands = {"attempt_id": self.abandoned_attempt, "generation": 2,
++                    "retention_policy_digest": RETENTION,
++                    "profile": self.profile}
++        operands.update(overrides)
++        return restore_abandoned_correction(self.store, **operands)
++
++    def refused(self, act=None, **overrides):
++        with self.assertRaises(ContractRefusal) as caught:
++            (act or self.restore)(**overrides)
++        return caught.exception
++
++    def admit(self, round_number=3):
++        """A fresh assignment asking for the line the recovery gave back.
++
++        The attempt row is made once: a case that asks for admission before
++        AND after the restore is asking the same successor twice, not two
++        successors.
++        """
++        attempt = f"writer-attempt-{round_number}"
++        held = self.store._connection.execute(
++            "SELECT 1 FROM attempts WHERE runtime_attempt_id = ?",
++            (attempt,)).fetchone()
++        if held is None:
++            self.attempt(attempt, round_number, "baton.impl",
++                         f"writer-{round_number}")
++        return grant_writer(self.store, line_id=self.line_id,
++                            attempt_id=attempt, generation=round_number,
++                            worker_id=f"worker-{round_number}",
++                            profile=self.profile,
++                            based_checkpoint_id=self.checkpoint[
++                                "checkpoint_id"])
++
++    # -- the recovery -------------------------------------------------------
++
++    def test_the_line_comes_back_correction_ready_at_the_same_checkpoint(self):
++        writer = self.abandoned()
++        # THE STATE THE DEFECT LEAVES, measured before the act rather than
++        # asserted about it.
++        self.assertEqual(line_of(self.store, self.line_id)["state"], "writing")
++        self.assertEqual(writer_of(self.store,
++                                   writer["writer_id"])["state"], "active")
++
++        answered = self.restore()
++
++        self.assertEqual(answered["schema"], "baton.v12.abandoned-correction/1")
++        self.assertEqual(answered["state"], "correction-ready")
++        self.assertEqual(answered["writer_id"], writer["writer_id"])
++        self.assertEqual(answered["line_id"], self.line_id)
++        self.assertEqual(answered["checkpoint_id"],
++                         self.checkpoint["checkpoint_id"])
++        line = line_of(self.store, self.line_id)
++        self.assertEqual(line["state"], "correction-ready")
++        self.assertEqual(line["current_checkpoint_id"],
++                         self.checkpoint["checkpoint_id"])
++        self.assertEqual(writer_of(self.store,
++                                   writer["writer_id"])["state"], "revoked")
++
++    def test_the_scratch_is_discarded_to_that_exact_checkpoint(self):
++        """The profile is asked to restore the checkpoint the writer was BASED
++        on, over the line's own checkout and nothing else."""
++        self.abandoned()
++        self.restore()
++        [(repository, evidence)] = self.profile.restore_calls
++        self.assertEqual(repository,
++                         line_of(self.store, self.line_id)["line_path"])
++        self.assertEqual(evidence, self.checkpoint["evidence"])
++
++    def test_the_pin_the_revision_and_the_checkpoint_are_all_unmoved(self):
++        """A recovery returns the SAME line to its retained checkpoint; it
++        freezes nothing and moves no pin."""
++        self.abandoned()
++        before = line_of(self.store, self.line_id)
++        checkpoint = checkpoint_of(self.store,
++                                   self.checkpoint["checkpoint_id"])
++        self.restore()
++        after = line_of(self.store, self.line_id)
++        self.assertEqual(after["revision"], before["revision"])
++        self.assertEqual(after["current_checkpoint_id"],
++                         before["current_checkpoint_id"])
++        self.assertEqual(checkpoint_of(self.store,
++                                       self.checkpoint["checkpoint_id"]),
++                         checkpoint)
++        self.assertEqual(self.profile.freeze_calls,
++                         [(before["line_path"], 1)])
++
++    def test_a_fresh_assignment_can_then_be_granted_the_line(self):
++        """THE WHOLE POINT, and it is the transition W119114 measured as
++        impossible."""
++        self.abandoned()
++        self.assertEqual(self.refused(self.admit).category, "refused")
++        self.restore()
++        granted = self.admit()
++        self.assertEqual(granted["state"], "active")
++        self.assertEqual(line_of(self.store, self.line_id)["state"], "writing")
++
++    # -- the exclusion, before any write ------------------------------------
++
++    def test_two_active_writers_cannot_exist_for_this_act_to_find(self):
++        """MEASURED, and it changes what the guard is FOR.
++
++        I wrote a case that inserted a second active writer and expected the
++        recovery to refuse. The store will not have it: `line_one_active_writer`
++        is a partial unique index on `line_writers(line_id) WHERE state =
++        'active'`, so the state the guard describes cannot be constructed at
++        all. The guard therefore is not this act's protection against a second
++        writer -- the index is -- and it stays as the place this act states
++        the rule it depends on. That is stated here rather than left implied
++        by an untestable branch.
++        """
++        self.abandoned()
++        with self.assertRaises(sqlite3.IntegrityError):
++            self.store._connection.execute(
++                "INSERT INTO line_writers (writer_id, line_id, "
++                "runtime_attempt_id, assignment_generation, worker_id, "
++                "participant, principal, based_checkpoint_id, state, "
++                "granted_at) VALUES ('writer-other', ?, 'writer-attempt-2', "
++                "2, 'worker-other', 'baton.impl', 'other', NULL, 'active', ?)",
++                (self.line_id, NOW))
++        # AND THE GUARD IS STILL EXERCISED, from the other side: a recovery
++        # whose own writer is not the line's active one refuses.
++        self.store._connection.execute(
++            "UPDATE line_writers SET state = 'revoked', revoked_at = ?, "
++            "revocation_reason = 'checkpoint' WHERE writer_id = ?",
++            (NOW, self.writer_row["writer_id"]))
++        refusal = self.refused()
++        self.assertEqual(refusal.category, "refused")
++        self.assertEqual(self.profile.restore_calls, [])
++        self.assertIsNone(abandoned_correction_of(
++            self.store, attempt_id=self.abandoned_attempt, generation=2))
++
++    def test_a_live_review_attachment_refuses_before_the_profile_is_asked(self):
++        """A restore discards the whole checkout, and doing that under a live
++        review would destroy what is being reviewed."""
++        self.abandoned()
++        self.attempt("review-attempt-9", 9, "baton.review", "reviewer-9")
++        self.store._connection.execute(
++            "INSERT INTO review_attachments (attachment_id, line_id, "
++            "checkpoint_id, runtime_attempt_id, assignment_generation, "
++            "reviewer_worker_id, reviewer_participant, reviewer_principal, "
++            "state, attached_at) VALUES ('attachment-other', ?, ?, "
++            "'review-attempt-9', 9, 'w', 'baton.review', 'p', 'active', ?)",
++            (self.line_id, self.checkpoint["checkpoint_id"], NOW))
++        refusal = self.refused()
++        self.assertIn("active review attachment", refusal.message)
++        self.assertEqual(self.profile.restore_calls, [])
++
++    def test_a_revoked_writer_has_no_correction_to_restore(self):
++        """A revoked writer is what a round that REACHED its checkpoint leaves
++        behind, and there is nothing to give back for one.
++
++        Reached by removing the COMPLETION rather than by calling the act
++        twice: a second call is the replay, which is a different case and is
++        covered as one.
++        """
++        self.abandoned()
++        answered = self.restore()
++        self.store._connection.execute(
++            "DELETE FROM operations WHERE operation_id = ?",
++            (answered["operation_id"],))
++        refusal = self.refused()
++        self.assertEqual(refusal.category, "refused")
++        self.assertIn("revoked", refusal.message)
++
++    # -- what the evidence has to say ---------------------------------------
++
++    def test_no_committed_abandonment_is_not_a_restore(self):
++        self.corrected()
++        refusal = self.refused()
++        self.assertEqual((refusal.category, refusal.code),
++                         ("refused", "precondition"))
++        self.assertIn("never behind the absence of one", refusal.message)
++        self.assertEqual(self.profile.restore_calls, [])
++
++    def test_an_undischarged_gate_is_not_a_restore(self):
++        """The generation is still held at the authority, and a checkout is
++        not restored for a successor that cannot be assigned."""
++        self.abandoned(discharge=False)
++        refusal = self.refused()
++        self.assertEqual((refusal.category, refusal.code),
++                         ("refused", "precondition"))
++        self.assertIn("runtime-quiescence", refusal.message)
++        self.assertEqual(self.profile.restore_calls, [])
++
++    def test_another_generation_or_policy_selects_no_abandonment(self):
++        """The two are different refusals and the difference is real: a wrong
++        GENERATION selects a committed abandonment that is about another
++        fenced generation, while a wrong POLICY selects an act this manager
++        never committed at all."""
++        self.abandoned()
++        stale = self.refused(generation=1)
++        self.assertEqual((stale.category, stale.code),
++                         ("stale-assignment", "generation"))
++        missing = self.refused(retention_policy_digest=OTHER_POLICY)
++        self.assertEqual((missing.category, missing.code),
++                         ("refused", "precondition"))
++        self.assertEqual(self.profile.restore_calls, [])
++
++    def test_another_profile_cannot_restore_this_line(self):
++        self.abandoned()
++
++        class Foreign(type(self.profile)):
++            name = "another-profile"
++
++        foreign = Foreign()
++        foreign.held = self.profile.held
++        foreign.current_revision = self.profile.current_revision
++        refusal = self.refused(profile=foreign)
++        self.assertEqual((refusal.category, refusal.code),
++                         ("policy", "profile-uncertified"))
++        self.assertEqual(foreign.restore_calls, [])
++
++    # -- interruption, replay and concurrency --------------------------------
++
++    def test_a_failed_restoration_admits_nobody(self):
++        self.abandoned()
++        self.profile.restore_refusal = ContractRefusal(
++            "policy", "profile-uncertified", "the checkout could not be reset")
++        self.assertEqual(self.refused().code, "profile-uncertified")
++        # THE EXCLUSION IS EXACTLY WHERE IT WAS.
++        self.assertEqual(line_of(self.store, self.line_id)["state"], "writing")
++        self.assertEqual(
++            writer_of(self.store, self.writer_row["writer_id"])["state"],
++            "active")
++        self.assertIsNone(abandoned_correction_of(
++            self.store, attempt_id=self.abandoned_attempt, generation=2))
++        self.assertEqual(self.refused(self.admit).category, "refused")
++
++    def test_an_interrupted_restore_finishes_under_the_same_exclusion(self):
++        """The intent commits before the profile act, so a crash between them
++        leaves a recorded intent with no completion -- which is exactly what a
++        retry has to find."""
++        self.abandoned()
++        self.profile.restore_refusal = ContractRefusal(
++            "policy", "profile-uncertified", "interrupted")
++        self.refused()
++        self.profile.restore_refusal = None
++        answered = self.restore()
++        self.assertEqual(answered["state"], "correction-ready")
++        self.assertEqual(len(self.profile.restore_calls), 2)
++        self.assertEqual(line_of(self.store, self.line_id)["state"],
++                         "correction-ready")
++
++    def test_a_completed_recovery_replays_without_touching_the_checkout(self):
++        """A second call answers from the journal. It does not reset a
++        checkout a later writer may now hold, which is why the completed
++        record exists at all."""
++        self.abandoned()
++        first = self.restore()
++        self.admit()
++        self.assertEqual(line_of(self.store, self.line_id)["state"], "writing")
++        calls = len(self.profile.restore_calls)
++        self.assertEqual(self.restore(), first)
++        self.assertEqual(len(self.profile.restore_calls), calls)
++        self.assertEqual(line_of(self.store, self.line_id)["state"], "writing")
++
++    def test_a_replay_naming_another_policy_collides(self):
++        self.abandoned()
++        first = self.restore()
++        refusal = self.refused(retention_policy_digest=OTHER_POLICY)
++        self.assertEqual((refusal.category, refusal.code),
++                         ("refused", "operation-collision"))
++        self.assertEqual(abandoned_correction_of(
++            self.store, attempt_id=self.abandoned_attempt, generation=2),
++            first)
++
++    def test_a_second_recovery_creates_no_second_writer_or_revocation(self):
++        self.abandoned()
++        first = self.restore()
++        revoked = writer_of(self.store, self.writer_row["writer_id"])
++        self.assertEqual(self.restore(), first)
++        self.assertEqual(writer_of(self.store,
++                                   self.writer_row["writer_id"]), revoked)
++        held = self.store._connection.execute(
++            "SELECT count(*) AS n FROM line_writers WHERE line_id = ?",
++            (self.line_id,)).fetchone()["n"]
++        self.assertEqual(held, 2)
++
++    def test_an_admission_during_the_restore_stops_the_completion(self):
++        """The profile call is the one place this act waits on somebody else,
++        so the exclusion is proved again inside the write that depends on it."""
++        self.abandoned()
++        original = self.profile.restore_checkpoint
++
++        def racing(repository, evidence):
++            answered = original(repository, evidence)
++            self.store._connection.execute(
++                "UPDATE review_lines SET state = 'reviewing' WHERE line_id = ?",
++                (self.line_id,))
++            return answered
++
++        self.profile.restore_checkpoint = racing
++        refusal = self.refused()
++        self.assertEqual(refusal.category, "refused")
++        self.assertIn("no longer holds", refusal.message)
++        self.assertIsNone(abandoned_correction_of(
++            self.store, attempt_id=self.abandoned_attempt, generation=2))
++
++    # -- the reader ----------------------------------------------------------
++
++    def test_the_reader_answers_absence_and_then_history(self):
++        self.abandoned()
++        self.assertIsNone(abandoned_correction_of(
++            self.store, attempt_id=self.abandoned_attempt, generation=2))
++        answered = self.restore()
++        self.assertEqual(abandoned_correction_of(
++            self.store, attempt_id=self.abandoned_attempt, generation=2),
++            answered)
++        self.assertIsNone(abandoned_correction_of(
++            self.store, attempt_id=self.abandoned_attempt, generation=1))
++
++    def test_the_reader_still_answers_after_the_line_advances(self):
++        """A completed recovery is a fact about one attempt's generation, and
++        it stays true after a later writer holds the line and a later
++        checkpoint is frozen. It does NOT claim the line is correction-ready
++        now."""
++        self.abandoned()
++        answered = self.restore()
++        granted = self.admit()
++        self.freeze(granted, 3)
++        self.assertEqual(abandoned_correction_of(
++            self.store, attempt_id=self.abandoned_attempt, generation=2),
++            answered)
++        self.assertNotEqual(line_of(self.store, self.line_id)["state"],
++                            "correction-ready")
++
++    def test_a_record_edited_member_by_member_refuses(self):
++        self.abandoned()
++        answered = self.restore()
++        operation_id = answered["operation_id"]
++        spoiled = dict(answered, line_id="line-somebody-else")
++        self.store._connection.execute(
++            "UPDATE operations SET result = ? WHERE operation_id = ?",
++            (json.dumps(spoiled), operation_id))
++        refusal = self.refused(
++            lambda: abandoned_correction_of(
++                self.store, attempt_id=self.abandoned_attempt, generation=2))
++        self.assertEqual((refusal.category, refusal.code),
++                         ("integrity", "schema"))
++        self.assertIn("ONE signed relationship", refusal.message)
++
++    def test_a_record_committed_under_another_kind_refuses(self):
++        self.abandoned()
++        answered = self.restore()
++        self.store._connection.execute(
++            "UPDATE operations SET kind = ? WHERE operation_id = ?",
++            (GRANT_KIND, answered["operation_id"]))
++        refusal = self.refused(
++            lambda: abandoned_correction_of(
++                self.store, attempt_id=self.abandoned_attempt, generation=2))
++        self.assertEqual((refusal.category, refusal.code),
++                         ("integrity", "schema"))
++        self.assertEqual(RESTORE_KIND, "review-line.restore-abandoned")
++
++    def test_the_reader_performs_no_profile_or_authority_act(self):
++        self.abandoned()
++        self.restore()
++        calls = list(self.abandonment_port().calls)
++        restores = len(self.profile.restore_calls)
++        abandoned_correction_of(self.store, attempt_id=self.abandoned_attempt,
++                                generation=2)
++        self.assertEqual(self.abandonment_port().calls, calls)
++        self.assertEqual(len(self.profile.restore_calls), restores)

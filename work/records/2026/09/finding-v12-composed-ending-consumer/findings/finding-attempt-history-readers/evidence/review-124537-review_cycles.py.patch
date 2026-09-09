@@ -1,0 +1,112 @@
+--- 
++++ 
+@@ -283,6 +283,14 @@
+                    "worker_id", "profile_name", "participant", "principal",
+                    "based_checkpoint_id")
+ _GRANT_RESULT = ("writer_id", "line_id", "generation", "state")
++# W124331 review 2026-09-09T03:14Z [P1]. THE STATE EACH ACT RETURNS, which is
++# not the state its row is in later. A grant returns `active` and an
++# attachment returns `active`; the row afterwards is `revoked` and `ended`,
++# and those are different statements about different objects. The result is
++# the act's own frozen account of what it did, so its state is exact -- a
++# result recording `revoked`, a list or nothing at all is not the account
++# either act emits, whatever the row has since become.
++_ACT_RETURNS = "active"
+ _ATTACH_OPERANDS = ("attachment_id", "checkpoint_id", "attempt_id",
+                     "generation", "reviewer_worker_id", "participant",
+                     "principal")
+@@ -347,7 +355,7 @@
+ 
+ 
+ def _committed_history(store, kind, operation_id, what, operand_members,
+-                       result_members):
++                       result_members, result_state):
+     """This module's own committed act behind a historical row, read WHOLE.
+ 
+     W124331 review [P1]. `_committed_operands` answers what an act was
+@@ -360,10 +368,13 @@
+     telling a resuming consumer that its history is intact.
+ 
+     So the signature, its operands and the act's own result are each adopted
+-    against a CLOSED member contract, and the generation the act was authorized
+-    with is typed rather than compared -- a journalled `true` would otherwise
+-    satisfy an equality against generation one, for `_requested_pair`'s reason
+-    one layer down.
++    against a CLOSED member contract, and EVERY generation either carries is
++    typed rather than compared -- a journalled `true` would otherwise satisfy
++    an equality against generation one, for `_requested_pair`'s reason one
++    layer down. Review [P1] found that reasoning applied to the operands and
++    not to the result, which is the same value under a different key: closing
++    a member set says the value is PRESENT, and nothing at all about what it
++    is.
+ 
+     Kept private to the new boundary, as the approved proposal requires.
+     """
+@@ -389,6 +400,16 @@
+                                  answered, required=result_members)
+     boundaries.generation(operands["generation"],
+                           f"the committed {kind} generation for {what}")
++    if "generation" in result_members:
++        boundaries.generation(result["generation"],
++                              f"the committed {kind} result generation for "
++                              f"{what}")
++    # THE ACT'S OWN ACCOUNT OF WHAT IT DID, not a claim about the row now.
++    if result["state"] != result_state:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{answered} records state {name_value(result['state'])} rather "
++            f"than the {name_value(result_state)} that act returns")
+     return operands, result
+ 
+ 
+@@ -454,10 +475,11 @@
+     how an honest recovery of an earlier ending became impossible. This answers
+     from the attempt and its generation, which do not move.
+ 
+-    HISTORY IS THE POINT, so no state filter. A revoked writer is what a
+-    finished round leaves behind, and its row is returned with the state it
+-    actually has rather than the `active` its grant returned and its result
+-    still records. Absence is absence: an attempt nobody granted, or another
++    HISTORY IS THE POINT, so no state filter on the ROW. A revoked writer is
++    what a finished round leaves behind, and its row is returned with the state
++    it actually has -- while the grant's own recorded result must still say the
++    `active` it returned, which is a statement about the act rather than about
++    the row. Absence is absence: an attempt nobody granted, or another
+     generation of one that was, answers `None` rather than refusing.
+ 
+     OWNERSHIP IS ESTABLISHED HERE AND NOT ASSUMED FROM `writer_of`. That reader
+@@ -497,7 +519,7 @@
+     line = line_of(store, writer["line_id"])
+     operands, result = _committed_history(
+         store, GRANT_KIND, GRANT_KIND + ":" + writer["writer_id"], what,
+-        _GRANT_OPERANDS, _GRANT_RESULT)
++        _GRANT_OPERANDS, _GRANT_RESULT, _ACT_RETURNS)
+     _derived_identity("writer", operands,
+                       (("line_id", "line_id"), ("attempt_id", "attempt_id"),
+                        ("generation", "generation")),
+@@ -519,10 +541,12 @@
+         "based_checkpoint_id": ("based_checkpoint_id",
+                                 writer["based_checkpoint_id"]),
+     }, what, GRANT_KIND)
+-    # AND THE RESULT THE ACT ITSELF RECORDED, on its IMMUTABLE members only.
+-    # `state` is deliberately not compared: the grant returned `active` and
+-    # history is precisely what came after it, so requiring the act's original
+-    # state would refuse every writer this reader exists to answer.
++    # AND THE RESULT THE ACT ITSELF RECORDED, on the members that name THIS
++    # row. Its `state` is owned one layer up, against the value the grant
++    # returns rather than against the row: review [P1] is right that the two
++    # were confused here. The row may be `revoked` and the result must still
++    # say `active`, because they describe different moments -- proving the
++    # second costs the first nothing.
+     _bound_to_act(result, {
+         "writer_id": ("writer_id", writer["writer_id"]),
+         "line_id": ("line_id", writer["line_id"]),
+@@ -582,7 +606,7 @@
+             f"{attachment['assignment_generation']}")
+     operands, result = _committed_history(
+         store, ATTACH_KIND, ATTACH_KIND + ":" + attachment["attachment_id"],
+-        what, _ATTACH_OPERANDS, _ATTACH_RESULT)
++        what, _ATTACH_OPERANDS, _ATTACH_RESULT, _ACT_RETURNS)
+     _derived_identity("review", operands,
+                       (("checkpoint_id", "checkpoint_id"),
+                        ("attempt_id", "attempt_id"),

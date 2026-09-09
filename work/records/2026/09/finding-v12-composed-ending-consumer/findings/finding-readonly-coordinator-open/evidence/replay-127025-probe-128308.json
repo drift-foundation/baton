@@ -1,0 +1,72 @@
+[
+  {
+    "case": "only-wal",
+    "before": [
+      "coordinator.sqlite3",
+      "coordinator.sqlite3-wal"
+    ],
+    "opened": true,
+    "after": [
+      "coordinator.sqlite3",
+      "coordinator.sqlite3-shm",
+      "coordinator.sqlite3-wal"
+    ],
+    "sizes": {
+      "coordinator.sqlite3-shm": 32768,
+      "coordinator.sqlite3-wal": 0,
+      "coordinator.sqlite3": 73728
+    }
+  },
+  {
+    "case": "only-shm",
+    "before": [
+      "coordinator.sqlite3",
+      "coordinator.sqlite3-shm"
+    ],
+    "opened": true,
+    "after": [
+      "coordinator.sqlite3",
+      "coordinator.sqlite3-shm",
+      "coordinator.sqlite3-wal"
+    ],
+    "sizes": {
+      "coordinator.sqlite3-wal": 0,
+      "coordinator.sqlite3-shm": 32768,
+      "coordinator.sqlite3": 73728
+    }
+  },
+  {
+    "case": "serving-close-after-guard",
+    "before": [
+      "coordinator.sqlite3"
+    ],
+    "after_serving_close_before_connect": [
+      "coordinator.sqlite3"
+    ],
+    "opened": true,
+    "after": [
+      "coordinator.sqlite3",
+      "coordinator.sqlite3-shm",
+      "coordinator.sqlite3-wal"
+    ],
+    "sizes": {
+      "coordinator.sqlite3-shm": 32768,
+      "coordinator.sqlite3-wal": 0,
+      "coordinator.sqlite3": 73728
+    }
+  },
+  {
+    "case": "not-database",
+    "before": [
+      "coordinator.sqlite3"
+    ],
+    "exception": "ContractRefusal: the database at '/tmp/review-127025-2yvnpa9c/coordinator.sqlite3' could not be read by this coordinator (DatabaseError: file is not a database); a read-only open refuses an unreadable store and repairs nothing. Nothing was changed",
+    "contract_refusal": true,
+    "after": [
+      "coordinator.sqlite3"
+    ],
+    "sizes": {
+      "coordinator.sqlite3": 23
+    }
+  }
+]

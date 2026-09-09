@@ -1,0 +1,30 @@
+{
+  "work": "W119114",
+  "claim": 122032,
+  "utc": "2026-09-08T19:50:55.730839+00:00",
+  "paths": {
+    "tools/stage_execution.py": {
+      "sha256": "c2706af1732ed1a802050f404f89028ff7db3a56a864bca01105ff08e835fbd8",
+      "mode": "0o664"
+    },
+    "tools/single_worker.py": {
+      "sha256": "ff383296aeb75885668d365d3cdc5ff1a280234f5282694acb7f37cc3f4ca47f",
+      "mode": "0o664"
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "a5f9aba5d853da72e80839b68f22e1280818d0763aceb4d21d309527ddf65779",
+      "mode": "0o664"
+    },
+    "tests/tools/test_single_worker.py": {
+      "sha256": "af445808743e15c7a95017b9ef3d685c4b96b0a45a439940cc60a553c8a8aa3b",
+      "mode": "0o664"
+    },
+    "tools/parallel_test.py": {
+      "sha256": "6ea5e9bef58a5182ae8b904a8db9ae92bcaf130d05ee1d61e9c36aa3efa0c10d",
+      "mode": "0o644"
+    }
+  },
+  "all_prior_105_test_bytes_preserved": true,
+  "prior_test_sha256": "bf7d2edee5417a6b94c5f5019a614893e388e5f55635cac3869669cfe9359cc8",
+  "verification": "Retained 107/456 author passes reused. Two independent probes 0.381813s cumulative under5s; whitespace check passes."
+}

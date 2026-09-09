@@ -1,0 +1,33 @@
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -595,9 +595,9 @@
+ class _AuthoritySession:
+     """The exact Authority surface this implementation deployment carries.
+ 
+-    The core Session owns the six lifecycle operations this worker needs.
++    The core Session owns the lifecycle operations and gate discharge this worker needs.
+     ``AuthorityPort`` also names conversational publication; this bootstrap
+-    does not run inquiry sessions, so that seventh capability is an explicit
++    does not run inquiry sessions, so that capability is an explicit
+     typed refusal rather than a successful-looking no-op.
+     """
+ 
+@@ -627,6 +627,9 @@
+ 
+     def settle_operation(self, *arguments):
+         return self._session.settle_operation(*arguments)
++
++    def satisfy_gate(self, operands):
++        return self._session.satisfy_gate(operands)
+ 
+     def publish_answer(self, *arguments):
+         del arguments
+@@ -645,7 +648,7 @@
+         the manager an authority it has no operation for.
+ 
+         The wrapper stays a wrapper: it forwards one exact operand document to
+-        the real session, exactly as the six lifecycle operations above do,
++        the real session, exactly as the other lifecycle operations above do,
+         and the answer is held to its shape at the one caller that reads it.
+         """
+         return self._session.pass_work(*arguments)

@@ -1,0 +1,18 @@
+(('adopted', 'lanes.py:_holder_of', 'runtime_lanes'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_holder_of', 'runtime_lanes.holder'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_holder_of', 'runtime_lanes.lane_id'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_holder_of', 'runtime_lanes.reason'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_no_predecessor_holds', 'runtime_lanes'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_no_predecessor_holds', 'runtime_lanes.holder'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_no_predecessor_holds', 'runtime_lanes.lane_id'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_no_predecessor_holds', 'runtime_lanes.reason'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_occupy_lane', 'runtime_lanes'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_occupy_lane', 'runtime_lanes.holder'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_occupy_lane', 'runtime_lanes.lane_id'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_occupy_lane', 'runtime_lanes.reason'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_work_lanes', 'runtime_lanes'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_work_lanes', 'runtime_lanes.holder'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_work_lanes', 'runtime_lanes.lane_id'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_work_lanes', 'runtime_lanes.principal'), 'a persisted runtime lane') PASS
+(('adopted', 'lanes.py:_work_lanes', 'runtime_lanes.reason'), 'a persisted runtime lane') PASS
+lane probes: 17

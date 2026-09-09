@@ -1,0 +1,71 @@
+{
+  "work": "W124784",
+  "claim": 124838,
+  "claim_order": "claimed at seq124838 before reading the dossier and before any edit",
+  "paths": {
+    "src/baton_v12/job_manager/review_driver.py": {
+      "sha256": "b5b22535ef105f786aa74f61ff894614a1e91bb8e2739f1051151fb893ebe10c",
+      "mode": "664"
+    },
+    "tests/job_manager/test_review_driver.py": {
+      "sha256": "259e1f6de4d944c1ffa384217d62e8a21a1b63e2e2e15d58e97618110c0a541f",
+      "mode": "664"
+    }
+  },
+  "tests_additive_only": {
+    "baseline_HEAD_methods": 101,
+    "now": 159,
+    "prefix_unchanged": true,
+    "note": "the whole HEAD file is an exact prefix of the candidate; the only change is the appended class and its trailing block"
+  },
+  "source_change": {
+    "added": [
+      "_fence_settled",
+      "_cleaning_implementation",
+      "one branch in end_implementation between _destroyed and _own_writer",
+      "one paragraph in end_implementation's docstring"
+    ],
+    "changed": [],
+    "removed": []
+  },
+  "declared_budget_seconds": 20,
+  "budget_honestly": {
+    "declared_before_running": false,
+    "why": "PLAN step 3 asks for the declaration before verification and I wrote it into PROGRESS afterwards. Recorded rather than presented as met.",
+    "spent_seconds": 38.0,
+    "breakdown": "owned module 4.8+5.4+5.4+5.4s; affected modules once 11.0s; the stage suite alone 5.7s and a 0.3s attribution run, both spent establishing that five failures in another Work's path are not this one's"
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.job_manager.test_review_driver",
+      "result": "159 tests, OK, 5.43s (145 at claim time; +14 additive, no existing assertion changed)"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.job_manager.test_review_driver tests.job_manager.test_ending tests.tools.test_stage_execution",
+      "result": "323 tests, 5 failures, 11.0s -- all five in tests/tools/test_stage_execution.py, none in this Work's two paths"
+    }
+  ],
+  "not_mine_and_why": {
+    "failures": [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord::test_a_reconstructed_manager_re_enters_the_same_ending",
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord::test_the_historical_entry_reconstructs_no_mount_or_credential",
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord::test_the_historical_operands_come_from_the_recorded_obligation",
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord::test_the_recovered_writer_is_the_attempts_and_not_the_lines_pointer",
+      "TheDischargeReceiptIsNeverJournalled::test_the_gate_is_cleared_and_no_discharge_is_recorded"
+    ],
+    "cause": "W124782 landed concurrently in the working tree: worker_manager/intake.py now compares the Authority's answered kind against RUNTIME_ABSENT instead of QUIESCENCE_GATE, so the discharge receipt commits and the composed ending settles on its first tick. The four W122060 cases reach their cut through a fixture that depended on the ending NOT settling, and the fifth is the defect-expecting regression for the very defect W124782 fixed.",
+    "attribution": "measured, not assumed: re-running exactly those five with review_driver._fence_settled patched to return False -- which removes this Work's whole branch -- gives 5 failures either way (script retained as evidence/attribution-124838.py)",
+    "owner": "tests/tools/test_stage_execution.py is W122060's path, not this Work's two. The parent allocation proposal already authorizes converting those defect-expecting tests once their owning fixes are available, which is now."
+  },
+  "acceptance_points": {
+    "resumes_its_own_committed_checkpoint": "the ordinary public end_implementation, called again with the same operands",
+    "validates_before_continuing": "writer bound to attempt+generation, line profile, acting-for assignment, frozen result + worker-envelope correlation, intake receipt, retention operands, checkpoint replay and committed publication -- all before authorize_cleanup",
+    "no_regrant": "grant_writer forbidden during the continuation; line_writers count unchanged",
+    "no_repeated_publication": "publication.publish forbidden; published list unchanged",
+    "no_second_checkpoint": "line_checkpoints count unchanged",
+    "no_destruction_without_positive_absence": "authorize_cleanup owns it; this module neither observes nor asserts absence",
+    "reopened_stores": "test_a_reopened_manager_finishes_it_from_committed_records and test_the_answer_is_the_historical_resumes_member_for_member both reopen the control store at the cut",
+    "final_answer_compared": "the continuation's answer equals the accepted historical resume's, member for member",
+    "existing_paths_preserved": "an active writer selects nothing here; a destroyed runtime still reaches _resumed_implementation first"
+  }
+}

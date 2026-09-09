@@ -1,0 +1,47 @@
+[
+  {
+    "scenario": "changed-runtime",
+    "original_runtime": "runtime-1",
+    "cleanup_operation": {
+      "operation_id": "runtime.destroy:9c2e62c395508900f29a28eb4b2d148cc99498c4fd8953dcfccd93b1683c5af6",
+      "signature_digest": "sha256:1ed4b5844ccc0a728e18305b2941a83bc6701f5ff50dca9030deb3f36982c689"
+    },
+    "outcome": {
+      "refused_or_faulted": "ContractRefusal",
+      "message": "attempt 'attempt-1''s committed cleanup records operation 'runtime.destroy:9c2e62c395508900f29a28eb4b2d148cc99498c4fd8\u2026 signed 'sha256:1ed4b5844ccc0a728e18305b2941a83bc6701f5ff50dca9030de\u2026, and this discharge derives 'runtime.destroy:9c2e62c395508900f29a28eb4b2d148cc99498c4fd8\u2026 signed 'sha256:7c6203b02e2ccd537aa2c2d39039598a9081338c5bf381ee7ade\u2026; the identity and the signature are one binding, and the signature is the half that names the runtime this evidence would certify absent"
+    },
+    "gate_remaining": "runtime-quiescence:1",
+    "evidence": [],
+    "discoverable": null
+  },
+  {
+    "scenario": "wrong-answer",
+    "original_runtime": "runtime-1",
+    "cleanup_operation": {
+      "operation_id": "runtime.destroy:9c2e62c395508900f29a28eb4b2d148cc99498c4fd8953dcfccd93b1683c5af6",
+      "signature_digest": "sha256:1ed4b5844ccc0a728e18305b2941a83bc6701f5ff50dca9030deb3f36982c689"
+    },
+    "outcome": {
+      "refused_or_faulted": "ContractRefusal",
+      "message": "the authority answered about gate 'runtime-quiescence:99' and this discharge asked about 'runtime-quiescence:1'; an answer about another gate is not evidence that this one was discharged"
+    },
+    "gate_remaining": "runtime-quiescence:1",
+    "evidence": [],
+    "discoverable": null
+  },
+  {
+    "scenario": "foreign-authority",
+    "original_runtime": "runtime-1",
+    "cleanup_operation": {
+      "operation_id": "runtime.destroy:9c2e62c395508900f29a28eb4b2d148cc99498c4fd8953dcfccd93b1683c5af6",
+      "signature_digest": "sha256:1ed4b5844ccc0a728e18305b2941a83bc6701f5ff50dca9030deb3f36982c689"
+    },
+    "outcome": {
+      "refused_or_faulted": "ContractRefusal",
+      "message": "this session acts for authority '99999999999999999999999999999999' and attempt 'attempt-1' is fixed to '43c55d4b1234567890abcdef12345678'; a matching participant on another authority is a different assignment, not this one"
+    },
+    "gate_remaining": "runtime-quiescence:1",
+    "evidence": [],
+    "discoverable": null
+  }
+]

@@ -1,0 +1,123 @@
+{
+  "work": "W128698",
+  "claim": 129415,
+  "authority": "owner128669 in T119114; CONTRACT.md, with one pinned deviation. Test changes are under AGENTS.md#w71830-standing-test-change-authority.",
+  "claim_order": "claimed at seq129415 before any edit; the revalidation, the deviation, the question, the 20s budget and the selectors were declared before the first run",
+  "revalidation": {
+    "baseline": "evidence/base-129402/manifest.json",
+    "all_four_matched_before_edit": true,
+    "providers": "A (W128682) and B (W128692) are both closed satisfying; only their public readers are consumed -- no private helper and no custody-table access",
+    "confirmed_by_reading": "restart_abandoned_correction was absent, the ending vocabulary lacked the new member, and manager._replace still delegates a replaceable projected ending to episodes.open_next"
+  },
+  "paths": {
+    "src/baton_v12/job_manager/documents.py": {
+      "baseline": "e00d5804311e08826d289ac74063f64b13645be7607691ae3359a6380b8c9987",
+      "final": "4bbac912d0bd51cacc15b9cbc36405506e651e78d723a5a18e870f2b44688b4c",
+      "mode": "664"
+    },
+    "src/baton_v12/job_manager/episodes.py": {
+      "baseline": "8778a130946625307d36f4af280161783d8cafbe3f236e8e8f3881ac2e4955e0",
+      "final": "066fc036713500baea671ad03ddbda7b3c68a06cd8d9aba3bc9443e064324b05",
+      "mode": "664"
+    },
+    "tests/job_manager/test_documents.py": {
+      "baseline": "f5545159bb9ff5b95760f20def258bc749fa3aee011fbd39d70ebf1578c1b0bf",
+      "final": "77883eb9808208c9e59e3d7c197705c92f29c789cec0848ff7063e51ed5ab026",
+      "mode": "664"
+    },
+    "tests/job_manager/test_recovery.py": {
+      "baseline": "0855220dd7904bae98750c6f25a35e3e5f12b4e30e507fe182eb36f3476d90b3",
+      "final": "9d7f8fd01fd27e62602b6430259e13028e21b74e6ae9dd37e8773947d3928fac",
+      "mode": "664"
+    }
+  },
+  "pinned_deviation": {
+    "contract_said": "add `abandoned-after-exclusion` to BOTH documents.EPISODE_ENDINGS and REPLACEABLE_ENDINGS",
+    "why_not": "manager.py:52 asserts EPISODE_ENDINGS is a strict subset of events.TERMINAL_OFFER_STATES with the difference exactly {'claimed'}. Adding the word there breaks the build at import, and manager.py is outside this Work's four paths. Nothing about an operator's declaration is an offer ending: the offer was accepted, the claim was taken and a container ran.",
+    "done_instead": "its own closed set EXCLUSION_ENDINGS, beside CORRECTION_ENDINGS which exists for exactly the same reason, plus REPLACEABLE_ENDINGS -- which is the set projection.replaceable actually reads, so the ordinary successor path works unchanged and no fifth file moves",
+    "pinned_before_editing": "FINDING.md and PLAN.md, claim129415",
+    "behaviour_met": "one closed, distinct, replaceable ending; only its placement differs"
+  },
+  "operation": {
+    "name": "restart_abandoned_correction(store, custody, *, job_id, attempt_id, generation)",
+    "identity": "derived from the attempt and its fenced generation, neither of which moves -- so an exact replay answers after the ordinary successor has already started",
+    "order": [
+      "own the operands and read this Job's implementation stage",
+      "REPLAY before any mutable stage state is read; checking today's live episode first would refuse the retry for having succeeded, which is advance_correction's own lesson",
+      "prove A's discharge and B's restored correction through their public readers and cross-bind them to each other -- the discharge identity, the assignment, the runtime and the cleanup operation whole",
+      "prove the line is still correction-ready at the restored checkpoint, that no accepted checkpoint is eligible for integration, and that the abandoned writer is no longer active",
+      "prove the live episode is the abandoned attempt's OWN -- a historical receipt never ends a different or later episode",
+      "end exactly that episode under the write lock, guarded by its own liveness in the same statement that performs it"
+    ],
+    "opens_nothing": "the ordinary sweep opens the successor through open_next, under the same journalled identity and the same one-live-episode index every other replacement uses. No manager, projection or scheduler change.",
+    "no_timer": "there is no deadline, retry count or clock read anywhere in it; what authorizes it is what A and B committed"
+  },
+  "test_delta_recorded_under_the_standing_authority": [
+    {
+      "path": "tests/job_manager/test_recovery.py",
+      "change": "EndingsOutsideTheReplaceableSet.test_the_two_ending_vocabularies_are_related_and_not_equal widened its THIRD relation only",
+      "reason": "it asserted REPLACEABLE_ENDINGS was a subset of EPISODE_ENDINGS, which is the rule this Work corrects. The two asserts that conflating offer and episode endings cost -- the strict-subset and the {'claimed'} difference -- are deliberately untouched, and a new assertion proves the exclusion ending is not a terminal offer state at all."
+    },
+    {
+      "path": "tests/job_manager/test_recovery.py",
+      "change": "added OneAbandonedCorrectionEpisodeIsReplaced, 11 cases",
+      "reason": "the real-store proof this Work owes"
+    },
+    {
+      "path": "tests/job_manager/test_documents.py",
+      "change": "added TheExclusionEndingIsItsOwnClosedVocabulary, 5 cases",
+      "reason": "the exhaustive vocabulary the contract asks for, including the manager assert this deviation exists to keep"
+    }
+  ],
+  "proof": {
+    "fixture": "DriverCase from tests/job_manager/test_review_driver.py, reused rather than rebuilt: it already owns a Job store, a control store, a real development line and the round-driving helpers, and advance_correction is the accepted act that puts the implementation stage on the correction episode",
+    "covers": [
+      "the whole defect end to end: the abandoned episode ends and the ORDINARY sweep opens exactly one successor with a fresh attempt",
+      "this act opens no successor itself",
+      "the review episode, the checkpoint and the line pin are all untouched",
+      "an exact replay answers after the successor has started, and repeated calls create no second live episode",
+      "no restored correction, an undischarged gate, another attempt and another generation all refuse with the live episode intact",
+      "a historical receipt never ends a later episode",
+      "an accepted review supersedes the correction and refuses"
+    ]
+  },
+  "budget": {
+    "cap": 20.0,
+    "spent": 7.07,
+    "remaining": 12.93,
+    "within": true,
+    "reset": false
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.job_manager.test_recovery.OneAbandonedCorrectionEpisodeIsReplaced",
+      "wall": "0.216s",
+      "result": "11 errors -- W128692's public operation is exported from review_cycles rather than the worker_manager package, because __init__.py was outside its four paths"
+    },
+    {
+      "run": "same, importing from the owning module",
+      "wall": "0.350s",
+      "log": "evidence/run-129415-class.log",
+      "result": "11 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.job_manager.test_documents tests.job_manager.test_recovery",
+      "wall": "0.480s",
+      "result": "77 tests, 1 failure -- the existing vocabulary assertion this Work corrects"
+    },
+    {
+      "run": "same, with that assertion widened",
+      "wall": "0.476s",
+      "log": "evidence/run-129415-both.log",
+      "result": "77 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.job_manager.test_review_driver tests.job_manager.test_status tests.job_manager.test_sweep",
+      "wall": "5.548s",
+      "log": "evidence/run-129415-neighbours.log",
+      "result": "222 tests, OK -- the modules the ending vocabulary and the replacement path reach"
+    }
+  ],
+  "not_run": "no whole-suite pass",
+  "observation_for_the_owners": "W128692's restore_abandoned_correction and abandoned_correction_of are exported from worker_manager.review_cycles but not re-exported from worker_manager/__init__.py, because that file was outside its allocation. Consumers must import the module. Reported rather than fixed: __init__.py is outside this Work's four paths too."
+}

@@ -1,0 +1,246 @@
+--- 
++++ 
+@@ -2423,3 +2423,243 @@
+                  row["operation_id"])):
+             caught = self.refusal(self.read, held)
+         self.assertIn("disagrees about", caught.message)
++
++
++# -- W121793: the same publication, found from the attempt alone --------------
++#
++# `work/records/2026/09/finding-v12-publication-by-attempt-reader/`.
++#
++# WHY THE SELECTOR-TAKING READER IS NOT ENOUGH ALONE. `publication_of` selects
++# by the retained proposal manifest digest, which is right for a caller that
++# still holds it and useless to a COLD one -- and re-deriving that digest means
++# asking `retain_proposal` to compose the manifest again, which opens a write
++# transaction on a recovery path that may not write. So the consumer carried
++# the selector across the very restart the record exists to survive. These
++# cases prove the attempt alone is enough.
++
++
++class TheCommittedPublicationIsFoundFromTheAttemptAlone(ProducerCase):
++
++    ATTEMPT = "attempt-1"
++
++    def owners(self):
++        return mock.patch.multiple(
++            driver,
++            frozen_output_of=mock.Mock(return_value={
++                "result_id": self.result["result_id"],
++                "disposition": "completed",
++                "manifest_digest": self.result_digest}),
++            assignment_of=mock.Mock(return_value={
++                "authority_uuid":
++                    self.assignment["work_ref"]["authority_uuid"],
++                "work_id": self.assignment["work_ref"]["work_id"],
++                "participant": self.assignment["participant"],
++                "generation": self.assignment["generation"]}))
++
++    def published(self):
++        digest_ = self.produced()
++        with self.owners():
++            driver.publish_candidate(
++                self.store, self.publisher, attempt_id=self.ATTEMPT,
++                proposal_manifest_digest=digest_)
++        return digest_
++
++    def reopened(self):
++        """A manager handle that published nothing and remembers no selector."""
++        self.store.close()
++        self.store = ControlStore.open(
++            os.path.join(self._root.name, "control.sqlite3"),
++            incarnation="manager-2",
++            clock=lambda: "2026-09-07T02:00:00.000Z")
++        self.addCleanup(self.store.close)
++        return self.store
++
++    def read(self):
++        with self.owners():
++            return driver.publication_for_attempt(self.store,
++                                                  attempt_id=self.ATTEMPT)
++
++    def rows(self):
++        return self.store._connection.execute(
++            "SELECT operation_id, result FROM operations WHERE kind = ?",
++            (driver.PUBLICATION_KIND,)).fetchall()
++
++    def refusal(self, call, *operands, **named):
++        with self.assertRaises(ContractRefusal) as caught:
++            call(*operands, **named)
++        return caught.exception
++
++    @contextlib.contextmanager
++    def damaged(self, statement, values=()):
++        self.store._connection.execute("SAVEPOINT damaged")
++        try:
++            self.store._connection.execute(statement, values)
++            yield
++        finally:
++            self.store._connection.execute("ROLLBACK TO damaged")
++            self.store._connection.execute("RELEASE damaged")
++
++    @contextlib.contextmanager
++    def cold(self):
++        """No publisher may be reached and nothing may be written."""
++        changes = self.store._connection.total_changes
++        with mock.patch.object(self.publisher, "publish",
++                               side_effect=AssertionError("no republish")), \
++                mock.patch.object(self.publisher, "proposal",
++                                  side_effect=AssertionError("no remote read")), \
++                mock.patch.object(self.publisher, "canonical_target",
++                                  side_effect=AssertionError("no remote read")), \
++                mock.patch.object(driver, "retain_proposal",
++                                  side_effect=AssertionError(
++                                      "a cold read composes no proposal")):
++            yield
++        self.assertEqual(self.store._connection.total_changes, changes)
++
++    # -- what it answers -----------------------------------------------------
++
++    def test_it_takes_neither_publisher_nor_selector(self):
++        self.assertEqual(
++            list(inspect.signature(driver.publication_for_attempt).parameters),
++            ["manager", "attempt_id"])
++
++    def test_a_cold_manager_finds_the_publication_from_the_attempt(self):
++        held = self.published()
++        self.reopened()
++        with self.cold():
++            answered = self.read()
++        self.assertIsNotNone(answered)
++        self.assertEqual(answered["attempt_id"], self.ATTEMPT)
++        self.assertEqual(answered["proposal_manifest_digest"], held)
++        # THE SAME VALIDATED RECEIPT THE SELECTOR-TAKING READER ANSWERS.
++        with self.owners():
++            self.assertEqual(answered, driver.publication_of(
++                self.store, attempt_id=self.ATTEMPT,
++                proposal_manifest_digest=held))
++
++    def test_reading_again_answers_the_same_and_writes_nothing(self):
++        self.published()
++        self.reopened()
++        with self.cold():
++            first = self.read()
++            self.assertEqual(self.read(), first)
++
++    def test_a_later_target_does_not_reach_this_reader(self):
++        """The Authority may have moved on; this performs no remote read.
++
++        `canonical_target` is forbidden throughout, so a target that advanced
++        after publication cannot change what a recovery reads.
++        """
++        self.published()
++        self.reopened()
++        self.publisher.target = "c3" * 20
++        with self.cold():
++            self.assertIsNotNone(self.read())
++
++    # -- absence, which is not a fault ---------------------------------------
++
++    def test_a_retained_only_proposal_answers_absence(self):
++        self.produced()
++        self.reopened()
++        with self.cold():
++            self.assertIsNone(self.read())
++
++    def test_an_attempt_with_no_publication_answers_absence(self):
++        self.published()
++        self.reopened()
++        with self.cold(), self.owners():
++            self.assertIsNone(driver.publication_for_attempt(
++                self.store, attempt_id="another-attempt"))
++
++    def test_another_attempts_record_is_skipped_and_not_returned(self):
++        held = self.published()
++        row = self.rows()[0]
++        receipt = json.loads(row["result"])
++        foreign = dict(receipt, attempt_id="another-attempt")
++        self.store._connection.execute(
++            "INSERT INTO operations (operation_id, kind, signature, state, "
++            "result, refusal, settled_at) VALUES (?, ?, '{}', 'committed', ?, "
++            "NULL, '2026-09-07T02:00:00.000Z')",
++            (driver._publication_operation_id("another-attempt", held),
++             driver.PUBLICATION_KIND, json.dumps(foreign)))
++        self.reopened()
++        with self.cold():
++            self.assertEqual(self.read()["attempt_id"], self.ATTEMPT)
++
++    # -- present, and not classifiable ---------------------------------------
++
++    def test_two_publications_for_one_attempt_refuse(self):
++        """One attempt publishes once while its producer assignment is live.
++
++        Choosing between two committed records by row order would invent which
++        publication happened.
++        """
++        self.published()
++        row = self.rows()[0]
++        receipt = json.loads(row["result"])
++        second = dict(receipt,
++                      proposal_manifest_digest="sha256:" + "4" * 64)
++        self.store._connection.execute(
++            "INSERT INTO operations (operation_id, kind, signature, state, "
++            "result, refusal, settled_at) VALUES (?, ?, '{}', 'committed', ?, "
++            "NULL, '2026-09-07T02:00:00.000Z')",
++            (driver._publication_operation_id(
++                self.ATTEMPT, second["proposal_manifest_digest"]),
++             driver.PUBLICATION_KIND, json.dumps(second)))
++        self.reopened()
++        with self.cold():
++            caught = self.refusal(self.read)
++        self.assertIn("committed publications", caught.message)
++
++    def test_a_record_this_reader_cannot_classify_refuses(self):
++        """Deciding a record is not about this attempt requires reading it.
++
++        A scan that skipped what it could not read would answer absence with a
++        real record in front of it.
++        """
++        self.published()
++        row = self.rows()[0]
++        receipt = json.loads(row["result"])
++        for name, value in (
++                ("not a document", json.dumps(["published"])),
++                ("a missing member",
++                 json.dumps({member: held for member, held in receipt.items()
++                             if member != "published"})),
++                ("an unknown member",
++                 json.dumps(dict(receipt, invented="anything"))),
++                ("an attempt that is not an identity",
++                 json.dumps(dict(receipt, attempt_id=7))),
++                ("unreadable bytes", "{not json")):
++            with self.subTest(record=name):
++                with self.damaged(
++                        "UPDATE operations SET result = ? WHERE "
++                        "operation_id = ?", (value, row["operation_id"])):
++                    with self.cold():
++                        self.assertIsInstance(self.refusal(self.read),
++                                              ContractRefusal)
++
++    def test_a_record_filed_under_another_identity_refuses(self):
++        """`publication_of` re-derives the identity, so a mis-filed record
++        would be invisible to it -- and absence for a present record is what
++        this reader exists to stop."""
++        self.published()
++        row = self.rows()[0]
++        with self.damaged("UPDATE operations SET operation_id = ? WHERE "
++                          "operation_id = ?",
++                          ("integration-driver.publication:elsewhere",
++                           row["operation_id"])):
++            with self.cold():
++                caught = self.refusal(self.read)
++        self.assertIn("filed under an identity", caught.message)
++
++    def test_a_record_that_did_not_settle_refuses(self):
++        self.published()
++        row = self.rows()[0]
++        with self.damaged("UPDATE operations SET state = 'refused', "
++                          "result = NULL, refusal = ? WHERE operation_id = ?",
++                          (json.dumps({"category": "refused",
++                                       "code": "precondition",
++                                       "message": "no", "durable": True}),
++                           row["operation_id"])):
++            with self.cold():
++                caught = self.refusal(self.read)
++        self.assertIn("did not settle", caught.message)

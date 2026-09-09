@@ -1,0 +1,169 @@
+--- previous/test_intake.py
++++ candidate/test_intake.py
+@@ -2695,12 +2695,163 @@
+ 
+     # -- kept material and nested custody ------------------------------------
+ 
+-    def test_a_retention_the_cleanup_did_not_keep_refuses(self):
++    def test_every_artifact_must_carry_a_decision_under_this_policy(self):
++        """W120762 review 2026-09-08T16-43-59Z [P1]: empty is not evidence.
++
++        Deleting every decision after a real DISCARD left `kept` and the kept
++        filter agreeing on two empty lists, so a cleanup that destroyed
++        material nobody ruled on read back as `complete`. The proof is the one
++        `authorize_cleanup` already required before destroying anything, and
++        it is asked of the same owner rather than restated here.
++        """
++        for name, disposition in (("a discard", "discard-after-intake"),
++                                  ("a retain", "retain")):
++            with self.subTest(cleanup=name):
++                case = self.__class__("run")
++                case.setUp()
++                try:
++                    case.settled(disposition)
++                    case.reopened()
++                    with case.damaged("DELETE FROM retentions WHERE "
++                                      "runtime_attempt_id = ?", (ATTEMPT,)), \
++                            case.no_act():
++                        caught = case.refusal(case.read)
++                    self.assertIn("no retention decision", caught.message)
++                finally:
++                    case.doCleanups()
++
++    def test_a_decision_made_under_another_policy_refuses(self):
+         self.settled("retain")
+-        with self.damaged("DELETE FROM retentions WHERE "
+-                          "runtime_attempt_id = ?", (ATTEMPT,)), self.no_act():
++        self.reopened()
++        with self.damaged("UPDATE retentions SET retention_policy_digest = ? "
++                          "WHERE runtime_attempt_id = ?",
++                          (OTHER_POLICY, ATTEMPT)), self.no_act():
++            caught = self.refusal(self.read)
++        # THE RETENTION OWNER REFUSES FIRST AND SAYS MORE. A row edited away
++        # from the act that decided it fails that owner's own authentication
++        # before this reader's policy comparison is reached, which is the
++        # stronger of the two answers.
++        self.assertIn("the journal did not", caught.message)
++
++    def test_a_kept_set_the_decisions_do_not_name_refuses(self):
++        settled = self.settled("retain")
++        operation = settled["operation"]["operation_id"]
++        with self.damaged(
++                "UPDATE operations SET result = ? WHERE operation_id = ?",
++                (json.dumps(dict(settled, kept=[])), operation)), \
++                self.no_act():
+             caught = self.refusal(self.read)
+         self.assertIn("one set of material", caught.message)
++
++    def test_the_ending_must_be_the_one_those_facts_settle(self):
++        """[P1]: an ending is derived from the facts, not recorded beside them.
++
++        A retained receipt holding material read as `complete`, and an honest
++        discard read as `retained`, because nothing re-derived `_settle`'s own
++        rule.
++        """
++        for name, disposition, claimed in (
++                ("kept material called complete", "retain", "complete"),
++                ("a discard called retained", "discard-after-intake",
++                 "retained")):
++            with self.subTest(ending=name):
++                case = self.__class__("run")
++                case.setUp()
++                try:
++                    settled = case.settled(disposition)
++                    case.reopened()
++                    operation = settled["operation"]["operation_id"]
++                    with case.damaged(
++                            "UPDATE operations SET result = ? WHERE "
++                            "operation_id = ?",
++                            (json.dumps(dict(settled, cleanup=claimed)),
++                             operation)), case.no_act():
++                        caught = case.refusal(case.read)
++                    self.assertIn("settle", caught.message)
++                finally:
++                    case.doCleanups()
++
++    def test_quarantined_custody_settles_retained_and_reads_back(self):
++        """The other half of `_settle`'s rule: doubt keeps the bytes too."""
++        self.frozen_attempt()
++        # QUARANTINE IS EARNED, NOT WRITTEN. Intake quarantines material
++        # collected for a generation that has already ended, so the assignment
++        # ends before the collection rather than after it.
++        self.ended()
++        receipt = request_intake(self.store, self.port,
++                                 Custodian(self.collection()),
++                                 attempt_id=ATTEMPT)
++        self.assertEqual(receipt["custody"], "quarantined")
++        decide_retention(
++            self.store, self.port, Custodian(), attempt_id=ATTEMPT,
++            artifact_ids=[one["artifact_id"] for one in receipt["artifacts"]],
++            disposition="discard-after-intake",
++            retention_policy_digest=RETENTION)
++        settled = authorize_cleanup(self.store, self.port, Custodian(),
++                                    attempt_id=ATTEMPT,
++                                    retention_policy_digest=RETENTION)
++        self.assertEqual(settled["cleanup"], "retained")
++        self.assertEqual(settled["kept"], [])
++        self.reopened()
++        with self.no_act():
++            self.assertEqual(self.read(), settled)
++
++    def test_an_unsettled_or_invented_runtime_state_is_never_an_ending(self):
++        """[P1]: `uncertain` is not an ending and `_settle` never commits one.
++
++        `_not_an_ending` returns before any transaction, so a journalled
++        receipt carrying it describes a commit this manager cannot have made;
++        a state outside the closed destroy vocabulary is not one either.
++        """
++        settled = self.settled("retain", destroyed={
++            "state": "running", "why": "the engine still lists it",
++            "credentials": {"lifecycle_state": "not-delivered"},
++            "launch": {"lifecycle_state": "not-delivered"}})
++        self.reopened()
++        operation = settled["operation"]["operation_id"]
++        for state in ("uncertain", "invented"):
++            with self.subTest(state=state):
++                with self.damaged(
++                        "UPDATE operations SET result = ? WHERE "
++                        "operation_id = ?",
++                        (json.dumps(dict(settled, state=state)), operation)), \
++                        self.no_act():
++                    self.assertIsInstance(self.refusal(self.read),
++                                          ContractRefusal)
++
++    def test_a_signature_this_manager_does_not_derive_refuses(self):
++        """[P1]: `_committed` replays under the ROW's own signature.
++
++        That is right for the families it serves and leaves the column itself
++        unowned, so a record signed `{}` replayed and answered. The operands an
++        ordinary cleanup signs are derived here and compared.
++        """
++        settled = self.settled("retain")
++        self.reopened()
++        operation = settled["operation"]["operation_id"]
++        for signature in ("{}", json.dumps(
++                {"kind": "runtime.destroy", "operands": {}})):
++            with self.subTest(signature=signature):
++                with self.damaged("UPDATE operations SET signature = ? WHERE "
++                                  "operation_id = ?", (signature, operation)), \
++                        self.no_act():
++                    caught = self.refusal(self.read)
++                self.assertIn("does not derive", caught.message)
++
++    def test_an_ordinary_receipt_carries_no_kind_member(self):
++        """[P2]: `kind` belongs to the recordless sibling's settlement.
++
++        Ordinary `_settle` never writes one, and this reader is expressly
++        ordinary-only, so admitting it returned a foreign member unchanged.
++        """
++        settled = self.settled("retain")
++        self.reopened()
++        operation = settled["operation"]["operation_id"]
++        with self.damaged(
++                "UPDATE operations SET result = ? WHERE operation_id = ?",
++                (json.dumps(dict(settled, kind=["foreign", "ending"])),
++                 operation)), self.no_act():
++            self.assertIsInstance(self.refusal(self.read), ContractRefusal)
+ 
+     def test_empty_or_foreign_nested_custody_refuses(self):
+         """The gap this provider exists to close: nothing was compared.

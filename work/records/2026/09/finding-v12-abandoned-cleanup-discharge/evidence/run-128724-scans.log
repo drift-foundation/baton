@@ -1,0 +1,40 @@
+..FF...
+======================================================================
+FAIL: test_the_table_names_every_exported_callable (tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_the_table_names_every_exported_callable)
+The completeness half, and the reason this file exists.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_text_sweep.py", line 569, in test_the_table_names_every_exported_callable
+    self.assertEqual(sorted(self.callable_table()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     sorted(self.exported_callables()))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['Aut[63 chars]', 'accept_offer', 'activate_assignment', 'ado[2120 chars]_of'] != ['Aut[63 chars]', 'abandoned_gate_discharge_of', 'abandonment[2274 chars]_of']
+
+First differing element 4:
+'accept_offer'
+'abandoned_gate_discharge_of'
+
+Second list contains 6 additional elements.
+First extra element 102:
+'transport_reachability_reidentifies'
+
+Diff is 2717 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='authority_port.py:AuthorityPort:satisfy_gate', parameter='gate')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_dependencies.py", line 866, in test_every_public_parameter_is_a_declared_operand
+    self.assertIn(parameter, self.OPERANDS)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'gate' not found in {'refused_evidence', 'columns', 'scope', 'question', 'max_bytes', 'operations', 'which', 'now', 'issued', 'offer_id', 'input_digest', 'value', 'may_retire', 'runtime_attempt_id', 'action', 'command', 'capacity', 'session', 'operation', 'from_instant', 'what', 'queue', 'participant', 'operation_ids', 'into', 'toolchain_digest', 'runtime_id', 'uri', 'state', 'work_ref', 'sealed', 'reason', 'worker_id', 'run', 'attachment_id', 'ttl_seconds', 'network', 'line_id', 'provider_session_id', 'profile_digest', 'program', 'content', 'refusal_record_digest', 'answer', 'channel_port', 'inputs', 'declared_base', 'launch_delivered', 'agent_session_capabilities', 'code', 'retention_policy_digest', 'axis', 'transport', 'variants', 'adapter_name', 'session_epoch', 'max_entries', 'prompt', 'interactive', 'slots', 'deadline_seconds', 'adapter', 'assignment_roots', 'resolution', 'agent_protocol_version', 'body', 'integration_delivered', 'delivery', 'payload', 'port', 'role', 'engine', 'posture', 'optional', 'required', 'image_digest', 'workspace_group', 'agent', 'observation', 'storage_usage', 'admits', 'declared', 'minted', 'source', 'expect', 'bytes_observed', 'based_checkpoint_id', 'record', 'roots', 'manifest_digest', 'identity', 'storage', 'input_manifest', 'disposition', 'profile_name', 'mounts', 'mint_bearer', 'to_state', 'attempt_id', 'operation_id', 'adapter_digest', 'place', 'source_delivered', 'boundary', 'intent_digest', 'input_manifest_digest', 'path', 'seconds', 'work_id', 'assignment_manifest', 'refusal', 'manifest', 'assignment', 'failed_start_record_digest', 'operands', 'gid', 'artifact_ids', 'kind', 'labels', 'verdict_id', 'outcome', 'validator', 'decision', 'clock', 'exchange_delivered', 'document', 'name', 'observed_identity', 'authority_uuid', 'attempt', 'collected', 'names', 'request', 'reviewer_worker_id', 'sequence', 'evidence', 'minted_labels', 'intent', 'bearer', 'live', 'assignment_id', 'workspace', 'credential_provider', 'discriminator', 'store', 'pinned', 'custody', 'outputs', 'signature', 'root', 'offer_ids', 'definition', 'checkpoint_id', 'policy_digest', 'category', 'turn_in_flight', 'offer', 'profile', 'contract', 'from_state', 'session_ref', 'receipt_digest', 'incarnation', 'writer_id', 'credentials_delivered', 'generation', 'advertised'}
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.166s
+
+FAILED (failures=2)
+
+real	0m0.316s
+user	0m0.300s
+sys	0m0.016s

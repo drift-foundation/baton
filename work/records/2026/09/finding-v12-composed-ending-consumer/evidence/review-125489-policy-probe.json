@@ -1,0 +1,24 @@
+{
+  "investigative_policy_pin": 9,
+  "configured_instruction_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "actual_instruction_digest": "sha256:97477292475144259f11d76c95b73311ac6e8d55d16cf527ccbbe158c996313b",
+  "started": [
+    {
+      "stage_id": "job-a/integration",
+      "episode": 1,
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "outcome": "deferred",
+      "detail": {
+        "category": "policy",
+        "code": "denied",
+        "message": "target 'target-1' is not activated; an entry belongs to a configured target"
+      }
+    }
+  ],
+  "states": {
+    "implementation": "completed",
+    "review": "completed",
+    "integration": "claimed"
+  },
+  "elapsed_seconds": 0.37218746601138264
+}

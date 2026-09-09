@@ -1,0 +1,16 @@
+{
+  "names": [
+    "test_argument_rebinding_preserves_the_selected_call_but_not_the_next",
+    "test_argument_rebinding_to_another_capability_separates_the_two_results",
+    "test_argument_rebinding_keeps_each_branchs_selected_callable",
+    "test_nonbinding_deletion_preserves_receiver_and_index_aliases",
+    "test_deletion_target_calls_are_still_discovered",
+    "test_deletion_target_rebinding_affects_later_calls",
+    "test_destructuring_preserves_loads_and_visits_target_calls",
+    "test_destructuring_true_binding_still_invalidates_the_old_alias",
+    "test_later_destructuring_target_can_bind_a_new_alias_after_an_earlier_store"
+  ],
+  "tests": 9,
+  "successful": true,
+  "result": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.009s\n\nOK\n"
+}

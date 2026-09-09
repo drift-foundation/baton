@@ -1,0 +1,13 @@
+Tue Sep  8 14:43:13 UTC 2026
+/home/sl/src/baton
+112e00ecf69bb2a0fae2bf02cfb257e14508435daf4c766b498fd19103f631d9  tools/codex_copilot_notifier.py
+618bc9900d1ed345fdfc27b607525ab4abc2fc40dee9f81c742bf3728e481993  tools/test_codex_copilot_notifier.py
+c636f56d217a1e1b46d18dba2ad640a8e3e8026711267e71499ecb4ad82ec573  tools/CODEX-COPILOT-NOTIFIER.md
+python3 -m unittest
+    tools.test_codex_copilot_notifier.NotifierTests.test_unix_socket_wire_uses_one_json_line -v
+test_unix_socket_wire_uses_one_json_line (tools.test_codex_copilot_notifier.NotifierTests.test_unix_socket_wire_uses_one_json_line) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK

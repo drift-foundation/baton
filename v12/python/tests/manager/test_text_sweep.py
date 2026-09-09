@@ -350,6 +350,18 @@ class EveryExportedOperationRefusesUnstorableText(unittest.TestCase):
             "lane_reference": (({"runtime_attempt_id": "attempt-1",
                                  "assignment_principal": None},), {}, []),
             "runtime_lane": ((store, "attempt-1"), {}, [1]),
+            # W119548, approved as the exact seventh path in M120088: the gate
+            # discharge and its discoverability read. The act carries two caller
+            # texts -- the attempt it selects and the retention policy that is
+            # half the key to the cleanup proof -- and both ride its derived
+            # operation identity, so both are swept. The read takes the attempt
+            # id alone and answers off the journal it names.
+            "discharge_quiescence_gate": (
+                (store, port),
+                dict(attempt_id="attempt-1",
+                     retention_policy_digest="sha256:" + "7" * 64),
+                ["attempt_id", "retention_policy_digest"]),
+            "gate_discharge_of": ((store, "attempt-1"), {}, [1]),
             # W55758: the two reads a public recovery branches on. Both take
             # one caller text -- the attempt id -- and answer off the row it
             # names.

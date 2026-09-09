@@ -1,0 +1,11 @@
+{
+  "successful": true,
+  "tests": 71,
+  "result": ".......................................................................\n----------------------------------------------------------------------\nRan 71 tests in 1.166s\n\nOK\n",
+  "candidate_sha256": "05c45eba60d79ec3c940305259d35b2c3cc59e32586db3d8da75bded0195c8d8",
+  "changed_since_115_test_candidate": [
+    "OptionalCapabilityAliasesKeepTheirCrossing",
+    "_origins"
+  ],
+  "existing_methods_unchanged": true
+}

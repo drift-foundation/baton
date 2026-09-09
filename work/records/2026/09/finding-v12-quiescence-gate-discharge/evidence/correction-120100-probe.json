@@ -1,0 +1,67 @@
+{
+  "claim": 120100,
+  "question": "do both public exits agree on every present invalid record, and does only genuine absence answer None",
+  "sha256": {
+    "src/baton_v12/worker_manager/authority_port.py": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6",
+    "src/baton_v12/worker_manager/intake.py": "6c00c441bc7b2356fddfd9f0867db59e05d6b96128dbf8918fc3b67ea46c89c7",
+    "src/baton_v12/worker_manager/__init__.py": "19dc529bebb57f3aa05638008ac9c8f4623f69ca70096efef60d5cc394f4f498",
+    "tests/manager/test_intake.py": "facd32dd1d65c02e85253e0db91e12856258c7f6aa0c16c6a2d323236403e675",
+    "tests/manager/test_offers.py": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+    "tests/manager/test_secrets.py": "37d5a1609f2417545ee907a0cee0d403b1a67e22aaaac6e1d3d41f23be64c498",
+    "tests/manager/test_text_sweep.py": "f3eff0216f98f4cd4174d4d016283612f88306ee75380cbb7ea26f802e5dbd50"
+  },
+  "results": [
+    {
+      "scenario": "sql-null",
+      "fixture_write_refused": "IntegrityError"
+    },
+    {
+      "scenario": "json-null",
+      "outcomes": {
+        "discovery": {
+          "exception": "ContractRefusal",
+          "category": "integrity",
+          "code": "schema"
+        },
+        "replay": {
+          "exception": "ContractRefusal",
+          "category": "integrity",
+          "code": "schema"
+        }
+      },
+      "exits_agree": true
+    },
+    {
+      "scenario": "foreign-kind",
+      "outcomes": {
+        "discovery": {
+          "exception": "ContractRefusal",
+          "category": "integrity",
+          "code": "schema"
+        },
+        "replay": {
+          "exception": "ContractRefusal",
+          "category": "integrity",
+          "code": "schema"
+        }
+      },
+      "exits_agree": true
+    },
+    {
+      "scenario": "list-result",
+      "outcomes": {
+        "discovery": {
+          "exception": "ContractRefusal",
+          "category": "integrity",
+          "code": "schema"
+        },
+        "replay": {
+          "exception": "ContractRefusal",
+          "category": "integrity",
+          "code": "schema"
+        }
+      },
+      "exits_agree": true
+    }
+  ]
+}

@@ -347,3 +347,53 @@ scoped whitespace check passed. CLI detail at111463 confirms W103068 still waits
 on W103083 and no longer on W105982. Detail at111467 confirms W105982 and its
 child W106673 remain open. No application/test source, runtime or Git state was
 changed by this claim; the residual proof remains outstanding.
+
+## 2026-09-08 — the remaining retained-result check is complete, W119114 claim119398
+
+`review-2026-09-07T15-46-38Z.md` named exactly one acceptance still missing from
+the referenced runtime evidence, and carried it into W103083's actual lifecycle
+proof: retain the actual sealed result outside the writer mount, perform ordinary
+manager cleanup, then reopen and verify those same artifact bytes and the
+persistent line.
+
+**Confirmed complete**, over the real composed deployment rather than a fixture's
+arrangement of it. Owning record:
+`baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-composed-one-job-proof/`
+— see its FINDING entry of this date, `evidence/implementation-119398/EXECUTION.md`,
+and the cases `TheRetainedResultReopensAfterOrdinaryCleanup` and
+`TheComposedImplementationHalfRunsOnOrdinaryTicks` in
+`v12/python/tests/tools/test_stage_execution.py`.
+
+What was actually exercised, in the order the review required:
+
+- one real worker turn wrote and committed the private line; `request_freeze`
+  sealed its result and `request_intake` recorded a real receipt whose one
+  artifact carries a `custody_locator` under
+  `<storage>/.baton-review-lines/<line>/custody/<attempt>/`;
+- `decide_retention` recorded `retain` under the configured policy digest;
+- `authorize_cleanup` ran as the ordinary manager-authorized cleanup and SETTLED
+  — `cleanup = retained`, which is terminal, with `execution_runtime =
+  destroyed` from a positive absence observation of the exact runtime. Not
+  `failed`, which is what a fixture that never modelled removal reaches, and not
+  a teardown;
+- **after** that cleanup, the retained artifact bytes were reopened at their own
+  recorded locator and measured: the tree digest equals the digest the intake
+  receipt carries. The retained result manifest was reopened through
+  `load_manifest` and names the same artifact identity and digest;
+- the custody tree was compared against `roots['workspace']` — the directory this
+  attempt's container really had writable, which under this profile is the line
+  checkout itself — and lies outside it, as the line's own sibling;
+- the line survives at `review-ready` revision 1 and its checkpoint pin
+  REVALIDATES through the accepted profile against the real repository.
+
+This is the bytes-level check the review asked for. No pathname assertion,
+surviving reference, fixture teardown or canned receipt stands in for any of it;
+the only deterministic seams are the engine callable and the injected provider,
+both named explicitly in that record's EXECUTION.md.
+
+This entry closes the one carried acceptance obligation recorded above. It does
+not close W119548's separate scope, W106673, or anything else open in this
+record; the composed lifecycle beyond the implementation ending remains blocked
+on `baton:work/records/2026/09/finding-v12-quiescence-gate-discharge/` and is
+still owed by W119114. Recorded by baton.claude under claim119398; no source,
+existing test, runtime or Git state in this record's own scope was changed.

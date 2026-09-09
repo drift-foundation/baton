@@ -1,0 +1,42 @@
+{
+  "work": "W119114",
+  "claim": 122032,
+  "question": "Question: does cold composed mount recover the real cleaned ending?\nBudget: same cumulative five seconds. Follow-up isolates the mount return contract\nby replacing only the already-refused workspace reallocation with original roots.\n",
+  "results": {
+    "ordinary_cleanup": {
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "runtime_id": "runtime-single-1",
+      "execution_runtime": "destroyed",
+      "cleanup": "retained",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.claude",
+        "generation": 1
+      }
+    },
+    "cold_preparation": {
+      "same_writer": true,
+      "boundary": null
+    },
+    "cold_mounted": {
+      "exception": "TypeError",
+      "message": "'NoneType' object is not subscriptable"
+    },
+    "current_pointer_absent": {
+      "exception": "AssertionError",
+      "message": "attempted a new writer preparation"
+    },
+    "frozen_before_cleanup_branch": {
+      "exception": "AssertionError",
+      "message": "attempted a new writer preparation"
+    }
+  },
+  "seconds": 0.16794337693136185,
+  "sha256": {
+    "tools/stage_execution.py": "c2706af1732ed1a802050f404f89028ff7db3a56a864bca01105ff08e835fbd8",
+    "tests/tools/test_stage_execution.py": "a5f9aba5d853da72e80839b68f22e1280818d0763aceb4d21d309527ddf65779"
+  }
+}

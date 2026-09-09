@@ -2752,3 +2752,1658 @@ class TheWorkerCompletionTraversesPublicCustody(ReviewResultCase):
                         self.control._connection.execute("ROLLBACK TO damaged")
                         self.control._connection.execute("RELEASE damaged")
         self.assert_historical_replay(held, ended)
+
+
+# -- W119733: the implementation ending, re-entered after its own cleanup -----
+#
+# `work/records/2026/09/finding-v12-composed-ending-recovery/`.
+#
+# WHAT THESE ADD AND WHAT THEY DELIBERATELY DO NOT. `end_implementation`
+# promised that "a process death between any two steps re-enters here and
+# finishes", and after step nine that promise was false: `_quiesced` wants a
+# positively quiescent runtime and there is none, and `_own_writer` wants a
+# writer the ending's own checkpoint has already revoked. The branch this Work
+# adds is what these cases measure -- which evidence it requires, that it
+# performs no external act at all, and that it answers with the ordinary
+# ending's own document.
+#
+# THE RETAINED READERS ARE FAKED AND THE CUSTODY PROVIDER IS NOT, which is
+# `_endings`' boundary applied to the resume. `frozen_output_of`,
+# `intake_receipt_of` and `retentions_of` cross-bind against committed intake
+# and retention operations that need a real adapter, a delivered workspace and
+# a custody root -- a deployment's half, driven in `tests/manager`. The line,
+# its writer, its real frozen checkpoint and the cleanup axis are all real
+# here, because those are the facts this branch reads and reasons about.
+
+POLICY = "sha256:" + "9" * 64
+PROPOSAL = {"proposal_id": "proposal-1", "result_id": "result-1"}
+
+
+class _NoRuntime:
+    """The adapter surface, where every verb is a failed assertion.
+
+    A resumed ending touches no runtime at all, and the honest way to say so is
+    an adapter that cannot be used. `_typed` still proves the whole surface is
+    callable, so a resume that reached for any of it fails by name rather than
+    in a count somebody has to interpret.
+    """
+
+    custodian_image_digest = "sha256:" + "c" * 64
+
+    def __init__(self):
+        for verb in review_driver.RUNTIME_ADAPTER:
+            setattr(self, verb, self._refuse(verb))
+
+    @staticmethod
+    def _refuse(verb):
+        def call(*operands, **named):
+            raise AssertionError(f"a resumed ending called the adapter's "
+                                 f"{verb}")
+        return call
+
+
+class _Published:
+    """The publication seam's replay half, beside a `publish` that must never
+    be reached."""
+
+    def __init__(self, answer=PROPOSAL):
+        self.answer = answer
+        self.asked = []
+
+    def publish(self, **operands):
+        raise AssertionError("a resumed ending published again")
+
+    def published_of(self, *, attempt_id):
+        self.asked.append(attempt_id)
+        return self.answer
+
+
+class TheResumeRefusesBeforeItReachesCommittedEvidence(DriverCase):
+    """The narrow operand controls, kept and re-scoped.
+
+    W120425 review 2026-09-08T15-46-16Z: these fixtures mock the retained
+    readers and set the cleanup axes by hand, so they can prove which operands
+    a resume refuses and that it spends nothing doing so -- and they CANNOT
+    prove that a real ending left the evidence a resume reads. Every case here
+    now refuses at or before the retained-evidence read, which is what this
+    fixture can honestly reach; the positive lifecycle, the committed cleanup,
+    the checkpoint replay and the publication history are proved against real
+    component custody in `TheImplementationResumeReadsRealCommittedCustody`.
+    """
+
+    RESULT = {"result_id": "result-writer-attempt-1",
+              "disposition": "completed",
+              "manifest_digest": "sha256:" + "4" * 64}
+    RECEIPT = {"receipt_digest": "sha256:" + "5" * 64,
+               "artifacts": [{"artifact_id": "artifact-b"},
+                             {"artifact_id": "artifact-a"}]}
+    RETAINED = ({"artifact_id": "artifact-a", "disposition": "retain",
+                 "retention_policy_digest": POLICY},
+                {"artifact_id": "artifact-b", "disposition": "retain",
+                 "retention_policy_digest": POLICY})
+
+    def setUp(self):
+        super().setUp()
+        self.attempt_id = self.attempt("writer-attempt-1", 1, WRITER,
+                                       "writer-principal-1")
+        self.writer = review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"],
+            attempt_id=self.attempt_id, generation=1,
+            worker_id="impl-worker-1", profile=self.profile)
+        self.completed(self.attempt_id)
+        self.checkpoint = None
+        self.publication = _Published()
+
+    def frozen(self):
+        """The real checkpoint the ordinary ending's step eight commits."""
+        from baton_v12.worker_manager import freeze_checkpoint
+        self.checkpoint = freeze_checkpoint(
+            self.control, writer_id=self.writer["writer_id"], generation=1,
+            profile=self.profile, port=self.port(WRITER))
+        return self.checkpoint
+
+    def destroyed(self, cleanup="retained", runtime="destroyed"):
+        """The exact axes `authorize_cleanup` leaves behind, and no more."""
+        self.control._connection.execute(
+            "UPDATE attempts SET execution_runtime = ?, cleanup = ? "
+            "WHERE runtime_attempt_id = ?",
+            (runtime, cleanup, self.attempt_id))
+
+    def gone(self, **changed):
+        """A whole ordinary ending's durable aftermath: frozen, then cleaned."""
+        self.frozen()
+        self.destroyed(**changed)
+
+    @contextlib.contextmanager
+    def retained(self, *, frozen=None, receipt=None, decisions=None):
+        """The three retained readers, answering what a finished ending left."""
+        held = {
+            "frozen_output_of": self.RESULT if frozen is None else frozen,
+            "intake_receipt_of": self.RECEIPT if receipt is None else receipt,
+            "retentions_of": (self.RETAINED if decisions is None
+                              else decisions)}
+        with contextlib.ExitStack() as stack:
+            for name, answer in held.items():
+                stack.enter_context(mock.patch.object(
+                    review_driver, name,
+                    lambda *operands, _answer=answer, **named: _answer))
+            yield
+
+    def resume(self, **changed):
+        operands = {"attempt_id": self.attempt_id, "disposition": "completed",
+                    "terminal": None, "writer_id": self.writer["writer_id"],
+                    "generation": 1, "profile": self.profile,
+                    "retention_disposition": "retain",
+                    "retention_policy_digest": POLICY, "proposal": {}}
+        operands.update(changed)
+        return review_driver.end_implementation(
+            self.control, self.port(WRITER), _NoRuntime(), self.publication,
+            **operands)
+
+    @contextlib.contextmanager
+    def no_external_act(self):
+        """Nothing may reach the Authority or change this store."""
+        calls = list(self.port(WRITER).calls)
+        changes = self.control._connection.total_changes
+        yield
+        self.assertEqual(self.port(WRITER).calls, calls)
+        self.assertEqual(self.control._connection.total_changes, changes)
+
+    # -- what it answers -----------------------------------------------------
+
+    def test_a_live_runtime_still_gets_the_ordinary_ending(self):
+        """The branch is chosen from durable state and never from an operand.
+
+        A caller cannot ask for a resume, so an attempt whose runtime is still
+        there reaches the ordinary ending -- which is what an adapter that
+        cannot be used proves, because a resume never calls one.
+        """
+        with self.retained(), self.assertRaises(AssertionError) as raised:
+            self.resume()
+        self.assertIn("adapter's stop", str(raised.exception))
+
+    def test_an_unsettled_cleanup_is_not_a_runtime_this_manager_let_go(self):
+        """`destroyed` is eligibility; the cleanup axis is the evidence.
+
+        `failed` is the settled ending of a cleanup whose runtime survived its
+        own destroy, and the other two are endings that did not finish. None
+        of them is a manager that got as far as authorizing cleanup, so none
+        may be answered with the evidence of one that did.
+        """
+        self.frozen()
+        for cleanup in ("pending", "blocked-on-intake", "failed"):
+            with self.subTest(cleanup=cleanup):
+                self.destroyed(cleanup=cleanup)
+                with self.retained(), self.no_external_act():
+                    caught = self.refusal(self.resume)
+                self.assertIn("positively let go", caught.message)
+
+    def test_an_active_writer_beside_a_destroyed_runtime_refuses(self):
+        """Two facts that cannot both be true.
+
+        The ordinary ending revokes this writer when it freezes the
+        checkpoint, so an active one says the ending stopped before that --
+        and answering it with retained evidence would report a lifecycle
+        nobody performed.
+        """
+        self.destroyed()
+        with self.retained(), self.no_external_act():
+            caught = self.refusal(self.resume)
+        self.assertIn("still holds writer", caught.message)
+
+    def test_a_writer_belonging_to_another_attempt_or_generation_refuses(self):
+        self.gone()
+        self.attempt("writer-attempt-2", 2, WRITER, "writer-principal-2")
+        for changed in ({"attempt_id": "writer-attempt-2"},
+                        {"generation": 2}):
+            with self.subTest(changed=changed):
+                with self.retained(), self.no_external_act():
+                    caught = self.refusal(self.resume, **changed)
+                self.assertIn("one ending answers for one attempt",
+                              caught.message)
+
+    def test_a_session_acting_for_somebody_else_refuses(self):
+        self.gone()
+        with self.retained(), self.no_external_act():
+            caught = self.refusal(
+                review_driver.end_implementation, self.control,
+                self.port(REVIEWER), _NoRuntime(), self.publication,
+                attempt_id=self.attempt_id, disposition="completed",
+                terminal=None, writer_id=self.writer["writer_id"],
+                generation=1, profile=self.profile,
+                retention_disposition="retain",
+                retention_policy_digest=POLICY, proposal={})
+        self.assertEqual(caught.code, "capability")
+
+    # -- the evidence it requires --------------------------------------------
+
+    def test_missing_retained_evidence_refuses_with_the_evidence_named(self):
+        self.gone()
+        for changed, expected in (({"frozen": {}},
+                                   "no retained frozen result"),
+                                  ({"receipt": {}},
+                                   "no accepted intake receipt"),
+                                  ({"decisions": ()},
+                                   "different retention operands")):
+            with self.subTest(missing=sorted(changed)):
+                with self.retained(**changed), self.no_external_act():
+                    caught = self.refusal(self.resume)
+                self.assertIn(expected, caught.message)
+
+    def test_changed_operands_are_not_this_endings_evidence(self):
+        self.gone()
+        for changed, expected in (
+                ({"disposition": "unable"}, "and this ending names"),
+                ({"retention_disposition": "discard-after-intake"},
+                 "different retention operands"),
+                ({"retention_policy_digest": "sha256:" + "7" * 64},
+                 "different retention operands")):
+            with self.subTest(changed=changed):
+                with self.retained(), self.no_external_act():
+                    caught = self.refusal(self.resume, **changed)
+                self.assertIn(expected, caught.message)
+
+    def test_a_partly_retained_result_set_refuses(self):
+        self.gone()
+        with self.retained(decisions=(self.RETAINED[0],
+                                      dict(self.RETAINED[1],
+                                           retention_policy_digest="sha256:"
+                                           + "7" * 64))), \
+                self.no_external_act():
+            caught = self.refusal(self.resume)
+        self.assertIn("different retention operands", caught.message)
+
+    def test_a_terminal_naming_another_envelope_refuses(self):
+        """`_correlated` is still what decides it, on the retained result.
+
+        Persisting or replaying a worker's claimed terminal never promotes it
+        to proof: the resume compares it against the envelope this manager
+        validated, exactly as the live ending does.
+        """
+        self.gone()
+        with self.retained(), self.no_external_act():
+            caught = self.refusal(
+                self.resume,
+                terminal={"manifest_digest": "sha256:" + "8" * 64})
+        self.assertEqual(caught.code, "operation-collision")
+
+    def test_the_ordinary_seam_contract_is_unchanged(self):
+        """An ordinary ending needed one verb and still needs exactly one.
+
+        The replay half is typed inside the resumed branch, so a deployment
+        that only ever ends live attempts is unaffected by this Work -- which
+        is what keeps every existing ending and every case that drives one
+        meaning what it meant.
+        """
+        self.assertEqual(review_driver.PUBLICATION_SEAM, ("publish",))
+        self.assertNotIn("published_of", review_driver.PUBLICATION_SEAM)
+
+
+class TheTwoResumesShareOneEvidenceContract(DriverCase):
+    """W119733: the review resume's custody reads are the implementation
+    resume's, and moving them into one body changed neither.
+
+    THE CORRELATION IS THE ADDITIVE HALF. A resumed ending compares the
+    retained frozen result's own disposition against the one it was handed, so
+    a caller re-entering with a different ending is refused by the evidence
+    rather than carried into a verdict read. On the review side that refusal
+    is EVIDENCE, so it lands as `held` with nothing advanced and nothing
+    cleaned up -- which is `_ended_review`'s pinned contract and is unchanged.
+    """
+
+    def historical_review(self):
+        writer_attempt = self.attempt("writer-attempt-1", 1, WRITER,
+                                      "writer-principal-1")
+        writer = review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"],
+            attempt_id=writer_attempt, generation=1,
+            worker_id="impl-worker-1", profile=self.profile)
+        self.completed(writer_attempt)
+        from baton_v12.worker_manager import freeze_checkpoint
+        checkpoint = freeze_checkpoint(
+            self.control, writer_id=writer["writer_id"], generation=1,
+            profile=self.profile, port=self.port(WRITER))
+        review_attempt = self.attempt("review-attempt-1", 1, REVIEWER,
+                                      "review-principal-1")
+        attached = review_driver.prepare_review(
+            self.control, checkpoint_id=checkpoint["checkpoint_id"],
+            attempt_id=review_attempt, generation=1,
+            reviewer_worker_id="review-worker-1", profile=self.profile)
+        self.completed(review_attempt, review=True)
+        self.control._connection.execute(
+            "UPDATE attempts SET execution_runtime = 'destroyed', "
+            "cleanup = 'retained' WHERE runtime_attempt_id = ?",
+            (review_attempt,))
+        return attached
+
+    def ended(self, attachment_id, **changed):
+        operands = {"attachment_id": attachment_id, "disposition": "completed",
+                    "terminal": {"manifest_digest": "sha256:" + "1" * 64},
+                    "profile": self.profile,
+                    "retention_disposition": "retain",
+                    "retention_policy_digest": POLICY}
+        operands.update(changed)
+        return review_driver.end_review_from_result(
+            self.control, self.port(REVIEWER), _NoRuntime(), **operands)
+
+    def test_a_retained_result_that_ended_otherwise_is_held_not_resolved(self):
+        attached = self.historical_review()
+        resolved = []
+        with mock.patch.object(
+                review_driver, "frozen_output_of",
+                lambda *a, **k: {"result_id": "result-review-attempt-1",
+                                 "disposition": "unable",
+                                 "manifest_digest": "sha256:" + "1" * 64}), \
+                mock.patch.object(
+                    review_driver, "review_verdict_from_result",
+                    lambda *a, **k: resolved.append("resolved")):
+            answered = self.ended(attached["attachment_id"])
+        self.assertEqual(answered["outcome"], "held")
+        self.assertIsNone(answered["verdict"])
+        self.assertFalse(answered["cleaned_up"])
+        self.assertIn("and this ending names", answered["held_reason"])
+        # AND THE VERDICT READ IS NEVER REACHED. A reviewer that did not
+        # complete has not decided anything, and the evidence says so before
+        # anything goes looking for a decision.
+        self.assertEqual(resolved, [])
+
+    def test_a_review_that_did_not_complete_keeps_its_own_refusal(self):
+        """The review's own rule, and it stays in the review branch.
+
+        `completed` is what a review ending requires of its attempt; it is not
+        something every ending owes, so the shared reader does not assert it
+        and this path still does.
+        """
+        attached = self.historical_review()
+        answered = self.ended(attached["attachment_id"], disposition="unable")
+        self.assertEqual(answered["outcome"], "held")
+        self.assertIn("completed disposition", answered["held_reason"])
+        self.assertFalse(answered["cleaned_up"])
+
+
+# -- W120425: the resume, over custody an actual ending really committed ------
+#
+# `work/records/2026/09/finding-v12-composed-ending-recovery/findings/
+# finding-historical-implementation-proof/`.
+#
+# WHY THE FIXTURE ABOVE IS NOT ENOUGH, in the reviewer's words: it "uses raw
+# axes for cleanup and mocks frozen-output, intake-receipt and retention
+# readers", so what it proves is which operands a resume refuses -- not that a
+# real ending leaves the evidence a resume reads, and not that the resume can
+# find it again in a process that did not perform it.
+#
+# WHAT IS REAL HERE. The line, the writer grant, the worker's own completion
+# envelope, the freeze, the terminal correlation, the intake receipt, the
+# retention decisions, the committed `runtime.destroy` with its directory
+# custody, the frozen checkpoint, and the retained proposal manifest are all
+# produced by the ACTUAL ordinary `end_implementation` over real files and the
+# accepted public operations. The store is then CLOSED and REOPENED, so the
+# resume runs in a handle that performed none of it.
+#
+# WHAT IS STILL A STAND-IN, named rather than implied. The engine and the
+# Authority transports are deterministic, as they are everywhere in this
+# suite. The proposal manifest is COMPOSED by this fixture rather than by
+# `integration.driver.retain_proposal`: composing one is that producer's own
+# accepted contract, proved in `tests/integration/test_driver.py`, and it
+# requires a proposal-typed declared output this writer does not declare. What
+# is under test here is the driver's CORRELATION of a retained proposal
+# manifest, and that manifest is retained through the accepted public
+# `retain_manifest` and re-read through the accepted public `load_manifest`.
+
+from tests.manager.test_output import POLICY as _CUSTODY_POLICY
+from tests.integration.test_driver import LinePublisher
+from baton_v12.integration import driver as integration_driver
+
+PROPOSAL_SCHEMA = "baton.worker-manifest/proposal"
+
+# The revision this fixture's Authority holds and the one its worker claims to
+# have produced. `retain_proposal` requires the worker's declared base to BE
+# the Authority's canonical target, which is the ordinary rule rather than a
+# fixture convenience.
+PROPOSAL_BASE = "a1" * 20
+PROPOSAL_HEAD = "b2" * 20
+PROPOSAL_TRANSPORT = "change.bundle"
+
+
+class _ImplementationCustodian(_ReviewFileCustodian):
+    """The review fixture's real file custodian, for an implementation line."""
+
+    def prove_line_consumable(self, store, **operands):
+        self.consumed = getattr(self, "consumed", [])
+        self.consumed.append(dict(operands))
+        return {"line_id": "line-under-proof"}
+
+
+class _RealPublication:
+    """The publication seam, over the ACTUAL integration owner.
+
+    W120425 review 2026-09-08T16-18-42Z [P1]: the previous stand-in composed
+    its own proposal manifest and retained it, so its "published" evidence was
+    a retained proposal and its positive proof could not tell retained-but-
+    unpublished from published. This calls `retain_proposal` and
+    `publish_candidate` for real -- so the Authority is asked, its answer is
+    verified, its readback is compared, and W120763's local record is
+    committed -- and `published_of` reads that record through
+    `integration.publication_of` with no publisher at all.
+
+    THE CONTRACT W119114 HAS TO IMPLEMENT, written as the smallest thing that
+    satisfies it. `published_of` keeps no cache: the selector is re-derived
+    from the same durable proposal every time, so the same object answers
+    identically in a process that never published.
+    """
+
+    def __init__(self, case, publisher):
+        self.case = case
+        self.publisher = publisher
+        self.published = []
+        self.retained = {}
+
+    def publish(self, *, attempt_id, result_id, manifest_digest, artifacts,
+                proposal):
+        held = integration_driver.retain_proposal(
+            self.case.control, self.publisher, attempt_id=attempt_id)
+        self.retained[attempt_id] = held
+        answered = integration_driver.publish_candidate(
+            self.case.control, self.publisher, attempt_id=attempt_id,
+            proposal_manifest_digest=held)
+        self.published.append(attempt_id)
+        return answered
+
+    def published_of(self, *, attempt_id):
+        """The COLD half, and it remembers nothing at all.
+
+        W120425 review 2026-09-08T17-37-36Z [P1]: this used to re-derive the
+        selector through `retain_proposal`, which reads the live canonical
+        target and opens a write transaction -- so the "cold" proof performed
+        external work, and keeping the answer in a dictionary that survives
+        reopening was the cache the review named. W121793's
+        `publication_for_attempt` answers from the attempt alone, so there is
+        nothing here to remember and nothing to ask a publisher.
+        """
+        return integration_driver.publication_for_attempt(
+            self.case.control, attempt_id=attempt_id)
+
+
+class TheImplementationResumeReadsRealCommittedCustody(ReviewResultCase):
+    """One real implementation ending, reopened, and resumed from its records."""
+
+    line_base = TheWorkerCompletionTraversesPublicCustody.line_base
+    repository = TheWorkerCompletionTraversesPublicCustody.repository
+    write = staticmethod(TheWorkerCompletionTraversesPublicCustody.write)
+    # W120425: AND A PROPOSAL OUTPUT, because a real publication is composed
+    # from one. `retain_proposal` selects the single present proposal-typed
+    # output of the frozen result and reads the worker's own four-member claim
+    # out of it; a fixture that declared none could only ever manufacture that
+    # producer's evidence.
+    DECLARED = copy.deepcopy(
+        TheWorkerCompletionTraversesPublicCustody.DECLARED) + [
+        dict(copy.deepcopy(
+            TheWorkerCompletionTraversesPublicCustody.DECLARED[0]),
+            name="proposal", path="proposal",
+            type=integration_driver.PROPOSAL_OUTPUT)]
+
+    ATTEMPT = "public-implementation"
+    POLICY = "sha256:" + "9" * 64
+
+    def setUp(self):
+        super().setUp()
+        import sys
+        worker = pathlib.Path(__file__).resolve().parents[3] / "worker"
+        for place in (worker, worker.parent / "python/src/baton_v12"):
+            if str(place) not in sys.path:
+                sys.path.insert(0, str(place))
+        global baton_worker
+        import baton_worker
+        self.store = self.control
+        self.publisher = LinePublisher(PROPOSAL_BASE)
+        self.publication = _RealPublication(self, self.publisher)
+
+    # -- the plumbing, kept beside the proof it serves ------------------------
+
+    def registered(self, attempt_id, participant, principal):
+        """One activated attempt over the real offer/claim/activation owners.
+
+        The same shape `TheWorkerCompletionTraversesPublicCustody.registered`
+        composes, written here rather than inherited because inheriting that
+        class would re-run its model turn for every case below.
+        """
+        from baton_v12.worker_manager import (AuthorityPort, accept_offer,
+            activate_assignment, issue_offer, record_attempt, retain_manifest,
+            submit_claim)
+        from tests.manager.test_offers import (SCOPE, decision,
+                                               fake_claim_signature)
+        from tests.manager.test_output import OutputCase, sealed
+        from tests.manager.test_attempts import ADAPTER
+        declaration = sealed(dict(
+            OutputCase.published(),
+            work_ref={"authority_uuid": self.AUTHORITY, "work_id": WORK_A},
+            outputs=copy.deepcopy(self.DECLARED),
+            runtime_profile_digest=PROFILE, policy_digest=_CUSTODY_POLICY))
+        input_digest = retain_manifest(self.control, declaration,
+                                       "inputManifest")["digest"]
+        session = _EndingAuthority(participant=participant, work={
+            "status": "open", "phase": "queued", "handler": None,
+            "gate": None, "authority_uuid": self.AUTHORITY, "scope": SCOPE,
+            "route": "review"})
+        assignment = {"work_ref": {"authority_uuid": self.AUTHORITY,
+                                   "work_id": WORK_A},
+                      "participant": participant, "generation": 1}
+        session.claim_answer = {"assignment": assignment, "claim_event": 1,
+            "decision": decision(participant=participant, principal=principal,
+                                 role="review")}
+        session.live_assignment = dict(assignment)
+        session.fence_answer = {"cause": "cancelled",
+                                "assignment": dict(assignment),
+                                "phase": "block",
+                                "gate": "runtime-quiescence:1", "fenced": True}
+        port = AuthorityPort(session, fake_claim_signature)
+        offer_id = "offer-" + attempt_id
+        issue_offer(self.control, port, offer_id=offer_id, work_id=WORK_A,
+                    runtime_attempt_id=attempt_id, input_digest=input_digest,
+                    policy_digest=_CUSTODY_POLICY, profile_digest=PROFILE,
+                    profile_name="reference",
+                    mint_bearer=lambda: "fixture-offer-bearer")
+        accept_offer(self.control, port, offer_id=offer_id, decision="accept",
+                     bearer="fixture-offer-bearer", now=NOW,
+                     runtime_attempt_id=attempt_id,
+                     work_ref=assignment["work_ref"])
+        record_attempt(self.control, attempt_id=attempt_id, adapter_name="acp",
+                       adapter_digest=ADAPTER, profile_digest=PROFILE,
+                       input_digest=input_digest,
+                       policy_digest=_CUSTODY_POLICY)
+        submit_claim(self.control, port, offer_id=offer_id)
+        activate_assignment(self.control, port, attempt_id=attempt_id,
+                            expect=assignment)
+        roots = assignment_workspace(self.group, self.storage, attempt_id)
+        adapter = _ImplementationCustodian("runtime-" + attempt_id, roots,
+                                           declaration, _CUSTODY_POLICY)
+        return port, adapter, assignment
+
+    def started(self, attempt_id, adapter, assignment):
+        from baton_v12.worker_manager import (reconcile_runtime,
+                                              request_runtime_start)
+        inputs, _ = input_roots.composed(
+            self, self.storage, work_ref=assignment["work_ref"],
+            participant=assignment["participant"], generation=1,
+            runtime_attempt_id=attempt_id, given=adapter.declaration)
+        request_runtime_start(self.control, adapter, attempt_id=attempt_id,
+                              inputs=inputs)
+        reconcile_runtime(self.control, adapter, attempt_id=attempt_id)
+
+    # -- the ordinary ending, actually performed -----------------------------
+
+    def implemented(self):
+        """One real implementation attempt, ended through the real driver."""
+        port, adapter, assignment = self.registered(
+            self.ATTEMPT, WRITER, "public-implementation-principal")
+        writer = review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"],
+            attempt_id=self.ATTEMPT, generation=1,
+            worker_id="public-implementation-worker", profile=self.profile)
+        self.started(self.ATTEMPT, adapter, assignment)
+        claim = {"base": PROPOSAL_BASE, "head": PROPOSAL_HEAD,
+                 "transport": PROPOSAL_TRANSPORT, "recap": "implemented"}
+        with mock.patch.object(baton_worker, "OUTPUT_ROOT",
+                               adapter.roots["workspace"]):
+            for declaration in self.DECLARED:
+                # THE TRANSPORT IS A FILE THE MANAGER MEASURES. `_claim_of`
+                # refuses a locator the content manifest did not weigh, so the
+                # worker writes its objects where it says they are.
+                name = (PROPOSAL_TRANSPORT if declaration["name"] == "proposal"
+                        else "produced.txt")
+                self.write(os.path.join(adapter.roots["workspace"],
+                                        declaration["path"], name),
+                           "implementation output\n")
+            outputs = baton_worker.answered(
+                self.DECLARED,
+                [{"name": declaration["name"], "status": "present",
+                  "result_metadata": (
+                      {integration_driver.CLAIM_NAMESPACE: dict(claim)}
+                      if declaration["name"] == "proposal" else {})}
+                 for declaration in self.DECLARED])
+            terminal = baton_worker.publish_completion(assignment, "completed",
+                                                       outputs)
+        ended = review_driver.end_implementation(
+            self.control, port, adapter, self.publication,
+            attempt_id=self.ATTEMPT, disposition="completed",
+            terminal=terminal, writer_id=writer["writer_id"], generation=1,
+            profile=self.profile, retention_disposition="retain",
+            retention_policy_digest=self.POLICY, proposal=None)
+        return {"port": port, "adapter": adapter, "writer": writer,
+                "terminal": terminal, "ended": ended}
+
+    def reopened(self):
+        """A control store handle that performed none of the ending above."""
+        from baton_v12.worker_manager import ControlStore
+        place = os.path.join(self.root, "control.sqlite3")
+        self.control.close()
+        self.control = ControlStore.open(place, incarnation="manager-2",
+                                         clock=self.clock)
+        self.addCleanup(self.control.close)
+        return self.control
+
+    def resume(self, held, **changed):
+        operands = {"attempt_id": self.ATTEMPT, "disposition": "completed",
+                    "terminal": held["terminal"],
+                    "writer_id": held["writer"]["writer_id"], "generation": 1,
+                    "profile": self.profile,
+                    "retention_disposition": "retain",
+                    "retention_policy_digest": self.POLICY, "proposal": None}
+        operands.update(changed)
+        return review_driver.end_implementation(
+            self.control, held["port"], _NoRuntime(), self.publication,
+            **operands)
+
+    @contextlib.contextmanager
+    def no_runtime_or_write(self, held, *, authority=True):
+        """No runtime, no worker, no publication, and no control write.
+
+        `authority=False` is used by exactly one case, which documents the one
+        residual this Work could not close from its two owned paths: see
+        `test_a_cleanup_axis_without_its_committed_destroy_refuses`.
+        """
+        calls = copy.deepcopy(held["port"]._session.calls)
+        changes = self.control._connection.total_changes
+        published = list(self.publication.published)
+        with contextlib.ExitStack() as stack:
+            for verb in ("stop", "seal", "collect", "retain", "destroy",
+                         "normalize_directory", "prove_line_consumable"):
+                stack.enter_context(mock.patch.object(
+                    held["adapter"], verb,
+                    side_effect=AssertionError(
+                        f"a resumed ending called the adapter's {verb}")))
+            stack.enter_context(mock.patch.object(
+                self.publication, "publish",
+                side_effect=AssertionError("a resumed ending published")))
+            yield
+        if authority:
+            self.assertEqual(held["port"]._session.calls, calls)
+        self.assertEqual(self.control._connection.total_changes, changes)
+        self.assertEqual(self.publication.published, published)
+
+    @contextlib.contextmanager
+    def no_remote(self, held):
+        """Every publisher method and the proposal producer, forbidden.
+
+        Review [P1]: `no_external_act` watched the adapter and this deployment's
+        `publish`, and never the separate publisher transport a cold seam might
+        reach. These are the acts a historical recovery may not perform, named
+        one by one rather than counted.
+        """
+        with self.no_external_act(held), contextlib.ExitStack() as stack:
+            for verb in ("publish", "proposal", "canonical_target"):
+                stack.enter_context(mock.patch.object(
+                    self.publisher, verb, side_effect=AssertionError(
+                        f"a resumed ending reached the publisher's {verb}")))
+            stack.enter_context(mock.patch.object(
+                integration_driver, "retain_proposal",
+                side_effect=AssertionError(
+                    "a resumed ending composed a proposal")))
+            yield
+
+    @contextlib.contextmanager
+    def denied_writes(self):
+        """SQLite itself refuses every write for the duration.
+
+        `total_changes` staying zero proves no row moved; it does not prove
+        nothing tried, and the review is right that a read-only claim wants
+        the stronger statement. The connection's own authorizer denies INSERT,
+        UPDATE and DELETE, so an attempted write fails inside the driver
+        rather than being counted afterwards.
+        """
+        import sqlite3
+
+        connection = self.control._connection
+        denied = (sqlite3.SQLITE_INSERT, sqlite3.SQLITE_UPDATE,
+                  sqlite3.SQLITE_DELETE)
+
+        def authorize(action, *rest):
+            return (sqlite3.SQLITE_DENY if action in denied
+                    else sqlite3.SQLITE_OK)
+
+        connection.set_authorizer(authorize)
+        try:
+            yield
+        finally:
+            connection.set_authorizer(None)
+
+    @contextlib.contextmanager
+    def no_external_act(self, held):
+        """No runtime, no worker, no Authority, and no control write."""
+        with self.no_runtime_or_write(held):
+            yield
+
+    # -- the positive proof --------------------------------------------------
+
+    def test_the_ordinary_ending_leaves_every_record_a_resume_reads(self):
+        """The precondition, measured at each owner rather than assumed."""
+        from baton_v12.worker_manager import (attempt_runtime_of,
+            frozen_output_of, intake_receipt_of, load_manifest, retentions_of)
+        held = self.implemented()
+        frozen = frozen_output_of(self.control, self.ATTEMPT)
+        receipt = intake_receipt_of(self.control, self.ATTEMPT)
+        retained = retentions_of(self.control, self.ATTEMPT)
+        runtime = attempt_runtime_of(self.control, self.ATTEMPT)
+        self.assertEqual(frozen["disposition"], "completed")
+        self.assertEqual(receipt["custody"], "accepted")
+        self.assertTrue(retained)
+        self.assertTrue(all(one["disposition"] == "retain"
+                            and one["retention_policy_digest"] == self.POLICY
+                            for one in retained))
+        self.assertEqual((runtime["execution_runtime"], runtime["cleanup"]),
+                         ("destroyed", "retained"))
+        self.assertEqual(len(held["adapter"].destroyed_with), 1)
+        # THE COMMITTED ACT, not the axis: the destroy is a journalled
+        # operation and this is the one the resume replays.
+        self.assertEqual(self.control._connection.execute(
+            "SELECT count(*) FROM operations WHERE kind = 'runtime.destroy' "
+            "AND state = 'committed'").fetchone()[0], 1)
+        # THE PUBLICATION IS REAL AND ITS LOCAL RECORD IS COMMITTED. The
+        # ordinary ending answers with the Authority's own recorded proposal;
+        # what a resume reads is the record `publish_candidate` committed
+        # after that answer was verified.
+        self.assertEqual(held["ended"]["published"]["candidate_digest"],
+                         PROPOSAL_HEAD)
+        self.assertEqual(self.publication.published, [self.ATTEMPT])
+        selector = self.publication.retained[self.ATTEMPT]
+        self.assertIsNotNone(review_driver.load_manifest(
+            self.control, selector, "proposalManifest"))
+        self.assertIsNotNone(integration_driver.publication_of(
+            self.control, attempt_id=self.ATTEMPT,
+            proposal_manifest_digest=selector))
+
+    def test_a_reopened_manager_finishes_the_ending_from_those_records(self):
+        held = self.implemented()
+        ended = held["ended"]
+        self.reopened()
+        with self.no_external_act(held):
+            resumed = self.resume(held)
+        # THE WHOLE DOCUMENT, MEMBER FOR MEMBER. Review [P2]: the resume used
+        # to answer the publication RECORD where the ordinary ending answers
+        # the Authority's own reply, which made `published` the one member the
+        # two paths did not share. The committed receipt carries that reply, so
+        # there is nothing the two paths cannot agree on.
+        self.assertEqual(resumed, ended)
+
+    def test_resuming_again_answers_the_same_and_still_spends_nothing(self):
+        held = self.implemented()
+        self.reopened()
+        with self.no_external_act(held):
+            first = self.resume(held)
+            self.assertEqual(self.resume(held), first)
+            self.assertEqual(self.resume(held), first)
+
+    def test_the_line_its_writer_and_its_checkpoint_are_left_alone(self):
+        from baton_v12.worker_manager import checkpoint_of, writer_of
+        held = self.implemented()
+        self.reopened()
+        before = (line_of(self.control, self.line["line_id"]),
+                  writer_of(self.control, held["writer"]["writer_id"]),
+                  checkpoint_of(self.control,
+                                held["ended"]["checkpoint_id"]))
+        with self.no_external_act(held):
+            self.resume(held)
+        self.assertEqual(
+            (line_of(self.control, self.line["line_id"]),
+             writer_of(self.control, held["writer"]["writer_id"]),
+             checkpoint_of(self.control, held["ended"]["checkpoint_id"])),
+            before)
+
+    # -- the negative proof, against the same real records -------------------
+
+    def damaged(self, held, statement, values=(), *, authority=True):
+        """One committed record altered, with everything else left real."""
+        self.control._connection.execute("SAVEPOINT damaged")
+        try:
+            self.control._connection.execute(statement, values)
+            with self.no_runtime_or_write(held, authority=authority):
+                return self.refusal(self.resume, held)
+        finally:
+            self.control._connection.execute("ROLLBACK TO damaged")
+            self.control._connection.execute("RELEASE damaged")
+
+    def test_a_cleanup_axis_without_its_committed_destroy_refuses(self):
+        """The reviewer's exact reproduction, over real custody.
+
+        The axis says the runtime is gone and the journal does not, which is
+        what an edit reaches and what an ending never produces.
+
+        AND THE RESIDUAL IS CLOSED. The previous pass measured one Authority
+        read here, because it asked the SERVING `authorize_cleanup` and that
+        act queries the live assignment when it finds no committed destroy to
+        replay. W120762's `cleanup_of` takes no port and no adapter, so there
+        is no branch left that could reach the Authority -- and
+        `no_external_act` asserts the call list is unchanged rather than
+        tolerating one read.
+        """
+        held = self.implemented()
+        self.reopened()
+        caught = self.damaged(held, "DELETE FROM operations WHERE kind = "
+                                    "'runtime.destroy'")
+        self.assertIn("no committed ordinary cleanup", caught.message)
+
+    def test_a_cleanup_committed_for_another_runtime_refuses(self):
+        held = self.implemented()
+        self.reopened()
+        caught = self.damaged(held, "UPDATE attempts SET runtime_id = "
+                                    "'another-runtime' WHERE "
+                                    "runtime_attempt_id = ?", (self.ATTEMPT,))
+        self.assertIsInstance(caught, ContractRefusal)
+
+    def test_the_cleanup_axis_no_longer_decides_anything(self):
+        """The [P1] correction, stated as the property that now holds.
+
+        The first version asked the mutable `cleanup` column and then asked a
+        serving act to confirm it. `cleanup_of` derives the destroy identity
+        from the intake receipt and the retention policy and answers from the
+        COMMITTED act, so moving the column changes neither the answer nor
+        anything the resume does with it -- and an axis edited without its
+        journal cannot manufacture a resume, which
+        `test_a_cleanup_axis_without_its_committed_destroy_refuses` measures
+        from the other side.
+        """
+        held = self.implemented()
+        self.reopened()
+        with self.no_external_act(held):
+            answered = self.resume(held)
+        for cleanup in ("pending", "blocked-on-intake", "failed"):
+            with self.subTest(cleanup=cleanup):
+                self.control._connection.execute("SAVEPOINT moved")
+                try:
+                    self.control._connection.execute(
+                        "UPDATE attempts SET cleanup = ? WHERE "
+                        "runtime_attempt_id = ?", (cleanup, self.ATTEMPT))
+                    with self.no_external_act(held):
+                        self.assertEqual(self.resume(held), answered)
+                finally:
+                    self.control._connection.execute("ROLLBACK TO moved")
+                    self.control._connection.execute("RELEASE moved")
+
+    def test_an_incomplete_retention_refuses(self):
+        held = self.implemented()
+        self.reopened()
+        for name, statement in (
+                ("no decision at all", "DELETE FROM retentions WHERE "
+                                       "runtime_attempt_id = ?"),
+                ("another policy", "UPDATE retentions SET "
+                                   "retention_policy_digest = 'sha256:foreign'"
+                                   " WHERE runtime_attempt_id = ?")):
+            with self.subTest(retention=name):
+                caught = self.damaged(held, statement, (self.ATTEMPT,))
+                # EITHER REFUSAL IS THE RIGHT ONE. A missing decision is this
+                # driver's comparison; a decision whose policy no longer
+                # matches the act that made it is the retention owner's own
+                # authentication, which refuses first and says more.
+                self.assertIsInstance(caught, ContractRefusal)
+                self.assertTrue("retention operands" in caught.message
+                                or "the journal did not" in caught.message,
+                                caught.message)
+
+    def test_a_partly_retained_result_set_refuses(self):
+        """One artifact's decision removed, which the cleanup receipt names.
+
+        The committed destroy records exactly what it KEPT, so a retention set
+        that no longer matches it is a store whose two accounts disagree.
+        """
+        held = self.implemented()
+        self.reopened()
+        caught = self.damaged(
+            held, "DELETE FROM retentions WHERE runtime_attempt_id = ? AND "
+                  "artifact_id = (SELECT min(artifact_id) FROM retentions "
+                  "WHERE runtime_attempt_id = ?)",
+            (self.ATTEMPT, self.ATTEMPT))
+        self.assertIsInstance(caught, ContractRefusal)
+
+    def test_a_missing_intake_receipt_refuses(self):
+        held = self.implemented()
+        self.reopened()
+        caught = self.damaged(held, "DELETE FROM intakes WHERE "
+                                    "runtime_attempt_id = ?", (self.ATTEMPT,))
+        self.assertIn("no accepted intake receipt", caught.message)
+
+    def test_a_missing_frozen_result_refuses(self):
+        held = self.implemented()
+        self.reopened()
+        caught = self.damaged(held, "DELETE FROM outputs WHERE "
+                                    "runtime_attempt_id = ?", (self.ATTEMPT,))
+        self.assertIn("no retained frozen result", caught.message)
+
+    def test_a_foreign_terminal_envelope_refuses(self):
+        held = self.implemented()
+        self.reopened()
+        with self.no_external_act(held):
+            caught = self.refusal(
+                self.resume, held,
+                terminal={"manifest_digest": "sha256:" + "8" * 64})
+        self.assertEqual(caught.code, "operation-collision")
+
+    def later_round(self, held):
+        """An ACTUAL later round, through the public lifecycle owners.
+
+        W120425 review 2026-09-08T17-37-36Z: the pointer-corruption control
+        proves independence from `current_checkpoint_id` and does not prove
+        recovery after a real round has advanced the line. This attaches an
+        independent reviewer to the frozen checkpoint, records a
+        changes-requested verdict, grants the correction writer that verdict
+        earns, and freezes its checkpoint -- so the line genuinely moves to
+        revision two under its own owners before the earlier ending is
+        recovered.
+        """
+        from baton_v12.worker_manager import (freeze_checkpoint, line_of,
+                                              record_verdict)
+        reviewer = self.attempt("later-review", 1, REVIEWER,
+                                "later-review-principal")
+        attached = review_driver.prepare_review(
+            self.control, checkpoint_id=held["ended"]["checkpoint_id"],
+            attempt_id=reviewer, generation=1,
+            reviewer_worker_id="later-review-worker", profile=self.profile)
+        self.completed(reviewer, review=True)
+        record_verdict(self.control,
+                       attachment_id=attached["attachment_id"],
+                       disposition="changes-requested", profile=self.profile,
+                       port=self.port(REVIEWER))
+        self.assertEqual(line_of(self.control,
+                                 self.line["line_id"])["state"],
+                         "correction-ready")
+        second = self.attempt("later-implementation", 2, WRITER,
+                              "later-implementation-principal")
+        writer = review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"], attempt_id=second,
+            generation=2, worker_id="later-implementation-worker",
+            profile=self.profile,
+            based_checkpoint_id=held["ended"]["checkpoint_id"])
+        self.completed(second)
+        later = freeze_checkpoint(self.control, writer_id=writer["writer_id"],
+                                  generation=2, profile=self.profile,
+                                  port=self.port(WRITER))
+        line = line_of(self.control, self.line["line_id"])
+        self.assertEqual(line["revision"], 2)
+        self.assertEqual(line["current_checkpoint_id"],
+                         later["checkpoint_id"])
+        self.assertNotEqual(later["checkpoint_id"],
+                            held["ended"]["checkpoint_id"])
+        return later
+
+    def test_a_real_later_round_does_not_strand_the_earlier_ending(self):
+        """The required later-state proof, over an actual advanced line.
+
+        The line is at revision two, holding another writer's checkpoint,
+        before this reconstructs the manager and recovers the FIRST ending --
+        which still answers its own checkpoint and its own document.
+        """
+        held = self.implemented()
+        ended = held["ended"]
+        later = self.later_round(held)
+        self.reopened()
+        self.publication = _RealPublication(self, self.publisher)
+        with self.denied_writes(), self.no_remote(held):
+            resumed = self.resume(held)
+        self.assertEqual(resumed, ended)
+        self.assertNotEqual(resumed["checkpoint_id"], later["checkpoint_id"])
+
+    def test_the_resume_survives_the_line_moving_on(self):
+        """W120425 review 2026-09-08T16-18-42Z: the required later-state proof.
+
+        The first version required the line's CURRENT checkpoint to be this
+        writer's, which is a mutable pointer that every later round moves --
+        so an honest recovery of an earlier ending became impossible exactly
+        when a correction had happened. `freeze_checkpoint` selects by
+        `writer_id`, so the resume finds this writer's own checkpoint whatever
+        the line has since done, and this drives the pointer away from it and
+        asserts the answer is unchanged.
+
+        A POSITIVE PROOF AND NOT A CORRUPTION REFUSAL. The pointer moving is
+        what line movement IS to this path; the case asserts recovery still
+        succeeds and still answers this ending's checkpoint.
+        """
+        held = self.implemented()
+        self.reopened()
+        with self.no_external_act(held):
+            answered = self.resume(held)
+        for name, statement, values in (
+                ("the line has advanced past it",
+                 "UPDATE review_lines SET revision = 9, "
+                 "current_checkpoint_id = 'checkpoint-later' WHERE "
+                 "line_id = ?", (self.line["line_id"],)),
+                ("the line holds no checkpoint at all",
+                 "UPDATE review_lines SET revision = 0, "
+                 "current_checkpoint_id = NULL WHERE line_id = ?",
+                 (self.line["line_id"],))):
+            with self.subTest(moved=name):
+                self.control._connection.execute("SAVEPOINT moved")
+                try:
+                    self.control._connection.execute(statement, values)
+                    with self.no_external_act(held):
+                        resumed = self.resume(held)
+                    self.assertEqual(resumed, answered)
+                    self.assertEqual(resumed["checkpoint_id"],
+                                     held["ended"]["checkpoint_id"])
+                finally:
+                    self.control._connection.execute("ROLLBACK TO moved")
+                    self.control._connection.execute("RELEASE moved")
+
+    def test_a_publication_this_manager_never_committed_refuses(self):
+        """The durable half, measured by taking the owner's record away.
+
+        The retained proposal manifest stays exactly where it was, which is
+        the point: a proposal was prepared and this manager holds no record
+        that it was ever published, so the resume refuses instead of reading
+        preparation as evidence.
+        """
+        held = self.implemented()
+        self.reopened()
+        self.assertIsNotNone(review_driver.load_manifest(
+            self.control, self.publication.retained[self.ATTEMPT],
+            "proposalManifest"))
+        caught = self.damaged(held, "DELETE FROM operations WHERE kind = ?",
+                              (integration_driver.PUBLICATION_KIND,))
+        self.assertIn("no committed publication history", caught.message)
+
+    def test_a_cold_manager_and_a_cold_seam_recover_the_ending(self):
+        """W120425 review 2026-09-08T17-37-36Z [P1]: the cold proof, for real.
+
+        The previous version reopened the STORE and kept the seam -- whose
+        dictionary survived, and whose fallback called `retain_proposal`, which
+        reads the live canonical target and opens a write transaction. So the
+        cold recovery performed external work and the guard did not watch the
+        publisher's target transport at all.
+
+        Here the seam is reconstructed with the store, every publisher method
+        is forbidden, `retain_proposal` is forbidden, and the store is denied
+        writes outright -- so "cold" is measured rather than described.
+        """
+        held = self.implemented()
+        ended = held["ended"]
+        self.reopened()
+        # A SEAM THAT PUBLISHED NOTHING AND REMEMBERS NOTHING.
+        self.publication = _RealPublication(self, self.publisher)
+        self.assertEqual(self.publication.retained, {})
+        with self.denied_writes(), self.no_remote(held):
+            self.assertEqual(self.resume(held), ended)
+
+    def test_a_cold_recovery_survives_the_target_moving_on(self):
+        """The Authority may have advanced; a resume asks it nothing.
+
+        `retain_proposal` is explicitly live-target-dependent, so a seam that
+        re-derived its selector refused precondition once the target moved.
+        `publication_for_attempt` reads the attempt's own committed record.
+        """
+        held = self.implemented()
+        ended = held["ended"]
+        self.reopened()
+        self.publication = _RealPublication(self, self.publisher)
+        self.publisher.target = "c3" * 20
+        with self.denied_writes(), self.no_remote(held):
+            self.assertEqual(self.resume(held), ended)
+
+    def test_a_publication_this_manager_no_longer_retains_refuses(self):
+        """Restored, per owner121773's explicit stimulus requirement.
+
+        The retained proposal manifest is what the seam's record points at, so
+        taking it away leaves a committed publication naming evidence this
+        manager can no longer read. The diagnostic is the owning reader's --
+        `publication_for_attempt` validates through `publication_of`, which
+        needs that manifest -- which is the adjustment the ruling permits.
+        """
+        held = self.implemented()
+        self.reopened()
+        caught = self.damaged(held, "DELETE FROM manifests WHERE schema = ?",
+                              (PROPOSAL_SCHEMA,))
+        self.assertIsInstance(caught, ContractRefusal)
+
+    def test_the_publication_selector_is_derivable_after_reopening(self):
+        """Restored: the selector is reached from durable state, not carried.
+
+        Its prior assertion was that emptying what the seam remembered and
+        re-deriving it in a reopened process answers the same digest. The seam
+        now remembers nothing at all, so the same equality is exercised through
+        W121793's local reader -- and the resume still succeeds afterwards.
+        """
+        held = self.implemented()
+        selector = self.publication.retained[self.ATTEMPT]
+        ended = held["ended"]
+        self.reopened()
+        self.publication = _RealPublication(self, self.publisher)
+        self.assertEqual(self.publication.retained, {})
+        self.assertEqual(
+            self.publication.published_of(
+                attempt_id=self.ATTEMPT)["proposal_manifest_digest"],
+            selector)
+        with self.denied_writes(), self.no_remote(held):
+            self.assertEqual(self.resume(held), ended)
+
+    def test_every_fact_the_retained_proposal_fixes_is_correlated(self):
+        """Review 2026-09-08T19-29-00Z [P1]: four members were unchecked.
+
+        Substituting the candidate, target, input or policy in the recorded
+        answer completed a recovery and RETURNED the substituted answer. Each
+        is owned by the retained proposal manifest, so each is compared
+        against it -- on the receipt where it appears and on the answer.
+        """
+        held = self.implemented()
+        self.reopened()
+        answered = self.publication.published_of(attempt_id=self.ATTEMPT)
+        for member in ("candidate_digest", "target"):
+            with self.subTest(receipt=member):
+                with mock.patch.object(
+                        self.publication, "published_of",
+                        return_value=dict(answered,
+                                          **{member: "0" * 40})):
+                    with self.no_external_act(held):
+                        caught = self.refusal(self.resume, held)
+                self.assertIn(member, caught.message)
+        for member, value in (("candidate_digest", "0" * 40),
+                              ("target", "0" * 40),
+                              ("input_digest", "sha256:" + "5" * 64),
+                              ("policy_digest", "sha256:" + "5" * 64)):
+            with self.subTest(answer=member):
+                with mock.patch.object(
+                        self.publication, "published_of",
+                        return_value=dict(answered, published=dict(
+                            answered["published"], **{member: value}))):
+                    with self.no_external_act(held):
+                        caught = self.refusal(self.resume, held)
+                self.assertIn(member, caught.message)
+
+    def test_a_boolean_generation_is_not_this_endings_assignment(self):
+        """[P2]: `True == 1`, and the nested answer is what this returns."""
+        held = self.implemented()
+        self.reopened()
+        answered = self.publication.published_of(attempt_id=self.ATTEMPT)
+        for name, changed in (
+                ("the receipt's own assignment",
+                 {"assignment": dict(answered["assignment"],
+                                     generation=True)}),
+                ("the recorded Authority answer",
+                 {"published": dict(answered["published"],
+                                    assignment_ref=dict(
+                                        answered["published"]
+                                        ["assignment_ref"],
+                                        generation=True))})):
+            with self.subTest(assignment=name):
+                with mock.patch.object(self.publication, "published_of",
+                                       return_value=dict(answered, **changed)):
+                    with self.no_external_act(held):
+                        caught = self.refusal(self.resume, held)
+                self.assertIn("generation", caught.message)
+
+    def test_a_publication_history_that_names_another_result_refuses(self):
+        held = self.implemented()
+        self.reopened()
+        answered = self.publication.published_of(attempt_id=self.ATTEMPT)
+        for name, changed in (
+                ("another attempt", {"attempt_id": "another-attempt"}),
+                ("another result", {"result_id": "another-result"}),
+                ("another result manifest",
+                 {"result_manifest_digest": "sha256:" + "3" * 64}),
+                ("another assignment",
+                 {"assignment": dict(answered["assignment"],
+                                     generation=99)}),
+                # RESTORED, review [P1]: an honest `publication_of` validates
+                # its own record and says nothing about a contradictory
+                # document arriving here.
+                ("another proposal", {"proposal_id": "proposal-elsewhere"}),
+                ("an unretained manifest",
+                 {"proposal_manifest_digest": "sha256:" + "3" * 64}),
+                ("an answer about another proposal",
+                 {"published": dict(answered["published"],
+                                    proposal_id="proposal-elsewhere")})):
+            with self.subTest(history=name):
+                with mock.patch.object(
+                        self.publication, "published_of",
+                        return_value=dict(answered, **changed)):
+                    with self.no_external_act(held):
+                        self.assertIsInstance(self.refusal(self.resume, held),
+                                              ContractRefusal)
+
+    def test_a_malformed_publication_history_refuses(self):
+        held = self.implemented()
+        self.reopened()
+        for answer in ([], {}, "published", {"attempt_id": self.ATTEMPT},
+                       dict(self.publication.published_of(
+                           attempt_id=self.ATTEMPT), extra="anything")):
+            with self.subTest(history=answer):
+                with mock.patch.object(self.publication, "published_of",
+                                       return_value=answer):
+                    with self.no_external_act(held):
+                        self.assertIsInstance(self.refusal(self.resume, held),
+                                              ContractRefusal)
+
+    def test_a_seam_with_no_replay_half_refuses(self):
+        held = self.implemented()
+        self.reopened()
+        self.publication = SimpleNamespace(publish=lambda **named: None)
+        with self.assertRaises(ContractRefusal) as raised:
+            self.resume(held)
+        self.assertIn("published_of", raised.exception.message)
+
+    # -- the seven cases restored, per review 2026-09-08T16-18-42Z ------------
+    #
+    # The previous pass removed these from the mock-seam class when the
+    # corrections made their fixtures unable to reach a positive answer. The
+    # review is right that an author's own unaccepted tests are not exempt
+    # from "preserve all existing assertions", so each is restored HERE by its
+    # original name, with its behavioural assertion intact, over the real
+    # committed custody that now makes it honest. Two are driven differently
+    # because the correction removed what they used to depend on, and each
+    # says so in its own words rather than quietly asserting something else.
+
+    def test_the_resume_answers_the_ordinary_endings_document(self):
+        held = self.implemented()
+        ended = held["ended"]
+        self.reopened()
+        with self.no_external_act(held):
+            answered = self.resume(held)
+        self.assertEqual(sorted(answered), sorted(
+            ("attempt_id", "disposition", "result_id", "manifest_digest",
+             "receipt_digest", "artifacts", "retention", "published",
+             "checkpoint_id", "checkpoint")))
+        self.assertEqual(answered["attempt_id"], self.ATTEMPT)
+        self.assertEqual(answered["disposition"], "completed")
+        self.assertEqual(answered["result_id"], ended["result_id"])
+        self.assertEqual(answered["manifest_digest"], ended["manifest_digest"])
+        self.assertEqual(answered["receipt_digest"], ended["receipt_digest"])
+        self.assertEqual(answered["artifacts"], ended["artifacts"])
+        self.assertEqual(answered["artifacts"],
+                         sorted(answered["artifacts"]))
+        self.assertEqual(answered["retention"], ended["retention"])
+        self.assertEqual(answered["published"], ended["published"])
+
+    def test_the_checkpoint_is_the_one_this_ending_already_froze(self):
+        held = self.implemented()
+        self.reopened()
+        with self.no_external_act(held):
+            answered = self.resume(held)
+        self.assertEqual(answered["checkpoint"], held["ended"]["checkpoint"])
+        self.assertEqual(answered["checkpoint_id"],
+                         held["ended"]["checkpoint_id"])
+        self.assertEqual(answered["checkpoint_id"],
+                         answered["checkpoint"]["checkpoint_id"])
+
+    def test_resuming_twice_answers_the_same_thing_and_does_nothing(self):
+        held = self.implemented()
+        self.reopened()
+        with self.no_external_act(held):
+            first = self.resume(held)
+            self.assertEqual(self.resume(held), first)
+            self.assertEqual(self.resume(held), first)
+
+    def test_the_line_and_its_writer_are_left_exactly_where_they_were(self):
+        from baton_v12.worker_manager import writer_of
+        held = self.implemented()
+        self.reopened()
+        before = (line_of(self.control, self.line["line_id"]),
+                  writer_of(self.control, held["writer"]["writer_id"]))
+        with self.no_external_act(held):
+            self.resume(held)
+        self.assertEqual(
+            (line_of(self.control, self.line["line_id"]),
+             writer_of(self.control, held["writer"]["writer_id"])), before)
+
+    def test_a_checkpoint_that_is_not_this_writers_frozen_one_refuses(self):
+        """Restored, and driven by the writer's own record rather than the
+        line's pointer.
+
+        The behavioural assertion is unchanged: a checkpoint this ending did
+        not freeze refuses, and nothing reaches the Authority while it does.
+        What changed is what makes that true. The pointer version required the
+        line's CURRENT checkpoint to be this writer's, which is exactly the
+        mutable dependency the review required removing; here the writer's own
+        committed freeze is taken away instead, so `freeze_checkpoint` finds
+        nothing to replay and refuses on the destroyed runtime.
+        """
+        held = self.implemented()
+        self.reopened()
+        caught = self.damaged(held, "DELETE FROM operations WHERE kind = "
+                                    "'review-line.freeze'")
+        self.assertIsInstance(caught, ContractRefusal)
+
+    def test_a_seam_that_cannot_answer_the_committed_publication_refuses(self):
+        held = self.implemented()
+        self.reopened()
+        self.assertEqual(review_driver.PUBLICATION_HISTORY,
+                         ("published_of",))
+        for name, publication, expected in (
+                ("no replay half",
+                 SimpleNamespace(publish=lambda **named: None),
+                 "published_of"),
+                ("nothing committed",
+                 SimpleNamespace(publish=lambda **named: None,
+                                 published_of=lambda **named: None),
+                 "no committed publication history")):
+            with self.subTest(seam=name):
+                self.publication = publication
+                with self.assertRaises(ContractRefusal) as raised:
+                    self.resume(held)
+                self.assertIn(expected, raised.exception.message)
+
+    def test_the_resumed_steps_are_the_ones_the_resume_performs(self):
+        self.assertEqual(review_driver.HISTORICAL_IMPLEMENTATION_ENDING,
+                         ("correlate", "intake", "retain", "cleanup",
+                          "checkpoint", "publish"))
+        for absent in ("quiesce", "observe", "consume", "freeze"):
+            self.assertIn(absent, review_driver.IMPLEMENTATION_ENDING)
+            self.assertNotIn(absent,
+                             review_driver.HISTORICAL_IMPLEMENTATION_ENDING)
+
+    def test_the_recorded_steps_are_the_ones_the_resume_performs(self):
+        held = self.implemented()
+        self.reopened()
+        recorded = []
+        real = {"_correlated": review_driver._correlated,
+                "cleanup_of": review_driver.cleanup_of}
+        forbidden = ("request_freeze", "observe", "request_intake",
+                     "decide_retention", "reconcile_runtime",
+                     "authorize_cleanup")
+        with contextlib.ExitStack() as stack:
+            for name in forbidden:
+                stack.enter_context(mock.patch.object(
+                    review_driver, name, side_effect=AssertionError(
+                        f"a resumed ending called {name}")))
+            stack.enter_context(mock.patch.object(
+                review_driver, "_correlated",
+                lambda *a, **k: (recorded.append("correlate"),
+                                 real["_correlated"](*a, **k))[1]))
+            stack.enter_context(mock.patch.object(
+                review_driver, "cleanup_of",
+                lambda *a, **k: (recorded.append("cleanup"),
+                                 real["cleanup_of"](*a, **k))[1]))
+            with self.no_external_act(held):
+                self.resume(held)
+        self.assertEqual(recorded, ["correlate", "cleanup"])
+        self.assertEqual(review_driver.HISTORICAL_IMPLEMENTATION_ENDING,
+                         ("correlate", "intake", "retain", "cleanup",
+                          "checkpoint", "publish"))
+        for absent in ("quiesce", "observe", "consume", "freeze"):
+            self.assertIn(absent, review_driver.IMPLEMENTATION_ENDING)
+            self.assertNotIn(absent,
+                             review_driver.HISTORICAL_IMPLEMENTATION_ENDING)
+
+
+
+class TheFencedEndingFinishesTheCleanupItStillOwes(
+        TheImplementationResumeReadsRealCommittedCustody):
+    """W124784: the cut between the checkpoint freeze and the cleanup.
+
+    `baton:work/records/2026/09/finding-v12-composed-ending-consumer/findings/
+    finding-checkpoint-fenced-cleanup/`.
+
+    STEP EIGHT ENDS THE ASSIGNMENT AND STEP NINE AUTHORIZES THE CLEANUP, so
+    one refused `authorize_cleanup` leaves a frozen checkpoint, a revoked
+    writer and a runtime still standing. `_destroyed` says an ending finished
+    and `_own_writer` says none of it has; this state is neither, and the
+    ordinary entry asked -- of the writer its own freeze had just taken away --
+    that it still be holding the line. The stage then stays `answering` and
+    asks for the same `conclude` forever.
+
+    THE FIXTURE IS INHERITED AND ITS CASES ARE NOT. Borrowing the methods by
+    name -- which is this file's usual way of avoiding a silently duplicated
+    suite -- cannot work here: `setUp` uses zero-argument `super()`, which is
+    bound to the class that DEFINES it, so a borrowed copy raises. So this
+    subclasses, and the block below the class removes the inherited case names
+    under this one. Everything the fixture composes is real: real offer, claim,
+    activation, runtime start, worker outputs, freeze, intake, retention,
+    Authority publication and checkpoint. The ONE injected thing is a single
+    cleanup refusal, which is the defect's own precondition.
+    """
+
+    # -- the cut, reached by refusing exactly one act ------------------------
+
+    def fenced(self):
+        """One real ending stopped between its own freeze and its cleanup."""
+        seen = {}
+        performing = review_driver.end_implementation
+
+        def recording(control, port, adapter, publication, **operands):
+            seen.update(operands, port=port, adapter=adapter)
+            return performing(control, port, adapter, publication, **operands)
+
+        with mock.patch.object(review_driver, "end_implementation", recording), \
+                mock.patch.object(
+                    review_driver, "authorize_cleanup",
+                    side_effect=ContractRefusal(
+                        "refused", "precondition",
+                        "the fixture withholds this cleanup once")):
+            with self.assertRaises(ContractRefusal) as caught:
+                self.implemented()
+        self.assertIn("withholds this cleanup", str(caught.exception))
+        return {"port": seen["port"], "adapter": seen["adapter"],
+                "writer": {"writer_id": seen["writer_id"]},
+                "terminal": seen["terminal"]}
+
+    def continued(self, held, **changed):
+        """The ordinary public entry, called again with the real adapter.
+
+        THE SAME FUNCTION AND THE SAME OPERANDS a serving loop would use on its
+        next tick. Nothing here selects a branch; `end_implementation` reads
+        the durable state and decides.
+        """
+        operands = {"attempt_id": self.ATTEMPT, "disposition": "completed",
+                    "terminal": held["terminal"],
+                    "writer_id": held["writer"]["writer_id"], "generation": 1,
+                    "profile": self.profile,
+                    "retention_disposition": "retain",
+                    "retention_policy_digest": self.POLICY, "proposal": None}
+        operands.update(changed)
+        return review_driver.end_implementation(
+            self.control, held["port"], held["adapter"], self.publication,
+            **operands)
+
+    @contextlib.contextmanager
+    def no_second_beginning(self, held):
+        """No re-grant, no second publication, no second checkpoint.
+
+        The runtime acts are deliberately NOT forbidden: the cleanup this
+        entry exists to reach destroys a container, and an assertion that it
+        touched no adapter would be an assertion that it did nothing.
+        """
+        del held
+        published = list(self.publication.published)
+        checkpoints = self.control._connection.execute(
+            "SELECT count(*) FROM line_checkpoints").fetchone()[0]
+        writers = self.control._connection.execute(
+            "SELECT count(*) FROM line_writers").fetchone()[0]
+        with mock.patch.object(
+                review_driver.review_cycles, "grant_writer",
+                side_effect=AssertionError("a fenced ending re-granted")), \
+                mock.patch.object(
+                    self.publication, "publish",
+                    side_effect=AssertionError(
+                        "a fenced ending published again")):
+            yield
+        self.assertEqual(self.publication.published, published)
+        self.assertEqual(self.control._connection.execute(
+            "SELECT count(*) FROM line_checkpoints").fetchone()[0],
+            checkpoints)
+        self.assertEqual(self.control._connection.execute(
+            "SELECT count(*) FROM line_writers").fetchone()[0], writers)
+
+    # -- the state this entry is about ---------------------------------------
+
+    def test_the_cut_is_a_frozen_checkpoint_beside_a_standing_runtime(self):
+        """Measured at each owner, so what follows is about a real state."""
+        from baton_v12.worker_manager import (attempt_runtime_of,
+                                              frozen_output_of,
+                                              intake_receipt_of, review_cycles)
+
+        held = self.fenced()
+        writer = review_cycles.writer_of(self.control,
+                                         held["writer"]["writer_id"])
+        runtime = attempt_runtime_of(self.control, self.ATTEMPT)
+        self.assertEqual(writer["state"], "revoked")
+        self.assertNotEqual(runtime["execution_runtime"], "destroyed")
+        # `pending` IS THE AXIS'S OWN WORD for this state, and naming it is
+        # the point: the ordinary ending had reached its cleanup and the
+        # cleanup had not settled.
+        self.assertEqual(runtime["cleanup"], "pending")
+        self.assertEqual(frozen_output_of(self.control,
+                                          self.ATTEMPT)["disposition"],
+                         "completed")
+        self.assertEqual(intake_receipt_of(self.control,
+                                           self.ATTEMPT)["custody"],
+                         "accepted")
+        self.assertEqual(self.publication.published, [self.ATTEMPT])
+        self.assertEqual(len(held["adapter"].destroyed_with), 0)
+
+    def test_the_ordinary_entry_finishes_it_instead_of_refusing(self):
+        """THE DEFECT, DRIVEN. This used to refuse `writer ... is revoked; an
+        ending fences the writer that is still holding the line`."""
+        held = self.fenced()
+        with self.no_second_beginning(held):
+            answered = self.continued(held)
+        self.assertEqual(answered["attempt_id"], self.ATTEMPT)
+        self.assertEqual(answered["disposition"], "completed")
+        self.assertEqual(len(held["adapter"].destroyed_with), 1)
+
+    def test_a_reopened_manager_finishes_it_from_committed_records(self):
+        """The cut, taken by a manager that performed none of the ending."""
+        from baton_v12.worker_manager import attempt_runtime_of
+
+        held = self.fenced()
+        self.reopened()
+        with self.no_second_beginning(held):
+            answered = self.continued(held)
+        runtime = attempt_runtime_of(self.control, self.ATTEMPT)
+        self.assertEqual((runtime["execution_runtime"], runtime["cleanup"]),
+                         ("destroyed", "retained"))
+        self.assertEqual(answered["checkpoint_id"],
+                         answered["checkpoint"]["checkpoint_id"])
+
+    def test_the_answer_is_the_historical_resumes_member_for_member(self):
+        """THE FINAL ORDINARY ANSWER, compared rather than described.
+
+        Once this entry has authorized the cleanup the attempt is destroyed,
+        so the very next call takes the accepted historical branch -- which
+        `TheTwoResumesShareOneEvidenceContract` already holds equal to the
+        ordinary ending's. Comparing the two here is what makes this a third
+        way of reaching one answer rather than a third answer.
+        """
+        held = self.fenced()
+        continued = self.continued(held)
+        self.reopened()
+        historical = self.resume(held)
+        self.assertEqual(continued, historical)
+
+    def test_it_replays_rather_than_destroying_twice(self):
+        held = self.fenced()
+        first = self.continued(held)
+        with self.no_second_beginning(held):
+            again = self.continued(held)
+        self.assertEqual(again, first)
+        self.assertEqual(len(held["adapter"].destroyed_with), 1)
+
+    # -- what it proves before the irreversible act --------------------------
+
+    def test_a_missing_publication_refuses_before_anything_is_destroyed(self):
+        """SEVEN IS LAST BECAUSE IT IS THE IRREVERSIBLE ONE.
+
+        A resume that destroyed the runtime first and then found its
+        publication missing would have answered a refusal having already
+        thrown away the container the evidence is about.
+        """
+        held = self.fenced()
+        with mock.patch.object(self.publication, "published_of",
+                               return_value=None):
+            with self.assertRaises(ContractRefusal) as caught:
+                self.continued(held)
+        self.assertIn("no committed publication history",
+                      str(caught.exception))
+        self.assertEqual(len(held["adapter"].destroyed_with), 0)
+
+    def test_a_foreign_frozen_disposition_refuses_before_the_destroy(self):
+        held = self.fenced()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.continued(held, disposition="rejected")
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.assertEqual(len(held["adapter"].destroyed_with), 0)
+
+    def test_a_terminal_naming_another_envelope_refuses(self):
+        held = self.fenced()
+        terminal = dict(held["terminal"],
+                        manifest_digest="sha256:" + "e" * 64)
+        with self.assertRaises(ContractRefusal):
+            self.continued(held, terminal=terminal)
+        self.assertEqual(len(held["adapter"].destroyed_with), 0)
+
+    def test_other_retention_operands_refuse(self):
+        held = self.fenced()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.continued(held, retention_policy_digest="sha256:" + "7" * 64)
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.assertEqual(len(held["adapter"].destroyed_with), 0)
+
+    def test_another_generation_never_selects_this_branch(self):
+        """`_fence_settled` asks through the attempt and its generation, so a
+        stale generation finds no fence of its own and meets the ordinary
+        entry's refusal."""
+        held = self.fenced()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.continued(held, generation=2)
+        self.assertEqual(len(held["adapter"].destroyed_with), 0)
+        self.assertIsNotNone(caught.exception.message)
+
+    def test_a_foreign_writer_identity_meets_the_ordinary_refusal(self):
+        """The binding `_own_writer` exists for is made BEFORE any state
+        decides a branch, so naming somebody else's writer selects nothing."""
+        held = self.fenced()
+        other = self.control._connection.execute(
+            "SELECT writer_id FROM line_writers WHERE runtime_attempt_id != ?",
+            (self.ATTEMPT,)).fetchone()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.continued(held, writer_id=(other[0] if other
+                                            else "writer-nobody-granted"))
+        self.assertEqual(len(held["adapter"].destroyed_with), 0)
+        self.assertEqual(caught.exception.category, "refused")
+
+    # -- and the two paths this one sits between, untouched ------------------
+
+    def test_an_active_writer_still_takes_the_ordinary_path(self):
+        """`_fence_settled` is false while the writer holds the line, so an
+        ordinary first ending is unchanged."""
+        from baton_v12.worker_manager import review_cycles
+
+        port, adapter, assignment = self.registered(
+            "fence-active", WRITER, "fence-active-principal")
+        del port, adapter, assignment
+        writer = review_driver.prepare_implementation(
+            self.control, line_id=self.line["line_id"],
+            attempt_id="fence-active", generation=1,
+            worker_id="fence-active-worker", profile=self.profile)
+        self.assertEqual(
+            review_cycles.writer_of(self.control,
+                                    writer["writer_id"])["state"], "active")
+        self.assertFalse(review_driver._fence_settled(
+            self.control, writer_id=writer["writer_id"],
+            attempt_id="fence-active", generation=1))
+
+    def test_a_destroyed_runtime_still_takes_the_historical_path(self):
+        """Both are true of a finished ending -- the writer is revoked AND the
+        runtime is gone -- and `_destroyed` is asked first, so the accepted
+        historical branch keeps every attempt it had."""
+        held = self.fenced()
+        self.continued(held)
+        self.assertTrue(review_driver._destroyed(self.control, self.ATTEMPT))
+        self.assertTrue(review_driver._fence_settled(
+            self.control, writer_id=held["writer"]["writer_id"],
+            attempt_id=self.ATTEMPT, generation=1))
+        self.reopened()
+        with self.no_second_beginning(held):
+            answered = self.resume(held)
+        self.assertEqual(answered["attempt_id"], self.ATTEMPT)
+
+    def test_an_attempt_with_no_writer_at_all_selects_nothing(self):
+        self.assertFalse(review_driver._fence_settled(
+            self.control, writer_id="writer-nobody-granted",
+            attempt_id="attempt-nobody-granted", generation=1))
+
+
+# INHERITED CASES ARE NOT RE-RUN UNDER THE SUBCLASS'S NAME. `getTestCaseNames`
+# collects the attributes that are CALLABLE, so naming each inherited case
+# `None` removes it here and changes nothing about the class that owns it. The
+# duplication this prevents is silent: it inflates every count in this suite
+# without failing anything.
+for _inherited in [_name for _name in
+                   vars(TheImplementationResumeReadsRealCommittedCustody)
+                   if _name.startswith("test_")]:
+    setattr(TheFencedEndingFinishesTheCleanupItStillOwes, _inherited, None)
+del _inherited

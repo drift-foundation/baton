@@ -1,0 +1,44 @@
+[
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.manager.test_intake.ConcreteAuthorityDischargeReceipts"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 0.2789773679105565,
+    "returncode": 1,
+    "log": "verification-1.log"
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.manager.test_intake"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 2.9229689460480586,
+    "returncode": 1,
+    "log": "verification-2.log"
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.manager.test_intake"
+    ],
+    "cwd": "v12/python",
+    "PYTHONPATH": "src:.",
+    "elapsed_seconds": 2.9331113279331475,
+    "returncode": 0,
+    "log": "verification-3.log"
+  }
+]

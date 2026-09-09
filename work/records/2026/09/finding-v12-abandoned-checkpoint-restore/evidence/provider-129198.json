@@ -1,0 +1,81 @@
+{
+  "work": "W128692",
+  "claim": 129198,
+  "corrects": "review-2026-09-09T16-16-51Z.md under owner129177's amendment in OWNER-DECISION-129125.md",
+  "claim_order": "claimed at seq129198 before reading the review and before any edit; the owner amendment and the exact approach were pinned in FINDING.md and PLAN.md before the first edit",
+  "paths": {
+    "src/baton_v12/worker_manager/review_cycles.py": {
+      "previous": "d90a124dec748e4520b3ed58eed3c7327a0091a378bd3c8f7d5941c9193fcc13",
+      "final": "2a5370f7ab50340d9d892360c64456883722f75cc1e414a91fab5c473e4bd948",
+      "mode": "644"
+    },
+    "src/baton_v12/checkpoint_profiles.py": {
+      "previous": "70217506cb3655cd7dc55e257d2f7043ac005b473ed4136ea0437687bd590fc2",
+      "final": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "mode": "644"
+    },
+    "tests/manager/test_review_cycles.py": {
+      "previous": "35b90e8b07da1df0812a8d2b810fc1d3ec00c9ef7a41d28e8db99e40ca02529c",
+      "final": "ad3bf73199d65a41d0fb7fb2ac2610afccfa1fa4ff040f3599795ad914d70224",
+      "mode": "644"
+    },
+    "tests/manager/test_checkpoint_profiles.py": {
+      "previous": "dd65fa4e685f2745e974b64c4d25dcf2468e9d07d1d46ff95d2a0fa51271c86d",
+      "final": "dd65fa4e685f2745e974b64c4d25dcf2468e9d07d1d46ff95d2a0fa51271c86d",
+      "mode": "644"
+    }
+  },
+  "my_error_owned": "I stated in the last handoff that every case changed in that pass originated in the rejected claim129002 delta. test_an_admission_during_the_restore_stops_the_completion predates it; removing it was outside any authority I had. It is restored byte-for-byte and the CODE is corrected to satisfy it rather than the other way round.",
+  "object_binding": {
+    "was": "`readlink` converted the held descriptor back into a NAME and handed that to the command, so the child resolved a pathname again -- the same check-to-effect handoff one step further along, exactly as the review says",
+    "now": "`/proc/<pid>/fd/<held-fd>` is passed as the `-C` operand and the descriptor is held open for the whole restoration, so the child resolves the live parent's descriptor reference and a rename or symlink at the original name redirects nothing",
+    "capability_refusal": "a deployment without /proc/<pid>/fd cannot bind a command to an object through an argv-only runner at all, and is told exactly that",
+    "runner_contract": "unchanged; the descriptor does not cross into the child"
+  },
+  "historical_receipt_ownership": {
+    "was": "the signature was recomposed from the receipt's own members, and a canonical signature is operand TEXT -- so editing the result and its operands together reproduced it and a foreign runtime survived",
+    "now": "the reader binds the whole relationship back to W128682's public owners for the SELECTED generation: assignment, runtime, cleanup operation and discharge identity against abandonment_cleanup_of and abandoned_gate_discharge_of, with the generation compared against the committed abandonment. No mutable line or Work predicate is used."
+  },
+  "post_effect_exclusion": "the restored admission case requires the exclusion re-proved AFTER the effect as well as before it. Inside one transaction nothing but the runner can move those rows, so a change there is the runner's; the refusal is non-durable, which rolls the transaction back and leaves the intent retryable.",
+  "overlapping_connection_control": {
+    "added": "test_two_overlapping_connections_produce_exactly_one_effect",
+    "shape": "a second manager on its own connection, opened in its own thread, calls the recovery WHILE the first is inside its serialized effect; it blocks on BEGIN IMMEDIATE, then returns the identical committed result",
+    "measured": "one effect, identical answers"
+  },
+  "blocked_and_reported": {
+    "what": "test_nothing_outside_the_nominated_checkout_is_named asserts `argv[:3] == ('git', '-C', self.repository)` for every command restore_checkpoint issues. The owner-approved object binding necessarily changes that operand to /proc/<pid>/fd/<held-fd>, so the two cannot both hold.",
+    "status": "the test is NOT edited. It is an existing method from the first candidate and owner129177's amendment names four conversions, none of them this one.",
+    "measured": "tests.manager.test_checkpoint_profiles: 15 tests, 1 failure, exactly this case; the manager module is 158 tests, OK",
+    "requested": "the same case-specific authority the owner granted for the other four, to convert this method so it asserts its own intent -- that every command addresses the NOMINATED CHECKOUT and never a sibling -- against the descriptor binding rather than against the pathname spelling. Its sibling-custody half is unaffected either way.",
+    "not_done": "I did not edit it and I did not weaken the binding to make it pass; either would be choosing for the owner"
+  },
+  "budget": {
+    "cap": 25.0,
+    "carried_in": 19.534,
+    "spent_this_pass": 3.771,
+    "cumulative": 23.305,
+    "remaining": 1.695,
+    "within": true,
+    "reset": false
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_review_cycles tests.manager.test_checkpoint_profiles",
+      "wall": "1.950s",
+      "result": "173 tests, 2 failures -- a cross-thread SQLite connection in my new overlap control, and the argv conflict reported above"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_review_cycles",
+      "wall": "1.821s",
+      "log": "evidence/run-129198-manager.log",
+      "result": "158 tests, OK -- including the restored admission case and the overlapping-connection control"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_checkpoint_profiles",
+      "wall": "0.317s",
+      "log": "evidence/run-129198-profiles.log",
+      "result": "15 tests, 1 failure -- exactly the reported conflict"
+    }
+  ],
+  "not_run": "no whole-suite or inventory pass"
+}

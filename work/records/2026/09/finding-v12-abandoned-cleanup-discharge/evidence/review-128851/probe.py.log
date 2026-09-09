@@ -1,0 +1,28 @@
+..................................
+----------------------------------------------------------------------
+Ran 34 tests in 0.433s
+
+OK
+{
+  "changed_policy_replay": {
+    "refused": true,
+    "category": "refused",
+    "code": "operation-collision"
+  },
+  "fence_cause": {
+    "refused": true,
+    "category": "integrity",
+    "code": "schema"
+  },
+  "fence_phase": {
+    "refused": true,
+    "category": "integrity",
+    "code": "schema"
+  },
+  "fence_fenced": {
+    "refused": true,
+    "category": "integrity",
+    "code": "schema"
+  }
+}
+real_authority_positive: passed

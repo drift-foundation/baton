@@ -1,0 +1,79 @@
+--- a/v12/python/tests/tools/test_single_worker.py
++++ b/v12/python/tests/tools/test_single_worker.py
+@@ -57,6 +57,76 @@
+ 
+ ADAPTER = "sha256:" + "d" * 64
+ AUTHORITY_UUID = "0000000a" + "0" * 24
++
++
++class TheWorkerSessionForwardsGateDischarge(unittest.TestCase):
++    def setUp(self):
++        from tests.authority import test_session as sessions
++        self.fixture = sessions.SessionCase()
++        self.addCleanup(self.fixture.doCleanups)
++        self.fixture.setUp()
++        self.fixture.work()
++        self.work_id = sessions.WORK
++        session = self.fixture.claude
++        assignment = session.claim({"work_id": self.work_id, "operation_id": "claim-forwarding"})["assignment"]
++        session.cancel({"expect": assignment, "operation_id": "fence-forwarding", "reason": "runtime stopped"})
++        self.gate = session.project_work(self.work_id)["gate"]["token"]
++
++        class Recording:
++            def __init__(self):
++                self.calls = []
++                self.answer = None
++                self.refusal = None
++
++            def __getattr__(self, name):
++                return getattr(session, name)
++
++            def satisfy_gate(self, operands):
++                self.calls.append(operands)
++                try:
++                    self.answer = session.satisfy_gate(operands)
++                    return self.answer
++                except BaseException as refusal:
++                    self.refusal = refusal
++                    raise
++
++        self.recording = Recording()
++        self.wrapper = single_worker._AuthoritySession(self.recording)
++        self.port = single_worker.AuthorityPort(self.wrapper, single_worker.claim_signature)
++        self.operands = {"work_id": self.work_id, "operation_id": "discharge-forwarding", "gate": self.gate,
++                         "evidence": {"kind": "runtime-absent", "runtime": "runtime-forwarding"}}
++
++    def test_wrapper_preserves_the_exact_operand_document_and_session_answer(self):
++        before = copy.deepcopy(self.operands)
++        answer = self.wrapper.satisfy_gate(self.operands)
++        self.assertIs(self.recording.calls[0], self.operands)
++        self.assertIs(answer, self.recording.answer)
++        self.assertEqual(self.operands, before)
++        self.assertEqual(answer, {"gate": self.gate, "kind": "runtime-absent", "phase": "queued"})
++
++    def test_port_crosses_the_wrapper_and_replays_one_real_discharge(self):
++        for _ in range(2):
++            answer = self.port.satisfy_gate(**self.operands)
++            self.assertEqual(self.recording.calls[-1], self.operands)
++            self.assertIs(self.recording.calls[-1]["evidence"], self.operands["evidence"])
++            self.assertEqual(answer, self.recording.answer)
++            self.assertEqual(answer["phase"], "queued")
++        self.assertEqual(len(self.recording.calls), 2)
++        self.assertIsNone(self.fixture.claude.project_work(self.work_id)["gate"])
++        self.assertEqual(len(self.fixture.claude.gate_evidence(self.work_id)), 1)
++
++    def test_authority_refusals_cross_both_wrappers_unchanged(self):
++        from baton_v12.authority import Refusal
++        for index, changed in enumerate(({"gate": "runtime-quiescence:2"}, {"evidence": {"kind": "runtime-unreachable"}})):
++            with self.subTest(changed=changed):
++                operands = dict(self.operands, **changed, operation_id=f"refused-forwarding-{index}")
++                with self.assertRaises(Refusal) as caught:
++                    self.port.satisfy_gate(**operands)
++                self.assertIs(caught.exception, self.recording.refusal)
++                self.assertEqual(self.recording.calls[-1], operands)
++                self.assertIs(self.recording.calls[-1]["evidence"], operands["evidence"])
++                self.assertEqual(self.fixture.claude.project_work(self.work_id)["gate"]["token"], self.gate)
++                self.assertEqual(self.fixture.claude.gate_evidence(self.work_id), [])
+ 
+ 
+ class Engine:

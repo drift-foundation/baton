@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-composed-ending-consumer/evidence/consumer-126729/probe.py", line 30, in <module>
+    coordinator = IntegrationStore.open(coordinator_path, incarnation="read-open-probe", clock=lambda: "2026-09-09T00:00:00Z")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 237, in open
+    store._now()
+    ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 387, in _now
+    return boundaries.instant(self._clock(), "the coordinator's instant")
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 121, in instant
+    _calendar(value, what)
+    ~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 133, in _calendar
+    _refuse(f"{what} is a durable instant in the frozen "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"0000-00-00T00:00:00.000Z grammar; this is {name_value(value)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the coordinator's instant is a durable instant in the frozen 0000-00-00T00:00:00.000Z grammar; this is '2026-09-09T00:00:00Z'

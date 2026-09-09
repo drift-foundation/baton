@@ -89,6 +89,15 @@ class FakeSession:
                              "phase": "block",
                              "gate": "runtime-quiescence:1",
                              "fenced": True}
+        # W119548: what the authority answers when it discharges that same
+        # gate, and the journal of the ones it has already answered. Settable
+        # for the reason every other answer here is: the port owns the ANSWER
+        # as well as the call.
+        self.discharge_answer = {"gate": "runtime-quiescence:1",
+                                 "kind": "runtime-quiescence",
+                                 "phase": "queued"}
+        self.discharged = {}
+        self.gate_evidence = []
 
     def project_work(self, work_id):
         self.calls.append(("project_work", work_id))
@@ -107,6 +116,35 @@ class FakeSession:
         if isinstance(self.fence_answer, BaseException):
             raise self.fence_answer
         return self.fence_answer
+
+    # W119548: THE OTHER END OF THE FENCE, and the shared fake capability the
+    # gate-discharge cases are driven through. It is on this session rather
+    # than on a second one because a fence and its discharge are two acts of
+    # ONE authority: a fake that installed a gate here and discharged it
+    # somewhere else would let a case pass while the two halves disagreed
+    # about which gate exists.
+    #
+    # IT MODELS THE AUTHORITY'S OWN TWO RULES and nothing else. The gate token
+    # must be exactly the one holding the Work, and an operation identity that
+    # already committed REPLAYS its recorded answer without consulting the
+    # gate again -- which is what makes a remote commit with a lost local
+    # receipt idempotent rather than a second act.
+    def satisfy_gate(self, operands):
+        self.calls.append(("satisfy_gate", dict(operands)))
+        if isinstance(self.discharge_answer, BaseException):
+            raise self.discharge_answer
+        held = self.discharged.get(operands["operation_id"])
+        if held is not None:
+            return dict(held)
+        if self._work.get("gate") != operands["gate"]:
+            raise ContractRefusal(
+                "refused", "precondition",
+                "that gate is not the one holding this Work")
+        answer = dict(self.discharge_answer, gate=operands["gate"])
+        self.discharged[operands["operation_id"]] = answer
+        self._work = dict(self._work, gate=None, phase="queued")
+        self.gate_evidence.append(dict(operands["evidence"]))
+        return dict(answer)
 
     def claim(self, operands):
         self.calls.append(("claim", dict(operands)))

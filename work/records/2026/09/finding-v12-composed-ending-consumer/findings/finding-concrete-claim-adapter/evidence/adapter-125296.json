@@ -1,0 +1,50 @@
+{
+  "work": "W125032",
+  "claim": 125296,
+  "corrects": "review-2026-09-09T05-09-21Z.md: the regression's selector",
+  "claim_order": "claimed at seq125296 before reading the review and before any edit; the budget was declared in PROGRESS before any execution this pass",
+  "paths": {
+    "tools/single_worker.py": {
+      "sha256": "5cb38f3f782d91b239c24af0fecabc083ff9706584bddc65f597d29a09e76b10",
+      "mode": "664"
+    },
+    "tests/tools/test_single_worker.py": {
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "mode": "664"
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "70bbcd120978060fc43366928bcea940299026f18350d050dbd02875577ca5fc",
+      "mode": "664"
+    }
+  },
+  "unchanged_from_claim125239": {
+    "tools/single_worker.py": true,
+    "tests/tools/test_single_worker.py": true,
+    "tests/tools/test_stage_execution.py": false
+  },
+  "test_methods": {
+    "tests/tools/test_single_worker.py": 110,
+    "tests/tools/test_stage_execution.py": 130
+  },
+  "correction": {
+    "test": "TwoIndependentlyBoundWorkersShareOneSweep::test_the_refused_claim_records_no_success_and_releases_nothing",
+    "was": "claimed_offers_for(held.control, 'baton.claude') -- a participant passed to an attempt-keyed reader (worker_manager/offers.py:117), which answered an empty list whatever the target attempt's claim state was, so the assertion held for the wrong reason",
+    "now": "claimed_offers_for(held.control, <the refused attempt id>), with the no-success and reserved-allocation assertions retained",
+    "positive_control_added": "test_the_same_reader_sees_the_claim_the_other_job_did_record -- same store, same tick sequence, same call: the progressing attempt answers exactly one claimed offer naming it, and the refused attempt still answers none",
+    "other_changes": "none; no assertion weakened, no source change, no other test touched"
+  },
+  "declared_budget_seconds": 2,
+  "budget": {
+    "declared_before_any_execution_this_pass": true,
+    "spent_seconds": 0.53,
+    "within": true,
+    "no_combined_rerun": "as the review directs; the joined and source evidence from claim125239 and claim125155 stands"
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_stage_execution.TwoIndependentlyBoundWorkersShareOneSweep",
+      "result": "6 tests, OK, 0.53s (5 at claim time; one additive positive control)"
+    }
+  ],
+  "scope_note": "this provider still does not prove the composed lifecycle past its wrong-route review claim; W125189 and the current W122060 plan own that step. The five known W122060 failures stay in consumer scope and were neither run nor touched."
+}

@@ -1,0 +1,55 @@
+--- prior/tests/manager/test_checkpoint_profiles.py
++++ tests/manager/test_checkpoint_profiles.py
+@@ -340,30 +340,42 @@
+                          "somebody else's tracked bytes\n")
+         self.assertTrue(os.path.isdir(os.path.join(outside, ".git")))
+ 
+-    def test_a_substitution_between_the_writes_is_refused(self):
+-        """The object is held ACROSS the write boundary, not only checked
+-        before it: a pathname that is replaced between the two commands is a
+-        redirection this profile refuses rather than follows."""
++    def test_a_substitution_between_the_writes_follows_the_held_object(self):
++        """REVIEW 2026-09-09T16:04Z. A check before the command and another
++        after it is still a PATHNAME comparison: the reviewer's runner replaced
++        the path after the last check and before `reset` executed, and the
++        outside tree was written anyway.
++
++        The checkout is now HELD as an open directory descriptor and every
++        command's path is derived from it immediately before running, so a
++        substitution landing between the two writes redirects nothing: the
++        second command follows the same object the first did, wherever its
++        name has been moved to.
++        """
+         outside = os.path.join(self.temporary.name, "outside")
+         os.mkdir(outside)
+         with open(os.path.join(outside, "outside-scratch.txt"), "w") as handle:
+             handle.write("somebody else's uncommitted work\n")
++        moved = os.path.join(self.temporary.name, "moved")
+         self.dirty()
+         real = self.runner
+ 
+         def substituting(argv):
+             answer = real(argv)
+-            if argv[3] == "reset":
+-                os.rename(self.repository,
+-                          os.path.join(self.temporary.name, "moved"))
++            if "reset" in argv and not os.path.lexists(moved):
++                os.rename(self.repository, moved)
+                 os.symlink(outside, self.repository)
+             return answer
+ 
+-        with self.assertRaises(ProfileRefusal):
+-            GitCheckpointProfile(substituting).restore_checkpoint(
+-                self.repository, self.evidence)
++        GitCheckpointProfile(substituting).restore_checkpoint(
++            self.repository, self.evidence)
++
++        # THE OUTSIDE TREE IS UNTOUCHED, and the held checkout -- now under its
++        # new name -- really was restored.
+         self.assertTrue(os.path.exists(os.path.join(outside,
+                                                     "outside-scratch.txt")))
++        self.assertFalse(os.path.exists(os.path.join(moved, "scratch.txt")))
++        self.assertFalse(os.path.exists(os.path.join(moved, "ignored")))
+ 
+     def test_a_repository_that_is_a_link_is_refused_outright(self):
+         linked = os.path.join(self.temporary.name, "linked")

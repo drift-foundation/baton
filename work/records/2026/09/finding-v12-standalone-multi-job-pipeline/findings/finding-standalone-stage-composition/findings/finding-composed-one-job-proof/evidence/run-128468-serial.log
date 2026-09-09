@@ -1,0 +1,61 @@
+[serial] start 1/19 tests.manager.test_worker_container
+[serial] done  1/19 tests.manager.test_worker_container rc=0 in 30.74s
+[serial] start 2/19 tests.manager.test_failed_start_destroy_engine
+[serial] done  2/19 tests.manager.test_failed_start_destroy_engine rc=0 in 1.41s
+[serial] start 3/19 tests.manager.test_oci_engine
+[serial] done  3/19 tests.manager.test_oci_engine rc=0 in 0.61s
+[serial] start 4/19 tests.manager.test_lifecycle_composition
+[serial] done  4/19 tests.manager.test_lifecycle_composition rc=0 in 4.45s
+[serial] start 5/19 tests.manager.test_negative_race_endings
+[serial] done  5/19 tests.manager.test_negative_race_endings rc=0 in 1.86s
+[serial] start 6/19 tests.manager.test_ended_runtime_adoption
+[serial] done  6/19 tests.manager.test_ended_runtime_adoption rc=0 in 3.01s
+[serial] start 7/19 tests.manager.test_output_custody_engine
+[serial] done  7/19 tests.manager.test_output_custody_engine rc=0 in 1.60s
+[serial] start 8/19 tests.manager.test_credentials_engine
+[serial] done  8/19 tests.manager.test_credentials_engine rc=0 in 1.21s
+[serial] start 9/19 tests.manager.test_refused_session_engine
+[serial] done  9/19 tests.manager.test_refused_session_engine rc=0 in 3.39s
+[serial] start 10/19 tests.manager.test_custody_engine
+[serial] done  10/19 tests.manager.test_custody_engine rc=0 in 14.60s
+[serial] start 11/19 tests.manager.test_input_delivery
+[serial] done  11/19 tests.manager.test_input_delivery rc=0 in 3.82s
+[serial] start 12/19 tests.manager.test_worker_entry_engine
+[serial] done  12/19 tests.manager.test_worker_entry_engine rc=0 in 1.03s
+[serial] start 13/19 tests.manager.test_dogfood_image
+[serial] done  13/19 tests.manager.test_dogfood_image rc=0 in 11.31s
+[serial] start 14/19 tests.manager.test_abandoned_attempt_engine
+[serial] done  14/19 tests.manager.test_abandoned_attempt_engine rc=0 in 1.74s
+[serial] start 15/19 tests.tools.test_dogfood_arc_engine
+[serial] done  15/19 tests.tools.test_dogfood_arc_engine rc=0 in 10.91s
+[serial] start 16/19 tests.tools.test_dogfood_retry_engine
+[serial] done  16/19 tests.tools.test_dogfood_retry_engine rc=0 in 92.03s
+[serial] start 17/19 tests.manager.test_private_line_access_engine
+[serial] done  17/19 tests.manager.test_private_line_access_engine rc=0 in 0.16s
+[serial] start 18/19 tests.integration.test_driver
+[serial] done  18/19 tests.integration.test_driver rc=0 in 2.17s
+[serial] start 19/19 tests.job_manager.test_review_driver
+[serial] done  19/19 tests.job_manager.test_review_driver rc=0 in 5.38s
+[serial] 19 source modules, one at a time
+--- serial source ---
+[pass] tests.integration.test_driver (109 tests)
+[pass] tests.job_manager.test_review_driver (159 tests)
+[pass] tests.manager.test_abandoned_attempt_engine (4 tests)
+[pass] tests.manager.test_credentials_engine (9 tests)
+[pass] tests.manager.test_custody_engine (11 tests)
+[pass] tests.manager.test_dogfood_image (16 tests)
+[pass] tests.manager.test_ended_runtime_adoption (8 tests)
+[pass] tests.manager.test_failed_start_destroy_engine (4 tests)
+[pass] tests.manager.test_input_delivery (56 tests)
+[pass] tests.manager.test_lifecycle_composition (32 tests)
+[pass] tests.manager.test_negative_race_endings (4 tests)
+[pass] tests.manager.test_oci_engine (14 tests)
+[pass] tests.manager.test_output_custody_engine (8 tests)
+[pass] tests.manager.test_private_line_access_engine (4 tests)
+[pass] tests.manager.test_refused_session_engine (8 tests)
+[pass] tests.manager.test_worker_container (50 tests)
+[pass] tests.manager.test_worker_entry_engine (5 tests)
+[pass] tests.tools.test_dogfood_arc_engine (2 tests)
+[pass] tests.tools.test_dogfood_retry_engine (4 tests)
+[serial source] 19 shards, 507 tests, 0 failures, 0 errors, 17 skipped -> OK
+[summary] serial source: 507 tests, 0 failed, 17 skipped -> OK

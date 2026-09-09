@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-c",
+    "import json,unittest\nfrom tests.tools.test_stage_execution import OrdinaryTerminalLifecycle,UnfinishedWorkIsFencedBeforeAnythingRepeatsIt\ncases=[OrdinaryTerminalLifecycle(\"test_the_corrected_rounds_retained_bytes_reopen_at_their_locator\"),OrdinaryTerminalLifecycle(\"test_the_accepted_checkpoint_is_the_corrections_and_its_pin_holds\")]\ncases.extend(unittest.defaultTestLoader.loadTestsFromTestCase(UnfinishedWorkIsFencedBeforeAnythingRepeatsIt))\nresult=unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(cases))\nprint(\"EVIDENCE=\"+json.dumps({c.id():{k:getattr(c,k) for k in (\"custody\",\"pins\",\"blocked\",\"abandonment\") if hasattr(c,k)} for c in cases},sort_keys=True))\nraise SystemExit(not result.wasSuccessful())\n"
+  ],
+  "cwd": "v12/python",
+  "PYTHONPATH": "src:tests:.",
+  "cap_seconds": 10,
+  "elapsed_seconds": 2.5281241689808667,
+  "returncode": 0
+}

@@ -1,0 +1,9 @@
+{
+  "preserved_prior_function_bodies": 128,
+  "changed_fixture": [
+    ".PublicationCase.setUp"
+  ],
+  "removed": [],
+  "new_methods": 19,
+  "candidate_hashes_match_handback": true
+}

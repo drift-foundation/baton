@@ -1,0 +1,29 @@
+{
+  "claim": 129055,
+  "files": [
+    {
+      "path": "src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "60439ae9934e37b9b8160be3b8935f853365fcdbadd779bcbcef83daa58b4374",
+      "mode": "644"
+    },
+    {
+      "path": "src/baton_v12/checkpoint_profiles.py",
+      "sha256": "cf8e3c5d3009ddb0dfe6166fff2993b34297885b45cb551dd5e27cb3bc8d1030",
+      "mode": "644"
+    },
+    {
+      "path": "tests/manager/test_review_cycles.py",
+      "sha256": "2d56801f1d414bc689f06842e19d9b86e6e7bfaccf76c63744281699bbdd4988",
+      "mode": "644"
+    },
+    {
+      "path": "tests/manager/test_checkpoint_profiles.py",
+      "sha256": "2f8cc51aa27a5d56ce7ca8216c6f6df8ba8c1e9cee948a9bcfa3dfbbad9b5307",
+      "mode": "644"
+    }
+  ],
+  "changed_existing_test_methods": [
+    "tests/manager/test_review_cycles.py:AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_a_revoked_writer_has_no_correction_to_restore",
+    "tests/manager/test_review_cycles.py:AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_a_failed_restoration_admits_nobody"
+  ]
+}

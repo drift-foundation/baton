@@ -96,9 +96,19 @@ accepted generation, not a manifest edit. A version-1 manifest stays valid and
 simply has no drain, resume or dispatch-status commands; the manager refuses
 them with an actionable message rather than guessing an identity.
 
-See "Maintenance: draining managed dispatch" in `docs/EFFECTIVE-BATON.md` for
-the operator sequence, including why plain `stop` is unchanged and
-`stop-drained` is the graceful one.
+With that control identity configured, the lifecycle manager supports:
+
+    tools/infra.py drain    MAILBOX --reason "host kernel upgrade"
+    tools/infra.py dispatch MAILBOX          # mode, generation, blockers
+    tools/infra.py stop-drained MAILBOX      # refuses unless paused
+    tools/infra.py stop     MAILBOX          # immediate stop
+
+`stop-drained` reads the canonical dispatch state and refuses before signalling
+services unless the deployment is paused. Plain `stop` remains available when
+the authority cannot be reached; it does not imply that claims completed or
+dispatch paused. `dispatch` can report canonical state while services are down.
+See [Maintenance: draining managed dispatch](EFFECTIVE-BATON.md#maintenance-draining-managed-dispatch)
+for the working strategy behind the distinction.
 
 The version-1 manifest accepts global `startTimeoutSeconds` and
 `stopTimeoutSeconds` defaults plus a non-empty `services` array. Each service

@@ -1,0 +1,11 @@
+test_catalog_keeps_the_exact_pair_and_reaches_adoption (tests.manager.test_boundary_inventory.TheCollidingLaneKeyProbeReachesAdoption.test_catalog_keeps_the_exact_pair_and_reaches_adoption) ... ok
+test_existing_guard_accepts_the_malformed_returned_key (tests.manager.test_boundary_inventory.TheCollidingLaneKeyProbeReachesAdoption.test_existing_guard_accepts_the_malformed_returned_key) ... ok
+test_existing_guard_rejects_an_earlier_missing_attempt (tests.manager.test_boundary_inventory.TheCollidingLaneKeyProbeReachesAdoption.test_existing_guard_rejects_an_earlier_missing_attempt) ... ok
+test_existing_guard_rejects_valid_row_contention (tests.manager.test_boundary_inventory.TheCollidingLaneKeyProbeReachesAdoption.test_existing_guard_rejects_valid_row_contention) ... ok
+test_malformed_key_arrives_through_the_exact_collision_lookup (tests.manager.test_boundary_inventory.TheCollidingLaneKeyProbeReachesAdoption.test_malformed_key_arrives_through_the_exact_collision_lookup) ... ok
+test_valid_returned_row_reaches_real_adoption_then_ordinary_contention (tests.manager.test_boundary_inventory.TheCollidingLaneKeyProbeReachesAdoption.test_valid_returned_row_reaches_real_adoption_then_ordinary_contention) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.251s
+
+OK

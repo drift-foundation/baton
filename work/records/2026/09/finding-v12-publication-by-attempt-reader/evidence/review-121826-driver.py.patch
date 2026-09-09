@@ -1,0 +1,113 @@
+--- 
++++ 
+@@ -29,8 +29,8 @@
+ from .queue import entries_of, lease_of, live_grant, target_of
+ 
+ __all__ = ["PUBLICATION_KIND", "PUBLICATION_RECEIPT", "admit_accepted",
+-           "continue_accepted", "publication_of", "publish_candidate",
+-           "retain_proposal"]
++           "continue_accepted", "publication_for_attempt", "publication_of",
++           "publish_candidate", "retain_proposal"]
+ 
+ # W120763: THE LOCAL RECORD THAT A PUBLICATION ACTUALLY HAPPENED, and its
+ # closed shape.
+@@ -509,6 +509,99 @@
+     boundaries.text(held["participant"], f"{what}'s participant")
+     boundaries.generation(held["generation"], f"{what}'s generation")
+     return held
++
++
++def _candidate(row, attempt_id, what):
++    """Whether one journalled publication row is THIS attempt's, or refuses.
++
++    W121793. THREE ANSWERS AND NOT TWO. A row about another attempt is
++    somebody else's ordinary record and is skipped; a row about this one
++    answers its selector; and a row this reader cannot classify refuses,
++    because deciding a record is not about this attempt REQUIRES reading it,
++    and a scan that skipped what it could not read would answer absence with a
++    real record sitting in front of it.
++
++    THE FILED IDENTITY IS PART OF THE CLASSIFICATION. `publication_of`
++    re-derives the operation id from the attempt and the selector, so a record
++    filed anywhere else would be invisible to it -- and answering absence for a
++    present record is exactly what this reader exists to stop. A row whose own
++    members do not derive the identity it sits at is therefore a refusal rather
++    than a skip.
++    """
++    if row["state"] != "committed":
++        _refuse(f"{what} is recorded {name_value(row['state'])}; a "
++                f"publication is read from a committed act and never from one "
++                f"that did not settle", category="refused",
++                code="precondition")
++    held = boundaries.document(boundaries.adopted(row["result"], what), what,
++                               required=PUBLICATION_RECEIPT)
++    boundaries.identity(held["attempt_id"], f"{what}'s attempt")
++    boundaries.identity(held["proposal_manifest_digest"],
++                        f"{what}'s retained proposal manifest digest")
++    filed = _publication_operation_id(held["attempt_id"],
++                                      held["proposal_manifest_digest"])
++    if filed != row["operation_id"]:
++        _refuse(f"{what} sits at {name_value(row['operation_id'])} and its own "
++                f"attempt and selector derive {name_value(filed)}; a record is "
++                f"filed under an identity built from its own members")
++    if held["attempt_id"] != attempt_id:
++        return None
++    return held["proposal_manifest_digest"]
++
++
++def publication_for_attempt(manager, *, attempt_id):
++    """The committed publication for one attempt, with nothing remembered.
++
++    W121793, `work/records/2026/09/finding-v12-publication-by-attempt-reader/`.
++
++    WHY `publication_of` IS NOT ENOUGH BY ITSELF. Its selector is the retained
++    proposal manifest digest, which is the right identity for a caller that
++    still holds it -- and a COLD one does not. Re-deriving it means asking
++    `retain_proposal` to compose the manifest again, which opens a write
++    transaction on a recovery path that may not write, so a consumer was left
++    carrying the selector across the very restart the record exists to
++    survive. This answers from the attempt alone.
++
++    IT SCANS THIS MODULE'S OWN KIND, and that is a considered exception rather
++    than a habit. Every other reader here selects by a derived identity, and
++    this one cannot: the publication identity is a digest over the attempt AND
++    the selector, so the attempt alone derives nothing. What bounds the scan is
++    that `integration.publication` is a kind this module writes and no other
++    party produces, so the rows it walks are its own.
++
++    AMBIGUITY IS A REFUSAL. One attempt may legitimately have prepared several
++    proposals over its life, but only one can have been published while its
++    producer assignment was live; two committed publications for one attempt is
++    a store this build cannot explain, and choosing between them by row order
++    would be inventing which publication was the real one.
++
++    EVERY VALIDATION IS `publication_of`'S. This finds WHICH record and then
++    hands the selector to the owner, so there is exactly one place that decides
++    whether a publication record is sound -- and a caller gets the same
++    validated receipt whichever entry point it came through.
++    """
++    boundaries.capability(getattr(manager, "_connection", None),
++                          "the Worker Manager store")
++    boundaries.identity(attempt_id, "an implementation attempt id")
++    what = f"a journalled publication beside attempt {name_value(attempt_id)}"
++    found = []
++    for row in manager._connection.execute(
++            "SELECT operation_id, state, result FROM operations "
++            "WHERE kind = ? ORDER BY operation_id",
++            (PUBLICATION_KIND,)).fetchall():
++        selector = _candidate(row, attempt_id, what)
++        if selector is not None and selector not in found:
++            found.append(selector)
++    if not found:
++        return None
++    if len(found) > 1:
++        _refuse(f"attempt {name_value(attempt_id)} carries "
++                f"{len(found)} committed publications; one attempt publishes "
++                f"once while its producer assignment is live, and choosing "
++                f"between them by row order would invent which one happened",
++                category="refused", code="operation-collision")
++    return publication_of(manager, attempt_id=attempt_id,
++                          proposal_manifest_digest=found[0])
+ 
+ 
+ def _publication_operation_id(attempt_id, proposal_manifest_digest):

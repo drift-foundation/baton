@@ -1,0 +1,25 @@
+{
+  "claim": 129222,
+  "files": [
+    {
+      "path": "src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "2a5370f7ab50340d9d892360c64456883722f75cc1e414a91fab5c473e4bd948",
+      "mode": "644"
+    },
+    {
+      "path": "src/baton_v12/checkpoint_profiles.py",
+      "sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "mode": "644"
+    },
+    {
+      "path": "tests/manager/test_review_cycles.py",
+      "sha256": "ad3bf73199d65a41d0fb7fb2ac2610afccfa1fa4ff040f3599795ad914d70224",
+      "mode": "644"
+    },
+    {
+      "path": "tests/manager/test_checkpoint_profiles.py",
+      "sha256": "dd65fa4e685f2745e974b64c4d25dcf2468e9d07d1d46ff95d2a0fa51271c86d",
+      "mode": "644"
+    }
+  ]
+}

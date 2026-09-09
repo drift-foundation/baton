@@ -1,0 +1,87 @@
+{
+  "work": "W122060",
+  "claim": 125449,
+  "corrects": "review-2026-09-09T05-33-26Z.md, all four findings",
+  "claim_order": "claimed at seq125449 before reading the review and before any edit; the focused question and the existing 20s budget were declared in PROGRESS before any execution",
+  "paths": {
+    "tools/stage_execution.py": {
+      "sha256": "71919d15c22531533e460384d6de32302e0c5b39478a3944dc743bb65f31d77f",
+      "mode": "664"
+    },
+    "tools/single_worker.py": {
+      "sha256": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+      "mode": "664"
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "0a540ed922ac50fc8b39cdcb15014b068afe4bbb6e6de4323f3687133b37a4f4",
+      "mode": "664"
+    },
+    "tests/tools/test_single_worker.py": {
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "mode": "664"
+    }
+  },
+  "test_methods": {
+    "tests/tools/test_stage_execution.py": 140,
+    "tests/tools/test_single_worker.py": 110
+  },
+  "finding_1_correction_route": {
+    "was": "_handed_off always used the ending worker's outgoing review_route, so a changes-requested review sent the Work to integration and the correction round's implementation claim refused against it",
+    "now": "_next_route derives a correction's target from the reviewed checkpoint's own producer: the checkpoint names its writer, the writer names its attempt, and claimed_offers_for answers that attempt's one committed claim work_route. The forward direction stays the worker's configured review_route.",
+    "proven_by": [
+      "test_a_changes_requested_review_routes_back_to_the_producer",
+      "test_the_correction_round_claims_and_runs_a_second_time -- same submitted Job, same persistent line, a third worker container"
+    ]
+  },
+  "finding_2_owed_discharge": {
+    "was": "_discharged decided owedness from today's Work projection, so after a remote discharge whose local answer was lost the gate was already gone, nothing looked owed, and the ending settled with no gate_discharge reference",
+    "now": "_fenced_gate reads the gate THIS ending's own fence installed -- the checkpoint's fence for an implementation, the verdict's review_fence for a review -- which is committed and cannot disappear. If one was fenced, the accepted provider's stable remote replay is reached, and _finished REFUSES to settle while no committed receipt exists.",
+    "note": "project_work is no longer consulted for owedness; the QUIESCENCE_GATE import it needed is removed"
+  },
+  "finding_3_integration_port": {
+    "my_error": "I reported an absent provider. W110774's tools/integration_worker.py IntegrationRuntimePort exists, is accepted, and the None guard I quoted is stale.",
+    "now": "composed from this deployment's own operands and wired through the existing integration_port seam. Every operand came from an owner this fixture already had; the two that do not exist before acceptance -- the accepted line and its published proposal -- are read from integration_checkpoint and published_proposal after it, so the port is composed then and handed to a second serving object over the same durable stores.",
+    "one_configuration_operand_changed": "the composed integration worker now declares the credential slot integration_worker.REQUIRED_CREDENTIAL_SLOT, because the accepted port reads its bearer from that slot and refuses another. That is a fixture deployment operand in an owned path, not a schema change.",
+    "proven_by": [
+      "test_the_accepted_integration_port_composes_from_this_deployment",
+      "test_the_integration_stage_advances_through_that_port"
+    ]
+  },
+  "finding_4_restored_regressions": {
+    "restored": [
+      "TheWrongRouteClaimDefersInsteadOfStoppingTheSweep",
+      "OneRefusedClaimLeavesEveryOtherJobAlone"
+    ],
+    "how": "with their expected behaviour unchanged and their precondition made deliberate: `wrong_route` withholds the implementation handoff, so the Work stays on the implementation route and the reviewer's claim meets the state these negatives are about. This is the same shape as the deliberate pending-ending window the previous pass added for W124782's fix.",
+    "acknowledgement": "retiring them was not mine to do; the PLAN preserves them explicitly and the two-Job test does not carry that authority."
+  },
+  "declared_budget_seconds": 20,
+  "budget": {
+    "declared_before_any_execution": true,
+    "spent_seconds": 26.8,
+    "over_by": 6.8,
+    "development_runs": "focused classes only -- 1.3+2.1+1.5+0.5x5 probes+2.5+2.7s",
+    "verification_runs": "test_stage_execution 9.76s, then test_single_worker 3.67s",
+    "why_the_last_run": "tools/single_worker.py changed this pass (handoff gained its to_route operand) and its module had not been re-run. I was already marginally over at 22.9s and chose to close a real verification gap rather than hand back an unverified source change. Recorded as an overrun, not presented as met.",
+    "no_paired_run": "the two modules were run separately rather than as a pair, so the cost is the same tests without the combined-run overhead"
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance",
+      "result": "10 tests, OK, 2.73s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_stage_execution.TheWrongRouteClaimDefersInsteadOfStoppingTheSweep tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone",
+      "result": "8 tests, OK, 1.49s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_stage_execution",
+      "result": "140 tests, OK, 9.94s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_single_worker",
+      "result": "119 tests, OK, 3.83s"
+    }
+  ],
+  "still_owed": "the component's committed-handoff restart proof, and W119114's full lifecycle and custody acceptance. The integration stage now reaches the accepted port; what that port then answers is its own accepted contract's business and this Work does not claim it."
+}

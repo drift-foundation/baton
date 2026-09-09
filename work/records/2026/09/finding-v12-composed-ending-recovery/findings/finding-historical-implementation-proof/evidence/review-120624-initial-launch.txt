@@ -1,0 +1,10 @@
+Initial review-120624-probe.py launch exited 1 before either fixture executed.
+Importing tests.job_manager.test_review_driver reached job_manager/ending.py:
+  def settlement_of(store, stage_id, episode, *, stage=None, intent=_UNREAD):
+NameError: name '_UNREAD' is not defined
+
+Canonical detail confirmed concurrent W120424 implementation claim120627 held
+by baton.claude. Coordination message120648 reported the observation without
+interrupting that scope. This is not attributed to the submitted W120425
+candidate. Later source read showed the public-reader correction had advanced
+to _intent_of, justifying one retry of the two previously unexecuted probes.

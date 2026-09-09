@@ -1,0 +1,167 @@
+--- base/v12/python/tests/authority/test_assignment.py
++++ v12/python/tests/authority/test_assignment.py
+@@ -75,6 +75,164 @@
+         return self.core.claim(
+             work_id, participant,
+             operation_id=self.op("claim"))["assignment"]
++
++
++class FencedRouteHandoff(AuthorityCase):
++    """W125189: the selected handoff commits before the original gate opens."""
++
++    def setUp(self):
++        super().setUp()
++        self.mine = self.claimed()
++        self.fence_id = self.op("cancel")
++        self.core.cancel(self.mine, operation_id=self.fence_id, reason="checkpoint retained")
++        self.route_id = self.op("handoff")
++        self.operands = {"operation_id": self.route_id, "fence_operation_id": self.fence_id,
++                         "from_route": ROUTE, "to_route": "rview"}
++
++    def route(self, **changed):
++        operands = dict(self.operands, **changed)
++        expect = operands.pop("expect", self.mine)
++        return self.core.route_fenced(expect, **operands)
++
++    def snapshot(self):
++        return {"work": self.core.project_work(WORK), "events": self.core.assignment_events(WORK),
++                "evidence": self.core.gate_evidence(WORK), "claude_slot": self.core.slot_holder(CLAUDE),
++                "gemini_slot": self.core.slot_holder(GEMINI)}
++
++    def refused_unchanged(self, **changed):
++        before = self.snapshot()
++        with self.assertRaises(Refusal):
++            self.route(**changed)
++        self.assertEqual(self.snapshot(), before)
++        self.assertIsNone(self.core.operation_result(changed.get("operation_id", self.route_id)))
++
++    def discharge(self):
++        return self.core.satisfy_gate(WORK, operation_id=self.op("absence"), gate="runtime-quiescence:1",
++                                     evidence={"kind": "runtime-absent", "runtime": "runtime-original"})
++
++    def test_the_receipt_and_only_the_route_commit_with_the_gate_intact(self):
++        self.work(OTHER)
++        self.core.claim(OTHER, CLAUDE, operation_id=self.op("other-claim"))
++        before = self.snapshot()
++        receipt = self.route()
++        self.assertEqual(receipt, {"assignment": self.mine, "fence_operation_id": self.fence_id,
++                                   "from_route": ROUTE, "to_route": "rview", "phase": "block",
++                                   "gate": "runtime-quiescence:1"})
++        self.assertEqual(self.core.operation_result(self.route_id), receipt)
++        before["work"]["route"] = "rview"
++        self.assertEqual(self.snapshot(), before)
++        self.assertEqual(self.core.slot_holder(CLAUDE), OTHER)
++        self.core.assert_invariants(WORK)
++
++    def test_only_the_next_role_can_claim_and_only_after_absence(self):
++        self.core.add_route_handler("rview", GEMINI)
++        self.route()
++        for participant in (CLAUDE, GEMINI):
++            with self.subTest(participant=participant):
++                with self.assertRaises(Refusal):
++                    self.core.claim(WORK, participant, operation_id=self.op("blocked-claim"))
++        self.discharge()
++        with self.assertRaises(Refusal):
++            self.core.claim(WORK, CLAUDE, operation_id=self.op("old-route-claim"))
++        next_assignment = self.core.claim(WORK, GEMINI, operation_id=self.op("review-claim"))["assignment"]
++        self.assertEqual(next_assignment, {**self.mine, "participant": GEMINI, "generation": 2})
++        self.core.assert_invariants(WORK)
++
++    def test_foreign_stale_missing_and_v11_assignments_refuse(self):
++        for expect in (None, {**self.mine, "generation": None}, {**self.mine, "generation": 2},
++                       {**self.mine, "participant": GEMINI},
++                       {**self.mine, "work_ref": {**self.mine["work_ref"], "authority_uuid": "f" * 32}},
++                       {**self.mine, "work_ref": {**self.mine["work_ref"], "work_id": OTHER}}):
++            with self.subTest(expect=expect):
++                self.refused_unchanged(expect=expect)
++
++    def test_a_missing_or_different_committed_operation_is_not_the_fence(self):
++        other = self.claimed(OTHER)
++        other_fence = self.op("other-cancel")
++        self.core.cancel(other, operation_id=other_fence)
++        for fence_id in ("uncommitted-fence", "create-" + WORK, other_fence, self.route_id):
++            with self.subTest(fence_id=fence_id):
++                self.refused_unchanged(fence_operation_id=fence_id)
++
++    def test_an_unfenced_generation_with_a_runtime_gate_cannot_route(self):
++        other = self.claimed(OTHER)
++        self.core.end(other, operation_id=self.op("release"))
++        self.core.install_gate(OTHER, operation_id=self.op("gate"), gate="runtime-quiescence:1")
++        before = self.core.project_work(OTHER)
++        self.refused_unchanged(expect=other)
++        self.assertEqual(self.core.project_work(OTHER), before)
++
++    def test_a_different_fencing_act_is_not_a_committed_cancellation(self):
++        other = self.claimed(OTHER)
++        gate_id = self.op("arriving-gate")
++        self.core.install_gate(OTHER, operation_id=gate_id, gate="runtime-quiescence:1", expect=other)
++        before = self.core.project_work(OTHER)
++        self.refused_unchanged(expect=other, fence_operation_id=gate_id)
++        self.assertEqual(self.core.project_work(OTHER), before)
++
++    def test_a_fresh_handoff_after_discharge_or_later_claim_refuses(self):
++        self.discharge()
++        self.refused_unchanged()
++        later = self.core.claim(WORK, CLAUDE, operation_id=self.op("later-claim"))["assignment"]
++        self.refused_unchanged()
++        self.core.cancel(later, operation_id=self.op("later-cancel"))
++        self.refused_unchanged()
++
++    def test_the_original_claim_route_cannot_be_replaced_by_todays_route(self):
++        self.refused_unchanged(from_route="rview")
++        self.route()
++        self.refused_unchanged(operation_id=self.op("retarget"), from_route="rview", to_route="integ")
++        self.refused_unchanged(operation_id=self.op("repeat-original"), to_route="integ")
++
++    def test_every_changed_operand_collides_with_the_committed_identity(self):
++        receipt = self.route()
++        before = self.snapshot()
++        for changed in ({"expect": {**self.mine, "generation": 2}}, {"fence_operation_id": "another-fence"},
++                        {"from_route": "rview"}, {"to_route": "integ"}):
++            with self.subTest(changed=changed):
++                with self.assertRaisesRegex(Refusal, "reused for different operands"):
++                    self.route(**changed)
++                self.assertEqual(self.snapshot(), before)
++                self.assertEqual(self.core.operation_result(self.route_id), receipt)
++
++    def test_lost_answer_replays_after_reopen_and_a_later_route_change(self):
++        receipt = self.route()
++        self.core.add_route_handler("rview", GEMINI)
++        self.discharge()
++        later = self.core.claim(WORK, GEMINI, operation_id=self.op("later-claim"))["assignment"]
++        self.core.pass_work(later, operation_id=self.op("later-pass"), to_route="integ")
++        before = self.snapshot()
++        record = self.core.operation_record(self.route_id)
++        self.authority.dispose()
++        self.authority = Authority.open(self.path, expected_authority_uuid=UUID, clock=lambda: NOW)
++        self.addCleanup(self.authority.dispose)
++        self.core = self.authority._core
++        for _ in range(2):
++            self.assertEqual(self.route(), receipt)
++            self.assertEqual(self.core.operation_record(self.route_id), record)
++            self.assertEqual(self.snapshot(), before)
++
++    def test_a_local_journal_failure_rolls_back_the_route_effect(self):
++        from unittest.mock import patch
++
++        before = self.snapshot()
++        with patch.object(self.core._store, "_record", side_effect=RuntimeError("journal unavailable")):
++            with self.assertRaisesRegex(RuntimeError, "journal unavailable"):
++                self.route()
++        self.assertEqual(self.snapshot(), before)
++        self.assertIsNone(self.core.operation_result(self.route_id))
++        self.assertEqual(self.route()["to_route"], "rview")
++
++    def test_malformed_operands_refuse_without_effects(self):
++        for changed in ({"fence_operation_id": ""}, {"fence_operation_id": []},
++                        {"from_route": ""}, {"from_route": []}, {"to_route": ""},
++                        {"to_route": []}, {"operation_id": ""}, {"expect": {}}):
++            with self.subTest(changed=changed):
++                before = self.snapshot()
++                with self.assertRaises(Refusal):
++                    self.route(**changed)
++                self.assertEqual(self.snapshot(), before)
++                self.assertIsNone(self.core.operation_result(self.route_id))
+ 
+ 
+ class Creation(AuthorityCase):

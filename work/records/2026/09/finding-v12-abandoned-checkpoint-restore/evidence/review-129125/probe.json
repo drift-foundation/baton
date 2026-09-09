@@ -1,0 +1,19 @@
+{
+  "candidate_path_gap": {
+    "outcome": "ProfileRefusal",
+    "foreign_tracked_after": "the corrected candidate\n",
+    "foreign_scratch_preserved": true,
+    "original_tracked_after": "the abandoned round never finished this\n"
+  },
+  "descriptor_reference_proposal": {
+    "outcome": "accepted",
+    "foreign_tracked_after": "foreign tracked scratch must survive\n",
+    "foreign_scratch_preserved": true,
+    "original_tracked_after": "the corrected candidate\n"
+  },
+  "foreign_runtime_receipt": {
+    "original_runtime": "runtime-writer-attempt-2",
+    "reader_runtime": "foreign-runtime",
+    "replay_runtime": "foreign-runtime"
+  }
+}

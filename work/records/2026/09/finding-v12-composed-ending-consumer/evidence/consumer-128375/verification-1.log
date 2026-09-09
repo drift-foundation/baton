@@ -1,0 +1,20 @@
+{
+  "method": "test_fresh_process_observes_owned_completion_after_serving_closes",
+  "state": "completed",
+  "handles": {
+    "authority_open": 5,
+    "authority_dispose": 5,
+    "coordinator_open": 4,
+    "coordinator_close": 4
+  },
+  "checks": [
+    "configured UUID",
+    "closed-serving completion",
+    "missing handoff stays owed",
+    "foreign receipt refuses",
+    "absent coordinator refuses",
+    "foreign Authority refuses",
+    "no serving acts",
+    "all reader handles disposed"
+  ]
+}

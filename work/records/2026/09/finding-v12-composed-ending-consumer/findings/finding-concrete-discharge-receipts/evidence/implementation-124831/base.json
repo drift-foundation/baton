@@ -1,0 +1,12 @@
+[
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+    "sha256": "e9a515987f9f6d1bb5d5d0e3bd77217a449f8b7ec9e42be7b6ab97954211c60a",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/tests/manager/test_intake.py",
+    "sha256": "c8a2ea4134d59c3e241b609226da9f0c0136960d9309b4b89f922d86d1b9a157",
+    "mode": "0o664"
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "docker",
+    "container",
+    "inspect",
+    "--format",
+    "{\"id\":{{json .Id}},\"name\":{{json .Name}},\"created\":{{json .Created}},\"image_id\":{{json .Image}},\"state\":{{json .State.Status}},\"exit_code\":{{json .State.ExitCode}},\"started\":{{json .State.StartedAt}},\"finished\":{{json .State.FinishedAt}},\"runtime_attempt_id\":{{json (index .Config.Labels \"baton.v12.runtime_attempt_id\")}},\"authority_uuid\":{{json (index .Config.Labels \"baton.v12.authority_uuid\")}},\"work_id\":{{json (index .Config.Labels \"baton.v12.work_id\")}},\"participant\":{{json (index .Config.Labels \"baton.v12.participant\")}},\"generation\":{{json (index .Config.Labels \"baton.v12.generation\")}},\"principal\":{{json (index .Config.Labels \"baton.v12.principal\")}},\"effective_scope\":{{json (index .Config.Labels \"baton.v12.effective_scope\")}},\"profile_digest\":{{json (index .Config.Labels \"baton.v12.profile_digest\")}},\"policy_digest\":{{json (index .Config.Labels \"baton.v12.policy_digest\")}},\"adapter_digest\":{{json (index .Config.Labels \"baton.v12.adapter_digest\")}}}",
+    "afed4c76aebe339911ab353021227f94cb8c635e9b46ed1e4ba2f642f4d7d334"
+  ],
+  "returncode": 0,
+  "stdout": "{\"id\":\"afed4c76aebe339911ab353021227f94cb8c635e9b46ed1e4ba2f642f4d7d334\",\"name\":\"/baton-runtime.start-d35e93cb054be8d24b4dbc4b91b1b203a8a2044b6a5a76a5937d43f287c515a9\",\"created\":\"2026-08-31T17:56:09.407126018Z\",\"image_id\":\"sha256:8af96742a89489ae974943284fcc65a5fd58e02263a9ae2142b3d0afa4f9c0e6\",\"state\":\"exited\",\"exit_code\":137,\"started\":\"2026-08-31T17:56:09.458431372Z\",\"finished\":\"2026-08-31T18:29:01.079874978Z\",\"runtime_attempt_id\":\"attempt-w51487-run7\",\"authority_uuid\":\"2bdb4a5d4f614c398de50d6e10a4a7a1\",\"work_id\":\"2bdb4a5d-W51487\",\"participant\":\"baton.claude\",\"generation\":\"1\",\"principal\":\"principal:baton.claude\",\"effective_scope\":\"scope:deployment\",\"profile_digest\":\"sha256:45f80133d10d16351bc5e944b260dbd733dae0f87116ebd5a83defe8742ad7fc\",\"policy_digest\":\"sha256:738b102ba8bc8ef03991ea8654d022053eb842a5cbdf7020bf48139edf71e1bb\",\"adapter_digest\":\"sha256:037e66064e95fe4fc2a328467f39bcd63b1d97821bcc7b1ce47f3abaebc7968b\"}\n",
+  "stderr": ""
+}

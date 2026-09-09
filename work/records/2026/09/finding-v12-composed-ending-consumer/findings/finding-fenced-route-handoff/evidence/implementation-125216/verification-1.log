@@ -1,0 +1,20 @@
+test_a_different_fencing_act_is_not_a_committed_cancellation (tests.authority.test_assignment.FencedRouteHandoff.test_a_different_fencing_act_is_not_a_committed_cancellation) ... ok
+test_a_fresh_handoff_after_discharge_or_later_claim_refuses (tests.authority.test_assignment.FencedRouteHandoff.test_a_fresh_handoff_after_discharge_or_later_claim_refuses) ... ok
+test_a_local_journal_failure_rolls_back_the_route_effect (tests.authority.test_assignment.FencedRouteHandoff.test_a_local_journal_failure_rolls_back_the_route_effect) ... ok
+test_a_missing_or_different_committed_operation_is_not_the_fence (tests.authority.test_assignment.FencedRouteHandoff.test_a_missing_or_different_committed_operation_is_not_the_fence) ... ok
+test_an_unfenced_generation_with_a_runtime_gate_cannot_route (tests.authority.test_assignment.FencedRouteHandoff.test_an_unfenced_generation_with_a_runtime_gate_cannot_route) ... ok
+test_every_changed_operand_collides_with_the_committed_identity (tests.authority.test_assignment.FencedRouteHandoff.test_every_changed_operand_collides_with_the_committed_identity) ... ok
+test_foreign_stale_missing_and_v11_assignments_refuse (tests.authority.test_assignment.FencedRouteHandoff.test_foreign_stale_missing_and_v11_assignments_refuse) ... ok
+test_lost_answer_replays_after_reopen_and_a_later_route_change (tests.authority.test_assignment.FencedRouteHandoff.test_lost_answer_replays_after_reopen_and_a_later_route_change) ... ok
+test_malformed_operands_refuse_without_effects (tests.authority.test_assignment.FencedRouteHandoff.test_malformed_operands_refuse_without_effects) ... ok
+test_only_the_next_role_can_claim_and_only_after_absence (tests.authority.test_assignment.FencedRouteHandoff.test_only_the_next_role_can_claim_and_only_after_absence) ... ok
+test_the_original_claim_route_cannot_be_replaced_by_todays_route (tests.authority.test_assignment.FencedRouteHandoff.test_the_original_claim_route_cannot_be_replaced_by_todays_route) ... ok
+test_the_receipt_and_only_the_route_commit_with_the_gate_intact (tests.authority.test_assignment.FencedRouteHandoff.test_the_receipt_and_only_the_route_commit_with_the_gate_intact) ... ok
+test_another_session_cannot_route_or_replay_the_original_participants_handoff (tests.authority.test_session.FencedRouteSession.test_another_session_cannot_route_or_replay_the_original_participants_handoff) ... ok
+test_missing_extra_and_caller_supplied_identity_operands_refuse (tests.authority.test_session.FencedRouteSession.test_missing_extra_and_caller_supplied_identity_operands_refuse) ... ok
+test_the_explicit_session_act_commits_and_replays_the_original_receipt (tests.authority.test_session.FencedRouteSession.test_the_explicit_session_act_commits_and_replays_the_original_receipt) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.039s
+
+OK

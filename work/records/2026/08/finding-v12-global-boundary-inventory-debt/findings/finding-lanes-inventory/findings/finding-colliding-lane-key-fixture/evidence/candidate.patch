@@ -1,0 +1,121 @@
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -7227,6 +7227,26 @@
+                 lanes._lane_id(reference), row["authority_uuid"],
+                 row["work_id"], row["assignment_principal"],
+                 row["assignment_scope"], attempt_id, "held for a probe", NOW)
++            if column == "lane_id":
++                connection = self.store._connection
++                original = connection.row_factory
++
++                def returned_row(cursor, values):
++                    row = original(cursor, values)
++                    if tuple(one[0] for one in cursor.description) == tuple(schema.RUNTIME_LANE_COLUMNS):
++                        row = dict(row)
++                        row["lane_id"] = self.SPOILED[schema.RUNTIME_LANE_COLUMNS[column].kind]
++                    return row
++
++                # Keep the collision and its lookup real; spoil the returned
++                # identity where the row is adopted, not the stored lookup key.
++                connection.row_factory = returned_row
++                try:
++                    worker_manager.request_runtime_start(
++                        self.store, FakeAdapter(self), attempt_id=attempt_id)
++                finally:
++                    connection.row_factory = original
++                return
+             self.corrupt(f"UPDATE runtime_lanes SET {column} = ?",
+                          self.SPOILED[
+                              schema.RUNTIME_LANE_COLUMNS[column].kind])
+@@ -12129,6 +12149,91 @@
+             self.case.refusing("a persisted line writer", lambda: review_cycles.writer_of(self.case.store, "absent-writer"))
+ 
+ 
++class TheCollidingLaneKeyProbeReachesAdoption(unittest.TestCase):
++    def setUp(self):
++        self.case = EveryProbeProvesItArrived()
++        self.case.setUp()
++        self.addCleanup(self.case.doCleanups)
++
++    def stimulus(self):
++        return self.case.spoiling_colliding_lane("lane_id")
++
++    def valid_returned_key(self):
++        bound_attempt = self.case.bound_attempt
++
++        def bound():
++            attempt_id = bound_attempt()
++            reference = worker_manager.lane_reference(self.case.attempt_row_of(attempt_id))
++            self.case.SPOILED = dict(self.case.SPOILED, identity=lanes._lane_id(reference))
++            return attempt_id
++
++        self.case.bound_attempt = bound
++
++    def test_malformed_key_arrives_through_the_exact_collision_lookup(self):
++        connection = self.case.store._connection
++        original = connection.row_factory
++        statements, returned = [], []
++        connection.set_trace_callback(statements.append)
++        self.addCleanup(connection.set_trace_callback, None)
++
++        def observing_factory(cursor, values):
++            row = original(cursor, values)
++            if tuple(one[0] for one in cursor.description) == tuple(schema.RUNTIME_LANE_COLUMNS):
++                returned.append((statements[-1], dict(row)))
++            return row
++
++        connection.row_factory = observing_factory
++        with self.assertRaises(ContractRefusal) as caught:
++            self.stimulus()()
++        self.assertEqual((caught.exception.category, caught.exception.code), ("integrity", "schema"))
++        self.assertIn("a persisted runtime lane's lane_id", caught.exception.message)
++        self.assertIs(connection.row_factory, observing_factory)
++        self.assertEqual(len(returned), 1)
++        statement, row = returned[0]
++        self.assertEqual(statement, "SELECT * FROM runtime_lanes WHERE lane_id = '" + row["lane_id"] + "'")
++        self.assertEqual(row["lane_id"], lanes._lane_id(row))
++        self.assertEqual(row["holder"], "attempt-1")
++        self.assertTrue(any(sql.startswith("INSERT INTO runtime_lanes") for sql in statements))
++        self.assertTrue(any("holder <> 'attempt-1'" in sql for sql in statements))
++        connection.row_factory = original
++        stored = connection.execute("SELECT * FROM runtime_lanes").fetchone()
++        self.assertEqual(dict(lanes._adopted(stored)), row)
++        self.assertIsNone(connection.execute("SELECT lane_id FROM runtime_lanes WHERE lane_id = ''").fetchone())
++
++    def test_valid_returned_row_reaches_real_adoption_then_ordinary_contention(self):
++        self.valid_returned_key()
++        connection = self.case.store._connection
++        original = connection.row_factory
++        with self.assertRaises(ContractRefusal) as caught:
++            self.stimulus()()
++        self.assertEqual((caught.exception.category, caught.exception.code), ("refused", "precondition"))
++        self.assertIn("held by attempt 'attempt-1'", caught.exception.message)
++        self.assertIn("held for a probe", caught.exception.message)
++        self.assertIs(connection.row_factory, original)
++        stored = connection.execute("SELECT * FROM runtime_lanes").fetchone()
++        self.assertEqual(lanes._adopted(stored)["lane_id"], self.case.SPOILED["identity"])
++
++    def test_existing_guard_accepts_the_malformed_returned_key(self):
++        self.case.refusing("a persisted runtime lane", self.stimulus())
++
++    def test_existing_guard_rejects_valid_row_contention(self):
++        self.valid_returned_key()
++        with self.assertRaisesRegex(AssertionError, "refused, but not at"):
++            self.case.refusing("a persisted runtime lane", self.stimulus())
++
++    def test_existing_guard_rejects_an_earlier_missing_attempt(self):
++        with self.assertRaisesRegex(AssertionError, "refused, but not at"):
++            self.case.refusing("a persisted runtime lane", lambda: worker_manager.request_runtime_start(
++                self.case.store, FakeAdapter(self.case), attempt_id="absent-attempt"))
++
++    def test_catalog_keeps_the_exact_pair_and_reaches_adoption(self):
++        entry = ("adopted", "lanes.py:_occupy_lane", "runtime_lanes.lane_id")
++        label = "a persisted runtime lane"
++        full, probe = self.case.lane_probes()[(entry, label)]
++        self.assertEqual(full, label)
++        self.case.refusing(full, probe)
++
++
+ class ProviderLabelsStayWithTheirSubdocuments(unittest.TestCase):
+     def fragment(self, body, extra=""):
+         tree = ast.parse('''

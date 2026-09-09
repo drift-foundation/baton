@@ -1,0 +1,17 @@
+{
+  "directory_custody": {
+    "refused": true,
+    "category": "integrity",
+    "code": "schema"
+  },
+  "kept": {
+    "refused": true,
+    "category": "integrity",
+    "code": "schema"
+  },
+  "kind": {
+    "refused": true,
+    "category": "integrity",
+    "code": "schema"
+  }
+}

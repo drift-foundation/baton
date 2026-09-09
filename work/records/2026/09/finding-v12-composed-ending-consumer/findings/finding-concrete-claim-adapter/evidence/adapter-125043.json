@@ -1,0 +1,98 @@
+{
+  "work": "W125032",
+  "claim": 125043,
+  "claim_order": "claimed at seq125043 before reading the dossier and before any edit",
+  "paths": {
+    "tools/single_worker.py": {
+      "sha256": "724516aca3769a5d6a427bd143dad40534e7acb5dee31714c432a4a3dc221593",
+      "mode": "664"
+    },
+    "tests/tools/test_single_worker.py": {
+      "sha256": "8287f043e7c798be1155ad78cd3d8f960cf26e0da73e818a11d7d439d739e1a2",
+      "mode": "664"
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "60e9be1462174997d57cbedf3395d23f954f021b3d8d38d73c381529558817a7",
+      "mode": "664"
+    }
+  },
+  "test_methods": {
+    "tests/tools/test_single_worker.py": {
+      "baseline_HEAD": 83,
+      "now": 108
+    },
+    "tests/tools/test_stage_execution.py": {
+      "baseline_HEAD": 93,
+      "now": 122
+    }
+  },
+  "source_change": {
+    "file": "tools/single_worker.py",
+    "added": [
+      "_CLAIM_REFUSED/_CLAIM_AMBIGUOUS/_CLAIM_UNKNOWN and two static diagnostics",
+      "_claim_refusal",
+      "_claim_detail",
+      "_ManagerClaimSession",
+      "one import of Refusal and one of label_of"
+    ],
+    "changed": [
+      "the single port construction site now hands the manager's port the translating view of the SAME minted session; the deployment keeps _AuthoritySession"
+    ],
+    "removed": []
+  },
+  "mapping": {
+    "code None, durable exactly False": "refused/precondition, durable=False, carrying the source's bounded words",
+    "code None, durable exactly True": "ambiguous/operation, durable=False, carrying the source's bounded words",
+    "any other code or durability shape": "integrity/schema, durable=False, STATIC diagnostic; the unknown code is not copied and a malformed flag is not read as truthy",
+    "not a Refusal": "propagates untouched",
+    "successful claim": "returned exactly as the session answered it"
+  },
+  "conversion": {
+    "method": "TheReviewStageCannotClaimTheOneWork::test_the_reviewers_claim_is_refused_against_the_implementation_route",
+    "class_renamed_to": "TheWrongRouteClaimDefersInsteadOfStoppingTheSweep",
+    "now_asserts": [
+      "the wrong-route claim defers with refused/precondition and the sweep returns every tick",
+      "no successful claim receipt: the review stage stays offered and no second attempt activates",
+      "no review runtime start"
+    ],
+    "wrong_route_negative_preserved": true,
+    "pre_change_bytes": "evidence/pre-conversion-TheReviewStageCannotClaimTheOneWork.py",
+    "other_assertions_changed": 0
+  },
+  "declared_budget_seconds": 20,
+  "budget_honestly": {
+    "declared_before_verification": "partly -- the declaration was written into PROGRESS before the final runs but after the runs made while implementing; those are counted in the total, not excluded",
+    "spent_seconds": 28.0,
+    "breakdown": "test_single_worker 3.8+3.7+3.8s; the converted class and the two-Job class 0.4+0.4+0.6+0.8s; both owned modules together 10.3s; two short diagnostic probes ~1s"
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_single_worker",
+      "result": "117 tests, OK, 3.85s (103 at claim time; +14 additive)"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_stage_execution.OneRefusedClaimLeavesEveryOtherJobAlone",
+      "result": "4 tests, OK, 0.76s"
+    },
+    {
+      "run": "PYTHONPATH=.:src:tests python3 -m unittest tests.tools.test_single_worker tests.tools.test_stage_execution",
+      "result": "239 tests, 5 failures, 10.28s -- the same five that were already failing at claim time"
+    }
+  ],
+  "pre_existing_failures": {
+    "names": [
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord::test_a_reconstructed_manager_re_enters_the_same_ending",
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord::test_the_historical_entry_reconstructs_no_mount_or_credential",
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord::test_the_historical_operands_come_from_the_recorded_obligation",
+      "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord::test_the_recovered_writer_is_the_attempts_and_not_the_lines_pointer",
+      "TheDischargeReceiptIsNeverJournalled::test_the_gate_is_cleared_and_no_discharge_is_recorded"
+    ],
+    "cause": "W124782's landed intake fix: the discharge receipt now commits and the composed ending settles on its first tick, so a W122060 fixture that depended on it NOT settling no longer reaches its cut, and the fifth is the regression for the defect W124782 fixed. Established under W124784 claim124838 by re-running them with that Work's branch neutralised; see finding-checkpoint-fenced-cleanup/evidence/provider-124838.json.",
+    "why_not_fixed_here": "this allocation authorizes exactly one conversion in this file and no other assertion change. Reserving the path is not permission to rewrite another Work's cases."
+  },
+  "excluded_capability_reported": {
+    "what": "the approved proposal asks for two Jobs where the other PROGRESSES in the same sweep. Job B is a real second Job on a real second Work and is spoken for in every tick, but it cannot progress: this deployment's worker admits only its configured job_work_id and refuses 'stage job-b/implementation names work_id ...; this single worker accepts only ...'.",
+    "consequence": "widening it is a configuration change this Work is not allocated, so continuation is proved by a counterfactual instead: with the containment removed for one tick the sweep raises and Job B's act is never reached, and with it in place both Jobs are spoken for in every tick.",
+    "pinned_by": "tests/tools/test_stage_execution.py::OneRefusedClaimLeavesEveryOtherJobAlone::test_this_deployment_cannot_admit_the_second_jobs_work"
+  }
+}

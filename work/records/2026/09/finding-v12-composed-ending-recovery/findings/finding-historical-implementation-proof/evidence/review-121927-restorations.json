@@ -1,0 +1,6 @@
+{
+  "tests": 2,
+  "successful": true,
+  "seconds": 0.11213825305458158,
+  "output": "test_a_publication_this_manager_no_longer_retains_refuses (tests.job_manager.test_review_driver.TheImplementationResumeReadsRealCommittedCustody.test_a_publication_this_manager_no_longer_retains_refuses)\nRestored, per owner121773's explicit stimulus requirement. ... ok\ntest_the_publication_selector_is_derivable_after_reopening (tests.job_manager.test_review_driver.TheImplementationResumeReadsRealCommittedCustody.test_the_publication_selector_is_derivable_after_reopening)\nRestored: the selector is reached from durable state, not carried. ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.112s\n\nOK\n"
+}

@@ -1,0 +1,13 @@
+{
+  "work": "W121793",
+  "claim": 121826,
+  "successful": true,
+  "exact_ordinary_publication_recovered": true,
+  "absent_attempt_none": true,
+  "publisher_and_retention_forbidden": true,
+  "sql_writes_and_transactions_denied": true,
+  "denied_attempts": [],
+  "sql_statements": 17,
+  "fixture": "Actual consumer ordinary ending, real frozen output/assignment/retention/publication; reopened manager and forgotten selector; deterministic physical/Authority transports",
+  "seconds": 0.0919173329602927
+}

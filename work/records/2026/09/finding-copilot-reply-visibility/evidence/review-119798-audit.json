@@ -1,0 +1,21 @@
+{
+  "paths": {
+    "tools/codex_copilot_notifier.py": {
+      "base": "155589dcb664cc555340a716317e58c5ddfab77f609601f5684e83a8fb4cbaaf",
+      "candidate": "40743002d65d06d95a5e9b44b6a5a658d8818d1a6a6091402d77c16fb9ac71ba"
+    },
+    "tools/test_codex_copilot_notifier.py": {
+      "base": "1e206e0148fb17abf44c9005e74f7167ec1ccff0b8b07dcbe1e786a57126a015",
+      "candidate": "dc13e7b9e2c3957ec6112d5de7e50458c15e20183c841aeee0fd549818bba2d7"
+    },
+    "tools/CODEX-COPILOT-NOTIFIER.md": {
+      "base": "e61849dcf90feb9ae53cc416696c0cccdb9567e7e7d4d72d704720be3943b155",
+      "candidate": "206ecbae7e56e8f93638412699dc4261b6b77dad8d083e07cb90493134c9b5c0"
+    }
+  },
+  "existing_test_classes_unchanged": true,
+  "retained_regression_passes": 47,
+  "retained_errors": 1,
+  "error": "Unix socket bind EPERM, separate operator result requested as M119806",
+  "new_controls": 12
+}

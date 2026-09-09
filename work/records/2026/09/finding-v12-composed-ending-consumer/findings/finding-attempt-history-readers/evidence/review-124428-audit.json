@@ -1,0 +1,25 @@
+{
+  "work": "W124331",
+  "claim": 124428,
+  "utc": "2026-09-09T03:05:04.108579+00:00",
+  "paths": {
+    "src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "d91e915581b1ff1487f642124c6b60366c61e18f1a382c3f0325fb73224cf828",
+      "mode": "0o644"
+    },
+    "src/baton_v12/worker_manager/__init__.py": {
+      "sha256": "0c417699ed667a857863c845d94408b4f06191706b169e1cd478c0d9e998eb05",
+      "mode": "0o644"
+    },
+    "tests/manager/test_review_cycles.py": {
+      "sha256": "2115e43018a16cfa66acbf7f0caa5ce6b3daf2234adf353f23182ab91d3887ef",
+      "mode": "0o644"
+    },
+    "tests/manager/test_secrets.py": {
+      "sha256": "9104bf90aa9c437eb221c8dbcd2e3528f07bc5d1c2d5174d37e71bc7ee243724",
+      "mode": "0o644"
+    }
+  },
+  "probe_seconds": 0.06032895413227379,
+  "verification": "Reuse author94/186 focused passes; independent mutation probe; no inventory rerun."
+}

@@ -1,0 +1,41 @@
+{
+  "work": "W120762",
+  "claim": 120784,
+  "interface": "cleanup_of(store, *, attempt_id, retention_policy_digest) -> owned ordinary cleanup receipt or None",
+  "sha256": {
+    "src/baton_v12/worker_manager/intake.py": "4d830e31205b2f6d5a8d8ff3d848eae15d7dd3728d4f273b1e083c022292aff8",
+    "src/baton_v12/worker_manager/__init__.py": "d23aa64e0eba64d969313a129f1bc57a40d1a168f582982bfdcb65319ae932c6",
+    "tests/manager/test_intake.py": "d438e94df1c864ac23562cd57c27a337763a537e9dfe5c56864b9d761366a96b",
+    "tests/manager/test_secrets.py": "47f743de21546862863e489da3248ea91c7e3cb80aefa30b167566da1ede66eb"
+  },
+  "modes": {
+    "src/baton_v12/worker_manager/intake.py": "664",
+    "src/baton_v12/worker_manager/__init__.py": "644",
+    "tests/manager/test_intake.py": "664",
+    "tests/manager/test_secrets.py": "644"
+  },
+  "commands": [
+    {
+      "what": "added controls",
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_intake.TheCommittedCleanupIsReadableWithoutActing",
+      "result": "19 tests, OK, 0.29s"
+    },
+    {
+      "what": "smallest affected cleanup/discharge set",
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_intake tests.manager.test_output tests.manager.test_attempts tests.manager.test_secrets",
+      "result": "722 tests, OK, 7.4s"
+    },
+    {
+      "what": "unbudgeted baseline attribution for the new export",
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_boundary_inventory tests.manager.test_dependencies",
+      "result": "24 failures, 22.4s; none names cleanup_of, _settled_ending, _kept_material or _adopted_normalizations",
+      "attribution": "pre-existing W116972 baseline, recorded at baton:work/records/2026/08/finding-v12-global-boundary-inventory-debt/findings/finding-lanes-inventory/evidence/census-blocker-120164.json"
+    }
+  ],
+  "budget": {
+    "declared_by_record_seconds": 20,
+    "focused_seconds": 7.7,
+    "attribution_seconds": 22.4,
+    "note": "the attribution run was decided after the focused runs and should have been recorded before it was executed"
+  }
+}

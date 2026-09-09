@@ -1,0 +1,54 @@
+test_an_interrupted_restore_finishes_under_the_same_exclusion (tests.manager.test_review_cycles.AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_an_interrupted_restore_finishes_under_the_same_exclusion)
+The intent commits before the profile act, so a crash between them ... ok
+test_a_transient_profile_failure_stays_retryable (tests.manager.test_review_cycles.AnAbandonedCorrectionIsRestoredToItsRetainedCheckpoint.test_a_transient_profile_failure_stays_retryable)
+The effect runs inside `transact`, so its failure must not become a ... ok
+test_nothing_outside_the_nominated_checkout_is_named (tests.manager.test_checkpoint_profiles.RestoringOneCheckoutToItsRetainedCheckpoint.test_nothing_outside_the_nominated_checkout_is_named)
+Each command addresses the held nominated object, preserving custody. ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.042s
+
+OK
+{
+  "foreign-signature-kind": {
+    "outcome": [
+      "integrity",
+      "schema"
+    ],
+    "effects": 0,
+    "completion": null
+  },
+  "foreign-runtime-resigned": {
+    "outcome": [
+      "integrity",
+      "schema"
+    ],
+    "effects": 0,
+    "completion": null
+  },
+  "foreign-schema-resigned": {
+    "outcome": [
+      "integrity",
+      "schema"
+    ],
+    "effects": 0,
+    "completion": null
+  },
+  "null-assignment-resigned": {
+    "outcome": [
+      "integrity",
+      "schema"
+    ],
+    "effects": 0,
+    "completion": null
+  },
+  "foreign-row-kind": {
+    "outcome": [
+      "integrity",
+      "schema"
+    ],
+    "effects": 0,
+    "completion": null
+  },
+  "controls_pass": true
+}

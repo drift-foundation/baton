@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-composed-ending-consumer/findings/finding-readonly-coordinator-open/evidence/review-127103-shutdown-final.py"
+  ],
+  "elapsed_seconds": 0.3298902219394222,
+  "cumulative_seconds": 1.3519193339161575,
+  "budget_seconds": 2,
+  "returncode": 0,
+  "stdout": "{\n  \"before\": [\n    \"coordinator.sqlite3\",\n    \"coordinator.sqlite3-shm\",\n    \"coordinator.sqlite3-wal\"\n  ],\n  \"after_serving_exit\": [\n    \"coordinator.sqlite3\"\n  ],\n  \"exception\": \"ContractRefusal: opening the integration coordinator store at '/tmp/review-127103-s1v3keao/coordinator.sqlite3' for reading created -shm, -wal; its coordinator released the store between this open's check and its first read, so SQLite made these files rather than reusing the ones the check saw. A read-only open creates no journal artifact. They were left as SQLite made them rather than removed, because deleting a file another opener may have just created for its own reasons is not this boundary's to do\",\n  \"contract_refusal\": true,\n  \"after_open\": {\n    \"coordinator.sqlite3-shm\": 32768,\n    \"coordinator.sqlite3-wal\": 0,\n    \"coordinator.sqlite3\": 73728\n  }\n}\n",
+  "stderr": "",
+  "reason": "Retain the first after-exit snapshot instead of overwriting it at the second SQLite connection."
+}

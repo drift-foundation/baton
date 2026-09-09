@@ -1,0 +1,20 @@
+{
+  "work": "W120519",
+  "claim": 120549,
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_v12_test_module_is_registered_exactly_once"
+  ],
+  "cwd": "v12/python",
+  "PYTHONPATH": "src:tests:.",
+  "elapsed_seconds": 0.028742845985107124,
+  "returncode": 0,
+  "stdout": "",
+  "stderr": ".\n----------------------------------------------------------------------\nRan 1 test in 0.001s\n\nOK\n",
+  "base_sha256": "f00fec0efebca9df1e25c025d1c9f07d350d1c79f0f0c880e673888bac884547",
+  "candidate_sha256": "6ea5e9bef58a5182ae8b904a8db9ae92bcaf130d05ee1d61e9c36aa3efa0c10d",
+  "mode": "0o644",
+  "exact_single_insertion": true
+}

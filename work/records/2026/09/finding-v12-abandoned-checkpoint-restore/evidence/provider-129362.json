@@ -1,0 +1,75 @@
+{
+  "work": "W128692",
+  "claim": 129362,
+  "corrects": "review-2026-09-09T16-31-35Z.md: one P1, one test amendment and one accounting correction",
+  "claim_order": "claimed at seq129362 before reading the review and before any edit",
+  "authority": "AGENTS.md#w71830-standing-test-change-authority (owner ruling 2026-09-09T16:36Z), adopted at poke129294/seq129310. OWNER-DECISION-129222.md is superseded as a permission request and retained as decision history; no per-test approval was requested or needed.",
+  "paths": {
+    "src/baton_v12/worker_manager/review_cycles.py": {
+      "previous": "2a5370f7ab50340d9d892360c64456883722f75cc1e414a91fab5c473e4bd948",
+      "final": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+      "mode": "644"
+    },
+    "src/baton_v12/checkpoint_profiles.py": {
+      "previous": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "final": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "mode": "644"
+    },
+    "tests/manager/test_review_cycles.py": {
+      "previous": "ad3bf73199d65a41d0fb7fb2ac2610afccfa1fa4ff040f3599795ad914d70224",
+      "final": "ed16ca105fc36a9113fe39049d02b739fe45d95d1b4c12c670aabe88620734d4",
+      "mode": "644"
+    },
+    "tests/manager/test_checkpoint_profiles.py": {
+      "previous": "dd65fa4e685f2745e974b64c4d25dcf2468e9d07d1d46ff95d2a0fa51271c86d",
+      "final": "321ac78270ee842110cd289e32ee727f5bbde842ce154c089e228607c1b5860a",
+      "mode": "644"
+    }
+  },
+  "p1_intent_signature": {
+    "was": "`_fixed_intent` handed the row's OWN signature back to `store.replay`, which compares it with itself -- so replacing that column with canonical operand text under a foreign kind left the identity and result untouched and the retry wrote a checkout",
+    "now": [
+      "the signature is RECOMPOSED from the adopted document under RESTORE_INTENT_KIND and compared with what the journal recorded -- one comparison for a relationship the members cannot state separately",
+      "the intent's schema is required to be baton.v12.abandoned-correction/1",
+      "every identity, text and nested document member is owned through the contract boundary BEFORE any nested field is indexed, so a null assignment refuses instead of raising TypeError at a persisted-input boundary"
+    ],
+    "controls": [
+      "test_a_resigned_intent_cannot_authorize_a_retry_effect -- the reviewer's exact foreign-kind resigning, with no profile effect, no completion and the line left writing",
+      "test_an_edited_intent_result_cannot_authorize_a_retry_effect",
+      "test_a_malformed_intent_refuses_through_the_contract_boundary"
+    ],
+    "preserved": "the valid interrupted retry and the transient-failure retry both still pass"
+  },
+  "test_amendment": {
+    "method": "RestoringOneCheckoutToItsRetainedCheckpoint.test_nothing_outside_the_nominated_checkout_is_named",
+    "path": "v12/python/tests/manager/test_checkpoint_profiles.py",
+    "reason": "its pathname equality asserts the spelling the accepted object binding necessarily changes; the amended method compares the ADDRESSED object's device and inode at the command boundary instead, which is the same intent measured against the binding rather than against a name",
+    "source": "adopted verbatim from evidence/review-129222/proposed_test.py",
+    "verified": "the resulting full-file SHA256 is 321ac78270ee842110cd289e32ee727f5bbde842ce154c089e228607c1b5860a, byte-identical to the proposal's stated digest, at mode 644",
+    "preserved": "the git/-C checks, the exact reset and clean argv checks, no sibling operand and the immutable sibling content"
+  },
+  "accounting_correction": {
+    "appended_not_rewritten": true,
+    "was": "provider-129198.json's summary said 23.305s cumulative",
+    "correct": "its three listed runs are 1.950 + 1.821 + 0.317 = 4.088s; with the 19.534s carry that is 23.622s. The summary omitted the profile run. The reviewer's figure is right and mine was wrong.",
+    "earlier_evidence": "left exactly as written; this is the correction record"
+  },
+  "budget": {
+    "cap": 25.0,
+    "carried_in": 23.622,
+    "spent_this_pass": 0.406,
+    "cumulative": 24.028,
+    "remaining": 0.972,
+    "within": true,
+    "reset": false
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_checkpoint_profiles.RestoringOneCheckoutToItsRetainedCheckpoint plus the three new intent negatives and the four retry/interruption cases, by exact selector",
+      "wall": "0.406s",
+      "log": "evidence/run-129362-focused.log",
+      "result": "17 tests, OK on the first run"
+    }
+  ],
+  "not_repeated": "the audited 158-test manager module result and the earlier profile-module run, as the review directed"
+}

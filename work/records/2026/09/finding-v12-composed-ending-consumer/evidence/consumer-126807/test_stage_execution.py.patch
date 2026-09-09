@@ -1,0 +1,192 @@
+--- v12/python/tests/tools/test_stage_execution.py
++++ v12/python/tests/tools/test_stage_execution.py
+@@ -3621,7 +3621,7 @@
+         held.composed = composed
+         held.integration_port = port
+ 
+-    def integration_turn(self, held, attempt_id):
++    def integration_turn(self, held, attempt_id, *, behavior="import"):
+         import subprocess
+         import sys
+         import claude_agent
+@@ -3637,7 +3637,7 @@
+         self.write(script, PROVIDER_SOURCE)
+ 
+         def runner(argv, **options):
+-            return subprocess.run([sys.executable, "-I", "-B", script, "import", argv[-1]],
++            return subprocess.run([sys.executable, "-I", "-B", script, behavior, argv[-1]],
+                                   cwd=options.get("cwd"), env=dict(options.get("env") or {}),
+                                   stdout=options.get("stdout"), stderr=options.get("stderr"), timeout=10)
+ 
+@@ -3671,7 +3671,7 @@
+         self.lifecycle_reports.append(report)
+         [started] = [one for one in report["started"] if one["stage_id"] == "job-a/integration"]
+         self.assertEqual(started["outcome"], "started", started)
+-        self.assertEqual(self.states(held.job, held.composed)["integration"], "starting")
++        self.assertEqual(self.states(held.job, held.composed)["integration"], "integrating")
+         attempt_id = started["attempt_id"]
+         self.assertEqual(self.integration_turn(held, attempt_id), 0)
+         from baton_v12.integration import runtime
+@@ -3692,11 +3692,161 @@
+         deployment = self.deployment_of(held)
+         [entry] = entries_of(deployment.integration, deployment.given["canonical_target_id"])
+         self.assertEqual(entry["state"], "integrated")
+-        self.assertEqual(lease_of(deployment.integration, ended["detail"]["assignment"]["lease_id"])["state"], "released")
++        self.assertEqual(lease_of(deployment.integration, runtime.published_assignment(delivery)["lease_id"])["state"], "released")
+         self.assertEqual(pathlib.Path(self.source, "harness.py").read_text(), "print('the accepted correction')\n")
+         states = self.drive(held.job, held.composed, "integration", "completed", ticks=3)
+         self.assertEqual(states, {"implementation": "completed", "review": "completed", "integration": "completed"})
+         self.assertIsNone(self.projected()["handler"])
++        from baton_v12.worker_manager import attempt_runtime_of
++
++        fixed = attempt_runtime_of(held.control, attempt_id)["assignment"]
++        outgoing = self.worker_of(held.composed, "integration").given["review_route"]
++        handoff = deployment.authority.operation_result("integration-pass:" + attempt_id)
++        self.assertEqual(handoff["assignment"], fixed)
++        self.assertEqual(handoff["route"], outgoing)
++        self.assertEqual(handoff["cause"], "pass")
++        self.assertFalse(handoff["fenced"])
++        self.assertIsNone(handoff["gate"])
++        self.assertEqual(self.projected()["route"], outgoing)
++        self.assertNotEqual(entry["assignment_generation"], fixed["generation"])
++        self.terminal_evidence = {"states": states, "entry": entry,
++            "lease": lease_of(deployment.integration, runtime.published_assignment(delivery)["lease_id"]),
++            "integration_receipt": ended["detail"]["authority_receipt"], "handoff": handoff,
++            "runtime": attempt_runtime_of(held.control, attempt_id), "work": self.projected()}
++
++    def answered_integration(self, *, behavior="import"):
++        held = self.accepted_correction()
++        self.connect_integration(held)
++        with mock.patch.object(held.composed.integrator, "observe", wraps=held.composed.integrator.observe) as observed:
++            started = self.tick(held)
++        [launched] = [one for one in started["started"] if one["stage_id"] == "job-a/integration"]
++        held.integration_attempt = launched["attempt_id"]
++        held.integration_stage = next(dict(call.args[0]) for call in reversed(observed.call_args_list)
++                                      if call.args[0].get("kind") == "integration")
++        self.assertEqual(self.integration_turn(held, held.integration_attempt, behavior=behavior), 0)
++        return held
++
++    def test_running_integrator_result_cannot_end_its_assignment(self):
++        held = self.answered_integration()
++        session = held.composed.sessions["integrator"]
++        with mock.patch.object(session, "pass_work", wraps=session.pass_work) as passed:
++            report = self.tick(held)
++        self.assertFalse(passed.called)
++        self.assertEqual(self.projected()["handler"], "baton.integrator")
++        self.assertEqual(self.states(held.job, held.composed)["integration"], "answering")
++        self.assertEqual(report["spoken"][0]["detail"]["outcome"], "running")
++
++    def test_foreign_receipt_or_lease_cannot_authorize_terminal_handoff(self):
++        held = self.answered_integration()
++        self.engine.stopped = True
++        with mock.patch.object(held.composed.integrator, "finish"):
++            self.tick(held)
++        authority = held.composed.authority
++        receipt = authority.receipt
++        def foreign(proposal, kind):
++            return dict(receipt(proposal, kind), candidate_digest="foreign-candidate")
++        with mock.patch.object(authority, "receipt", side_effect=foreign):
++            with self.assertRaises(ContractRefusal) as refused:
++                held.composed.integrator.finish(held.integration_stage)
++        self.assertEqual(refused.exception.code, "operation-collision")
++        lease_of = stage_execution.lease_of
++        with mock.patch.object(stage_execution, "lease_of", side_effect=lambda *args: dict(lease_of(*args), fence=999)):
++            with self.assertRaises(ContractRefusal) as refused:
++                held.composed.integrator.finish(held.integration_stage)
++        self.assertEqual(refused.exception.code, "operation-collision")
++        self.assertIsNone(authority.operation_result("integration-pass:" + held.integration_attempt))
++        self.assertEqual(self.projected()["handler"], "baton.integrator")
++
++    def test_lost_pass_answer_remains_completed_after_a_later_assignment(self):
++        from baton_v12.authority import Refusal
++
++        held = self.answered_integration()
++        self.engine.stopped = True
++        session = held.composed.sessions["integrator"]
++        original = session.pass_work
++        def lost(operands):
++            original(operands)
++            raise Refusal("the probe loses the committed pass answer")
++        with mock.patch.object(session, "pass_work", side_effect=lost) as passed:
++            self.tick(held)
++        self.assertEqual(passed.call_count, 1)
++        authority = held.composed.authority
++        operation = "integration-pass:" + held.integration_attempt
++        committed = authority.operation_result(operation)
++        later = authority.session("baton.reviewer").claim({"work_id": self.work, "operation_id": "later-review-claim"})
++        with mock.patch.object(session, "pass_work", side_effect=AssertionError("a historical pass must not run again")), \
++                mock.patch.object(held.composed.integrator, "_run", side_effect=AssertionError("integration must not run again")):
++            self.assertEqual(self.states(held.job, held.composed)["integration"], "completed")
++            self.tick(held)
++        self.assertEqual(authority.operation_result(operation), committed)
++        self.assertEqual(self.projected()["assignment"], later["assignment"])
++
++    def test_uncertain_integration_effect_stays_held(self):
++        from baton_v12.integration import entries_of, target_of
++
++        held = self.answered_integration(behavior="index")
++        self.engine.stopped = True
++        self.tick(held)
++        deployment = self.deployment_of(held)
++        [entry] = entries_of(deployment.integration, deployment.given["canonical_target_id"])
++        self.assertEqual(entry["state"], "held")
++        self.assertEqual(target_of(deployment.integration, deployment.given["canonical_target_id"])["state"], "blocked")
++        self.assertEqual(self.states(held.job, held.composed)["integration"], "exceptional")
++        self.assertEqual(self.projected()["handler"], "baton.integrator")
++        self.assertIsNone(deployment.authority.operation_result("integration-pass:" + held.integration_attempt))
++
++    def test_serving_observation_reads_only_existing_owners(self):
++        held = self.answered_integration()
++        with mock.patch.object(held.composed.integrator, "_run", side_effect=AssertionError("read invoked driver")), \
++                mock.patch.object(held.integration_port, "refresh", side_effect=AssertionError("read refreshed runtime")), \
++                mock.patch.object(held.composed.sessions["integrator"], "pass_work", side_effect=AssertionError("read passed Work")), \
++                mock.patch.object(stage_execution.review_cycles, "create_line", side_effect=AssertionError("read created line")), \
++                mock.patch.object(stage_execution, "retain_proposal", side_effect=AssertionError("read retained proposal")):
++            self.assertEqual(self.states(held.job, held.composed)["integration"], "answering")
++
++    def test_committed_handoff_recovers_before_local_acknowledgement(self):
++        from baton_v12.job_manager import ending, submit
++        from baton_v12.worker_manager import review_cycles
++
++        job, control, composed = self.serving()
++        submit(job, self.submission)
++        self.drive(job, composed, "implementation", "waiting")
++        attempt = self.only_attempt(composed, "implementation")
++        self.assertEqual(self.turn(control, "implementation", attempt,
++                                  self.mounted(composed, "implementation", attempt),
++                                  edits={"harness.py": "print('retained handoff')\n"}), 0)
++        held = SimpleNamespace(job=job, control=control, composed=composed)
++        with mock.patch.object(stage_execution.ending, "settle_ending", side_effect=ContractRefusal("refused", "precondition", "lost local acknowledgement")):
++            self.tick(held)
++        record = ending.ending_of(job, "job-a/implementation", 1)
++        self.assertIsNone(record["settlement"])
++        authority = composed.authority
++        operation = "route-fenced:" + attempt + ":" + self.config["review_route"]
++        handoff = authority.operation_result(operation)
++        self.assertIsNotNone(handoff)
++        self.assertIsNone(authority.project_work(self.work)["gate"])
++        writer = review_cycles.writer_for_attempt(control, attempt_id=attempt, generation=handoff["assignment"]["generation"])
++        publication = stage_execution.publication_for_attempt(control, attempt_id=attempt)
++        starts = len(self.engine.starts)
++        composed.close()
++        job.close()
++        control.close()
++        job, control = self.stores("after-committed-handoff")
++        restarted = stage_execution.operations_from(self.composed_document(line_declared_base=self.base), job, control,
++            engine_run=self.engine, credential_provider=lambda *_: self.secret, clock=lambda: NOW, checkout=self.checkout)
++        self.addCleanup(restarted.close)
++        self._composed = restarted
++        resumed = SimpleNamespace(job=job, control=control, composed=restarted)
++        self.tick(resumed)
++        settled = ending.ending_of(job, "job-a/implementation", 1)
++        self.assertIsNotNone(settled["settlement"])
++        self.assertEqual(restarted.authority.operation_result(operation), handoff)
++        self.assertEqual(review_cycles.writer_for_attempt(control, attempt_id=attempt, generation=handoff["assignment"]["generation"]), writer)
++        self.assertEqual(stage_execution.publication_for_attempt(control, attempt_id=attempt), publication)
++        self.assertEqual(len(self.engine.starts), starts)
++        self.assertEqual(self.states(job, restarted)["implementation"], "completed")
++        checkpoint = settled["settlement"]["evidence"]["checkpoint_id"]
++        self.assertEqual(review_cycles.checkpoint_of(control, checkpoint)["writer_id"], writer["writer_id"])
+ 
+ 
+ class TheWrongRouteClaimDefersInsteadOfStoppingTheSweep(ComposedOneJobCase):

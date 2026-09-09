@@ -1,0 +1,443 @@
+{
+  "work": "W120425",
+  "claim": 121221,
+  "sha256": {
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "cc6b21627d49c2a9864deb7b93ebb01c851e026ddbc86ced58ef9217c99dd67c",
+    "v12/python/tests/job_manager/test_review_driver.py": "d6f0bb5d6c78d74cd48aff9e07d4afe4f4de1a4598a0b6939a21c2724addd3b7"
+  },
+  "results": {
+    "cold_reopen_forbidden_target": {
+      "exception": "AssertionError",
+      "category": null,
+      "code": null,
+      "message": "cold resume reads live canonical target"
+    },
+    "cold_reopen_measured": {
+      "resume": {
+        "returned": {
+          "attempt_id": "public-implementation",
+          "disposition": "completed",
+          "result_id": "result-public-implementation",
+          "manifest_digest": "sha256:f669865af4f8ffd44ab9c005c97dd85b402579567d2082923a36983166c94581",
+          "receipt_digest": "sha256:98a82246572097fcc0c78f6f05185787fef6ce5719ef62186ab2744bf7ff6e8d",
+          "artifacts": [
+            "public-implementation:findings",
+            "public-implementation:logs",
+            "public-implementation:proposal"
+          ],
+          "retention": "retain",
+          "published": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.impl",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "attempt_id": "public-implementation",
+            "candidate_digest": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "proposal_id": "integration-driver.proposal:05cee824043f6e358690b2154a7cb1efa45bba87583c714c8204319e193c7806",
+            "proposal_manifest_digest": "sha256:dec9f95749302cb5e7e634d86365249f360298d9c0757422ce99b2ce932b03dd",
+            "published": {
+              "assignment_ref": {
+                "generation": 1,
+                "participant": "baton.impl",
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                }
+              },
+              "candidate_digest": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "decision": {},
+              "input_digest": "sha256:05d76f842750c569a663fcf22ffd8b3168b279027d637b66b6addeecb551de8c",
+              "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "proposal_id": "integration-driver.proposal:05cee824043f6e358690b2154a7cb1efa45bba87583c714c8204319e193c7806",
+              "published_at": "2026-09-07T02:00:00.000Z",
+              "result_digest": "sha256:f669865af4f8ffd44ab9c005c97dd85b402579567d2082923a36983166c94581",
+              "result_id": "result-public-implementation",
+              "target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "result_id": "result-public-implementation",
+            "result_manifest_digest": "sha256:f669865af4f8ffd44ab9c005c97dd85b402579567d2082923a36983166c94581",
+            "target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+          },
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+          "checkpoint": {
+            "checkpoint_digest": "sha256:70678143e444ef02b5e5e631ba1390cc8c3f6f403a074c7e7b16d1162dfb303f",
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+            "evidence": {
+              "base": "99589de0546ef80d3d45877021239b540e2648e6",
+              "head": "5b89feac8ec647b183c850f84b802ff55161ec69",
+              "path_set_digest": "sha256:cbaf839ada452f2c1f27c765d4514401c51c3c1eb32b14ddd530beef66704af1",
+              "paths": [
+                "round-1.txt"
+              ],
+              "profile": "reference",
+              "reference": "checkpoint/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+              "tree": "187c9962e6f295e91283e6ee38b7b398846002b8"
+            },
+            "fence": {
+              "fenced": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.impl",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "cause": "cancelled",
+                "fenced": true,
+                "gate": "runtime-quiescence:1",
+                "phase": "block"
+              },
+              "intent": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.impl",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "attempt_id": "public-implementation",
+                "authority_operation_id": "authority.finalize-quiescent:914b9b2a07c5b9672c806cfe37125d41a9cae929be0867d7fdd96ac279a45a84",
+                "decision": "finalized",
+                "reason": "review checkpoint writer completed",
+                "runtime_id": "runtime-public-implementation",
+                "worker_disposition": "completed"
+              }
+            },
+            "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+            "revision": 1
+          }
+        }
+      },
+      "live_target_reads": 1,
+      "control_changes": 0
+    },
+    "changed_seam_selectors": {
+      "proposal_id": {
+        "returned": {
+          "attempt_id": "public-implementation",
+          "disposition": "completed",
+          "result_id": "result-public-implementation",
+          "manifest_digest": "sha256:86b82a212b74ac34d620c014effb776d5e1053faa34c933cd952a5d1c2aecb60",
+          "receipt_digest": "sha256:2f3ad2fb7651ae4b4f8dcc1019dbb46162f7645da2a82d3aa26799d3be304c1e",
+          "artifacts": [
+            "public-implementation:findings",
+            "public-implementation:logs",
+            "public-implementation:proposal"
+          ],
+          "retention": "retain",
+          "published": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.impl",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "attempt_id": "public-implementation",
+            "candidate_digest": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "proposal_id": "proposal-elsewhere",
+            "proposal_manifest_digest": "sha256:f02d36d0493287f20a738b955d4618e6ef02cb8a9a9deb769d4dcc3232cbbb7a",
+            "published": {
+              "assignment_ref": {
+                "generation": 1,
+                "participant": "baton.impl",
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                }
+              },
+              "candidate_digest": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "decision": {},
+              "input_digest": "sha256:05d76f842750c569a663fcf22ffd8b3168b279027d637b66b6addeecb551de8c",
+              "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "proposal_id": "integration-driver.proposal:939e9c833dc2b785b6513d0c9cb17abf5f1774cf2a1a1207001259b700be569c",
+              "published_at": "2026-09-07T02:00:00.000Z",
+              "result_digest": "sha256:86b82a212b74ac34d620c014effb776d5e1053faa34c933cd952a5d1c2aecb60",
+              "result_id": "result-public-implementation",
+              "target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "result_id": "result-public-implementation",
+            "result_manifest_digest": "sha256:86b82a212b74ac34d620c014effb776d5e1053faa34c933cd952a5d1c2aecb60",
+            "target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+          },
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+          "checkpoint": {
+            "checkpoint_digest": "sha256:70678143e444ef02b5e5e631ba1390cc8c3f6f403a074c7e7b16d1162dfb303f",
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+            "evidence": {
+              "base": "99589de0546ef80d3d45877021239b540e2648e6",
+              "head": "5b89feac8ec647b183c850f84b802ff55161ec69",
+              "path_set_digest": "sha256:cbaf839ada452f2c1f27c765d4514401c51c3c1eb32b14ddd530beef66704af1",
+              "paths": [
+                "round-1.txt"
+              ],
+              "profile": "reference",
+              "reference": "checkpoint/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+              "tree": "187c9962e6f295e91283e6ee38b7b398846002b8"
+            },
+            "fence": {
+              "fenced": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.impl",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "cause": "cancelled",
+                "fenced": true,
+                "gate": "runtime-quiescence:1",
+                "phase": "block"
+              },
+              "intent": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.impl",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "attempt_id": "public-implementation",
+                "authority_operation_id": "authority.finalize-quiescent:914b9b2a07c5b9672c806cfe37125d41a9cae929be0867d7fdd96ac279a45a84",
+                "decision": "finalized",
+                "reason": "review checkpoint writer completed",
+                "runtime_id": "runtime-public-implementation",
+                "worker_disposition": "completed"
+              }
+            },
+            "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+            "revision": 1
+          }
+        }
+      },
+      "proposal_manifest_digest": {
+        "returned": {
+          "attempt_id": "public-implementation",
+          "disposition": "completed",
+          "result_id": "result-public-implementation",
+          "manifest_digest": "sha256:86b82a212b74ac34d620c014effb776d5e1053faa34c933cd952a5d1c2aecb60",
+          "receipt_digest": "sha256:2f3ad2fb7651ae4b4f8dcc1019dbb46162f7645da2a82d3aa26799d3be304c1e",
+          "artifacts": [
+            "public-implementation:findings",
+            "public-implementation:logs",
+            "public-implementation:proposal"
+          ],
+          "retention": "retain",
+          "published": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.impl",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "attempt_id": "public-implementation",
+            "candidate_digest": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "proposal_id": "integration-driver.proposal:939e9c833dc2b785b6513d0c9cb17abf5f1774cf2a1a1207001259b700be569c",
+            "proposal_manifest_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+            "published": {
+              "assignment_ref": {
+                "generation": 1,
+                "participant": "baton.impl",
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                }
+              },
+              "candidate_digest": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "decision": {},
+              "input_digest": "sha256:05d76f842750c569a663fcf22ffd8b3168b279027d637b66b6addeecb551de8c",
+              "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "proposal_id": "integration-driver.proposal:939e9c833dc2b785b6513d0c9cb17abf5f1774cf2a1a1207001259b700be569c",
+              "published_at": "2026-09-07T02:00:00.000Z",
+              "result_digest": "sha256:86b82a212b74ac34d620c014effb776d5e1053faa34c933cd952a5d1c2aecb60",
+              "result_id": "result-public-implementation",
+              "target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "result_id": "result-public-implementation",
+            "result_manifest_digest": "sha256:86b82a212b74ac34d620c014effb776d5e1053faa34c933cd952a5d1c2aecb60",
+            "target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+          },
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+          "checkpoint": {
+            "checkpoint_digest": "sha256:70678143e444ef02b5e5e631ba1390cc8c3f6f403a074c7e7b16d1162dfb303f",
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+            "evidence": {
+              "base": "99589de0546ef80d3d45877021239b540e2648e6",
+              "head": "5b89feac8ec647b183c850f84b802ff55161ec69",
+              "path_set_digest": "sha256:cbaf839ada452f2c1f27c765d4514401c51c3c1eb32b14ddd530beef66704af1",
+              "paths": [
+                "round-1.txt"
+              ],
+              "profile": "reference",
+              "reference": "checkpoint/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+              "tree": "187c9962e6f295e91283e6ee38b7b398846002b8"
+            },
+            "fence": {
+              "fenced": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.impl",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "cause": "cancelled",
+                "fenced": true,
+                "gate": "runtime-quiescence:1",
+                "phase": "block"
+              },
+              "intent": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.impl",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "attempt_id": "public-implementation",
+                "authority_operation_id": "authority.finalize-quiescent:914b9b2a07c5b9672c806cfe37125d41a9cae929be0867d7fdd96ac279a45a84",
+                "decision": "finalized",
+                "reason": "review checkpoint writer completed",
+                "runtime_id": "runtime-public-implementation",
+                "worker_disposition": "completed"
+              }
+            },
+            "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+            "revision": 1
+          }
+        }
+      }
+    },
+    "real_discard_ending": {
+      "ordinary_cleanup": "complete",
+      "ordinary_kept": [],
+      "resume": {
+        "returned": {
+          "attempt_id": "public-implementation",
+          "disposition": "completed",
+          "result_id": "result-public-implementation",
+          "manifest_digest": "sha256:a3b4c148770e0f0640fd4554a81c2126e37cc5cc7aa042a390b6f7bda6410d93",
+          "receipt_digest": "sha256:2dfa31c8d24caa40f6952c528a2c2e64217aabe168a4f4b6ad62337794e25295",
+          "artifacts": [
+            "public-implementation:findings",
+            "public-implementation:logs",
+            "public-implementation:proposal"
+          ],
+          "retention": "discard-after-intake",
+          "published": {
+            "assignment": {
+              "generation": 1,
+              "participant": "baton.impl",
+              "work_ref": {
+                "authority_uuid": "0000000a000000000000000000000000",
+                "work_id": "0000000a-W1"
+              }
+            },
+            "attempt_id": "public-implementation",
+            "candidate_digest": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+            "proposal_id": "integration-driver.proposal:9cfb83d5b9bcbc939d88f2614fbe71cff8c05b31a29866b5bee76753904cf030",
+            "proposal_manifest_digest": "sha256:0648d6752673f75bade9c15011186192e7359e13264519d7a7901853b5aab5f5",
+            "published": {
+              "assignment_ref": {
+                "generation": 1,
+                "participant": "baton.impl",
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                }
+              },
+              "candidate_digest": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+              "decision": {},
+              "input_digest": "sha256:05d76f842750c569a663fcf22ffd8b3168b279027d637b66b6addeecb551de8c",
+              "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+              "proposal_id": "integration-driver.proposal:9cfb83d5b9bcbc939d88f2614fbe71cff8c05b31a29866b5bee76753904cf030",
+              "published_at": "2026-09-07T02:00:00.000Z",
+              "result_digest": "sha256:a3b4c148770e0f0640fd4554a81c2126e37cc5cc7aa042a390b6f7bda6410d93",
+              "result_id": "result-public-implementation",
+              "target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+            },
+            "result_id": "result-public-implementation",
+            "result_manifest_digest": "sha256:a3b4c148770e0f0640fd4554a81c2126e37cc5cc7aa042a390b6f7bda6410d93",
+            "target": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1"
+          },
+          "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+          "checkpoint": {
+            "checkpoint_digest": "sha256:70678143e444ef02b5e5e631ba1390cc8c3f6f403a074c7e7b16d1162dfb303f",
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+            "evidence": {
+              "base": "99589de0546ef80d3d45877021239b540e2648e6",
+              "head": "5b89feac8ec647b183c850f84b802ff55161ec69",
+              "path_set_digest": "sha256:cbaf839ada452f2c1f27c765d4514401c51c3c1eb32b14ddd530beef66704af1",
+              "paths": [
+                "round-1.txt"
+              ],
+              "profile": "reference",
+              "reference": "checkpoint/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+              "tree": "187c9962e6f295e91283e6ee38b7b398846002b8"
+            },
+            "fence": {
+              "fenced": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.impl",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "cause": "cancelled",
+                "fenced": true,
+                "gate": "runtime-quiescence:1",
+                "phase": "block"
+              },
+              "intent": {
+                "assignment": {
+                  "generation": 1,
+                  "participant": "baton.impl",
+                  "work_ref": {
+                    "authority_uuid": "0000000a000000000000000000000000",
+                    "work_id": "0000000a-W1"
+                  }
+                },
+                "attempt_id": "public-implementation",
+                "authority_operation_id": "authority.finalize-quiescent:914b9b2a07c5b9672c806cfe37125d41a9cae929be0867d7fdd96ac279a45a84",
+                "decision": "finalized",
+                "reason": "review checkpoint writer completed",
+                "runtime_id": "runtime-public-implementation",
+                "worker_disposition": "completed"
+              }
+            },
+            "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+            "revision": 1
+          }
+        }
+      }
+    },
+    "empty_nested_cleanup_custody": {
+      "substituted_directory_custody": {
+        "result": {},
+        "workspace": {}
+      },
+      "resume": {
+        "exception": "ContractRefusal",
+        "category": "integrity",
+        "code": "schema",
+        "message": "attempt 'public-implementation''s committed cleanup's result directory custody differs from the normalization this manager committed for that root"
+      }
+    }
+  },
+  "seconds": 0.31223657506052405
+}

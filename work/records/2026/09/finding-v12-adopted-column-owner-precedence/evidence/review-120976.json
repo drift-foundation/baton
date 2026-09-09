@@ -1,0 +1,40 @@
+{
+  "work": "W120785",
+  "claim": 120976,
+  "candidate_sha256": "918f8d9a9b8d342c6ed276c49f5c84c2326312d70ecb650a63d7f961480f2e7d",
+  "scope": "All prior AST preserved except three approved helpers; final adjustment is exactly covering guard plus additive control",
+  "runtime_hashes_unchanged": true,
+  "public_probes": [
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence"
+      ],
+      "selected": [
+        "a persisted line checkpoint"
+      ],
+      "actual": [
+        "integrity",
+        "schema",
+        "a persisted line checkpoint's fence is durable text; this is ''"
+      ]
+    },
+    {
+      "entry": [
+        "adopted",
+        "review_cycles.py:integration_checkpoint",
+        "integration_eligibility.verdict_id"
+      ],
+      "selected": [
+        "persisted integration eligibility"
+      ],
+      "actual": [
+        "integrity",
+        "schema",
+        "persisted integration eligibility's verdict_id is durable text; this is ''"
+      ]
+    }
+  ],
+  "seconds": 2.025274750078097
+}

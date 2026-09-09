@@ -1,0 +1,169 @@
+{
+  "states": {
+    "implementation": "completed",
+    "review": "completed",
+    "integration": "completed"
+  },
+  "entry": {
+    "entry_id": "integration-driver.entry:294c22feb7fec4979606817732f83455c9094410c5dca33ca76615c663847ee7",
+    "canonical_target_id": "target-1",
+    "rank": 1,
+    "authority_uuid": "0000000a000000000000000000000000",
+    "work_id": "0000000a-W1",
+    "assignment_generation": 3,
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+    "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+    "checkpoint_digest": "sha256:10f3addc9bd367339aa3f09835786b98c5ff4addeff75497a7f3afda3d6a97f0",
+    "proposal_id": "integration-driver.proposal:925ff6bda6f23d6a99fc7be1cf713ed23b5560aabdc1afc034e14c1e8ca22d1d",
+    "candidate_digest": "bd902a4e2a4d3f25edf5fccf0c47a996dda92dab",
+    "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+    "result_digest": "sha256:513424bbfbc6bf529ccaccec536c9858454c97bf94296161055789e52830e0af",
+    "profile_kind": "git",
+    "expected_target_revision": "7143c52eff426d4d2acc2d39a4bc187b0815fb8b",
+    "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+    "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28",
+    "state": "integrated",
+    "enqueued_at": "2026-09-02T00:00:00.000Z",
+    "settled_at": "2026-09-02T00:00:00.000Z",
+    "settlement": {
+      "imported_paths": [
+        "harness.py"
+      ],
+      "verification": {
+        "argv": [
+          "python3",
+          "harness.py"
+        ],
+        "status": 0
+      }
+    },
+    "eligibility": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "assignment_generation": 3,
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+      "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+      "checkpoint_digest": "sha256:10f3addc9bd367339aa3f09835786b98c5ff4addeff75497a7f3afda3d6a97f0",
+      "proposal_id": "integration-driver.proposal:925ff6bda6f23d6a99fc7be1cf713ed23b5560aabdc1afc034e14c1e8ca22d1d",
+      "candidate_digest": "bd902a4e2a4d3f25edf5fccf0c47a996dda92dab",
+      "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "result_digest": "sha256:513424bbfbc6bf529ccaccec536c9858454c97bf94296161055789e52830e0af",
+      "profile_kind": "git",
+      "expected_target_revision": "7143c52eff426d4d2acc2d39a4bc187b0815fb8b",
+      "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+      "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28"
+    }
+  },
+  "lease": {
+    "lease_id": "integration-driver.lease:9c749528c0b46543b399f7d7723e5e7c1c6b74745b3150f649fca5e7f9a647b6",
+    "canonical_target_id": "target-1",
+    "entry_id": "integration-driver.entry:294c22feb7fec4979606817732f83455c9094410c5dca33ca76615c663847ee7",
+    "integrator_participant": "baton.integrator",
+    "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "fence": 1,
+    "state": "released",
+    "granted_at": "2026-09-02T00:00:00.000Z",
+    "ended_at": "2026-09-02T00:00:00.000Z",
+    "ending": {
+      "outcome": "integrated"
+    }
+  },
+  "integration_receipt": {
+    "receipt_id": "integration-driver.integration-receipt:280b8d1e84a98d601861c06c900da526b58b5ab9901cec31b78ba9d8059d090f",
+    "kind": "integration",
+    "proposal_id": "integration-driver.proposal:925ff6bda6f23d6a99fc7be1cf713ed23b5560aabdc1afc034e14c1e8ca22d1d",
+    "actor": "baton.integrator",
+    "disposition": "integrated",
+    "candidate_digest": "bd902a4e2a4d3f25edf5fccf0c47a996dda92dab",
+    "target": "7143c52eff426d4d2acc2d39a4bc187b0815fb8b",
+    "policy_generation": null,
+    "recorded_at": "2026-09-09T09:44:13.340Z",
+    "decision": {
+      "endpoint": "baton.integrator",
+      "principal": "principal:baton.integrator",
+      "effective_scope": "scope:deployment",
+      "role": "integrate",
+      "grant": "direct",
+      "policy_generation": 9
+    }
+  },
+  "handoff": {
+    "cause": "pass",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.integrator",
+      "generation": 5
+    },
+    "phase": "queued",
+    "gate": null,
+    "fenced": false,
+    "route": "rview"
+  },
+  "runtime": {
+    "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "runtime_id": "runtime-single-5",
+    "execution_runtime": "quiescent",
+    "cleanup": "pending",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.integrator",
+      "generation": 5
+    }
+  },
+  "work": {
+    "authority_uuid": "0000000a000000000000000000000000",
+    "work_id": "0000000a-W1",
+    "route": "rview",
+    "status": "open",
+    "phase": "queued",
+    "outcome": null,
+    "rationale": null,
+    "handler": null,
+    "contract": "v12-assignment-1",
+    "scope": "scope:deployment",
+    "labels": [],
+    "creation": {
+      "work_id": "0000000a-W1",
+      "operation_id": "create-single-worker",
+      "kind": "trusted-bootstrap",
+      "scope": "scope:deployment",
+      "at": "2026-09-02T00:00:00.000Z"
+    },
+    "close_decision": null,
+    "generation_counter": 5,
+    "live_generation": null,
+    "assignment": null,
+    "gate": null,
+    "fenced_generations": [
+      {
+        "generation": 1,
+        "cause": "cancelled",
+        "reason": "review checkpoint writer completed"
+      },
+      {
+        "generation": 2,
+        "cause": "cancelled",
+        "reason": "independent checkpoint review completed"
+      },
+      {
+        "generation": 3,
+        "cause": "cancelled",
+        "reason": "review checkpoint writer completed"
+      },
+      {
+        "generation": 4,
+        "cause": "cancelled",
+        "reason": "independent checkpoint review completed"
+      }
+    ],
+    "ready": true
+  }
+}

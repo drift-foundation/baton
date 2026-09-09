@@ -1,0 +1,194 @@
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -1898,6 +1898,8 @@
+ # Every one still needs a witness: a declared owner with nothing exercising it
+ # is a claim, not a boundary.
+ STATED_OWNERS = {
++    ("adopted", "review_cycles.py:consumption_subject", "line_writers"):
++        "exactly one active row for the caller attempt/generation; its sole projected identity is forwarded to writer_of",
+     ("caller", "workspaces.py:AllocatedRoots.__init__", "_line"):
+         "the manager mint gates construction; the line marker selects policy, "
+         "while a lifecycle-owned proof binds actual roots to the durable writer at launch",
+@@ -2872,6 +2874,8 @@
+ }
+ 
+ DELEGATED = {
++    ("adopted", "review_cycles.py:consumption_subject", "line_writers.writer_id"):
++        ("review_cycles.py:writer_of", "caller:writer_id"),
+     ("caller", "review_cycles.py:review_of", "attachment_id"):
+         ("review_cycles.py:_attachment", "caller:attachment_id"),
+     ("caller", "review_cycles.py:verdict_of", "verdict_id"):
+@@ -7921,6 +7925,11 @@
+             return created
+         return run
+ 
++    def spoiling_consumption_writer(self):
++        fixture, _, writer = _consumption_fixture(self)
++        fixture.store._connection.execute("UPDATE line_writers SET writer_id = '' WHERE writer_id = ?", (writer["writer_id"],))
++        review_cycles.consumption_subject(fixture.store, attempt_id=writer["runtime_attempt_id"], generation=writer["assignment_generation"])
++
+     def review_cycle_probes(self):
+         """Derived row probes and focused caller probes for W71918."""
+         entries = receiving_entries()
+@@ -8056,6 +8065,12 @@
+                 self.root, "attempt-line-probe", SURROGATE, (0, 0))
+ 
+         direct = {
++            (at("consumption_subject", "attempt_id"), "a runtime attempt identity"):
++                lambda: review_cycles.consumption_subject(self.store, attempt_id=SURROGATE, generation=1),
++            (at("consumption_subject", "generation"), "an assignment generation"):
++                lambda: review_cycles.consumption_subject(self.store, attempt_id="writer-attempt-1", generation=0),
++            (("adopted", "review_cycles.py:consumption_subject", "line_writers.writer_id"), "a line writer identity"):
++                self.spoiling_consumption_writer,
+             (at("review_of", "attachment_id"), "a review attachment identity"):
+                 lambda: review_cycles.review_of(self.store, SURROGATE),
+             (at("verdict_of", "verdict_id"), "a checkpoint verdict identity"):
+@@ -8904,6 +8919,9 @@
+ })
+ 
+ 
++WITNESSES[("adopted", "review_cycles.py:consumption_subject", "line_writers")] = "test_consumption_requires_one_live_writer_before_delegating"
++
++
+ class EveryStatedOwnerHasAWitness(BoundaryCase):
+     """A stated owner is a claim until something exercises it."""
+ 
+@@ -8918,6 +8936,28 @@
+ 
+ 
+ class StatedRules(BoundaryCase):
++
++    def test_consumption_requires_one_live_writer_before_delegating(self):
++        fixture, line, writer = _consumption_fixture(self)
++        with patch.object(review_cycles, "writer_of", wraps=review_cycles.writer_of) as delegated:
++            held = review_cycles.consumption_subject(fixture.store, attempt_id="writer-attempt-1", generation=1)
++            delegated.assert_called_once_with(fixture.store, writer["writer_id"])
++            self.assertEqual(held["writer_id"], writer["writer_id"])
++            self.assertEqual(held["line_id"], line["line_id"])
++            self.assertEqual(held["line_path"], line["line_path"])
++            actual = os.stat(held["line_path"], follow_symlinks=False)
++            self.assertEqual(held["pinned"], (actual.st_dev, actual.st_ino))
++            self.assertEqual(held["custody_path"], os.path.join(os.path.dirname(held["line_path"]), "custody", "writer-attempt-1"))
++            for attempt_id, generation in (("different-attempt", 1), ("writer-attempt-1", 2), ("writer-attempt-1", 1)):
++                with self.subTest(attempt_id=attempt_id, generation=generation):
++                    if (attempt_id, generation) == ("writer-attempt-1", 1):
++                        fixture.store._connection.execute("UPDATE line_writers SET state = 'revoked', revoked_at = ?, revocation_reason = 'checkpoint'", (NOW,))
++                    delegated.reset_mock()
++                    with self.assertRaises(ContractRefusal) as caught:
++                        review_cycles.consumption_subject(fixture.store, attempt_id=attempt_id, generation=generation)
++                    self.assertEqual((caught.exception.category, caught.exception.code), ("refused", "precondition"))
++                    self.assertIn("holds 0 active line writers", caught.exception.message)
++                    delegated.assert_not_called()
+     """The witnesses themselves. Each exercises one stated rule."""
+ 
+     def test_line_launch_metadata_keeps_mint_and_durable_binding(self):
+@@ -13791,6 +13831,109 @@
+         self.case.refusing(full, probe)
+ 
+ 
++def _consumption_fixture(case):
++    from .test_review_cycles import ReviewCycles
++    fixture = ReviewCycles()
++    case.addCleanup(fixture.doCleanups)
++    fixture.setUp()
++    case.addCleanup(fixture.tearDown)
++    line = fixture.line()
++    writer = fixture.writer(line["line_id"], 1)
++    return fixture, line, writer
++
++
++class ConsumptionEntriesReachTheirOwners(unittest.TestCase):
++    SITE = "review_cycles.py:consumption_subject"
++    SELECT = "SELECT writer_id FROM line_writers WHERE runtime_attempt_id = 'writer-attempt-1' AND assignment_generation = 1 AND state = 'active'"
++
++    def setUp(self):
++        self.case = EveryProbeProvesItArrived()
++        self.case.setUp()
++        self.addCleanup(self.case.doCleanups)
++
++    def test_envelope_member_and_callers_have_distinct_exact_owners(self):
++        entries = receiving_entries()
++        owner = EveryReceivingEntryHasOneOwner()
++        envelope = ("adopted", self.SITE, "line_writers")
++        member = ("adopted", self.SITE, "line_writers.writer_id")
++        self.assertIn(envelope, entries)
++        self.assertEqual(owner.owner_of(envelope), ("stated", STATED_OWNERS[envelope]))
++        self.assertEqual(WITNESSES[envelope], "test_consumption_requires_one_live_writer_before_delegating")
++        self.assertTrue(callable(getattr(StatedRules, WITNESSES[envelope])))
++        self.assertNotIn(envelope, DELEGATED)
++        self.assertIn(member, entries)
++        self.assertEqual(DELEGATED[member], ("review_cycles.py:writer_of", "caller:writer_id"))
++        self.assertEqual(owner.owner_of(member), ("delegated", ["a line writer identity"]))
++        self.assertNotIn(member, STATED_OWNERS)
++        for subject, label in (("attempt_id", "a runtime attempt identity"), ("generation", "an assignment generation")):
++            entry = ("caller", self.SITE, subject)
++            self.assertIn(entry, entries)
++            self.assertEqual(owner.owner_of(entry), ("layer", [label]))
++        self.assertNotIn(envelope, NO_PROBE)
++        self.assertNotIn(member, NO_PROBE)
++
++    def test_source_selects_one_active_projection_and_forwards_its_identity(self):
++        tree = next(tree for path, tree in _sources() if path.name == "review_cycles.py")
++        function = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "consumption_subject")
++        statements = function.body[1:]
++        expected = ast.parse('boundaries.identity(attempt_id, "a runtime attempt identity")\nboundaries.generation(generation, "an assignment generation")').body
++        self.assertEqual([ast.dump(node) for node in statements[:2]], [ast.dump(node) for node in expected])
++        self.assertEqual(ast.dump(statements[3].test), ast.dump(ast.parse("len(rows) != 1", mode="eval").body))
++        self.assertIsInstance(statements[3].body[0], ast.Raise)
++        self.assertEqual(ast.dump(statements[4]), ast.dump(ast.parse('writer = writer_of(store, rows[0]["writer_id"])').body[0]))
++        execute = statements[2].value.func.value
++        self.assertEqual(ast.literal_eval(execute.args[0]), "SELECT writer_id FROM line_writers WHERE runtime_attempt_id = ? AND assignment_generation = ? AND state = 'active'")
++        self.assertEqual(ast.dump(execute.args[1]), ast.dump(ast.parse("(attempt_id, generation)", mode="eval").body))
++
++    def test_caller_catalog_probes_reach_validation_before_sql(self):
++        probes = self.case.review_cycle_probes()
++        statements = []
++        connection = self.case.store._connection
++        connection.set_trace_callback(statements.append)
++        self.addCleanup(connection.set_trace_callback, None)
++        for subject, label in (("attempt_id", "a runtime attempt identity"), ("generation", "an assignment generation")):
++            with self.subTest(subject=subject):
++                full, probe = probes[(("caller", self.SITE, subject), label)]
++                self.assertEqual(full, label)
++                self.case.refusing(full, probe)
++                self.assertEqual(statements, [])
++
++    def test_projected_catalog_probe_reaches_writer_identity_after_the_exact_lookup(self):
++        original = _consumption_fixture
++        worlds, statements = [], []
++
++        def observed(case):
++            fixture, line, writer = original(case)
++            worlds.append(fixture)
++            fixture.store._connection.set_trace_callback(statements.append)
++            return fixture, line, writer
++
++        full, probe = self.case.review_cycle_probes()[(("adopted", self.SITE, "line_writers.writer_id"), "a line writer identity")]
++        self.assertEqual(full, "a line writer identity")
++        with patch.object(sys.modules[__name__], "_consumption_fixture", side_effect=observed):
++            self.case.refusing(full, probe)
++        selects = [statement for statement in statements if statement.startswith("SELECT")]
++        self.assertEqual(selects, [self.SELECT])
++        connection = worlds[0].store._connection
++        connection.set_trace_callback(None)
++        self.assertEqual(connection.execute(self.SELECT).fetchone()["writer_id"], "")
++
++    def test_zero_match_refusal_cannot_stand_in_for_any_boundary_probe(self):
++        for label in ("a runtime attempt identity", "an assignment generation", "a line writer identity"):
++            with self.subTest(label=label):
++                with self.assertRaisesRegex(AssertionError, "refused, but not at"):
++                    self.case.refusing(label, lambda: review_cycles.consumption_subject(self.case.store, attempt_id="writer-attempt-1", generation=1))
++
++    def test_schema_rejects_a_second_matching_writer_even_on_another_line(self):
++        fixture, line, writer = _consumption_fixture(self)
++        other = review_cycles.create_line(fixture.store, source=source_boundary.nominate_source(fixture.source), declared_base=line["declared_base"], profile=fixture.profile, authority_uuid=line["authority_uuid"], work_id="01234567-W121034")
++        self.assertNotEqual(other["line_id"], line["line_id"])
++        with self.assertRaises(sqlite3.IntegrityError) as caught:
++            fixture.store._connection.execute("INSERT INTO line_writers (writer_id, line_id, runtime_attempt_id, assignment_generation, worker_id, participant, principal, state, granted_at) VALUES ('duplicate-consumption-writer', ?, ?, ?, ?, ?, ?, 'active', ?)", (other["line_id"], writer["runtime_attempt_id"], writer["assignment_generation"], writer["worker_id"], writer["participant"], writer["principal"], NOW))
++        self.assertIn("line_writers.runtime_attempt_id, line_writers.assignment_generation", str(caught.exception))
++        self.assertEqual(fixture.store._connection.execute(self.SELECT).fetchall()[0]["writer_id"], writer["writer_id"])
++
++
+ class ReviewReaderIdentitiesReachTheirOwners(unittest.TestCase):
+     READERS = (
+         ("review_of", "attachment_id", "_attachment", "a review attachment identity", "review_attachments"),

@@ -1,0 +1,10 @@
+{
+  "work": "W120587",
+  "claim": 120734,
+  "candidate_sha256": "bf6160f596ad917fdb4296963d2c272adf3f328b2e78e279dc1f1eb4da7bf00c",
+  "mode": "0o644",
+  "scope": "Exact added branch and additive class only; all other baseline AST preserved",
+  "runtime_hashes": "Match retained baseline",
+  "retained_controls": "Six initial passes unchanged except one descriptive rename",
+  "tests": "Reused retained seven controls and nine actual attachment-row closures; no rerun"
+}

@@ -1,0 +1,35 @@
+{
+  "work": "W120425",
+  "claim": 121851,
+  "budget_seconds": {
+    "declared_before_running": 30,
+    "spent": 13.4
+  },
+  "sha256": {
+    "src/baton_v12/job_manager/review_driver.py": "dc1f5cbcbd2d2bfe06605a3e6354a29f524c65554f41c0e5ff71a9ebb51a31d3",
+    "tests/job_manager/test_review_driver.py": "f8d425b53990e0666f7d83b2d9197f73aa60e0d3a11366a2cc083ccedf7798d5"
+  },
+  "modes": {
+    "src/baton_v12/job_manager/review_driver.py": "664",
+    "tests/job_manager/test_review_driver.py": "664"
+  },
+  "baseline": {
+    "prefix_unchanged": true,
+    "baseline_methods": 101,
+    "current_methods": 141
+  },
+  "commands": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.job_manager.test_review_driver",
+      "result": "141 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.job_manager.test_review_driver tests.job_manager.test_ending tests.integration.test_driver tests.tools.test_stage_execution tests.manager.test_intake",
+      "result": "552 tests, OK, 13.3s"
+    }
+  ],
+  "ledger_correction": {
+    "what": "correction-121164.json recorded 13.3s total beside 4.2s and 13.1s runs",
+    "correct": "those two runs total 17.3s; the 13.3s figure was the second run alone, mislabelled as the total. Appended here rather than rewritten in that file."
+  }
+}

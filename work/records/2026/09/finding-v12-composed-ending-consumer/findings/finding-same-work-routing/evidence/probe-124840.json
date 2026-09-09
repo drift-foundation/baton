@@ -1,0 +1,41 @@
+{
+  "fence": {
+    "cause": "cancelled",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0123456789abcdef0123456789abcdef",
+        "work_id": "0123abcd-W7"
+      },
+      "participant": "baton.claude",
+      "generation": 1
+    },
+    "phase": "block",
+    "gate": "runtime-quiescence:1",
+    "fenced": true
+  },
+  "late_pass_refusal": "assignment generation was fenced and ended",
+  "route_after_refusal": "impl",
+  "discharge": {
+    "gate": "runtime-quiescence:1",
+    "kind": "runtime-absent",
+    "phase": "queued"
+  },
+  "second_assignment": {
+    "work_ref": {
+      "authority_uuid": "0123456789abcdef0123456789abcdef",
+      "work_id": "0123abcd-W7"
+    },
+    "participant": "baton.claude",
+    "generation": 2
+  },
+  "old_fence_replays_after_second_claim": true,
+  "current_assignment": {
+    "work_ref": {
+      "authority_uuid": "0123456789abcdef0123456789abcdef",
+      "work_id": "0123abcd-W7"
+    },
+    "participant": "baton.claude",
+    "generation": 2
+  },
+  "elapsed_seconds": 0.0021572000114247203
+}

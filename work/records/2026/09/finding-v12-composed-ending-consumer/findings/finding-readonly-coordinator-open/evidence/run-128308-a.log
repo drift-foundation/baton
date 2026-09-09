@@ -1,0 +1,81 @@
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3519: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-qf125aom/prose.txt'>
+  before = open(prose, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3526: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-qf125aom/prose.txt'>
+  self.assertEqual(open(prose, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3407: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-qy38wusy/theirs.sqlite3'>
+  before = open(foreign, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3412: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-qy38wusy/theirs.sqlite3'>
+  self.assertEqual(open(foreign, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.FF./home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3540: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-5v839wy_/older.sqlite3'>
+  before = open(path, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3544: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-5v839wy_/older.sqlite3'>
+  self.assertEqual(open(path, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.F/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3422: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-7sdbluob/other-kind.sqlite3'>
+  before = open(foreign, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3426: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-7sdbluob/other-kind.sqlite3'>
+  self.assertEqual(open(foreign, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.../home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3395: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-0bgtglq0/empty.sqlite3'>
+  before = open(empty, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3400: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-0bgtglq0/empty.sqlite3'>
+  self.assertEqual(open(empty, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...../home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3329: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-d6abscch/integration.sqlite3'>
+  return {name: (open(os.path.join(self.root, name), "rb").read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:418: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x725adafdef20>
+  taken = {key: record[key] for key in record.keys()}
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:418: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x725adafdf6a0>
+  taken = {key: record[key] for key in record.keys()}
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:418: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x725adafdfb50>
+  taken = {key: record[key] for key in record.keys()}
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....
+======================================================================
+FAIL: test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing (tests.integration.test_coordinator.ReadOnlyOpening.test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing) (present='-wal')
+REVIEW 2026-09-09T10:10Z [P1]. Permitting EITHER sidecar let SQLite
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py", line 3506, in test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing (tests.integration.test_coordinator.ReadOnlyOpening.test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing) (present='-shm')
+REVIEW 2026-09-09T10:10Z [P1]. Permitting EITHER sidecar let SQLite
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py", line 3506, in test_a_partial_sidecar_pair_is_refused_and_completed_by_nothing
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_store_nobody_holds_is_refused_with_the_sidecar_limit_named (tests.integration.test_coordinator.ReadOnlyOpening.test_a_store_nobody_holds_is_refused_with_the_sidecar_limit_named)
+THE LIMIT, STATED PRECISELY AND MEASURED.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py", line 3598, in test_a_store_nobody_holds_is_refused_with_the_sidecar_limit_named
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.035s
+
+FAILED (failures=3)
+
+real	0m0.197s
+user	0m0.191s
+sys	0m0.006s

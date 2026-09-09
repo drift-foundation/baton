@@ -1,0 +1,28 @@
+{
+  "budget_seconds": 15,
+  "seconds": 3.058545833977405,
+  "results": [
+    {
+      "name": "focused",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.manager.test_boundary_inventory.TheCollidingLaneKeyProbeReachesAdoption"
+      ],
+      "seconds": 1.5032762830378488,
+      "exit_code": 0
+    },
+    {
+      "name": "lanes",
+      "command": [
+        "/usr/bin/python3",
+        "-c",
+        "\nfrom tests.manager.test_boundary_inventory import EveryProbeProvesItArrived\ncase = EveryProbeProvesItArrived()\ntry:\n    case.setUp()\n    keys = sorted(case.lane_probes())\nfinally:\n    case.doCleanups()\nassert keys\nfor key in keys:\n    try:\n        case.setUp()\n        label, probe = case.lane_probes()[key]\n        case.assertIn(key[1], label)\n        case.refusing(label, probe)\n        print(repr(key), \"PASS\")\n    finally:\n        case.doCleanups()\nprint(\"lane probes:\", len(keys))\n"
+      ],
+      "seconds": 1.5552505140076391,
+      "exit_code": 0
+    }
+  ]
+}

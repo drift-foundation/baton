@@ -1,0 +1,173 @@
+{
+  "base_sha256": "918f8d9a9b8d342c6ed276c49f5c84c2326312d70ecb650a63d7f961480f2e7d",
+  "candidate_sha256": "912cce9a3fcd6b26c8cab3b36418ff35b0db3f2d6a91d3d6e895aef80dbb9532",
+  "runtime_hashes": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+    "v12/python/src/baton_v12/worker_manager/schema.py": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+    "v12/python/src/baton_v12/worker_manager/boundaries.py": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a"
+  },
+  "all_existing_ast_preserved": true,
+  "reused_initial_passes": 5,
+  "initial_seconds": 2.9350906159961596,
+  "reused_corrected_control": "Passed in verify-final-121055.py before its resolution-equality assertion failed; no product change since.",
+  "new_direct_claims_previously_resolved": [
+    {
+      "occurrence": {
+        "call": [
+          "review_cycles.py:_verdict_row",
+          211,
+          4,
+          211,
+          68
+        ],
+        "site": "review_cycles.py:_verdict_row",
+        "kind": "identity",
+        "label": "a checkpoint verdict identity",
+        "subject": "caller:verdict_id",
+        "lexical_label": "a checkpoint verdict identity",
+        "propagated": false
+      },
+      "owners": [
+        [
+          "caller",
+          "review_cycles.py:verdict_of",
+          "verdict_id"
+        ]
+      ],
+      "previous_resolution": [
+        {
+          "call": [
+            "review_cycles.py:_verdict_row",
+            211,
+            4,
+            211,
+            68
+          ],
+          "site": "review_cycles.py:integration_checkpoint",
+          "kind": "identity",
+          "label": "a checkpoint verdict identity",
+          "subject": "read:review_cycles.py:integration_checkpoint|integration_eligibility[verdict_id]",
+          "lexical_label": "a checkpoint verdict identity",
+          "propagated": true
+        }
+      ]
+    }
+  ],
+  "entries": 1382,
+  "occurrences": 731,
+  "changed_owners": [
+    [
+      "caller",
+      "review_cycles.py:review_of",
+      "attachment_id"
+    ],
+    [
+      "caller",
+      "review_cycles.py:verdict_of",
+      "verdict_id"
+    ]
+  ],
+  "added_pairs": [
+    [
+      [
+        "caller",
+        "review_cycles.py:review_of",
+        "attachment_id"
+      ],
+      "a review attachment identity"
+    ],
+    [
+      [
+        "caller",
+        "review_cycles.py:verdict_of",
+        "verdict_id"
+      ],
+      "a checkpoint verdict identity"
+    ]
+  ],
+  "module_unowned_before": [
+    [
+      "adopted",
+      "review_cycles.py:consumption_subject",
+      "line_writers"
+    ],
+    [
+      "adopted",
+      "review_cycles.py:consumption_subject",
+      "line_writers.writer_id"
+    ],
+    [
+      "caller",
+      "review_cycles.py:review_of",
+      "attachment_id"
+    ],
+    [
+      "caller",
+      "review_cycles.py:verdict_of",
+      "verdict_id"
+    ]
+  ],
+  "module_unowned_after": [
+    [
+      "adopted",
+      "review_cycles.py:consumption_subject",
+      "line_writers"
+    ],
+    [
+      "adopted",
+      "review_cycles.py:consumption_subject",
+      "line_writers.writer_id"
+    ]
+  ],
+  "module_expected_before": 103,
+  "module_expected_after": 105,
+  "module_declared_before": 98,
+  "module_declared_after": 100,
+  "module_missing_unchanged": [
+    [
+      [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.review_fence.intent"
+      ],
+      "a persisted checkpoint verdict"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence.intent"
+      ],
+      "a persisted assignment fence"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence.intent"
+      ],
+      "a persisted line checkpoint"
+    ],
+    [
+      [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "attempt_id"
+      ],
+      "a runtime attempt identity"
+    ],
+    [
+      [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "generation"
+      ],
+      "an assignment generation"
+    ]
+  ],
+  "module_orphan_unchanged": [],
+  "residual_occurrences_unchanged": 92,
+  "all_other_owners_pairs_and_remaining_resolutions_unchanged": true,
+  "seconds": 3.615674225962721,
+  "timing_limitation": "The first follow-up failed before saving elapsed time; initial run and this final audit are timed separately. No repeated control run here."
+}

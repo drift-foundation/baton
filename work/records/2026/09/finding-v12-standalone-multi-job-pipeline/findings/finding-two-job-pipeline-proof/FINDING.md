@@ -249,3 +249,71 @@ whether the owner accepts the existing component refusal as separately labelled
 evidence alongside the actual A/B/C demonstration. This is Proposed, not a
 waiver or changed proof assertion. No live model/no-write guarantee is claimed;
 successful imports and all other agreed objectives remain required.
+
+## 2026-09-08 — approved multi-Job successor placement, M119126
+
+**Confirmed owner ruling:** Slawomir approved the separate successor provider
+under the stage-composition owner after independent shared-assembly acceptance,
+as proposed in review-2026-09-08T12-29-16Z.md in the two-Job proof record.
+This explicitly supersedes the pending-placement status of that recommendation.
+Preserve the current one-Job assembly/custody/restart scope. Split multi-worker
+configuration/pool composition from per-Job deployment/line binding, and require
+joined acceptance before the demonstration freeze. The reviewer creates bounded
+plans and dependencies before implementation. Shared source/test files are
+owned serially, not by concurrent claims.
+
+The successor's canonical record is
+`baton:work/records/2026/09/finding-v12-multi-job-deployment/`. Its dossier is
+promoted to a top-level path to retain readable paths and bounded dossier depth;
+Baton containment still places it under the stage-composition owner. The two
+implementation children each own only `v12/python/tools/stage_execution.py`
+and additive controls in `v12/python/tests/tools/test_stage_execution.py`.
+An explicit new multi-Job configuration variant preserves the old one-Job
+schema/refusals; enumerate its exact document/interface before editing. No
+external schema, scheduler/driver redesign, extra source path, unrelated test
+assertion change, live runtime grant or manual-transition workaround follows.
+
+## 2026-09-08 — approved companion evidence adjustment, M119128
+
+**Confirmed owner ruling:** Slawomir approved the adjustment in the proof's
+review-2026-09-08T12-33-00Z.md. The existing component refusal may serve as
+separately labelled negative boundary evidence. This explicitly supersedes the
+requirement for an automatically admitted, independently approved live negative
+companion and any implication in earlier demonstration/acceptance paragraphs
+that this fixture proves refusal before all canonical mutations. It also
+supersedes the pending companion-placement/conflict status in the earlier
+reviews, preflight and plan. Preserve those documents as historical evidence;
+this is the current freeze interpretation.
+
+Use the existing `test_an_unscheduled_existing_test_change_is_the_providers_to_refuse`
+in `v12/python/tests/manager/test_integration_worker.py`, with the
+`test_a_clean_provider_refusal_after_writable_work_is_still_held` control.
+The derived bundle and deterministic refusing provider are labelled component
+fixtures. They show the whole-candidate instruction, the measured selected
+ending bytes and conservative held/import-incomplete outcome. They do not
+show an automatically admitted independently approved live negative proposal,
+live-model refusal, absence of intermediate writes or universal prevention.
+Retain applicable accepted evidence and exact source/fixture identities at
+freeze; rerun only if a named evidence gap or changed bytes require it.
+
+The integrator model still judges permitted scope from the whole candidate,
+accepted task/scope and frozen independent review. Actual candidate identity,
+review correlation and target preflight remain required. Actual A/B successful
+imports, independent review and same-line correction, fault-C containment,
+required overlaps, one A/B/C submission and zero ordinary operator transitions
+remain unchanged. C remains the deliberately exceptional Job, not a third
+successful import. No fabricated approval, fourth Job, live negative companion,
+new mechanical enforcement subsystem or new runtime grant is required by this
+adjustment. Component evidence is reported separately from the live result.
+
+## 2026-09-08 — placement gate verified, claim119493
+
+**Confirmed:** owner M119490 installed the M119126 proof dependency.
+Canonical details at snapshots119493/119495/119497 verify the final gate,
+retained prerequisites and serial successor ownership. This explicitly
+supersedes the unresolved route-authority status in
+review-2026-09-08T13-22-47Z.md. Final placement review:
+review-2026-09-08T13-31-47Z.md; exact observations are retained in
+evidence/placement-119493-ledger.json. Lightweight W115599 placement is complete;
+actual successor implementation and independent joined acceptance are still
+required before freeze. No product acceptance or prerequisite was waived.

@@ -1,0 +1,29 @@
+{
+  "v12/python/src/baton_v12/job_manager/review_driver.py": {
+    "sha256": "dc1f5cbcbd2d2bfe06605a3e6354a29f524c65554f41c0e5ff71a9ebb51a31d3",
+    "mode": "0o664"
+  },
+  "v12/python/tests/job_manager/test_review_driver.py": {
+    "sha256": "f8d425b53990e0666f7d83b2d9197f73aa60e0d3a11366a2cc083ccedf7798d5",
+    "mode": "0o664"
+  },
+  "removed": [
+    "TheImplementationResumeReadsRealCommittedCustody.test_the_publication_selector_is_derivable_after_reopening",
+    "_RealPublication._selector"
+  ],
+  "changed": [
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_publication_history_that_names_another_result_refuses",
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_reopened_manager_finishes_the_ending_from_those_records",
+    "TheImplementationResumeReadsRealCommittedCustody.test_the_resume_answers_the_ordinary_endings_document",
+    "_RealPublication.publish",
+    "_RealPublication.published_of"
+  ],
+  "added": [
+    "TheImplementationResumeReadsRealCommittedCustody.denied_writes",
+    "TheImplementationResumeReadsRealCommittedCustody.later_round",
+    "TheImplementationResumeReadsRealCommittedCustody.no_remote",
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_cold_manager_and_a_cold_seam_recover_the_ending",
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_cold_recovery_survives_the_target_moving_on",
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_real_later_round_does_not_strand_the_earlier_ending"
+  ]
+}

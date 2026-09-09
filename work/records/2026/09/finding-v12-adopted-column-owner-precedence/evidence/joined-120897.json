@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_boundary_inventory.DuplicateColumnChecksRequireOwnedWitnesses",
+    "tests.manager.test_boundary_inventory.HelperDeclarationsHaveExactAccounting"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": ".....................\n----------------------------------------------------------------------\nRan 21 tests in 3.003s\n\nOK\n",
+  "seconds": 3.21629188710358,
+  "candidate_sha256": "f4ea12bd4e12be9e55e12bba853fe2d762466509a446a472397e622af8bd0c11"
+}

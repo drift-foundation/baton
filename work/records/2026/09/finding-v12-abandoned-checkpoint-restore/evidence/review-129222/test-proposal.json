@@ -1,0 +1,7 @@
+{
+  "path": "v12/python/tests/manager/test_checkpoint_profiles.py",
+  "method": "RestoringOneCheckoutToItsRetainedCheckpoint.test_nothing_outside_the_nominated_checkout_is_named",
+  "base_sha256": "dd65fa4e685f2745e974b64c4d25dcf2468e9d07d1d46ff95d2a0fa51271c86d",
+  "proposed_sha256": "321ac78270ee842110cd289e32ee727f5bbde842ce154c089e228607c1b5860a",
+  "mode": "644"
+}

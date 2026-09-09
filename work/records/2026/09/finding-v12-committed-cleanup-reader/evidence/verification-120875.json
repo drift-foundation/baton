@@ -1,0 +1,36 @@
+{
+  "work": "W120762",
+  "claim": 120875,
+  "question": "do the review's seven reopened-fixture probes now refuse, do genuine retain/quarantine/discard/failed endings still read back, and does the added validation change any existing assertion in the affected set?",
+  "budget_seconds": {
+    "declared_before_running": 20,
+    "spent": 7.9
+  },
+  "sha256": {
+    "src/baton_v12/worker_manager/intake.py": "e9a515987f9f6d1bb5d5d0e3bd77217a449f8b7ec9e42be7b6ab97954211c60a",
+    "src/baton_v12/worker_manager/__init__.py": "d23aa64e0eba64d969313a129f1bc57a40d1a168f582982bfdcb65319ae932c6",
+    "tests/manager/test_intake.py": "c8a2ea4134d59c3e241b609226da9f0c0136960d9309b4b89f922d86d1b9a157",
+    "tests/manager/test_secrets.py": "47f743de21546862863e489da3248ea91c7e3cb80aefa30b167566da1ede66eb"
+  },
+  "modes": {
+    "src/baton_v12/worker_manager/intake.py": "664",
+    "src/baton_v12/worker_manager/__init__.py": "644",
+    "tests/manager/test_intake.py": "664",
+    "tests/manager/test_secrets.py": "644"
+  },
+  "commands": [
+    {
+      "run": "PYTHONPATH=v12/python:v12/python/src python3 <record>/evidence/correction-120875-probe.py",
+      "result": "7/7 refuse, 0.116s; output in correction-120875-probe.json"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_intake tests.manager.test_output tests.manager.test_attempts tests.manager.test_secrets",
+      "result": "729 tests, OK, 7.5s"
+    }
+  ],
+  "not_rerun": {
+    "what": "tests.manager.test_boundary_inventory and tests.manager.test_dependencies",
+    "reason": "the review directed not to rerun the broad campaign to reconstruct it; the earlier 22.4s run under claim 120784 observed 24 failures naming none of this Work's symbols.",
+    "qualification": "that run's per-test output was not retained, so the baseline attribution is unverified here and is not claimed as established."
+  }
+}

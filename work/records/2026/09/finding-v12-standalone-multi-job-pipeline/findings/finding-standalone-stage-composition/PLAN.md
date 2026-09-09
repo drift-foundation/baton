@@ -1,5 +1,13 @@
 # Plan
 
+Current consumer split, 2026-09-08 review122032: W122060 at
+`baton:work/records/2026/09/finding-v12-composed-ending-consumer/` owns the
+four-path composed ending/recovery component, queued baton.impl then baton.bug.
+W119114 waits for its actual acceptance before the full submitted-Job lifecycle
+proof; W103083 retains final joined assembly acceptance. This supersedes any
+undivided consumer continuation below. W119733 and W121887 prerequisites are
+accepted; their exact candidates and prior custody evidence remain preserved.
+
 1. [done; independent plan review 2026-09-06] Validate the scheduler,
    checkpoint, integration and recovery interfaces and disjoint ownership.
    See `review-2026-09-06T16-30-14Z.md`.
@@ -122,3 +130,22 @@ held proof within the original five paths. Shared assembly retains historical
 evidence and final joined acceptance. This supersedes its earlier undivided
 execution assignment without changing the capability gate. See its
 review-2026-09-08T12-41-47Z.md. Live scheduling relationships belong to Baton.
+
+
+2026-09-08 current multi-Job sequence (owner M119126): the previously proposed
+successor placement is approved. Complete independent one-Job assembly
+acceptance first, then the worker-pool configuration and per-Job binding cuts
+serially, then their joined independent acceptance before concrete proof freeze.
+Bounded plans live in `work/records/2026/09/finding-v12-multi-job-deployment/`.
+This supersedes the earlier pending multi-Job placement wording only. The
+one-Job assembly scope, custody proof and demonstration objectives are preserved;
+companion-refusal evidence remains a separate decision. Baton owns live gates.
+
+2026-09-08 recovery placement, owner event119712: W119733 is the separately
+bound six-path shared ending-recovery provider at
+`work/records/2026/09/finding-v12-composed-ending-recovery/`. It waits for
+W119548 actual absence-proof provider acceptance; W119114 waits for both, then
+continues its original five-path glue and actual joined proof under the approved
+CONSUMER-RECOVERY-PLAN-2026-09-08.md in its dossier. High serial baton.impl
+execution returns for independent review at every provider boundary. This
+supersedes pending consumer-plan status only; no lifecycle acceptance is claimed.

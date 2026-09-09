@@ -1,0 +1,224 @@
+{
+  "work": "W120762",
+  "claim": 120847,
+  "sha256": {
+    "src/baton_v12/worker_manager/intake.py": "4d830e31205b2f6d5a8d8ff3d848eae15d7dd3728d4f273b1e083c022292aff8",
+    "src/baton_v12/worker_manager/__init__.py": "d23aa64e0eba64d969313a129f1bc57a40d1a168f582982bfdcb65319ae932c6",
+    "tests/manager/test_intake.py": "d438e94df1c864ac23562cd57c27a337763a537e9dfe5c56864b9d761366a96b",
+    "tests/manager/test_secrets.py": "47f743de21546862863e489da3248ea91c7e3cb80aefa30b167566da1ede66eb"
+  },
+  "results": {
+    "retained_material_reported_complete": {
+      "ordinary_ending": "retained",
+      "result": {
+        "returned": {
+          "attempt_id": "attempt-1",
+          "cleanup": "complete",
+          "state": "absent",
+          "why": "the engine answered that this exact identity does not exist",
+          "kept": [
+            "artifact-1"
+          ],
+          "operation": {
+            "operation_id": "runtime.destroy:9c2e62c395508900f29a28eb4b2d148cc99498c4fd8953dcfccd93b1683c5af6",
+            "signature_digest": "sha256:1ed4b5844ccc0a728e18305b2941a83bc6701f5ff50dca9030deb3f36982c689"
+          },
+          "directory_custody": {
+            "result": {
+              "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+              "attempt_id": "attempt-1",
+              "operation": "normalize",
+              "root": "result",
+              "verb": "normalize"
+            },
+            "workspace": {
+              "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+              "attempt_id": "attempt-1",
+              "operation": "normalize",
+              "root": "workspace",
+              "verb": "normalize"
+            }
+          }
+        }
+      },
+      "no_external_calls_or_writes": true
+    },
+    "discard_reported_retained": {
+      "ordinary_ending": "complete",
+      "result": {
+        "returned": {
+          "attempt_id": "attempt-1",
+          "cleanup": "retained",
+          "state": "absent",
+          "why": "the engine answered that this exact identity does not exist",
+          "kept": [],
+          "operation": {
+            "operation_id": "runtime.destroy:9c2e62c395508900f29a28eb4b2d148cc99498c4fd8953dcfccd93b1683c5af6",
+            "signature_digest": "sha256:1ed4b5844ccc0a728e18305b2941a83bc6701f5ff50dca9030deb3f36982c689"
+          },
+          "directory_custody": {
+            "result": {
+              "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+              "attempt_id": "attempt-1",
+              "operation": "normalize",
+              "root": "result",
+              "verb": "normalize"
+            },
+            "workspace": {
+              "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+              "attempt_id": "attempt-1",
+              "operation": "normalize",
+              "root": "workspace",
+              "verb": "normalize"
+            }
+          }
+        }
+      },
+      "no_external_calls_or_writes": true
+    },
+    "uncertain_runtime_reported_settled_failed": {
+      "ordinary_ending": "failed",
+      "result": {
+        "returned": {
+          "attempt_id": "attempt-1",
+          "cleanup": "failed",
+          "state": "uncertain",
+          "why": "survived",
+          "kept": [],
+          "operation": {
+            "operation_id": "runtime.destroy:9c2e62c395508900f29a28eb4b2d148cc99498c4fd8953dcfccd93b1683c5af6",
+            "signature_digest": "sha256:1ed4b5844ccc0a728e18305b2941a83bc6701f5ff50dca9030deb3f36982c689"
+          },
+          "directory_custody": null
+        }
+      },
+      "no_external_calls_or_writes": true
+    },
+    "unknown_runtime_reported_settled_failed": {
+      "ordinary_ending": "failed",
+      "result": {
+        "returned": {
+          "attempt_id": "attempt-1",
+          "cleanup": "failed",
+          "state": "invented",
+          "why": "survived",
+          "kept": [],
+          "operation": {
+            "operation_id": "runtime.destroy:9c2e62c395508900f29a28eb4b2d148cc99498c4fd8953dcfccd93b1683c5af6",
+            "signature_digest": "sha256:1ed4b5844ccc0a728e18305b2941a83bc6701f5ff50dca9030deb3f36982c689"
+          },
+          "directory_custody": null
+        }
+      },
+      "no_external_calls_or_writes": true
+    },
+    "foreign_signature_with_unchanged_receipt": {
+      "ordinary_ending": "retained",
+      "result": {
+        "returned": {
+          "attempt_id": "attempt-1",
+          "cleanup": "retained",
+          "directory_custody": {
+            "result": {
+              "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+              "attempt_id": "attempt-1",
+              "operation": "normalize",
+              "root": "result",
+              "verb": "normalize"
+            },
+            "workspace": {
+              "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+              "attempt_id": "attempt-1",
+              "operation": "normalize",
+              "root": "workspace",
+              "verb": "normalize"
+            }
+          },
+          "kept": [
+            "artifact-1"
+          ],
+          "operation": {
+            "operation_id": "runtime.destroy:9c2e62c395508900f29a28eb4b2d148cc99498c4fd8953dcfccd93b1683c5af6",
+            "signature_digest": "sha256:1ed4b5844ccc0a728e18305b2941a83bc6701f5ff50dca9030deb3f36982c689"
+          },
+          "state": "absent",
+          "why": "the engine answered that this exact identity does not exist"
+        }
+      },
+      "no_external_calls_or_writes": true
+    },
+    "discard_with_missing_retention_decisions": {
+      "ordinary_ending": "complete",
+      "result": {
+        "returned": {
+          "attempt_id": "attempt-1",
+          "cleanup": "complete",
+          "directory_custody": {
+            "result": {
+              "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+              "attempt_id": "attempt-1",
+              "operation": "normalize",
+              "root": "result",
+              "verb": "normalize"
+            },
+            "workspace": {
+              "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+              "attempt_id": "attempt-1",
+              "operation": "normalize",
+              "root": "workspace",
+              "verb": "normalize"
+            }
+          },
+          "kept": [],
+          "operation": {
+            "operation_id": "runtime.destroy:9c2e62c395508900f29a28eb4b2d148cc99498c4fd8953dcfccd93b1683c5af6",
+            "signature_digest": "sha256:1ed4b5844ccc0a728e18305b2941a83bc6701f5ff50dca9030deb3f36982c689"
+          },
+          "state": "absent",
+          "why": "the engine answered that this exact identity does not exist"
+        }
+      },
+      "no_external_calls_or_writes": true
+    },
+    "unowned_optional_kind": {
+      "ordinary_ending": "retained",
+      "result": {
+        "returned": {
+          "attempt_id": "attempt-1",
+          "cleanup": "retained",
+          "state": "absent",
+          "why": "the engine answered that this exact identity does not exist",
+          "kept": [
+            "artifact-1"
+          ],
+          "operation": {
+            "operation_id": "runtime.destroy:9c2e62c395508900f29a28eb4b2d148cc99498c4fd8953dcfccd93b1683c5af6",
+            "signature_digest": "sha256:1ed4b5844ccc0a728e18305b2941a83bc6701f5ff50dca9030deb3f36982c689"
+          },
+          "directory_custody": {
+            "result": {
+              "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+              "attempt_id": "attempt-1",
+              "operation": "normalize",
+              "root": "result",
+              "verb": "normalize"
+            },
+            "workspace": {
+              "account": "{\"custody\": \"normalize\", \"entries\": 0, \"not_ours\": 0, \"running_as\": [0, 0]}",
+              "attempt_id": "attempt-1",
+              "operation": "normalize",
+              "root": "workspace",
+              "verb": "normalize"
+            }
+          },
+          "kind": [
+            "foreign",
+            "ending"
+          ]
+        }
+      },
+      "no_external_calls_or_writes": true
+    }
+  },
+  "seconds": 0.11631570698227733
+}

@@ -1,0 +1,544 @@
+--- base/src/baton_v12/worker_manager/review_cycles.py
++++ src/baton_v12/worker_manager/review_cycles.py
+@@ -11,18 +11,21 @@
+ import os
+ 
+ from ..contracts import ContractRefusal, canonical_text, digest
+-from ..contracts.errors import name_value
++from ..contracts.errors import name_value, sample_of
+ from . import (attempts, boundaries, custody, intake, manifests, output, schema,
+                source_boundary, workspaces)
+ from .attempts import assignment_of
+ from .store import manager_signature
+ 
+-__all__ = ["ATTACH_KIND", "DISPOSITIONS", "GRANT_KIND", "LINE_HOME",
+-           "VERDICT_KIND",
+-           "attach_review", "audit_checkpoint", "checkpoint_of",
++__all__ = ["ABANDONED_CORRECTION", "ABANDONED_CORRECTION_SCHEMA",
++           "ATTACH_KIND", "DISPOSITIONS", "GRANT_KIND", "LINE_HOME",
++           "RESTORE_KIND", "VERDICT_KIND",
++           "abandoned_correction_of", "attach_review", "audit_checkpoint",
++           "checkpoint_of",
+            "create_line", "freeze_checkpoint", "grant_writer",
+            "integration_checkpoint", "line_of", "line_status",
+-           "record_progress", "record_verdict", "review_boundary",
++           "record_progress", "record_verdict",
++           "restore_abandoned_correction", "review_boundary",
+            "review_for_attempt", "review_of", "verdict_of", "writer_boundary",
+            "writer_for_attempt", "writer_of"]
+ 
+@@ -41,6 +44,29 @@
+ # keeping a copy of this module's journal shape.
+ GRANT_KIND = "review-line.grant-writer"
+ LINE_HOME = ".baton-review-lines"
++
++# W128692: THE ABANDONED CORRECTION'S RECOVERY, AS ITS OWN TWO ACTS.
++#
++# The INTENT is journalled before the profile is asked to write anything, and
++# the OUTCOME after the restoration has been validated -- two identities
++# because they are two facts. A crash between them leaves a recorded intent and
++# no completion, which is exactly what a retry needs to find: the same
++# exclusion, the same checkpoint, and no completed history to mistake for one.
++RESTORE_INTENT_KIND = "review-line.restore-abandoned-intent"
++RESTORE_KIND = "review-line.restore-abandoned"
++ABANDONED_CORRECTION_SCHEMA = "baton.v12.abandoned-correction/1"
++
++# EXACTLY WHAT A COMPLETED RECOVERY CARRIES. Owner128669's contract, and both
++# exits are held to it.
++ABANDONED_CORRECTION = ("schema", "operation_id", "attempt_id", "assignment",
++                        "runtime_id", "retention_policy_digest", "writer_id",
++                        "line_id", "checkpoint_id", "checkpoint_evidence",
++                        "cleanup_operation", "discharge_operation_id", "state")
++
++# The state the recovered line is returned to, and it is the one
++# `record_verdict` puts a changes-requested line in -- not a new state and not
++# a new checkpoint.
++_CORRECTION_READY = "correction-ready"
+ 
+ 
+ def _id(prefix, value):
+@@ -1653,6 +1679,484 @@
+                           "review-line.verdict", signature, act)
+ 
+ 
++def _restore_operation_id(kind, attempt_id, generation):
++    """One recovery identity per attempt and fenced generation.
++
++    DERIVED FROM THE TWO THINGS THAT DO NOT MOVE, exactly as the sibling
++    historical readers are: a manager resuming after a crash re-derives it
++    without first re-establishing the evidence, so an intent it already
++    committed is found before anything mutable is read. The kind rides the
++    identity, so the intent and the completion cannot collide on one.
++    """
++    return kind + ":" + _id("restore", {"kind": kind,
++                                        "attempt_id": attempt_id,
++                                        "generation": generation})
++
++
++def _abandoned_evidence(store, attempt_id, generation, retention_policy_digest,
++                        what):
++    """W128682's two accepted readers, cross-bound to THIS attempt and
++    generation.
++
++    THE PROVIDER BOUNDARY IS ITS PUBLIC SURFACE AND NOTHING ELSE. Both readers
++    are `intake`'s public operations; no private helper is called and no table
++    of its is read. What they answer is already validated whole on their own
++    side -- the declaration, the authority's fence, the removal's settled
++    absence and the committed gate discharge -- so what is left for this
++    module is the crossing: that all of it is about the attempt, the
++    generation and the policy THIS recovery is for.
++    """
++    cleanup = intake.abandonment_cleanup_of(
++        store, attempt_id=attempt_id,
++        retention_policy_digest=retention_policy_digest)
++    if cleanup is None:
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"{what} has no committed abandoned cleanup under retention "
++            f"policy {name_value(retention_policy_digest)}; a correction is "
++            f"restored behind a declared abandonment this manager committed "
++            f"and never behind the absence of one")
++    discharge = intake.abandoned_gate_discharge_of(store, attempt_id)
++    if discharge is None:
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"{what}'s abandonment has not discharged its runtime-quiescence "
++            f"gate; the generation is still held at the authority, and a "
++            f"checkout is not restored for a successor that cannot be "
++            f"assigned")
++    if cleanup["assignment"]["generation"] != generation:
++        raise ContractRefusal(
++            "stale-assignment", "generation",
++            f"{what}'s committed abandonment is for generation "
++            f"{cleanup['assignment']['generation']}; one recovery answers for "
++            f"one fenced generation")
++    # THE DISCHARGE IS THE CLEANUP'S OWN, compared whole. Its
++    # `cleanup_operation` carries the identity AND the signature, and the
++    # signature is the half that names the runtime -- so comparing one and
++    # dropping the other would let a discharge earned behind one removal
++    # authorize a recovery after another.
++    if discharge["cleanup_operation"] != cleanup["cleanup"]["operation"] \
++            or discharge["assignment"] != cleanup["assignment"] \
++            or discharge["runtime_id"] != cleanup["runtime_id"] \
++            or discharge["retention_policy_digest"] \
++            != cleanup["retention_policy_digest"]:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what}'s committed gate discharge and its committed abandoned "
++            f"cleanup do not describe one act; the discharge names the "
++            f"removal it was earned behind, and two accounts of one ending "
++            f"have no tie-break")
++    return cleanup, discharge
++
++
++def _abandoned_writer(store, attempt_id, generation, what):
++    """The historical writer this correction was granted, still holding the
++    line.
++
++    THROUGH THE EXISTING OWNER, never through the line's current pointer:
++    `writer_for_attempt` answers from the attempt and its generation, which do
++    not move, and binds the row to the committed grant that fixed it.
++
++    AND `active` IS REQUIRED HERE, unlike in that reader. It is what makes this
++    an UNFINISHED correction: a revoked writer is what a round that reached its
++    checkpoint leaves behind, and there is nothing to restore for one.
++    """
++    writer = writer_for_attempt(store, attempt_id=attempt_id,
++                                generation=generation)
++    if writer is None:
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"{what} was granted no line writer at that generation; there is "
++            f"no correction here to restore")
++    if writer["state"] != "active":
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"{what}'s writer is {name_value(writer['state'])}; a restore "
++            f"recovers a correction that never reached its checkpoint, and a "
++            f"revoked writer is what one that did leaves behind")
++    if writer["based_checkpoint_id"] is None:
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"{what}'s writer is based on no checkpoint; this recovery "
++            f"restores a CORRECTION to the checkpoint it was based on, and a "
++            f"first writer has none to return to")
++    return writer
++
++
++def _restorable_line(store, writer, what):
++    """The same durable line, proved to be the one this writer is holding.
++
++    EVERY MEMBER IS A RELATIONSHIP RATHER THAN A SHAPE. The line is the
++    writer's own; it is still `writing`, because that is what an unfinished
++    correction leaves and any other state means somebody else already moved it;
++    its pathname still names the same object, by device and inode rather than
++    by name; and its current checkpoint is the one the writer was based on --
++    which is the committed provenance, because `grant_writer` admits a
++    correction writer ONLY from a `correction-ready` line whose
++    `current_checkpoint_id` equals that checkpoint, and a line reaches
++    `correction-ready` ONLY through a `changes-requested` verdict.
++    """
++    line = line_of(store, writer["line_id"])
++    if line["state"] != "writing":
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"{what}'s line is {name_value(line['state'])}; a correction that "
++            f"is still owed a restore leaves its line writing, and any other "
++            f"state is one somebody else already moved")
++    if line["current_checkpoint_id"] != writer["based_checkpoint_id"]:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what}'s line currently points at checkpoint "
++            f"{name_value(line['current_checkpoint_id'])} and its writer was "
++            f"based on {name_value(writer['based_checkpoint_id'])}; a "
++            f"correction is restored to the checkpoint it was granted "
++            f"against")
++    _validate_line_object(line)
++    return line
++
++
++def _sole_attachment(store, line, writer, what):
++    """Nobody else is attached to this line, writable or read-only.
++
++    A restore discards a whole checkout, so the question is not only whether
++    another WRITER exists -- a live review attachment is reading the same tree,
++    and returning it to an earlier checkpoint underneath one would be
++    destroying the subject of somebody's review.
++    """
++    writers = store._connection.execute(
++        "SELECT writer_id FROM line_writers WHERE line_id = ? AND "
++        "state = 'active'", (line["line_id"],)).fetchall()
++    held = sorted(row["writer_id"] for row in writers)
++    if held != [writer["writer_id"]]:
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"{what}'s line holds active writers {sample_of(held)}, and this "
++            f"recovery owns exactly {name_value(writer['writer_id'])}; a "
++            f"checkout is not restored under an attachment this act does not "
++            f"hold")
++    reviewing = store._connection.execute(
++        "SELECT attachment_id FROM review_attachments WHERE line_id = ? AND "
++        "state = 'active'", (line["line_id"],)).fetchall()
++    if reviewing:
++        raise ContractRefusal(
++            "refused", "precondition",
++            f"{what}'s line has an active review attachment; a restore "
++            f"discards the whole checkout, and doing that under a live review "
++            f"would destroy what is being reviewed")
++
++
++def _adopted_correction(value, what, *, operation_id=None, attempt_id=None,
++                        assignment=None):
++    """One completed recovery, owned with its VALUES and its RELATIONSHIPS.
++
++    BOTH PUBLIC EXITS COME THROUGH HERE -- the completing transaction and
++    `abandoned_correction_of` -- so what is written is held to exactly the
++    contract what is read is held to, rather than being trusted because this
++    process just built it. Generic parsing establishes that bytes decode; it
++    establishes nothing about whose recovery they describe.
++    """
++    taken = boundaries.document(value, what, required=ABANDONED_CORRECTION)
++    if taken["schema"] != ABANDONED_CORRECTION_SCHEMA:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} records schema {name_value(taken['schema'])} and this "
++            f"manager writes {name_value(ABANDONED_CORRECTION_SCHEMA)}")
++    if taken["state"] != _CORRECTION_READY:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} records state {name_value(taken['state'])}; a completed "
++            f"recovery returned its line to {name_value(_CORRECTION_READY)}, "
++            f"and a record that does not say so is not evidence that one did")
++    for member in ("operation_id", "attempt_id", "runtime_id", "writer_id",
++                   "line_id", "checkpoint_id", "discharge_operation_id"):
++        boundaries.identity(taken[member], f"{what}'s {member}")
++    boundaries.text(taken["retention_policy_digest"],
++                    f"{what}'s retention policy digest")
++    _evidence(taken["checkpoint_evidence"])
++    boundaries.document(taken["cleanup_operation"],
++                        f"{what}'s cleanup operation",
++                        required=("operation_id", "signature_digest"))
++    held = boundaries.document(taken["assignment"], f"{what}'s assignment",
++                               required=("work_ref", "participant",
++                                         "generation"))
++    boundaries.document(held["work_ref"], f"{what}'s Work reference",
++                        required=("authority_uuid", "work_id"))
++    boundaries.generation(held["generation"], f"{what}'s generation")
++    for member, expected in (("operation_id", operation_id),
++                             ("attempt_id", attempt_id)):
++        if expected is not None and taken[member] != expected:
++            raise ContractRefusal(
++                "integrity", "schema",
++                f"{what} records {member} {name_value(taken[member])} and "
++                f"this read selected {name_value(expected)}")
++    if assignment is not None and held != assignment:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} records an assignment that is not the one this attempt "
++            f"is fixed to")
++    return taken
++
++
++def abandoned_correction_of(store, *, attempt_id, generation):
++    """The completed recovery for this attempt and generation, or absence.
++
++    W128692, `work/records/2026/09/finding-v12-abandoned-checkpoint-restore/`.
++
++    THE DISCOVERABILITY HALF, and it is a read. It performs no profile act, no
++    Authority act, no runtime act and no write of any kind -- there is no
++    branch in it that could.
++
++    IT ANSWERS ABOUT HISTORY AND NOT ABOUT NOW. A completed recovery is a fact
++    about one attempt's generation, and it stays true after the line has moved
++    on: a later writer may already hold the line, and a later checkpoint may
++    already have been frozen. So this deliberately does NOT claim the CURRENT
++    line is correction-ready because this operation completed. A consumer
++    deciding whether it may start work checks its own live episode and its own
++    admissibility, and this tells it only that the restore it was waiting on
++    happened.
++
++    ABSENCE IS THE ONLY `None`. An attempt with no committed completion has not
++    been recovered; a present record this manager cannot own is an integrity
++    failure an operator has to look at, and reporting the second as the first
++    would invite a consumer to run a restore over a checkout somebody else now
++    holds.
++    """
++    attempt_id, generation = _requested_pair(attempt_id, generation)
++    what = (f"the abandoned-correction recovery for attempt "
++            f"{name_value(attempt_id)} generation {generation}")
++    operation_id = _restore_operation_id(RESTORE_KIND, attempt_id, generation)
++    record = store.operation_record(operation_id)
++    if record is None:
++        return None
++    if record["kind"] != RESTORE_KIND:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} names operation {name_value(operation_id)}, which this "
++            f"manager committed as {name_value(record['kind'])}")
++    _, committed = store.replay(operation_id, record["signature"],
++                                kind=RESTORE_KIND)
++    if committed is None:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} names operation {name_value(operation_id)}, which this "
++            f"manager committed with no recorded answer to replay")
++    taken = _adopted_correction(committed, what, operation_id=operation_id,
++                                attempt_id=attempt_id)
++    # THE JOURNAL'S OWN SIGNATURE, DERIVED FROM THE RECORD AND COMPARED. A
++    # stored row and the digest beside it can be edited together; what a store
++    # edit cannot reproduce is the relationship this manager signed.
++    if record["signature"] != _correction_signature(taken):
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what} composes a signature its own members do not match the "
++            f"one this manager committed; the attempt, the assignment, the "
++            f"writer, the line, the checkpoint and the cleanup operation are "
++            f"ONE signed relationship")
++    return taken
++
++
++def _correction_signature(taken):
++    """The operands a completed recovery signs, recomposed from the record."""
++    cleanup = taken["cleanup_operation"]
++    return manager_signature(RESTORE_KIND, {
++        "attempt_id": taken["attempt_id"],
++        "assignment": taken["assignment"],
++        "runtime_id": taken["runtime_id"],
++        "retention_policy_digest": taken["retention_policy_digest"],
++        "writer_id": taken["writer_id"], "line_id": taken["line_id"],
++        "checkpoint_id": taken["checkpoint_id"],
++        "checkpoint_digest": digest(taken["checkpoint_evidence"]),
++        "cleanup_operation_id": cleanup["operation_id"],
++        "cleanup_signature_digest": cleanup["signature_digest"],
++        "discharge_operation_id": taken["discharge_operation_id"]})
++
++
++def restore_abandoned_correction(store, *, attempt_id, generation,
++                                 retention_policy_digest, profile):
++    """Give a declared abandoned correction's line back, at its own checkpoint.
++
++    W128692. W119114's composed proof measured what an operator declaration
++    leaves behind: the runtime is destroyed and the generation fenced, and the
++    LINE is still `writing` with the abandoned attempt's writer still `active`.
++    `grant_writer` admits a writer only from `idle` or `correction-ready`, and
++    the only thing in this build that revokes one is `freeze_checkpoint` --
++    which an abandoned correction by definition never reaches. So no successor
++    could ever be granted the line.
++
++    AND MOVING THE ROWS WOULD NOT BE ENOUGH. The checkout still holds the
++    abandoned worker's uncommitted scratch, and `validate(current=True)`
++    requires a clean checkout at the retained head -- so the next writer's own
++    admission would refuse. The checkout has to go back to the checkpoint the
++    correction was based on, which is what the profile's new
++    `restore_checkpoint` is for.
++
++    THE ORDER, and each step is the next one's precondition:
++
++      1. own the operands and the profile's two capabilities;
++      2. REPLAY a completed recovery and return it, before anything mutable is
++         read. A restore that already finished must answer without touching a
++         checkout a later writer may now hold -- which is the whole reason the
++         completed record exists;
++      3. prove W128682's committed abandonment and gate discharge, cross-bound
++         to this attempt, this generation and this policy;
++      4. prove the exclusion: the historical writer is this attempt's and is
++         still active on a based frozen checkpoint, the line is that writer's
++         own and still `writing` at that same checkpoint, and NOTHING else is
++         attached to it;
++      5. commit the INTENT, which fixes what this recovery is for;
++      6. only then ask the profile to restore, and
++      7. commit the completion, revoking the writer and returning the line to
++         `correction-ready` at the SAME retained checkpoint.
++
++    FIVE AND SIX CANNOT BE ONE TRANSACTION, for the reason a remote act cannot
++    be: the profile writes a filesystem this database does not own, and holding
++    a write lock across it would block every other manager act for the length
++    of a checkout. So the intent commits first and the completion second, and a
++    crash between them leaves a recorded intent with no completion -- exactly
++    what a retry needs to find.
++
++    A FAILED RESTORE ADMITS NOBODY. If the profile refuses, nothing after step
++    five runs: the writer stays active and the line stays `writing`, so the
++    next `grant_writer` still refuses and no successor is handed a checkout
++    this act could not prove.
++
++    IT DOES NOTHING ELSE. No operator declaration, no runtime act, no Authority
++    act, no publication, no verdict, no Job episode replacement, and NO NEW
++    CHECKPOINT -- the line comes back to the one it already had. Custody
++    beside the line is never named, and no pin moves.
++    """
++    attempt_id, generation = _requested_pair(attempt_id, generation)
++    boundaries.text(retention_policy_digest, "a retention policy digest")
++    profile_name = _profile(profile, ("validate", "restore_checkpoint"))
++    what = (f"the abandoned correction for attempt {name_value(attempt_id)} "
++            f"generation {generation}")
++
++    operation_id = _restore_operation_id(RESTORE_KIND, attempt_id, generation)
++    record = store.operation_record(operation_id)
++    if record is not None:
++        # STEP TWO, AND ITS POSITION IS THE CONTRACT. Answered through the
++        # public reader so the completed exit and the replay exit are one
++        # spelling of one question; nothing mutable has been read yet, so a
++        # later writer's checkout is not touched and not even looked at.
++        held = abandoned_correction_of(store, attempt_id=attempt_id,
++                                       generation=generation)
++        if held["retention_policy_digest"] != retention_policy_digest:
++            raise ContractRefusal(
++                "refused", "operation-collision",
++                f"{what} was recovered under retention policy "
++                f"{name_value(held['retention_policy_digest'])} and this call "
++                f"names {name_value(retention_policy_digest)}; one identity "
++                f"carries one act, and reusing it with a different operand "
++                f"changes nothing (§4.2)")
++        return held
++
++    cleanup, discharge = _abandoned_evidence(
++        store, attempt_id, generation, retention_policy_digest, what)
++    writer = _abandoned_writer(store, attempt_id, generation, what)
++    line = _restorable_line(store, writer, what)
++    if line["profile_name"] != profile_name:
++        raise ContractRefusal(
++            "policy", "profile-uncertified",
++            f"{what}'s line was materialized by profile "
++            f"{name_value(line['profile_name'])} and this restore offers "
++            f"{name_value(profile_name)}")
++    _sole_attachment(store, line, writer, what)
++    checkpoint = checkpoint_of(store, writer["based_checkpoint_id"])
++    if checkpoint["line_id"] != line["line_id"] \
++            or checkpoint["state"] != "frozen" \
++            or checkpoint["profile_name"] != profile_name:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what}'s based checkpoint is not this line's frozen checkpoint "
++            f"under this profile")
++
++    intent = {"schema": ABANDONED_CORRECTION_SCHEMA,
++              "attempt_id": attempt_id,
++              "assignment": dict(cleanup["assignment"]),
++              "runtime_id": cleanup["runtime_id"],
++              "retention_policy_digest": retention_policy_digest,
++              "writer_id": writer["writer_id"], "line_id": line["line_id"],
++              "checkpoint_id": checkpoint["checkpoint_id"],
++              "checkpoint_digest": checkpoint["checkpoint_digest"],
++              "cleanup_operation": dict(cleanup["cleanup"]["operation"]),
++              "discharge_operation_id": discharge["operation_id"]}
++    intent_id = _restore_operation_id(RESTORE_INTENT_KIND, attempt_id,
++                                      generation)
++    intent_signature = manager_signature(RESTORE_INTENT_KIND, intent)
++    # COMMITTED OR REPLAYED, and a retry under different operands collides here
++    # rather than proceeding: `store.replay` refuses a reused identity whose
++    # signature differs, which is what "retry only under the same owned
++    # exclusion and checkpoint" means in this store's own vocabulary.
++    found, already = store.replay(intent_id, intent_signature,
++                                  kind=RESTORE_INTENT_KIND)
++    fixed = already if found else store.transact(
++        intent_id, RESTORE_INTENT_KIND, intent_signature,
++        lambda connection: dict(intent))
++    boundaries.document(fixed, f"{what}'s recorded recovery intent",
++                        required=tuple(intent))
++
++    # THE PROFILE ACT, OUTSIDE EVERY TRANSACTION. It verifies the retained
++    # checkpoint before it writes, restores this one nominated checkout, and
++    # answers only after proving the result is clean and at that exact head.
++    evidence = profile.restore_checkpoint(line["line_path"],
++                                          checkpoint["evidence"])
++    if evidence != checkpoint["evidence"]:
++        raise ContractRefusal(
++            "integrity", "schema",
++            f"{what}'s restore answered evidence that is not the checkpoint "
++            f"it was asked to restore; a profile that changed the evidence "
++            f"restored something else")
++
++    completed = {"schema": ABANDONED_CORRECTION_SCHEMA,
++                 "operation_id": operation_id, "attempt_id": attempt_id,
++                 "assignment": dict(cleanup["assignment"]),
++                 "runtime_id": cleanup["runtime_id"],
++                 "retention_policy_digest": retention_policy_digest,
++                 "writer_id": writer["writer_id"], "line_id": line["line_id"],
++                 "checkpoint_id": checkpoint["checkpoint_id"],
++                 "checkpoint_evidence": dict(checkpoint["evidence"]),
++                 "cleanup_operation": dict(cleanup["cleanup"]["operation"]),
++                 "discharge_operation_id": discharge["operation_id"],
++                 "state": _CORRECTION_READY}
++    signature = _correction_signature(completed)
++
++    def act(connection):
++        # THE WORLD IS READ AGAIN INSIDE THE WRITE. The profile call is the one
++        # place this act waits on somebody else, and a concurrent recovery or
++        # a concurrent admission can land in that window -- so the exclusion is
++        # proved once more here, atomically with the rows it authorizes.
++        current_writer = writer_of(store, writer["writer_id"])
++        current_line = line_of(store, line["line_id"])
++        if current_writer["state"] != "active" \
++                or current_line["state"] != "writing" \
++                or current_line["current_checkpoint_id"] \
++                != checkpoint["checkpoint_id"]:
++            raise ContractRefusal(
++                "refused", "precondition",
++                f"{what}'s line acquired another attachment while its "
++                f"checkout was being restored; a recovery does not complete "
++                f"over an exclusion it no longer holds")
++        _sole_attachment(store, current_line, current_writer, what)
++        now = store._now()
++        connection.execute(
++            "UPDATE line_writers SET state = 'revoked', revoked_at = ?, "
++            "revocation_reason = 'abandoned' WHERE writer_id = ? "
++            "AND state = 'active'", (now, writer["writer_id"]))
++        # THE SAME LINE, THE SAME CHECKPOINT AND THE SAME REVISION. Nothing
++        # here freezes anything, and `current_checkpoint_id` is deliberately
++        # not written: it already names this checkpoint, and writing it would
++        # be this act claiming a pointer it did not move.
++        connection.execute(
++            "UPDATE review_lines SET state = ? WHERE line_id = ?",
++            (_CORRECTION_READY, line["line_id"]))
++        return _adopted_correction(
++            dict(completed), f"{what}'s completed recovery",
++            operation_id=operation_id, attempt_id=attempt_id,
++            assignment=cleanup["assignment"])
++
++    return store.transact(operation_id, RESTORE_KIND, signature, act)
++
++
+ def integration_checkpoint(store, line_id):
+     line = line_of(store, line_id)
+     eligibility_row = store._connection.execute(

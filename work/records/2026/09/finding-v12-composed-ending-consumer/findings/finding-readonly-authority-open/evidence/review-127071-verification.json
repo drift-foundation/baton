@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-composed-ending-consumer/findings/finding-readonly-authority-open/evidence/review-126983-probe.py"
+  ],
+  "cwd": "v12/python",
+  "PYTHONPATH": "src:.",
+  "budget_seconds": 1,
+  "elapsed_seconds": 0.04026399401482195,
+  "returncode": 0,
+  "stdout": "[\n  {\n    \"case\": \"only-wal\",\n    \"before\": [\n      \"authority.sqlite3\",\n      \"authority.sqlite3-wal\"\n    ],\n    \"exception\": \"Refusal: the authority store at '/tmp/review-126983-nwha_a64/authority.sqlite3' is a write-ahead-log store and its journal sidecars are incomplete (-wal); opening it would make SQLite create the rest, and a read-only open creates no journal artifact. Read it while its serving process holds it, or open it for writing deliberately\",\n    \"after\": [\n      \"authority.sqlite3\",\n      \"authority.sqlite3-wal\"\n    ],\n    \"sizes\": {\n      \"authority.sqlite3-wal\": 0,\n      \"authority.sqlite3\": 208896\n    }\n  },\n  {\n    \"case\": \"only-shm\",\n    \"before\": [\n      \"authority.sqlite3\",\n      \"authority.sqlite3-shm\"\n    ],\n    \"exception\": \"Refusal: the authority store at '/tmp/review-126983-khzznz1l/authority.sqlite3' is a write-ahead-log store and its journal sidecars are incomplete (-shm); opening it would make SQLite create the rest, and a read-only open creates no journal artifact. Read it while its serving process holds it, or open it for writing deliberately\",\n    \"after\": [\n      \"authority.sqlite3\",\n      \"authority.sqlite3-shm\"\n    ],\n    \"sizes\": {\n      \"authority.sqlite3-shm\": 0,\n      \"authority.sqlite3\": 208896\n    }\n  },\n  {\n    \"case\": \"serving-close-after-guard\",\n    \"before\": [\n      \"authority.sqlite3\",\n      \"authority.sqlite3-shm\",\n      \"authority.sqlite3-wal\"\n    ],\n    \"exception\": \"Refusal: opening the authority store at '/tmp/review-126983-he_5m3vc/authority.sqlite3' for reading created -shm, -wal; its serving process released the store between this open's check and its connection, so SQLite made these files rather than reusing the ones the check saw. A read-only open creates no journal artifact. They were left as SQLite made them rather than removed, because deleting a file another opener may have just created for its own reasons is not this boundary's to do\",\n    \"after\": [\n      \"authority.sqlite3\",\n      \"authority.sqlite3-shm\",\n      \"authority.sqlite3-wal\"\n    ],\n    \"sizes\": {\n      \"authority.sqlite3-shm\": 32768,\n      \"authority.sqlite3-wal\": 0,\n      \"authority.sqlite3\": 208896\n    }\n  }\n]\n",
+  "stderr": ""
+}

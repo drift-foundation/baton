@@ -1,0 +1,62 @@
+{
+  "claim": 120317,
+  "baseline_sha256": "162f527e3476dcffcc937996df6c36d2d26505dfd7ea156eee6657e7433b30d5",
+  "candidate_sha256": "a4cdff060027f8b87f009fdacaff1af3d01ffe09148dcaf9360cc560bb58831f",
+  "changed_existing_functions": [
+    "_source",
+    "_origins",
+    "receiving_entries",
+    "_crossings"
+  ],
+  "unchanged_existing_functions_and_classes": 74,
+  "new_nodes": [
+    "OptionalCapabilityAliasesKeepTheirCrossing",
+    "_callable_members",
+    "_discovered_capabilities",
+    "_invoked_capabilities"
+  ],
+  "existing_nonfunction_nodes_unchanged": true,
+  "retained_regression_tests": 87,
+  "retained_subprocess_result": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.321s\n\nOK\n",
+  "retained_entry_count": 1379,
+  "retained_origin_sites": {
+    "authority_port.py:AuthorityPort.satisfy_gate": {
+      "bindings": {
+        "answer": [
+          "session:satisfy_gate"
+        ],
+        "answered": []
+      },
+      "member_origins": [
+        [
+          "session:satisfy_gate",
+          "gate"
+        ],
+        [
+          "session:satisfy_gate",
+          "kind"
+        ],
+        [
+          "session:satisfy_gate",
+          "phase"
+        ]
+      ]
+    },
+    "intake.py:discharge_quiescence_gate": {
+      "bindings": {
+        "answer": [],
+        "answered": [
+          "session:satisfy_gate"
+        ]
+      },
+      "member_origins": [
+        [
+          "session:satisfy_gate",
+          "kind"
+        ]
+      ]
+    }
+  },
+  "retained_unowned": 183,
+  "retained_orphan_calls": 88
+}

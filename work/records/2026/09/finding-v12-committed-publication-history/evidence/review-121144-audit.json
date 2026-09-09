@@ -1,0 +1,11 @@
+{
+  "prior_methods_preserved": 156,
+  "removed": [],
+  "changed": [],
+  "added": [
+    "TheCommittedPublicationSurvivesTheProcessThatMadeIt.test_a_boolean_generation_in_the_readback_commits_nothing",
+    "TheCommittedPublicationSurvivesTheProcessThatMadeIt.test_a_boolean_generation_in_the_readback_commits_nothing.boolean",
+    "TheCommittedPublicationSurvivesTheProcessThatMadeIt.test_a_boolean_generation_in_the_record_refuses_on_read",
+    "TheCommittedPublicationSurvivesTheProcessThatMadeIt.test_an_honest_generation_still_reads_back_after_reopening"
+  ]
+}

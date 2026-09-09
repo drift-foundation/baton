@@ -50,8 +50,9 @@ runtime will mount and it ends what a runtime produced.
 """
 
 from ..contracts import ContractRefusal
-from ..contracts.errors import name_value
+from ..contracts.errors import name_value, sample_of
 from ..worker_manager import (attempts, authorize_cleanup, boundaries,
+                              cleanup_of,
                               decide_retention, frozen_output_of,
                               intake_receipt_of, retentions_of,
                               load_manifest, observe, reconcile_runtime,
@@ -60,10 +61,13 @@ from ..worker_manager import (attempts, authorize_cleanup, boundaries,
 from . import episodes
 
 __all__ = ["ADAPTER_IDENTITIES", "FENCE_PORT", "FINDINGS_OUTPUT",
-           "IMPLEMENTATION_ENDING", "IMPLEMENTATION_PROFILE",
-           "LOGS_OUTPUT", "PUBLICATION_SEAM", "REVIEW_CLAIM_MEMBERS",
+           "HISTORICAL_IMPLEMENTATION_ENDING", "IMPLEMENTATION_ENDING",
+           "IMPLEMENTATION_PROFILE",
+           "LOGS_OUTPUT", "PUBLICATION_HISTORY", "PUBLICATION_SEAM",
+           "REVIEW_CLAIM_MEMBERS",
            "REVIEW_CLAIM_NAMESPACE", "REVIEW_ENDING",
            "REVIEW_PROFILE", "REVIEW_RESULT_ENDING", "RUNTIME_ADAPTER",
+           "SETTLED_CLEANUP",
            "VERDICT_OUTCOMES", "end_implementation", "end_review",
            "end_review_from_result", "open_correction",
            "prepare_implementation", "prepare_review",
@@ -74,6 +78,30 @@ __all__ = ["ADAPTER_IDENTITIES", "FENCE_PORT", "FINDINGS_OUTPUT",
 # would be this module deciding part of a lifecycle the integration driver
 # owns; a seam with none would be this module publishing.
 PUBLICATION_SEAM = ("publish",)
+
+# AND THE SEAM'S REPLAY HALF, REQUIRED ONLY WHERE THE ACT CANNOT BE REPEATED.
+# W119733: `Authority.publish` needs the exact LIVE producer assignment, and a
+# resumed ending reaches this module after `freeze_checkpoint` has already
+# ended one -- so replaying the publication through the seam would refuse an
+# act that succeeded. The historical path reads the committed proposal
+# evidence instead, and this verb is what reads it. It is typed inside that
+# branch rather than beside `publish`, because an ordinary ending never needs
+# it and requiring it there would refuse every deployment that has one seam.
+PUBLICATION_HISTORY = ("published_of",)
+
+# W120425 review 2026-09-08T15-46-16Z [P1]: AND WHAT THAT VERB MUST ANSWER.
+# The first version took any non-`None` answer, so an empty list was a
+# publication and the fixture's own default named a result the frozen one
+# never mentioned. A history answer is a closed document whose members are all
+# SELECTORS -- the attempt it is about, the proposal the Authority recorded,
+# and the digest of the retained manifest that publication was composed from.
+# Nothing here is evidence by itself, which is the point: the driver re-reads
+# that manifest out of the control store and correlates it, so an answer a
+# process assembled in memory cannot satisfy this.
+PUBLISHED_MEMBERS = ("attempt_id", "assignment", "proposal_id",
+                     "proposal_manifest_digest", "result_id",
+                     "result_manifest_digest", "candidate_digest", "target",
+                     "published")
 
 # THE RUNTIME ADAPTER'S SURFACE, TYPED BEFORE THE FIRST EXTERNAL ACT. Review
 # [P1]: only the seam was typed, so an adapter carrying `stop` and nothing else
@@ -115,6 +143,38 @@ REVIEW_PROFILE = ("validate",)
 IMPLEMENTATION_ENDING = ("quiesce", "observe", "consume", "freeze",
                          "correlate", "intake", "retain", "publish",
                          "checkpoint", "cleanup")
+
+# W119733: AND THE SAME ENDING RE-ENTERED AFTER ITS RUNTIME IS ALREADY GONE.
+# Every step above that touches the runtime, the worker, the line or the
+# Authority is ABSENT rather than repeated: what is left is the committed
+# evidence each of those steps produced, read back in the order the ending
+# produced it. `cleanup` is first here because it is this path's ELIGIBILITY
+# rather than its last act -- the ordinary ending's cleanup is what makes this
+# path reachable at all.
+HISTORICAL_IMPLEMENTATION_ENDING = ("correlate", "intake", "retain",
+                                    "cleanup", "checkpoint", "publish")
+
+# WHAT `authorize_cleanup` ANSWERS WITH, owned before it is read. Review [P1]:
+# the first version asked the mutable cleanup COLUMN whether the runtime was
+# gone, and a column is not the act that made it so. The committed
+# `runtime.destroy` is, and the accepted owner replays it -- so this is the
+# shape of the document that replay returns, named here so the resume can hold
+# it to a contract rather than reaching into it. `review_cycles._cleaned_review`
+# proves the same document for a historical REVIEW and is the precedent for
+# this rule; its private signature reconstruction is deliberately not copied,
+# because the owner already performs it inside the replay.
+CLEANUP_RECEIPT = ("attempt_id", "cleanup", "state", "why", "kept",
+                   "operation", "directory_custody")
+
+# The two directory roots a settled cleanup normalizes, both of which its
+# receipt must account for.
+CUSTODY_ROOTS = ("result", "workspace")
+
+# WHICH CLEANUP AXIS VALUES ARE A RUNTIME POSITIVELY LET GO. `failed` is the
+# settled ending of a cleanup whose runtime survived its own destroy, which is
+# evidence AGAINST absence; `pending` and `blocked-on-intake` are endings that
+# have not finished. Only these two say the manager finished with it.
+SETTLED_CLEANUP = ("complete", "retained")
 
 # The same for a review ending. It has no publication and no checkpoint: what
 # it produces is a verdict about somebody else's checkpoint.
@@ -259,6 +319,21 @@ def _acting_for(control, port, attempt_id):
     return assignment
 
 
+def _assignment_ref(fixed):
+    """The four-part assignment as a retained manifest spells it.
+
+    ONE SPELLING, taken from `review_verdict_from_result`, which composes the
+    same shape from the same reader for the same reason: the manifests carry
+    `assignment_ref` and `assignment_of` answers flat columns, so somebody has
+    to compose one from the other and doing it twice is how two components
+    come to disagree about one identity.
+    """
+    return {"work_ref": {"authority_uuid": fixed["authority_uuid"],
+                         "work_id": fixed["work_id"]},
+            "participant": fixed["participant"],
+            "generation": fixed["generation"]}
+
+
 def _own_writer(control, *, writer_id, attempt_id, generation):
     """The writer row this ending will fence, PROVED to be this attempt's.
 
@@ -346,6 +421,111 @@ def _correlated(control, frozen, terminal, attempt_id):
                 f"names another envelope is not evidence about the output "
                 f"this manager froze", code="operation-collision")
     return validated
+
+
+def _destroyed(control, attempt_id):
+    """Whether this attempt's runtime is already gone, from its own axis.
+
+    W119733. THE ONE QUESTION THAT DECIDES WHICH ENDING A CALLER GETS, asked
+    of the durable axis rather than of a caller's operand: a deployment cannot
+    ask for a historical resume, and a deployment holding a live runtime
+    cannot be given one by mistake. Absence answers `False`, which leaves an
+    unknown attempt to be refused by the ordinary path's own owners rather
+    than by a branch pretending it has history.
+    """
+    found = attempts.attempt_runtime_of(control, attempt_id)
+    return type(found) is dict \
+        and found.get("execution_runtime") == "destroyed"
+
+
+def _let_go(control, *, attempt_id, retention_policy_digest, what):
+    """The COMMITTED cleanup, read through the owner that performed it.
+
+    W120425, corrected at review 2026-09-08T16-18-42Z [P1] and [P2] twice.
+    THE THREE THINGS THIS USED TO GET WRONG WERE ALL ONE THING: it asked
+    `authorize_cleanup`, which is a SERVING act, and then re-checked the
+    answer here.
+
+    Asking a serving act meant that when no committed destroy existed the
+    owner went on to read the live assignment from the Authority -- one remote
+    read on a path whose whole contract is that it performs none, which
+    reporting as a measured residual did not discharge. Re-checking the answer
+    here meant this module held a second, weaker account of the owner's rules:
+    it accepted any `directory_custody` with two dictionary values without
+    comparing either against the normalization that committed it, and it
+    compared `kept` against EVERY retention decision, so an honest
+    `discard-after-intake` ending -- which keeps nothing by design -- refused.
+
+    W120762 DELIVERED THE READ HALF, and this now asks that instead.
+    `intake.cleanup_of` derives the same destroy identity, owns the journalled
+    signature, re-derives the ending from the facts `_settle` derives it from,
+    requires complete correlated retention decisions, and compares both nested
+    custody receipts against `historical_directory_custody`. It takes no port
+    and no adapter, so there is no branch in it that could reach the Authority
+    or a runtime.
+
+    ABSENCE IS REFUSED HERE AND ANSWERED THERE. `cleanup_of` says `None` for
+    an attempt whose cleanup was never committed, which is an honest answer to
+    its own question; for THIS path it is a resume with no ending behind it,
+    so the refusal is written here in this ending's words rather than pushed
+    into a reader that other callers share.
+    """
+    settled = cleanup_of(control, attempt_id=attempt_id,
+                         retention_policy_digest=retention_policy_digest)
+    if settled is None:
+        _refuse(f"{what} has no committed ordinary cleanup under its "
+                f"retention policy; a resume answers from the runtime this "
+                f"manager positively let go, and an axis that says so without "
+                f"a journalled act is not that fact")
+    if settled["cleanup"] not in SETTLED_CLEANUP:
+        _refuse(f"{what}'s cleanup settled {name_value(settled['cleanup'])}; "
+                f"a resume answers behind an ending that followed positive "
+                f"absence, and {', '.join(SETTLED_CLEANUP)} are the two that "
+                f"do")
+    return settled
+
+
+def _retained(control, attempt_id, *, disposition, terminal,
+              retention_disposition, retention_policy_digest, what):
+    """The committed custody evidence a resumed ending answers from.
+
+    W119733. ONE CONTRACT FOR BOTH ENDINGS, because the question is the same
+    one: this attempt's runtime is gone, so the freeze, the correlation, the
+    intake and the retention either committed or they did not, and nothing
+    here may perform them. Every read is an accepted public owner's, and each
+    refusal names evidence an operator can go and look at.
+
+    THE OPERANDS ARE COMPARED AGAINST WHAT WAS COMMITTED rather than believed.
+    A resumed ending handed a different disposition, a different terminal
+    envelope or different retention operands is not this ending re-entered; it
+    is a second one wearing the first one's identity, and answering it with
+    the first one's evidence is how a caller's mistake becomes a durable
+    record of somebody else's result.
+    """
+    frozen = frozen_output_of(control, attempt_id) or {}
+    if not frozen:
+        _refuse(f"{what} has no retained frozen result")
+    if frozen["disposition"] != disposition:
+        _refuse(f"{what} froze a {name_value(frozen['disposition'])} result "
+                f"and this ending names {name_value(disposition)}",
+                code="operation-collision")
+    _correlated(control, frozen, terminal, attempt_id)
+    receipt = intake_receipt_of(control, attempt_id) or {}
+    if not receipt:
+        _refuse(f"{what} has no accepted intake receipt")
+    held = list(receipt["artifacts"])
+    retained = retentions_of(control, attempt_id)
+    if not retained or any(
+            one["disposition"] != retention_disposition
+            or one["retention_policy_digest"] != retention_policy_digest
+            for one in retained):
+        _refuse(f"{what} names different retention operands",
+                code="operation-collision")
+    # THE DECISIONS TRAVEL WITH THE SUMMARY, because the committed cleanup
+    # receipt names exactly what it KEPT and the only honest thing to compare
+    # that against is the retention this same read just proved.
+    return frozen, receipt, held, {"disposition": retention_disposition}, \
+        retained
 
 
 def _collected(control, port, adapter, *, attempt_id, retention_disposition,
@@ -462,9 +642,56 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
     the seam is effectively-once by the caller's own identity, and
     `freeze_checkpoint` replays a frozen checkpoint. A process death between
     any two steps re-enters here and finishes.
+
+    W119733: AND AFTER STEP NINE IT RE-ENTERS THE OTHER WAY. Cleanup is this
+    ending's last act and not the composed stage's -- the quiescence gate
+    discharge and the routing of the result come after it -- so a manager that
+    died once the cleanup had committed used to find this function unusable:
+    there is no runtime left to quiesce and no writer left holding the line.
+    A call for an attempt whose runtime is already destroyed is therefore
+    answered by `_resumed_implementation`, out of the committed evidence every
+    step above produced, with no runtime, Authority, worker or publication act
+    performed. The answer is this one's, member for member, so a caller does
+    not have to know which path it took.
+
+    W124784: AND BETWEEN THOSE TWO RE-ENTRIES THERE WAS A THIRD, unreachable.
+    Step eight ends the assignment and step nine authorizes the cleanup, so one
+    refused cleanup leaves a checkpoint frozen, a writer revoked and a runtime
+    still standing -- and this function then required, of the writer its own
+    freeze had just taken away, that it still be holding the line. That is one
+    refusal away from every ordinary ending rather than a rare interleaving,
+    and the stage stays `answering` and asks again forever.
+    `_cleaning_implementation` answers it: everything above the freeze is read
+    from what committed, and the one outstanding act is authorized.
     """
     _seam(publication)
     _typed(adapter, port, profile, IMPLEMENTATION_PROFILE)
+    # W119733: AND WHETHER THERE IS STILL A RUNTIME TO END, ASKED BEFORE THE
+    # FIRST OPERAND IS PROVED AGAINST A LIVE ONE. `_own_writer` requires a
+    # writer that is still holding the line, and the ordinary ending's own
+    # checkpoint revokes it -- so an ending re-entered after its cleanup
+    # settled cannot get past the next line, and every step after it is about
+    # a container that does not exist.
+    if _destroyed(control, attempt_id):
+        return _resumed_implementation(
+            control, port, adapter, publication, attempt_id=attempt_id,
+            disposition=disposition, terminal=terminal, writer_id=writer_id,
+            generation=generation, profile=profile,
+            retention_disposition=retention_disposition,
+            retention_policy_digest=retention_policy_digest)
+    # W124784: AND THE CUT BETWEEN THOSE TWO, which neither branch reached.
+    # Step eight revokes this writer and step nine authorizes the cleanup, so
+    # a cleanup that refuses once leaves a fenced writer beside a runtime that
+    # is still there -- and the next ordinary entry asked `_own_writer` for a
+    # writer "still holding the line" that its OWN freeze had just taken away.
+    if _fence_settled(control, writer_id=writer_id, attempt_id=attempt_id,
+                      generation=generation):
+        return _cleaning_implementation(
+            control, port, adapter, publication, attempt_id=attempt_id,
+            disposition=disposition, terminal=terminal, writer_id=writer_id,
+            generation=generation, profile=profile,
+            retention_disposition=retention_disposition,
+            retention_policy_digest=retention_policy_digest)
     writer = _own_writer(control, writer_id=writer_id, attempt_id=attempt_id,
                          generation=generation)
     _profile_of_the_line(control, profile, writer["line_id"])
@@ -509,6 +736,414 @@ def end_implementation(control, port, adapter, publication, *, attempt_id,
     checkpoint = review_cycles.freeze_checkpoint(
         control, writer_id=writer_id, generation=generation, profile=profile,
         port=port)
+    authorize_cleanup(control, port, adapter, attempt_id=attempt_id,
+                      retention_policy_digest=retention_policy_digest)
+    return {"attempt_id": attempt_id, "disposition": disposition,
+            "result_id": frozen["result_id"],
+            "manifest_digest": frozen["manifest_digest"],
+            "receipt_digest": receipt["receipt_digest"],
+            "artifacts": sorted(one["artifact_id"] for one in held),
+            "retention": decided["disposition"],
+            "published": published,
+            "checkpoint_id": checkpoint["checkpoint_id"],
+            "checkpoint": checkpoint}
+
+
+def _typed_assignment(value, what):
+    """The four-part assignment with its member TYPES proved, not just equal.
+
+    W120425 review 2026-09-08T19-29-00Z [P2]. `boundaries.generation` excludes
+    `bool` in its own words -- "a generation of `True` would compare equal to
+    the first one ever minted" -- and that is exactly what an equality check
+    here accepted. Owning the document before comparing it is the fix; a
+    second rule about numbers in this module would not be.
+    """
+    held = boundaries.document(value, what,
+                               required=("work_ref", "participant",
+                                         "generation"))
+    ref = boundaries.document(held["work_ref"], f"{what}'s Work reference",
+                              required=("authority_uuid", "work_id"))
+    boundaries.text(ref["authority_uuid"], f"{what}'s Authority")
+    boundaries.text(ref["work_id"], f"{what}'s Work id")
+    boundaries.text(held["participant"], f"{what}'s participant")
+    boundaries.generation(held["generation"], f"{what}'s generation")
+    return held
+
+
+def _proposal_facts(manifest, what):
+    """The four facts a retained proposal FIXES about its publication.
+
+    W120425 review [P1]. The Authority's answer names a candidate, a target,
+    an input and a policy, and every one of them is the proposal manifest's to
+    say -- so they are read from it. `proposal_head` and `target_revision` are
+    object names, whose `hex` is what a publication carries; taking either from
+    the seam's own answer would be letting one unverified member certify
+    another.
+    """
+    head = boundaries.document(manifest["proposal_head"],
+                               f"{what}'s proposal head",
+                               required=("algorithm", "hex"))
+    target = boundaries.document(manifest["target_revision"],
+                                 f"{what}'s target revision",
+                                 required=("algorithm", "hex"))
+    return {"candidate_digest": boundaries.text(
+                head["hex"], f"{what}'s candidate digest"),
+            "target": boundaries.text(target["hex"], f"{what}'s target"),
+            "input_digest": boundaries.text(
+                manifest["input_manifest_digest"], f"{what}'s input digest"),
+            "policy_digest": boundaries.text(
+                manifest["policy_digest"], f"{what}'s policy digest")}
+
+
+def _published(control, publication, *, attempt_id, frozen, assignment,
+               what):
+    """The committed publication, as its own owner recorded it.
+
+    W120425, corrected at review 2026-09-08T16-18-42Z [P1]. THE FIRST VERSION
+    READ A RETAINED PROPOSAL AND CALLED IT A PUBLICATION. `retain_proposal`
+    commits that manifest BEFORE `publish_candidate` asks the Authority
+    anything, and its `publish_receipt_digest` is computed from the answer the
+    manager EXPECTS rather than one it received -- so every correlation this
+    function made was satisfied by a proposal that was never published.
+
+    W120763 DELIVERED THE OWNER RECORD. `integration.publish_candidate` now
+    commits a closed local receipt only after its publish and exact readback
+    succeed, and `integration.publication_of` reads it back locally. The seam
+    below answers THAT record; this module still cannot import the integration
+    package -- it is provider-neutral and every capability it needs is an
+    operand -- so the deployment holds the owner and this holds the contract.
+
+    WHAT IS CHECKED HERE IS THE CORRELATION, and it is the half a provider
+    cannot make: that the record is about THIS ending. Its attempt, the frozen
+    result this ending is about, that result's own manifest digest, and the
+    attempt's immutable assignment. What makes the record evidence of a
+    publication rather than of a proposal is the owner's, and asking for it
+    twice would be this module keeping a second account of somebody else's
+    journal.
+
+    ABSENCE IS REFUSED. `publication_of` answers `None` for "no local record",
+    which is honestly not the same as "not published" -- but a resume cannot
+    finish an ending whose publication it cannot show, so it says so here.
+    """
+    boundaries.capability(getattr(publication, "published_of", None),
+                          "the integration publication seam's published_of")
+    answered = publication.published_of(attempt_id=attempt_id)
+    if answered is None:
+        _refuse(f"{what} has no committed publication history; the ending "
+                f"publishes while its producer assignment is still live, and "
+                f"a resume reads the record that publication committed rather "
+                f"than performing an act the checkpoint has already fenced")
+    held = boundaries.document(answered, f"{what}'s publication history",
+                               required=PUBLISHED_MEMBERS)
+    boundaries.identity(held["attempt_id"], f"{what}'s published attempt")
+    boundaries.identity(held["proposal_id"], f"{what}'s published proposal")
+    boundaries.text(held["proposal_manifest_digest"],
+                    f"{what}'s retained proposal manifest digest")
+    if held["attempt_id"] != attempt_id:
+        _refuse(f"{what} was answered with the publication of "
+                f"{name_value(held['attempt_id'])}; one ending answers for "
+                f"one attempt", code="operation-collision")
+    if held["result_id"] != frozen["result_id"] \
+            or held["result_manifest_digest"] != frozen["manifest_digest"]:
+        _refuse(f"{what}'s publication was composed from result "
+                f"{name_value(held['result_id'])} and this ending froze "
+                f"{name_value(frozen['result_id'])}; a publication belongs to "
+                f"the result it was composed from",
+                code="operation-collision")
+    # THE TYPES BEFORE THE VALUES, on both accounts of the assignment. Review
+    # 2026-09-08T19-29-00Z [P2]: `True == 1` in Python, so at generation 1 a
+    # boolean generation compared equal on the receipt AND on the nested
+    # answer -- and the nested one is what this ending returns. W120763 closed
+    # this inside its own owner; this is the distinct receiving seam.
+    _typed_assignment(held["assignment"], f"{what}'s publication assignment")
+    if held["assignment"] != assignment:
+        _refuse(f"{what}'s publication names another assignment; one "
+                f"publication belongs to one generation of one Work",
+                code="operation-collision")
+    # THE SELECTORS ARE CORRELATED HERE TOO, and review 2026-09-08T17-37-36Z
+    # [P1] is why. An honest `publication_of` validates ITS OWN record; it says
+    # nothing about a contradictory document arriving at this seam, so a
+    # `proposal_id` changed to something else, or a `proposal_manifest_digest`
+    # naming an unrelated manifest, crossed this boundary unexamined. Both are
+    # read back from the retained proposal this manager holds.
+    manifest = load_manifest(control, held["proposal_manifest_digest"],
+                             "proposalManifest")
+    if manifest is None:
+        _refuse(f"this manager retains no proposal manifest at "
+                f"{name_value(held['proposal_manifest_digest'])} for {what}; "
+                f"a publication that survives a restart is one this manager "
+                f"can still read")
+    if manifest["proposal_id"] != held["proposal_id"]:
+        _refuse(f"{what}'s retained proposal manifest names proposal "
+                f"{name_value(manifest['proposal_id'])} and its publication "
+                f"history names {name_value(held['proposal_id'])}",
+                code="operation-collision")
+    if manifest["result_id"] != frozen["result_id"] \
+            or manifest["result_manifest_digest"] != frozen["manifest_digest"]:
+        _refuse(f"{what}'s retained proposal manifest was composed from "
+                f"result {name_value(manifest['result_id'])} and this ending "
+                f"froze {name_value(frozen['result_id'])}",
+                code="operation-collision")
+    if manifest["assignment_ref"] != assignment:
+        _refuse(f"{what}'s retained proposal manifest names another "
+                f"assignment", code="operation-collision")
+    # AND EVERY FACT THE PROPOSAL FIXES, on the receipt and on the answer.
+    # Review [P1]: correlating four members left `candidate_digest`, `target`,
+    # `input_digest` and `policy_digest` unchecked, so substituting any of them
+    # completed a recovery and RETURNED the substituted answer. The retained
+    # manifest owns all four, so they are read from it rather than taken from
+    # one unverified seam member as the expected value for another.
+    fixed_by = _proposal_facts(manifest, what)
+    for member, value in (("candidate_digest", fixed_by["candidate_digest"]),
+                          ("target", fixed_by["target"])):
+        if held[member] != value:
+            _refuse(f"{what}'s publication records {member} "
+                    f"{name_value(held[member])} and its retained proposal "
+                    f"fixes {name_value(value)}",
+                    code="operation-collision")
+    # THE ACTUAL ANSWER THE AUTHORITY GAVE, which is the member no local
+    # document can re-derive and the one this ending returns. Additional
+    # Authority metadata is preserved: this compares the facts the proposal
+    # fixes and does not hold the answer to a closed member set.
+    answered = boundaries.document(held["published"],
+                                   f"{what}'s Authority answer")
+    _typed_assignment(answered.get("assignment_ref"),
+                      f"{what}'s recorded assignment")
+    for member, value in (("proposal_id", held["proposal_id"]),
+                          ("result_id", frozen["result_id"]),
+                          ("result_digest", frozen["manifest_digest"]),
+                          ("assignment_ref", assignment),
+                          ("candidate_digest", fixed_by["candidate_digest"]),
+                          ("target", fixed_by["target"]),
+                          ("input_digest", fixed_by["input_digest"]),
+                          ("policy_digest", fixed_by["policy_digest"])):
+        if answered.get(member) != value:
+            _refuse(f"{what}'s recorded Authority answer disagrees about "
+                    f"{member}", code="operation-collision")
+    return answered
+
+
+def _fenced_writer(control, *, writer_id, attempt_id, generation, what):
+    """The writer a finished ending fenced, bound WITHOUT requiring the line.
+
+    W119733. `_own_writer`'S TWO BINDINGS AND NOT ITS THIRD. The attempt and
+    the generation are proved exactly as they are for a live ending, because
+    answering for the wrong writer is the [P0] that function exists for. What
+    cannot be required here is `active`: the ordinary ending REVOKES this
+    writer when it freezes the checkpoint, so a writer still holding the line
+    is an attempt whose ending never got that far -- and a destroyed runtime
+    with an active writer is two facts that cannot both be true.
+    """
+    writer = review_cycles.writer_of(control, writer_id)
+    if writer["runtime_attempt_id"] != attempt_id \
+            or writer["assignment_generation"] != generation:
+        _refuse(f"writer {name_value(writer_id)} belongs to attempt "
+                f"{name_value(writer['runtime_attempt_id'])} generation "
+                f"{writer['assignment_generation']}, and this ending is for "
+                f"{name_value(attempt_id)} generation {generation}; one "
+                f"ending answers for one attempt")
+    if writer["state"] == "active":
+        _refuse(f"{what} still holds writer {name_value(writer_id)} on its "
+                f"line; a resumed ending answers for one whose checkpoint "
+                f"already revoked it, and an active writer beside a destroyed "
+                f"runtime is an ending that stopped rather than one that "
+                f"finished")
+    return writer
+
+
+def _frozen_checkpoint(control, port, writer, *, generation, profile, what):
+    """The immutable checkpoint this ending already froze, replayed.
+
+    W120425, corrected at review 2026-09-08T16-18-42Z. THE FIRST VERSION
+    READ THE LINE'S CURRENT POINTER and required it to name this writer's
+    checkpoint. That guard was written to keep this call on `freeze_checkpoint`'s
+    replay path, and it bought the guarantee with the one fact a historical
+    resume may not depend on: `current_checkpoint_id` is MUTABLE and moves
+    every time a later round freezes. A correction round therefore made an
+    honest recovery of the earlier ending impossible, which is the opposite of
+    what a historical path is for.
+
+    THE GUARD WAS ALSO UNNECESSARY. `freeze_checkpoint` selects by
+    `writer_id`, so it finds this writer's own checkpoint whatever the line has
+    since done; and for a runtime this manager has already destroyed it can
+    only take one of two paths. Either the checkpoint is `frozen` and the
+    committed record replays -- no profile call, no fence, no Authority -- or
+    it is not, and `_quiescent_completed` refuses `refused/precondition`
+    because a destroyed runtime is not a positively quiescent one. That
+    refusal happens BEFORE the participant comparison and long before
+    `finalize_quiescent_assignment`, so the zero-Authority contract holds by
+    the owner's own ordering rather than by a guard this module maintains.
+
+    THE REPLAY IS STILL WHAT ANSWERS, for the reason it always was: composing
+    the return value out of rows read here would be a second account of the
+    document the freeze committed, and the caller compares the two endings'
+    answers.
+    """
+    return review_cycles.freeze_checkpoint(
+        control, writer_id=writer["writer_id"], generation=generation,
+        profile=profile, port=port)
+
+
+def _resumed_implementation(control, port, adapter, publication, *,
+                            attempt_id, disposition, terminal, writer_id,
+                            generation, profile, retention_disposition,
+                            retention_policy_digest):
+    """W119733: finish an implementation ending whose runtime is already gone.
+
+    WHY THIS EXISTS. `end_implementation` promises that "a process death
+    between any two steps re-enters here and finishes", and between step nine
+    and whatever a deployment does afterwards that promise was false. Cleanup
+    is the ending's LAST act here and not the composition's -- the quiescence
+    gate discharge and the routing of the result follow it -- so a manager that
+    died after the cleanup committed came back to a stage whose ending it could
+    no longer re-enter at all: `_quiesced` requires a positively quiescent
+    runtime and there is no runtime, and `_own_writer` requires a writer the
+    checkpoint has already revoked.
+
+    WHAT IT WILL NOT DO, and the list is the whole design. It grants no
+    writer, mounts nothing, starts nothing, stops nothing, seals nothing,
+    collects nothing, destroys nothing, asks no engine and asks no worker: the
+    adapter is not touched. It fences no assignment and discharges no gate:
+    the Authority is not asked. It publishes nothing: the committed proposal
+    evidence is READ, because `Authority.publish` requires the live producer
+    assignment this ending's own checkpoint already ended. And it freezes no
+    new checkpoint: the one this ending committed is proved and then replayed.
+
+    WHAT IS LEFT IS EVIDENCE, and every piece of it belongs to an accepted
+    owner: the positively settled cleanup axis, the frozen result and the
+    worker envelope it correlates with, the intake receipt, the retention
+    decisions under the exact configured policy, the immutable checkpoint, and
+    the retained proposal. A missing or contradictory piece refuses with the
+    evidence named, because a resumed ending that answered without one would
+    be reporting a lifecycle nobody performed.
+
+    THE ANSWER IS THE ORDINARY ENDING'S, MEMBER FOR MEMBER. A caller re-enters
+    this without knowing which path it took, so the two must be comparable --
+    and a consumer settling its recorded obligation records the same
+    correlated references either way.
+    """
+    what = (f"the resumed implementation ending of attempt "
+            f"{name_value(attempt_id)}")
+    writer = _fenced_writer(control, writer_id=writer_id,
+                            attempt_id=attempt_id, generation=generation,
+                            what=what)
+    _profile_of_the_line(control, profile, writer["line_id"])
+    fixed = _acting_for(control, port, attempt_id)
+    frozen, receipt, held, decided, retained = _retained(
+        control, attempt_id, disposition=disposition, terminal=terminal,
+        retention_disposition=retention_disposition,
+        retention_policy_digest=retention_policy_digest, what=what)
+    del retained
+    _let_go(control, attempt_id=attempt_id,
+            retention_policy_digest=retention_policy_digest, what=what)
+    checkpoint = _frozen_checkpoint(control, port, writer,
+                                    generation=generation, profile=profile,
+                                    what=what)
+    # W120425 review [P2]: THE ORDINARY ENDING'S OWN ANSWER, not the record
+    # that carries it. The committed publication receipt already holds exactly
+    # what `publish_candidate` returned, so returning the whole receipt made
+    # this the one member the two paths did not share -- and the earlier claim
+    # that they could not is superseded by the provider retaining the answer.
+    published = _published(control, publication, attempt_id=attempt_id,
+                           frozen=frozen, assignment=_assignment_ref(fixed),
+                           what=what)
+    return {"attempt_id": attempt_id, "disposition": disposition,
+            "result_id": frozen["result_id"],
+            "manifest_digest": frozen["manifest_digest"],
+            "receipt_digest": receipt["receipt_digest"],
+            "artifacts": sorted(one["artifact_id"] for one in held),
+            "retention": decided["disposition"],
+            "published": published,
+            "checkpoint_id": checkpoint["checkpoint_id"],
+            "checkpoint": checkpoint}
+
+
+def _fence_settled(control, *, writer_id, attempt_id, generation):
+    """Whether this ending's OWN freeze has already fenced its writer.
+
+    W124784. THE THIRD STATE `end_implementation` CAN BE RE-ENTERED IN, and
+    the one it could not answer. `_destroyed` says the whole ending finished
+    and `_own_writer` says none of it has; between them sits the ending that
+    froze its checkpoint and did not get its cleanup committed, and that is not
+    a rare interleaving -- it is one refused `authorize_cleanup` away from
+    every ordinary ending, and the projection keeps asking for the same
+    `conclude` until the cleanup axis is terminal.
+
+    ASKED THROUGH THE ATTEMPT AND ITS GENERATION, W124331's accepted reader,
+    so the binding `_own_writer` exists for is made BEFORE any state decides a
+    branch: a caller naming a foreign writer selects nothing here and falls
+    through to that helper's own refusal, which is the one written for it.
+    Absence is `False` for the same reason -- an attempt this manager granted
+    no writer for has no fence of its own to be behind.
+    """
+    writer = review_cycles.writer_for_attempt(control, attempt_id=attempt_id,
+                                              generation=generation)
+    return writer is not None and writer["writer_id"] == writer_id \
+        and writer["state"] != "active"
+
+
+def _cleaning_implementation(control, port, adapter, publication, *,
+                             attempt_id, disposition, terminal, writer_id,
+                             generation, profile, retention_disposition,
+                             retention_policy_digest):
+    """W124784: finish the ONE act an ending whose checkpoint froze still owes.
+
+    WHY THIS IS NOT `_resumed_implementation`. That one answers behind a
+    COMMITTED cleanup and performs nothing; this one is reached because the
+    cleanup has not committed, so the act it exists to reach is exactly the
+    act that branch refuses to be missing. Everything before it is read rather
+    than repeated, and the cleanup is then authorized through its own owner.
+
+    WHY IT IS NOT THE ORDINARY PATH EITHER. Every step above the freeze is
+    about a live producer assignment this ending has already ended. There is no
+    writer holding the line to fence, `Authority.publish` will not take an
+    ended assignment, and the checkpoint is immutable. Re-running them would
+    not replay; it would refuse, one irreversible step at a time.
+
+    SO THE ORDER IS: PROVE, THEN FINISH.
+
+      1. the writer this ending fenced, bound to this attempt and generation;
+      2. the line's profile, from that writer rather than from the caller;
+      3. the assignment this session acts for;
+      4. the committed frozen result, its correlation with the worker's
+         envelope, the intake receipt and the retention decisions;
+      5. the immutable checkpoint, replayed;
+      6. the committed publication, read; and only then
+      7. `authorize_cleanup`, which is the outstanding act.
+
+    SEVEN IS LAST BECAUSE IT IS THE IRREVERSIBLE ONE. A resume that destroyed
+    the runtime first and then found its publication missing would have
+    answered a refusal having already thrown away the container the evidence
+    is about. Nothing above it grants a writer, publishes, freezes a second
+    checkpoint or invents an active writer, and `authorize_cleanup` owns the
+    positive absence it destroys on -- this module neither observes nor
+    asserts it.
+
+    THE ANSWER IS THE ORDINARY ENDING'S, MEMBER FOR MEMBER, for the reason
+    both other paths share: a caller re-enters without knowing which it took.
+    """
+    what = (f"the fenced implementation ending of attempt "
+            f"{name_value(attempt_id)}")
+    writer = _fenced_writer(control, writer_id=writer_id,
+                            attempt_id=attempt_id, generation=generation,
+                            what=what)
+    _profile_of_the_line(control, profile, writer["line_id"])
+    fixed = _acting_for(control, port, attempt_id)
+    frozen, receipt, held, decided, retained = _retained(
+        control, attempt_id, disposition=disposition, terminal=terminal,
+        retention_disposition=retention_disposition,
+        retention_policy_digest=retention_policy_digest, what=what)
+    del retained
+    checkpoint = _frozen_checkpoint(control, port, writer,
+                                    generation=generation, profile=profile,
+                                    what=what)
+    published = _published(control, publication, attempt_id=attempt_id,
+                           frozen=frozen, assignment=_assignment_ref(fixed),
+                           what=what)
+    # THE ACT THIS ENTRY EXISTS TO REACH. It replays its own journalled
+    # operation, so an ending re-entered after a cleanup that committed and
+    # whose axis has not yet been read reaches the same answer rather than a
+    # second destroy.
     authorize_cleanup(control, port, adapter, attempt_id=attempt_id,
                       retention_policy_digest=retention_policy_digest)
     return {"attempt_id": attempt_id, "disposition": disposition,
@@ -672,7 +1307,7 @@ def _ended_review(control, port, adapter, *, attachment_id, disposition,
     attempt_id = attachment["runtime_attempt_id"]
     _profile_of_the_line(control, profile, attachment["line_id"])
     _acting_for(control, port, attempt_id)
-    historical = attempts.attempt_runtime_of(control, attempt_id)["execution_runtime"] == "destroyed"
+    historical = _destroyed(control, attempt_id)
     if historical:
         frozen, receipt, held = {}, {}, []
         decided = {"disposition": retention_disposition}
@@ -698,22 +1333,22 @@ def _ended_review(control, port, adapter, *, attachment_id, disposition,
             # The owner proves the ended verdict and positive cleanup below.
             # Read custody and compare replay operands before asking it; none
             # of these readers can restart, refence or destroy the runtime.
+            #
+            # W119733: THE READS ARE `_retained`'S NOW, AND THE ORDER AND THE
+            # REFUSALS ARE THE ONES THIS PATH ALREADY HAD. The implementation
+            # resume needs the identical evidence contract, and a second copy
+            # of it would be a second place for a custody comparison to drift
+            # from this one. The `completed` disposition stays HERE because it
+            # is the review's own rule -- a review that did not complete
+            # decided nothing -- rather than something every ending owes.
             if disposition != "completed":
                 _refuse("historical review replay requires its completed disposition")
-            frozen = frozen_output_of(control, attempt_id) or {}
-            if not frozen:
-                _refuse("historical review replay has no retained frozen result")
-            _correlated(control, frozen, terminal, attempt_id)
-            receipt = intake_receipt_of(control, attempt_id) or {}
-            if not receipt:
-                _refuse("historical review replay has no accepted intake receipt")
-            held = list(receipt["artifacts"])
-            retained = retentions_of(control, attempt_id)
-            if not retained or any(one["disposition"] != retention_disposition
-                                   or one["retention_policy_digest"] != retention_policy_digest
-                                   for one in retained):
-                _refuse("historical review replay names different retention operands",
-                        code="operation-collision")
+            frozen, receipt, held, _retention, _decisions = _retained(
+                control, attempt_id, disposition=disposition,
+                terminal=terminal,
+                retention_disposition=retention_disposition,
+                retention_policy_digest=retention_policy_digest,
+                what="historical review replay")
         verdict = resolve(frozen)
         recorded = review_cycles.record_verdict(
             control, attachment_id=attachment_id, disposition=verdict,

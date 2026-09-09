@@ -1,1200 +1,521 @@
 # Using Baton effectively
 
-This is the practical operating guide for working inside a Baton
-**protocol-11** coordination authority. It assumes you can already run the
-executable; [BATON-SETUP.md](BATON-SETUP.md) covers creating a home and
-[BATON-WORK.md](BATON-WORK.md) is the exhaustive operator contract. When this
-guide and those documents disagree, they are the authority — this one explains
-how a participant works *safely*, and why each step matters.
+This book explores ways of working with Baton through representative situations.
+The examples illustrate strategies that teams can adapt; they do not prescribe
+an organization, a deployment, or one mandatory sequence for every project.
 
-Protocol 10's directed messages, notices, `send`/`reply`, and message claims
-are retired. They are not a fallback, and nothing here degrades to them.
+Baton provides the coordination rules for ownership, claims, handoffs,
+dependencies and recorded decisions. A project chooses its roles, permissions,
+acceptance criteria and tools. An example that separates implementation,
+review and integration shows one possible workflow, not a protocol requirement.
 
-Every command and every quoted result below was executed against the release
-candidate that ships this guide, in a throwaway coordination home. Where an
-error message appears, it is the real refusal text.
-
-## The one-paragraph model
-
-**Work** is the unit of accountability. It has one owning team, one **Route**
-endpoint whose handlers owe the next decision, a **phase** that says what stage
-it is in, and a **Handler** — the participant executing it right now, null
-while nobody holds the claim. Route and Handler are different questions and
-Baton keeps them separate: who MAY act, and who IS acting.
-
-Phase is a closed SCHEDULER axis: `queued` (runnable, unclaimed), `active`
-(claimed), `block` (one named gate is holding it), `parked` (deliberately
-deferred), and nothing at all once the Work is closed. It never says what KIND of work this is —
-that is the route's role. Discussion
-happens in **Threads** and **Messages**; what actually happened to the Work is
-its append-only **Events** journal. Nothing is inferred from your working
-directory, your shell history, or a wake-up prompt.
-
-## Setup you only do once
-
-    mkdir -p ~/coord
-    baton init directory=~/coord          # scaffolds baton.json; creates no database
-    $EDITOR ~/coord/baton.json            # teams, roles, routes, kinds, roots
-    baton --participant app.ops activate directory=~/coord
-
-`init` refuses a directory that does not exist — it writes only into one you
-chose deliberately. `activate` is the single authoritative validation: it
-creates the SQLite authority only if the document passes, and a refusal leaves
-nothing behind, so edit and retry freely. Refusals are specific:
-
-    route handle 'research' is 8 display cells; the limit is 6.
-    Shorten the canonical handle and put the long form in the display name.
-
-Thereafter every invocation names the config and your identity explicitly:
-
-    BATON="baton --config ~/coord/baton.json --participant app.mina"
-
-There is no ambient configuration, no actor, and no seed. The participant
-address **is** the identity, and filesystem access to the instance is the trust
-boundary. This is cooperative coordination between trusted agents, not
-application-level authentication.
-
-### How an endpoint resolves
-
-Configuration composes in one direction, and it is worth reading once:
-
-    kind      ->  route   ->  role + handlers
-    app.bug   ->  impl    ->  impl,  [mina, ops]
-    app.rview ->  rview   ->  rview, [juno]
-
-An **endpoint** is `team.kind`. Each kind names a **route**; each route
-carries a **role** and a handler list. The chain ends there: the role says
-what KIND of work this endpoint does, and it says nothing about phase.
-
-Phase is a separate axis entirely, and it answers only two questions — can
-this run, and is it running:
-
-    queued   runnable, nobody has claimed it
-    active   a handler holds it, so somebody is executing it
-    block    one displayed gate is holding it — another Work, or a
-             directed Message obligation
-    parked   deliberately deferred, with a reason
-    (terminal Work has no phase at all)
-
-A handoff lands `queued` when the Work is runnable and `block` when a gate
-holds it, whatever the destination role — which is why you never supply a
-destination phase by hand.
-
-The Work's `route` is that endpoint — eligibility. Its `handler` is the exact
-participant who claimed it, or null. Authorization always resolves from the
-route, never from a handler's name, so a routed handoff nobody has picked up
-projects `handler: null` and phase `queued` rather than pretending somebody is
-on it.
-
-## Basic command quick reference
-
-These are independent lookup forms, not one workflow to run in order. Replace
-the sample Work and Thread ids with the ones from your authority. `$BATON`
-keeps the explicit config and participant identity established above.
-
-    $BATON home
-    $BATON detail work=W2
-    $BATON create team=app kind=bug title="escape handling fails" \
-        origin=external-report classification=suspected-defect \
-        body="reproduces on every checkout"
-    $BATON claim work=W2
-    $BATON say thread=T2 body="the tokenizer drops the destination"
-    $BATON say thread=T2 body="please confirm the expected escape" \
-        request=app.rview on=W2
-    $BATON pass work=W2 to=app.rview \
-        comment="fix and regression are ready for review"
-    $BATON close work=W2 outcome=satisfying \
-        rationale="reviewed fix and regression both pass"
-    $BATON release work=W2 expect=app.mina episode=41 \
-        reason="the original runner cannot continue"
-    $BATON dispatch
-    $BATON drain reason="host kernel upgrade"
-    $BATON resume reason="upgrade complete"
-    $BATON work-graph
-    $BATON work-graph format=dot > work.dot
-    $BATON actionable-work
-
-**Protocol 11 uses `say`, not retired `send`.** A plain `say` discusses the
-Work; adding `request=` and `on=` creates one directed obligation. `pass` is a
-threadless Work handoff, not a message.
-
-The three obligation dispositions are `respond`, `dispose`, and `accept`; see
-[Cross-team work: providers and consumers](#cross-team-work-providers-and-consumers)
-for the detailed choice and forms. The CLI help is the authoritative operand
-grammar:
-
-    baton --help
-    baton --help VERB
+For installation and configuration, use [Baton setup](BATON-SETUP.md).
+For exact commands, operands and protocol behavior, use the
+[operator reference](BATON-WORK.md). The situations here focus on why a team
+might choose an action and how that choice affects the work around it.
 
 ## The straight-through path
 
-Most Work never needs anything cleverer than this.
+Consider a team fixing an export bug. Someone reports that a particular input
+loses information, an implementer reproduces it, and a reviewer checks the
+correction.
 
-    $BATON create team=app kind=bug \
-        title="nested escapes drop the destination" \
-        origin=external-report classification=suspected-defect \
-        body="reproduces on every consumer checkout"
-    # -> {"work_id": "…-W2", "thread": "…-T2", "seq": 2}
+One Work can carry that whole bounded outcome. Its description explains the
+observed problem and the result that would count as a fix. The implementer
+claims it before making the change. When the candidate and evidence are ready,
+the implementer passes it to the endpoint configured for review. The reviewer
+then claims it and either requests a correction or reaches an acceptance
+decision.
 
-Creation mints the Work and its born Thread in one act. `classification=` is
-required and `unknown` is refused: say what you actually think it is, and
-`classify` later when you know more.
+The useful distinction is between eligibility and execution. The Route names
+the endpoint whose configured handlers may act. The claim records which
+participant is actually doing so. A pass releases that claim and hands on the
+responsibility; it does not pretend the recipient has already started.
 
-    $BATON claim work=W2
-    # -> {"claimant": "app.mina", "seq": 3}
+This makes interruptions easier to understand. A candidate waiting for review
+appears as available work, rather than as work somebody supposedly holds.
+If the reviewer finds a small defect, the same Work can return for correction
+without inventing a new lifecycle for every conversation.
 
-**Claim before you execute**, because only a successful claim populates the
-handler. Not before you read, discuss, or plan — before
-you *do* the thing the route owns — and claiming is what makes the Work
-`active`, because active means somebody is doing it. The claim is atomic and rechecked inside the
-write transaction, so an earlier readiness observation is advisory and a
-competing claim fails closed:
+Closing it records an outcome and a reason that a later reader can understand.
+A subsequent discovery that contradicts that conclusion becomes linked
+follow-up Work, preserving the original decision and its evidence.
 
-    W2 is already claimed by app.mina; conflicting claim attempts fail closed
-    (an exact retry replays through its operation id)
+## A handoff carries context as well as ownership
 
-Note what claiming *does*: the phase becomes `active` in the same
-transaction. Handler and phase are one fact seen twice — `active` means
-exactly that a handler holds it — so there is no window where the board shows
-work in progress that nobody is doing.
+In the export example, a handoff saying only "ready" makes the reviewer search
+for the candidate, the verification and the remaining uncertainty. A long
+retelling of every investigation creates the opposite problem: the decision
+gets buried.
 
-Classification is a separate axis and moves freely while you hold it:
+A useful handoff might say:
 
-    $BATON classify work=W2 as=confirmed-defect
+> The export now preserves the escaped value. The focused regression covers
+> the reported failure and the adjacent empty-input case. The candidate and
+> run evidence are linked in the record. Review the parser change; streaming
+> performance is outside this correction.
 
-The route already says whether this is research, implementation or review,
-so there is no stage to move. Then hand it on:
+The pass carries the transfer of responsibility. The discussion explains what
+the recipient needs to decide. The detailed evidence stays at one durable
+location, so another handoff does not require copying the same account again.
 
-    $BATON pass work=W2 to=app.rview \
-        comment="reproduced; escape handling confirmed at the tokenizer"
-    # -> {"to": "app.rview", "destination_phase": "queued"}
-
-`pass` is one atomic **threadless** event. It moves the route, clears the
-handler, records the destination phase, and stores `comment` as durable handoff
-evidence. It creates no message and moves no conversational count. You cannot
-supply `phase=` — it is refused as unknown — so a handoff can never advertise a
-stage nobody is in.
-
-**Only the current claimant passes.** A pass hands on what you hold and
-releases the claim in the same act, so there is nothing to hand on until you
-hold it. Route eligibility says who MAY claim; it is not a licence to pass Work
-you are not doing:
-
-    W2 is unclaimed; a pass is the current claimant's handoff and releases the
-    claim it holds — claim it first if you are executing it, or reroute it on
-    the owning team's authority to move it unclaimed
-
-This is not ceremony. An eligible handler who could pass without claiming could
-review a Work, run its gate and hand it on having never been its Handler —
-canonical state saying nobody worked on it while the runtime log and the
-filesystem said otherwise. That happened, and it is why the rule exists.
-
-Blocked and parked Work is unclaimed AND unclaimable, so it cannot be passed at
-all; the refusal names the phase and points at `reroute`. Moving Work nobody
-holds is what [`reroute`](#reroute-moves-work-nobody-holds) is for.
-
-Review may send the same Work straight back for another round. That is
-ordinary, not a failure state — and it lands `queued`, because the recipient
-has not started yet:
-
-    $BATON pass work=W2 to=app.bug set-next=app.rview \
-        comment="fix is right but the regression only covers the quoted form"
-    # -> destination_phase: active
-
-`set-next` records the planned return destination. **Next neither transfers nor
-claims anything** — it is a plan, and the route is still the only thing that
-owes a decision.
-
-### Reroute moves Work nobody holds
-
-`pass` and `reroute` are not two spellings of the same act. A pass is the
-claimant's handoff; a reroute is the owning team correcting where UNCLAIMED
-Work is offered, and it takes the owning team's authority rather than the
-resolved route handler's:
-
-    $BATON reroute work=W2 to=app.impl route=impl2 \
-        reason="the default route's runner is not taking it"
-    # -> {"to": "app.impl", "route": "impl2", "phase": "queued"}
-
-Reach for it when nobody owes the Work yet: a queue sitting at the wrong
-endpoint, an alternate whose agent is offline, or Work whose gate or park makes
-it unclaimable. Requiring a pass there would mean waking the very runner you
-are routing around — which strands the Work exactly when moving it matters.
-
-**It corrects WHERE, never whether the Work may run.** The scheduler phase
-comes out the way it went in: a gated Work stays `block` with its wake
-condition, and a parked Work stays parked with the reason somebody recorded
-for deferring it. Route and phase answer separate questions, so correcting one
-does not get to decide the other, and a deferred Work resumes only through the
-explicit `phase to=queued` — at its corrected route:
-
-    $BATON reroute work=W9 to=app.rview reason="review owns this queue now"
-    # -> {"to": "app.rview", "phase": "parked"}   still deferred, now theirs
-
-It refuses claimed Work, and the race is decided under the write lock: a claim
-that commits first makes the reroute refuse, and a reroute that commits first
-is simply the state the claim then re-reads. Neither leaves a half-move behind.
-Do not fake a claim to redirect a queue; that is what this operation is.
-
-### Say it in the discussion before you hand it over
-
-The pass comment is durable, authoritative, and **not a message**. It lives in
-the Work's Events journal, where the transfer itself is audited. That is the
-right home for it — a workflow transition must not inflate a discussion count
-or make somebody choose a thread — and it has one consequence worth planning
-for: an operator reading Messages will not see it.
-
-So when continuity through the discussion matters, post the recap first and
-then hand over:
-
-    $BATON say thread=T2 body="tokenizer escape handling is fixed and both
-        forms are regression-covered. Left alone deliberately: the reader's
-        narrow-width wrapping, which is W48's and not this Work's. Next: a
-        review round on the two new cases."
-    $BATON pass work=W2 to=app.rview comment="fix and regressions ready for review"
-
-Two records, each doing its own job: the message carries the reasoning to
-whoever is reading the conversation, and the pass carries the authoritative
-transfer.
-
-**Handing Work to a human reviewer or approver, the message is not optional.**
-Before the pass, leave one concise discussion Message that states
-
-- the result or current status,
-- the decision or action now expected from the human, and
-- the recommended next step.
-
-A human must not have to reconstruct that instruction from a series of Work
-Events. Synthesising the journal into a clear handoff is the agent's job, and
-it is the whole difference between "here is a Work id" and "here is what I
-need from you". The `pass` that follows is still the authoritative transfer;
-Events still hold the complete audit.
-
-Baton requires the pass comment to be non-empty and cannot judge whether prose
-is a sufficient recap. This is an operating convention, kept because it works,
-not a rule the authority enforces.
-
-    $BATON close work=W2 outcome=satisfying \
-        rationale="escape handling fixed and both forms regression-covered"
-
-Every close names exactly one outcome — `satisfying`, `non-satisfying`,
-`rejected`, or `cancelled` — and a non-empty rationale. **Closed Work never
-reopens:**
-
-    W2 is closed; a closed work refuses phase changes
-
-If later evidence contradicts a closed decision, that is new linked follow-up
-Work, not a reopening.
+This separation is especially useful when a human receives the work. The
+message can identify the decision, explain the recommendation and expose its
+limits. The human does not have to reconstruct the request from operational
+events.
 
 ## Saying why something is not moving
 
-Phase must tell the truth. Three states mean genuinely different things, and
-conflating them is the most common way a board becomes fiction.
+Suppose an implementer is waiting for a product decision about malformed input.
+There is useful work in the record, but no honest next implementation step.
+A directed request can express that dependency and hold the Work on the answer.
 
-- **`block`** — held by ONE displayed gate, and the row names it: `W…` for a
-  blocking Work, `M…` for the source Message of a directed obligation. The
-  `gate` field carries the kind, the locator, and the instant that gate became
-  the one holding the Work — which is what the Held timer measures. Requires
-  `wait=` when you set it by hand.
-- **`parked`** — an explicit, un-gated deferral. Requires `reason=`. It stays a
-  visible loose end; it is not a quiet grave.
-- **A dependency edge MOVES the phase.** A gate arriving puts the Work in
-  `block` and releases its Handler in the same transaction — an unmet gate
-  invalidates execution, so the claim cannot survive it. The row then reports
-  `ready: false` and refuses claims:
+Compare that with an improvement deliberately deferred until a later release.
+It has no unanswered question whose resolution should wake it. Parking it with
+a reason describes the situation more accurately than creating an artificial
+blocker.
 
-      W23 has 1 unmet dependency gate(s); blocked work cannot be
-      claimed — readiness is decided here, in the write transaction
+A third item may simply be ready and unclaimed. That is a capacity or pickup
+question, not a missing product decision.
 
-`block` is not a flag beside some other stage; it IS the phase such Work is
-in. Blocked and parked Work cannot be claimed at all, and cannot be passed
-either — a pass is the claimant's handoff and there is no claimant:
+These distinctions make the board useful. A waiting gate names an input that
+can arrive; a parked item names a scheduling choice; queued work exposes an
+opportunity to act; and a live claim identifies an executor. Discussion alone
+does not substitute for those facts.
 
-    W13 is blocked; blocked and parked work cannot be claimed
+When work is directed to the wrong endpoint, correcting the Route is a separate
+question from whether it is ready. Redirecting a parked item need not resume
+it, and redirecting a blocked item does not satisfy its missing input.
 
 ## Discussion, attention, and directed requests
 
-Threads carry prose. Events carry acts. Keep them separate and both stay
-readable.
+An export change may interest a library maintainer without requiring anything
+from them. An attention-only message shares that context while leaving both
+participants' work free to proceed.
 
-**`include=` is attention only.** It fans a message out to endpoints who owe
-nothing:
+If the implementer needs the maintainer to confirm the library's behavior, a
+directed request makes the obligation explicit. A blocking request is useful
+when that answer is necessary before continuing. An asynchronous request is
+useful when independent work can still proceed honestly.
 
-    $BATON say thread=T13 body="heads up, this will touch the shared lexer" \
-        include=lib.bug
-    # -> {"kind": "post_message", "included": ["lib.bug"]}
+The distinction prevents two common delays. Treating every mention as an
+obligation overloads recipients with unnecessary decisions. Treating a required
+answer as a casual mention leaves the sender waiting for something nobody
+formally owes.
 
-The recipient's obligation list stays empty and no phase moves. Include takes
-*endpoint* selectors, not participant addresses; a selector matching nothing is
-refused at tag time rather than discovered later.
-
-**`request=` creates exactly one obligation**, and by default it blocks:
-
-    $BATON say thread=T13 body="lib: can the lexer expose spans?" \
-        request=lib.bug on=W13
-    # -> {"kind": "request", "work": "…-W13", "wait": true}
-
-In one transaction that publishes the message, creates the obligation owed by
-`lib.bug`, moves your Work to `block` on that exact obligation, displayed as `M<seq>`, and
-releases your claim.
-
-Two facts move differently here, and the difference is the point. **The route
-does not move** — your Work still belongs to the same eligible endpoint, and
-the answer is owed *to* that endpoint rather than instead of it. **The handler
-clears**, because entering the wait releases your claim: nobody is executing
-Work that is blocked on somebody else's answer, and the phase says `block`
-rather than pretending otherwise.
-
-Because a blocking request suspends the Work *you* are executing, you must
-actually be executing it:
-
-    a blocking request suspends W16, which is unclaimed;
-    claim it first or send the request with wait=false
-
-    W16 is claimed by app.mina; a blocking request suspends the work its own
-    executor is doing, never somebody else's
-
-When the answer lands, the Work returns to the phase it left:
-
-    $BATON say ... # as lib.rai:
-    baton --participant lib.rai respond obligation=17 \
-        body="yes — spans are already tracked internally; exposing them is additive"
-    # W13: phase block -> queued, gate -> null
-
-Use `wait=false` when you genuinely can proceed meanwhile. It is a deliberate
-statement, not a convenience:
-
-    $BATON say thread=T13 body="lib: confirm the span type when you can" \
-        request=lib.bug on=W13 wait=false
-    # -> {"wait": false}   — phase untouched, claim retained
-
-The result always reports which form committed, so you never have to read
-Events back to find out. A plain message with no request omits the key
-entirely rather than inventing a choice:
-
-    {"seq": 21, "kind": "post_message", "included": []}   # no "wait" key
-
-An obligation is answered with `respond`, `dispose` (no answer is owed, with a
-reason), or `accept`. Somebody else contributing to the thread does not
-silently discharge it.
+The recipient may answer the question, explain why no answer is owed, or accept
+responsibility for a deliverable. These outcomes have different effects and
+deserve different records. Another participant contributing to the discussion
+does not silently settle the original obligation.
 
 ## Cross-team work: providers and consumers
 
-When a request turns out to be somebody else's deliverable, the receiving
-endpoint **accepts** it — creating the provider Work and the dependency edge in
-one transaction:
+Imagine that the export feature needs a streaming capability from a storage
+library. The library team agrees that this is its responsibility.
 
-    baton --participant lib.rai accept obligation=25 \
-        body="agreed — this is ours; opening the chunked writer" \
-        create=true kind=feat classification=design-choice \
-        title="chunked writer for large payloads"
-    # -> {"created": true, "provider": "…-W26", "work": "…-W23",
-    #     "edge": {"work": "…-W23", "blocker": "…-W26", "via_obligation": 25}}
+The library delivery becomes provider Work. The export feature is its consumer.
+A recorded dependency explains why the consumer needs the provider's result,
+while each team retains responsibility for its own implementation and acceptance.
 
-Read that result carefully: `work` is the **consumer**, `provider` is the newly
-created **provider**. Use `into=` instead of `create=true` to gate on provider
-Work that already exists — one provider may gate many consumers.
+This arrangement is useful when the library capability serves several features.
+Its review and evidence can be shared without making every consumer own a copy
+of the same repair.
 
-The consumer's obligation wait is now resolved, but it is not ready, because
-the dependency replaced it. The two lanes are independent from here: the
-provider team claims, implements, reviews, and closes its own Work on its own
-schedule. When it closes, the gate ends — and that is *all* it does:
+Acceptance of the provider establishes that the library capability is available.
+The export team still needs to connect it, check the assumptions at that
+boundary and demonstrate its own result. Provider closure does not prove that
+the consumer works or close it automatically.
 
-    # provider closed satisfying -> consumer: ready true, blocked_by [(W26, closed)]
-
-**Closing a provider never decides or closes a consumer.** The consumer team
-claims its own Work and reaches its own conclusion. If a gate turns out to be
-wrong, `unblock work= on= rationale=` corrects the live edge without closing or
-rewriting either Work, and Events preserve both acts.
+If a dependency was mistaken, correcting that relationship is different from
+declaring either deliverable complete. The explanation preserves why the
+schedule changed without rewriting the technical evidence.
 
 ## Containment versus dependency
 
-Parent/child containment organizes a deliverable; it is not an execution
-dependency. A parent may proceed while children are open, but it cannot close
-while any remain:
+A release may contain an export feature, a documentation update and a migration
+guide. Containment gives the team one place to see the release's required
+deliverables. It does not by itself mean those items must execute in sequence.
 
-    W71 has open children (W75); root closure while required descendants
-    remain open is refused
+The export implementation might depend on the storage capability. The migration
+guide might depend on the final data format. The documentation outline may be
+ready immediately. Those are different input relationships, expressed through
+explicit dependencies.
 
-"May proceed" is the whole of it, and it is worth being exact about: an open
-child does not touch its parent's readiness, phase, Handler or displayed gate.
-Attaching a child to Work somebody is executing leaves them executing it, and
-closing the last child neither wakes the parent nor mints it a new assignment
-episode, because the parent was runnable throughout. A parent that cannot run
-is blocked by a dependency or an obligation — never by its own decomposition.
-Containment shows up in the tree, in the roll-ups, in the closure refusal
-above, and in the union-graph cycle check; it never shows up in `Wait`.
+A parent can therefore be useful while its children remain open: it can carry
+planning, integration questions or the final acceptance discussion. Open
+children do not automatically block its execution, although required children
+prevent the parent from closing.
 
-Dependency edges are separate, explicit, many-to-many, and independently
-reviewable. Each one carries a durable rationale:
+This lets the hierarchy answer "what belongs together?" while dependencies
+answer "what input is needed first?" Trying to make either relationship answer
+both questions tends to hide useful parallel work.
 
-    $BATON block work=W23 on=W26 rationale="export cannot stream without the chunked writer"
+## Preparation can proceed before implementation
 
-Use a child when the requirement is *separately accountable*. Use a dependency
-when this Work simply cannot finish first.
+Suppose the storage implementation is still underway, but the export feature's
+public contract and acceptance criteria are already agreed.
 
-### Campaigns contain bounded Jobs
+A reviewer can examine that plan before the export code exists. The preparation
+has a reviewable outcome of its own: the contract is coherent, the fixtures
+represent the required cases, and the proposed verification addresses the right
+questions.
 
-A campaign or milestone is a roll-up, not one implementation Job with an
-ever-growing discussion. If the plan already names independently reviewable
-cuts, represent them as contained Work before implementation starts:
+Giving that preparation separate Work allows its dependencies to differ from
+the implementation's. It can finish while the implementation waits for the
+storage delivery. Later review of the produced candidate still waits for the
+candidate itself.
 
-    W300  Build the worker runtime
-    ├─ W301  Persist attempts and assignment generations
-    ├─ W302  Start, cancel and reconcile runtimes
-    ├─ W303  Validate and freeze worker output
-    └─ W304  Retain or discard completed attempts
+This works only when the preparation's inputs are actually ready. If the
+storage result could change the contract being assessed, the preparation also
+depends on that result.
 
-Each child has one bounded acceptance result, its own claim, discussion,
-evidence, review cycle and terminal outcome. The parent exposes real progress
-through its open/closed child roll-up. Add dependency edges between children
-only where execution order is genuine; containment by itself preserves the
-opportunity to research, review or implement independent Jobs concurrently.
+The opportunity comes from separating outcomes and their inputs. Calling a
+blocked implementation "research" or "review" does not bypass its gate. Role
+labels alone do not create special readiness rules.
 
-Calling two deliverables “Cut A” and “Cut B” inside one Work does not satisfy
-this rule, even if each cut receives a separate review round. They still share
-one Work identity, one visible state and one progress row. If both can be
-claimed, reviewed or closed independently, create two Jobs before the first is
-routed for implementation.
+## Splitting a Job that stopped converging
 
-### The reviewer must split stalled Jobs or justify keeping them whole
+A feature starts as a small correction, but successive handbacks expose a new
+library capability, a separate data migration and an unstarted integration
+proof. The original Work has become a queue disguised as one assignment.
 
-The reviewer assesses Job size at plan review and each material handback;
-do not wait for the operator to ask whether a large Job should be split.
-Implementers flag unfinished deliverables and concrete scope gaps in their
-handoffs. The reviewer combines that evidence with the candidate, remaining
-acceptance and available execution capacity. When reviews repeatedly fail to
-accept the work or expose substantial delivery gaps, **splitting is the default;
-the reviewer bears the burden of justifying an exception**.
+A useful response is to identify which remaining outcomes can be implemented
+and accepted independently. Each can become its own Work, with clear ownership
+and only the dependencies its inputs require. Completed evidence stays with
+the result it proves, and one named consumer retains the joined acceptance.
 
-Assess a split immediately when any of these signals appears:
+Repeated non-accepting reviews and growing delivery gaps are practical signals
+to reconsider the shape of the Work. Splitting is a useful default when distinct
+deliverables have accumulated. Merely moving the same oversized assignment to
+another person does not address that cause.
 
-- The plan contains two or more outcomes that can be implemented, reviewed or
-  accepted independently, especially across distinct file ownership.
-- A handback delivers one part while substantial approved scope remains
-  unstarted, or repeatedly omits the same required proof.
-- A discovered interface or capability expands the Job into another substantial
-  deliverable, or each correction round adds more work than it completes.
-- One Handler has become the queue for separable work that another eligible
-  Handler could advance, including through an explicitly scoped tuner assignment.
+There are also cases where a split adds little. A small correction across two
+tightly coupled files may have one meaningful acceptance result. Keeping it
+together can be reasonable when the reviewer can explain what remains, why it
+belongs together and what the next pass will demonstrate.
 
-An exposed substantial omitted deliverable triggers this rule immediately.
-Otherwise, **two successive implementation/review cycles without acceptance**
-require a split before another undivided implementation pass, unless the reviewer
-records the concrete exception below. Count partial and failed handbacks across
-reassignment; changing the Handler alone does not reset the trigger. Message
-count, elapsed time, file count and test count can prompt an earlier assessment;
-none excuses ignoring the failure or delivery-gap trigger.
+The decision becomes more useful when it describes concrete outcomes instead
+of relying on "almost done." Proposed changes can be discussed during a claim;
+changing the actual allocation waits for a safe handoff so the executor is not
+working against a moving scope.
 
-Record the decision in the review and current plan, using the finding to pin
-any accepted scope change. Keep it concrete:
+## Capability passes preserve the big picture
 
-- **Split:** name each remaining acceptance result, its proposed Handler and
-  exact file ownership, the existing interface between the pieces, genuine
-  dependencies and any final joined acceptance. Preserve completed evidence
-  and say which Work retains it. Use children or siblings within dossier-depth
-  rules; never bind two Jobs to one dossier.
-- **Continue by exception:** identify the exact remaining acceptance and show,
-  from the current candidate, why no useful independently acceptable piece can
-  be separated, or which concrete shared change must be completed together.
-  Name the bounded next deliverable and reassess at its handback. "Almost done",
-  confidence in the next attempt, convenience, or unspecified coordination cost
-  is not a justification. Without this recorded evidence, split. An exception
-  does not authorize an open-ended series of further correction rounds.
+A team investigating a new export architecture may first need to show that a
+real request can travel through the system and produce a usable result. Later
+passes may address larger inputs, restart behavior, portability or operational
+scale.
 
-If only one independently acceptable outcome remains, such as one missing proof,
-the reviewer can justify keeping it in the same Job and assigning a bounded
-takeover. A small multi-file correction can qualify for the same exception;
-its indivisibility must be explained, not presumed. Defer optional features
-instead of turning them into new critical-path children. Required proof and
-joined acceptance remain visible; splitting must not make an unfinished
-capability appear complete.
+Agreeing on the first demonstration helps the team judge discoveries. A defect
+that could make the demonstration falsely report success belongs in that pass.
+An improvement that does not invalidate the agreed claim can be recorded for
+a later pass. An unrelated concern can remain outside the campaign.
 
-Recommend decomposition during a live claim, but enact it only at a safe handoff
-after the current Handler passes or releases. Use existing assignment authority
-to route the concrete pieces; where new scope or allocation needs authorization,
-request that exact decision once. This rule grants no new claim, test-change or
-route authority and introduces no extra planning-only approval cycle. The goal
-is independently finishable work that advances the campaign's stated proof.
+This is useful when polishing individual components has stopped producing
+visible progress in the whole system. A working vertical slice exposes mistaken
+interfaces sooner and gives later robustness work something concrete to
+strengthen.
 
-### Capability passes preserve the big picture
+The acceptance claim determines the boundary. A feasibility demonstration and
+a production rollout need different evidence. If safe restart is part of the
+agreed milestone, it cannot quietly become optional simply because the ordinary
+path works.
 
-A proof-of-concept campaign advances through explicit CAPABILITY PASSES, not
-through an unbounded queue of locally desirable corrections. Before a pass
-starts, its campaign record names:
+Recorded concerns remain accountable without all becoming immediate blockers.
+At a handoff, the team can say what now works, what still prevents the current
+demonstration and which discoveries belong to later passes.
 
-- the concrete end-to-end demonstration that marks its finish line;
-- the minimum assertions required to prove that result is real;
-- what maturity claim the pass earns, such as “design is promising”; and
-- the known robustness work deliberately assigned to later passes.
+## Role arrangements follow the work
 
-Work TOP-DOWN through a thin vertical slice. Connect the major boundaries
-soon enough to discover whether the architecture can produce a useful result,
-then revisit that working path repeatedly to improve correctness, resilience,
-portability and operations. Do not perfect each lower layer in isolation
-before the system has crossed its first end-to-end boundary. A million local
-tests cannot validate a missing or mistaken downstream seam, and a redesign
-found only after bottom-up hardening can discard most of that investment.
+A small team might use one participant for analysis and implementation, with
+another person reviewing consequential changes. A larger team might schedule
+implementation, review and integration independently. A project focused on
+research may divide its work into investigation, synthesis and validation
+instead.
 
-Tests serve the capability claim of the current pass. Build enough focused
-evidence to make its demonstration honest and repeatable; do not treat maximal
-scenario coverage as progress independent of a useful integrated result.
-Later passes add the failure, race, restart and scale matrices against an
-architecture that has first earned further investment. This is engineering
-toward a useful product, not an academic pursuit of perfection detached from
-whether the whole design works.
+These are examples of organizational choices. Baton resolves the roles,
+endpoints and handlers that a project configures; it does not prescribe one
+role hierarchy or a fixed number of workers.
 
-**Before running a test suite or a costly test campaign, state what new question
-it will answer and why existing evidence is insufficient.** This is required
-for implementers, reviewers, tuners and other executing roles. Apply it to suites
-and broad sweeps, and to an individual run or planned series expected to take
-about a minute or more in total. Before starting, record a concise reason,
-command/scope and approximate time budget in the Work's progress, review or
-execution plan. State the specific behavior or required gate being checked and
-what changed or remains unproved. A retrospective justification is insufficient.
+For example, a software team could separate first-delivery work from later
+reliability work using different routes. Another could use one route and
+distinguish those outcomes through its Work descriptions and dependencies.
+Separate routing is useful when it changes who can act or how capacity is
+allocated, rather than merely giving the same queue another name.
 
-Quick, targeted one-off probes need no separate justification entry; report
-their results normally. Judge a campaign by its cumulative cost: a series of
-one-minute commands is expensive even if each command looks small. Do not evade
-the rule by splitting a suite into individually short invocations. Reassess the
-scope and evidence need before extending or repeating a campaign that is
-consuming more time than expected; do not keep adding runs by habit.
+The same applies to review capacity. If accepted candidates accumulate behind
+one long review, another eligible reviewer may help. If implementation lacks
+ready independent inputs, adding more implementers may not.
 
-If retained results already answer that question for the applicable bytes and
-environment, reuse them. A repeat must identify the relevant source/environment
-change, missing or unusable evidence, or required independent boundary that
-makes another execution informative. "The reviewer runs tests too", "just to
-be safe", or a routine handoff ritual is insufficient. Choose
-the smallest run that closes the stated evidence gap, then report its result
-against that question. This is an execution discipline, not a new permission
-request or a waiver of required checks; a required gate without applicable
-evidence is a valid reason to run it.
+Concurrent participants need distinct identities, separately owned claims and
+appropriate resource isolation. Capacity decisions work best when they respond
+to an observed bottleneck and the project's acceptance requirements.
 
-Use a TWO-STAGE verification cadence. During an implementation or correction
-loop, run the smallest deterministic reproducer and focused tests that can
-answer whether that edit worked. Once the focused acceptance is green and the
-candidate is ready to hand over, run one broader relevant regression sweep.
-Do not pay for the broad sweep after every small correction, and do not pass a
-candidate merely because its focused tests passed.
+## Learning through a controlled pilot
 
-When an assigned component acceptance proof is still missing, complete that
-proof before another broad sweep unless the sweep answers a separate named
-blocking question. Repeating a broad red run does not replace the missing proof.
+After an early capability is accepted, a team may use it on bounded real work
+while later improvements continue. An export tool might serve an internal
+report before becoming part of a critical production workflow.
 
-Implementation and review own different evidence. The implementer records the
-exact focused and broad commands, their results, and any known baseline
-failures. The reviewer audits the change, its assertions, and that evidence;
-it does not rerun the same commands merely to reproduce an already recorded
-result. Reviewer execution must add information: a narrowly targeted probe for
-a specifically identified uncovered risk, an independent reproduction at a
-different boundary, or a missing gate whose absence prevents a verdict. When
-the recorded evidence is sufficient, proceed directly to the verdict.
+The pilot is valuable because it tests assumptions that component exercises
+may miss. It also needs a clear limit: the team knows what data or results can
+be discarded, what fallback remains available and what evidence would justify
+wider adoption.
 
-Repeating a command is justified when environmental independence is itself an
-acceptance claim. In that case, record why the second environment or identity
-is the evidence under test rather than treating the repetition as a routine
-review step.
+An isolated successful run supports the claim it actually demonstrated. It
+does not automatically establish recovery, scale or production readiness.
 
-A broad verification campaign must still be bounded and visible. If one test
-command can monopolize a Handler for an extended period, decompose it into
-named, independently runnable, time-bounded slices. A substantial slice that
-can be diagnosed, corrected, reviewed or accepted independently is contained
-Baton Work, not hidden terminal activity inside one implementation Job. Keep
-the aggregate suite as a later integration gate after the slices are green.
-Once an aggregate run has already reported failure, preserve that partial
-evidence and stop it rather than spending the rest of the managed turn proving
-only that the already-failed aggregate eventually ends.
+This gives the team a way to learn from useful work without making an early
+experiment responsible for more than its evidence supports.
 
-The broad sweep uses the host's safe parallel harness wherever tests own
-isolated state. On a multi-core host, independent shards run concurrently;
-tests that share a Docker daemon, image name, port, database or other mutable
-resource remain in an explicit serial lane. Parallelism is a property of the
-verified harness, never an improvised shell fan-out. A broad failure that can
-invalidate the current capability remains a gate. An unrelated failure is
-recorded as separate Work rather than expanding the current correction loop.
+## Verification answers a question
 
-Capture “TODO,” “improve,” “come back and fix,” “do not hard-code,” and similar
-concerns as durable Work while building the slice. Give each material concern
-an owning finding or lightweight Job, link it to the pass where it was found,
-and assign it to a later pass unless it can falsify the current demonstration.
-An inline source comment may point to that Work; it is not a second backlog and
-must not be the concern's only durable locator.
+An implementer changes how an escaped value is parsed. A focused regression can
+answer whether that correction addresses the reported failure. Once the change
+is stable, a broader relevant check can look for consequences elsewhere.
 
-Later design changes may make a recorded concern irrelevant. Close it as
-superseded or cancelled with the reason rather than implementing it from habit
-or silently forgetting it. Throwing away an unstarted note is cheap and leaves
-an intelligible decision trail; throwing away prematurely written production
-code, exhaustive tests and hardened interfaces is not. Baton's value here is
-memory without forced execution: it preserves what deserves another look
-without confusing every observation with immediate critical-path work.
+Running the whole suite after every small edit often delays that feedback.
+Running only the focused case forever leaves interactions unexamined. A useful
+cadence separates the correction loop from the broader check needed for handoff.
 
-Make the smallest useful end-to-end happy path its own critical-path Job. Do
-not make it wait for every restart, race, alternate-runtime and
-defensive-hardening matrix once the positive path can be accepted honestly.
-Represent those robustness outcomes as separate bounded Jobs, preserve every
-discovered defect and invariant in their owning records, and schedule them
-concurrently where their file and decision ownership does not overlap.
+Before a costly run or series of runs, stating the question, scope and expected
+cost makes the choice reviewable. A quick probe needs little ceremony; an
+expanding test campaign benefits from an explicit reassessment.
 
-Every new detail gets one immediate classification:
+Existing evidence can answer the question when it still applies to the candidate
+and environment. A repeat is informative when the relevant bytes changed,
+the earlier result is incomplete, or an independent environment is itself part
+of the acceptance claim.
 
-1. If it can make the current demonstration falsely succeed, it blocks the
-   current pass and is corrected before that finish line.
-2. If it improves resilience, portability, scale or operations without
-   invalidating the current demonstration, record it in an owning finding and
-   a planned or parked Job for a NAMED later pass.
-3. If it is unrelated to the campaign's promised capability, route it outside
-   the campaign rather than growing either pass.
+The reviewer may add a targeted counterexample, examine a different boundary
+or investigate a missing control. Repeating the implementer's entire run only
+because the work changed hands adds cost without necessarily adding evidence.
 
-Nothing discovered is silently ignored, but “recorded” does not mean “put on
-today's critical path.” At every handoff, report the pass-level result first:
-what can now be demonstrated, what still prevents that demonstration, and
-which newly found requirements moved to later passes. Individual corrections
-and test counts are supporting evidence, not the campaign's big picture.
+When a broad run fails, its useful output becomes evidence for diagnosis.
+Related failures may block the candidate; unrelated failures need their own
+ownership. Parallel execution helps when checks have isolated state. Shared
+resources require deliberate isolation or serialization using the project's
+supported harness.
 
-Crossing the first finish line means **the design is promising**, not
-production-ready. It validates the general architecture before the campaign
-spends heavily on exhaustive protections whose underlying decisions may still
-change in the next phase. After that gate, walk back through the parked or
-parallel hardening Jobs and make the design solid. Pass 2 may make failure
-behavior dependable; later passes may add restart recovery, alternate
-runtimes, scale or production operations. Do not optimize pass N while pass
-N−1 still cannot demonstrate a promising solution.
-
-“Happy path first” narrows scheduling scope; it never permits false success,
-suppresses a known defect, weakens the assertions required to prove the path,
-or deletes a later-pass requirement. This sequencing reduces throw-away work
-without confusing prototype acceptance with production readiness.
-
-An accepted early pass may become infrastructure for the next passes. Use a
-promising isolated-worker path in a controlled dogfood lane to develop the
-platform itself while its hardening Jobs continue. This is not a production
-cutover: keep the known-good authority and recovery path until the later
-adoption gate says otherwise, and restrict early use to work whose candidate
-result can be discarded without harming the canonical checkout or ledger.
-
-The concurrency goal is at least two independently scheduled coding workers
-and two independently scheduled reviewers. They use distinct runtime and
-participant identities, isolated candidate workspaces, and separately claimed
-leaf Jobs; “two workers” never means two contexts sharing one claim or writing
-the same checkout. Review capacity is independently schedulable too, so one
-long review does not serialize every implementation result. Feed what this
-early use reveals back into recorded later-pass Work rather than waiting for a
-nominally complete platform before learning how it behaves under parallel use.
-
-Stage-scoped dependencies make REVIEW-AHEAD part of that pipeline. When a
-predecessor gates only implementation, reviewers may already validate the
-dependent Job's plan, contracts, acceptance boundary, fixtures and proposed
-verification while its implementation offer remains ineligible. An outcome
-dependency still blocks that preparation when the predecessor's result can
-change what should be built. Technical review of produced code or artifacts
-still waits for an actual immutable proposal; review-ahead never fabricates an
-implementation result. It removes avoidable waiting before coding starts and
-lets implementation begin against a reviewed contract as soon as its exact
-gate opens.
-
-Use two coding ROUTES for the two pass intents:
-
-- `impl` delivers the smallest honest vertical slice and records every
-  material deferred concern as later Work; and
-- `harden` takes one bounded recorded concern and strengthens a design whose
-  useful path has already been validated.
-
-These are scheduling capabilities, not permanent personas. A member may hold
-either or both, and the pools may overlap. `impl` never excuses a known
-false-success defect. `harden` preserves the accepted capability and returns
-through plan revision when a finding requires redesign rather than silently
-changing the seam. Keep `tuner` for documentation, packaging and polish; it is
-not the hardening coder. Do not call the second route `impl2`: a backup
-provider and a different work intent are separate concepts.
-
-Never split scope underneath a live claimant. Let the current bounded
-correction finish, pass or release, then create and order the remaining Jobs.
-The practical test is simple: if an outcome could be reviewed, accepted,
-rejected or scheduled on its own, it should be visible as its own Job.
-
-There is no preferred small number of children and no requirement that a real
-project fit into one shallow implementation item. The project is the Work
-graph: containment supplies human roll-ups, while explicit dependency edges
-decide which bounded leaf Jobs are ready. As capacity grows, multiple workers
-claim independent ready leaves concurrently. Each worker returns an isolated,
-immutable result or change proposal; verification and the trusted integration
-stage decide which results enter the canonical project. Workers do not merge
-their own competing changes into the canonical checkout.
-
-Repository dossier layout is an indexing concern, not a scheduler limit. A
-repository may flatten or promote a deeply nested dossier to keep paths usable,
-with forwarding links preserving provenance, while Baton retains the logical
-containment and dependency relationships needed to present and schedule the
-larger graph.
-
-## Changing the contract of assigned Work
-
-Discussion may refine what assigned Work means, but outsiders **propose** —
-they do not edit scope underneath the person doing the work. Promotion is a
-compare-and-swap performed by the **exact current claimant**, who must also
-still be eligible through the live route:
-
-    $BATON revise work=W71 message=73 expect=0 \
-        rationale="agreed in discussion; backoff belongs in the same contract"
-    # -> {"revision": 1}
-
-Being *eligible* is not enough. A route peer who holds no claim may argue in
-the thread all day, but cannot rewrite the contract of Work somebody else is
-executing:
-
-    revise: W71 is claimed by app.mina; a route peer may propose in the
-    thread but never rewrites assigned scope underneath its executor
-
-Unclaimed Work refuses too — promotion waits for somebody to be accountable
-for it. Losing the claim ends the authority immediately, so a pass, a release,
-or a forced recovery all take it away mid-flight.
-
-The message stays the durable contract text; the revision records who promoted
-it and why. A stale expectation refuses rather than clobbering:
-
-    W71 is at revision 1, not 0; the edit is stale — re-read and retry
-    against the current state
-
-If the new requirement is separately accountable, create child Work instead.
-The test is whether it deserves its own close.
+Changing a test also changes an evidence claim. Whether that edit is already
+authorized comes from the project's accepted scope and permissions. Review
+still asks whether the revised expectation represents the intended behavior,
+rather than merely making a failing implementation look successful.
 
 ## Verification trials
 
-A reviewer may put one **immutable candidate** in front of exact verifier
-endpoints:
+Some changes benefit from several independent observations of the same
+candidate. A library correction might need checks in different consumer
+environments, each with its own owner.
 
-    baton --participant app.juno try work=W51 \
-        candidate=build-2026.08.18-a assign=app.bug assign=lib.bug
-    # -> {"trial": 1, "assignments": [56, 57]}
+A verification trial gives those participants a shared immutable subject.
+Each records what happened and where the evidence lives. Assessment is separate:
+a reviewer can accept a failure report as valid evidence without accepting the
+candidate.
 
-Verifiers file a raw observation and where the evidence lives; the reviewer
-files a separate assessment. These are two immutable axes and both are audited:
+This separation is useful when results differ. One environment may expose a
+defect while another cannot run the check. Recording observations and judgments
+separately preserves both facts without reducing the trial to a pass count.
 
-    baton --participant app.mina report obligation=56 observation=failed \
-        evidence=product:work/records/2026/08/finding-clock-drift/trial-1-app.md
-    baton --participant app.juno assess obligation=56 as=accepted \
-        rationale="reproduced above 5k/sec"
+A replacement candidate needs a new comparison point. Superseding the trial
+preserves its earlier evidence instead of rewriting the result around changed
+bytes. Finishing the trial remains an explicit decision by the authorized
+participant.
 
-Observations are `passed`, `failed`, or `unable`. Assessments are `accepted`,
-`rejected`, or `inconclusive` — a reviewer may accept a *failure* report, which
-is exactly what happened above. **Counts and elapsed time never decide
-anything.** A trial with every report in and every one assessed still sits
-`open` until a human acts.
+## Concise reporting
 
-Opening a new trial supersedes the previous one rather than refusing, and the
-superseded trial and all its evidence remain in the record:
+A long investigation can produce a short, complete handoff when the details
+have a stable home. The recipient usually needs the result, the remaining
+limitation, the next decision and a precise route to the evidence.
 
-    trials: [(1, "superseded", "build-…-a"), (2, "closed", "build-…-b")]
+An unhelpful report repeats the original task, every prior review and every
+unchanged design choice. A useful report explains the delta and makes the next
+action possible without hiding a material caveat.
 
-`extend` moves an open trial's review instant; `abandon` ends one unresolved
-with a reason. Both are separate audited acts.
+Length is a diagnostic, not the outcome. Some decisions need substantial
+explanation. Brevity is effective when it removes repetition while preserving
+the facts needed to act; cutting an essential limitation defeats its purpose.
 
-## Readiness
+Keeping one technical account also makes corrections easier. The author can
+append a clearly attributed correction and point later handoffs to it, rather
+than leaving several nearly identical reports with different claims.
 
-`wait` is a **read-only, participant-relative** projection. It claims nothing
-and writes nothing:
-
-    $BATON wait timeout=30
-    # -> {"timed_out": false, "actionable": [
-    #      {"kind": "work", "work": "…-W16", "local_id": "W16",
-    #       "action_key": "work:…-W16:16:g2", "claimed": false,
-    #       "episode_seq": 16, "config_generation": 2, "phase": "queued"}]}
-
-It returns open ready **unclaimed** Work whose route resolves to you, Work
-**you have already claimed** so you can continue after a restart,
-pending obligations your endpoint owes, and due trials you answer for. That
-second category matters: a runner that only looks for unclaimed Work walks past
-its own unfinished assignment.
-
-`action_key` is an **assignment episode** — Work id, episode sequence, and
-accepted config generation. Work handed away and handed back between two polls
-is a new episode even though nothing observed it absent. Key delivery on the
-whole string; never parse it to recover the Work id, which rides beside it as
-its own field.
-
-A readiness line is an **edge to re-evaluate, not authority to act.** By the
-time you see it the Work may have been claimed, passed, or closed. Re-read
-canonical state, and let the atomic claim be the final arbiter.
-
-`timeout=` is your deadline and nothing else. While the wait is empty it
-re-derives the projection about **once a second**, so something committed
-while you are blocked reaches you within roughly a second rather than
-instantly — coordination happens on seconds-to-minutes timescales, and a
-poll per participant twenty times a second bought latency nobody could
-perceive at a cost the database could. The interval never extends your
-deadline: `timeout=0` is a single read, and a shorter timeout returns when
-you asked, not at the next interval.
-
-`include=`, plain posts, and personal New are attention, never wakeups. A
-sender who needs action uses a request or passes the baton.
-
-External Codex/ACP adapters may wake a model runner, but they are outside the
-protocol: they never claim, answer, or complete Work for you. Recover your
-context from `wait`, `detail`, Messages, Events, and the bound dossier — not
-from the wake prompt's prose.
-
-**Never end a turn holding Work you have claimed and neither progressed nor
-handed back.** The teeth are on `claim`, not on `wait`: Work held by a process
-whose turn ended is stranded — invisible to its sender and blocking the queue
-until somebody recovers it explicitly.
-
-## Recovery
-
-Baton never auto-releases, transfers, or admits a second claimant on staleness.
-`heartbeat work=` is liveness evidence only; an agent mid-turn cannot beat, so
-silence is never treated as failure. Recovery is therefore explicit, and it is
-a compare-and-swap against **both** the recorded claimant and the exact
-assignment episode that claim was offered under:
-
-    baton --participant app.ops release work=W76 expect=app.mina episode=41 \
-        reason="runner died mid-turn; no heartbeat for 40 minutes and the
-                operator confirmed the host is gone"
-    # -> {"released_claimant": "app.mina", "episode": 41,
-    #     "authorization": "handler"}
-
-A wrong guess refuses rather than guessing for you:
-
-    W76 is claimed by app.mina, not app.juno; the compare-and-swap refuses —
-    recovery never guesses whose execution it is interrupting
-
-`episode=` is mandatory on every release, self-release included, and `detail
-work=` publishes it as `episode_seq`. The claimant alone is not a fence: a
-participant that released and re-took the same Work is still `app.mina`, so a
-recovery request written against the first claim would silently abort the
-second. Claiming deliberately does not mint an episode and every release, pass
-and re-offer does, so the episode names one assignment and no successor to it:
-
-    W76 is claimed under assignment episode 58, not 41; the compare-and-swap
-    refuses — a release aimed at one assignment never ends a later one, even
-    when the same participant holds both
-
-That also makes recovery single-use. A dispatcher retrying a stale
-failed-turn settlement, or an operator re-running a command from scrollback,
-refuses instead of releasing whatever claim happens to be live.
-
-### When the route's only handler is the one that died
-
-Ordinary release authority is the Work's live Route endpoint, which covers
-self-release and one handler recovering another. It does not cover the case
-this exists for: a managed turn that failed one second after claiming, on a
-route whose only handler is that same failed participant. There is then no
-resolved handler left to recover it, and the participant's one claim slot
-deadlocks — for five hours, in the incident that produced this rule.
-
-So a member of the Work's **owning team** may instead hold the `recover`
-capability:
-
-    "participants": {
-      "ops": { "display": "Ops", "roles": ["dev"],
-               "capabilities": ["recover"] }
-    }
-
-    baton --participant app.ops release work=W76 expect=app.mina episode=41 \
-        reason="the managed turn failed holding this claim"
-    # -> {"released_claimant": "app.mina", "episode": 41,
-    #     "authorization": "recover"}
-
-`recover` is deliberately narrow and deliberately separate. It is not `config`,
-which rewrites who may act on everything; it is not route membership, which
-would make the recovery operator a normal executor of every Work that endpoint
-owes; and it is never derived from a runner's `actionOwner`, which is
-participant-authored telemetry and grants no workflow authority at all. It is
-also still bounded by ownership — a capability says what kind of act you may
-perform, not whose work is yours. The `authorization` field records which
-branch a release went through, because "a handler released its own claim" and
-"an operator recovered somebody else's" are different operational events.
-
-Without either, the refusal names both paths:
-
-    release: app.juno is neither a resolved handler of app.bug (route 'main',
-    handlers ['mina']) nor a member of app holding the `recover` capability;
-    recovering a claim its own route handlers cannot reach is a configured
-    operator capability, and contribution never grants it
-
-Releasing does **not** stop the external agent that may still be running.
-Coordinate with its operator before forcing one.
-
-### Retry safely
-
-Mutating verbs take `op-id=`. An exact retry replays the one committed result;
-any mismatch fails closed without mutating:
-
-    $BATON claim work=W76 op-id=recover-1     # -> committed
-    $BATON claim work=W76 op-id=recover-1     # -> replayed, byte-identical
-    $BATON phase work=W76 to=parked reason=a op-id=recover-1
-    # op-id 'recover-1' was already used by app.ops for a different request;
-    # conflicting reuse refuses without mutation
-
-The comparison uses the **effective** operands, so a retry may spell a default
-explicitly but may not change it. An interrupted operation is retried through
-the public API. Authority state is never reconstructed by hand — and
-`home`, `tree`, `detail`, `thread`, `work-events`, `events`, `links`, and
-`search` are the read-only views. **If a question about coordination can only
-be answered by opening the SQLite file, that inability is the finding.**
-
-## Maintenance: draining managed dispatch
-
-A running deployment keeps the pipeline saturated. The moment one handler
-relinquishes a claim, readiness offers the next eligible Work to whoever can
-take it — which is correct in ordinary operation and leaves no deterministic
-moment to restart the stack. An operator waiting for "the current item to
-finish" can miss the gap repeatedly, because somebody else has already
-started the next one.
-
-`drain` draws the boundary explicitly:
-
-    $BATON drain reason="host kernel upgrade"
-    # -> {"mode": "draining", "generation": 7, "boundary_seq": 4711,
-    #     "live_claims": 2, "blockers": ["app.mina holds W76", ...]}
-
-Claims live at that instant finish normally — their holders may pass, close,
-release, or otherwise end them exactly as before. Nothing later is admitted:
-a new claim refuses in the write transaction, whichever route it arrives by.
-
-    W12 cannot be claimed: managed dispatch is draining; no new claim is
-    admitted until an authorized `resume`
-
-When the last live claim ends, the deployment reaches `paused` in the same
-authority instant as the act that ended it. Ask at any time:
-
-    $BATON dispatch
-    # -> {"mode": "draining", "generation": 7, "blocking_claims": 1,
-    #     "blockers": [{"work": "W76", "handler": "app.mina",
-    #                   "episode_seq": 58, ...}], ...}
-
-**A drain never cancels anything.** A failed or orphaned claim stays a
-visible blocker with its exact identity rather than being force-released, and
-a runner reporting `failed` does not retire it — recovery is the separate,
-audited `release` above. If the deployment will not reach `paused`, the
-blocker list names precisely who to talk to.
-
-Resume is explicit, and only explicit — restarting the services does not
-resume:
-
-    $BATON resume reason="upgrade complete"
-
-**Who may.** `drain` and `resume` require the accepted-configuration
-`dispatch` capability, granted in `baton.json` and separate from every other
-authority: a Route or a held role is local scheduling responsibility, a
-runtime action owner is transient adapter state, `recover` releases one
-orphaned claim, and `config` authors the roster. Reading `dispatch` requires
-nothing — a participant that cannot tell why it is not being woken would have
-to guess.
-
-**What a managed agent sees.** While draining, managed readiness delivers a
-participant only the Work it already holds; while paused, nothing that would
-spend a turn. The answer is immediate and says why, so a drained deployment
-never looks like an idle one. Obligations, pokes and unclaimed Work stay
-visible in `home` and `inbox` throughout — drain suppresses model wakes, not
-your view of the board.
-
-**With the lifecycle manager.** A version-2 `infra.json` names one canonical
-control identity, and then:
-
-    tools/infra.py drain   MAILBOX --reason "host kernel upgrade"
-    tools/infra.py dispatch MAILBOX          # mode, generation, blockers
-    tools/infra.py stop-drained MAILBOX      # refuses unless paused
-    tools/infra.py stop    MAILBOX           # immediate; unchanged
-
-`stop-drained` reads the canonical state and refuses **before signalling any
-service** unless the deployment is paused, so a refused graceful stop leaves
-everything exactly as it found it. Plain `stop` is unchanged and remains the
-immediate one — it must keep working when the authority cannot be reached at
-all, which is when you need it most. `dispatch` answers even with every
-service stopped, because "the stack is down" and "the deployment is paused"
-are different facts.
+The same principle applies to the interactive copilot. It can summarize the
+current decision and carry it into the durable record without recreating the
+whole campaign history in every operator update.
 
 ## Evidence lives in the repository
 
-Baton holds what is true *now*; the dossier holds *how it got that way*.
-Neither substitutes for the other, and a ruling that exists only in a
-discussion thread is one context loss away from being re-litigated.
+A team agrees on a behavior during a discussion. Several handoffs later, a new
+participant sees only an old description and implements the earlier behavior.
+The decision existed, but not where the next executor could reliably find it.
 
-Work binds through a configured root to a canonical record path:
+A durable project record addresses this gap. It distinguishes the observed
+problem, confirmed decisions, current plan, execution evidence and independent
+review. Baton supplies the live coordination state; the record explains how
+the team reached its present understanding.
 
-    $BATON bind work=W76 root=product \
-        path=work/records/2026/08/finding-handle-leak expect=0 \
-        rationale="canonical record for the descriptor leak"
-    $BATON resolve locator=W76
-    # -> {"root": "product", "absolute": "/tmp/repo/work/records/2026/08/finding-handle-leak"}
+Projects can use different filenames and layouts for those responsibilities.
+The important qualities are stable locators, clear ownership and a visible
+history of superseded decisions. A temporary checkout path or a remembered
+conversation is a weak substitute for a shared canonical reference.
 
-Bindings are compare-and-swap with append-only history. Never bind to
-`work/open`, a checkout-absolute path, or a remembered commit — those are not
-portable across the participants who must read them.
+A plan is most useful when it describes the intended outcome and sequence.
+Copying every live phase or dependency into prose creates another board that
+can become stale as soon as Baton changes. Dated evidence can describe what
+happened without pretending to be the current scheduler state.
 
-Inside a dossier the roles are fixed, and they exist so two participants can
-write concurrently without fighting:
+Lightweight Work need not produce an elaborate dossier. The amount of recorded
+detail can follow the complexity and durability of the decision. What needs to
+survive a handoff or restart deserves a dependable home.
 
-- `FINDING.md` — confirmed decisions and the acceptance boundary.
-- `PLAN.md` — actionable state, kept truthful as steps land.
-- `PROGRESS.md` — **implementer-owned**, one writer.
-- `review-*.md` — append-only review evidence. Corrections append a dated
-  marker; they never rewrite what a reviewer already said.
+## Changing the contract of assigned Work
 
-Keep live graph state out of `PLAN.md`. A plan names the durable capability,
-defect, prerequisite, and execution order; it does not say `blocked on W…`,
-record the current phase of another Work, or duplicate a dependency edge.
-Baton is the authority for those identities and relationships, and changing
-the graph must not make the plan stale. `FINDING.md` may cite Work identifiers
-as dated journal evidence of what happened and why a ruling changed, but those
-historical citations are not current scheduler state. When a dependency
-changes, update Baton; update the plan only when the underlying product
-condition or intended sequence changes.
+A reviewer notices that the export fix also needs a compatibility decision.
+That observation can be discussed while the implementer holds the Work, but
+it does not silently change what the implementer agreed to deliver.
 
-## Finding the Work that awaits you
+If the new requirement belongs in the same bounded outcome, the current
+claimant can promote the agreed revision through Baton's contract mechanism.
+Its comparison against the expected revision prevents a stale update from
+overwriting a newer decision.
 
-`home` and `tree` show a team's containment window three levels deep. A Work
-you could claim on the fourth has no row there — and `search` needs a query and
-only reaches your own team — so "what can I pick up?" was a question the views
-could not answer.
+If the requirement is independently accountable, separate Work may express it
+more clearly. Either way, the discussion, accepted scope and actual execution
+should agree.
 
-The Jobs tab now spells the count, and every tree row carries a `Mine` cue over
-its whole subtree: `me` when the row itself is yours to claim, `+N` when N items
-below it are, `me+N` for both, and blank for nothing. **The count ignores the
-display bound**: an item four levels down is counted under each of its visible
-ancestors, and each Work counts once in the header total however many ancestors
-roll it up.
+This is particularly useful with concurrent participants. Eligibility to act
+on an endpoint is different from holding the current assignment. A route peer
+can contribute a proposal without acquiring the right to rewrite another
+participant's live contract.
 
-Press `m`, or ask directly:
+## Readiness and finding the Work that awaits you
 
-    $BATON actionable-work
-    $BATON actionable-work limit=25
-    $BATON actionable-work after=dzEfMR8xHzE3H2ZlZmVmZWZlLVc0
+A participant may have fresh work available, an obligation to answer, or an
+assignment it already holds. Looking only for newly unclaimed Work can miss
+the third case after a restart.
 
-Every match appears with its complete root-first breadcrumb, across every owning
-team, in the same canonical order `wait` offers — so the list and the wake agree.
-Paging is 100 by default (1..500) and each page is one snapshot; a refresh
-restarts at the first page rather than pretending to continue one that has moved.
+Readiness is a view of what the current identity can act on. It is not a claim,
+and a notification is a reason to reread that view rather than permission to
+execute a remembered assignment. Another participant may have claimed the Work
+or its inputs may have changed since the notification was sent.
 
-**`after=` is the previous page's `next_after`, verbatim, and it is yours.**
-It is an opaque token naming WHOSE question it continues and WHERE that
-question got to — not a count of rows already seen. Do not read it, add to it,
-build one, or pass another participant's along: this answer is relative to who
-is asking, so a cursor from somebody else's page is refused rather than
-followed. It would otherwise hide every Work of yours that sorts before
-wherever they had got to. That is what makes the guarantee
-hold under the shared-route race this view exists to expose: when another
-handler claims one of the Work items on a page you have already read, the next
-page still begins exactly where yours ended, so nothing between the two is lost.
-A token from an older Baton, or one edited by hand, is refused rather than
-quietly answered with page one — the token names a Work and a place in the
-canonical order, and both are checked against what this authority actually
-holds, so a well-shaped invention cannot hide live Work behind an empty page.
-`next_after` is `null` on the last page.
+On a shared route, several eligible participants can see the same opportunity.
+The successful atomic claim determines who executes it. "Available to me" is
+therefore different from "assigned to me."
 
-**One refusal is ordinary, and it is `refresh to read from the current first
-page`.** A Work leaving your actionable set between pages — somebody else
-claimed it, or it was rerouted — does not disturb the continuation, because it
-did not move in the canonical order. A Work whose ORDER changes does: raise its
-priority, or claim one that was holding others up, and the position your token
-names is no longer where that Work is. Continuing past it would skip or repeat
-the rows in between with no way for you to notice, so Baton refuses and says
-so. Start again from the first page; nothing is lost.
+The same distinction helps when navigating a large campaign. A bounded tree
+is useful for orientation, but a participant may have eligible work below the
+displayed portion. The dedicated actionable-work view answers the personal
+pickup question without requiring the operator to search every branch.
 
-**A Work counts when it is open, ready, queued, unclaimed, and its current Route
-resolves to you** — including an alternate somebody deliberately selected. That
-is narrower than the bold Title in the console, which also marks your own held
-claim and directed `@` obligations.
+Runner adapters deliver wakeups and runtime information around these protocol
+operations. Their visibility does not itself grant a claim or establish that
+the model has acted on a wake.
 
-**On a shared Route this means "available to you", not "assigned to you".** Two
-handlers see one opportunity until one of them claims it, and then neither does.
-It is a locator, not an obligation: pickup lateness remains one participant-level
-concern on Teams, directed obligations remain Inbox concerns, and neither is
-folded into this count.
+## Recovery
+
+Suppose an agent loses its host after taking a claim. The board still records
+the assignment, while another participant wants to continue the work.
+
+Silence alone does not establish that the original executor is gone. An agent
+may be busy without publishing a heartbeat, and releasing a Baton claim does
+not stop its external process.
+
+A controlled recovery establishes what happened to the executor and uses the
+authorized release mechanism against the exact recorded assignment episode.
+Naming only the participant would be insufficient if that participant had
+already released and claimed the Work again.
+
+Once the old assignment is safely accounted for, a new executor can continue
+from the durable record. It can distinguish completed effects, uncommitted work
+and unresolved uncertainty instead of treating everything after a lost
+conversation as either complete or disposable.
+
+When the failed participant was the route's only handler, ordinary route
+membership may leave nobody able to release it. A configured recovery capability
+gives an owning-team operator a narrow way to address that situation without
+making that operator a normal executor of every route.
+
+Which external shutdown or isolation mechanism establishes safety belongs to
+the deployment. Baton records coordination ownership; it does not infer that
+a process has stopped merely because an assignment was released.
+
+## Retrying without inventing an outcome
+
+A participant sends a handoff and loses the connection before seeing the answer.
+There are two possible histories: the operation committed, or it did not.
+
+Guessing can duplicate an effect or abandon work that never transferred.
+Retrying the same operation with its stable operation key lets Baton return the
+committed result when one already exists. Reusing the key for a different
+request is a conflict, not another spelling of the retry.
+
+This pattern is useful at other boundaries too: an uncertain answer should lead
+to evidence lookup or an owned retry, rather than an invented success.
+
+The coordination store remains behind its public interface. Reading or repairing
+its tables directly can hide a missing operational capability and leave other
+users with no reproducible path. If the supported views cannot answer a needed
+question, that gap is worth recording in its own right.
+
+## Maintenance: draining managed dispatch
+
+An operator wants to restart a busy deployment after its current work finishes.
+Each completed claim is immediately followed by another, so waiting for a quiet
+moment never produces a reliable maintenance boundary.
+
+Draining creates that boundary explicitly. Existing claims can finish, pass or
+release normally while new claims stop being admitted. When the live claims
+are gone, the deployment can report that dispatch is paused.
+
+An orphaned claim remains visible as a blocker. Treating it as finished because
+a runner looks unhealthy would hide the recovery decision the operator still
+needs to make.
+
+A service manager can use the paused state as the condition for a graceful stop.
+An emergency stop is a different action: it may be necessary when the authority
+is unavailable, but it does not imply that claims completed.
+
+Restarting services and resuming dispatch are also separate decisions. This
+distinction prevents a maintenance restart from admitting new work before the
+operator has checked the deployment.
 
 ## Exporting the Work graph
 
-`home`, `tree` and the dependency neighbourhood are bounded operator views:
-team-scoped, three containment levels, dependency-only, capped. They answer
-"what should I look at next". None of them answers "what does the whole graph
-contain right now", and you cannot build that answer by calling `links` in a
-loop — each call observes its own snapshot, so the result is a picture of a
-moment that never existed.
+A team wants to understand why an apparently small feature has accumulated a
+long critical path. The visible tree shows only part of the campaign, and
+reading several neighborhoods separately can mix states from different moments.
 
-`work-graph` is that answer. One read transaction, every typed relation, and a
-sequence naming the exact state it came from:
+A complete graph export provides one coherent view of the relationships.
+Containment shows the roll-up, dependencies show required inputs, and follow-up
+or duplicate links explain other kinds of history.
 
-    $BATON work-graph
-    $BATON work-graph format=dot > work.dot
-    $BATON actionable-work
-    $BATON work-graph format=dot status=all \
-        changed-from=2026-08-01T00:00:00Z changed-until=2026-09-01T00:00:00Z
+This makes the export useful for questions that a personal queue cannot answer:
+which outcomes are independently schedulable, where a shared provider creates
+a bottleneck, or whether a supposed decomposition still contains one oversized
+piece of work.
 
-With no operands you get every team's OPEN Work as JSON. `format=dot` writes
-Graphviz DOT to stdout instead, which is the one command that does not emit the
-usual JSON envelope — so redirect it. A refusal still writes JSON to stderr,
-exits nonzero, and writes **nothing** to stdout: the whole document is built in
-memory first, so a failed export cannot leave a half-graph that happens to
-parse.
-
-**Baton emits text and never renders an image.** There is no bundled layout
-engine and no Graphviz dependency; `work-graph format=dot` works on a host that
-has never heard of Graphviz. Rendering, if you want it, is a separate tool on
-your own machine:
-
-    dot -Tsvg work.dot -o work.svg
-
-Four relations are exported, each pointing one fixed way:
-
-| relation | edge direction | predicate |
-| --- | --- | --- |
-| `dependency` | blocker → consumer | `blocks` |
-| `containment` | parent → child | `contains` |
-| `follow-up` | predecessor → successor | `followed_by` |
-| `duplicate` | rejected duplicate → canonical survivor | `duplicate_of` |
-
-Every edge spells its relation in its `label` and in `baton_*` attributes;
-nothing is carried by colour, shape or line style. The digraph is deliberately
-not `strict`, because one pair of Works can hold more than one relation and
-`strict` would silently merge them.
-
-**Scope selects, then keeps the far end of every edge it touches.** With
-`status=open`, a closed blocker of selected open Work stays in the export
-marked `scope=context` rather than being dropped — dropping it would leave a
-dangling edge, and promoting it would report closed Work as open. Context does
-not expand further, so one closed predecessor cannot drag an entire history
-chain into an open export.
-
-**`status=all` requires `changed-from` and `changed-until`.** Terminal history
-would otherwise bury the current graph. Both take timezone-bearing RFC 3339
-instants, the interval is half-open (`from` inclusive, `until` exclusive), and
-it filters on each Work's `last_changed_at`. The pair is optional for
-`status=open` and `status=closed`.
-
-The export is complete or it refuses: no page, depth, limit or truncation. Two
-exports of an unchanged authority are byte-identical, and identical for every
-authorized participant — nothing viewer-specific and no timestamp goes into the
-document — so a `.dot` file can be diffed and checksummed.
+The exported data can be visualized or compared with another retained export.
+Its value comes from preserving one consistent view, not from treating the
+picture as a second scheduling authority. Decisions about current claims or
+readiness still use current Baton state.
 
 ## Configuration changes
 
-A proposed generation is inert until an authorized participant accepts it:
+A team adds a reviewer and wants that participant to receive eligible work.
+Editing the proposed configuration describes the intended arrangement; it does
+not by itself authorize the newcomer or alter the accepted routing.
 
-    # edit baton.json, bump "generation"
-    baton --participant app.nia home
-    # baton.json is edited but not accepted: its digest is bd47381e5f4d…
-    # and the accepted configuration is 10c3dd72606b…
+The participant accepting the change acts under the existing configuration.
+A proposal cannot grant itself the authority to be accepted.
 
-    baton --participant app.mina regen
-    # app.mina does not hold the config capability in the currently accepted
-    # generation 1; a proposal cannot authorize its own acceptor
+This is useful when a configuration change affects several relationships at
+once. The team can review the proposed roles, handlers and routes together,
+then accept them through one explicit transition instead of relying on ambient
+files or different participants' assumptions.
 
-    baton --participant app.ops regen
-    # -> {"generation": 2, "changes": {"added": ["member:app.nia"],
-    #     "rerouted": ["app.impl"]}, "digest": "bd47381e5f4d…"}
-
-The acceptor is authorized by the **currently accepted** generation, so an
-edit cannot grant itself the capability to be accepted.
-
-## The short version
-
-1. Read canonical state before acting; a wake line is a hint, not authority.
-2. Claim before you execute. Never hold a claim you are not progressing.
-3. Let phase tell the truth — `block` names its gate, `parked` names its
-   reason.
-4. Pass with real handoff evidence; the route decides the phase.
-5. Ask with a directed request, and let it block when you honestly cannot
-   proceed.
-6. Close with one outcome and a rationale that will still make sense in a year.
-7. Put the reasoning in the dossier, because the authority only remembers what
-   is true now.
+The same discipline applies to the examples throughout this book. The project
+owns its actual organization, permissions, scope and deployment. Baton makes
+their coordination explicit, while the working strategies help people decide
+which relationships are useful for the result they are trying to deliver.

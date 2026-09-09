@@ -1,0 +1,25 @@
+{
+  "files": [
+    {
+      "path": "src/baton_v12/worker_manager/intake.py",
+      "sha256": "3e51a2746cc6e4ed39ce5c8fc9b121a89b14dd0a667ffd9dfaf8c66f13dd9769",
+      "mode": "664",
+      "all_prior_top_level_definitions_AST_unchanged": true
+    },
+    {
+      "path": "src/baton_v12/worker_manager/__init__.py",
+      "sha256": "3981073e933fb36daa4ad93091858487f3393e8ceabb69bbb26a3496bf9db798",
+      "mode": "644",
+      "all_prior_top_level_definitions_AST_unchanged": true
+    },
+    {
+      "path": "tests/manager/test_intake.py",
+      "sha256": "598775fda73043b76cc8d107bbde9faf0d84fba8444783c9c74f96d860198bad",
+      "mode": "664",
+      "all_prior_top_level_definitions_AST_unchanged": true
+    }
+  ],
+  "author_reported_cumulative_seconds": 12.69,
+  "sum_listed_wall_times": 12.686,
+  "remaining_author_budget_seconds": 7.31
+}

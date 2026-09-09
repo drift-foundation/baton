@@ -1,0 +1,52 @@
+{
+  "work": "W119114",
+  "claim": 121999,
+  "budget_seconds": {
+    "declared_before_running": 20,
+    "spent": 18.6,
+    "runs": [
+      4.1,
+      14.5
+    ]
+  },
+  "sha256": {
+    "tools/stage_execution.py": "c2706af1732ed1a802050f404f89028ff7db3a56a864bca01105ff08e835fbd8",
+    "tools/single_worker.py": "ff383296aeb75885668d365d3cdc5ff1a280234f5282694acb7f37cc3f4ca47f",
+    "tests/tools/test_stage_execution.py": "a5f9aba5d853da72e80839b68f22e1280818d0763aceb4d21d309527ddf65779",
+    "tests/tools/test_single_worker.py": "af445808743e15c7a95017b9ef3d685c4b96b0a45a439940cc60a553c8a8aa3b",
+    "tools/parallel_test.py": "6ea5e9bef58a5182ae8b904a8db9ae92bcaf130d05ee1d61e9c36aa3efa0c10d"
+  },
+  "modes": {
+    "tools/stage_execution.py": "664",
+    "tools/single_worker.py": "664",
+    "tests/tools/test_stage_execution.py": "664",
+    "tests/tools/test_single_worker.py": "664",
+    "tools/parallel_test.py": "644"
+  },
+  "unchanged_this_claim": [
+    "tools/single_worker.py",
+    "tests/tools/test_single_worker.py",
+    "tools/parallel_test.py"
+  ],
+  "test_methods": {
+    "test_stage_execution_at_baseline": 93,
+    "test_stage_execution_now": 107,
+    "all_additive": true
+  },
+  "commands": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution",
+      "result": "107 tests, OK, 4.1s"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution tests.tools.test_single_worker tests.job_manager.test_review_driver tests.integration.test_driver",
+      "result": "456 tests, OK, 14.5s"
+    }
+  ],
+  "still_owed": [
+    "StageComposition.end must register and settle the W119733 composed-ending obligation and discharge the quiescence gate through the accepted _AuthoritySession.satisfy_gate forwarding",
+    "replace StageComposition.end's deployment.verdict seam with review_driver.end_review_from_result",
+    "convert the three TheComposedHandoffStopsAtTheUndischargedQuiescenceGate assertions, as owner event119712 approves",
+    "the assembled factory/tick-driven correction, acceptance, integration, terminal handoff, reconstructed-manager restart and preserved operator-held uncertain integration"
+  ]
+}

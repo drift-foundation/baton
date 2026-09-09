@@ -1,0 +1,45 @@
+{
+  "work": "W119733",
+  "claim": 121965,
+  "utc": "2026-09-08T19:39:44.268960+00:00",
+  "paths": {
+    "src/baton_v12/job_manager/ending.py": {
+      "sha256": "3d9c4f1914806e2b38543642c483d74628da9e1cbd36a24fa4cc04bf75ea2b99",
+      "mode": "0o664",
+      "matches_accepted_child": true
+    },
+    "src/baton_v12/job_manager/projection.py": {
+      "sha256": "b47c469641df61b6516f590602c6930968a71d5b7f24cf7e8856b6e95197ae9e",
+      "mode": "0o664",
+      "matches_accepted_child": true
+    },
+    "src/baton_v12/job_manager/manager.py": {
+      "sha256": "f77a12f80c66e8dfb9ed700177b90fa4bda841788396304189f00230dfbd9c83",
+      "mode": "0o664",
+      "matches_accepted_child": true
+    },
+    "tests/job_manager/test_ending.py": {
+      "sha256": "30a0b759754bb78fd27e99ab6e9ea1a76949d4b644bda5f3b42fea0e72a796d9",
+      "mode": "0o664",
+      "matches_accepted_child": true
+    },
+    "src/baton_v12/job_manager/review_driver.py": {
+      "sha256": "a0d5570bf10e4665401c04a712b4dc507ba355d159d06891c1d10b12dd5860d9",
+      "mode": "0o664",
+      "matches_accepted_child": true
+    },
+    "tests/job_manager/test_review_driver.py": {
+      "sha256": "3c695fde1b1dfe5f6a7dbbb3b8ce8eaa6f8339459d6c52db0b947c662ae88cb0",
+      "mode": "0o664",
+      "matches_accepted_child": true
+    }
+  },
+  "assessment": "Joined source/interface inspection; retained accepted child tests reused; no new test execution.",
+  "source_interactions": [
+    "ending.pending_endings validates both journal halves across all retained episodes",
+    "manager._recover_endings rebuilds bound attempt and invokes conclude once per stage/episode/tick",
+    "projection._ending_owed keeps unsettled current ending owed before generic cleanup rules",
+    "historical end_implementation returns the ordinary result_id/manifest_digest/receipt_digest/checkpoint_id consumed by settlement; actual publication answer preserved",
+    "publication history seam delegates to accepted integration.publication_for_attempt without process selector"
+  ]
+}

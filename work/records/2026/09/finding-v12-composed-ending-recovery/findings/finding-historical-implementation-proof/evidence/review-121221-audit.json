@@ -1,0 +1,44 @@
+{
+  "v12/python/src/baton_v12/job_manager/review_driver.py": {
+    "sha256": "cc6b21627d49c2a9864deb7b93ebb01c851e026ddbc86ced58ef9217c99dd67c",
+    "mode": "0o664"
+  },
+  "v12/python/tests/job_manager/test_review_driver.py": {
+    "sha256": "d6f0bb5d6c78d74cd48aff9e07d4afe4f4de1a4598a0b6939a21c2724addd3b7",
+    "mode": "0o664"
+  },
+  "removed": [
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_publication_this_manager_no_longer_retains_refuses",
+    "TheImplementationResumeReadsRealCommittedCustody.test_an_unsettled_cleanup_axis_refuses_before_the_owner_is_asked",
+    "_RetainedPublication.__init__",
+    "_RetainedPublication._document",
+    "_RetainedPublication.publish",
+    "_RetainedPublication.published_of"
+  ],
+  "changed": [
+    "TheImplementationResumeReadsRealCommittedCustody.implemented",
+    "TheImplementationResumeReadsRealCommittedCustody.setUp",
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_checkpoint_that_is_not_this_writers_frozen_one_refuses",
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_cleanup_axis_without_its_committed_destroy_refuses",
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_publication_history_that_names_another_result_refuses",
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_reopened_manager_finishes_the_ending_from_those_records",
+    "TheImplementationResumeReadsRealCommittedCustody.test_the_ordinary_ending_leaves_every_record_a_resume_reads",
+    "TheImplementationResumeReadsRealCommittedCustody.test_the_recorded_steps_are_the_ones_the_resume_performs"
+  ],
+  "added": [
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_publication_this_manager_never_committed_refuses",
+    "TheImplementationResumeReadsRealCommittedCustody.test_a_seam_that_cannot_answer_the_committed_publication_refuses",
+    "TheImplementationResumeReadsRealCommittedCustody.test_resuming_twice_answers_the_same_thing_and_does_nothing",
+    "TheImplementationResumeReadsRealCommittedCustody.test_the_checkpoint_is_the_one_this_ending_already_froze",
+    "TheImplementationResumeReadsRealCommittedCustody.test_the_cleanup_axis_no_longer_decides_anything",
+    "TheImplementationResumeReadsRealCommittedCustody.test_the_line_and_its_writer_are_left_exactly_where_they_were",
+    "TheImplementationResumeReadsRealCommittedCustody.test_the_publication_selector_is_derivable_after_reopening",
+    "TheImplementationResumeReadsRealCommittedCustody.test_the_resume_answers_the_ordinary_endings_document",
+    "TheImplementationResumeReadsRealCommittedCustody.test_the_resume_survives_the_line_moving_on",
+    "TheImplementationResumeReadsRealCommittedCustody.test_the_resumed_steps_are_the_ones_the_resume_performs",
+    "_RealPublication.__init__",
+    "_RealPublication._selector",
+    "_RealPublication.publish",
+    "_RealPublication.published_of"
+  ]
+}

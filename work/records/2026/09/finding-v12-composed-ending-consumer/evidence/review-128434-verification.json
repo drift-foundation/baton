@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-c",
+    "import json,unittest\nfrom tests.tools.test_stage_execution import OrdinaryTerminalLifecycle,TheObservationSurfaceIsSeparateAndReadOnly\ncase=OrdinaryTerminalLifecycle(\"test_fresh_process_observes_owned_completion_after_serving_closes\")\nsuite=unittest.TestSuite([case,unittest.defaultTestLoader.loadTestsFromTestCase(TheObservationSurfaceIsSeparateAndReadOnly)])\nresult=unittest.TextTestRunner(verbosity=2).run(suite)\nif result.wasSuccessful():\n print(\"READONLY_EVIDENCE=\"+json.dumps(case.readonly_evidence,sort_keys=True))\nraise SystemExit(not result.wasSuccessful())\n"
+  ],
+  "cwd": "v12/python",
+  "PYTHONPATH": "src:.",
+  "cap_seconds": 3,
+  "elapsed_seconds": 1.2847588669974357,
+  "returncode": 0
+}

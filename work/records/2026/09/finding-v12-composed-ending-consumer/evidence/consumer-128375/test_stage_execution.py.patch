@@ -1,0 +1,136 @@
+--- v12/python/tests/tools/test_stage_execution.py
++++ v12/python/tests/tools/test_stage_execution.py
+@@ -3847,6 +3847,133 @@
+         self.assertEqual(self.states(job, restarted)["implementation"], "completed")
+         checkpoint = settled["settlement"]["evidence"]["checkpoint_id"]
+         self.assertEqual(review_cycles.checkpoint_of(control, checkpoint)["writer_id"], writer["writer_id"])
++
++    READONLY_PROCESS = r'''
++import contextlib
++import json
++import sys
++from unittest.mock import patch
++from baton_v12.authority import Authority
++from baton_v12.contracts import ContractRefusal
++from baton_v12.integration import IntegrationStore
++from baton_v12.job_manager import JobStore, status
++from baton_v12.worker_manager import ControlStore
++from tools import job_manager, stage_execution
++
++spec = json.load(open(sys.argv[1]))
++clock = lambda: "2026-09-02T00:00:00.000Z"
++counts = {"authority_open": 0, "authority_dispose": 0, "coordinator_open": 0, "coordinator_close": 0}
++open_authority, dispose = Authority.open_readonly, Authority.dispose
++open_coordinator, close = IntegrationStore.open_readonly, IntegrationStore.close
++def authority_open(*args, **kwargs):
++    assert kwargs["expected_authority_uuid"] == spec["uuid"]
++    result = open_authority(*args, **kwargs)
++    counts["authority_open"] += 1
++    return result
++def coordinator_open(*args, **kwargs):
++    result = open_coordinator(*args, **kwargs)
++    counts["coordinator_open"] += 1
++    return result
++def disposed(owner):
++    counts["authority_dispose"] += 1
++    dispose(owner)
++def closed(owner):
++    counts["coordinator_close"] += 1
++    close(owner)
++
++with JobStore.open(spec["job"], authority_uuid=spec["uuid"], incarnation="readonly-child", clock=clock) as job, \
++        ControlStore.open(spec["control"], incarnation="readonly-child", clock=clock) as control, contextlib.ExitStack() as guards:
++    for owner, name in ((Authority, "open"), (Authority, "session"), (IntegrationStore, "open"),
++            (stage_execution, "operations_from"), (stage_execution.Integration, "run"),
++            (stage_execution.Integration, "finish"), (stage_execution.scheduler, "activate_pool"),
++            (stage_execution.single_worker, "worker_preflight"), (stage_execution, "retain_proposal"),
++            (stage_execution.review_cycles, "create_line")):
++        guards.enter_context(patch.object(owner, name, side_effect=AssertionError("read reached " + name)))
++    guards.enter_context(patch.object(stage_execution, "_checkout", return_value=spec["checkout"]))
++    guards.enter_context(patch.object(Authority, "open_readonly", side_effect=authority_open))
++    guards.enter_context(patch.object(IntegrationStore, "open_readonly", side_effect=coordinator_open))
++    guards.enter_context(patch.object(Authority, "dispose", disposed))
++    guards.enter_context(patch.object(IntegrationStore, "close", closed))
++    reader = job_manager._observation_from("tools.stage_execution:observing_factory", job, control)
++    observed = reader.observe_integration(spec["stage"])
++    assert observed["state"] == "completed", observed
++    completion = observed["completion"]
++    assert observed["assignment"] == spec["fixed"]
++    for member in ("proposal_id", "integration_receipt_id", "entry_id", "lease_id", "fence", "handoff_operation_id", "to_route", "runtime_id"):
++        assert completion[member] == spec["completion"][member], (member, completion)
++    projected = status(job, job_manager._Observing(control, reader), observed_at=clock())
++    assert {row["kind"]: row["state"] for row in projected["jobs"][0]["stages"]} == {
++        "implementation": "completed", "review": "completed", "integration": "completed"}
++    actual = Authority.operation_result
++    with patch.object(Authority, "operation_result", lambda self, op: None if op == completion["handoff_operation_id"] else actual(self, op)):
++        assert reader.observe_integration(spec["stage"])["state"] == "answered"
++    receipt = Authority.receipt
++    with patch.object(Authority, "receipt", lambda self, *args: dict(receipt(self, *args), candidate_digest="foreign")):
++        try:
++            reader.observe_integration(spec["stage"])
++        except ContractRefusal as refusal:
++            assert refusal.code == "operation-collision"
++        else:
++            raise AssertionError("foreign receipt completed")
++    for name, value in (("integration_store", spec["missing_coordinator"]), ("authority_store", spec["foreign_authority"])):
++        document = json.load(open(spec["config"]))
++        document[name] = value
++        alternate = stage_execution.observation_from(document, job, control, checkout=spec["checkout"])
++        try:
++            alternate.observe_integration(spec["stage"])
++        except ContractRefusal:
++            pass
++        else:
++            raise AssertionError("missing/foreign evidence completed")
++    assert counts["authority_open"] == counts["authority_dispose"], counts
++    assert counts["coordinator_open"] == counts["coordinator_close"], counts
++    print(json.dumps({"observation": observed, "status": projected, "handles": counts,
++        "checks": ["configured UUID", "closed-serving completion", "missing handoff stays owed", "foreign receipt refuses",
++                   "absent coordinator refuses", "foreign Authority refuses", "no serving acts", "all reader handles disposed"]}))
++'''
++
++    def test_fresh_process_observes_owned_completion_after_serving_closes(self):
++        import subprocess
++        import sys
++        from baton_v12.authority import Authority
++
++        made = []
++        create = stage_execution.operations_from
++        def tracked(*args, **kwargs):
++            result = create(*args, **kwargs)
++            made.append(result)
++            return result
++        with mock.patch.object(stage_execution, "operations_from", side_effect=tracked):
++            held = self.answered_integration()
++        self.engine.stopped = True
++        self.tick(held)
++        expected = held.composed.integrator.observe(held.integration_stage)
++        self.assertEqual(expected["state"], "completed")
++        foreign = os.path.join(self.root, "foreign-authority.db")
++        Authority.create(foreign, authority_uuid="0000000b000000000000000000000000").dispose()
++        configuration = os.path.join(self.root, "readonly-config.json")
++        self.write(configuration, json.dumps(self.composed_document(line_declared_base=self.base)))
++        spec = {"job": self.job_path, "control": self.control_path, "uuid": self.config["authority_uuid"],
++                "checkout": self.checkout, "config": configuration, "stage": held.integration_stage,
++                "fixed": expected["assignment"], "completion": expected["completion"],
++                "foreign_authority": foreign, "missing_coordinator": os.path.join(self.root, "absent-coordinator.db")}
++        for composed in reversed(made):
++            composed.close()
++        held.job.close()
++        held.control.close()
++        protected = (self.authority_path, self.integration_store, self.job_path, self.control_path)
++        before = {path: (pathlib.Path(path).read_bytes(), os.stat(path).st_mode) for path in protected}
++        script = os.path.join(self.root, "read-completed.py")
++        self.write(script, self.READONLY_PROCESS)
++        specification = os.path.join(self.root, "read-spec.json")
++        self.write(specification, json.dumps(spec))
++        result = subprocess.run([sys.executable, script, specification], cwd=REPOSITORY / "v12/python",
++            env={**self.environment(), "PYTHONPATH": "src:.", stage_execution.CONFIG_ENV: configuration},
++            capture_output=True, text=True, timeout=5)
++        self.assertEqual(result.returncode, 0, result.stderr)
++        self.assertEqual({path: (pathlib.Path(path).read_bytes(), os.stat(path).st_mode) for path in protected}, before)
++        self.assertFalse(os.path.exists(spec["missing_coordinator"]))
++        self.readonly_evidence = json.loads(result.stdout)
+ 
+ 
+ class TheWrongRouteClaimDefersInsteadOfStoppingTheSweep(ComposedOneJobCase):

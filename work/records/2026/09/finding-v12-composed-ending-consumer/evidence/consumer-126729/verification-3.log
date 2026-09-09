@@ -1,0 +1,12 @@
+{
+  "euid": 1000,
+  "disposable_root": "/tmp/w122060-read-open-iv2vf7na",
+  "authority_readonly_open": {
+    "exception": "Refusal",
+    "message": "the file at '/tmp/w122060-read-open-iv2vf7na/authority.db' is not a baton.v12.python.authority store; this authority opens its own stores and adopts nothing -- not the Node v12 authority, not v11, not a worker-manager control store, not an arbitrary SQLite file"
+  },
+  "coordinator_existed_before_open": false,
+  "coordinator_exists_after_open": true,
+  "coordinator_bytes_after_open": 73728,
+  "public_entries": []
+}

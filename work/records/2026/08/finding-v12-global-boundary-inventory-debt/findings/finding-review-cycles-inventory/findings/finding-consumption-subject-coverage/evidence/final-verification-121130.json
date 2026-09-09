@@ -1,0 +1,104 @@
+{
+  "initial_seconds": 3.042671236093156,
+  "reused_initial_controls": 3,
+  "base_sha256": "912cce9a3fcd6b26c8cab3b36418ff35b0db3f2d6a91d3d6e895aef80dbb9532",
+  "candidate_sha256": "e92579485bc5074b26a83d953fc08f428723c84c459fc5750f20278b81b1d401",
+  "runtime_hashes": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+    "v12/python/src/baton_v12/worker_manager/schema.py": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+    "v12/python/src/baton_v12/worker_manager/boundaries.py": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a"
+  },
+  "all_existing_ast_preserved": true,
+  "focused": {
+    "tests": 4,
+    "successful": true
+  },
+  "entries": 1382,
+  "occurrences": 731,
+  "changed_owners": [
+    [
+      "adopted",
+      "review_cycles.py:consumption_subject",
+      "line_writers"
+    ],
+    [
+      "adopted",
+      "review_cycles.py:consumption_subject",
+      "line_writers.writer_id"
+    ]
+  ],
+  "added_declared_pairs": [
+    [
+      [
+        "adopted",
+        "review_cycles.py:consumption_subject",
+        "line_writers.writer_id"
+      ],
+      "a line writer identity"
+    ],
+    [
+      [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "attempt_id"
+      ],
+      "a runtime attempt identity"
+    ],
+    [
+      [
+        "caller",
+        "review_cycles.py:consumption_subject",
+        "generation"
+      ],
+      "an assignment generation"
+    ]
+  ],
+  "added_expected_pairs": [
+    [
+      [
+        "adopted",
+        "review_cycles.py:consumption_subject",
+        "line_writers.writer_id"
+      ],
+      "a line writer identity"
+    ]
+  ],
+  "module_unowned_after": [],
+  "module_expected_before": 105,
+  "module_expected_after": 106,
+  "module_declared_before": 100,
+  "module_declared_after": 103,
+  "module_missing_after": [
+    [
+      [
+        "adopted",
+        "review_cycles.py:_verdict_row",
+        "checkpoint_verdicts.review_fence.intent"
+      ],
+      "a persisted checkpoint verdict"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence.intent"
+      ],
+      "a persisted assignment fence"
+    ],
+    [
+      [
+        "adopted",
+        "review_cycles.py:checkpoint_of",
+        "line_checkpoints.fence.intent"
+      ],
+      "a persisted line checkpoint"
+    ]
+  ],
+  "module_orphan_after": [],
+  "residual_occurrences_unchanged": 92,
+  "all_other_owners_pairs_resolutions_unchanged": true,
+  "successful": true,
+  "test_output": "test_caller_catalog_probes_reach_validation_before_sql (tests.manager.test_boundary_inventory.ConsumptionEntriesReachTheirOwners.test_caller_catalog_probes_reach_validation_before_sql) ... ok\ntest_projected_catalog_probe_reaches_writer_identity_after_the_exact_lookup (tests.manager.test_boundary_inventory.ConsumptionEntriesReachTheirOwners.test_projected_catalog_probe_reaches_writer_identity_after_the_exact_lookup) ... ok\ntest_schema_rejects_a_second_matching_writer_even_on_another_line (tests.manager.test_boundary_inventory.ConsumptionEntriesReachTheirOwners.test_schema_rejects_a_second_matching_writer_even_on_another_line) ... ok\ntest_consumption_requires_one_live_writer_before_delegating (tests.manager.test_boundary_inventory.StatedRules.test_consumption_requires_one_live_writer_before_delegating) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 1.697s\n\nOK\n",
+  "seconds": 3.722046787966974,
+  "combined_seconds": 6.76471802406013
+}

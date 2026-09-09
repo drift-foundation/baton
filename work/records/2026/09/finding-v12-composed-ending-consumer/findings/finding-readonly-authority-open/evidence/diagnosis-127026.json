@@ -1,0 +1,136 @@
+{
+  "sqlite_version": "3.46.1",
+  "seconds": 0.0018168570240959525,
+  "results": [
+    {
+      "case": "ro",
+      "keep": [],
+      "uri": "file:{path}?mode=ro",
+      "before": [],
+      "read": "v",
+      "after": [
+        "ro.sqlite3-shm",
+        "ro.sqlite3-wal"
+      ],
+      "after_sizes": {
+        "ro.sqlite3-shm": 32768,
+        "ro.sqlite3-wal": 0
+      },
+      "created": [
+        "ro.sqlite3-shm",
+        "ro.sqlite3-wal"
+      ]
+    },
+    {
+      "case": "ro_wal",
+      "keep": [
+        "-wal"
+      ],
+      "uri": "file:{path}?mode=ro",
+      "before": [
+        "ro_wal.sqlite3-wal"
+      ],
+      "read": "v",
+      "after": [
+        "ro_wal.sqlite3-shm",
+        "ro_wal.sqlite3-wal"
+      ],
+      "after_sizes": {
+        "ro_wal.sqlite3-shm": 32768,
+        "ro_wal.sqlite3-wal": 0
+      },
+      "created": [
+        "ro_wal.sqlite3-shm"
+      ]
+    },
+    {
+      "case": "ro_shm",
+      "keep": [
+        "-shm"
+      ],
+      "uri": "file:{path}?mode=ro",
+      "before": [
+        "ro_shm.sqlite3-shm"
+      ],
+      "read": "v",
+      "after": [
+        "ro_shm.sqlite3-shm",
+        "ro_shm.sqlite3-wal"
+      ],
+      "after_sizes": {
+        "ro_shm.sqlite3-shm": 32768,
+        "ro_shm.sqlite3-wal": 0
+      },
+      "created": [
+        "ro_shm.sqlite3-wal"
+      ]
+    },
+    {
+      "case": "ro_wal_shm",
+      "keep": [
+        "-wal",
+        "-shm"
+      ],
+      "uri": "file:{path}?mode=ro",
+      "before": [
+        "ro_wal_shm.sqlite3-shm",
+        "ro_wal_shm.sqlite3-wal"
+      ],
+      "read": "v",
+      "after": [
+        "ro_wal_shm.sqlite3-shm",
+        "ro_wal_shm.sqlite3-wal"
+      ],
+      "after_sizes": {
+        "ro_wal_shm.sqlite3-shm": 32768,
+        "ro_wal_shm.sqlite3-wal": 0
+      },
+      "created": []
+    },
+    {
+      "case": "nolock",
+      "keep": [],
+      "uri": "file:{path}?mode=ro&nolock=1",
+      "before": [],
+      "refused": "OperationalError: unable to open database file",
+      "after": [],
+      "after_sizes": {},
+      "created": []
+    },
+    {
+      "case": "nolock_wal_shm",
+      "keep": [
+        "-wal",
+        "-shm"
+      ],
+      "uri": "file:{path}?mode=ro&nolock=1",
+      "before": [
+        "nolock_wal_shm.sqlite3-shm",
+        "nolock_wal_shm.sqlite3-wal"
+      ],
+      "refused": "OperationalError: unable to open database file",
+      "after": [
+        "nolock_wal_shm.sqlite3-shm",
+        "nolock_wal_shm.sqlite3-wal"
+      ],
+      "after_sizes": {
+        "nolock_wal_shm.sqlite3-shm": 0,
+        "nolock_wal_shm.sqlite3-wal": 0
+      },
+      "created": []
+    },
+    {
+      "case": "writer-attached",
+      "before": [
+        "held.sqlite3-shm",
+        "held.sqlite3-wal"
+      ],
+      "read": "v",
+      "after": [
+        "held.sqlite3-shm",
+        "held.sqlite3-wal"
+      ],
+      "created": []
+    }
+  ]
+}

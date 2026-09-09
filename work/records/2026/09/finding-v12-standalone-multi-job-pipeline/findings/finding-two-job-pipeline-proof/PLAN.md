@@ -69,3 +69,34 @@ negative evidence alongside the live A/B/C run. See reviews at12-29-16Z and
 changes the current proof contract before an explicit owner ruling. The
 selected integrator-model scope judgement remains the current boundary;
 no mechanical enforcement subsystem is a prerequisite.
+
+
+2026-09-08 current multi-Job sequence (owner M119126): the previously proposed
+successor placement is approved. Complete independent one-Job assembly
+acceptance first, then the worker-pool configuration and per-Job binding cuts
+serially, then their joined independent acceptance before concrete proof freeze.
+Bounded plans live in `work/records/2026/09/finding-v12-multi-job-deployment/`.
+This supersedes the earlier pending multi-Job placement wording only. The
+one-Job assembly scope, custody proof and demonstration objectives are preserved;
+companion-refusal evidence remains a separate decision. Baton owns live gates.
+
+
+2026-09-08 current companion acceptance (owner M119128): the evidence
+adjustment is approved, superseding earlier pending-conflict and mandatory
+live-negative-companion wording. At freeze, identify and label the existing
+component refusal and conservative-hold control separately from actual A/B/C
+execution. Preserve exact evidence/source identities; audit accepted evidence
+before considering a run. Claim only the observed instruction/refusal/ending
+boundary, never live-model refusal or absence of intermediate writes. Actual
+A/B imports, independent review/correction, fault-C containment, overlap, one
+submission and zero ordinary transitions are unchanged. No new enforcement
+provider or companion scenario design remains to be approved. See FINDING's
+M119128 entry and review-2026-09-08T13-25-00Z.md in the proof record.
+
+
+2026-09-08 placement completion: owner-selected successor records, bounded
+serial implementation plans and required proof gate are verified in
+review-2026-09-08T13-31-47Z.md. This supersedes pending installation of the
+placement gate. Continue the existing assembly -> pool -> per-Job binding ->
+joined acceptance -> freeze sequence; actual implementation/proof are pending.
+Live dependency identities and states remain in Baton.

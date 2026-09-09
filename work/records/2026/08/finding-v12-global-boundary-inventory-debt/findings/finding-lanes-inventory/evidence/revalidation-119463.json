@@ -1,0 +1,341 @@
+{
+  "source_hashes": {
+    "v12/python/tests/manager/test_boundary_inventory.py": "162f527e3476dcffcc937996df6c36d2d26505dfd7ea156eee6657e7433b30d5",
+    "v12/python/src/baton_v12/worker_manager/lanes.py": "72fa035958dbd4f1c08b4824aa4fff3fe5178f94790e550224f72fcc0c08f285",
+    "v12/python/src/baton_v12/worker_manager/schema.py": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+    "v12/python/src/baton_v12/worker_manager/__init__.py": "965dd3599ad627a2f22b66ed37fac31041ccd8a342fab853a0ca1ca866b38d8b",
+    "v12/python/src/baton_v12/worker_manager/attempts.py": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+    "v12/python/src/baton_v12/worker_manager/intake.py": "be9bafa313b15e3a12d443fc7f704049b504b05835812e1e41ebcf391c5e99d9"
+  },
+  "entries": [
+    [
+      "adopted",
+      "lanes.py:_holder_of",
+      "runtime_lanes"
+    ],
+    [
+      "adopted",
+      "lanes.py:_holder_of",
+      "runtime_lanes.holder"
+    ],
+    [
+      "adopted",
+      "lanes.py:_holder_of",
+      "runtime_lanes.lane_id"
+    ],
+    [
+      "adopted",
+      "lanes.py:_holder_of",
+      "runtime_lanes.reason"
+    ],
+    [
+      "adopted",
+      "lanes.py:_no_predecessor_holds",
+      "runtime_lanes"
+    ],
+    [
+      "adopted",
+      "lanes.py:_no_predecessor_holds",
+      "runtime_lanes.holder"
+    ],
+    [
+      "adopted",
+      "lanes.py:_no_predecessor_holds",
+      "runtime_lanes.lane_id"
+    ],
+    [
+      "adopted",
+      "lanes.py:_no_predecessor_holds",
+      "runtime_lanes.reason"
+    ],
+    [
+      "adopted",
+      "lanes.py:_occupy_lane",
+      "runtime_lanes"
+    ],
+    [
+      "adopted",
+      "lanes.py:_occupy_lane",
+      "runtime_lanes.holder"
+    ],
+    [
+      "adopted",
+      "lanes.py:_occupy_lane",
+      "runtime_lanes.lane_id"
+    ],
+    [
+      "adopted",
+      "lanes.py:_occupy_lane",
+      "runtime_lanes.reason"
+    ],
+    [
+      "adopted",
+      "lanes.py:_work_lanes",
+      "runtime_lanes"
+    ],
+    [
+      "adopted",
+      "lanes.py:_work_lanes",
+      "runtime_lanes.holder"
+    ],
+    [
+      "adopted",
+      "lanes.py:_work_lanes",
+      "runtime_lanes.lane_id"
+    ],
+    [
+      "adopted",
+      "lanes.py:_work_lanes",
+      "runtime_lanes.principal"
+    ],
+    [
+      "adopted",
+      "lanes.py:_work_lanes",
+      "runtime_lanes.reason"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.assignment_principal"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.assignment_scope"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.authority_uuid"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.runtime_attempt_id"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.work_id"
+    ],
+    [
+      "caller",
+      "lanes.py:runtime_lane",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "lanes.py:runtime_lane",
+      "store"
+    ]
+  ],
+  "unowned": [
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.assignment_principal"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.assignment_scope"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.authority_uuid"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.runtime_attempt_id"
+    ],
+    [
+      "caller",
+      "lanes.py:lane_reference",
+      "attempt.work_id"
+    ],
+    [
+      "caller",
+      "lanes.py:runtime_lane",
+      "attempt_id"
+    ]
+  ],
+  "orphan_calls": [
+    [
+      "lanes.py:_occupy_lane",
+      "identity",
+      "a runtime attempt id"
+    ],
+    [
+      "lanes.py:_occupy_lane",
+      "text",
+      "a lane occupancy reason"
+    ],
+    [
+      "lanes.py:_release_lane",
+      "identity",
+      "a runtime attempt id"
+    ],
+    [
+      "lanes.py:_release_lane",
+      "text",
+      "a lane release reason"
+    ]
+  ],
+  "expected_count": 17,
+  "declared_count": 17,
+  "missing_probes": [],
+  "orphan_probes": [],
+  "public_export": true,
+  "public_observations": [
+    {
+      "case": "valid",
+      "input": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "0000000000000000000000000000000a",
+        "work_id": "0000000a-W1",
+        "assignment_principal": "principal-probe",
+        "assignment_scope": "scope"
+      },
+      "input_unchanged": true,
+      "outcome": "returned",
+      "answer": {
+        "authority_uuid": "0000000000000000000000000000000a",
+        "work_id": "0000000a-W1",
+        "principal": "principal-probe",
+        "effective_scope": "scope"
+      }
+    },
+    {
+      "case": "inactive",
+      "input": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "0000000000000000000000000000000a",
+        "work_id": "0000000a-W1",
+        "assignment_principal": null,
+        "assignment_scope": "scope"
+      },
+      "input_unchanged": true,
+      "outcome": "ContractRefusal",
+      "category": "refused",
+      "code": "precondition",
+      "message": "attempt 'attempt-1' is not activated, so it belongs to no lane; capacity is a fact about an assignment and an attempt without one is not in a queue for anything"
+    },
+    {
+      "case": "non-document",
+      "input": [],
+      "input_unchanged": true,
+      "outcome": "TypeError",
+      "message": "list indices must be integers or slices, not str"
+    },
+    {
+      "case": "missing-members",
+      "input": {},
+      "input_unchanged": true,
+      "outcome": "KeyError",
+      "message": "'assignment_principal'"
+    },
+    {
+      "case": "malformed-runtime_attempt_id",
+      "input": {
+        "runtime_attempt_id": [],
+        "authority_uuid": "0000000000000000000000000000000a",
+        "work_id": "0000000a-W1",
+        "assignment_principal": "principal-probe",
+        "assignment_scope": "scope"
+      },
+      "input_unchanged": true,
+      "outcome": "returned",
+      "answer": {
+        "authority_uuid": "0000000000000000000000000000000a",
+        "work_id": "0000000a-W1",
+        "principal": "principal-probe",
+        "effective_scope": "scope"
+      }
+    },
+    {
+      "case": "malformed-authority_uuid",
+      "input": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": [],
+        "work_id": "0000000a-W1",
+        "assignment_principal": "principal-probe",
+        "assignment_scope": "scope"
+      },
+      "input_unchanged": true,
+      "outcome": "returned",
+      "answer": {
+        "authority_uuid": [],
+        "work_id": "0000000a-W1",
+        "principal": "principal-probe",
+        "effective_scope": "scope"
+      }
+    },
+    {
+      "case": "malformed-work_id",
+      "input": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "0000000000000000000000000000000a",
+        "work_id": [],
+        "assignment_principal": "principal-probe",
+        "assignment_scope": "scope"
+      },
+      "input_unchanged": true,
+      "outcome": "returned",
+      "answer": {
+        "authority_uuid": "0000000000000000000000000000000a",
+        "work_id": [],
+        "principal": "principal-probe",
+        "effective_scope": "scope"
+      }
+    },
+    {
+      "case": "malformed-assignment_principal",
+      "input": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "0000000000000000000000000000000a",
+        "work_id": "0000000a-W1",
+        "assignment_principal": [],
+        "assignment_scope": "scope"
+      },
+      "input_unchanged": true,
+      "outcome": "returned",
+      "answer": {
+        "authority_uuid": "0000000000000000000000000000000a",
+        "work_id": "0000000a-W1",
+        "principal": [],
+        "effective_scope": "scope"
+      }
+    },
+    {
+      "case": "malformed-assignment_scope",
+      "input": {
+        "runtime_attempt_id": "attempt-1",
+        "authority_uuid": "0000000000000000000000000000000a",
+        "work_id": "0000000a-W1",
+        "assignment_principal": "principal-probe",
+        "assignment_scope": []
+      },
+      "input_unchanged": true,
+      "outcome": "returned",
+      "answer": {
+        "authority_uuid": "0000000000000000000000000000000a",
+        "work_id": "0000000a-W1",
+        "principal": "principal-probe",
+        "effective_scope": []
+      }
+    }
+  ],
+  "seconds": 2.6672603850020096
+}

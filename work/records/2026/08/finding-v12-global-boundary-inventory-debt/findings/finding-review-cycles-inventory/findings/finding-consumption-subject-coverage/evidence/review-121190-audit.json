@@ -1,0 +1,17 @@
+{
+  "initial_seconds": 3.042671236093156,
+  "reused_initial_controls": 3,
+  "base_sha256": "912cce9a3fcd6b26c8cab3b36418ff35b0db3f2d6a91d3d6e895aef80dbb9532",
+  "candidate_sha256": "e92579485bc5074b26a83d953fc08f428723c84c459fc5750f20278b81b1d401",
+  "runtime_hashes": {
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": "774fae6bd09c9dfe9a1f47b6149c9cfbe375d22c6461a95a7aa7d251b7d02da6",
+    "v12/python/src/baton_v12/worker_manager/schema.py": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+    "v12/python/src/baton_v12/worker_manager/boundaries.py": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a"
+  },
+  "all_existing_ast_preserved": true,
+  "mode": "0o644",
+  "scope": "Exact scheduled additive nodes; previous AST and runtime hashes preserved",
+  "retained_controls_and_census_reused": true,
+  "successful": true,
+  "seconds": 0.41469085891731083
+}

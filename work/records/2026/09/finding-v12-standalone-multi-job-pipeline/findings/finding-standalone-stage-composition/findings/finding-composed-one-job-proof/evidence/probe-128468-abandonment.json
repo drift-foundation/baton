@@ -1,0 +1,110 @@
+{
+  "answer_keys": [
+    "cleanup",
+    "fenced",
+    "intent"
+  ],
+  "cleanup": {
+    "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+    "cleanup": "retained",
+    "state": "absent",
+    "why": "the engine answered that this exact identity does not exist",
+    "kept": "<class 'list'>",
+    "operation": "<class 'dict'>",
+    "directory_custody": "<class 'dict'>"
+  },
+  "runtime": {
+    "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+    "runtime_id": "runtime-single-3",
+    "execution_runtime": "destroyed",
+    "cleanup": "retained",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.claude",
+      "generation": 3
+    }
+  },
+  "line_after": {
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "authority_uuid": "0000000a000000000000000000000000",
+    "work_id": "0000000a-W1",
+    "profile_name": "git",
+    "declared_base": "e77baac9305dfde68b6683103e42037f65958f2f",
+    "source_path": "/home/sl/src/baton/v12/python/v12-w71917-txoaaosj/source",
+    "source_device": 66306,
+    "source_inode": 47980129,
+    "line_path": "/home/sl/src/baton/v12/python/v12-w71917-txoaaosj/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+    "line_device": 66306,
+    "line_inode": 47980199,
+    "state": "writing",
+    "revision": 1,
+    "current_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+    "created_at": "2026-09-02T00:00:00.000Z"
+  },
+  "states": {
+    "implementation": "exceptional",
+    "review": "blocked",
+    "integration": "blocked"
+  },
+  "last_report": {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 2,
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 2,
+        "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      }
+    ]
+  },
+  "first_report": {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [],
+    "started": [],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 2,
+        "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 2,
+        "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      }
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "src/baton_v12/integration/driver.py": {
+    "sha256": "b19839ac0d87878aba3fba89c11e823de3b324e2aed9766b192435101ae3a1a7",
+    "mode": "0o664",
+    "previous_functions_preserved": 37,
+    "added": [
+      "_candidate",
+      "publication_for_attempt"
+    ]
+  },
+  "src/baton_v12/integration/__init__.py": {
+    "sha256": "ec3a2e4fd52739c249b5a2dff102fe1be056ae6fabcb83dca52eed80d83ea8eb",
+    "mode": "0o664",
+    "previous_functions_preserved": 0,
+    "added": []
+  },
+  "tests/integration/test_driver.py": {
+    "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+    "mode": "0o664",
+    "previous_functions_preserved": 160,
+    "added": [
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.cold",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.damaged",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.owners",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.published",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.read",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.refusal",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.reopened",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.rows",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.test_a_cold_manager_finds_the_publication_from_the_attempt",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.test_a_later_target_does_not_reach_this_reader",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.test_a_record_filed_under_another_identity_refuses",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.test_a_record_that_did_not_settle_refuses",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.test_a_record_this_reader_cannot_classify_refuses",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.test_a_retained_only_proposal_answers_absence",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.test_an_attempt_with_no_publication_answers_absence",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.test_another_attempts_record_is_skipped_and_not_returned",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.test_it_takes_neither_publisher_nor_selector",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.test_reading_again_answers_the_same_and_writes_nothing",
+      "TheCommittedPublicationIsFoundFromTheAttemptAlone.test_two_publications_for_one_attempt_refuse"
+    ]
+  }
+}

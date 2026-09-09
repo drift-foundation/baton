@@ -1,0 +1,122 @@
+--- a/v12/python/tests/manager/test_boundary_inventory.py
++++ b/v12/python/tests/manager/test_boundary_inventory.py
+@@ -2872,6 +2872,10 @@
+ }
+ 
+ DELEGATED = {
++    ("caller", "review_cycles.py:review_of", "attachment_id"):
++        ("review_cycles.py:_attachment", "caller:attachment_id"),
++    ("caller", "review_cycles.py:verdict_of", "verdict_id"):
++        ("review_cycles.py:_verdict_row", "caller:verdict_id"),
+     ("caller", "lanes.py:runtime_lane", "attempt_id"):
+         ("attempts.py:_attempt_row", "caller:attempt_id"),
+     ("caller", "workspaces.py:AllocatedRoots.__init__", "_line_proof"):
+@@ -8052,6 +8056,10 @@
+                 self.root, "attempt-line-probe", SURROGATE, (0, 0))
+ 
+         direct = {
++            (at("review_of", "attachment_id"), "a review attachment identity"):
++                lambda: review_cycles.review_of(self.store, SURROGATE),
++            (at("verdict_of", "verdict_id"), "a checkpoint verdict identity"):
++                lambda: review_cycles.verdict_of(self.store, SURROGATE),
+             (at("line_of", "line_id"), "a development line identity"):
+                 lambda: review_cycles.line_of(self.store, SURROGATE),
+             (at("writer_of", "writer_id"), "a line writer identity"):
+@@ -13783,6 +13791,97 @@
+         self.case.refusing(full, probe)
+ 
+ 
++class ReviewReaderIdentitiesReachTheirOwners(unittest.TestCase):
++    READERS = (
++        ("review_of", "attachment_id", "_attachment", "a review attachment identity", "review_attachments"),
++        ("verdict_of", "verdict_id", "_verdict_row", "a checkpoint verdict identity", "checkpoint_verdicts"),
++    )
++
++    def setUp(self):
++        self.case = EveryProbeProvesItArrived()
++        self.case.setUp()
++        self.addCleanup(self.case.doCleanups)
++
++    def test_exact_reader_entries_have_only_their_forwarded_identity_owner(self):
++        entries = receiving_entries()
++        owner = EveryReceivingEntryHasOneOwner()
++        for reader, subject, helper, label, _ in self.READERS:
++            with self.subTest(reader=reader):
++                entry = ("caller", "review_cycles.py:" + reader, subject)
++                self.assertIn(entry, entries)
++                self.assertEqual(DELEGATED[entry], ("review_cycles.py:" + helper, "caller:" + subject))
++                self.assertEqual(owner.owner_of(entry), ("delegated", {label}))
++                self.assertFalse(layer_labels(entry))
++                self.assertNotIn(entry, STATED_OWNERS)
++                self.assertNotIn(entry, NO_PROBE)
++
++    def test_source_forwards_unchanged_to_the_identity_validator_before_lookup(self):
++        tree = next(tree for path, tree in _sources() if path.name == "review_cycles.py")
++        functions = {node.name: node for node in tree.body if isinstance(node, ast.FunctionDef)}
++        for reader, subject, helper, label, _ in self.READERS:
++            with self.subTest(reader=reader):
++                statements = [node for node in functions[reader].body if not isinstance(node, ast.Expr) or not isinstance(node.value, ast.Constant)]
++                self.assertEqual(ast.dump(statements[0]), ast.dump(ast.parse(f"{'attachment' if reader == 'review_of' else 'verdict'} = {helper}(store, {subject})").body[0]))
++                owned = [node for node in functions[helper].body if not isinstance(node, ast.Expr) or not isinstance(node.value, ast.Constant)]
++                self.assertEqual(ast.dump(owned[0]), ast.dump(ast.parse(f"boundaries.identity({subject}, {label!r})").body[0]))
++
++    def test_actual_catalog_probes_refuse_at_identity_before_any_sql(self):
++        probes = self.case.review_cycle_probes()
++        statements = []
++        connection = self.case.store._connection
++        connection.set_trace_callback(statements.append)
++        self.addCleanup(connection.set_trace_callback, None)
++        for reader, subject, _, label, _ in self.READERS:
++            with self.subTest(reader=reader):
++                key = (("caller", "review_cycles.py:" + reader, subject), label)
++                full, probe = probes[key]
++                self.assertEqual(full, label)
++                self.case.refusing(full, probe)
++                self.assertEqual(statements, [])
++
++    def test_valid_absent_identities_reach_lookup_and_cannot_satisfy_probe_guard(self):
++        statements = []
++        connection = self.case.store._connection
++        connection.set_trace_callback(statements.append)
++        self.addCleanup(connection.set_trace_callback, None)
++        for reader, subject, _, label, table in self.READERS:
++            with self.subTest(reader=reader):
++                statements.clear()
++                call = lambda: getattr(review_cycles, reader)(self.case.store, "absent-reader-probe")
++                with self.assertRaises(ContractRefusal) as caught:
++                    call()
++                self.assertEqual((caught.exception.category, caught.exception.code), ("refused", "precondition"))
++                self.assertEqual(statements, [f"SELECT * FROM {table} WHERE {subject} = 'absent-reader-probe'"])
++                with self.assertRaisesRegex(AssertionError, "refused, but not at"):
++                    self.case.refusing(label, call)
++
++    def test_other_reader_identity_labels_do_not_satisfy_the_guard(self):
++        probes = self.case.review_cycle_probes()
++        for index, (reader, subject, _, label, _) in enumerate(self.READERS):
++            with self.subTest(reader=reader):
++                _, probe = probes[(("caller", "review_cycles.py:" + reader, subject), label)]
++                with self.assertRaisesRegex(AssertionError, "refused, but not at"):
++                    self.case.refusing(self.READERS[1 - index][3], probe)
++
++    def test_committed_lifecycle_answers_both_valid_reader_identities(self):
++        from .test_review_cycles import TypedReadersAnswerRowsTheirOwnACTSExplain
++        world = TypedReadersAnswerRowsTheirOwnACTSExplain()
++        world.setUp()
++        self.addCleanup(world.doCleanups)
++        self.addCleanup(world.tearDown)
++        line, checkpoint, attachment, verdict = world.round(1, "accepted")
++        actual_review = review_cycles.review_of(world.store, attachment["attachment_id"])
++        actual_verdict = review_cycles.verdict_of(world.store, verdict["verdict_id"])
++        self.assertEqual(actual_review["attachment_id"], attachment["attachment_id"])
++        self.assertEqual(actual_review["runtime_attempt_id"], "review-attempt-1")
++        self.assertEqual(actual_verdict["verdict_id"], verdict["verdict_id"])
++        self.assertEqual(actual_verdict["attachment_id"], actual_review["attachment_id"])
++        self.assertEqual(actual_verdict["disposition"], "accepted")
++        for answer in (actual_review, actual_verdict):
++            self.assertEqual(answer["line_id"], line["line_id"])
++            self.assertEqual(answer["checkpoint_id"], checkpoint["checkpoint_id"])
++
++
+ class DuplicateColumnChecksRequireOwnedWitnesses(unittest.TestCase):
+     def setUp(self):
+         self.records = boundary_occurrences()

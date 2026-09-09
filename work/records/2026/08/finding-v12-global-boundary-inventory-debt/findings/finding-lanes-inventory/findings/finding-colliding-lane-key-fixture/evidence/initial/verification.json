@@ -1,0 +1,18 @@
+{
+  "budget_seconds": 15,
+  "seconds": 1.5043132710270584,
+  "results": [
+    {
+      "name": "focused",
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.manager.test_boundary_inventory.TheCollidingLaneKeyProbeReachesAdoption"
+      ],
+      "seconds": 1.5043008069624193,
+      "exit_code": 1
+    }
+  ]
+}

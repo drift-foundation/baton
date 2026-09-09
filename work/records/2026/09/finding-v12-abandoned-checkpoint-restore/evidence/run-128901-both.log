@@ -1,0 +1,18 @@
+......................................................................................................................................................./home/sl/src/baton/v12/python/tests/manager/test_checkpoint_profiles.py:220: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpr1ql4brw/line/kept.txt' mode='r' encoding='UTF-8'>
+  body = open(os.path.join(self.repository, "kept.txt")).read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/manager/test_checkpoint_profiles.py:231: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpr1ql4brw/line/kept.txt' mode='r' encoding='UTF-8'>
+  "kept.txt")).read(), body)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...../home/sl/src/baton/v12/python/tests/manager/test_checkpoint_profiles.py:288: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/tmpizyy3dv1/custody/retained.txt' mode='r' encoding='UTF-8'>
+  open(os.path.join(sibling, "retained.txt")).read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..
+----------------------------------------------------------------------
+Ran 158 tests in 1.384s
+
+OK
+
+real	0m1.542s
+user	0m1.388s
+sys	0m0.161s

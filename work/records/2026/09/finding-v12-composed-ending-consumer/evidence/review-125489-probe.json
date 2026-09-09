@@ -1,0 +1,237 @@
+{
+  "accepted_integration": {
+    "integrator_claimed": true,
+    "reports": [
+      {
+        "observed_at": "2026-09-02T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [],
+        "started": [
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "outcome": "deferred",
+            "detail": {
+              "category": "policy",
+              "code": "denied",
+              "message": "the deployment pins approval policy generation 1 and the Authority is at 9"
+            }
+          }
+        ],
+        "spoken": [],
+        "refreshed": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 1,
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/review",
+            "episode": 1,
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "state": "not-asked"
+          }
+        ]
+      },
+      {
+        "observed_at": "2026-09-02T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [],
+        "started": [
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "outcome": "deferred",
+            "detail": {
+              "category": "policy",
+              "code": "denied",
+              "message": "the deployment pins approval policy generation 1 and the Authority is at 9"
+            }
+          }
+        ],
+        "spoken": [],
+        "refreshed": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 1,
+            "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/review",
+            "episode": 1,
+            "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "state": "not-asked"
+          }
+        ]
+      }
+    ],
+    "states": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "claimed"
+    }
+  },
+  "correction_then_acceptance": {
+    "correction_started": true,
+    "correction_turn": 0,
+    "second_review_started": true,
+    "second_review_turn": 0,
+    "integrator_claimed": true,
+    "reports": [
+      {
+        "observed_at": "2026-09-02T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [],
+        "started": [
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "outcome": "deferred",
+            "detail": {
+              "category": "policy",
+              "code": "denied",
+              "message": "the deployment pins approval policy generation 1 and the Authority is at 9"
+            }
+          }
+        ],
+        "spoken": [],
+        "refreshed": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 2,
+            "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/review",
+            "episode": 2,
+            "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "state": "not-asked"
+          }
+        ]
+      },
+      {
+        "observed_at": "2026-09-02T00:00:00.000Z",
+        "recovered": null,
+        "observed": 0,
+        "replaced": [],
+        "acts": [],
+        "started": [
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "outcome": "deferred",
+            "detail": {
+              "category": "policy",
+              "code": "denied",
+              "message": "the deployment pins approval policy generation 1 and the Authority is at 9"
+            }
+          }
+        ],
+        "spoken": [],
+        "refreshed": [
+          {
+            "stage_id": "job-a/implementation",
+            "episode": 2,
+            "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/review",
+            "episode": 2,
+            "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+            "state": "not-asked"
+          },
+          {
+            "stage_id": "job-a/integration",
+            "episode": 1,
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "state": "not-asked"
+          }
+        ]
+      }
+    ],
+    "states": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "claimed"
+    }
+  },
+  "discharge_recovery": {
+    "receipt_present": true,
+    "settlement": {
+      "stage_id": "job-a/implementation",
+      "job_id": "job-a",
+      "kind": "implementation",
+      "episode": 1,
+      "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "work_id": "0000000a-W1",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.claude",
+        "generation": 1
+      },
+      "intent": "ending.intent:job-a/implementation:1",
+      "evidence": {
+        "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "manifest_digest": "sha256:86aed5f374d1d88fbe1c21ae91da1983b3ac586f8538275e02fc9b50878b9d1b",
+        "receipt_digest": "sha256:dd36bc4cf23d87485647dc29d077ca265db719ef5b2d7c103006d00aa4f29022",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "gate_discharge": "runtime-quiescence:1"
+      }
+    }
+  },
+  "elapsed_seconds": 1.113781315041706,
+  "hashes": {
+    "tools/stage_execution.py": {
+      "sha256": "71919d15c22531533e460384d6de32302e0c5b39478a3944dc743bb65f31d77f",
+      "matches": true
+    },
+    "tools/single_worker.py": {
+      "sha256": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+      "matches": true
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "0a540ed922ac50fc8b39cdcb15014b068afe4bbb6e6de4323f3687133b37a4f4",
+      "matches": true
+    },
+    "tests/tools/test_single_worker.py": {
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "matches": true
+    }
+  }
+}

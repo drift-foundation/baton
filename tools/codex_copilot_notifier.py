@@ -10,6 +10,7 @@ from datetime import datetime
 import fcntl
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -27,7 +28,7 @@ def digest(value):
 def read_config(path):
     config = json.loads(Path(path).read_text())
     required = {"baton", "baton_config", "observer", "prompt_participant", "target", "socket", "state_file"}
-    if set(config) - required - {"poll_seconds", "timeout_seconds"} or required - set(config):
+    if set(config) - required - {"poll_seconds", "timeout_seconds", "obligation_reminder_seconds"} or required - set(config):
         raise ValueError("config requires exactly the documented connection fields and optional timing fields")
     if any(not isinstance(config[k], str) or not config[k].strip() for k in required):
         raise ValueError("connection fields must be nonempty strings")
@@ -43,6 +44,10 @@ def read_config(path):
         config.setdefault(key, default)
         if type(config[key]) not in (int, float) or not 1 <= config[key] <= 300:
             raise ValueError(f"{key} must be between 1 and 300")
+    config.setdefault("obligation_reminder_seconds", 600)
+    interval = config["obligation_reminder_seconds"]
+    if type(interval) not in (int, float) or not math.isfinite(interval) or interval < 0:
+        raise ValueError("obligation_reminder_seconds must be finite nonnegative seconds (0 disables reminders)")
     return config
 
 
@@ -174,7 +179,24 @@ def bridge_request(config, payload):
         return json.loads(data.split(b"\n", 1)[0])
 
 
-def poll(config, state, read=baton_read, request=bridge_request):
+def obligation_memory(state):
+    records = state.get("obligation_reminders", {})
+    if not isinstance(records, dict):
+        raise ValueError("invalid obligation reminder cursor")
+    for key, record in records.items():
+        if not isinstance(key, str) or not key.startswith("obligation:") or not isinstance(record, dict):
+            raise ValueError("invalid obligation reminder record")
+        if not isinstance(record.get("hash"), str) or type(record.get("generation")) is not int or record["generation"] < 0:
+            raise ValueError("invalid obligation reminder identity")
+        anchor = record.get("accepted_at")
+        if anchor is None:
+            anchor = record.get("migration_at")
+        if type(anchor) not in (int, float) or not math.isfinite(anchor):
+            raise ValueError("invalid obligation reminder timestamp")
+    return records
+
+
+def poll(config, state, read=baton_read, request=bridge_request, *, clock=time.time):
     status = request(config, {"control": "copilot-status"})
     target = status["targets"][config["target"]]
     if target.get("participant") != config["prompt_participant"] or target.get("role") != "prompt":
@@ -188,10 +210,56 @@ def poll(config, state, read=baton_read, request=bridge_request):
     current = {key: digest(value) for key, value in items.items()}
     paired = state.get("paired", {}) if state.get("scope") == scope else {}
     changed, covered, pairs = failure_changes(items, current, seen, paired)
+    now = clock()
+    interval = config.get("obligation_reminder_seconds", 600)
+    prior_reminders = obligation_memory(state) if state.get("scope") == scope else {}
+    obligations = {key for key, row in items.items() if key.startswith("obligation:") and row.get("flavor", "response") == "response" and row.get("status", "pending") == "pending"}
+    reminders, due, anchors = {}, set(), {}
+    for key in obligations:
+        record = prior_reminders.get(key)
+        if record is None and key in seen:
+            # Legacy hashes prove acceptance, but carry no time. Start one
+            # migration interval without inventing another accepted delivery.
+            record = {"hash": seen[key], "accepted_at": None, "migration_at": now, "generation": 0}
+        if record is not None:
+            reminders[key] = record
+            anchor = record["accepted_at"] if record["accepted_at"] is not None else record["migration_at"]
+            anchors[key] = anchor
+            if interval and record["hash"] == current[key] and now - anchor >= interval:
+                due.add(key)
+    # W119521 review 2026-09-08T14:17:52Z [P2]: THE BATCH IS ORDERED BY
+    # PRIORITY, NOT BY KEY, and the two are not interchangeable here.
+    #
+    # Merging fresh attention and due reminders into one key-sorted list and
+    # taking the first fifty starved the remainder permanently. Change-based
+    # attention DRAINS -- acceptance writes `seen`, so an item stops being
+    # changed -- but an accepted reminder becomes eligible again by design, so
+    # the same lexicographically first fifty keys reoccupied every batch
+    # forever. Measured at sixty obligations with a supported 300-second
+    # reminder and poll interval: ten never received an initial advisory, or
+    # never received a due reminder when all sixty had been accepted first.
+    #
+    # SO FRESH FIRST, THEN THE LONGEST-WAITING REMINDER. New or changed
+    # attention keeps its immediate contract and leads the batch. Due reminders
+    # follow in order of their OWN anchor -- the accepted instant, or the
+    # migration anchor a legacy record was given -- oldest first, so acceptance
+    # moves a record to the back and the ones that waited longest lead the next
+    # eligible poll. The key breaks ties and nothing else, which keeps the order
+    # deterministic without making it alphabetical.
+    #
+    # THE CLOCK IS STILL NOT IN THE IDENTITY. Anchors move only when an offered
+    # locator is ACCEPTED, so a retry of the same pending batch composes the
+    # same event; a batch that genuinely gained a longer-overdue item is a
+    # different batch and says so.
+    fresh = sorted(changed)
+    changed = fresh + sorted(due.difference(fresh),
+                             key=lambda key: (anchors[key], key))
     # Prune resolved items, retaining accepted failures during derived expiry.
     # Nothing new is seen merely because it went stale or the prompt is busy.
     retained = {k: v for k, v in seen.items() if k in current or k in stale_runtime_keys}
     next_state = {"scope": scope, "seen": retained, "paired": {k: v for k, v in paired.items() if current.get(k) == v or (k in stale_runtime_keys and retained.get(k) == v)}}
+    if reminders:
+        next_state["obligation_reminders"] = reminders
     next_state["seen"].update({k: current[k] for k in covered})
     remember_failure_pairs(next_state, current, pairs)
     if not changed:
@@ -200,16 +268,27 @@ def poll(config, state, read=baton_read, request=bridge_request):
         return next_state, {"status": "waiting-for-prompt", "changed": len(changed)}
     # A bounded locator-only event: model re-reads current canonical state.
     # Never copy arbitrary message bodies, credential-bearing logs, or titles.
+    offered = changed[:50]
+    generations = {key: reminders.get(key, {}).get("generation", 0) + 1 for key in offered if key in obligations}
+    identity = [scope, [(key, current[key]) for key in offered]]
+    if generations:
+        identity.append(generations)
     event = {
-        "id": "copilot:" + digest([scope, [(key, current[key]) for key in changed]]),
+        "id": "copilot:" + digest(identity),
         "target": config["target"], "source": "baton-copilot", "type": "operator-attention",
         "copilotThreadId": target["threadId"], "copilotInstanceId": status["instanceId"],
-        "summary": f"Operator {config['observer']} has {len(changed)} new or changed attention items.",
-        "details": json.dumps({"observer": config["observer"], "changed": changed[:50], "total_changed": len(changed), "baton": config["baton"], "config": config["baton_config"]}),
+        "summary": f"Operator {config['observer']} has {len(changed)} new, changed or due attention items.",
+        "details": json.dumps({"observer": config["observer"], "changed": offered, "total_changed": len(changed), "baton": config["baton"], "config": config["baton_config"]}),
     }
     response = request(config, event)
     if response.get("accepted") is True:
-        next_state["seen"].update(current)
+        next_state["seen"].update({key: current[key] for key in offered})
+        for runtime_key, incident_key in pairs:
+            if incident_key in offered:
+                next_state["seen"][runtime_key] = current[runtime_key]
+        if generations:
+            accepted_at = clock()
+            next_state.setdefault("obligation_reminders", {}).update({key: {"hash": current[key], "accepted_at": accepted_at, "generation": generation} for key, generation in generations.items()})
         remember_failure_pairs(next_state, current, pairs)
         return next_state, {"status": "accepted", "changed": len(changed), "event": event["id"]}
     return next_state, {"status": "not-accepted", "reason": response.get("reason", "unknown")}

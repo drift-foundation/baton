@@ -1,0 +1,25 @@
+{
+  "line_state": "writing",
+  "writer": {
+    "writer_id": "writer-bd646428cb9b289c405472b6cd59d8031cfe7708ecf4082c875bd6c01aff7534",
+    "state": "active",
+    "runtime_attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+    "assignment_generation": 3
+  },
+  "grant": {
+    "category": "refused",
+    "code": "operation-collision",
+    "message": "operation 'review-line.grant-writer:writer-bd646428cb9b289c405472b6cd5\u2026 is already recorded with a different kind or signature; reusing an id with different operands changes nothing (\u00a74.2)"
+  },
+  "episodes": [
+    {
+      "episode": 1,
+      "ended_state": "superseded-by-correction"
+    },
+    {
+      "episode": 2,
+      "ended_state": null
+    }
+  ],
+  "replaceable": false
+}
