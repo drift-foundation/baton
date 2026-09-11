@@ -1,0 +1,79 @@
+{
+  "results": [
+    {
+      "case": "a-implementation",
+      "admitted": true,
+      "allocation": {
+        "worker_id": "implementation-worker",
+        "allocation_state": "reserved"
+      },
+      "canonical_operation": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "canonical_receipt_exists": true
+    },
+    {
+      "case": "b-review",
+      "admitted": true,
+      "allocation": {
+        "worker_id": "review-worker-b",
+        "allocation_state": "reserved"
+      },
+      "canonical_operation": "offer.issue:offer-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+      "canonical_receipt_exists": true
+    },
+    {
+      "case": "a-integration",
+      "admitted": true,
+      "allocation": {
+        "worker_id": "integration-worker",
+        "allocation_state": "reserved"
+      },
+      "canonical_operation": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "canonical_receipt_exists": true
+    },
+    {
+      "case": "b-integration",
+      "refusal": {
+        "category": "refused",
+        "code": "precondition",
+        "message": "no worker this deployment configures for the 'integration' stage can serve Job 'job-b': {'integration-worker': ['the Work', 'the submitted input']}. Assembly supplies coherent operands rather than reserving a worker that must then refuse them, which would hold that worker's capacity for a stage nobody can serve"
+      },
+      "allocation": null,
+      "canonical_operation": "offer.issue:offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+      "canonical_receipt_exists": false
+    },
+    {
+      "case": "b-wrong-input",
+      "refusal": {
+        "category": "refused",
+        "code": "precondition",
+        "message": "no worker this deployment configures for the 'review' stage can serve Job 'job-b': {'review-worker': ['the Work'], 'review-worker-b': ['the submitted input']}. Assembly supplies coherent operands rather than reserving a worker that must then refuse them, which would hold that worker's capacity for a stage nobody can serve"
+      },
+      "allocation": null,
+      "canonical_operation": "offer.issue:offer-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+      "canonical_receipt_exists": false
+    },
+    {
+      "case": "b-wrong-policy",
+      "refusal": {
+        "category": "refused",
+        "code": "precondition",
+        "message": "no worker this deployment configures for the 'review' stage can serve Job 'job-b': {'review-worker': ['the Work', 'the submitted input', 'the submitted policy'], 'review-worker-b': ['the submitted policy']}. Assembly supplies coherent operands rather than reserving a worker that must then refuse them, which would hold that worker's capacity for a stage nobody can serve"
+      },
+      "allocation": null,
+      "canonical_operation": "offer.issue:offer-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+      "canonical_receipt_exists": false
+    },
+    {
+      "case": "b-wrong-profile",
+      "refusal": {
+        "category": "refused",
+        "code": "precondition",
+        "message": "no worker this deployment configures for the 'review' stage can serve Job 'job-b': {'review-worker': ['the Work', 'the submitted input', 'the workload profile'], 'review-worker-b': ['the workload profile']}. Assembly supplies coherent operands rather than reserving a worker that must then refuse them, which would hold that worker's capacity for a stage nobody can serve"
+      },
+      "allocation": null,
+      "canonical_operation": "offer.issue:offer-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+      "canonical_receipt_exists": false
+    }
+  ],
+  "elapsed_seconds": 0.32946572301443666
+}

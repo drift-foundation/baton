@@ -1,0 +1,72 @@
+{
+  "claim": 133951,
+  "candidate": {
+    "v12/python/src/baton_v12/integration/reconciliation.py": {
+      "sha256": "83ea3fef7f9e273ba378a5592570224d37bb7783d60fafe1d605bb83764ca214",
+      "mode": "0o664",
+      "bytes": 52659
+    },
+    "v12/python/src/baton_v12/integration/git_profile.py": {
+      "sha256": "cba3f391405249f6df83985ff6c5d715ef3cec05efa85ce345cce929f90db1fb",
+      "mode": "0o664",
+      "bytes": 24064
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "8a6fa58b2be16f61d049179225784da9e4be6f9511198963b2bf5f1b2fe66c09",
+      "mode": "0o664",
+      "bytes": 25312
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "mode": "0o664",
+      "bytes": 36152
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791",
+      "mode": "0o664",
+      "bytes": 19998
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "c5a86008a96f773c0fa884cb7b501197dc29d20eaa638f90957f47e17737bf3e",
+      "mode": "0o664",
+      "bytes": 92978
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "df626826ed4a6348da135229c12fb7e6a0fd01ecbcf5a2508f862a6f3b915e36",
+      "mode": "0o664",
+      "bytes": 3711
+    },
+    "v12/python/tests/integration/test_reconciliation.py": {
+      "sha256": "9db74835bc9344d16626bcb00cd71eaccd823398cb29bca6f84a1a62267373d6",
+      "mode": "0o664",
+      "bytes": 58636
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce",
+      "mode": "0o664",
+      "bytes": 19242
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "mode": "0o664",
+      "bytes": 136269
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea",
+      "mode": "0o664",
+      "bytes": 183456
+    }
+  },
+  "preflight_errors": [],
+  "prior_review_seconds": 0.40479588706512004,
+  "argv": [
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/review-133951-probe.py"
+  ],
+  "returncode": 0,
+  "stdout": "{\n  \"earlier_corrections_and_unproved_terminal\": {\n    \"exact_retry_controls\": \"four passed\",\n    \"prepared_tamper_refusal\": {\n      \"exception\": \"ContractRefusal\",\n      \"category\": \"integrity\",\n      \"code\": \"digest\",\n      \"message\": \"result 'result-13327965c930ef8496826a30af7af6d57039914a9fa024a7bf29\\u2026 does not match the operands its own result.prepared was signed under\"\n    },\n    \"evidence_tamper_refusal\": {\n      \"exception\": \"ContractRefusal\",\n      \"category\": \"integrity\",\n      \"code\": \"digest\",\n      \"message\": \"result 'result-13327965c930ef8496826a30af7af6d57039914a9fa024a7bf29\\u2026 does not match the operands its own result.evidence was signed under\"\n    },\n    \"derived_authority_receipts\": [],\n    \"real_evidence_session_refusal\": {\n      \"exception\": \"Refusal\",\n      \"category\": null,\n      \"code\": null,\n      \"message\": \"verify does not take 'result_id', 'content_digest', 'candidate' and 3 more; an operand supplied and ignored is one the caller believes it chose\"\n    },\n    \"accepted_terminal_state\": \"imported\",\n    \"accepted_terminal_entry\": \"entry-never-created\"\n  },\n  \"prepare_under_released_assignment\": {\n    \"live_assignment\": null,\n    \"prepared_assignment\": {\n      \"generation\": 2,\n      \"participant\": \"baton.integrator\",\n      \"work_ref\": {\n        \"authority_uuid\": \"0123456789abcdef0123456789abcdef\",\n        \"work_id\": \"0123456f-W133117\"\n      }\n    },\n    \"state\": \"prepared\",\n    \"prepared_reference\": \"refs/baton/integration/prepared/result-811c414ffb4ec5e0fc5e1be9c7d6f783ffb74bf281c717d703ddeaf24593a609\",\n    \"real_publisher_final_refusal\": {\n      \"exception\": \"Refusal\",\n      \"category\": null,\n      \"code\": null,\n      \"message\": \"stale assignment\"\n    }\n  },\n  \"import_after_policy_and_assignment_advance\": {\n    \"policy_generations\": [\n      7,\n      8\n    ],\n    \"account_after_policy_advance\": \"result-98b8acf8b1f8df6c5d431f3da2d9752ec5ecd24cf9be2096d6ae7929c5114f8e\",\n    \"live_assignment\": null,\n    \"account_after_release\": \"result-98b8acf8b1f8df6c5d431f3da2d9752ec5ecd24cf9be2096d6ae7929c5114f8e\",\n    \"retained_assignment\": {\n      \"generation\": 2,\n      \"participant\": \"baton.integrator\",\n      \"work_ref\": {\n        \"authority_uuid\": \"0123456789abcdef0123456789abcdef\",\n        \"work_id\": \"0123456f-W133117\"\n      }\n    }\n  },\n  \"failed_observation_not_retained\": {\n    \"different_content_digests\": [\n      \"sha256:853979c70d0e19809f5ed17e4e310ba572946debc030edc53a8f19c0812d0c4f\",\n      \"sha256:c22a68f6d434f572ed3de6cf6cda63ab5c569e2fe3d41c646a15268b54739df0\"\n    ],\n    \"actual_combined_failure\": {\n      \"command\": [\n        \"/usr/bin/python3\",\n        \"harness.py\"\n      ],\n      \"test_identity\": \"regression/total-keeps-the-first-value\",\n      \"input_commit\": \"e431788ed408d05efbde708f052f49c545469e87\",\n      \"input_tree\": \"e20369ea750459e73d9d8e3bbe61460cb95a5ad2\",\n      \"test_digest\": \"sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c\",\n      \"environment\": \"/usr/bin/python3 / git\",\n      \"status\": 1,\n      \"output\": \"AssertionError: total answered 12\",\n      \"execution\": \"baton.result-verify\",\n      \"harness_added\": false\n    },\n    \"failure_refusal\": {\n      \"exception\": \"ContractRefusal\",\n      \"category\": \"policy\",\n      \"code\": \"denied\",\n      \"message\": \"the combined result FAILED its own causal observation with status 1; a combined failure blocks integration and is not verified away. The isolated positive is retained and unaffected\"\n    },\n    \"custody_after_failure\": {\n      \"state\": \"prepared\",\n      \"observations\": null\n    },\n    \"caller_relabel_accepted\": \"authorized\",\n    \"verification_question\": {\n      \"result_id\": \"result-797a4eebab989d22c4e50ed79cfa07b51761dc307066e82e30be587d5c9b874d\",\n      \"content_digest\": \"sha256:c22a68f6d434f572ed3de6cf6cda63ab5c569e2fe3d41c646a15268b54739df0\",\n      \"candidate\": \"e431788ed408d05efbde708f052f49c545469e87\",\n      \"tree\": \"e20369ea750459e73d9d8e3bbe61460cb95a5ad2\",\n      \"target\": \"f9924b835da696247813da5b3bb06dde22c8d287\",\n      \"kind\": \"verification\"\n    }\n  },\n  \"workspace_identity_not_checked\": {\n    \"recorded_workspace\": {\n      \"device\": 43,\n      \"inode\": 17296525,\n      \"path\": \"/tmp/v12-reconciliation-esr7i6iv/workspace\"\n    },\n    \"actual_workspace\": {\n      \"path\": \"/tmp/v12-reconciliation-esr7i6iv/workspace\",\n      \"device\": 43,\n      \"inode\": 17296524\n    },\n    \"import_account_result\": \"result-22499bdb85c442717fc68f89a841e8b66af6042094b2c4cb77da78ced7712d0b\"\n  }\n}\n",
+  "stderr": "",
+  "probe_elapsed_seconds": 0.828166841994971,
+  "charged_elapsed_seconds": 0.8372659099986777,
+  "review_cumulative_seconds": 1.2420617970637977
+}

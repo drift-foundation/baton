@@ -1,20 +1,24 @@
-# Plan
+# Current pool handoff
 
-1. Read the parent and independent assembly acceptance; snapshot the two-path
-   baseline. Enumerate current singleton-role consumers and exact new variant.
-2. Record the new document members and held worker/pool interface here before
-   edits. Use an explicit variant preserving old one-Job refusals; report any
-   required external schema/path or assertion change before that edit.
-3. Implement the configuration/pool result through existing public owners and
-   add focused positive, duplicate identity, role/session, activation/replay and
-   capacity/eligibility controls in the existing stage test module.
-4. Before suites, record the question, command/scope and budget. Focused first,
-   then one relevant broader regression sweep if retained evidence cannot answer
-   changed boundaries. Do not run live OCI/model campaigns.
-5. Return exact hashes, new variant/held pool interface, source/assertion delta
-   and evidence through independent review. Shared paths transfer to the
-   per-Job cut only after acceptance; no full-pipeline claim.
+Bounded configuration/pool result accepted: review-2026-09-09T18-17-21Z.md. Exact two files and
+verification: evidence/review-129906/. Earlier plan enumerations are preserved
+in evidence/review-129906/PLAN-before-acceptance.md and chronological records.
 
-State: bounded plan created from M119126; baton.claude implements under its
-own successful claim and returns for independent review. Live gates belong
-to Baton. No product/test edits were made during placement.
+1. Transfer tools/stage_execution.py and tests/tools/test_stage_execution.py
+   serially to W119405; revalidate the accepted hashes before edits.
+2. Consume MULTI_CONFIG_SCHEMA baton.v12.stage-execution-deployment/2,
+   unchanged {worker_id,role,deployment} entries and workers_for(role) lists.
+   sole_worker refuses ambiguity; publishers/publications map by participant.
+   /1 retains its closed single-role behavior and existing publisher session key.
+3. W119405 owns actual stage/attempt/Job/worker selection, global task/source/
+   line/checkpoint/target replacement, and Integration.account's residual first
+   integrator selection. Configuration order is not an accepted per-Job binding.
+   Pin the exact next document/interface before implementation.
+4. Reuse173 assembly/189 neighbour tests and independent assembled-pool capacity,
+   alias-principal exclusion and replay evidence. This is scheduler reservation
+   evidence, not simultaneous running Jobs. W119400 owns the joined witness.
+5. Author charge89.7/200s remains recorded; no further implementation here.
+   Standing W71830 test authority applies without per-test gates. Existing suite
+   scan failures and W129838 close correction retain separate ownership.
+
+Live claims, routes and gates remain solely in Baton.

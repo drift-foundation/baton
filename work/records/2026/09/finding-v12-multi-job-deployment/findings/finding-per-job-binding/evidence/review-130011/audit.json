@@ -1,0 +1,37 @@
+{
+  "changed_existing_methods": [
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.multi",
+    "TheComposedEndingIsOrderedAndSettledFromItsOwnRecord.test_the_recovered_writer_is_the_attempts_and_not_the_lines_pointer"
+  ],
+  "removed_methods": [
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_a_per_job_question_refuses_and_names_the_next_cut"
+  ],
+  "added_methods": [
+    "EachJobBindsItsOwnDeploymentAndLine.deployment_of",
+    "EachJobBindsItsOwnDeploymentAndLine.held_two",
+    "EachJobBindsItsOwnDeploymentAndLine.refused_two",
+    "EachJobBindsItsOwnDeploymentAndLine.serving_two",
+    "EachJobBindsItsOwnDeploymentAndLine.setUp",
+    "EachJobBindsItsOwnDeploymentAndLine.test_a_review_work_that_differs_from_the_implementation_is_refused",
+    "EachJobBindsItsOwnDeploymentAndLine.test_a_source_worker_this_deployment_does_not_configure_is_refused",
+    "EachJobBindsItsOwnDeploymentAndLine.test_a_stage_with_no_allocation_is_refused_rather_than_guessed",
+    "EachJobBindsItsOwnDeploymentAndLine.test_an_unbound_job_is_refused_before_any_line_is_made",
+    "EachJobBindsItsOwnDeploymentAndLine.test_each_job_binds_its_own_source_base_works_and_target",
+    "EachJobBindsItsOwnDeploymentAndLine.test_one_line_asked_of_a_two_job_deployment_names_its_job",
+    "EachJobBindsItsOwnDeploymentAndLine.test_the_one_job_document_carries_no_bindings",
+    "EachJobBindsItsOwnDeploymentAndLine.test_the_one_job_document_still_derives_its_own_binding",
+    "EachJobBindsItsOwnDeploymentAndLine.test_the_same_job_reaches_the_same_line_every_time",
+    "EachJobBindsItsOwnDeploymentAndLine.test_the_worker_for_a_stage_is_the_scheduler_s_allocation",
+    "EachJobBindsItsOwnDeploymentAndLine.test_two_bindings_for_one_job_are_refused",
+    "EachJobBindsItsOwnDeploymentAndLine.test_two_jobs_materialize_two_distinct_persistent_lines",
+    "EachJobBindsItsOwnDeploymentAndLine.two_jobs",
+    "EachJobBindsItsOwnDeploymentAndLine.vcs_at",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.binding",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_selecting_among_producers_is_still_not_a_pool_question"
+  ],
+  "candidate_stable": {
+    "tools/stage_execution.py": true,
+    "tests/tools/test_stage_execution.py": true
+  },
+  "author_budget_seconds": 138.636
+}

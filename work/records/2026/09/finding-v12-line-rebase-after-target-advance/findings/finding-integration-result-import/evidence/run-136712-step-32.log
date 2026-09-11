@@ -1,0 +1,18 @@
+### label: candidate-manifest-after-R3
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/manifest120.py"]
+### exit: 0
+### elapsed_seconds: 0.011712
+### STDOUT
+CHANGED:
+  fa0cf3dd1404528e5573a736dc99fa841da1feeeb4a760f6be905f0e755b6ba5 0o664 99513 v12/python/src/baton_v12/integration/driver.py
+  4a3aa4da6dcc0c94e303278da2e0f8f415f88709c157aeff8399661b383b121a 0o664 54092 v12/python/src/baton_v12/integration/execution.py
+  18ced502ebcff18946c1c72914223166c995484ce2baccd6423bb3f7ca0b23a0 0o664 117048 v12/python/src/baton_v12/integration/queue.py
+  c575077386c81c135b337b5e5a940aeabfe2d142c15edcbade6e905bbc36af6d 0o664 102329 v12/python/src/baton_v12/integration/reconciliation.py
+  3210cc2569b0c6edcda77db6b63ef7b9ed3e982f3a726bb531d58bfb53b3d9c8 0o664 71377 v12/python/tests/integration/test_execution.py
+  213520989b628f414d3f0ad27fce2d1f4131cf48435f2ed6af1c5f4c29b77a72 0o664 101604 v12/python/tests/integration/test_reconciliation.py
+UNEXPECTED: []
+spent 49.808419/95.0 remaining 45.191581
+failed runs: [3, 4, 5, 6, 7, 9, 18, 24, 25, 27, 28, 30]
+
+### STDERR

@@ -1,0 +1,280 @@
+--- work/records/2026/09/finding-v12-multi-job-deployment/findings/finding-per-job-binding/evidence/review-130139/candidate/tests/tools/test_stage_execution.py
++++ v12/python/tests/tools/test_stage_execution.py
+@@ -5626,12 +5626,64 @@
+         self.assertEqual(answer.returncode, 0, f"{argv}: {answer.stderr}")
+         return answer.stdout
+ 
++    def manifest_for(self, work_id):
++        """THIS Job's own held input manifest, derived and not copied.
++
++        W130216. The predecessor's fixture left Job B's producer on Work A and
++        changed only the source and participant, so the per-Job cases were
++        asserted over operands that were never actually distinct. A manifest
++        names its Work, and its digest is over the whole document -- so a Job
++        on another Work has another manifest and another submitted input.
++        """
++        from baton_v12.contracts import digest
++
++        manifest = copy.deepcopy(self.manifest)
++        manifest["work_ref"] = dict(manifest["work_ref"], work_id=work_id)
++        manifest.pop("manifest_digest")
++        manifest["manifest_digest"] = digest(manifest)
++        return manifest
++
++    def role_worker(self, role, work_id, worker_id, **members):
++        """One configured worker, coherent with the Job it will serve."""
++        held = self.worker(role, **members)
++        held["worker_id"] = worker_id
++        held["deployment"]["input_manifest"] = self.manifest_for(work_id)
++        return held
++
++    def second_submission(self, **members):
++        """Job B, submitted against ITS OWN input and Work."""
++        from tests.job_manager import fixtures
++
++        given = {"job_id": "job-b",
++                 "input_digest": self.manifest_for(SECOND_WORK)[
++                     "manifest_digest"],
++                 "policy_digest": fixtures.POLICY_DIGEST,
++                 "stages": [
++                     fixtures.stage("implementation", SECOND_WORK),
++                     # STANDALONE, and deliberately: this isolates the same
++                     # admission callback ordinary review reaches after
++                     # implementation, without a full traversal that belongs
++                     # to a successor. It is the reviewer's own probe shape.
++                     fixtures.stage("review", SECOND_WORK),
++                     fixtures.stage("integration", SECOND_WORK,
++                                    depends_on=[{"job_id": "job-b",
++                                                 "kind": "review"}])]}
++        given.update(members)
++        # ONE SUBMISSION, TWO JOBS -- which is what a multi-Job deployment
++        # actually receives, and a second submission id would be proving
++        # something about replay instead.
++        return fixtures.submission(
++            jobs=[copy.deepcopy(self.submission["jobs"][0]),
++                  fixtures.job(**given)])
++
+     def two_jobs(self, **members):
+         """One `/2` document binding two Jobs to two sources and two Works."""
+         given = self.composed_document(line_declared_base=self.base)
+         held = {one["role"]: one for one in given["workers"]}
+         producer = copy.deepcopy(held["implementation"])
+         producer["worker_id"] = "implementation-worker-b"
++        producer["deployment"]["input_manifest"] = \
++            self.manifest_for(SECOND_WORK)
+         producer["deployment"]["participant"] = self.SECOND_PRODUCER
+         producer["deployment"]["principal"] = \
+             self.principals[self.SECOND_PRODUCER]
+@@ -5639,8 +5691,28 @@
+         # `single_worker._held` is what turns it into the held nomination this
+         # deployment binds a Job's line to.
+         producer["deployment"]["nominated_source"] = self.second_source
+-        workers = [held["implementation"], producer, held["review"],
+-                   held["integration"]]
++        # EVERY ROLE OF JOB B, coherent with Job B. W130216 review [P1]: the
++        # review and integration workers were left on Job A's Work, so the
++        # only thing the fixture could prove about them was that admission
++        # reserved one and `single_worker` refused it afterwards.
++        #
++        # ONE INTEGRATION WORKER, AND THE REASON IS MEASURED RATHER THAN
++        # ASSUMED. A second record under the same actor is refused by
++        # `scheduler.own_pool`, which requires one participant per worker
++        # because two entries sharing one are not distinct capacity; and a
++        # second ACTOR would contradict the single configured
++        # `integrator_participant` that the integration profile and all four
++        # receipt sessions belong to -- which is the multi-integrator provider
++        # this Work may not imply. So the second Job's integration stage is a
++        # reported boundary, asserted below as a refusal BEFORE allocation
++        # rather than worked around here.
++        workers = [
++            held["implementation"], held["review"], held["integration"],
++            producer,
++            self.role_worker("review", SECOND_WORK, "review-worker-b",
++                             participant=self.SECOND_REVIEWER,
++                             principal=self.principals[self.SECOND_REVIEWER],
++                             review_route=self.INTEGRATION_ROUTE)]
+         answer = {
+             "schema": stage_execution.MULTI_CONFIG_SCHEMA,
+             "workers": workers,
+@@ -5835,3 +5907,181 @@
+                                    "attempt_id": "attempt-nobody-allocated",
+                                    "kind": "implementation"})
+         self.assertIn("not this composition's order", caught.exception.message)
++
++
++class EveryJobRoleIsValidatedBeforeAllocation(EachJobBindsItsOwnDeploymentAndLine):
++    """W130216: every role, before the reserve, over one coherent fixture.
++
++    THE LIMITATION THIS ANSWERS. `_job_eligibility` derived compatibility only
++    when the stage kind was `implementation`. Review and integration got an
++    empty exclusion list after one Work comparison, so a review worker
++    configured for Work A was RESERVED for a Job on Work B and `single_worker`
++    refused it only afterwards -- leaving an allocation holding that worker's
++    capacity for a stage nobody could ever serve, and no admit receipt to show
++    for it. The advertised all-role compatibility was absent.
++
++    WHAT IS MEASURED IS PUBLIC AND DURABLE: the allocation rows the scheduler
++    writes and the canonical admit receipts, read back through the manager's
++    own readers after ordinary ticks. A helper returning the right answer is
++    not evidence that admission reached it.
++    """
++
++    def submitted(self, **members):
++        """Both Jobs, submitted against their own inputs and Works."""
++        from baton_v12.job_manager import submit
++
++        job, control, composed = self.serving_two(**members)
++        submit(job, self.second_submission())
++        return job, control, composed
++
++    def allocations(self, job):
++        """Every recorded allocation, by stage -- the scheduler's own rows."""
++        return {row["stage_id"]: row["worker_id"] for row in
++                job._connection.execute("SELECT * FROM stage_allocations")}
++
++    def admitted(self, job):
++        """Every canonical admit operation this deployment actually recorded.
++
++        THE JOURNAL, not a helper's answer: an admission that refused before
++        reserving leaves no operation here and no allocation there, which is
++        the whole difference between refusing early and refusing late.
++        """
++        return {row["operation_id"] for row in job._connection.execute(
++            "SELECT operation_id FROM operations "
++            "WHERE operation_id LIKE '%admit%'")}
++
++    # -- the positives: each Job's stage reaches its own Job's worker ---------
++
++    def test_each_job_reaches_its_own_worker_for_every_role(self):
++        """The whole of this cut in one assertion per role. Job B's stages are
++        served by Job B's workers, and the lane alone could not tell them
++        apart -- both Jobs' workers are eligible for the same lane and kind."""
++        job, _control, composed = self.submitted()
++        self.drive(job, composed, "implementation", "waiting", ticks=14)
++        held = self.allocations(job)
++        self.assertEqual(held.get("job-a/implementation"),
++                         "implementation-worker")
++        self.assertEqual(held.get("job-b/implementation"),
++                         "implementation-worker-b")
++
++    def test_a_job_never_reserves_another_jobs_review_worker(self):
++        """W130216 review [P1], exactly: job-b/review on the second Work must
++        not reserve the review worker whose manifest names the first. Both
++        review workers are eligible for the same lane and the same kind, so
++        the scheduler alone could not tell them apart -- this is the
++        compatibility the predecessor derived for implementation only."""
++        job, _control, composed = self.submitted()
++        self.drive(job, composed, "implementation", "waiting", ticks=14)
++        held = self.allocations(job)
++        self.assertEqual(held.get("job-b/review"), "review-worker-b")
++        self.assertNotEqual(held.get("job-b/review"), "review-worker")
++
++    # -- the negatives: no allocation and no receipt, not a late refusal -----
++
++    def incoherent(self, **members):
++        """One Job whose configured role worker cannot serve it."""
++        bindings = copy.deepcopy(self.two_jobs()["job_bindings"])
++        given = self.two_jobs(job_bindings=bindings)
++        for one in given["workers"]:
++            if one["worker_id"] == members["worker_id"]:
++                one["deployment"]["input_manifest"] = \
++                    self.manifest_for(self.work)
++        return given
++
++    def test_a_role_worker_on_another_work_reaches_no_allocation(self):
++        """THE MEASURED BOUNDARY. With job-b's review worker left on Work A,
++        no allocation is recorded for that stage and no admit receipt exists
++        -- rather than a RESERVED allocation holding capacity for a stage
++        `single_worker` must then refuse forever, one tick at a time."""
++        given = self.incoherent(worker_id="review-worker-b")
++        job, _control, composed = self.submitted(**given)
++        self.drive(job, composed, "implementation", "waiting", ticks=14)
++        self.assertIsNone(self.allocations(job).get("job-b/review"))
++        self.assertEqual([one for one in self.admitted(job)
++                          if "job-b/review" in one], [])
++
++    def test_an_unrelated_incompatible_job_does_not_consume_needed_capacity(
++            self):
++        """FAULT CAPACITY. The incoherent Job's stage is refused before it
++        reserves anything, so the worker it would have taken is still there
++        for the Job that can actually be served."""
++        given = self.incoherent(worker_id="review-worker-b")
++        job, _control, composed = self.submitted(**given)
++        self.drive(job, composed, "implementation", "waiting", ticks=18)
++        held = self.allocations(job)
++        self.assertEqual(held.get("job-a/implementation"),
++                         "implementation-worker")
++        self.assertEqual(held.get("job-b/implementation"),
++                         "implementation-worker-b")
++        self.assertIsNone(held.get("job-b/review"))
++        self.assertEqual(held.get("job-a/implementation"),
++                         "implementation-worker")
++
++    # -- reconstruction, where the pre-reserve callback is never consulted ----
++
++    def test_a_recorded_allocation_that_cannot_serve_the_job_is_not_admitted(
++            self):
++        """`_allocation` consults the pre-reserve callback ONLY when it creates
++        a reservation. An allocation recorded before this deployment bound the
++        Job is otherwise used on every later tick with nothing re-deriving
++        whether that worker still serves it."""
++        from baton_v12.job_manager import submission
++
++        job, _control, composed = self.submitted()
++        self.drive(job, composed, "implementation", "waiting", ticks=14)
++        [stage] = [dict(row) for row in job._connection.execute(
++            "SELECT * FROM stages WHERE stage_id = 'job-b/implementation'")]
++        [held] = [dict(row) for row in job._connection.execute(
++            "SELECT * FROM stage_allocations "
++            "WHERE stage_id = 'job-b/implementation'")]
++        self.assertEqual(held["worker_id"], "implementation-worker-b")
++        # THE RECORD IS MOVED UNDER THE PROCESS, which is the only way to
++        # reach a reconstruction the pre-reserve callback never saw: it is
++        # consulted when an allocation is CREATED, and this one already is.
++        moved = [dict(row) for row in job._connection.execute(
++            "SELECT * FROM pool_workers WHERE worker_id = 'integration-worker'"
++        )][0]
++        job._connection.execute(
++            "UPDATE stage_allocations SET worker_id = ?, participant = ?, "
++            "canonical_principal = ? WHERE stage_id = 'job-b/implementation'",
++            (moved["worker_id"], moved["participant"],
++             moved["canonical_principal"]))
++        job._connection.commit()
++        with self.assertRaises(ContractRefusal) as caught:
++            composed.admit(dict(stage, attempt_id=held["assignment_id"]),
++                           submission.job_of(job, "job-b"))
++        self.assertEqual((caught.exception.category, caught.exception.code),
++                         ("refused", "precondition"))
++        self.assertIn("already holds an allocation", caught.exception.message)
++
++    def test_the_second_jobs_integration_stage_is_a_reported_boundary(self):
++        """THE PRECISE FAILURE, refused early rather than worked around.
++
++        One deployment names one `integrator_participant`, and the integration
++        profile, the delivery and all four receipt sessions belong to that
++        actor. A second integration worker under the SAME actor is refused by
++        `scheduler.own_pool` -- one participant per worker, because two
++        entries sharing one are not distinct capacity -- and a second ACTOR
++        would be the multi-integrator provider this Work may not imply. So a
++        second Job's integration stage has no worker that can serve it, and
++        what this cut owes is that it is refused BEFORE anything is reserved
++        for it, naming why, rather than taking the first Job's integrator and
++        discovering it at the delivery.
++        """
++        from baton_v12.job_manager import submission
++
++        job, _control, composed = self.submitted()
++        self.drive(job, composed, "implementation", "waiting", ticks=14)
++        deployment = self.deployment_of(composed)
++        stage = {"stage_id": "job-b/integration", "job_id": "job-b",
++                 "kind": "integration", "work_id": SECOND_WORK,
++                 "profile_name": "reference",
++                 "profile_digest": self.config["profile_digest"]}
++        with self.assertRaises(ContractRefusal) as caught:
++            stage_execution._job_workers(deployment, stage,
++                                         submission.job_of(job, "job-b"))
++        self.assertEqual((caught.exception.category, caught.exception.code),
++                         ("refused", "precondition"))
++        self.assertIn("can serve Job 'job-b'", caught.exception.message)
++        # AND NOTHING WAS RESERVED FOR IT.
++        self.assertIsNone(self.allocations(job).get("job-b/integration"))

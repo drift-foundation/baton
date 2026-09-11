@@ -1,0 +1,26 @@
+### label: driver-completion-ordering-regression-2
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.integration.test_driver.DriverCase", "tests.integration.test_driver.ContinuationCase", "tests.integration.test_driver.TerminalReleaseReplayCase"]
+### exit: 1
+### elapsed_seconds: 0.225173
+### STDOUT
+
+### STDERR
+.....F............
+======================================================================
+FAIL: test_restart_before_run_adopts_then_uses_the_final_live_cutpoint (tests.integration.test_driver.DriverCase.test_restart_before_run_adopts_then_uses_the_final_live_cutpoint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 430, in test_restart_before_run_adopts_then_uses_the_final_live_cutpoint
+    live.assert_called_once()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 958, in assert_called_once
+    raise AssertionError(msg)
+AssertionError: Expected 'live_grant' to have been called once. Called 2 times.
+Calls: [call(namespace(_connection=<function DriverCase.setUp.<locals>.<lambda> at 0x75ff20dd7e20>), lease_id='integration-driver.lease:12bfd520a83c1666ec51f8578ebb0fd2da4c318ef98ad9df5e84d007d10619ef', canonical_target_id='target-1', entry_id='integration-driver.entry:1ff29810ef19da622085b90a7d0fdf5a3e618f7702bb687a80f566ca479db44c', fence=1),
+ call(namespace(_connection=<function DriverCase.setUp.<locals>.<lambda> at 0x75ff20dd7e20>), lease_id='lease-1', canonical_target_id='target-1', entry_id='integration-driver.entry:1ff29810ef19da622085b90a7d0fdf5a3e618f7702bb687a80f566ca479db44c', fence=1)].
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.055s
+
+FAILED (failures=1)

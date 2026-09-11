@@ -1,0 +1,13 @@
+### label: focused-terminal-custody-group-6
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved"]
+### exit: 0
+### elapsed_seconds: 1.344440
+### STDOUT
+
+### STDERR
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 1.169s
+
+OK

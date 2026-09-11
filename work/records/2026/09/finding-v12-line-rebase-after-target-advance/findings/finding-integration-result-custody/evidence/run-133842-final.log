@@ -1,0 +1,228 @@
+test_preparing_publishing_and_admitting_touch_no_producer_byte (tests.integration.test_reconciliation.OriginalSubmissionIsImmutable.test_preparing_publishing_and_admitting_touch_no_producer_byte) ... ok
+test_the_old_base_is_the_point_and_is_not_relaxed_away (tests.integration.test_reconciliation.OriginalSubmissionIsImmutable.test_the_old_base_is_the_point_and_is_not_relaxed_away)
+An old submission base is ALLOWED at this boundary. What stays ... ok
+test_the_prepared_result_carries_both_jobs_changes (tests.integration.test_reconciliation.OriginalSubmissionIsImmutable.test_the_prepared_result_carries_both_jobs_changes) ... ok
+test_the_producers_line_is_never_an_operand_of_the_merge (tests.integration.test_reconciliation.OriginalSubmissionIsImmutable.test_the_producers_line_is_never_an_operand_of_the_merge)
+The profile writes in the nominated workspace and in the dedicated ... ok
+test_a_producer_that_stops_agreeing_refuses (tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners.test_a_producer_that_stops_agreeing_refuses)
+Each of these is a cross-binding admission already owns; what is ... ok
+test_a_proposal_the_authority_never_published_refuses (tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners.test_a_proposal_the_authority_never_published_refuses) ... ok
+test_an_unaccepted_checkpoint_refuses (tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners.test_an_unaccepted_checkpoint_refuses) ... ok
+test_the_import_account_rereads_the_producers (tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners.test_the_import_account_rereads_the_producers) ... ok
+test_the_resolved_submission_is_the_producers_own_answer (tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners.test_the_resolved_submission_is_the_producers_own_answer) ... ok
+test_a_combined_failure_blocks_and_erases_no_positive (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_a_combined_failure_blocks_and_erases_no_positive)
+A clean textual merge establishes only prepared CONTENT. ... ok
+test_an_unrelated_setup_failure_is_not_the_defects_baseline (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_an_unrelated_setup_failure_is_not_the_defects_baseline)
+Section 4 rules that these are not the same observation, so the ... ok
+test_it_fails_on_the_base_passes_isolated_and_passes_combined (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_it_fails_on_the_base_passes_isolated_and_passes_combined) ... ok
+test_observations_about_other_content_refuse (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_observations_about_other_content_refuse) ... ok
+test_observations_produced_by_somebody_else_refuse (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_observations_produced_by_somebody_else_refuse) ... ok
+test_the_observations_are_retained_in_the_record (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_the_observations_are_retained_in_the_record) ... ok
+test_a_refusing_owner_does_not_authorize (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_refusing_owner_does_not_authorize) ... ok
+test_an_absent_or_unconfigured_owner_refuses (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_an_absent_or_unconfigured_owner_refuses) ... ok
+test_each_owner_is_asked_about_this_result_and_nothing_else (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_each_owner_is_asked_about_this_result_and_nothing_else) ... ok
+test_evidence_for_one_result_cannot_authorize_another (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_evidence_for_one_result_cannot_authorize_another)
+THE REPRODUCED COUNTEREXAMPLE. Two combined trees over the same ... ok
+test_one_actor_may_not_give_two_judgements (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_one_actor_may_not_give_two_judgements) ... ok
+test_the_preparer_cannot_review_its_own_composition (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_preparer_cannot_review_its_own_composition) ... ok
+test_the_recorded_actor_is_the_owners_own_participant (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_recorded_actor_is_the_owners_own_participant) ... ok
+test_a_changed_operand_still_refuses_rather_than_replaying (tests.integration.test_reconciliation.PreparedResultReplaysItsIntent.test_a_changed_operand_still_refuses_rather_than_replaying) ... ok
+test_a_committed_intent_with_no_outcome_RESUMES_on_its_own_target (tests.integration.test_reconciliation.PreparedResultReplaysItsIntent.test_a_committed_intent_with_no_outcome_RESUMES_on_its_own_target)
+The superseded slice answered "already done" and asked the profile ... ok
+test_a_moved_target_is_a_NEW_result_and_the_old_one_is_untouched (tests.integration.test_reconciliation.PreparedResultReplaysItsIntent.test_a_moved_target_is_a_NEW_result_and_the_old_one_is_untouched) ... ok
+test_an_exact_retry_is_the_same_record_and_merges_once (tests.integration.test_reconciliation.PreparedResultReplaysItsIntent.test_an_exact_retry_is_the_same_record_and_merges_once) ... ok
+test_exact_retries_replay_AFTER_the_record_has_moved_on (tests.integration.test_reconciliation.PreparedResultReplaysItsIntent.test_exact_retries_replay_AFTER_the_record_has_moved_on)
+Review [P2]: both of these used to refuse an identical call once ... ok
+test_the_identity_is_derived_from_the_operands_and_only_from_those (tests.integration.test_reconciliation.PreparedResultReplaysItsIntent.test_the_identity_is_derived_from_the_operands_and_only_from_those) ... ok
+test_a_published_row_cannot_be_quietly_demoted (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_a_published_row_cannot_be_quietly_demoted)
+The state and the evidence that earned it commit together, so a ... ok
+test_a_row_pointed_at_another_committed_act_is_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_a_row_pointed_at_another_committed_act_is_caught) ... ok
+test_a_row_whose_act_is_not_in_the_journal_at_all_is_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_a_row_whose_act_is_not_in_the_journal_at_all_is_caught) ... ok
+test_a_source_identity_the_prepared_evidence_never_saw_is_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_a_source_identity_the_prepared_evidence_never_saw_is_caught) ... ok
+test_an_invented_imported_state_with_no_entry_is_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_an_invented_imported_state_with_no_entry_is_caught)
+The reviewer's third counterexample. It is refused twice now: the ... ok
+test_causal_observations_edited_after_the_fact_are_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_causal_observations_edited_after_the_fact_are_caught) ... ok
+test_evidence_emptied_UNDER_a_published_result_is_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_evidence_emptied_UNDER_a_published_result_is_caught)
+The reviewer's second counterexample: a published row whose ... ok
+test_prepared_content_edited_UNDER_an_authorized_result_is_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_prepared_content_edited_UNDER_an_authorized_result_is_caught)
+The reviewer's exact counterexample: replacing the prepared head ... ok
+test_prepared_content_that_no_longer_digests_to_its_set_is_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_prepared_content_that_no_longer_digests_to_its_set_is_caught) ... ok
+test_a_session_that_is_not_this_results_assignment_refuses (tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment.test_a_session_that_is_not_this_results_assignment_refuses) ... ok
+test_an_unauthorized_result_does_not_publish (tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment.test_an_unauthorized_result_does_not_publish) ... ok
+test_the_derived_proposal_names_this_role_this_snapshot_these_bytes (tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment.test_the_derived_proposal_names_this_role_this_snapshot_these_bytes) ... ok
+test_the_import_account_keeps_both_identities_and_refuses_a_stale_one (tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment.test_the_import_account_keeps_both_identities_and_refuses_a_stale_one) ... ok
+test_the_publish_retry_replays_and_borrowing_the_producer_refuses (tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment.test_the_publish_retry_replays_and_borrowing_the_producer_refuses) ... ok
+test_a_foreign_object_this_workspace_cannot_reach_refuses (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_a_foreign_object_this_workspace_cannot_reach_refuses) ... ok
+test_a_held_result_neither_authorizes_nor_publishes (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_a_held_result_neither_authorizes_nor_publishes) ... ok
+test_a_held_result_replays_as_the_same_hold (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_a_held_result_replays_as_the_same_hold) ... ok
+test_a_real_conflict_holds_with_its_reason_and_retains_no_result (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_a_real_conflict_holds_with_its_reason_and_retains_no_result) ... ok
+test_a_submission_already_based_on_the_target_refuses (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_a_submission_already_based_on_the_target_refuses)
+The producer's checkpoint says it was written on the revision the ... ok
+test_an_assignment_naming_another_Work_refuses (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_an_assignment_naming_another_Work_refuses) ... ok
+test_an_uncertified_profile_composes_nothing (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_an_uncertified_profile_composes_nothing) ... ok
+test_complete_evidence_enqueues_the_exact_producer_account (tests.integration.test_admission.AcceptedAccount.test_complete_evidence_enqueues_the_exact_producer_account) ... ok
+test_concurrent_exact_admission_returns_one_entry_and_rank (tests.integration.test_admission.AcceptedAccount.test_concurrent_exact_admission_returns_one_entry_and_rank) ... ok
+test_exact_replay_returns_the_same_entry_and_rank (tests.integration.test_admission.AcceptedAccount.test_exact_replay_returns_the_same_entry_and_rank) ... ok
+test_two_authorities_share_one_target_order (tests.integration.test_admission.AcceptedAccount.test_two_authorities_share_one_target_order) ... ok
+test_ambiguous_job_scope_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_ambiguous_job_scope_refuses) ... ok
+test_assignment_identity_cross_wiring_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_assignment_identity_cross_wiring_refuses) ... ok
+test_checkpoint_identity_digest_profile_and_path_cross_wiring_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_checkpoint_identity_digest_profile_and_path_cross_wiring_refuses) ... ok
+test_each_required_policy_receipt_must_be_present_and_accepted (tests.integration.test_admission.RefusalBeforeMutation.test_each_required_policy_receipt_must_be_present_and_accepted) ... ok
+test_frozen_result_identity_digest_and_disposition_must_match (tests.integration.test_admission.RefusalBeforeMutation.test_frozen_result_identity_digest_and_disposition_must_match) ... ok
+test_job_input_policy_scope_and_work_are_not_caller_claims (tests.integration.test_admission.RefusalBeforeMutation.test_job_input_policy_scope_and_work_are_not_caller_claims) ... ok
+test_malformed_scope_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_malformed_scope_refuses) ... ok
+test_receipt_candidate_and_target_cross_wiring_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_receipt_candidate_and_target_cross_wiring_refuses) ... ok
+test_stale_target_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_stale_target_refuses) ... ok
+test_the_checkpoint_must_be_accepted (tests.integration.test_admission.RefusalBeforeMutation.test_the_checkpoint_must_be_accepted) ... ok
+test_the_job_store_must_share_the_candidate_authority (tests.integration.test_admission.RefusalBeforeMutation.test_the_job_store_must_share_the_candidate_authority) ... ok
+test_a_moved_target_refuses_the_import_account_and_not_eligibility (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_a_moved_target_refuses_the_import_account_and_not_eligibility) ... ok
+test_eligibility_still_proves_every_producer_it_ever_did (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_eligibility_still_proves_every_producer_it_ever_did)
+The separation is not a weaker proof. Each of these refuses the ... ok
+test_neither_source_answer_touches_the_coordinator (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_neither_source_answer_touches_the_coordinator) ... ok
+test_the_submission_operand_carries_the_objects_the_account_cannot (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_the_submission_operand_carries_the_objects_the_account_cannot)
+`prepare_result` reconciles Git OBJECTS. The account carries ... ok
+test_authority_refusal_holds_before_coordinator_completion (tests.integration.test_driver.DriverCase.test_authority_refusal_holds_before_coordinator_completion) ... ok
+test_fresh_admission_drives_the_existing_fenced_executor (tests.integration.test_driver.DriverCase.test_fresh_admission_drives_the_existing_fenced_executor) ... ok
+test_integrated_entry_without_its_exact_lease_fails_closed (tests.integration.test_driver.DriverCase.test_integrated_entry_without_its_exact_lease_fails_closed) ... ok
+test_replayed_integrated_entry_only_reads_an_existing_receipt (tests.integration.test_driver.DriverCase.test_replayed_integrated_entry_only_reads_an_existing_receipt) ... ok
+test_restart_after_run_holds_and_never_starts_a_second_writer (tests.integration.test_driver.DriverCase.test_restart_after_run_holds_and_never_starts_a_second_writer) ... ok
+test_restart_before_run_adopts_then_uses_the_final_live_cutpoint (tests.integration.test_driver.DriverCase.test_restart_before_run_adopts_then_uses_the_final_live_cutpoint) ... ok
+test_a_blocked_target_reports_its_hold_and_advances_nothing (tests.integration.test_driver.ContinuationCase.test_a_blocked_target_reports_its_hold_and_advances_nothing) ... ok
+test_a_continuation_without_a_lease_or_a_delivery_refuses (tests.integration.test_driver.ContinuationCase.test_a_continuation_without_a_lease_or_a_delivery_refuses) ... ok
+test_a_running_writer_is_pending_and_settles_nothing (tests.integration.test_driver.ContinuationCase.test_a_running_writer_is_pending_and_settles_nothing)
+A RESULT WHILE THE WRITER CAN STILL WRITE IS NOT AN ENDING. The ... ok
+test_a_settled_entry_replays_its_terminal_path_and_nothing_else (tests.integration.test_driver.ContinuationCase.test_a_settled_entry_replays_its_terminal_path_and_nothing_else)
+Repeated ticks after completion cannot duplicate a receipt, a ... ok
+test_a_stopped_runtime_completes_through_the_receipt_then_the_store (tests.integration.test_driver.ContinuationCase.test_a_stopped_runtime_completes_through_the_receipt_then_the_store)
+The ordinary ending, in the order the coordinator requires: the ... ok
+test_an_authority_refusal_holds_before_coordinator_completion (tests.integration.test_driver.ContinuationCase.test_an_authority_refusal_holds_before_coordinator_completion)
+The same ending admission composes, through the same owner: a ... ok
+test_an_unaccountable_runtime_takes_the_accepted_interrupted_hold (tests.integration.test_driver.ContinuationCase.test_an_unaccountable_runtime_takes_the_accepted_interrupted_hold) ... ok
+test_an_unstarted_attempt_is_an_inconsistency_and_not_a_start (tests.integration.test_driver.ContinuationCase.test_an_unstarted_attempt_is_an_inconsistency_and_not_a_start) ... ok
+test_the_operation_has_no_operand_that_could_start_a_runtime (tests.integration.test_driver.ContinuationCase.test_the_operation_has_no_operand_that_could_start_a_runtime)
+THE STRONGEST FORM OF `it never starts a worker`: there is no port ... ok
+test_the_published_assignment_must_be_the_one_the_grant_composes (tests.integration.test_driver.ContinuationCase.test_the_published_assignment_must_be_the_one_the_grant_composes) ... ok
+test_released_terminal_restart_is_read_only (tests.integration.test_driver.TerminalReleaseReplayCase.test_released_terminal_restart_is_read_only) ... ok
+test_restart_replays_the_settled_live_lease_tail (tests.integration.test_driver.TerminalReleaseReplayCase.test_restart_replays_the_settled_live_lease_tail) ... ok
+test_a_checkpoint_recording_another_base_writes_nothing (tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_checkpoint_recording_another_base_writes_nothing) ... ok
+test_a_different_observation_changes_the_emitted_identity (tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_different_observation_changes_the_emitted_identity) ... ok
+test_a_failing_required_command_writes_nothing (tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_failing_required_command_writes_nothing) ... ok
+test_a_mismatched_requirement_writes_nothing (tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_mismatched_requirement_writes_nothing) ... ok
+test_a_proposal_naming_another_generation_writes_nothing (tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_proposal_naming_another_generation_writes_nothing) ... ok
+test_a_proposal_naming_another_participant_writes_nothing (tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_proposal_naming_another_participant_writes_nothing) ... ok
+test_a_proposal_naming_another_work_writes_nothing (tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_proposal_naming_another_work_writes_nothing) ... ok
+test_a_proposal_offered_against_another_revision_writes_nothing (tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything.test_a_proposal_offered_against_another_revision_writes_nothing) ... ok
+test_an_unrun_required_command_writes_nothing (tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything.test_an_unrun_required_command_writes_nothing) ... ok
+test_the_emitted_verification_identities_carry_the_marker (tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything.test_the_emitted_verification_identities_carry_the_marker)
+Review [P2]: the marker was hashed into the basis and therefore ... ok
+test_the_marker_is_not_a_certification_word (tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything.test_the_marker_is_not_a_certification_word) ... ok
+test_the_unchanged_control_writes_exactly_three_receipts (tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything.test_the_unchanged_control_writes_exactly_three_receipts) ... ok
+test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_conflicting_authority_receipt_is_not_overwritten_or_admitted) ... ok
+test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_later_assignment_generation_cannot_certify_the_earlier_candidate) ... ok
+test_a_real_proposal_from_another_producer_refuses_before_receipts (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_a_real_proposal_from_another_producer_refuses_before_receipts) ... ok
+test_actual_command_custody_cleanup_and_authority_admission (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_command_custody_cleanup_and_authority_admission) ... ok
+test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_actual_failed_and_unrun_completion_cannot_publish_policy_receipts_or_admit) ... ok
+test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_exact_admission_replay_preserves_receipts_rank_and_retained_evidence) ... ok
+test_wrong_requirements_refuse_before_any_authority_receipt_or_admission (tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission.test_wrong_requirements_refuse_before_any_authority_receipt_or_admission) ... ok
+test_a_foreign_database_is_refused_untouched (tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance.test_a_foreign_database_is_refused_untouched) ... ok
+test_a_fresh_store_carries_this_build_s_kind_and_version (tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance.test_a_fresh_store_carries_this_build_s_kind_and_version) ... ok
+test_an_index_whose_predicate_changed_is_not_adopted (tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance.test_an_index_whose_predicate_changed_is_not_adopted) ... ok
+test_an_object_this_build_does_not_own_is_not_adopted (tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance.test_an_object_this_build_does_not_own_is_not_adopted) ... ok
+test_another_version_is_refused_rather_than_guessed_across (tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance.test_another_version_is_refused_rather_than_guessed_across) ... ok
+test_metadata_this_build_does_not_own_is_not_adopted (tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance.test_metadata_this_build_does_not_own_is_not_adopted) ... ok
+test_the_expectation_is_measured_from_the_schema_it_checks (tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance.test_the_expectation_is_measured_from_the_schema_it_checks)
+A hand-written expectation would be a second owner of the shape. ... ok
+test_the_missing_safety_index_is_not_adopted (tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance.test_the_missing_safety_index_is_not_adopted)
+Review of 2026-09-06 [P1]: this reopened without complaint. ... ok
+test_a_file_sqlite_cannot_read_refuses_in_this_taxonomy (tests.integration.test_coordinator.ReadOnlyOpening.test_a_file_sqlite_cannot_read_refuses_in_this_taxonomy)
+REVIEW [P2]. `sqlite3.DatabaseError` came straight out of a public ... /home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3538: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-jbnbn6ez/prose.txt'>
+  before = open(prose, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3545: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-jbnbn6ez/prose.txt'>
+  self.assertEqual(open(prose, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_foreign_database_is_refused_untouched (tests.integration.test_coordinator.ReadOnlyOpening.test_a_foreign_database_is_refused_untouched) ... /home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3416: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-wyke84hq/theirs.sqlite3'>
+  before = open(foreign, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3421: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-wyke84hq/theirs.sqlite3'>
+  self.assertEqual(open(foreign, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_partial_sidecar_pair_reads_the_same_committed_evidence (tests.integration.test_coordinator.ReadOnlyOpening.test_a_partial_sidecar_pair_reads_the_same_committed_evidence)
+CONVERTED under owner M128251, over the two states the earlier ... /home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-t7vmx2sp/integration.sqlite3'>
+  return {name: (open(os.path.join(self.root, name), "rb").read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-qi86ettc/integration.sqlite3'>
+  return {name: (open(os.path.join(self.root, name), "rb").read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_read_only_filesystem_store_is_readable (tests.integration.test_coordinator.ReadOnlyOpening.test_a_read_only_filesystem_store_is_readable)
+Where the platform supports it: the directory is not writable and a ... ok
+test_a_store_at_another_schema_version_is_refused_untouched (tests.integration.test_coordinator.ReadOnlyOpening.test_a_store_at_another_schema_version_is_refused_untouched) ... /home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3559: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-kxonwg8_/older.sqlite3'>
+  before = open(path, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3563: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-kxonwg8_/older.sqlite3'>
+  self.assertEqual(open(path, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_store_nobody_holds_reads_its_committed_evidence (tests.integration.test_coordinator.ReadOnlyOpening.test_a_store_nobody_holds_reads_its_committed_evidence)
+CONVERTED under owner M128251. This is the case the whole Work is ... /home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-zuoo95vz/integration.sqlite3'>
+  return {name: (open(os.path.join(self.root, name), "rb").read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_store_of_another_kind_is_refused_untouched (tests.integration.test_coordinator.ReadOnlyOpening.test_a_store_of_another_kind_is_refused_untouched) ... /home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3431: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-1w4on7wj/other-kind.sqlite3'>
+  before = open(foreign, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3435: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-1w4on7wj/other-kind.sqlite3'>
+  self.assertEqual(open(foreign, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_a_transition_refuses_before_the_transaction (tests.integration.test_coordinator.ReadOnlyOpening.test_a_transition_refuses_before_the_transaction) ... ok
+test_an_absent_store_is_refused_and_none_is_created (tests.integration.test_coordinator.ReadOnlyOpening.test_an_absent_store_is_refused_and_none_is_created) ... ok
+test_an_empty_database_is_refused_rather_than_initialized (tests.integration.test_coordinator.ReadOnlyOpening.test_an_empty_database_is_refused_rather_than_initialized)
+`open` would initialize this one. That is the single place this ... /home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3404: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-g3x1xvtp/empty.sqlite3'>
+  before = open(empty, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3409: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-g3x1xvtp/empty.sqlite3'>
+  self.assertEqual(open(empty, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_an_unrelated_failure_is_not_swallowed (tests.integration.test_coordinator.ReadOnlyOpening.test_an_unrelated_failure_is_not_swallowed)
+Only SQLite's own failures are translated. ... ok
+test_it_opens_a_held_store_and_reads_its_committed_entries (tests.integration.test_coordinator.ReadOnlyOpening.test_it_opens_a_held_store_and_reads_its_committed_entries) ... ok
+test_it_reads_data_committed_after_it_was_opened (tests.integration.test_coordinator.ReadOnlyOpening.test_it_reads_data_committed_after_it_was_opened)
+THE CASE THIS OPENER EXISTS FOR. A coordinator holds the store and ... ok
+test_its_operands_are_owned_exactly_as_the_serving_opener_owns_them (tests.integration.test_coordinator.ReadOnlyOpening.test_its_operands_are_owned_exactly_as_the_serving_opener_owns_them) ... ok
+test_no_coordinator_is_created_where_none_exists (tests.integration.test_coordinator.ReadOnlyOpening.test_no_coordinator_is_created_where_none_exists)
+THE PROTECTION THE AMENDMENT DID NOT TOUCH, kept explicit beside ... ok
+test_reading_changes_no_store_byte (tests.integration.test_coordinator.ReadOnlyOpening.test_reading_changes_no_store_byte) ... /home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-ogfzc9vw/integration.sqlite3'>
+  return {name: (open(os.path.join(self.root, name), "rb").read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_committed_history_backs_every_read_it_answers (tests.integration.test_coordinator.ReadOnlyOpening.test_the_committed_history_backs_every_read_it_answers)
+THE JOURNAL IS WHAT THESE READERS PROVE AGAINST. ... ok
+test_the_public_lease_reader_still_answers (tests.integration.test_coordinator.ReadOnlyOpening.test_the_public_lease_reader_still_answers) ... ok
+test_the_serving_coordinator_is_undisturbed (tests.integration.test_coordinator.ReadOnlyOpening.test_the_serving_coordinator_is_undisturbed) ... ok
+test_the_eligibility_members_are_the_admission_owners_own (tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree.test_the_eligibility_members_are_the_admission_owners_own) ... ok
+test_the_producer_and_the_worker_contract_name_one_layout (tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree.test_the_producer_and_the_worker_contract_name_one_layout) ... ok
+test_the_worker_contract_and_the_manager_runtime_name_one_protocol (tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree.test_the_worker_contract_and_the_manager_runtime_name_one_protocol) ... ok
+test_the_worker_contract_imports_no_manager_package (tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree.test_the_worker_contract_imports_no_manager_package)
+The packaging claim, proved by an interpreter that cannot cheat. ... ok
+test_a_member_the_producers_still_agree_on_is_compared_here (tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb.test_a_member_the_producers_still_agree_on_is_compared_here)
+The half `resolved_account` cannot catch: every producer agrees ... ok
+test_a_sound_entry_re_resolves_and_runs (tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb.test_a_sound_entry_re_resolves_and_runs)
+The matrix above would pass if everything refused. ... ok
+test_an_advanced_canonical_target_refuses_the_entry (tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb.test_an_advanced_canonical_target_refuses_the_entry) ... ok
+test_an_integrity_account_blocks_the_target_instead (tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb.test_an_integrity_account_blocks_the_target_instead)
+The other branch of the ruled split, driven: persisted evidence ... ok
+test_the_refusal_records_what_the_producers_said (tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb.test_the_refusal_records_what_the_producers_said) ... ok
+test_the_refused_entry_frees_the_target_for_the_next_rank (tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb.test_the_refused_entry_frees_the_target_for_the_next_rank)
+The whole point of the ordinary disposition: rank two proceeds. ... ok
+test_the_selectors_come_from_the_entry_and_not_a_caller (tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb.test_the_selectors_come_from_the_entry_and_not_a_caller) ... ok
+
+----------------------------------------------------------------------
+Ran 143 tests in 5.554s
+
+OK
+ELAPSED 5.72

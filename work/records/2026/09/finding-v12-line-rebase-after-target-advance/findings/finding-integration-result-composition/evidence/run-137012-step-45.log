@@ -1,0 +1,11 @@
+### label: AB-diagnostic-4-hold-reason
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/r_ab_diag.py"]
+### exit: 0
+### elapsed_seconds: 1.245470
+### STDOUT
+reconciles: True
+tick 0 [{'stage_id': 'job-b/integration', 'episode': 1, 'attempt_id': 'attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e', 'outcome': 'started', 'runtime_id': None}]
+RESULT {'result_id': 'result-77f965eeccfac47780eb217b349a9353f2763182f288ef694993c3f0b4cbaf49', 'state': 'held', 'reason': "the submission's change does not reconcile cleanly with this target snapshot (harness.py)"}
+
+### STDERR

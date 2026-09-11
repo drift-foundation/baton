@@ -1,0 +1,9 @@
+### label: final-hash-3
+### cwd: /home/sl/src/baton
+### argv: ["python3", "-c", "\nimport hashlib, os\np='v12/python/tools/stage_execution.py'; st=os.stat(p)\nprint(hashlib.sha256(open(p,'rb').read()).hexdigest(), oct(st.st_mode&0o777), st.st_size)\n"]
+### exit: 0
+### elapsed_seconds: 0.006984
+### STDOUT
+c0145d3ad604d32b883dd87c932e5710a0d1d94bb35b377aef932fe7b2a8305f 0o664 209341
+
+### STDERR

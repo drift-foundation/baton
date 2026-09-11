@@ -1,0 +1,190 @@
+{
+  "claim": 133171,
+  "captured_at": "2026-09-10T03:36:42.576471+00:00",
+  "scope_paths": 43,
+  "errors": [],
+  "candidate": {
+    "AGENTS.md": {
+      "sha256": "67cc573e143fede608169f62560ab25b8452b80bcc0b9cb4d1196e429ca95857",
+      "mode": "0o664"
+    },
+    "v12/README.md": {
+      "sha256": "0ee2369c991470bc83306c33dd3e3849a6bf3faa371d4f6031ea0766f80858c5",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/checkpoint_profiles.py": {
+      "sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "ec3a2e4fd52739c249b5a2dff102fe1be056ae6fabcb83dca52eed80d83ea8eb",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "09d8d65a13b8bd97701cf1f698026825116c2a6cffa26fcbf6ce7d08bdb2365f",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "b19839ac0d87878aba3fba89c11e823de3b324e2aed9766b192435101ae3a1a7",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/execution.py": {
+      "sha256": "91995b96369f7237dd6e8b67cf8223f3b52baf6b6304c45d53a14e13140ce330",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/git_profile.py": {
+      "state": "absent"
+    },
+    "v12/python/src/baton_v12/integration/queue.py": {
+      "sha256": "2e8a153ddcdf15fcd597f51a7c81ce0405ee7b64fad9b2f3b6cf416c40489be7",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/reconciliation.py": {
+      "state": "absent"
+    },
+    "v12/python/src/baton_v12/integration/recovery.py": {
+      "sha256": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/runtime.py": {
+      "sha256": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "d0df79b9674e1a92b7011747c0ddcd42116804a4b6f8e05526150d329557c968",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/delegation.py": {
+      "sha256": "fd83e32d0ab52b1f611c21adc3cb07b094dee9c2dd7ca904f923b82bb1e42705",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/attempts.py": {
+      "sha256": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/schema.py": {
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/target_rework.py": {
+      "state": "absent"
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "2afc9e5ccef3e2ecd5bbaaa803eb5c3386f9475aa7b8cf0c021c43974e2a1570",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "cda33b582b41fecfca06759fc20fe254a6a683d4b919742386a01b36acb7506e",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_execution.py": {
+      "sha256": "53c416fa603bd31d1549f8f974dba562bf082c3963866423e87d0b073ea3a398",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_reconciliation.py": {
+      "state": "absent"
+    },
+    "v12/python/tests/integration/test_recovery.py": {
+      "sha256": "c33cfa13818177afc882dd896d842036010c44656886a73c133687001e08b8fa",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_runtime.py": {
+      "sha256": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_delegation.py": {
+      "sha256": "ce18e8dbf6d05a73dcba217b227f7c9e4d430e4aa0bc44c56fda897028d91a4a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_scheduling.py": {
+      "sha256": "79ba448c1f21a6c92bc9230291b5bfd04273024280b00ea197d1fa700066c103",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_attempts.py": {
+      "sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_integration_image.py": {
+      "sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_integration_worker.py": {
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_store.py": {
+      "sha256": "9a5566355c375c98d2464e802a4d3d599cdd24fabc1b8d2135963830e339c093",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_target_rework.py": {
+      "state": "absent"
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_integration_worker.py": {
+      "sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "1ebba932945b8f1c93f80aaa61835b3188ef489073fb39887a20806d6b7fe93c",
+      "mode": "0o664"
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+      "mode": "0o664"
+    },
+    "v12/python/tools/integration_worker.py": {
+      "sha256": "2c3156da8c4f9bf4430b325ca0e32fc9c8bfbb59f5caa7ccccdd71b4fca65796",
+      "mode": "0o664"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "28ee42a2aaca4e9f596ff5accfebb60f5bc1c6f888e1c9e3c128d7ee93993302",
+      "mode": "0o664"
+    },
+    "v12/worker/Dockerfile.integration": {
+      "sha256": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "mode": "0o664"
+    },
+    "v12/worker/integration_contract.py": {
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "mode": "0o664"
+    },
+    "v12/worker/integration_entry.py": {
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "mode": "0o664"
+    },
+    "v12/worker/integration_workload.py": {
+      "sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "mode": "0o664"
+    }
+  },
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.manager.test_store.OwnershipBeforeAdoption.test_reopening_our_own_store_adds_nothing",
+    "tests.manager.test_review_cycles.ReviewCycles.test_line_and_each_operation_replay_exactly"
+  ],
+  "cwd": "v12/python",
+  "PYTHONPATH": ".:src:tests",
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "test_reopening_our_own_store_adds_nothing (tests.manager.test_store.OwnershipBeforeAdoption.test_reopening_our_own_store_adds_nothing) ... ok\ntest_line_and_each_operation_replay_exactly (tests.manager.test_review_cycles.ReviewCycles.test_line_and_each_operation_replay_exactly) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.014s\n\nOK\n",
+  "test_elapsed_seconds": 0.17511079704854637,
+  "charged_elapsed_seconds": 0.17817034490872175
+}

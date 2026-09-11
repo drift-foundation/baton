@@ -1,0 +1,85 @@
+{
+  "work": "W130224",
+  "claim": 131069,
+  "participant": "baton.claude",
+  "role": "impl",
+  "parent": "W119405",
+  "authority": "owner M130205 through ../../ALLOCATION-2026-09-09.md as reallocated by event130903; this child's FINDING and PLAN; standing W71830 test authority",
+  "reviewed_input_revalidated": {
+    "tools/stage_execution.py": "5f8de12797d1c47d4926ea6b753e97043cc061b409b8c66ca3e459418f43c9b8",
+    "tests/tools/test_stage_execution.py": "74d33e450020e9486a7f0f49c54a687a62c361760bef373c871db4bb1e66c641",
+    "both": "byte-identical to the W130216 accepted candidate, checked before any edit; both 0664"
+  },
+  "candidate": {
+    "tools/stage_execution.py": "2b1a4324443b39d92e8aadee9146e6216321525eace81ff9a4ea00fe3a77a3b0",
+    "tests/tools/test_stage_execution.py": "a5b0e048be970a5e17dc89af20991780142792f54f64d4e3f7924ed306e7abbf",
+    "mode": "0664 both"
+  },
+  "pinned_before_editing": "FINDING entry 2026-09-09T21:33:08Z, written before the first source or test edit. This answers the chronology caveat in review-2026-09-09T21-26-48Z.md.",
+  "source_changes": {
+    "required_tests_per_job": "Integration.account proved the committed integration settlement against `self.required_tests()` with NO Job id. That overload selects 'the one implementation worker' and refuses a deployment configuring several, so the terminal completion check of EITHER Job would have failed under a /2 document. It now passes this stage's own bound Job id, the same `_bound_id` the two operand lines above it use.",
+    "integration_runtime_port_per_job": "`IntegrationRuntimePort` is composed over ONE accepted line, ONE published proposal and ONE canonical target, and all three are per-Job facts. `operations_from(integration_port=)` now accepts a MAPPING of bound Job id to port; `_integration_ports` keeps the single-object spelling for one binding and REFUSES one bare port for a deployment binding several rather than running a second Job's integration against the first Job's line. `Integration.port_for` selects by the stage's own Job, and the /1 binding answers for every Job it is asked about exactly as `binding_for` does.",
+    "derived_integration_task": "`_served_deployment` now derives `task_document` and `task_bytes` alongside `input_manifest` from the bound producer, because `_held` proves the configured task document's bytes against the manifest's own human contract and a half-derived document would be one that validator would never have accepted.",
+    "no_new_capability": "no new provider, driver, profile, actor or grant. The port is the same accepted object, supplied once per Job by the same operator that supplies one today."
+  },
+  "fixture_changes": {
+    "per_job_task_document": "the shared two-Job fixture now gives Job B its own task document declaring its own line's base. Without it Job B's producer could never run a turn at all: the workload plans its checkout from `declared_base` and refuses a base its mounted line has never heard of. `bound_worker` moves a worker's manifest and its task document together, because `_held` refuses the pair when they disagree.",
+    "second_job_routes": "`EachJobBindsItsOwnDeploymentAndLine` now declares the second producer's and second reviewer's routes on the Authority, exactly as `ServingCase` already declares the first Job's. A fenced handoff moves the Work onto the route the next role is served on, and a participant the Authority does not know serves that route has its claim refused there.",
+    "concurrent_engine": "`_ConcurrentEngine` models SEVERAL live containers. The accepted `test_single_worker.Engine` models exactly one -- `runtime_id`, `image`, `labels` and `mounts` are single-valued and `inspect` answers about the last container started whatever identity it was asked about -- so two Jobs coding at once reported each other's runtime and the second producer's stage projected `exceptional` the instant the first one started. The accepted Engine is NOT changed; the cases that own it start one container at a time.",
+    "one_canonical_target": "the traversal binds its two Jobs to two lines of ONE canonical target at that target's own revision. `integration.driver` refuses a proposal built on any other revision -- 'a proposal is offered against the revision it was built from' -- and an Authority holds one. `two_jobs()` itself is untouched, so the admission fixture and every accepted case over it are exactly as accepted."
+  },
+  "what_is_proved": [
+    "simultaneous independent implementation bindings: both Jobs waiting on their own allocated producers at one instant, each writing its own persistent line whose writer record names that line",
+    "review alongside unrelated coding: Job A in review on its own reviewer while Job B is still coding on its own producer",
+    "correction on the Job's own line: a changes-requested verdict reopens the SAME line the rejected checkpoint was written on, based on that checkpoint, while the other Job's line, round and attempt do not move",
+    "the second Job's own reviewer and verdict, and the accepted checkpoint on its own line only",
+    "same-target serialization: both Jobs accepted and both integration stages eligible, exactly one holds the one configured integrator and the other reaches no allocation, with both Jobs proposing into the same canonical target and two distinct lines",
+    "per-Job integration operands: two producers give two required-test selections with two task ids and two input manifest digests, and one bare port for a two-Job deployment is refused rather than reused",
+    "actual integration and terminal handoff inside a two-Job pool: started through this Job's own port, entry integrated, lease released, stage completed, Authority terminal pass on the integrator's outgoing route naming this Job's Work"
+  ],
+  "reported_not_accepted": {
+    "finding": "a completed integration never returns its scheduler capacity",
+    "measured": "after Job A's integration completes, its allocation is still 'reserved' while the same Job's implementation and review allocations are 'released'; the integration attempt's runtime is 'quiescent' with cleanup 'pending'; Job B's integration stays 'queued' with no allocation",
+    "mechanism": "reconcile_allocations returns capacity only on an episode ended in RELEASE_ENDINGS or a runtime whose cleanup is complete/retained, and authorize_cleanup is authorized by an intake receipt an integrator's runtime can never obtain",
+    "scope": "the correction is in job_manager/scheduler.py or worker_manager/intake.py, outside this campaign's authorized two paths",
+    "filed": "W131187, bound to work/records/2026/09/finding-v12-integration-capacity-return",
+    "consequence_for_this_work": "both Jobs are NOT carried to terminal. One is, and the second's is measured at exactly the point it stops. This is stated rather than claimed."
+  },
+  "runs": [
+    {"run": "traversal case, first iteration -- second producer projected exceptional", "wall": "0.77s"},
+    {"run": "same case after the concurrent engine", "wall": "0.64s", "result": "OK"},
+    {"run": "overlap case", "wall": "0.45s", "result": "OK"},
+    {"run": "correction and second-review cases", "wall": "1.20s", "result": "1 of 2 failed"},
+    {"run": "per-Job task document, first attempt", "wall": "0.55s", "result": "composition refused"},
+    {"run": "whole class after the manifest/task pairing", "wall": "2.46s", "result": "24 of 25 passed"},
+    {"run": "diagnostic, wrong path order", "wall": "0.19s"},
+    {"run": "diagnostic, the second Job's ending refusal", "wall": "0.98s"},
+    {"run": "whole class after the one-target traversal fixture", "wall": "2.72s", "result": "OK, 25 tests"},
+    {"run": "serialization and per-Job operand cases", "wall": "1.35s", "result": "OK"},
+    {"run": "terminal integration case", "wall": "1.35s", "result": "OK"},
+    {"run": "diagnostic, the second Job's integration after the first completes", "wall": "1.72s"},
+    {"run": "diagnostic, episode and allocation states", "wall": "1.58s"},
+    {"run": "whole class with the reported boundary case", "wall": "5.76s", "result": "OK, 29 tests"},
+    {"run": "FULL MODULE", "wall": "25.54s", "result": "235 tests, 3 failures and 18 errors -- the /1 binding's absent Job id against a real stage's Job id"},
+    {"run": "FULL MODULE after the port lookup correction", "wall": "27.62s", "result": "235 tests, 12 errors -- the accepted focused cases construct Integration with a bare port"},
+    {"run": "the five classes that construct Integration directly plus both composed lifecycle classes", "wall": "11.87s", "result": "OK, 40 tests"},
+    {"run": "the traversal class after the constructor correction", "wall": "5.39s", "result": "OK, 29 tests"}
+  ],
+  "verification_state": {
+    "module_total": 235,
+    "last_full_module_run": "27.62s run above, which found the 12 errors the final constructor correction fixes",
+    "after_that_correction": "69 tests re-run and all passing -- the 40 covering every direct Integration construction and both composed lifecycle classes, and the 29 of the traversal class",
+    "not_re_run": "the full module has NOT been re-run after the final two-line constructor change (`self.ports = ports if type(ports) is dict else {None: ports}`). The exact tests that failed against the previous spelling were re-run and pass. THREE cases in TheObservationSurfaceIsSeparateAndReadOnly reach that constructor with one argument and were not re-run; one argument is not a dict and therefore takes the same branch as before. This is the residual gap and it is stated rather than implied."
+  },
+  "budget": {
+    "increment": 75.0,
+    "timed": 92.14,
+    "untimed": "none -- every run above was wall-timed; no new uncertainty is added",
+    "over_by": "17.14s",
+    "why": "two regressions surfaced only by the full-module run, and each correction had to be verified. The two full-module runs alone are 53.16s of the 92.14s. I am reporting this rather than rounding it down.",
+    "campaign": "about 367.88s of the 400s cap, carrying all earlier charges and the predecessor generations' untimed-run uncertainty unchanged",
+    "consequence": "32.12s remains against the 20s observation and 27s joined increments still to come, so this overrun eats into successors. That is the owner's decision to make, not this Work's to absorb silently.",
+    "reviewer_probe_carry": "4.391688829/5s, untouched by this claim"
+  },
+  "not_claimed": "no read-only observation result, no W119405 joined acceptance, and no claim that both Jobs reach terminal integration."
+}

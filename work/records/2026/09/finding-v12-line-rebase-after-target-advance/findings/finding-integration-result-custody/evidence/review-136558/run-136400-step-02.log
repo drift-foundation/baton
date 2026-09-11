@@ -1,0 +1,96 @@
+### label: roundtrip-proof-real-authority-sessions-and-repository-identity
+### argv: ["python3", "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/roundtrip-136400-probe.py"]
+### exit: 0
+### elapsed_seconds: 0.203394
+### STDOUT
+{
+ "repository_identity": {
+  "distinct_target_line_workspace": true,
+  "a_symlink_alias_is_the_SAME_repository": true,
+  "a_linked_worktree_SHARES_the_common_directory": true,
+  "common_dirs": {
+   "target": "/tmp/v12-roundtrip-136400-7mt36wnw/target/.git",
+   "line": "/tmp/v12-roundtrip-136400-7mt36wnw/line-b/.git",
+   "workspace": "/tmp/v12-roundtrip-136400-7mt36wnw/workspace",
+   "line_symlink_alias": "/tmp/v12-roundtrip-136400-7mt36wnw/line-b/.git",
+   "line_worktree": "/tmp/v12-roundtrip-136400-7mt36wnw/line-b/.git"
+  }
+ },
+ "input_and_policy_are_provable_without_a_new_reader": {
+  "the_publishing_session_can_read_the_producers_proposal": true,
+  "input_digest_matches_the_accepted_job": true,
+  "policy_digest_matches_the_accepted_job": true,
+  "a_wrong_input_digest_is_detectable_here": true
+ },
+ "derived_publication_round_trip": {
+  "result_id": true,
+  "result_digest_is_the_custody_basis": true,
+  "re_derived_from_immutable_custody": true,
+  "candidate_digest": true,
+  "input_digest": true,
+  "policy_digest": true,
+  "target": true,
+  "assignment_ref": true,
+  "carries_a_decision_and_an_instant": true,
+  "borrowing_the_producers_result_identity": "refused: result identity 'result-b1' is already bound to 'sha256:11111111111111111111111111111111111111111111111111111\\u2026'; a frozen result names one set of bytes"
+ },
+ "published_is_unapproved": {
+  "no_verification_receipt_yet": true,
+  "no_review_receipt_yet": true,
+  "no_approval_receipt_yet": true,
+  "receipts_are_empty": true
+ },
+ "the_authoritys_own_chain_preconditions": {
+  "review_before_a_passed_verification": "refused: technical review requires passed verification",
+  "approval_before_an_accepted_review": "refused: approval requires accepted technical review"
+ },
+ "real_receipts_read_back": {
+  "verification": {
+   "actor": "baton.result-verify",
+   "disposition": "passed",
+   "proposal_id": "proposal-derived",
+   "binds_the_candidate": true,
+   "binds_the_target": true,
+   "policy_generation": null,
+   "names_a_decision": true
+  },
+  "review": {
+   "actor": "baton.result-review",
+   "disposition": "accepted",
+   "proposal_id": "proposal-derived",
+   "binds_the_candidate": true,
+   "binds_the_target": true,
+   "policy_generation": null,
+   "names_a_decision": true
+  },
+  "approval": {
+   "actor": "baton.result-approve",
+   "disposition": "approved",
+   "proposal_id": "proposal-derived",
+   "binds_the_candidate": true,
+   "binds_the_target": true,
+   "policy_generation": 10,
+   "names_a_decision": true
+  }
+ },
+ "the_three_actors_are_independent": true,
+ "policy_generation": {
+  "the_approval_receipt_carries_it": true,
+  "the_authority_answers_its_current_one": true,
+  "an_advance_is_visible_against_the_receipt": true
+ },
+ "receipts_cannot_be_rewritten_or_borrowed": {
+  "immutable": "refused: review receipt is immutable",
+  "a_receipt_for_the_producers_proposal_is_a_different_row": true,
+  "the_producers_receipts_are_untouched": true
+ },
+ "a_nonaccepting_review_is_retained_and_blocks": {
+  "the_receipt_exists_and_is_nonaccepting": "rejected",
+  "approval_refuses_over_it": "refused: approval requires accepted technical review"
+ }
+}
+
+THE AMENDMENT'S ORDER IS EXPRESSIBLE ON THE ACCEPTED INTERFACE: YES
+REPOSITORY-IDENTITY ISOLATION IS EXPRESSIBLE IN THE STANDALONE PROFILE: YES
+
+### STDERR

@@ -1,0 +1,13 @@
+### label: journal-proof-and-lifecycle-regression
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_coordinator.TheJournalIsTheDurableHistory", "tests.integration.test_coordinator.EveryRecordedActIsProvedWhole", "tests.integration.test_coordinator.EveryRetryIsPROVEDBeforeItIsAnswered", "tests.integration.test_coordinator.TheORDERIsTheWitnessForWhatWasGENERATED", "tests.integration.test_coordinator.RefusedActsAreEvidenceToo", "tests.integration.test_coordinator.OneProofObservesOneSnapshot", "tests.integration.test_coordinator.TheWholeLifecycleIsProved", "tests.integration.test_coordinator.EveryMemberOfTheAccountHasAProducer", "tests.integration.test_coordinator.RankIsAllocatedInTheEnqueueTransaction"]
+### exit: 0
+### elapsed_seconds: 1.071925
+### STDOUT
+
+### STDERR
+................................................................................
+----------------------------------------------------------------------
+Ran 80 tests in 0.911s
+
+OK

@@ -1,0 +1,14 @@
+...........F.
+======================================================================
+FAIL: test_an_invented_entry_does_not_supply_import_authority (tests.integration.test_reconciliation.TheImportedStateIsUnproved.test_an_invented_entry_does_not_supply_import_authority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1436, in test_an_invented_entry_does_not_supply_import_authority
+    self.assertIn(reconciliation.IMPORT_KIND, caught.exception.message)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'result.imported' not found in "result 'result-b968a5f07a87d93bf94012c359d766e3d5c28b2061074414fffb… is 'imported' and names operation 'result.publish:result-b968a5f07a87d93bf94012c359d766e3d5c28…, which is not the act that reaches that state"
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.887s
+
+FAILED (failures=1)

@@ -1,3 +1,83 @@
+# Current acceptance — demonstrate feasibility, 2026-09-11T00:30:54Z
+
+The owner's current goal is to establish what is possible through one ordinary
+standalone A/B path. Robustness and resilience are later milestones. See the
+matching FINDING ruling for explicit supersession of earlier fault-C and
+robustness/resilience acceptance requirements.
+
+Owner clarification: this must be legitimate successful execution through real
+coordination, with each transition owned and exercised normally. No hacks,
+demonstration-only bypass, manual state/target repair or fabricated acceptance.
+Defer stronger failure guarantees, not correctness of the actual successful path.
+
+1. Complete R's actual A/B terminal path and honest result assertions. Retain
+   original private bases, real reviews/tests, separately merged result and both
+   landed changes. Fix only defects preventing or falsifying that happy path.
+2. At the existing safe handoffs, defer fault injection, crash/restart, adversarial
+   tamper/alias and race/ended-grant proof requirements. Preserve conservative
+   behavior and passing evidence without repeating it. Record deferred claims
+   as unproved in parked Work or indexed notes, not as milestone gates.
+3. Revalidate W130229 for only the status/evidence capability the demonstration
+   actually needs; reuse public readers and defer general observation hardening.
+4. Reuse R and accepted provider evidence through W130224/W119405/W119400/W103068,
+   prepare the exact standalone A/B run and execute W71879's feasibility proof.
+   Fault Job C no longer gates this immediate milestone. Distinguish controlled
+   fixtures from the real standalone run. Assess W71830 on the demonstrated claim.
+
+Managed reviewer applies this ruling to dependent plans within existing handoffs;
+no new planning Work or approval round solely for that reconciliation. Respect
+live file ownership, existing source scopes, budgets and human Git ownership.
+Report the last successful ordinary transition and exact next executable check.
+
+# Prior owner direction — happy path first, 2026-09-10T13:06:51Z
+
+Drive W71830 to its standalone demonstration now; park separable hardening for
+revisit. FINDING's matching owner ruling supersedes any blanket requirement for
+exhaustive hardening before this milestone. Preserve honest essential acceptance.
+
+1. Finish the active, already approved P amendment under its existing claim and
+   budget. Avoid racing its files or interrupting it for another planning cycle.
+2. At the next safe handoff, narrow remaining Q/R and downstream checks to what
+   proves the ordinary A/B integration and essential demonstration boundaries.
+   Reuse accepted evidence; do not grow crash/tamper/race/recovery matrices for
+   completeness. Record exact deferred scope and why the milestone remains honest.
+3. Park separable hardening Work on the ledger, with durable revisit conditions;
+   retain lightweight concerns as indexed notes. Use existing handoffs rather
+   than a new planning/research prerequisite.
+4. Advance to the actual two-Job terminal witness and standalone demonstration.
+   Report the last working transition and exact next blocker. A/B keep their
+   original private development bases; the integrator merges and verifies the
+   combined result in its own workspace.
+
+# Prior owner direction — 2026-09-10T12:59:08Z
+
+W133117 amendment and NEW30s author allocation approved in owner return136350;
+managed reviewer claim136357 owns exact parent/P/Q/R contract updates and dispatch.
+See this FINDING's matching entry. This supersedes the replacement-proposal
+preparation status below; the isolated-submission product direction remains.
+
+Keep the existing delivery path: bounded P W133117 -> Q W133120 import/settlement
+-> R W133129 actual A-then-B terminal witness -> W130224/W119405 joined acceptance
+and onward standalone demonstration. Reuse applicable accepted evidence. Current
+Baton state owns claims and readiness; this sequence grants no early execution.
+
+Slawomir reiterates that general hardening must not displace W71830. Each further
+blocker must identify the concrete required transition/evidence claim it prevents
+and the smallest correction; defer concerns outside the accepted milestone.
+Handoffs report the furthest demonstrated transition and next executable step.
+No new planning milestone, detach adoption, broad test campaign, budget reset or
+acceptance waiver. M136361 coordinates this with the active reviewer.
+
+# Prior owner direction — 2026-09-10T03:05:47Z
+
+Preserve isolated worker submissions and their causal test/review evidence;
+the integrator owns merging against the current target and verifying a separate
+combined result. See FINDING's matching entry and W131409 FINDING/PLAN for
+explicit supersession of worker-baseline rework and safe handoff of its active
+child. No further old A/B/C dispatch; managed reviewer prepares minimal
+replacement contract/scope/cost while retaining partial work and charges.
+Existing two-Job/joined acceptance remains.
+
 # Plan
 
 Standing test authority — owner confirmed 2026-09-09T16:36Z: [active through

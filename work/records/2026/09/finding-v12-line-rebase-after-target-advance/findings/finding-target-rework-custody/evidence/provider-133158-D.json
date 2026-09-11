@@ -1,0 +1,115 @@
+{
+  "work": "W132712",
+  "slice": "D",
+  "claim": 133158,
+  "participant": "baton.claude",
+  "role": "impl",
+  "authority": "owner approval 133106 through pass133148; parent evidence/placement-133108/D-disposition.json",
+  "whole_set_verified_before_any_change": {
+    "paths": 8,
+    "checked_per_path": [
+      "the live file is a regular NON-SYMLINK file",
+      "its current bytes equal the manifest's recorded `before` sha256",
+      "its current mode equals the recorded `before` mode",
+      "the retained_current evidence copy exists, is a regular non-symlink file, and holds exactly those same before bytes",
+      "for the six restore-exact paths, the restore_from source exists, is a regular non-symlink file, and holds exactly the recorded `after` sha256"
+    ],
+    "drift": "none. The disposition is all-or-nothing by construction: every check runs first and a single drift refuses the whole set before one byte moves."
+  },
+  "performed": {
+    "restore_exact": [
+      "v12/python/src/baton_v12/checkpoint_profiles.py -> 91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b 0o644",
+      "v12/python/src/baton_v12/worker_manager/attempts.py -> 99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55 0o644",
+      "v12/python/src/baton_v12/worker_manager/review_cycles.py -> 0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b 0o644",
+      "v12/python/src/baton_v12/worker_manager/schema.py -> 56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1 0o644",
+      "v12/python/tests/manager/test_attempts.py -> 714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0 0o664",
+      "v12/python/tests/manager/test_store.py -> 9a5566355c375c98d2464e802a4d3d599cdd24fabc1b8d2135963830e339c093 0o644"
+    ],
+    "removed": [
+      "v12/python/src/baton_v12/worker_manager/target_rework.py",
+      "v12/python/tests/manager/test_target_rework.py"
+    ],
+    "not_touched": "v12/python/src/baton_v12/worker_manager/offers.py was already byte-identical to its pre-A base at 218dfcb1 and is not in the manifest; it was neither read for restore nor written. No dossier, evidence, review or record byte was changed anywhere. No Git index or history operation of any kind. No control store was opened, downgraded or reset."
+  },
+  "final_manifest": [
+    {
+      "path": "v12/python/src/baton_v12/checkpoint_profiles.py",
+      "sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "mode": "0o644",
+      "expected_sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "expected_mode": "0o644"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "sha256": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+      "mode": "0o644",
+      "expected_sha256": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+      "expected_mode": "0o644"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+      "mode": "0o644",
+      "expected_sha256": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+      "expected_mode": "0o644"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "mode": "0o644",
+      "expected_sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "expected_mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/manager/test_attempts.py",
+      "sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0",
+      "mode": "0o664",
+      "expected_sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0",
+      "expected_mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_store.py",
+      "sha256": "9a5566355c375c98d2464e802a4d3d599cdd24fabc1b8d2135963830e339c093",
+      "mode": "0o644",
+      "expected_sha256": "9a5566355c375c98d2464e802a4d3d599cdd24fabc1b8d2135963830e339c093",
+      "expected_mode": "0o644"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/target_rework.py",
+      "state": "absent",
+      "expected": "absent"
+    },
+    {
+      "path": "v12/python/tests/manager/test_target_rework.py",
+      "state": "absent",
+      "expected": "absent"
+    }
+  ],
+  "final_mismatches": 0,
+  "focused_selectors": {
+    "selector": "tests.manager.test_store.OwnershipBeforeAdoption.test_reopening_our_own_store_adds_nothing tests.manager.test_review_cycles.ReviewCycles.test_line_and_each_operation_replay_exactly",
+    "invocation": "PYTHONPATH=.:src:tests python3 -m unittest <selector>, from v12/python",
+    "output": "Ran 2 tests in 0.014s -- OK",
+    "wall": "0.19s"
+  },
+  "retained_evidence_untouched": "evidence/provider-132749.json, evidence/provider-132949.json, review-2026-09-10T03-01-16Z.md, evidence/review-132898/, and the parent's replacement-133017/base copies of all eight pre-disposition files all stand unchanged. The rejected slice-A bytes are recoverable from replacement-133017/base; nothing was deleted that is not retained there.",
+  "budget": {
+    "increment": "D: 8s author, 2s independent review, 0 used at dispatch",
+    "runs": [
+      {
+        "run": "whole-set verification followed by the six restores and two removals, then final re-verification, in one process",
+        "wall": "0.03s"
+      },
+      {
+        "run": "the two named focused selectors",
+        "wall": "0.19s",
+        "result": "OK, 2 tests"
+      }
+    ],
+    "timed": 0.22,
+    "untimed": "none",
+    "remaining": "about 7.78s of the D author allocation, unspent",
+    "not_touched": "the old A remainder, the 10s owner-held reserve, and every W119405 allocation. No transfer of any kind."
+  },
+  "not_done": "no module, package, broad, live or OCI run; no P publication probe; no replacement provider implementation; no old-rework correction; the Work is not closed."
+}

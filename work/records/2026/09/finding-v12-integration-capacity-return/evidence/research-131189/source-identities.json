@@ -1,0 +1,15 @@
+{
+  "claim": 131189,
+  "kind": "static research; not an accepted implementation candidate",
+  "runtime_runs": 0,
+  "files": {
+    "v12/python/src/baton_v12/job_manager/scheduler.py": "fe6d8f33204d1ecb0647eefd11cf6ca781abc22a3841f9310ed32bb1e1f36457",
+    "v12/python/src/baton_v12/job_manager/manager.py": "f77a12f80c66e8dfb9ed700177b90fa4bda841788396304189f00230dfbd9c83",
+    "v12/python/src/baton_v12/job_manager/projection.py": "d22c3e7d83731e9ecf5c74255b2d40a46f8b24b858fd091226cd60e9eba91af3",
+    "v12/python/src/baton_v12/job_manager/delegation.py": "fd83e32d0ab52b1f611c21adc3cb07b094dee9c2dd7ca904f923b82bb1e42705",
+    "v12/python/src/baton_v12/worker_manager/intake.py": "d326fe41d0ad8ca90950be9735f4c05b1c537e70e6827f760867969830eae7b7",
+    "v12/python/src/baton_v12/integration/admission.py": "09d8d65a13b8bd97701cf1f698026825116c2a6cffa26fcbf6ce7d08bdb2365f",
+    "v12/python/tools/stage_execution.py": "2b1a4324443b39d92e8aadee9146e6216321525eace81ff9a4ea00fe3a77a3b0",
+    "v12/python/tests/tools/test_stage_execution.py": "a5b0e048be970a5e17dc89af20991780142792f54f64d4e3f7924ed306e7abbf"
+  }
+}

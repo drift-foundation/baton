@@ -1,0 +1,15 @@
+### label: candidate-manifest-and-ledger
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/manifest129.py"]
+### exit: 0
+### elapsed_seconds: 0.012386
+### STDOUT
+CHANGED:
+  eb18bffd8c5c3368becf0594935d7f0fffcb51cdd06c09d08d15f858d15e1add 0o664 378637 v12/python/tests/tools/test_stage_execution.py
+  b99672ab4562f0442920f9ce3ffc0f2ed60609404dfd633f281a0b0e9cccc13c 0o664 162838 v12/python/tools/stage_execution.py
+UNCHANGED R paths: ['v12/README.md', 'v12/python/src/baton_v12/job_manager/delegation.py', 'v12/python/tests/job_manager/test_delegation.py', 'v12/python/tests/job_manager/test_scheduling.py']
+UNION MISMATCH: ['v12/python/tests/tools/test_stage_execution.py', 'v12/python/tools/stage_execution.py']
+spent 16.620428138001444/40.0 remaining 23.379571861998556
+failures: [3]
+
+### STDERR

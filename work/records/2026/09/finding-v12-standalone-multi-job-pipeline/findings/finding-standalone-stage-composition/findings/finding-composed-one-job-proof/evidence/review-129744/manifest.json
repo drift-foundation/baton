@@ -1,0 +1,22 @@
+{
+  "tools/stage_execution.py": {
+    "sha256": "da339acb16b3a97c8eba9f71aa7c555d0293af50b869cff5a2e869ab8d8fe3ab",
+    "mode": "0o664"
+  },
+  "tools/single_worker.py": {
+    "sha256": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+    "mode": "0o664"
+  },
+  "tests/tools/test_stage_execution.py": {
+    "sha256": "62d8b13e63b73205ee565d7987842d07e0129a4aa14bddef2bf6ec44082ec616",
+    "mode": "0o664"
+  },
+  "tests/tools/test_single_worker.py": {
+    "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+    "mode": "0o664"
+  },
+  "tools/parallel_test.py": {
+    "sha256": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+    "mode": "0o644"
+  }
+}

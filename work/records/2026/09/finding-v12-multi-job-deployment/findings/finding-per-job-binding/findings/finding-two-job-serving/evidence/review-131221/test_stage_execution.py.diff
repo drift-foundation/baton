@@ -1,0 +1,1064 @@
+--- work/records/2026/09/finding-v12-multi-job-deployment/findings/finding-per-job-binding/findings/finding-all-role-job-admission/evidence/review-131028/candidate/tests/tools/test_stage_execution.py
++++ v12/python/tests/tools/test_stage_execution.py
+@@ -5592,6 +5592,24 @@
+         self.vcs_at(self.second_source, "commit", "-q", "--message", "base")
+         self.second_base = self.vcs_at(self.second_source, "rev-parse",
+                                        "HEAD").strip()
++        # W130224: AND ITS OWN TASK, because a task DECLARES ITS BASE. The
++        # workload plans its checkout from `declared_base` and refuses a base
++        # its mounted line has never heard of, so a second Job whose producer
++        # carried the FIRST Job's task could never run a turn at all -- and
++        # the required-test selection this deployment derives from the bound
++        # producer's task would have been the first Job's too. One task per
++        # producer is the same per-Job binding as one source and one Work.
++        self.second_task_document = os.path.join(self.root, "task-b.json")
++        self.second_task_bytes = json.dumps(
++            {"schema": "baton.dogfood-task/2",
++             "task_id": "w130224-second-job",
++             "instructions": "Add focused coverage for the second line.",
++             "source_root": "source", "source_profile": "git-line",
++             "declared_base": self.second_base,
++             "verification": ["python3", "harness.py"]},
++            sort_keys=True).encode("utf-8")
++        with open(self.second_task_document, "wb") as writing:
++            writing.write(self.second_task_bytes)
+         authority = Authority.open(
+             self.authority_path,
+             expected_authority_uuid=self.config["authority_uuid"])
+@@ -5610,6 +5628,18 @@
+             self.principals.update(
+                 {who: authority.principal_of(who)
+                  for who in (self.SECOND_PRODUCER, self.SECOND_REVIEWER)})
++            # W130224: AND THE TWO ROUTES THE SECOND JOB'S OWN HANDOFFS MOVE
++            # ITS WORK TO. `ServingCase` declares them for the first Job's
++            # producer and reviewer for exactly this reason: a fenced handoff
++            # moves the Work onto the route the NEXT role is served on, and a
++            # participant the Authority does not know serves that route has
++            # its claim refused there -- which is a fixture that never
++            # authorized the next role rather than a defect in the handoff.
++            # The route says who MAY claim; which of them actually does is the
++            # scheduler's allocation, which is per Job and proved as that.
++            for route, who in ((fixtures.ROUTE, self.SECOND_PRODUCER),
++                               ("rview", self.SECOND_REVIEWER)):
++                authority.add_route_handler(route, who)
+         finally:
+             authority.dispose()
+ 
+@@ -5635,20 +5665,71 @@
+         names its Work, and its digest is over the whole document -- so a Job
+         on another Work has another manifest and another submitted input.
+         """
+-        from baton_v12.contracts import digest
++        from baton_v12.contracts import digest, digest_of_bytes
+ 
+         manifest = copy.deepcopy(self.manifest)
+         manifest["work_ref"] = dict(manifest["work_ref"], work_id=work_id)
++        # W130224: AND THE TASK THIS JOB'S PRODUCER ACTUALLY CARRIES. The
++        # human contract names the task's bytes, and a Job on another line
++        # declares another base -- so a manifest that kept the first Job's
++        # digest would describe a task its own producer does not hold.
++        payload = self.task_for(work_id)
++        manifest["human_contract"] = dict(
++            manifest["human_contract"], bytes=len(payload),
++            content_digest=digest_of_bytes(payload))
+         manifest.pop("manifest_digest")
+         manifest["manifest_digest"] = digest(manifest)
+         return manifest
++
++    def manifest_over(self, work_id, payload):
++        """One Work's manifest naming an EXPLICIT task's bytes.
++
++        `manifest_for` answers for the task this fixture binds to that Work.
++        A case that configures a producer with another task -- W130224's
++        traversal binds its second Job to a second line of the SAME canonical
++        target -- names that task's bytes here rather than reaching past the
++        human contract the deployment validates the pair against.
++        """
++        from baton_v12.contracts import digest, digest_of_bytes
++
++        manifest = copy.deepcopy(self.manifest)
++        manifest["work_ref"] = dict(manifest["work_ref"], work_id=work_id)
++        manifest["human_contract"] = dict(
++            manifest["human_contract"], bytes=len(payload),
++            content_digest=digest_of_bytes(payload))
++        manifest.pop("manifest_digest")
++        manifest["manifest_digest"] = digest(manifest)
++        return manifest
++
++    def task_for(self, work_id):
++        """The task document bytes the producer bound to this Work holds."""
++        return (self.second_task_bytes if work_id == SECOND_WORK
++                else self.task_bytes)
++
++    def task_document_for(self, work_id):
++        """The task document path a worker serving this Work carries."""
++        return (self.second_task_document if work_id == SECOND_WORK
++                else self.task_document)
++
++    def bound_worker(self, worker, work_id):
++        """Point one configured worker at a Job's manifest AND its task.
++
++        W130224. `single_worker._held` cross-checks the configured task
++        document's bytes against the manifest's own human contract, so the
++        two move together or the deployment refuses to compose at all. One
++        helper is where they move, because two call sites that each moved one
++        of them is exactly how they would come apart.
++        """
++        worker["deployment"]["input_manifest"] = self.manifest_for(work_id)
++        worker["deployment"]["task_document"] = \
++            self.task_document_for(work_id)
++        return worker
+ 
+     def role_worker(self, role, work_id, worker_id, **members):
+         """One configured worker, coherent with the Job it will serve."""
+         held = self.worker(role, **members)
+         held["worker_id"] = worker_id
+-        held["deployment"]["input_manifest"] = self.manifest_for(work_id)
+-        return held
++        return self.bound_worker(held, work_id)
+ 
+     def second_submission(self, **members):
+         """Job B, submitted against ITS OWN input and Work."""
+@@ -5682,8 +5763,7 @@
+         held = {one["role"]: one for one in given["workers"]}
+         producer = copy.deepcopy(held["implementation"])
+         producer["worker_id"] = "implementation-worker-b"
+-        producer["deployment"]["input_manifest"] = \
+-            self.manifest_for(SECOND_WORK)
++        self.bound_worker(producer, SECOND_WORK)
+         producer["deployment"]["participant"] = self.SECOND_PRODUCER
+         producer["deployment"]["principal"] = \
+             self.principals[self.SECOND_PRODUCER]
+@@ -6041,8 +6121,7 @@
+         workers = self.two_jobs()["workers"]
+         for one in workers:
+             if one["worker_id"] == worker_id:
+-                one["deployment"]["input_manifest"] = \
+-                    self.manifest_for(self.work)
++                self.bound_worker(one, self.work)
+         return {"workers": workers}
+ 
+     def swapped(self):
+@@ -6055,10 +6134,8 @@
+         """
+         workers = self.two_jobs()["workers"]
+         held = {one["worker_id"]: one for one in workers}
+-        held["review-worker"]["deployment"]["input_manifest"] = \
+-            self.manifest_for(SECOND_WORK)
+-        held["review-worker-b"]["deployment"]["input_manifest"] = \
+-            self.manifest_for(self.work)
++        self.bound_worker(held["review-worker"], SECOND_WORK)
++        self.bound_worker(held["review-worker-b"], self.work)
+         return {"workers": workers}
+ 
+     def recomposed(self, job_store, control, **members):
+@@ -6262,3 +6339,909 @@
+         # AND IT ADDED NOTHING AND REMOVED NOTHING.
+         self.assertEqual(self.allocated(job, "job-b/review"),
+                          "review-worker-b")
++
++
++class _ConcurrentEngine:
++    """One observable OCI process boundary holding SEVERAL containers.
++
++    W130224. `test_single_worker.Engine` is the accepted single-container
++    model and this is deliberately not a change to it: the cases that own it
++    start one container at a time and the fact it models is true for them.
++    Two Jobs coding simultaneously is a different fact, and it belongs to the
++    fixture that needs it.
++    """
++
++    def __init__(self):
++        self.vectors = []
++        self.records = {}
++        self.minted = 0
++        self._stopped = False
++
++    @property
++    def starts(self):
++        return [one for one in self.vectors if one[1] == "run"]
++
++    @property
++    def runtime_id(self):
++        """The last identity started, for the readers that ask for one."""
++        live = [one for one, held in self.records.items() if not held["gone"]]
++        return live[-1] if live else None
++
++    @property
++    def stopped(self):
++        return self._stopped
++
++    @stopped.setter
++    def stopped(self, value):
++        """Deployment-wide quiescence, which is what the callers mean by it."""
++        self._stopped = bool(value)
++        if value:
++            for held in self.records.values():
++                held["running"] = False
++
++    def __call__(self, argv, *, seconds=None):
++        del seconds
++        from tests.manager.test_custody import reported
++
++        self.vectors.append(list(argv))
++        verb = argv[1]
++        if verb == "run" and "--entrypoint" in argv:
++            # THE CUSTODY HELPER, answering the verb it was asked for -- its
++            # own last operand, exactly as the accepted helper reads it.
++            return self.answer(stdout=json.dumps(reported(argv[-1])))
++        if verb == "run":
++            return self._started(argv)
++        held = self.records.get(argv[-1])
++        if verb == "rm":
++            if held is not None:
++                held["gone"] = True
++                held["running"] = False
++            return self.answer()
++        if verb == "stop":
++            if held is not None:
++                held["running"] = False
++            return self.answer()
++        if verb == "ps":
++            return self.answer(stdout="".join(
++                json.dumps({"ID": one, "Image": row["image"],
++                            "Labels": dict(row["labels"])}) + "\n"
++                for one, row in sorted(self.records.items())
++                if not row["gone"] and self._selected(argv, row)))
++        if verb == "inspect":
++            if held is None or held["gone"]:
++                # THE ENGINE'S OWN ABSENCE SENTENCE, NAMING THIS IDENTITY.
++                # `observe` refuses to read absence out of any other prose.
++                return self.answer(
++                    status=1,
++                    stderr=("Error response from daemon: No such container: "
++                            + argv[-1]))
++            return self.answer(stdout=json.dumps(
++                {"Id": argv[-1], "State": {"Running": held["running"]},
++                 "Mounts": list(held["mounts"])}))
++        return self.answer()
++
++    def _started(self, argv):
++        self.minted += 1
++        runtime_id = f"runtime-single-{self.minted}"
++        labels, mounts = {}, []
++        for index, operand in enumerate(argv[:-1]):
++            if operand == "--label":
++                name, value = argv[index + 1].split("=", 1)
++                labels[name] = value
++            elif operand == "--mount":
++                parts = dict(part.split("=", 1) for part in
++                             argv[index + 1].split(",") if "=" in part)
++                mounts.append({"Source": parts["source"],
++                               "Destination": parts["target"],
++                               "RW": parts["readonly"] == "false"})
++        # A FRESH CONTAINER IS RUNNING, whatever any other one is doing.
++        self._stopped = False
++        self.records[runtime_id] = {"image": argv[-1], "labels": labels,
++                                    "mounts": mounts, "running": True,
++                                    "gone": False}
++        return self.answer(stdout=runtime_id + "\n")
++
++    @staticmethod
++    def _selected(argv, row):
++        """Every `--filter label=name=value` this listing was given holds."""
++        for index, operand in enumerate(argv[:-1]):
++            if operand != "--filter":
++                continue
++            kind, _, rest = argv[index + 1].partition("=")
++            if kind != "label":
++                return False
++            name, _, value = rest.partition("=")
++            if row["labels"].get(name) != value:
++                return False
++        return True
++
++    @staticmethod
++    def answer(status=0, stdout="", stderr=""):
++        return {"status": status, "stdout": stdout, "stderr": stderr}
++
++
++class TwoBoundJobsTraverseServingAndCorrection(
++        EveryJobRoleIsValidatedBeforeAllocation):
++    """W130224: two bound Jobs through the ACTUAL serving path, on ticks.
++
++    WHAT THE PREDECESSORS LEFT. W119405 gave each Job its own binding and
++    W130216 made admission select each Job's own worker, but neither drove
++    one. Every transition below is a `sweep`; the only thing these cases do
++    that a serving loop would not is RUN THE CONTAINER, which is the one
++    boundary this build has no daemon for -- exactly as the accepted one-Job
++    lifecycle cases already do it.
++
++    THE FIXTURE IS THE ACCEPTED TWO-JOB ONE, unchanged: two real sources, two
++    real Works, two producers, two reviewers, one integrator. What this class
++    adds is the per-attempt selection the one-Job helpers could not make --
++    `worker_of` answers by ROLE, and with two workers per role that is
++    whichever the deployment lists last. Every helper here selects by the
++    worker that actually PREPARED the attempt, which is the same fact the
++    scheduler's allocation names.
++    """
++
++    REPORT = TheComposedJobTraversesReviewAndAcceptance.REPORT
++    INSTRUCTIONS = OrdinaryTerminalLifecycle.INSTRUCTIONS
++
++    def setUp(self):
++        from baton_v12.authority import Authority
++
++        super().setUp()
++        # THE SECOND JOB'S TRAVERSAL TASK, declaring the CANONICAL TARGET's
++        # own revision. See `traversing`: the Authority holds one canonical
++        # target revision and a proposal is offered against the revision it
++        # was built from, so two Jobs that both publish are two lines of one
++        # target. The task is still the second Job's own -- its identity and
++        # its instructions differ, which is what makes the required-test
++        # selection a per-Job fact this traversal can actually measure.
++        self.shared_task_document = os.path.join(self.root, "task-b-line.json")
++        self.shared_task_bytes = json.dumps(
++            {"schema": "baton.dogfood-task/2",
++             "task_id": "w130224-second-line-of-one-target",
++             "instructions": "Add focused coverage for the second Job.",
++             "source_root": "source", "source_profile": "git-line",
++             "declared_base": self.base,
++             "verification": ["python3", "harness.py"]},
++            sort_keys=True).encode("utf-8")
++        with open(self.shared_task_document, "wb") as writing:
++            writing.write(self.shared_task_bytes)
++        # AND THE TERMINAL HALF'S OWN PROVISIONING, exactly as the accepted
++        # one-Job terminal lifecycle composes it: the disposable target at its
++        # ordinary reviewed mode, the policy generation pinned once after
++        # bootstrap, and the integrator's configured instruction bytes.
++        os.chmod(os.path.join(self.source, "harness.py"), 0o644)
++        authority = Authority.open(
++            self.authority_path,
++            expected_authority_uuid=self.config["authority_uuid"])
++        try:
++            self.fixture_policy = authority.policy_generation()
++        finally:
++            authority.dispose()
++
++    def composed_document(self, **members):
++        from baton_v12.contracts import digest_of_bytes
++
++        given = super().composed_document(**members)
++        given["policy_generation"] = self.fixture_policy
++        given["integration_profile"]["instructions_digest"] = \
++            digest_of_bytes(self.INSTRUCTIONS)
++        return given
++
++    def traversing(self, **members):
++        """Two Jobs, two lines, ONE canonical target -- and why it is one.
++
++        `integration.driver` reads the Authority's canonical target revision
++        and refuses a proposal built on any other: "a proposal is offered
++        against the revision it was built from". An Authority holds ONE such
++        revision, so two Jobs that both PUBLISH are two development lines of
++        one target at that revision. That is not a weakening of the per-Job
++        binding -- it is the fact that makes their integrations serialize on
++        the same target, which is what this Work is asked to demonstrate.
++
++        EVERYTHING ELSE STAYS THE JOB'S OWN: its Work, its line, its producer
++        and reviewer participants, its task and the required-test selection
++        derived from that task. `two_jobs` itself is untouched, so the
++        admission fixture and every case over it are exactly as accepted.
++        """
++        given = self.two_jobs()
++        held = {one["worker_id"]: one for one in given["workers"]}
++        for worker_id in ("implementation-worker-b", "review-worker-b"):
++            deployment = held[worker_id]["deployment"]
++            deployment["input_manifest"] = self.manifest_over(
++                SECOND_WORK, self.shared_task_bytes)
++            deployment["task_document"] = self.shared_task_document
++        # THE SECOND LINE IS A SECOND CHECKOUT OF THE SAME TARGET. `create_line`
++        # derives its identity from `(authority, work)`, so one nominated
++        # source at one base still gives two distinct lines.
++        held["implementation-worker-b"]["deployment"]["nominated_source"] = \
++            self.source
++        binding = {one["job_id"]: one for one in given["job_bindings"]}
++        binding["job-b"]["line_declared_base"] = self.base
++        binding["job-b"]["canonical_target_id"] = \
++            binding["job-a"]["canonical_target_id"]
++        given.update(members)
++        return given
++
++    def quiescing(self):
++        """One engine boundary that models SEVERAL live containers.
++
++        W130224. The accepted helper models exactly one: `runtime_id`,
++        `image`, `labels` and `mounts` are single-valued and `inspect` answers
++        about the last container started WHATEVER identity it was asked about.
++        Two Jobs coding at once therefore reported each other's runtime, and
++        the second producer's stage projected `exceptional` the instant the
++        first one started -- a fixture that models one container refusing the
++        very thing this Work exists to drive.
++
++        WHAT IS ADDED IS ONLY WHAT A REAL ENGINE ALREADY DOES: a container has
++        its own identity, image, labels, mounts and running state, an engine
++        answers about the one it was asked about, and a listing answers the
++        ones matching the label filters it was given. Absence is still the
++        engine's own sentence naming the exact identity; `stop` still stops,
++        `rm` still removes, and the custody helper still answers the verb it
++        was asked for. Nothing here decides an outcome.
++        """
++        engine = _ConcurrentEngine()
++        self.engine = engine
++        return engine
++
++    def both_jobs(self):
++        """One submission carrying both Jobs, each gated like a real one.
++
++        `second_submission` deliberately leaves Job B's review standalone --
++        it is the admission probe's shape, isolating the callback without a
++        traversal. A traversal needs the ordinary gating, so this states it:
++        review behind implementation, integration behind review, for both.
++        """
++        from tests.job_manager import fixtures
++
++        return fixtures.submission(jobs=[
++            copy.deepcopy(self.submission["jobs"][0]),
++            fixtures.job(
++                "job-b",
++                input_digest=self.manifest_over(
++                    SECOND_WORK, self.shared_task_bytes)["manifest_digest"],
++                policy_digest=fixtures.POLICY_DIGEST,
++                stages=[
++                    fixtures.stage("implementation", SECOND_WORK),
++                    fixtures.stage("review", SECOND_WORK,
++                                   depends_on=[{"job_id": "job-b",
++                                                "kind": "implementation"}]),
++                    fixtures.stage("integration", SECOND_WORK,
++                                   depends_on=[{"job_id": "job-b",
++                                                "kind": "review"}])])])
++
++    # -- per-Job and per-attempt selection, where the one-Job helpers guess ---
++
++    def states_for(self, job, composed, job_id):
++        """One Job's stage states. `states` answers about `jobs[0]` only."""
++        from baton_v12.job_manager import status as projected_status
++        from tests.job_manager import fixtures
++
++        projected = projected_status(job, composed, observed_at=fixtures.NOW)
++        [held] = [one for one in projected["jobs"]
++                  if one["job_id"] == job_id]
++        return {one["kind"]: one["state"] for one in held["stages"]}
++
++    def drive_job(self, job, composed, job_id, kind, want, ticks=14):
++        """Ordinary ticks until ONE Job's stage reaches a state.
++
++        The sweep is deployment-wide, so every tick advances both Jobs; what
++        this names is which one's state ends the loop.
++        """
++        from baton_v12.job_manager import sweep as tick
++        from tests.job_manager import fixtures
++
++        for _ in range(ticks):
++            tick(job, composed, now=fixtures.NOW)
++            held = self.states_for(job, composed, job_id)
++            if held.get(kind) == want:
++                return held
++        self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
++                  f"{self.states_for(job, composed, job_id)}")
++
++    def preparing(self, composed, attempt_id):
++        """The worker and record that actually prepared this attempt.
++
++        THE PREPARATION IS KEYED BY ATTEMPT, so the worker holding one is the
++        worker whose own boundary this attempt was granted on. Selecting by
++        role instead answers whichever worker of that role is listed last,
++        which under two producers and two reviewers is a coin toss.
++        """
++        for one in composed.workers:
++            stage = getattr(one["operations"]._worker, "stage", None)
++            held = getattr(stage, "_prepared", None) or {}
++            if attempt_id in held:
++                return one["worker_id"], held[attempt_id]
++        self.fail(f"no configured worker prepared attempt {attempt_id!r}")
++
++    def attempts_of(self, composed, worker_id):
++        """Every attempt this ONE worker has prepared, oldest id first."""
++        held = {one["worker_id"]: one for one in composed.workers}[worker_id]
++        return sorted(getattr(held["operations"]._worker.stage, "_prepared"))
++
++    def one_attempt_of(self, composed, worker_id, *, exclude=()):
++        held = [one for one in self.attempts_of(composed, worker_id)
++                if one not in set(exclude)]
++        self.assertEqual(len(held), 1, held)
++        return held[0]
++
++    def mounted_at(self, composed, attempt_id):
++        """The roots this attempt's own container was really started over."""
++        _worker_id, held = self.preparing(composed, attempt_id)
++        return held["boundary"]["roots"]
++
++    def mounted_view(self, role, attempt_id, roots):
++        """W130224: the boundary of the worker that PREPARED this attempt.
++
++        The inherited helper resolves the review boundary by role, and with
++        two reviewers that answers the wrong one -- so a Job A review turn
++        would be composed over Job B's frozen checkpoint. Everything else
++        about the staged view is unchanged.
++        """
++        if role != "review":
++            return roots
++        _worker_id, held = self.preparing(self._composed, attempt_id)
++        boundary = held["boundary"]
++        staged = os.path.join(self.root, "mounted-" + attempt_id[:12])
++        os.makedirs(staged, exist_ok=True)
++        for entry in sorted(os.listdir(roots["inputs"])):
++            target = os.path.join(staged, entry)
++            if os.path.lexists(target):
++                continue
++            os.symlink(boundary["boundary"].source.place if entry == "source"
++                       else os.path.join(roots["inputs"], entry), target)
++        return dict(roots, inputs=staged)
++
++    def line_of(self, composed, job_id):
++        return self.deployment_of(composed).line_for(job_id)
++
++    # -- the traversal itself, in the order a serving loop reaches it ---------
++
++    def coding(self, **members):
++        """Both Jobs submitted together, both implementations admitted.
++
++        SIMULTANEOUS AND INDEPENDENT: one submission, one deployment, and
++        each Job's implementation stage waiting on its OWN producer at the
++        same instant -- neither queued behind the other's capacity.
++        """
++        from baton_v12.job_manager import submit
++
++        job, control, composed = self.serving_two(
++            **self.traversing(**members))
++        submit(job, self.both_jobs())
++        self.drive_job(job, composed, "job-b", "implementation", "waiting")
++        held = SimpleNamespace(job=job, control=control, composed=composed)
++        held.first = self.one_attempt_of(composed, "implementation-worker")
++        held.second = self.one_attempt_of(composed, "implementation-worker-b")
++        return held
++
++    def produced(self, held, job_id, attempt_id, body):
++        """One producer's REAL turn over the namespaces this run mounted."""
++        self.assertEqual(
++            self.turn(held.control, "implementation", attempt_id,
++                      self.mounted_at(held.composed, attempt_id),
++                      edits={"harness.py": body}), 0)
++        return self.drive_job(held.job, held.composed, job_id,
++                              "implementation", "completed")
++
++    def review_turn(self, held, job_id, attempt_id, verdict):
++        """One reviewer's REAL turn, and the verdict read from its result."""
++        report = copy.deepcopy(self.REPORT)
++        report["verdict"] = verdict
++        self.assertEqual(
++            self.turn(held.control, "review", attempt_id,
++                      self.mounted_at(held.composed, attempt_id),
++                      edits={"review-report.json": json.dumps(report)}), 0)
++        return attempt_id
++
++    def accepted(self, held, job_id, producer_id, reviewer_id, attempt_id,
++                 body):
++        """One Job from a coding producer to an accepted verdict."""
++        self.produced(held, job_id, attempt_id, body)
++        self.drive_job(held.job, held.composed, job_id, "review", "waiting")
++        reviewed = self.one_attempt_of(held.composed, reviewer_id)
++        self.review_turn(held, job_id, reviewed, "accepted")
++        self.drive_job(held.job, held.composed, job_id, "review", "completed")
++        del producer_id
++        return reviewed
++
++    # -- the integration half, one port per bound Job ------------------------
++
++    def activated(self, deployment, target_id):
++        """The disposable canonical target, activated once by its own owner."""
++        from baton_v12.integration import TARGET_SCHEMA, activate_target
++
++        held = self.__dict__.setdefault("_activated", set())
++        if target_id in held:
++            return
++        held.add(target_id)
++        activate_target(deployment.integration, {
++            "schema": TARGET_SCHEMA, "canonical_target_id": target_id,
++            "description": "the disposable two-Job lifecycle target"})
++
++    def integration_port(self, held, job_id):
++        """THIS JOB'S accepted runtime port, over THIS JOB'S own operands.
++
++        W130224. `IntegrationRuntimePort` is composed over one accepted line,
++        one published proposal and one canonical target, and all three are
++        read from their own owners for the Job this port belongs to --
++        `line_for`, `integration_checkpoint` and `published_proposal`. A
++        deployment serving two Jobs composes two of these and names each by
++        its Job; see `stage_execution._integration_ports`.
++        """
++        from baton_v12.worker_manager import review_cycles, source_boundary
++
++        deployment = self.deployment_of(held.composed)
++        target_id = deployment.target_for(job_id)
++        self.activated(deployment, target_id)
++        line = review_cycles.line_of(deployment.control,
++                                     deployment.line_for(job_id)["line_id"])
++        accepted = review_cycles.integration_checkpoint(deployment.control,
++                                                        line["line_id"])
++        self.assertIsNotNone(accepted, job_id)
++        integrator = self.worker_of(held.composed, "integration")
++        given = integrator.given
++        for place in (deployment.integration_root,
++                      os.path.join(self.root, "integration-bundles"),
++                      os.path.join(self.root, "integration-launch")):
++            os.makedirs(place, exist_ok=True)
++        return integration_worker.IntegrationRuntimePort(
++            coordinator=deployment.integration, manager=deployment.control,
++            jobs=deployment.jobs, authority=deployment.authority,
++            assignment_port=integrator.port,
++            profile=deployment.integration_profile,
++            checkpoint_profile=deployment.profile,
++            object_runner=self.object_runner,
++            line_id=line["line_id"],
++            proposal_id=deployment.published_proposal(accepted),
++            canonical_target_id=target_id, canonical_target=self.source,
++            delivery_home=deployment.integration_root,
++            instructions=self.INSTRUCTIONS,
++            identity={one: given[one] for one in
++                      ("image_digest", "profile_digest", "policy_digest",
++                       "adapter_digest")},
++            adapter_name=given["adapter_name"],
++            toolchain_digest="sha256:" + "7" * 64,
++            input_manifest=given["input_manifest"],
++            engine=given["engine"], engine_run=self.engine,
++            workspace_storage=self.storage,
++            workspace_group=deployment.workspace_group,
++            capacity=source_boundary.workspace_capacity(1 << 30),
++            bundle_home=os.path.join(self.root, "integration-bundles"),
++            launch_home=os.path.join(self.root, "integration-launch"),
++            launch_session="integration-session",
++            launch_contract=given["launch_contract"],
++            network=given["network"],
++            credential_resolution=given["credential_resolution"],
++            credential_home=integrator.credential_home,
++            credential_provider=lambda provider, reference: self.secret)
++
++    object_runner = OrdinaryTerminalLifecycle.object_runner
++
++    def connect(self, held, ports):
++        """Recompose this deployment WITH its per-Job integration ports.
++
++        The two operands each port needs -- the accepted line and the proposal
++        that line's producer published -- do not exist until that Job's review
++        has been accepted, which is why the ports are supplied to a second
++        composition over the same durable stores rather than to the first.
++        """
++        composed = stage_execution.operations_from(
++            self.composed_document(line_declared_base=self.base,
++                                   **self.traversing()),
++            held.job, held.control, engine_run=self.engine,
++            credential_provider=lambda *_: self.secret,
++            clock=lambda: NOW, checkout=self.checkout, integration_port=ports)
++        self.addCleanup(composed.close)
++        self._composed = composed
++        held.composed = composed
++        return composed
++
++    def integration_turn(self, held, attempt_id, *, behavior="import"):
++        """One REAL integrator turn over the delivery this run published."""
++        import subprocess
++        import sys
++
++        import claude_agent
++        import integration_entry
++        from unittest.mock import patch
++
++        from baton_v12.integration import runtime
++        from baton_v12.worker_manager import launch
++        from tests.manager.test_integration_worker import PROVIDER_SOURCE
++
++        deployment = self.deployment_of(held.composed)
++        delivery = runtime.adopt_delivery(
++            deployment.integration_root, attempt_id=attempt_id,
++            workspace_group=deployment.workspace_group)
++        script = os.path.join(self.root, "integration-provider.py")
++        self.write(script, PROVIDER_SOURCE)
++
++        def runner(argv, **options):
++            return subprocess.run(
++                [sys.executable, "-I", "-B", script, behavior, argv[-1]],
++                cwd=options.get("cwd"), env=dict(options.get("env") or {}),
++                stdout=options.get("stdout"), stderr=options.get("stderr"),
++                timeout=10)
++
++        launched = launch.adopt(
++            os.path.join(self.root, "integration-launch"),
++            attempt_id=attempt_id, session="integration-session",
++            contract=self.config["launch_contract"],
++            role=integration_worker.LAUNCH_ROLE)
++        places = {}
++        for name in ("scratch", "agent", "credentials"):
++            places[name] = os.path.join(self.root,
++                                        f"integration-{name}-{attempt_id[:12]}")
++            os.makedirs(places[name], exist_ok=True)
++        self.write(os.path.join(places["credentials"], "claude"),
++                   "not-a-credential\n")
++        with patch.object(claude_agent, "CREDENTIAL_ROOT",
++                          places["credentials"]):
++            return integration_entry.main(
++                agent=claude_agent.ClaudeAgent(run=runner,
++                                               home=places["agent"]),
++                launch_place=launched.place,
++                assignment_root=delivery.assignment_root,
++                result_root=delivery.result_root,
++                bundle_root=os.path.join(self.root, "integration-bundles",
++                                         attempt_id),
++                target_root=self.source, scratch=places["scratch"])
++
++    def tick(self, held):
++        from baton_v12.job_manager import sweep
++        from tests.job_manager import fixtures
++
++        return sweep(held.job, held.composed, now=fixtures.NOW)
++
++    # -- simultaneous independent implementation bindings --------------------
++
++    def test_both_jobs_code_at_once_on_their_own_workers_and_lines(self):
++        """THE FIRST THING A TWO-JOB DEPLOYMENT OWES, and every operand of it
++        is a committed record rather than this composition's list order."""
++        held = self.coding()
++        self.assertNotEqual(held.first, held.second)
++        # BOTH WAITING AT THE SAME INSTANT: neither Job is queued behind the
++        # other's producer capacity.
++        self.assertEqual(
++            self.states_for(held.job, held.composed, "job-a")
++            ["implementation"], "waiting")
++        self.assertEqual(
++            self.states_for(held.job, held.composed, "job-b")
++            ["implementation"], "waiting")
++        # EACH ON ITS OWN ALLOCATED PRODUCER.
++        self.assertEqual(self.allocated(held.job, "job-a/implementation"),
++                         "implementation-worker")
++        self.assertEqual(self.allocated(held.job, "job-b/implementation"),
++                         "implementation-worker-b")
++        # AND EACH WRITING ITS OWN PERSISTENT LINE, at its own declared base,
++        # from its own nominated source.
++        first = self.line_of(held.composed, "job-a")
++        second = self.line_of(held.composed, "job-b")
++        self.assertNotEqual(first["line_id"], second["line_id"])
++        self.assertEqual(first["work_id"], self.work)
++        self.assertEqual(second["work_id"], SECOND_WORK)
++        _first_worker, first_prepared = self.preparing(held.composed,
++                                                       held.first)
++        _second_worker, second_prepared = self.preparing(held.composed,
++                                                         held.second)
++        self.assertEqual(first_prepared["line_id"], first["line_id"])
++        self.assertEqual(second_prepared["line_id"], second["line_id"])
++
++    # -- review alongside unrelated coding ------------------------------------
++
++    def test_one_job_reviews_while_the_other_is_still_coding(self):
++        """THE OVERLAP, and it is the whole reason a pool exists.
++
++        Job A's producer answers and its Work is handed to the review route;
++        Job B has not answered and is still waiting on its own producer. Both
++        are true of one deployment at one instant, and the reviewer that
++        claims is Job B's reviewer's peer rather than Job B's reviewer.
++        """
++        held = self.coding()
++        self.produced(held, "job-a", held.first,
++                      "print('the first job answered')\n")
++        self.drive_job(held.job, held.composed, "job-a", "review", "waiting")
++        self.assertEqual(
++            self.states_for(held.job, held.composed, "job-a")["review"],
++            "waiting")
++        # AND THE OTHER JOB IS STILL CODING, on its own producer, untouched.
++        second = self.states_for(held.job, held.composed, "job-b")
++        self.assertEqual(second["implementation"], "waiting")
++        self.assertEqual(second["review"], "blocked")
++        self.assertEqual(self.allocated(held.job, "job-a/review"),
++                         "review-worker")
++        self.assertEqual(
++            self.one_attempt_of(held.composed, "implementation-worker-b"),
++            held.second)
++
++    # -- correction on that Job's own line, and no other ----------------------
++
++    def test_a_correction_reopens_only_its_own_jobs_line(self):
++        """A CHANGES-REQUESTED VERDICT IS A JOB'S OWN FACT.
++
++        The correction round is the SAME line the rejected checkpoint was
++        written on -- which is what makes it a correction rather than a second
++        checkout -- and the other Job's line, round and attempt are exactly
++        where they were.
++        """
++        held = self.coding()
++        self.produced(held, "job-a", held.first,
++                      "print('the first job answered')\n")
++        self.drive_job(held.job, held.composed, "job-a", "review", "waiting")
++        reviewed = self.one_attempt_of(held.composed, "review-worker")
++        self.review_turn(held, "job-a", reviewed, "changes-requested")
++        line = self.line_of(held.composed, "job-a")["line_id"]
++        second_line = self.line_of(held.composed, "job-b")["line_id"]
++        self.drive_job(held.job, held.composed, "job-a", "implementation",
++                       "waiting")
++        corrected = self.one_attempt_of(held.composed, "implementation-worker",
++                                        exclude=[held.first])
++        self.assertNotEqual(corrected, held.first)
++        # THE SAME LINE, AND ITS OWN.
++        _worker_id, prepared = self.preparing(held.composed, corrected)
++        self.assertEqual(prepared["line_id"], line)
++        self.assertEqual(self.line_of(held.composed, "job-a")["line_id"], line)
++        self.assertNotEqual(line, second_line)
++        # AND THE CORRECTION ROUND IS BASED ON THE REJECTED CHECKPOINT rather
++        # than on the line's declared base, which is what a second checkout
++        # would have been.
++        self.assertIsNotNone(prepared["based_checkpoint_id"])
++        # THE OTHER JOB DID NOT MOVE.
++        self.assertEqual(self.line_of(held.composed, "job-b")["line_id"],
++                         second_line)
++        self.assertEqual(
++            self.one_attempt_of(held.composed, "implementation-worker-b"),
++            held.second)
++        self.assertEqual(
++            self.states_for(held.job, held.composed, "job-b")["review"],
++            "blocked")
++
++    # -- and the second Job traverses its own review the same way -------------
++
++    def test_the_second_job_reaches_its_own_reviewer_and_verdict(self):
++        """THE OTHER HALF OF THE OVERLAP, driven rather than assumed.
++
++        Job B's producer answers, its Work moves to the review route, and the
++        reviewer that claims is JOB B's -- the one configured for Job B's
++        Work and input, not the one Job A's review used.
++        """
++        held = self.coding()
++        self.produced(held, "job-b", held.second,
++                      "print('the second job answered')\n")
++        self.drive_job(held.job, held.composed, "job-b", "review", "waiting")
++        self.assertEqual(self.allocated(held.job, "job-b/review"),
++                         "review-worker-b")
++        reviewed = self.one_attempt_of(held.composed, "review-worker-b")
++        self.review_turn(held, "job-b", reviewed, "accepted")
++        states = self.drive_job(held.job, held.composed, "job-b", "review",
++                                "completed")
++        self.assertEqual(states["review"], "completed")
++        # ITS OWN LINE HOLDS THE ACCEPTED CHECKPOINT, and Job A's does not:
++        # Job A never answered in this case.
++        from baton_v12.worker_manager import review_cycles
++
++        control = held.control
++        second = self.line_of(held.composed, "job-b")["line_id"]
++        self.assertIsNotNone(
++            review_cycles.integration_checkpoint(control, second))
++        first = self.line_of(held.composed, "job-a")["line_id"]
++        self.assertIsNone(
++            review_cycles.integration_checkpoint(control, first))
++
++    # -- and the integration both accepted Jobs must share -------------------
++
++    def both_accepted(self):
++        """Both Jobs coded, reviewed and accepted, on one deployment."""
++        held = self.coding()
++        held.first_review = self.accepted(
++            held, "job-a", "implementation-worker", "review-worker",
++            held.first, "print('the first job answered')\n")
++        held.second_review = self.accepted(
++            held, "job-b", "implementation-worker-b", "review-worker-b",
++            held.second, "print('the second job answered')\n")
++        return held
++
++    def test_two_accepted_jobs_share_one_integrator_one_at_a_time(self):
++        """SAME-TARGET SERIALIZATION, measured where the owners decide it.
++
++        Both Jobs are accepted and both integration stages are eligible at the
++        same instant. One deployment names one `integrator_participant`, the
++        pool gives that participant one worker, and `scheduler.reserve` holds
++        one live allocation per worker -- so exactly one of the two holds the
++        integrator and the other reaches no allocation at all. Neither is
++        refused for compatibility: each is a Job this integrator can serve.
++        """
++        held = self.both_accepted()
++        for job_id in ("job-a", "job-b"):
++            self.assertEqual(
++                self.states_for(held.job, held.composed, job_id)["review"],
++                "completed")
++        self.drive_job(held.job, held.composed, "job-a", "integration",
++                       "claimed")
++        allocated = {job_id: self.allocated(held.job, f"{job_id}/integration")
++                     for job_id in ("job-a", "job-b")}
++        self.assertEqual(allocated["job-a"], "integration-worker")
++        self.assertIsNone(allocated["job-b"])
++        # AND THE TWO JOBS PROPOSE INTO THE SAME CANONICAL TARGET, which is
++        # what makes that serialization the target's and not an accident of
++        # this fixture's configuration.
++        deployment = self.deployment_of(held.composed)
++        self.assertEqual(deployment.target_for("job-a"),
++                         deployment.target_for("job-b"))
++        self.assertNotEqual(deployment.line_for("job-a")["line_id"],
++                            deployment.line_for("job-b")["line_id"])
++
++    def test_each_jobs_integration_binds_its_own_producer_task_and_port(self):
++        """NO GLOBAL FALLBACK LEFT IN THE INTEGRATION OPERANDS.
++
++        The required-test selection is derived from the producer THIS Job's
++        binding names, so two Jobs with two tasks answer two selections; and
++        a deployment binding two Jobs refuses ONE bare runtime port rather
++        than running the second Job's integration against the first Job's
++        line and target.
++        """
++        held = self.both_accepted()
++        deployment = self.deployment_of(held.composed)
++        integrator = held.composed.integrator
++        first = integrator.required_tests("job-a")
++        second = integrator.required_tests("job-b")
++        self.assertNotEqual(first["task_id"], second["task_id"])
++        self.assertEqual(first["task_id"], "w119114-composed-lifecycle")
++        self.assertEqual(second["task_id"],
++                         "w130224-second-line-of-one-target")
++        self.assertNotEqual(first["input_manifest_digest"],
++                            second["input_manifest_digest"])
++        # AND ONE PORT FOR TWO JOBS IS REFUSED RATHER THAN REUSED.
++        with self.assertRaises(ContractRefusal) as caught:
++            stage_execution.operations_from(
++                self.composed_document(line_declared_base=self.base,
++                                       **self.traversing()),
++                held.job, held.control, engine_run=self.engine,
++                credential_provider=lambda *_: self.secret,
++                clock=lambda: NOW, checkout=self.checkout,
++                integration_port=self.integration_port(held, "job-a"))
++        self.assertEqual((caught.exception.category, caught.exception.code),
++                         ("refused", "precondition"))
++        self.assertIn("one per Job keyed by its Job id",
++                      caught.exception.message)
++        del deployment
++
++    def test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool(
++            self):
++        """THE TERMINAL HALF, driven inside a deployment serving two Jobs.
++
++        This is where the two global fallbacks this Work removed are actually
++        reached: the integration is started through THIS Job's own runtime
++        port, and its committed settlement is proved against THIS Job's own
++        required test -- the selection `required_tests()` with no Job refuses
++        outright once a deployment configures two producers.
++        """
++        from baton_v12.integration import entries_of, lease_of, runtime
++        from baton_v12.worker_manager import attempt_runtime_of
++
++        held = self.integrating()
++        ended = held.ended
++        attempt_id = held.integrated
++        self.assertEqual(ended["outcome"], "performed", ended)
++        self.assertEqual(ended["detail"]["outcome"], "integrated", ended)
++        deployment = self.deployment_of(held.composed)
++        target_id = deployment.target_for("job-a")
++        [entry] = entries_of(deployment.integration, target_id)
++        self.assertEqual(entry["state"], "integrated")
++        delivery = runtime.adopt_delivery(
++            deployment.integration_root, attempt_id=attempt_id,
++            workspace_group=deployment.workspace_group)
++        assignment = runtime.published_assignment(delivery)
++        self.assertEqual(
++            lease_of(deployment.integration, assignment["lease_id"])["state"],
++            "released")
++        # AND THE TERMINAL HANDOFF, which is the completion check that reads
++        # this Job's own required test.
++        states = self.drive_job(held.job, held.composed, "job-a",
++                                "integration", "completed", ticks=4)
++        self.assertEqual(states, {"implementation": "completed",
++                                  "review": "completed",
++                                  "integration": "completed"})
++        fixed = attempt_runtime_of(held.control, attempt_id)["assignment"]
++        outgoing = self.worker_of(held.composed,
++                                  "integration").given["review_route"]
++        handoff = deployment.authority.operation_result(
++            "integration-pass:" + attempt_id)
++        self.assertEqual(handoff["assignment"], fixed)
++        self.assertEqual(handoff["route"], outgoing)
++        self.assertEqual(handoff["cause"], "pass")
++        self.assertEqual(fixed["work_ref"]["work_id"], self.work)
++        # THE OTHER JOB IS UNTOUCHED and still holds no integrator.
++        self.assertEqual(
++            self.states_for(held.job, held.composed, "job-b")["review"],
++            "completed")
++        self.terminal_evidence = {
++            "attempt_id": attempt_id, "entry": entry, "handoff": handoff,
++            "states": states, "assignment": fixed}
++
++    def test_a_completed_integration_does_not_return_its_capacity(self):
++        """THE BOUNDARY THIS TRAVERSAL FOUND, measured rather than narrated.
++
++        Job A's integration completes for real: the entry is integrated, the
++        lease released, the terminal handoff committed and the stage
++        `completed`. Its SCHEDULER allocation is still `reserved`.
++        `reconcile_allocations` returns capacity on an episode that ended in
++        one of its release endings, or on a runtime whose cleanup is
++        `complete` or `retained` -- and an integration attempt's runtime
++        cleanup stays `pending`, because an integrator's runtime produces no
++        frozen worker result, therefore no intake receipt, therefore no
++        `authorize_cleanup` to reach. So the one configured integrator is held
++        by the first Job that used it for as long as the deployment lives, and
++        Job B's integration stays `queued` with no allocation.
++
++        THIS IS REPORTED AND NOT ACCEPTED. It is the difference between the
++        serialization this Work demonstrates -- one integrator, one Job at a
++        time, proved above -- and a QUEUE that ever advances. Returning that
++        capacity needs either a release `reconcile_allocations` can derive
++        from a completed integration or a cleanup authorization an
++        integrator's runtime can actually obtain, and both live outside the
++        two paths this Work owns. The exact prerequisite is in this Work's
++        FINDING and on the ledger; nothing here works around it.
++        """
++        from baton_v12.job_manager import live_of
++        from baton_v12.job_manager.scheduler import allocation_of
++
++        held = self.integrating()
++        self.drive_job(held.job, held.composed, "job-a", "integration",
++                       "completed", ticks=4)
++        # THE FIRST JOB REALLY FINISHED.
++        self.assertEqual(
++            self.states_for(held.job, held.composed, "job-a")["integration"],
++            "completed")
++        # AND ITS CAPACITY IS STILL HELD, for the exact reason above.
++        allocation = allocation_of(held.job, held.integrated)
++        self.assertEqual(allocation["worker_id"], "integration-worker")
++        self.assertEqual(allocation["allocation_state"], "reserved")
++        observed = held.composed.observe(
++            self.attempted(held.job, "job-a/integration"))
++        self.assertEqual(observed["runtime"]["execution_runtime"], "quiescent")
++        self.assertEqual(observed["runtime"]["cleanup"], "pending")
++        # SO THE SECOND ACCEPTED JOB NEVER REACHES THE INTEGRATOR.
++        for _ in range(4):
++            self.tick(held)
++        self.assertEqual(
++            self.states_for(held.job, held.composed, "job-b")["integration"],
++            "queued")
++        self.assertIsNone(self.allocated(held.job, "job-b/integration"))
++        self.assertIsNone(allocation_of(
++            held.job, live_of(held.job, "job-b/integration")["attempt_id"]))
++        # AND THE OTHER TWO ROLES DO RETURN THEIRS, which is what makes this a
++        # fact about the integration ending rather than about the scheduler.
++        for stage_id in ("job-a/implementation", "job-a/review"):
++            [episode] = [one for one in
++                         self.attempts_of_stage(held.job, stage_id)]
++            self.assertEqual(
++                allocation_of(held.job, episode)["allocation_state"],
++                "released", stage_id)
++
++    def attempts_of_stage(self, job_store, stage_id):
++        """Every attempt this stage has had, through the public reader."""
++        from baton_v12.job_manager import episodes_of
++
++        return [one["attempt_id"] for one in episodes_of(job_store, stage_id)]
++
++    def integrating(self):
++        """Both Jobs accepted, and the FIRST one integrated for real."""
++        held = self.both_accepted()
++        self.drive_job(held.job, held.composed, "job-a", "integration",
++                       "claimed")
++        self.connect(held, {"job-a": self.integration_port(held, "job-a"),
++                            "job-b": None})
++        report = self.tick(held)
++        [started] = [one for one in report["started"]
++                     if one["stage_id"] == "job-a/integration"]
++        self.assertEqual(started["outcome"], "started", started)
++        held.integrated = started["attempt_id"]
++        self.assertEqual(self.integration_turn(held, held.integrated), 0)
++        self.engine.stopped = True
++        report = self.tick(held)
++        [held.ended] = [one for one in report["spoken"]
++                        if one["stage_id"] == "job-a/integration"]
++        return held

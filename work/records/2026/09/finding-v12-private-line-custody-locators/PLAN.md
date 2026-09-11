@@ -192,3 +192,12 @@ retained-result survival still need their approved proof. W106673 remains an ope
 experimental child; parent closure must await its disposition. Production uses
 confirmed shutdown throughout. No repeat full test campaign or live execution is
 authorized merely by this source sign-off.
+
+## Current assembly-proof update — 2026-09-09
+
+The pending assembly/lifecycle/custody proof above is superseded by joined
+acceptance at baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-shared-stage-assembly/review-2026-09-09T17-57-08Z.md.
+Consume its CONSUMER-HANDOFF-2026-09-09.md and W119114 exact final proof; do not
+repeat the completed ordinary lifecycle or recreate test-approval gates. The
+remaining multi-Job sequence and W105982 experiment/disposition keep their own
+acceptance and source scope. Suite scan failures remain separate and unwaived.

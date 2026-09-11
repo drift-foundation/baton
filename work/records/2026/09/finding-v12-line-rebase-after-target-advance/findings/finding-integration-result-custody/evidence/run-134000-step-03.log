@@ -1,0 +1,237 @@
+E..EEEEEEEEF.FFFE........................E...E......
+======================================================================
+ERROR: test_a_combined_failure_blocks_and_erases_no_positive (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_a_combined_failure_blocks_and_erases_no_positive)
+A clean textual merge establishes only prepared CONTENT.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 723, in test_a_combined_failure_blocks_and_erases_no_positive
+    self.authorize(again, observations=observed)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ResultCase.authorize() got an unexpected keyword argument 'observations'
+
+======================================================================
+ERROR: test_observations_about_other_content_refuse (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_observations_about_other_content_refuse) (what='base ran elsewhere')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 749, in test_observations_about_other_content_refuse
+    self.authorize(held, observations=moved)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ResultCase.authorize() got an unexpected keyword argument 'observations'
+
+======================================================================
+ERROR: test_observations_about_other_content_refuse (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_observations_about_other_content_refuse) (what='isolated ran elsewhere')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 749, in test_observations_about_other_content_refuse
+    self.authorize(held, observations=moved)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ResultCase.authorize() got an unexpected keyword argument 'observations'
+
+======================================================================
+ERROR: test_observations_about_other_content_refuse (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_observations_about_other_content_refuse) (what='combined ran elsewhere')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 749, in test_observations_about_other_content_refuse
+    self.authorize(held, observations=moved)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ResultCase.authorize() got an unexpected keyword argument 'observations'
+
+======================================================================
+ERROR: test_observations_about_other_content_refuse (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_observations_about_other_content_refuse) (what='three different harnesses')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 754, in test_observations_about_other_content_refuse
+    self.authorize(held, observations=moved)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ResultCase.authorize() got an unexpected keyword argument 'observations'
+
+======================================================================
+ERROR: test_observations_about_other_content_refuse (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_observations_about_other_content_refuse) (what='a base that passed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 760, in test_observations_about_other_content_refuse
+    self.authorize(held, observations=moved)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ResultCase.authorize() got an unexpected keyword argument 'observations'
+
+======================================================================
+ERROR: test_observations_about_other_content_refuse (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_observations_about_other_content_refuse)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 763, in test_observations_about_other_content_refuse
+    self.assertEqual(self.authorize(held, observations=observed)["state"],
+                     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ResultCase.authorize() got an unexpected keyword argument 'observations'
+
+======================================================================
+ERROR: test_observations_produced_by_somebody_else_refuse (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_observations_produced_by_somebody_else_refuse)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 770, in test_observations_produced_by_somebody_else_refuse
+    self.authorize(held, observations=observed)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ResultCase.authorize() got an unexpected keyword argument 'observations'
+
+======================================================================
+ERROR: test_the_observations_are_retained_in_the_record (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_the_observations_are_retained_in_the_record)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 699, in test_the_observations_are_retained_in_the_record
+    authorized = self.authorize(held, observations=observed)
+TypeError: ResultCase.authorize() got an unexpected keyword argument 'observations'
+
+======================================================================
+ERROR: test_evidence_for_one_result_cannot_authorize_another (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_evidence_for_one_result_cannot_authorize_another)
+THE REPRODUCED COUNTEREXAMPLE. Two combined trees over the same
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 809, in test_evidence_for_one_result_cannot_authorize_another
+    self.authorize(second, owners=stale,
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                   observations=self.observations(second))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ResultCase.authorize() got an unexpected keyword argument 'observations'
+
+======================================================================
+ERROR: test_a_held_result_neither_authorizes_nor_publishes (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_a_held_result_neither_authorizes_nor_publishes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1199, in test_a_held_result_neither_authorizes_nor_publishes
+    self.authorize(held, observations={})
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ResultCase.authorize() got an unexpected keyword argument 'observations'
+
+======================================================================
+ERROR: test_an_assignment_naming_another_Work_refuses (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_an_assignment_naming_another_Work_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1236, in test_an_assignment_naming_another_Work_refuses
+    self.prepare(integration_assignment=other)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 489, in prepare
+    return reconciliation.prepare_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, profile, self.manager, self.jobs, self.authority,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **operands)
+        ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 322, in prepare_result
+    _live_assignment(authority, integration_assignment)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 199, in _live_assignment
+    live = authority.assignment_of(held["work_ref"]["work_id"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/api.py", line 232, in assignment_of
+    return self._core.assignment_of(work_id)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 1128, in assignment_of
+    return self._assignment_of(self._work(work_id))
+                               ~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 1003, in _work
+    raise Refusal(f"no such Work {name_of(work_id)}")
+baton_v12.authority.errors.Refusal: no such Work '0123456f-W9'
+
+======================================================================
+FAIL: test_a_refusing_owner_does_not_authorize (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_refusing_owner_does_not_authorize)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 871, in test_a_refusing_owner_does_not_authorize
+    self.assertEqual(reconciliation.result_of(
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.store, held["result_id"])["state"], "prepared")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'awaiting-evidence' != 'prepared'
+- awaiting-evidence
++ prepared
+
+
+======================================================================
+FAIL: test_each_owner_is_asked_about_this_result_and_nothing_else (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_each_owner_is_asked_about_this_result_and_nothing_else) (kind='verification')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 818, in test_each_owner_is_asked_about_this_result_and_nothing_else
+    self.assertEqual(owner.asked, [{
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+        "kind": kind, "result_id": held["result_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        "tree": held["prepared"]["tree"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "target": held["target_revision"]}])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'result_id': 'result-4ac1b6f791097abeac52c[451 chars]on'}] != [{'kind': 'verification', 'result_id': 'resu[321 chars]13'}]
+
+First differing element 0:
+{'result_id': 'result-4ac1b6f791097abeac52c[450 chars]ion'}
+{'kind': 'verification', 'result_id': 'resu[320 chars]c13'}
+
+  [{'candidate': 'ed9daee25c031de4efdde7d3e85541603896984d',
+    'content_digest': 'sha256:853979c70d0e19809f5ed17e4e310ba572946debc030edc53a8f19c0812d0c4f',
+    'kind': 'verification',
+-   'observations': 'sha256:676d33a4abe2bc88c2e6dde01f3cfe885daa998d9594523e110f18c6d132f2c7',
+-   'observed_by': 'baton.result-observe',
+    'result_id': 'result-4ac1b6f791097abeac52c5e12ccf531ac0881079d3187ed0eef07cce6f8011d1',
+    'target': 'd96e2cd8073e8799e570bfaaba6e204e997fdc13',
+    'tree': '470da0d34c0b0215515516f89440f9f1774625fe'}]
+
+======================================================================
+FAIL: test_each_owner_is_asked_about_this_result_and_nothing_else (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_each_owner_is_asked_about_this_result_and_nothing_else) (kind='review')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 818, in test_each_owner_is_asked_about_this_result_and_nothing_else
+    self.assertEqual(owner.asked, [{
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+        "kind": kind, "result_id": held["result_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        "tree": held["prepared"]["tree"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "target": held["target_revision"]}])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'result_id': 'result-4ac1b6f791097abeac52c[445 chars]ew'}] != [{'kind': 'review', 'result_id': 'result-4ac[315 chars]13'}]
+
+First differing element 0:
+{'result_id': 'result-4ac1b6f791097abeac52c[444 chars]iew'}
+{'kind': 'review', 'result_id': 'result-4ac[314 chars]c13'}
+
+  [{'candidate': 'ed9daee25c031de4efdde7d3e85541603896984d',
+    'content_digest': 'sha256:853979c70d0e19809f5ed17e4e310ba572946debc030edc53a8f19c0812d0c4f',
+    'kind': 'review',
+-   'observations': 'sha256:676d33a4abe2bc88c2e6dde01f3cfe885daa998d9594523e110f18c6d132f2c7',
+-   'observed_by': 'baton.result-observe',
+    'result_id': 'result-4ac1b6f791097abeac52c5e12ccf531ac0881079d3187ed0eef07cce6f8011d1',
+    'target': 'd96e2cd8073e8799e570bfaaba6e204e997fdc13',
+    'tree': '470da0d34c0b0215515516f89440f9f1774625fe'}]
+
+======================================================================
+FAIL: test_each_owner_is_asked_about_this_result_and_nothing_else (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_each_owner_is_asked_about_this_result_and_nothing_else) (kind='approval')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 818, in test_each_owner_is_asked_about_this_result_and_nothing_else
+    self.assertEqual(owner.asked, [{
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+        "kind": kind, "result_id": held["result_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        "tree": held["prepared"]["tree"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "target": held["target_revision"]}])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'result_id': 'result-4ac1b6f791097abeac52c[447 chars]al'}] != [{'kind': 'approval', 'result_id': 'result-4[317 chars]13'}]
+
+First differing element 0:
+{'result_id': 'result-4ac1b6f791097abeac52c[446 chars]val'}
+{'kind': 'approval', 'result_id': 'result-4[316 chars]c13'}
+
+  [{'candidate': 'ed9daee25c031de4efdde7d3e85541603896984d',
+    'content_digest': 'sha256:853979c70d0e19809f5ed17e4e310ba572946debc030edc53a8f19c0812d0c4f',
+    'kind': 'approval',
+-   'observations': 'sha256:676d33a4abe2bc88c2e6dde01f3cfe885daa998d9594523e110f18c6d132f2c7',
+-   'observed_by': 'baton.result-observe',
+    'result_id': 'result-4ac1b6f791097abeac52c5e12ccf531ac0881079d3187ed0eef07cce6f8011d1',
+    'target': 'd96e2cd8073e8799e570bfaaba6e204e997fdc13',
+    'tree': '470da0d34c0b0215515516f89440f9f1774625fe'}]
+
+----------------------------------------------------------------------
+Ran 45 tests in 3.675s
+
+FAILED (failures=4, errors=12)

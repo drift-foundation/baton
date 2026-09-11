@@ -1,0 +1,7 @@
+{
+  "changed_or_removed_existing": [],
+  "added": [
+    "OrdinaryTerminalLifecycle.recovered_correction",
+    "OrdinaryTerminalLifecycle.test_the_recovered_job_finishes_and_its_manifest_reopens"
+  ]
+}

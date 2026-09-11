@@ -1,0 +1,25 @@
+{
+  "candidate_sha256": "acdd44ae69d6ad2ba78567cd607ca5efb711364af544024a80de59ba2fa020af",
+  "mode": "0o664",
+  "checks": {
+    "positive_owners_preserved": true,
+    "negative_owners_preserved": true,
+    "positive_db_preserved": true,
+    "negative_db_preserved": true,
+    "hashes_stable": true,
+    "held_entry_target": true,
+    "no_handoff": true,
+    "exceptional_status": true,
+    "assignment_matches": true,
+    "allocation_matches": true,
+    "absent_logs": true,
+    "activity_matches": true,
+    "negative_no_stdout": true,
+    "negative_refusal": true
+  },
+  "execution": "none; source and full retained owner/status readback audited",
+  "verified_imported_source": {
+    "sha256": "090c36119cbb2680f3c70f6c99830b3bf5258845035a81ff56b21677b35640e3",
+    "mode": "0o664"
+  }
+}

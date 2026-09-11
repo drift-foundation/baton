@@ -1,0 +1,10 @@
+{
+  "tools/stage_execution.py": {
+    "sha256": "557af0d498adc2999d9f43721f2b41734716ebb3c13545dc7fc2a4ef85effcd4",
+    "mode": "0o664"
+  },
+  "tests/tools/test_stage_execution.py": {
+    "sha256": "2f3f13933b462531bff0f28959b71d7cc9a3a8c824e59a34b00aad8a2f2f1c4f",
+    "mode": "0o664"
+  }
+}

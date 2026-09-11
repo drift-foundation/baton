@@ -98,10 +98,10 @@ them with an actionable message rather than guessing an identity.
 
 With that control identity configured, the lifecycle manager supports:
 
-    tools/infra.py drain    MAILBOX --reason "host kernel upgrade"
-    tools/infra.py dispatch MAILBOX          # mode, generation, blockers
-    tools/infra.py stop-drained MAILBOX      # refuses unless paused
-    tools/infra.py stop     MAILBOX          # immediate stop
+    python3 tools/infra.py drain    MAILBOX --reason "host kernel upgrade"
+    python3 tools/infra.py dispatch MAILBOX          # mode, generation, blockers
+    python3 tools/infra.py stop-drained MAILBOX      # refuses unless paused
+    python3 tools/infra.py stop     MAILBOX          # immediate stop
 
 `stop-drained` reads the canonical dispatch state and refuses before signalling
 services unless the deployment is paused. Plain `stop` remains available when

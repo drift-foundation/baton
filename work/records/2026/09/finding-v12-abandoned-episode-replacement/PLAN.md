@@ -1,27 +1,18 @@
 # Current plan
 
-The ordinary successor path is demonstrated. Complete its consumer ownership
-boundary described by review-2026-09-09T17-07-35Z.md and retained probes in
-evidence/review-129471/. CONTRACT.md includes the accepted exclusion-vocabulary
-placement clarification; FINDING.md preserves its history.
+The bounded episode-replacement provider is independently accepted in
+review-2026-09-09T17-26-15Z.md. Exact candidate custody is
+evidence/review-129599/. CONTRACT.md defines the unchanged public boundary;
+FINDING.md and the review journals preserve decisions and resolved defects.
 
-1. Bind the recovered checkpoint and selected live episode to this Job's
-   committed changes-requested correction/handoff and full assignment.
-2. Revalidate provider preparation and supersession at the committing boundary;
-   diagnose the cross-store handoff, since the Job lock does not freeze custody.
-   A failed guard must preserve the episode and journal.
-3. Own the complete fresh/replayed result against selected identities and
-   historical providers/episode ending. Preserve valid replay after a successor
-   has begun without applying current line predicates to history.
-4. Correct/add tests in tests/job_manager/test_recovery.py for the retained
-   counterexamples, valid controls and actual concurrent duplicate recovery.
-   tests/job_manager/test_documents.py owns vocabulary/closed-document checks.
-   Record expectation changes and reasons under standing W71830 authority;
-   no per-test approval gate applies.
-5. Serial baton.impl owns the same four paths: src/baton_v12/job_manager/
-   documents.py and episodes.py plus the two named test paths, relative to
-   v12/python. No scheduler/provider scope expansion. Declare exact focused
-   commands and retain all logs/times:7.070/20s used,12.930s remaining, no reset.
-6. Return exact candidate bytes/hashes and attributable PROGRESS for independent
-   review. Reuse the ordinary fixture and accepted A/B evidence for W119114's
-   final joined demonstration after this provider meets its contract.
+1. W119114 consumes accepted A/B/C through their public interfaces in the
+   existing actual one-Job fixture. Retain committed route, checkpoint, verdict
+   and publication history while ordinary sweep starts the fresh correction.
+2. Complete the joined restart/custody proof and correlate the corrected final
+   manifest after actual integration. This provider's acceptance alone does
+   not demonstrate that consumer outcome.
+
+Standing W71830 test authority remains; no per-test gate. Source allocation
+stays the four documented paths. Final C accounting is19.339/20s used,0.661s
+remaining. No additional local feature, source allocation or budget reset is
+needed; the bounded continuation diagnosis is resolved by acceptance.

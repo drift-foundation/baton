@@ -1,0 +1,18 @@
+{
+  "src/baton_v12/job_manager/documents.py": {
+    "sha256": "4bbac912d0bd51cacc15b9cbc36405506e651e78d723a5a18e870f2b44688b4c",
+    "mode": "0o664"
+  },
+  "src/baton_v12/job_manager/episodes.py": {
+    "sha256": "32e46805540fb7aa4558a735d6d8a714e03c4b7c0e85c8695f929ca596077865",
+    "mode": "0o664"
+  },
+  "tests/job_manager/test_documents.py": {
+    "sha256": "77883eb9808208c9e59e3d7c197705c92f29c789cec0848ff7063e51ed5ab026",
+    "mode": "0o664"
+  },
+  "tests/job_manager/test_recovery.py": {
+    "sha256": "1562b294eed4539183ed72e76bdcfc15c4d7541803943fd60b27588490101a67",
+    "mode": "0o664"
+  }
+}

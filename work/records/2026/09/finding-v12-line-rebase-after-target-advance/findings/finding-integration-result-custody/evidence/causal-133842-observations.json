@@ -1,0 +1,143 @@
+{
+  "pinned_harness_digest": "sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c",
+  "submission_base": "2ce7706a6a71b97129f5954a038e236d7afae910",
+  "target_after_the_first_job": "d96e2cd8073e8799e570bfaaba6e204e997fdc13",
+  "result": {
+    "result_id": "result-63dd99a49d46def0efdc892fce6f951df03656548d4a20bec264172638e9a074",
+    "state": "published",
+    "target_revision": "d96e2cd8073e8799e570bfaaba6e204e997fdc13",
+    "prepared_head": "8c7d6fe49f8682eadfbdfc92a4b630b45b325d68",
+    "prepared_tree": "470da0d34c0b0215515516f89440f9f1774625fe",
+    "content": {
+      "feature.py": {
+        "mode": "100644",
+        "object": "d59260fe8bd4da053c08032bd7de0ee57d287d41"
+      },
+      "harness.py": {
+        "mode": "100644",
+        "object": "c9ebbe3edbda46386bddaba1bbf00eb8413fceeb"
+      },
+      "other.py": {
+        "mode": "100644",
+        "object": "e56fd15180994cc6f768ae9f11ad699d925225c6"
+      },
+      "scale.py": {
+        "mode": "100644",
+        "object": "88e8526c8db854dfa5152d6b2f570896162ec966"
+      }
+    },
+    "content_digest": "sha256:853979c70d0e19809f5ed17e4e310ba572946debc030edc53a8f19c0812d0c4f"
+  },
+  "observations": {
+    "base": {
+      "command": [
+        "/usr/bin/python3",
+        "harness.py"
+      ],
+      "test_identity": "regression/total-keeps-the-first-value",
+      "input_commit": "2ce7706a6a71b97129f5954a038e236d7afae910",
+      "input_tree": "cb2b91463f02872c0350976df9d33e5daa39ca2e",
+      "test_digest": "sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c",
+      "environment": "/usr/bin/python3 / git",
+      "status": 1,
+      "output": "AssertionError: total answered 5",
+      "execution": "baton.result-verify",
+      "harness_added": true
+    },
+    "isolated": {
+      "command": [
+        "/usr/bin/python3",
+        "harness.py"
+      ],
+      "test_identity": "regression/total-keeps-the-first-value",
+      "input_commit": "cf169930f699e268dd9f0d106cd1d3677f99608e",
+      "input_tree": "aa6cc5b41ab480b401bfd57abca9ccb3900571ed",
+      "test_digest": "sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c",
+      "environment": "/usr/bin/python3 / git",
+      "status": 0,
+      "output": "the regression harness passed",
+      "execution": "baton.result-verify",
+      "harness_added": false
+    },
+    "combined": {
+      "command": [
+        "/usr/bin/python3",
+        "harness.py"
+      ],
+      "test_identity": "regression/total-keeps-the-first-value",
+      "input_commit": "8c7d6fe49f8682eadfbdfc92a4b630b45b325d68",
+      "input_tree": "470da0d34c0b0215515516f89440f9f1774625fe",
+      "test_digest": "sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c",
+      "environment": "/usr/bin/python3 / git",
+      "status": 0,
+      "output": "the regression harness passed",
+      "execution": "baton.result-verify",
+      "harness_added": false
+    }
+  },
+  "evidence_actors": {
+    "approval": "baton.result-approve",
+    "review": "baton.result-review",
+    "verification": "baton.result-verify"
+  },
+  "derived_proposal": {
+    "proposal_id": "proposal-result-63dd99a49d46def0efdc892fce6f951df03656548d4a20bec264172638e9a074",
+    "assignment_ref": {
+      "work_ref": {
+        "authority_uuid": "0123456789abcdef0123456789abcdef",
+        "work_id": "0123456f-W133117"
+      },
+      "participant": "baton.integrator",
+      "generation": 2
+    },
+    "decision": {
+      "endpoint": "baton.integrator",
+      "principal": "principal:baton.integrator",
+      "effective_scope": "scope:deployment",
+      "role": "integ",
+      "grant": "direct",
+      "policy_generation": 7
+    },
+    "result_id": "derived-result-63dd99a49d46def0efdc892fce6f951df03656548d4a20bec264172638e9a074",
+    "result_digest": "sha256:25b74b172a3777a6128d106d0cfa0dcb5a02ccd02a43dddee7cf574b6f097115",
+    "candidate_digest": "8c7d6fe49f8682eadfbdfc92a4b630b45b325d68",
+    "input_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+    "policy_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+    "target": "d96e2cd8073e8799e570bfaaba6e204e997fdc13",
+    "published_at": "2026-09-10T05:30:32.501Z"
+  },
+  "observations_reach_the_import_account": true,
+  "combined_fail": {
+    "target_after_the_third_job": "f9924b835da696247813da5b3bb06dde22c8d287",
+    "result_id": "result-2581af191d7da3c3c9453c8b58f17ada91a6625e742b1d4e546cbad709244d9c",
+    "state_after_the_attempt": "prepared",
+    "prepared_head": "8962238cc03c6777e3914a8328d56db122d5aa09",
+    "prepared_tree": "e20369ea750459e73d9d8e3bbe61460cb95a5ad2",
+    "content_digest": "sha256:c22a68f6d434f572ed3de6cf6cda63ab5c569e2fe3d41c646a15268b54739df0",
+    "observation": {
+      "command": [
+        "/usr/bin/python3",
+        "harness.py"
+      ],
+      "test_identity": "regression/total-keeps-the-first-value",
+      "input_commit": "8962238cc03c6777e3914a8328d56db122d5aa09",
+      "input_tree": "e20369ea750459e73d9d8e3bbe61460cb95a5ad2",
+      "test_digest": "sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c",
+      "environment": "/usr/bin/python3 / git",
+      "status": 1,
+      "output": "AssertionError: total answered 12",
+      "execution": "baton.result-verify",
+      "harness_added": false
+    },
+    "authorization": "refused: the combined result FAILED its own causal observation with status 1; a combined failure blocks integration and is not verified away. The isolated positive is retained and unaffected"
+  },
+  "the_two_trees_no_longer_collide": {
+    "first_tree": "470da0d34c0b0215515516f89440f9f1774625fe",
+    "second_tree": "e20369ea750459e73d9d8e3bbe61460cb95a5ad2",
+    "first_content_digest": "sha256:853979c70d0e19809f5ed17e4e310ba572946debc030edc53a8f19c0812d0c4f",
+    "second_content_digest": "sha256:c22a68f6d434f572ed3de6cf6cda63ab5c569e2fe3d41c646a15268b54739df0",
+    "digests_differ": true
+  }
+}
+
+CAUSAL: OK

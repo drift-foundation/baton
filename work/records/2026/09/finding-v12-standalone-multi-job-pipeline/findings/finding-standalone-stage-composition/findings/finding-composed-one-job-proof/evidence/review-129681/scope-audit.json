@@ -1,0 +1,61 @@
+{
+  "A intake": {
+    "changed_existing": [],
+    "added": [
+      "_abandoned_absence",
+      "_abandoned_discharge_operation_id",
+      "_abandoned_fence",
+      "_abandoned_receipt_signature",
+      "_abandonment_declaration",
+      "_adopted_abandoned_discharge",
+      "_recorded_abandoned_discharge",
+      "abandoned_gate_discharge_of",
+      "abandonment_cleanup_of",
+      "discharge_abandoned_quiescence_gate"
+    ]
+  },
+  "B review cycles": {
+    "changed_existing": [],
+    "added": [
+      "_abandoned_evidence",
+      "_abandoned_writer",
+      "_adopted_correction",
+      "_correcting_verdict",
+      "_correction_signature",
+      "_fixed_intent",
+      "_historical_owners",
+      "_intent_agrees",
+      "_restorable_line",
+      "_restore_operation_id",
+      "_sole_attachment",
+      "abandoned_correction_of",
+      "restore_abandoned_correction"
+    ]
+  },
+  "B checkpoint profiles": {
+    "changed_existing": [],
+    "added": [
+      "GitCheckpointProfile.restore_checkpoint",
+      "_HeldCheckout.__enter__",
+      "_HeldCheckout.__exit__",
+      "_HeldCheckout.__init__",
+      "_HeldCheckout.place",
+      "clean_vector",
+      "reset_vector"
+    ]
+  },
+  "consumer test": {
+    "changed_existing": [
+      "UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_no_fresh_assignment_follows_the_declaration_and_why"
+    ],
+    "added": [
+      "UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.recover",
+      "UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_a_running_or_foreign_selection_recovers_nothing",
+      "UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_an_unrecovered_declaration_still_reaches_no_assignment",
+      "UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_discarded_scratch_is_gone_and_the_checkpoint_bytes_are_back",
+      "UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_fresh_assignment_writes_only_after_the_exclusion",
+      "UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_recovered_correction_reaches_a_fresh_assignment",
+      "UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_recovery_replays_and_committed_effects_are_unchanged"
+    ]
+  }
+}

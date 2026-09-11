@@ -1,0 +1,13 @@
+### label: FINAL-acceptance-witness-and-controls
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_workspace_aliasing_the_target_fetches_and_writes_nothing", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_direct_integration_finalizes_the_dedicated_target", "tests.integration.test_execution.TheDirectFinalizationRefusesBeforeItWritesAnything", "tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead"]
+### exit: 0
+### elapsed_seconds: 3.587798
+### STDOUT
+
+### STDERR
+................................
+----------------------------------------------------------------------
+Ran 32 tests in 3.411s
+
+OK

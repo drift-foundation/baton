@@ -1,0 +1,37 @@
+{
+  "job-unknown/implementation": {
+    "refusal": {
+      "category": "refused",
+      "code": "precondition",
+      "message": "this deployment binds no Job 'job-unknown'; a source, a base, a Work and a target are facts about a Job, and one it cannot bind is one it cannot serve"
+    },
+    "allocation": null,
+    "admit_receipt_exists": false
+  },
+  "job-b/review": {
+    "refusal": {
+      "category": "refused",
+      "code": "precondition",
+      "message": "stage 'job-b/review' names work_id '0000000a-W2'; this single worker accepts only '0000000a-W1'"
+    },
+    "allocation": {
+      "worker_id": "review-worker",
+      "allocation_state": "reserved"
+    },
+    "admit_receipt_exists": false
+  },
+  "readonly_matching_global": {
+    "job_id": "job-a",
+    "succeeded": true
+  },
+  "readonly_per_job_target": {
+    "succeeded": false,
+    "refusal": {
+      "category": "refused",
+      "code": "operation-collision",
+      "message": "integration delivery disagrees with the configured fixed attempt"
+    }
+  },
+  "readonly_owners_and_databases_preserved": true,
+  "elapsed_seconds": 0.8378758430480957
+}

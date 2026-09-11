@@ -1,0 +1,141 @@
+EE...E...........E..............................E......
+======================================================================
+ERROR: test_a_COMBINED_FAILURE_IS_RETAINED_and_blocks (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_a_COMBINED_FAILURE_IS_RETAINED_and_blocks)
+REVIEW 2026-09-10T05:41:11Z [R1], the correction that matters.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 740, in test_a_COMBINED_FAILURE_IS_RETAINED_and_blocks
+    blocked = self.observe_result(again)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 497, in observe_result
+    return reconciliation.record_causal_observations(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, observer or self.observer, result_id=held["result_id"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 737, in record_causal_observations
+    return result_of(store, result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1151, in result_of
+    _refuse(f"result {name_value(result_id)} does not match the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"operands its own {kind} was signed under",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="integrity", code="digest")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 123, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: result 'result-3800752561c639bc62b62d80174ae7cd1944fa368e85f54580b4… does not match the operands its own result.prepared was signed under
+
+======================================================================
+ERROR: test_a_blocked_result_is_not_re_observed_into_success (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_a_blocked_result_is_not_re_observed_into_success)
+The retained failure is not overwritten by asking again with an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 775, in test_a_blocked_result_is_not_re_observed_into_success
+    blocked = self.observe_result(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 497, in observe_result
+    return reconciliation.record_causal_observations(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, observer or self.observer, result_id=held["result_id"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 737, in record_causal_observations
+    return result_of(store, result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1151, in result_of
+    _refuse(f"result {name_value(result_id)} does not match the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"operands its own {kind} was signed under",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="integrity", code="digest")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 123, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: result 'result-c48a8b41775ddec5bcdac72a4321e68136976e4ef6c12f57acbd… does not match the operands its own result.prepared was signed under
+
+======================================================================
+ERROR: test_an_exact_re_observation_replays (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_an_exact_re_observation_replays)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 791, in test_an_exact_re_observation_replays
+    self.assertEqual(self.observe_result(held), held)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 497, in observe_result
+    return reconciliation.record_causal_observations(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, observer or self.observer, result_id=held["result_id"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 709, in record_causal_observations
+    replayed, _held = store.replay(operation_id, signature,
+                      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                                   kind=OBSERVATION_KIND,
+                                   ^^^^^^^^^^^^^^^^^^^^^^
+                                   witness=_witness)
+                                   ^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 679, in replay
+    return (True, witness(self, row))
+                  ~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1355, in _witness
+    _refuse(f"this owner does not witness {name_value(kind)} acts",
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="integrity", code="schema")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 123, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: this owner does not witness 'result.observed' acts
+
+======================================================================
+ERROR: test_evidence_for_one_result_cannot_authorize_another (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_evidence_for_one_result_cannot_authorize_another)
+THE REPRODUCED COUNTEREXAMPLE. Two combined trees over the same
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 903, in test_evidence_for_one_result_cannot_authorize_another
+    self.assertEqual(self.observe_result(second)["state"], "blocked")
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 497, in observe_result
+    return reconciliation.record_causal_observations(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, observer or self.observer, result_id=held["result_id"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 737, in record_causal_observations
+    return result_of(store, result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1151, in result_of
+    _refuse(f"result {name_value(result_id)} does not match the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"operands its own {kind} was signed under",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="integrity", code="digest")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 123, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: result 'result-46a9443bdfb26c94347e2997ccef685024a6fa4c31c209a1e0ad… does not match the operands its own result.prepared was signed under
+
+======================================================================
+ERROR: test_an_assignment_naming_another_Work_refuses (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_an_assignment_naming_another_Work_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1369, in test_an_assignment_naming_another_Work_refuses
+    self.prepare(integration_assignment=other)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 489, in prepare
+    return reconciliation.prepare_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, profile, self.manager, self.jobs, self.authority,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **operands)
+        ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 322, in prepare_result
+    _live_assignment(authority, integration_assignment)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 199, in _live_assignment
+    live = authority.assignment_of(held["work_ref"]["work_id"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/api.py", line 232, in assignment_of
+    return self._core.assignment_of(work_id)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 1128, in assignment_of
+    return self._assignment_of(self._work(work_id))
+                               ~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 1003, in _work
+    raise Refusal(f"no such Work {name_of(work_id)}")
+baton_v12.authority.errors.Refusal: no such Work '0123456f-W9'
+
+----------------------------------------------------------------------
+Ran 55 tests in 4.914s
+
+FAILED (errors=5)

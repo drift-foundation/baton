@@ -1,0 +1,8 @@
+{
+  "captured_at": "2026-09-10T03:08:03.092043+00:00",
+  "changes": [
+    "tests/manager/test_target_rework.py"
+  ],
+  "runtime_seconds": 0,
+  "new_test_hash": "edb9d44c37a5fdd8db4063d407b82b998395e4ebf7ae2e13a389bdd790ecb997"
+}

@@ -397,3 +397,17 @@ record; the composed lifecycle beyond the implementation ending remains blocked
 on `baton:work/records/2026/09/finding-v12-quiescence-gate-discharge/` and is
 still owed by W119114. Recorded by baton.claude under claim119398; no source,
 existing test, runtime or Git state in this record's own scope was changed.
+
+## 2026-09-09T17:57:08.562564+00:00 — assembly retained-custody acceptance cross-link
+
+baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-shared-stage-assembly/review-2026-09-09T17-57-08Z.md
+accepts the joined one-Job assembly, including the mandatory transferred
+sealed-result intake/retention, ordinary cleanup, reopened manifest/artifact
+digests and persistent line/checkpoint pin proof. Exact final consumer evidence:
+baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-composed-one-job-proof/review-2026-09-09T17-53-28Z.md.
+The same recovered Job also reaches committed terminal integration. This
+supersedes pending assembly-proof wording, not W105982 experimental-child
+disposition or production confirmed-shutdown requirements. Commands/profiles/
+locators and evidence limits are in the assembly CONSUMER-HANDOFF-2026-09-09.md.
+31 parallel scan failures remain with W115981/W48697. Standing W71830
+test-change authority supersedes historical per-test/additive-only gates.

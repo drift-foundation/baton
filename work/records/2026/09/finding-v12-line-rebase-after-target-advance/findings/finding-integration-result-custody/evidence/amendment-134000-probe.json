@@ -1,0 +1,79 @@
+{
+  "session_verbs": [
+    "activities",
+    "activity",
+    "advance_contract",
+    "approve",
+    "assert_invariants",
+    "assignment_events",
+    "assignment_of",
+    "cancel",
+    "canonical_target",
+    "claim",
+    "close",
+    "contract_events",
+    "end",
+    "fenced_generations",
+    "gate_evidence",
+    "install_gate",
+    "integrate",
+    "integration_attempts",
+    "label_work",
+    "labels_of",
+    "operation_record",
+    "operation_result",
+    "participant",
+    "pass_work",
+    "project_work",
+    "proposal",
+    "publish",
+    "receipt",
+    "receipts",
+    "reject_plan",
+    "review",
+    "route_fenced",
+    "satisfy_gate",
+    "settle_operation",
+    "slot_holder",
+    "unlabel_work",
+    "verify",
+    "work_label_events"
+  ],
+  "evidence_verb_signatures": {
+    "verify": "(*documents)",
+    "review": "(*documents)",
+    "approve": "(*documents)"
+  },
+  "evidence_before_publication": "refused: no such proposal",
+  "result_shaped_operands": "refused: verify does not take 'result_id', 'content_digest', 'candidate' and 2 more; an operand supplied and ignored is one the caller believes it chose",
+  "derived_proposal_published_first": "proposal-derived",
+  "real_receipts_on_the_derived_proposal": {
+    "verification": {
+      "actor": "baton.result-verify",
+      "disposition": "passed",
+      "candidate_digest": "dddddddddddddddddddddddddddddddddddddddd",
+      "target": "cccccccccccccccccccccccccccccccccccccccc"
+    },
+    "review": {
+      "actor": "baton.result-review",
+      "disposition": "accepted",
+      "candidate_digest": "dddddddddddddddddddddddddddddddddddddddd",
+      "target": "cccccccccccccccccccccccccccccccccccccccc"
+    },
+    "approval": {
+      "actor": "baton.result-approve",
+      "disposition": "approved",
+      "candidate_digest": "dddddddddddddddddddddddddddddddddddddddd",
+      "target": "cccccccccccccccccccccccccccccccccccccccc"
+    }
+  },
+  "receipts_read_back": {
+    "verification": "baton.result-verify",
+    "review": "baton.result-review",
+    "approval": "baton.result-approve"
+  },
+  "the_producers_receipts_are_untouched": []
+}
+
+EVIDENCE-BEFORE-PUBLICATION IS EXPRESSIBLE WITH REAL OWNERS: NO
+PUBLICATION-BEFORE-EVIDENCE IS EXPRESSIBLE WITH REAL OWNERS: YES

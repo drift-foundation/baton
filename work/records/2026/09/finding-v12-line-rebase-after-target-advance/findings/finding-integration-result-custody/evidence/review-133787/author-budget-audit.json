@@ -1,0 +1,259 @@
+{
+  "measured": [
+    {
+      "timestamp": "2026-09-10T03:43:40.841Z",
+      "tool_id": "toolu_01SHLa74Dq7ohCCuzeQrTFEY",
+      "reported_seconds": [
+        "0.03"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T03:43:52.900Z",
+      "tool_id": "toolu_015qNhRkfZ17Qc1ePk4wZWaf",
+      "reported_seconds": [
+        "0.02"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T03:44:36.320Z",
+      "tool_id": "toolu_018uPCtYftXsRa3tip4BAxEz",
+      "reported_seconds": [
+        "0.05"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T03:46:53.686Z",
+      "tool_id": "toolu_01Bj1r1SKGyCiAud5a4TsEdX",
+      "reported_seconds": [
+        "0.23"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T03:52:20.388Z",
+      "tool_id": "toolu_01Sb9exF3EjDBY5TLv7ojeog",
+      "reported_seconds": [
+        "0.14"
+      ],
+      "output_tail_filtered": false
+    },
+    {
+      "timestamp": "2026-09-10T03:52:41.169Z",
+      "tool_id": "toolu_014AoapgqDhRfiEatYbUUDvg",
+      "reported_seconds": [
+        "0.20"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T03:52:57.929Z",
+      "tool_id": "toolu_01GZM1ovziLYQcvSPtWywj9X",
+      "reported_seconds": [
+        "0.22"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T03:53:05.432Z",
+      "tool_id": "toolu_01WYiKmr1grkpNstSs4SLApk",
+      "reported_seconds": [
+        "0.22"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T03:58:52.115Z",
+      "tool_id": "toolu_01FVEP13gF2VtK9i8YxwNyZx",
+      "reported_seconds": [
+        "0.14"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T03:59:31.967Z",
+      "tool_id": "toolu_018hu9Tae7nPmx8BWxYgCioY",
+      "reported_seconds": [
+        "0.21"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T03:59:57.925Z",
+      "tool_id": "toolu_01Ujwrv75tKQqfYwRUqCTfNE",
+      "reported_seconds": [
+        "0.21"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T04:00:07.087Z",
+      "tool_id": "toolu_01KKWqmvo2tt1VS913ZY4VLK",
+      "reported_seconds": [
+        "0.22"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T04:00:29.180Z",
+      "tool_id": "toolu_01CGJSRzaZipyZ7hiVYF1Vnb",
+      "reported_seconds": [
+        "0.23"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T04:04:00.772Z",
+      "tool_id": "toolu_01K5jKsAY4XYdCcsHeCyZ4sn",
+      "reported_seconds": [
+        "0.04"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T04:04:07.033Z",
+      "tool_id": "toolu_01GCSwXzGjyydWJC2wUkDMJj",
+      "reported_seconds": [
+        "0.15"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T04:05:02.447Z",
+      "tool_id": "toolu_015gVGhq4uVTteu3f98eYD82",
+      "reported_seconds": [
+        "0.23"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T04:52:41.264Z",
+      "tool_id": "toolu_01XYYKQstsWb9iY4omGz55vX",
+      "reported_seconds": [
+        "0.00"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T04:52:54.972Z",
+      "tool_id": "toolu_0171XDpYCXfbBrwPmy5JgAoo",
+      "reported_seconds": [
+        "0.19"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T04:53:18.752Z",
+      "tool_id": "toolu_01ENEeVcKpqd7z2XGnJhy2gZ",
+      "reported_seconds": [
+        "0.16"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T04:53:22.657Z",
+      "tool_id": "toolu_01G7xswJySuGcV6Bwrx8YFZs",
+      "reported_seconds": [
+        "1.33"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T04:53:37.340Z",
+      "tool_id": "toolu_01B5V4BiRimjFwwyUwUvsdq5",
+      "reported_seconds": [
+        "0.24"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T04:59:33.128Z",
+      "tool_id": "toolu_015U7uUyhRK5zdf62XFCs8md",
+      "reported_seconds": [
+        "1.62"
+      ],
+      "output_tail_filtered": true
+    },
+    {
+      "timestamp": "2026-09-10T05:00:05.931Z",
+      "tool_id": "toolu_01Cp4QGXRpeekaJ9Hk7tDtKk",
+      "reported_seconds": [
+        "0.32"
+      ],
+      "output_tail_filtered": false
+    },
+    {
+      "timestamp": "2026-09-10T05:00:42.224Z",
+      "tool_id": "toolu_01Pyc1i926GL1ri1Njtaai1u",
+      "reported_seconds": [
+        "3.09"
+      ],
+      "output_tail_filtered": false
+    }
+  ],
+  "sum_reported_rounded_seconds": "9.49",
+  "unmeasured_hash_preflight_or_manifest_commands": [
+    {
+      "timestamp": "2026-09-10T03:41:46.109Z",
+      "tool_id": "toolu_01Q3e8r827vocMrjqkKJfsJb",
+      "command_excerpt": "cd /home/sl/src/baton/work/records/2026/09/finding-v12-line-rebase-after-target-advance && python3 - <<'PYEOF'\nimport json, io, os, hashlib\nd = json.load(io.ope"
+    },
+    {
+      "timestamp": "2026-09-10T03:41:50.875Z",
+      "tool_id": "toolu_016HJbvXyUDmiCRwVT3WMZmq",
+      "command_excerpt": "cd /home/sl/src/baton/work/records/2026/09/finding-v12-line-rebase-after-target-advance && python3 - <<'PYEOF'\nimport json, io, os, hashlib\nd = json.load(io.ope"
+    },
+    {
+      "timestamp": "2026-09-10T03:42:00.201Z",
+      "tool_id": "toolu_013YchpXiBuRPWzufxvAm212",
+      "command_excerpt": "cd /home/sl/src/baton && python3 - <<'PYEOF'\nimport json, io, os, hashlib\nplace = (\"work/records/2026/09/finding-v12-line-rebase-after-target-advance/\"\n        "
+    },
+    {
+      "timestamp": "2026-09-10T03:42:07.381Z",
+      "tool_id": "toolu_01C6g9DJr7zg4pQ3UtTbVW4K",
+      "command_excerpt": "python3 - <<'PYEOF'\nimport json, io, os, hashlib\nplace = (\"work/records/2026/09/finding-v12-line-rebase-after-target-advance/\"\n         \"findings/finding-target"
+    },
+    {
+      "timestamp": "2026-09-10T03:42:16.174Z",
+      "tool_id": "toolu_0129xez6JBKQNyMEZ1zkfqXa",
+      "command_excerpt": "python3 - <<'PYEOF'\nimport json, io, os, hashlib\nplace = (\"work/records/2026/09/finding-v12-line-rebase-after-target-advance/\"\n         \"findings/finding-target"
+    },
+    {
+      "timestamp": "2026-09-10T03:51:27.497Z",
+      "tool_id": "toolu_01HTiggaLGcigDUDXVwgPyuG",
+      "command_excerpt": "python3 - <<'PYEOF'\nimport json, io, os, hashlib\nplace = (\"work/records/2026/09/finding-v12-line-rebase-after-target-advance/\"\n         \"findings/finding-target"
+    },
+    {
+      "timestamp": "2026-09-10T04:45:33.839Z",
+      "tool_id": "toolu_01CWwuzZPjRrsqPUTJwRwKbR",
+      "command_excerpt": "python3 - <<'EOF'\nimport json,os,hashlib\np='work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-target-rework-custody/evidence/re"
+    },
+    {
+      "timestamp": "2026-09-10T04:45:43.948Z",
+      "tool_id": "toolu_014RSFLrJmt96yvWsmTnULfR",
+      "command_excerpt": "python3 - <<'EOF'\nimport json,os,hashlib\np='work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-target-rework-custody/evidence/re"
+    },
+    {
+      "timestamp": "2026-09-10T05:01:25.356Z",
+      "tool_id": "toolu_01TxYB9bmzJoS1gWuqtKNU8P",
+      "command_excerpt": "python3 - <<'PY'\nimport hashlib, json, os\nD = \"work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody\"\npa"
+    },
+    {
+      "timestamp": "2026-09-10T05:02:10.969Z",
+      "tool_id": "toolu_01PnAcD62e4XZY4VSPNdvtUB",
+      "command_excerpt": "D=work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody\npython3 - <<'PY'\nimport hashlib\npaths = {\n \"v12/"
+    },
+    {
+      "timestamp": "2026-09-10T05:02:20.076Z",
+      "tool_id": "toolu_01RUJWdCQo4PSJ6V6GkiPMLQ",
+      "command_excerpt": "python3 - <<'PY'\nimport hashlib, re\nreal = {}\nfor p in (\"v12/python/src/baton_v12/integration/admission.py\",\n          \"v12/python/src/baton_v12/integration/dri"
+    }
+  ],
+  "limitations": [
+    "Rounded process timing excludes untimed setup/preflights; failed zero display does not establish zero cost.",
+    "Public results preserve only what the original command returned; tails cannot reconstruct discarded full output.",
+    "Keyword-selected public command audit, not a claim that all unmeasured overhead can be recovered."
+  ]
+}

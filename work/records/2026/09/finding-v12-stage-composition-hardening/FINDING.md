@@ -60,3 +60,27 @@ for this named restart-hardening pass. This record remains test-only; no
 production edits are authorized here. Preserve an explicit first-pass limit
 if its representative restart uses another cutpoint. Evidence and exact
 review: `../finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-shared-stage-assembly/review-2026-09-07T14-12-42Z.md`.
+
+## 2026-09-09 — Revalidated first coverage slice — baton.tuner
+
+The accepted assembly now includes publication replay, committed-handoff
+reconstruction, interrupted integration holds and cold read-only completion.
+Those cases are excluded from this slice; see `evidence/claim-129808/INVENTORY.md`.
+Select construction failure cleanup through the actual `operations_from`
+boundary. Existing cleanup tests directly construct fake workers that expose
+`release`; concrete `single_worker._Operations` exposes `close` instead.
+Whether the composer closes those actual workers is an unproved seam.
+
+Only the new hardening test file and this dossier are owned by this claim.
+Production correction remains separate. The earlier replay-defect entry is
+historical: later fenced-ending and reconstruction coverage requires reviewer
+reconciliation of its still-parked follow-up, not an assumed new defect here.
+
+## 2026-09-09T18:09:01.079107+00:00 — first slice independently assessed
+
+review-2026-09-09T18-09-01Z.md accepts the exact test-only contribution as valid red defect
+evidence. W129838 owns the independently confirmed concrete-close correction;
+W129844 owns the disjoint status/locator join. This supersedes pending first-slice
+assessment, not full hardening acceptance. Retain the red assertion and existing
+accepted evidence; no current resource leak or broad green claim. W110783 remains
+parked pending precise historical reconciliation at final parent review.

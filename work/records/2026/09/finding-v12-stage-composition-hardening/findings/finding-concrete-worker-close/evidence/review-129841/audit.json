@@ -1,0 +1,6 @@
+{
+  "closers_unchanged_since_accepted_one_job": true,
+  "worker_close_contract": "def close(self):\n    dispose, self._dispose = (self._dispose, None)\n    if dispose is not None:\n        dispose()",
+  "composed_closers": "def _closers(self):\n    for one in reversed(self.workers):\n        operations = one.get('operations')\n        if operations is not None and hasattr(operations, 'release'):\n            yield (f\"the {one['role']} worker\", operations.release)\n    if self.integration is not None:\n        yield ('the integration store', self.integration.close)\n    if self.authority is not None:\n        yield ('the Authority', self.authority.dispose)",
+  "new_execution": "none; audited concrete-factory failure log and current ownership code"
+}

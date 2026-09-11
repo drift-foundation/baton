@@ -1,0 +1,17 @@
+### label: ast-and-import-after-reconciled-branch
+### cwd: /home/sl/src/baton
+### argv: ["python3", "-c", "\nimport ast,sys\nast.parse(open('v12/python/tools/stage_execution.py').read()); print('parses')\nsys.path.insert(0,'v12/python/src'); sys.path.insert(0,'v12/python/tools')\nimport stage_execution as S\nprint('reconciled:', hasattr(S.Integration,'reconciled'))\nprint('observer:', hasattr(S,'_CausalObserver'), 'verifier:', hasattr(S,'_ImportedVerifier'))\n"]
+### exit: 1
+### elapsed_seconds: 0.175347
+### STDOUT
+parses
+
+### STDERR
+Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+    import stage_execution as S
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 51, in <module>
+    from baton_v12.integration import (IntegrationStore, admit_accepted,
+    ...<3 lines>...
+                                       reconciliation, retain_proposal, runtime)
+ImportError: cannot import name 'admit_authorized_result' from 'baton_v12.integration' (/home/sl/src/baton/v12/python/src/baton_v12/integration/__init__.py)

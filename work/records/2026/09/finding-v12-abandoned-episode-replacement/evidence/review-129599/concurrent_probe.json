@@ -1,0 +1,48 @@
+{
+  "first_holds_transaction": true,
+  "second_begin_during_first_action": true,
+  "first": {
+    "schema": "baton.v12.abandoned-episode-restart/1",
+    "operation_id": "episode.restart-abandoned:attempt-5f2ca250f1eba903fbe1bc7f141c7c438899894b9027073af3e551591f186398:2",
+    "job_id": "job-a",
+    "stage_id": "job-a/implementation",
+    "episode": 2,
+    "attempt_id": "attempt-5f2ca250f1eba903fbe1bc7f141c7c438899894b9027073af3e551591f186398",
+    "assignment": {
+      "generation": 2,
+      "participant": "baton.impl",
+      "work_ref": {
+        "authority_uuid": "0000000000000000000000000000000a",
+        "work_id": "0000000a-W1"
+      }
+    },
+    "line_id": "line-d889e9019b9c5bf68b5a77733887e481d05bf051e8832f3110413a81cbb4f50c",
+    "checkpoint_id": "checkpoint-59771608bff9dd3005411ec1b162143716dddf41125445ca7370e2a570d67209",
+    "preparation_operation_id": "review-line.restore-abandoned:restore-c58ab1d38c58b50bf4272da38f001c890014bdead28ffed282274031d3590b1f",
+    "discharge_operation_id": "authority.discharge-quiescence-abandoned:b0851aeb20a4340369d3a7bbd390641ffa54290df22fdf1560f35031617cf7d8",
+    "ended_state": "abandoned-after-exclusion"
+  },
+  "second": {
+    "assignment": {
+      "generation": 2,
+      "participant": "baton.impl",
+      "work_ref": {
+        "authority_uuid": "0000000000000000000000000000000a",
+        "work_id": "0000000a-W1"
+      }
+    },
+    "attempt_id": "attempt-5f2ca250f1eba903fbe1bc7f141c7c438899894b9027073af3e551591f186398",
+    "checkpoint_id": "checkpoint-59771608bff9dd3005411ec1b162143716dddf41125445ca7370e2a570d67209",
+    "discharge_operation_id": "authority.discharge-quiescence-abandoned:b0851aeb20a4340369d3a7bbd390641ffa54290df22fdf1560f35031617cf7d8",
+    "ended_state": "abandoned-after-exclusion",
+    "episode": 2,
+    "job_id": "job-a",
+    "line_id": "line-d889e9019b9c5bf68b5a77733887e481d05bf051e8832f3110413a81cbb4f50c",
+    "operation_id": "episode.restart-abandoned:attempt-5f2ca250f1eba903fbe1bc7f141c7c438899894b9027073af3e551591f186398:2",
+    "preparation_operation_id": "review-line.restore-abandoned:restore-c58ab1d38c58b50bf4272da38f001c890014bdead28ffed282274031d3590b1f",
+    "schema": "baton.v12.abandoned-episode-restart/1",
+    "stage_id": "job-a/implementation"
+  },
+  "identical_answers": true,
+  "endings": 1
+}

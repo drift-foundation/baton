@@ -1,0 +1,101 @@
+{
+  "work": "W119405",
+  "claim": 130076,
+  "correcting": "review-2026-09-09T18-35-38Z.md (baton.codex, claim130011)",
+  "paths": {
+    "tools/stage_execution.py": "6c9007ba241fce41f63c3bae1d93dd37b0ee5bf351b48c9ba1fe843e7ef38550",
+    "tests/tools/test_stage_execution.py": "714a49b1ccf82e998b903131231beb4d18c02f8cbe2a5c52dbb54bd0fed3487a"
+  },
+  "reviewed_input_revalidated": {
+    "tools/stage_execution.py": "557af0d498adc2999d9f43721f2b41734716ebb3c13545dc7fc2a4ef85effcd4",
+    "tests/tools/test_stage_execution.py": "2f3f13933b462531bff0f28959b71d7cc9a3a8c824e59a34b00aad8a2f2f1c4f",
+    "both": "the exact reviewed bytes; every change below is on top of them"
+  },
+  "p1_readers_not_connected": {
+    "verdict": "ACCEPTED IN FULL. The readers existed and nothing called them; the PLAN sentence describing selection through them described an intended change absent from those bytes.",
+    "connected": {
+      "StageComposition.end": "`deployment.publication` -> `publication_for(assignment['participant'])`. Under several producers `_PerJobPublication` refuses on every call, so a second Job could not reach its ending at all. The producer is the ending attempt's OWN assignment participant, which is the one session `Authority.publish` can act for.",
+      "Integration._run": "`line()` -> `line_for(job_id)`; the global `canonical_target_id` -> `target_for(job_id)`; `required_tests()` -> `required_tests(job_id)`",
+      "Integration.required_tests": "SELECTS THE PRODUCING ATTEMPT'S WORKER, by the Job binding's own `source_worker_id`, and no longer refuses for having more than one implementation worker. It is NOT the integration worker allocated for the current stage, which is what the review named.",
+      "Integration.account": "the first integration-role worker -> `worker_for(stage)`, and the global Work/target -> `works_for`/`target_for` of this stage's Job",
+      "factory session scope": "`_work_scope(job_work_id)` -> `_bound_scope`, which reads EVERY bound Work's own effective scope and REFUSES a disagreement (policy/denied) rather than inventing a grant reaching both. `_write_receipt` derives a receipt's scope from the proposal's own Work, so one session set minted for the first Job's Work would have written the second Job's receipts under the wrong grant. Minting a session set per Work is the honest answer to Works whose grants genuinely differ and is a larger cut than this one; the disagreement is named here instead of widened."
+    },
+    "doubles_and_one_job_preserved": "`_bound_id(deployment, stage, job)` is the single rule: read-only observation and the accepted integration cases reach these consumers through a deployment DOUBLE that holds the configuration and not this composition's readers, and through stages carrying no Job. Both get exactly the answer they were accepted with. `/1` is unchanged."
+  },
+  "p1_admission_and_work_mismatch": {
+    "verdict": "ACCEPTED. Binding refusal happened only at line preparation, after a RESERVED allocation and a canonical admit receipt.",
+    "where_it_now_happens": "`_job_eligibility`, supplied to the EXISTING `PooledManagerOperations(..., independence=)` seam. `_allocation` calls it with the stage BEFORE `reserve`, so an unbound Job and an incoherent one are both refused ahead of any allocation, offer or setup -- the accepted before-wrong-setup boundary.",
+    "what_it_holds": [
+      "the stage's Job is one this deployment binds",
+      "the stage's Work is the Job's bound Work",
+      "the bound producer's held input manifest Work, manifest digest and policy digest equal the submitted Job's -- the exact operands `single_worker._matches` holds AFTER allocation"
+    ],
+    "single_worker_untouched": "its validation is not weakened and keeps every operand it always had. What changed is that assembly stops handing it an incoherent one."
+  },
+  "p1_declared_gap_withdrawn": {
+    "verdict": "MY CLAIM WAS UNSUPPORTED AND I WITHDRAW IT. I said two Works necessarily required per-Job worker eligibility in the scheduler or a worker whose manifest is not Work-bound. The seam was already there and public.",
+    "how": "`_job_eligibility` returns `{'worker_ids': [...]}` excluding every implementation worker that is not this Job's bound producer, so a role-compatible but JOB-incompatible worker is not reservable. `reserve` combines these with the scheduler's own review independence, affinity and principal capacity rules rather than replacing them; selection, affinity and hard independence stay with their current owner. No scheduler or provider edit."
+  },
+  "fixture_corrected": {
+    "what_was_wrong": "job-b bound `0000000a-W2` while its producer's held input manifest named `0000000a-W1`, and no Authority held that Work. The fixture changed source and participant but copied the first Job's Work.",
+    "now": "the class creates SECOND_WORK in the real Authority, so `_bound_scope` reads its actual effective scope. The producer's held manifest Work is NOT yet re-derived for it -- see below."
+  },
+  "runs_this_claim": [
+    {
+      "run": "tests.tools.test_stage_execution",
+      "wall": "20.720s",
+      "result": "185 tests, 18 errors -- the accepted integration deployment double has no per-Job readers and its stages carry no Job"
+    },
+    {
+      "run": "same, after `_bound_id`",
+      "wall": "21.122s",
+      "result": "185 tests, 6 errors -- all six mine, all one cause: the fixture's second Work was absent from the Authority"
+    },
+    {
+      "run": "same, rerun to list the six",
+      "wall": "not separately timed; the runs bracketing it measured 21.122s and 21.304s",
+      "result": "same 6"
+    },
+    {
+      "run": "EachJobBindsItsOwnDeploymentAndLine alone",
+      "wall": "0.480s",
+      "result": "12 tests, OK"
+    },
+    {
+      "run": "tests.tools.test_stage_execution",
+      "wall": "21.304s",
+      "result": "185 tests, OK"
+    },
+    {
+      "run": "tests.tools.test_single_worker tests.job_manager.test_scheduling tests.job_manager.test_review_driver",
+      "wall": "9.304s",
+      "log": "evidence/run-130076-neighbours.log",
+      "result": "321 tests, OK"
+    }
+  ],
+  "budget": {
+    "declared": 250.0,
+    "prior": 138.636,
+    "this_claim": 94.1,
+    "spent": 232.7,
+    "remaining": 17.3,
+    "reset": false,
+    "finding": "17.3s COVERS NO FURTHER MODULE RUN. The assembly module alone measures 21.3s, so the work named below cannot be measured within what is left. Reported before exhaustion as the review required, and not extended."
+  },
+  "not_done_and_why": [
+    {
+      "what": "public-admission tests for the unknown Job, the cross-Job worker and the mismatched input/Work, measuring allocation and offer evidence rather than direct reader calls",
+      "why": "the boundary they would measure IS implemented and every accepted case passes over it, but proving it through public submit/admit needs a second coherent submission and at least one module run to measure. Unmeasured, so unclaimed."
+    },
+    {
+      "what": "the second producer's input manifest re-derived for SECOND_WORK, and a second Job submitted against it",
+      "why": "same budget. Until then the two-Job cases exercise binding, line materialization and allocation, not a full traversal."
+    },
+    {
+      "what": "the correction/reconstruction, concurrent coding-and-review, fault capacity and serialized same-target integration witnesses, and the minimum joined W119400 witness",
+      "why": "they reuse the traversal fixture above, which is not built"
+    }
+  ],
+  "claim_order": "claimed at seq130076; the reviewed bytes were revalidated and the review's three P1s read in full before any edit",
+  "not_run": "no whole-suite pass, no live model and no OCI demonstration"
+}

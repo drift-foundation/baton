@@ -1,0 +1,13 @@
+### label: focused-remaining-nine-groups
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_reconciliation.OriginalSubmissionIsImmutable", "tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners", "tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition", "tests.integration.test_reconciliation.PreparedResultReplaysItsIntent", "tests.integration.test_reconciliation.ResultReadersRejectTampering", "tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment", "tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved", "tests.integration.test_reconciliation.TheImportedStateIsUnproved", "tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold"]
+### exit: 0
+### elapsed_seconds: 5.516424
+### STDOUT
+
+### STDERR
+..........................................................
+----------------------------------------------------------------------
+Ran 58 tests in 5.348s
+
+OK

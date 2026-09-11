@@ -1,0 +1,137 @@
+### label: focused-terminal-custody-group-4
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved"]
+### exit: 1
+### elapsed_seconds: 1.243646
+### STDOUT
+
+### STDERR
+E.EF.E..E
+======================================================================
+ERROR: test_a_real_entry_and_a_real_receipt_settle_the_result (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_a_real_entry_and_a_real_receipt_settle_the_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1799, in test_a_real_entry_and_a_real_receipt_settle_the_result
+    imported = self.import_it(held, entry_id)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 651, in import_it
+    return reconciliation.record_imported(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.authority, result_id=held["result_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        entry_id=entry_id)
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1588, in record_imported
+    return dict(result_of(store, result_id), integration_receipt=receipt,
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1662, in result_of
+    entry = store._connection.execute(
+            ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        "SELECT entry_id, canonical_target_id, state, eligibility "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "FROM entries WHERE entry_id = ?", (held["entry_id"],)).fetchone()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: eligibility
+
+======================================================================
+ERROR: test_a_result_imported_through_ANOTHER_entry_collides (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_a_result_imported_through_ANOTHER_entry_collides)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1827, in test_a_result_imported_through_ANOTHER_entry_collides
+    self.import_it(held, entry_id)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 651, in import_it
+    return reconciliation.record_imported(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.authority, result_id=held["result_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        entry_id=entry_id)
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1588, in record_imported
+    return dict(result_of(store, result_id), integration_receipt=receipt,
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1662, in result_of
+    entry = store._connection.execute(
+            ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        "SELECT entry_id, canonical_target_id, state, eligibility "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "FROM entries WHERE entry_id = ?", (held["entry_id"],)).fetchone()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: eligibility
+
+======================================================================
+ERROR: test_an_exact_retry_replays_the_terminal_act (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_an_exact_retry_replays_the_terminal_act)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1818, in test_an_exact_retry_replays_the_terminal_act
+    first = self.import_it(held, entry_id)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 651, in import_it
+    return reconciliation.record_imported(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.authority, result_id=held["result_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        entry_id=entry_id)
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1588, in record_imported
+    return dict(result_of(store, result_id), integration_receipt=receipt,
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1662, in result_of
+    entry = store._connection.execute(
+            ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        "SELECT entry_id, canonical_target_id, state, eligibility "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "FROM entries WHERE entry_id = ?", (held["entry_id"],)).fetchone()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: eligibility
+
+======================================================================
+ERROR: test_the_terminal_act_is_bound_to_the_entry_it_named (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_the_terminal_act_is_bound_to_the_entry_it_named)
+Relabelling which entry a settled import went through breaks the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1895, in test_the_terminal_act_is_bound_to_the_entry_it_named
+    self.import_it(held, entry_id)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 651, in import_it
+    return reconciliation.record_imported(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.authority, result_id=held["result_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        entry_id=entry_id)
+        ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1588, in record_imported
+    return dict(result_of(store, result_id), integration_receipt=receipt,
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1662, in result_of
+    entry = store._connection.execute(
+            ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        "SELECT entry_id, canonical_target_id, state, eligibility "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "FROM entries WHERE entry_id = ?", (held["entry_id"],)).fetchone()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: eligibility
+
+======================================================================
+FAIL: test_an_entry_admitted_for_another_candidate_refuses (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_an_entry_admitted_for_another_candidate_refuses)
+A real integrated entry on this target, for a DIFFERENT result.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1871, in test_an_entry_admitted_for_another_candidate_refuses
+    self.advance("scale.py", "SCALE = 1\n")
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 421, in advance
+    self.record(self.target, f"an integration of {name}")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 406, in record
+    self.git(place, "commit", "-q", "-m", message)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 398, in git
+    self.assertEqual(answered.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"git {argv}: {answered.stderr}")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : git ('commit', '-q', '-m', 'an integration of scale.py'): 
+
+----------------------------------------------------------------------
+Ran 9 tests in 1.075s
+
+FAILED (failures=1, errors=4)

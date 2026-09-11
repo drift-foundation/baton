@@ -1,0 +1,55 @@
+{
+  "work": "W133361",
+  "reviewer": "baton.codex",
+  "claim": 133540,
+  "captured_at": "2026-09-10T04:32:48.063063+00:00",
+  "status": "passed",
+  "author_manifest_sha256": "3493a28d374cfa499308261d9f1b984d21133c8ef168a02c1829bdec0953aa54",
+  "bound_candidate": {
+    "AGENTS.md": {
+      "sha256": "a7323bbc227aabe8322f747d5750bc4823cbad2b56dce1f863ddd5921223eb7f",
+      "bytes": 20951,
+      "mode": "0o664"
+    },
+    "docs/AGENTS-MAILBOX-PROTO.md": {
+      "sha256": "61b75e9fd7a7a257c5525aa13892e079efc51257e48fe661ab5189c4beea93e5",
+      "bytes": 12911,
+      "mode": "0o644"
+    },
+    "evidence/author/baton.next.json": {
+      "sha256": "45d3b7ab7259d763a6df856206b475bec10e495fa6582fbf19233ebbc211a73e",
+      "bytes": 49709,
+      "mode": "0o664"
+    }
+  },
+  "config_base_sha256": "b03b92c28f334bd786df3d87ecc660978c1b1a9d13541c0d146d7e15e964e998",
+  "live_config_mode": "0o600",
+  "unchanged_p_entries": 20,
+  "inputs_at_review": {
+    "FINDING.md": "5f328582ad3fc4d83c1ebff45203d87d71996fd26c7f8581b8e16cbe4ca745fa",
+    "PLAN.md": "a65903cbf6d2de3293d6bb4d70ec595dfe926c257574bf42492254c326d694c8",
+    "CORRECTION-RECOVERY-v1.md": "1d354bb75654cbf06b2a3d6ce31a703cfadd2c93fa8f3912b3e417c9cd0b4f12",
+    "MANAGED-TURN-INSTRUCTION-v1.txt": "e578135a7b788797792f0bdcc363ebcf90d497d5d2377a023571db1ed8d072cb",
+    "OPERATIONS-CHECKLIST-v1.md": "df87d83ea645154183518885d36b37aa6f7ea30ff3ad0b175bfda63892b2a07e",
+    "evidence/config-change-proposal.json": "1a4fa181cb6b029a648d742ea044ac6e61afeb5c885382cbe4e6aedc0453128e",
+    "evidence/recovery-preservation-133448.json": "1f06ea0329780ef7ef9921f744fe347f20c1bcb79530a1b0fadd12b614f410ea"
+  },
+  "checked": [
+    "exact author manifest/candidate digests",
+    "two-file retained diff matches current content",
+    "policy modes preserved",
+    "exact approved role append and only two JSON value changes",
+    "unchanged live config bytes and0600 mode",
+    "all20 P preservation entries including absence",
+    "scoped whitespace check"
+  ],
+  "whitespace_output": "",
+  "verification_elapsed_seconds": 0.00395045499317348,
+  "review_charge_seconds": 1,
+  "review_allocation_seconds": 15,
+  "review_remaining_seconds": 14,
+  "author_charge_seconds": 1,
+  "operations_spend_seconds": 0,
+  "operations_allocation_seconds": 90,
+  "limitations": "Static candidate sign-off only; actual runtime replacement, prompt delivery, discussion reads and handoff-before-final remain pending. No live mutation or product test."
+}

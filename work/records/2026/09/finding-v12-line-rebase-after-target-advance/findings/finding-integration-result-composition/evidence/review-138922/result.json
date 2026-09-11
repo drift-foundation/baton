@@ -1,0 +1,315 @@
+{
+  "claim": 138922,
+  "owner_ruling": 138816,
+  "candidate": 138901,
+  "status": "changes requested: late receipt issuance remains; accepted-ending historical retry incomplete",
+  "accepted_union": {
+    "AGENTS.md": {
+      "sha256": "a7323bbc227aabe8322f747d5750bc4823cbad2b56dce1f863ddd5921223eb7f",
+      "bytes": 20951,
+      "mode": "0o664"
+    },
+    "v12/README.md": {
+      "sha256": "0ee2369c991470bc83306c33dd3e3849a6bf3faa371d4f6031ea0766f80858c5",
+      "bytes": 19314,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/checkpoint_profiles.py": {
+      "sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "bytes": 19642,
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4",
+      "bytes": 3875,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791",
+      "bytes": 19998,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "aabe4e2cf52365771dd5fbeae4c185c9634ab2a6240dadbfcd746836dc0a8106",
+      "bytes": 101775,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/execution.py": {
+      "sha256": "936cf9df9233c8d0f8f25f3efdfe73d074162377ed8dfe189955cba8930373a7",
+      "bytes": 60053,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/git_profile.py": {
+      "sha256": "ccd0b048ae039df779cbb2ae468c63b8c5f43f73346b4643dd9cefdde89b7902",
+      "bytes": 26640,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/queue.py": {
+      "sha256": "18ced502ebcff18946c1c72914223166c995484ce2baccd6423bb3f7ca0b23a0",
+      "bytes": 117048,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/reconciliation.py": {
+      "sha256": "c575077386c81c135b337b5e5a940aeabfe2d142c15edcbade6e905bbc36af6d",
+      "bytes": 102329,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/recovery.py": {
+      "sha256": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732",
+      "bytes": 12424,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/runtime.py": {
+      "sha256": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+      "bytes": 50412,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "164de55dd44ab31f0e4a761dfa96eb1dddc893f0954d9697306f4306e0d4523d",
+      "bytes": 27668,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "bytes": 36152,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/delegation.py": {
+      "sha256": "2ad0b1e8ebf1a9bdc90d84731c3bb271e0d16466be4217e84b68cb5da9f68b74",
+      "bytes": 59647,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/attempts.py": {
+      "sha256": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+      "bytes": 167906,
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+      "bytes": 151441,
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/schema.py": {
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "bytes": 72850,
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/target_rework.py": {
+      "state": "absent"
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce",
+      "bytes": 19242,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea",
+      "bytes": 183456,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "bytes": 136269,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_execution.py": {
+      "sha256": "3210cc2569b0c6edcda77db6b63ef7b9ed3e982f3a726bb531d58bfb53b3d9c8",
+      "bytes": 71377,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_reconciliation.py": {
+      "sha256": "213520989b628f414d3f0ad27fce2d1f4131cf48435f2ed6af1c5f4c29b77a72",
+      "bytes": 101604,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_recovery.py": {
+      "sha256": "c33cfa13818177afc882dd896d842036010c44656886a73c133687001e08b8fa",
+      "bytes": 10108,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_runtime.py": {
+      "sha256": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+      "bytes": 59397,
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_delegation.py": {
+      "sha256": "c7da43a3e3c6fb5169ec3c523f7f7693daedccc1936f77e180624b492a40172d",
+      "bytes": 29163,
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_scheduling.py": {
+      "sha256": "79ba448c1f21a6c92bc9230291b5bfd04273024280b00ea197d1fa700066c103",
+      "bytes": 71619,
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_attempts.py": {
+      "sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0",
+      "bytes": 202303,
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_integration_image.py": {
+      "sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "bytes": 13167,
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_integration_worker.py": {
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "bytes": 79007,
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_store.py": {
+      "sha256": "9a5566355c375c98d2464e802a4d3d599cdd24fabc1b8d2135963830e339c093",
+      "bytes": 64526,
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_target_rework.py": {
+      "state": "absent"
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "bytes": 119971,
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_integration_worker.py": {
+      "sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "bytes": 56217,
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "2ed6fd5746247fab323dcd5a13a98b7e6423161225eebc884805ca3ebc7e861a",
+      "bytes": 388606,
+      "mode": "0o664"
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+      "bytes": 62209,
+      "mode": "0o664"
+    },
+    "v12/python/tools/integration_worker.py": {
+      "sha256": "2c3156da8c4f9bf4430b325ca0e32fc9c8bfbb59f5caa7ccccdd71b4fca65796",
+      "bytes": 42887,
+      "mode": "0o664"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "eedee73b5c57ff81ddfe3188b1271bb1610667f5ea152bc186c4c4402636c5f3",
+      "bytes": 208246,
+      "mode": "0o664"
+    },
+    "v12/worker/Dockerfile.integration": {
+      "sha256": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "bytes": 5790,
+      "mode": "0o664"
+    },
+    "v12/worker/integration_contract.py": {
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "bytes": 57431,
+      "mode": "0o664"
+    },
+    "v12/worker/integration_entry.py": {
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "bytes": 5287,
+      "mode": "0o664"
+    },
+    "v12/worker/integration_workload.py": {
+      "sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "bytes": 70815,
+      "mode": "0o664"
+    }
+  },
+  "errors": [],
+  "r_paths": {
+    "v12/README.md": {
+      "sha256": "0ee2369c991470bc83306c33dd3e3849a6bf3faa371d4f6031ea0766f80858c5",
+      "bytes": 19314,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/delegation.py": {
+      "sha256": "2ad0b1e8ebf1a9bdc90d84731c3bb271e0d16466be4217e84b68cb5da9f68b74",
+      "bytes": 59647,
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_delegation.py": {
+      "sha256": "c7da43a3e3c6fb5169ec3c523f7f7693daedccc1936f77e180624b492a40172d",
+      "bytes": 29163,
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_scheduling.py": {
+      "sha256": "79ba448c1f21a6c92bc9230291b5bfd04273024280b00ea197d1fa700066c103",
+      "bytes": 71619,
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "2ed6fd5746247fab323dcd5a13a98b7e6423161225eebc884805ca3ebc7e861a",
+      "bytes": 388606,
+      "mode": "0o664"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "eedee73b5c57ff81ddfe3188b1271bb1610667f5ea152bc186c4c4402636c5f3",
+      "bytes": 208246,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "aabe4e2cf52365771dd5fbeae4c185c9634ab2a6240dadbfcd746836dc0a8106",
+      "bytes": 101775,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/execution.py": {
+      "sha256": "936cf9df9233c8d0f8f25f3efdfe73d074162377ed8dfe189955cba8930373a7",
+      "bytes": 60053,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "bytes": 136269,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_execution.py": {
+      "sha256": "3210cc2569b0c6edcda77db6b63ef7b9ed3e982f3a726bb531d58bfb53b3d9c8",
+      "bytes": 71377,
+      "mode": "0o664"
+    }
+  },
+  "author_measured_seconds": 52.23291877499378,
+  "author_ceiling_seconds": 65,
+  "author_failures": 16,
+  "review_prior_charge_seconds": 3.6051185639982584,
+  "review_charge_seconds_this_turn": 0.1,
+  "review_cumulative_charge_seconds": 3.7051185639982585,
+  "review_ceiling_seconds": 10,
+  "preflight_measured_seconds": 0.011865004998981021,
+  "runtime_tests_run": 0,
+  "note": "Exact candidate and cumulative logs retained. No product/test edits or product runtime execution; code reading/AST suffices to identify remaining late call. All unmeasured history retained.",
+  "author_nonzero_steps": [
+    3,
+    8,
+    9,
+    12,
+    14,
+    15,
+    21,
+    22,
+    34,
+    35,
+    36,
+    37,
+    38,
+    40,
+    41,
+    42
+  ],
+  "author_runs": 43,
+  "static_receipt_calls": [
+    {
+      "class": "StageComposition",
+      "method": "_source_receipts",
+      "line": 1246,
+      "issue": true
+    },
+    {
+      "class": "Integration",
+      "method": "reconciled",
+      "line": 2215,
+      "issue": true
+    }
+  ]
+}

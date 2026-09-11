@@ -1,0 +1,129 @@
+{
+  "states": {
+    "implementation": "waiting",
+    "review": "blocked",
+    "integration": "blocked"
+  },
+  "fresh_attempt": "attempt-89a733aefd5fea36e2ef59d71963a379d60d562f61a2301d5b8a0bfecd6fb547",
+  "fresh_runtime": {
+    "attempt_id": "attempt-89a733aefd5fea36e2ef59d71963a379d60d562f61a2301d5b8a0bfecd6fb547",
+    "runtime_id": "runtime-single-4",
+    "execution_runtime": "running",
+    "cleanup": "pending",
+    "assignment": {
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      },
+      "participant": "baton.claude",
+      "generation": 4
+    }
+  },
+  "fresh_frozen_output": null,
+  "recovery": {
+    "discharge": {
+      "schema": "baton.v12.abandoned-gate-discharge/1",
+      "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.claude",
+        "generation": 3
+      },
+      "runtime_id": "runtime-single-3",
+      "retention_policy_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "cleanup_operation": {
+        "operation_id": "runtime.destroy-abandoned:d3f6aff1b0620c9676637ed6faafb62d00de4c2e10d455db2f09e198ddcb2a62",
+        "signature_digest": "sha256:f5e4bd2d408ba92473a7cdade479d048dc337a07b6a3fe6b72c58ff514bf98db"
+      },
+      "operation_id": "authority.discharge-quiescence-abandoned:e25c7c4b477b593ff23a35ab05ae4df45d4fac8817dff9324a1a7d93d66a012d",
+      "gate": "runtime-quiescence:3",
+      "evidence": {
+        "kind": "runtime-absent",
+        "runtime": "runtime-single-3"
+      },
+      "authority_receipt": {
+        "gate": "runtime-quiescence:3",
+        "kind": "runtime-absent",
+        "phase": "queued"
+      }
+    },
+    "restore": {
+      "schema": "baton.v12.abandoned-correction/1",
+      "operation_id": "review-line.restore-abandoned:restore-218b569e17b7610f1694246c4806d08507de3bff44d32729012be6f5ed01ffc3",
+      "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.claude",
+        "generation": 3
+      },
+      "runtime_id": "runtime-single-3",
+      "retention_policy_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "writer_id": "writer-bd646428cb9b289c405472b6cd59d8031cfe7708ecf4082c875bd6c01aff7534",
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "checkpoint_evidence": {
+        "base": "ea4713e0d1dcbff115de60fc43d73d94882fd8f6",
+        "head": "c80279363856966e5dd1ecd74e5446effb5f1f27",
+        "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+        "paths": [
+          "harness.py"
+        ],
+        "profile": "git",
+        "reference": "refs/baton/checkpoints/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/1",
+        "tree": "a401a9deb1811f5b4b1ce83a1cb29564e923a220"
+      },
+      "cleanup_operation": {
+        "operation_id": "runtime.destroy-abandoned:d3f6aff1b0620c9676637ed6faafb62d00de4c2e10d455db2f09e198ddcb2a62",
+        "signature_digest": "sha256:f5e4bd2d408ba92473a7cdade479d048dc337a07b6a3fe6b72c58ff514bf98db"
+      },
+      "discharge_operation_id": "authority.discharge-quiescence-abandoned:e25c7c4b477b593ff23a35ab05ae4df45d4fac8817dff9324a1a7d93d66a012d",
+      "state": "correction-ready"
+    },
+    "replace": {
+      "schema": "baton.v12.abandoned-episode-restart/1",
+      "operation_id": "episode.restart-abandoned:attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa:3",
+      "job_id": "job-a",
+      "stage_id": "job-a/implementation",
+      "episode": 2,
+      "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "assignment": {
+        "generation": 3,
+        "participant": "baton.claude",
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        }
+      },
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "preparation_operation_id": "review-line.restore-abandoned:restore-218b569e17b7610f1694246c4806d08507de3bff44d32729012be6f5ed01ffc3",
+      "discharge_operation_id": "authority.discharge-quiescence-abandoned:e25c7c4b477b593ff23a35ab05ae4df45d4fac8817dff9324a1a7d93d66a012d",
+      "ended_state": "abandoned-after-exclusion"
+    },
+    "fresh": "attempt-89a733aefd5fea36e2ef59d71963a379d60d562f61a2301d5b8a0bfecd6fb547",
+    "line": {
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "profile_name": "git",
+      "declared_base": "ea4713e0d1dcbff115de60fc43d73d94882fd8f6",
+      "source_path": "/home/sl/src/baton/v12/python/v12-w71917-84w73f0z/source",
+      "source_device": 66306,
+      "source_inode": 47980575,
+      "line_path": "/home/sl/src/baton/v12/python/v12-w71917-84w73f0z/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout",
+      "line_device": 66306,
+      "line_inode": 47980644,
+      "state": "correction-ready",
+      "revision": 1,
+      "current_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "created_at": "2026-09-02T00:00:00.000Z"
+    }
+  },
+  "controls_pass": true
+}

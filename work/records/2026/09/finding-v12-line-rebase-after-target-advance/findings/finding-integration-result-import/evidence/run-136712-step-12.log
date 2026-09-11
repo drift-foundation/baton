@@ -1,0 +1,13 @@
+### label: execution-driver-and-reconciliation-regression
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_execution.TheSmallestEligibleEntryIsTheONEThatRuns", "tests.integration.test_execution.OneCleanImportChangesExactlyTheDeclaredPath", "tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb", "tests.integration.test_execution.TheGrantIsProvedAgainRIGHTBeforeTheModelWrites", "tests.integration.test_execution.TheModelSCLAIMEarnsExactlyOneVerb", "tests.integration.test_execution.OnlyANOTSTARTEDAttemptIsAskedToRun", "tests.integration.test_execution.AnUnansweredAttemptIsReportedAndLeftAlone", "tests.integration.test_execution.AGrantThatEndedWhileTheModelRanCannotSettle", "tests.integration.test_execution.UnreadableOrForeignMaterialHoldsTheTarget", "tests.integration.test_execution.ThePortIsInjectedAndTyped", "tests.integration.test_driver.DriverCase", "tests.integration.test_driver.ContinuationCase", "tests.integration.test_driver.TerminalReleaseReplayCase"]
+### exit: 0
+### elapsed_seconds: 0.790074
+### STDOUT
+
+### STDERR
+...................................................................
+----------------------------------------------------------------------
+Ran 67 tests in 0.622s
+
+OK

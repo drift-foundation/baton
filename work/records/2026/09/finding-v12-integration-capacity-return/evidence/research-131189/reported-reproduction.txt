@@ -1,0 +1,84 @@
+    def test_a_completed_integration_does_not_return_its_capacity(self):
+        """THE BOUNDARY THIS TRAVERSAL FOUND, measured rather than narrated.
+
+        Job A's integration completes for real: the entry is integrated, the
+        lease released, the terminal handoff committed and the stage
+        `completed`. Its SCHEDULER allocation is still `reserved`.
+        `reconcile_allocations` returns capacity on an episode that ended in
+        one of its release endings, or on a runtime whose cleanup is
+        `complete` or `retained` -- and an integration attempt's runtime
+        cleanup stays `pending`, because an integrator's runtime produces no
+        frozen worker result, therefore no intake receipt, therefore no
+        `authorize_cleanup` to reach. So the one configured integrator is held
+        by the first Job that used it for as long as the deployment lives, and
+        Job B's integration stays `queued` with no allocation.
+
+        THIS IS REPORTED AND NOT ACCEPTED. It is the difference between the
+        serialization this Work demonstrates -- one integrator, one Job at a
+        time, proved above -- and a QUEUE that ever advances. Returning that
+        capacity needs either a release `reconcile_allocations` can derive
+        from a completed integration or a cleanup authorization an
+        integrator's runtime can actually obtain, and both live outside the
+        two paths this Work owns. The exact prerequisite is in this Work's
+        FINDING and on the ledger; nothing here works around it.
+        """
+        from baton_v12.job_manager import live_of
+        from baton_v12.job_manager.scheduler import allocation_of
+
+        held = self.integrating()
+        self.drive_job(held.job, held.composed, "job-a", "integration",
+                       "completed", ticks=4)
+        # THE FIRST JOB REALLY FINISHED.
+        self.assertEqual(
+            self.states_for(held.job, held.composed, "job-a")["integration"],
+            "completed")
+        # AND ITS CAPACITY IS STILL HELD, for the exact reason above.
+        allocation = allocation_of(held.job, held.integrated)
+        self.assertEqual(allocation["worker_id"], "integration-worker")
+        self.assertEqual(allocation["allocation_state"], "reserved")
+        observed = held.composed.observe(
+            self.attempted(held.job, "job-a/integration"))
+        self.assertEqual(observed["runtime"]["execution_runtime"], "quiescent")
+        self.assertEqual(observed["runtime"]["cleanup"], "pending")
+        # SO THE SECOND ACCEPTED JOB NEVER REACHES THE INTEGRATOR.
+        for _ in range(4):
+            self.tick(held)
+        self.assertEqual(
+            self.states_for(held.job, held.composed, "job-b")["integration"],
+            "queued")
+        self.assertIsNone(self.allocated(held.job, "job-b/integration"))
+        self.assertIsNone(allocation_of(
+            held.job, live_of(held.job, "job-b/integration")["attempt_id"]))
+        # AND THE OTHER TWO ROLES DO RETURN THEIRS, which is what makes this a
+        # fact about the integration ending rather than about the scheduler.
+        for stage_id in ("job-a/implementation", "job-a/review"):
+            [episode] = [one for one in
+                         self.attempts_of_stage(held.job, stage_id)]
+            self.assertEqual(
+                allocation_of(held.job, episode)["allocation_state"],
+                "released", stage_id)
+
+    def attempts_of_stage(self, job_store, stage_id):
+        """Every attempt this stage has had, through the public reader."""
+        from baton_v12.job_manager import episodes_of
+
+        return [one["attempt_id"] for one in episodes_of(job_store, stage_id)]
+
+    def integrating(self):
+        """Both Jobs accepted, and the FIRST one integrated for real."""
+        held = self.both_accepted()
+        self.drive_job(held.job, held.composed, "job-a", "integration",
+                       "claimed")
+        self.connect(held, {"job-a": self.integration_port(held, "job-a"),
+                            "job-b": None})
+        report = self.tick(held)
+        [started] = [one for one in report["started"]
+                     if one["stage_id"] == "job-a/integration"]
+        self.assertEqual(started["outcome"], "started", started)
+        held.integrated = started["attempt_id"]
+        self.assertEqual(self.integration_turn(held, held.integrated), 0)
+        self.engine.stopped = True
+        report = self.tick(held)
+        [held.ended] = [one for one in report["spoken"]
+                        if one["stage_id"] == "job-a/integration"]
+        return held

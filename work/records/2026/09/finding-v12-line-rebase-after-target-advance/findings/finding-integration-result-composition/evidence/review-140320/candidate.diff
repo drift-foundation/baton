@@ -1,0 +1,640 @@
+--- candidate139082/v12/python/src/baton_v12/job_manager/delegation.py
++++ candidate140229/v12/python/src/baton_v12/job_manager/delegation.py
+@@ -191,6 +191,9 @@
+ # no runtime existed instead of borrowing a word for one that did -- and it may
+ # say it ONLY when a reconciliation result is named, which is checked below.
+ INTEGRATION_COMPLETION_RUNTIMES = ("quiescent", "destroyed", "absent")
++# THE ONE WORD THAT MEANS "no runtime composed this", named once so the
++# completion contract below and the assignment binding above cannot drift apart.
++ABSENT_RUNTIME = "absent"
+ 
+ # W76207: `start_failure` is the manager's OWN journalled record that this
+ # attempt's start failed, and it is a fifth member rather than something
+@@ -480,23 +483,52 @@
+ 
+ 
+ def _integration_assignment(document, held, what):
+-    """The fixed assignment this observation is about, from the runtime's own.
+-
+-    THE RUNTIME CARRIES IT ALREADY, which is why no second storage read is
+-    needed and why this comparison is possible at all: `attempt_runtime_of`
+-    answers the assignment activation fixed to the attempt, and an observation
+-    naming another one is about another activation.
++    """The fixed assignment this observation is about, bound to its OWN owner.
++
++    THE RUNTIME CARRIES IT WHEN THERE IS ONE, which is why that comparison is
++    possible at all: `attempt_runtime_of` answers the assignment activation
++    fixed to the attempt, and an observation naming another one is about
++    another activation.
++
++    W133129 review 2026-09-10T21:10:42Z [P1]: AN ACTIVATION IS NOT THE ONLY WAY
++    A REAL INTEGRATION HAPPENS. A reconciled import composes no model, so
++    nothing activates a manager attempt for it and there is no runtime record
++    to compare against -- and this refused that observation outright, which
++    made a durable, independently approved, imported result unreportable and
++    left its Job stage claimed forever.
++
++    SO THE ABSENCE IS BOUND RATHER THAN TRUSTED, as a PAIR with the completion
++    exactly the way `_integration_completion` binds the same two facts from the
++    other side. Without an activation the only completion this plane will
++    project is the model-free one -- `absent`, naming a reconciliation result --
++    and a completion claiming a runtime-composed integration with no activation
++    behind it is refused as loudly as before. Before there is any completion
++    nothing is being claimed, so there is nothing to bind: the assignment's own
++    provenance is then the coordinator's immutable record, which is the
++    consumer's proof to make through public readers and never this shape's.
+     """
+     fixed = _fixed_assignment_document(document["assignment"],
+                                        f"{what}'s fixed assignment")
+     runtime = held.get("runtime")
+     known = (runtime or {}).get("assignment") if type(runtime) is dict else None
+     if known is None:
+-        raise ContractRefusal(
+-            "refused", "precondition",
+-            f"{what} names a fixed assignment and this attempt's runtime "
+-            f"record holds none; an observation before activation is not one "
+-            f"this control plane can bind")
++        completion = document.get("completion")
++        if type(completion) is dict \
++                and completion.get("execution_runtime") != ABSENT_RUNTIME:
++            raise ContractRefusal(
++                "refused", "precondition",
++                f"{what} names a completion composed by runtime "
++                f"{name_value(completion.get('execution_runtime'))} and this "
++                f"attempt's runtime record holds no fixed assignment; an "
++                f"observation of a model that never ran here is not one this "
++                f"control plane can bind")
++        if type(runtime) is dict and runtime.get("runtime_id") is not None:
++            raise ContractRefusal(
++                "refused", "operation-collision",
++                f"{what} was composed without an activation and this "
++                f"attempt's runtime record names runtime "
++                f"{name_value(runtime.get('runtime_id'))}")
++        return fixed
+     if known != fixed:
+         raise ContractRefusal(
+             "refused", "operation-collision",
+--- candidate139082/v12/python/tools/stage_execution.py
++++ candidate140229/v12/python/tools/stage_execution.py
+@@ -2341,6 +2341,25 @@
+             return None
+         deployment = self.deployment
+         row = attempt_runtime_of(deployment.control, stage["attempt_id"])
++        # W133129 review 2026-09-10T21:10:42Z [P1]: WHICH BRANCH THIS IS, ASKED
++        # BEFORE ANY RUNTIME-ONLY PREREQUISITE. The reconciled branch composes
++        # no model, so `port.prepare` is never called for it and the manager
++        # attempt is never activated -- `attempt_runtime_of` therefore answers
++        # `None`, and this reader returned `None` right here, before it could
++        # ever select the result. The measured consequence was the generic
++        # "terminal integration handoff requires owned committed integration
++        # and lease release" with the import already durable.
++        #
++        # THE SELECTOR IS AN IMMUTABLE OPERAND AND NOT A GUESS. W133117 records
++        # `integration_attempt_id` on the result and nothing rewrites it, so
++        # this stage's attempt names its own result and no other attempt's.
++        reconciled = deployment.integration._connection.execute(
++            "SELECT result_id FROM integration_results "
++            "WHERE integration_attempt_id = ?",
++            (stage["attempt_id"],)).fetchone()
++        if reconciled is not None:
++            return self._reconciled_account(stage, row,
++                                            reconciled["result_id"])
+         if row is None or row["assignment"] is None:
+             return None
+         fixed = row["assignment"]
+@@ -2365,16 +2384,11 @@
+                    "to_route": worker["review_route"], "committed": False}
+         delivery, assignment = self._published(stage)
+         if assignment is None:
+-            # W133129: A RECONCILED IMPORT HAS NO DELIVERY, and that is not the
+-            # same fact as "nothing has happened yet". Review
+-            # 2026-09-10T14:56:15Z: this returned `unstarted` the moment
+-            # `_published` answered nothing, so the branch that composes no
+-            # model could never report a completion. The coordinator's own
+-            # custody record is what tells the two apart -- W133117 records
+-            # `integration_attempt_id` as an IMMUTABLE operand, so this
+-            # stage's attempt selects its own result and nothing else does.
+-            return self._reconciled_account(stage, account, document, fixed,
+-                                            operation_id, target_id)
++            # NOTHING HAS BEEN PUBLISHED FOR THIS ATTEMPT YET, and that is the
++            # DIRECT branch's own first-tick answer. A reconciled import also
++            # has no delivery, which is why the two are told apart above by the
++            # coordinator's own custody record rather than by this absence.
++            return account
+         profile = deployment.integration_profile
+         expected = {"canonical_target_id": target_id,
+                     "attempt_id": stage["attempt_id"], "integrator_participant": fixed["participant"],
+@@ -2452,8 +2466,7 @@
+                                   "runtime_id": row["runtime_id"], "execution_runtime": "quiescent"}
+         return account
+ 
+-    def _reconciled_account(self, stage, account, document, fixed,
+-                            operation_id, target_id):
++    def _reconciled_account(self, stage, row, result_id):
+         """The read-only completion account of a reconciled import.
+ 
+         NOTHING IS FABRICATED TO SATISFY THE DIRECT PATH'S READER, which is
+@@ -2471,17 +2484,47 @@
+         integration receipt on the derived proposal, and the released lease
+         whose fence excluded every other writer. A present `result_id` is not
+         completion authority by itself and this never treats it as one.
++
++        AND NO RUNTIME MEMBER IS BORROWED TO GET HERE, which is review
++        2026-09-10T21:10:42Z [P1]'s rule. This account is composed from the
++        coordinator's result, the Job's own stage/attempt/offer, the Authority
++        and the configured deployment -- never from a manager runtime row,
++        because this branch activates none. `row` is passed in exactly as the
++        manager holds it, INCLUDING absent, and the absence of a competing
++        runtime is proved below as its own positive fact rather than skipped.
+         """
+         deployment = self.deployment
+-        found = deployment.integration._connection.execute(
+-            "SELECT result_id FROM integration_results "
+-            "WHERE integration_attempt_id = ?",
+-            (stage["attempt_id"],)).fetchone()
+-        if found is None:
+-            return account
+-        held = reconciliation.result_of(deployment.integration,
+-                                        found["result_id"])
+-        document["state"] = "pending"
++        held = reconciliation.result_of(deployment.integration, result_id)
++        # THE JOB'S OWN STAGE, ATTEMPT AND OFFER, cross-bound exactly as the
++        # direct branch binds them.
++        claims = claimed_offers_for(deployment.control, stage["attempt_id"])
++        if len(claims) != 1 or claims[0]["offer_id"] != stage["offer_id"]:
++            _refuse("integration observation has no exact claimed offer",
++                    category="refused", code="operation-collision")
++        worker, work_id, target_id = _bound(deployment, stage)
++        # THE FIXED ASSIGNMENT IS THE RESULT'S OWN IMMUTABLE OPERAND. W133117
++        # stores the assignment this result was composed under and
++        # `_live_assignment` proved it live at that moment; it is read back here
++        # and cross-bound to the configured integrator and the bound Work --
++        # the same two comparisons the direct branch makes against the runtime
++        # row's copy. Nothing invents an assignment the manager never fixed.
++        fixed = held["integration_assignment"]
++        if fixed["participant"] != worker["participant"] or fixed["work_ref"] \
++                != {"authority_uuid": deployment.given["authority_uuid"],
++                    "work_id": work_id}:
++            _refuse("the reconciled result was composed under another fixed "
++                    "assignment", category="refused",
++                    code="operation-collision")
++        operation_id = "integration-pass:" + stage["attempt_id"]
++        document = {"schema": INTEGRATION_OBSERVATION_SCHEMA,
++                    **{name: stage[name] for name in
++                       ("stage_id", "episode", "attempt_id", "offer_id")},
++                    "assignment": fixed, "state": "unstarted",
++                    "completion": None}
++        account = {"document": document, "runtime": row,
++                   "operation_id": operation_id,
++                   "to_route": worker["review_route"], "committed": False,
++                   "model_free": True}
+         if held["state"] in ("held", "blocked"):
+             document["state"] = "held"
+             return account
+@@ -2492,9 +2535,6 @@
+         if held["canonical_target_id"] != target_id:
+             _refuse("the reconciled result belongs to another canonical target",
+                     category="refused", code="operation-collision")
+-        if held["integration_assignment"]["participant"] != fixed["participant"]:
+-            _refuse("the reconciled result was composed under another fixed "
+-                    "assignment", category="refused", code="operation-collision")
+         document["state"] = "answered"
+         authority = deployment.authority
+         with deployment.integration.snapshot():
+@@ -2542,12 +2582,16 @@
+             return account
+         if lease["ending"]["outcome"] != "integrated":
+             _refuse("reconciled completion lacks its released grant")
+-        # AND NO RUNTIME WAS EVER STARTED FOR THIS ATTEMPT, which is a fact to
+-        # PROVE rather than a gap to excuse: the exclusion that protected this
+-        # import is the coordinator's fence, and the manager's own row must
+-        # agree that nothing else ran under the attempt's identity.
+-        row = account["runtime"]
+-        if row["execution_runtime"] != _UNSTARTED or row["runtime_id"] is not None:
++        # AND NO RUNTIME EVER RAN UNDER THIS ATTEMPT'S IDENTITY, which is a
++        # fact to PROVE rather than a gap to excuse: the exclusion that
++        # protected this import is the coordinator's released fence above, and
++        # the manager must agree that nothing else ran. TWO SHAPES SATISFY THAT
++        # and both are honest. Either the manager holds no attempt at all --
++        # this branch never calls `port.prepare`, so nothing activated one,
++        # which is the ordinary case -- or it holds one that was activated and
++        # never started. What is refused is a row that names a runtime.
++        if row is not None and (row["execution_runtime"] != _UNSTARTED
++                                or row["runtime_id"] is not None):
+             _refuse("a reconciled import composes no runtime and this "
+                     "attempt's manager row names one",
+                     category="refused", code="operation-collision")
+@@ -2586,7 +2630,19 @@
+             _refuse("terminal integration handoff requires owned committed integration and lease release", category="refused", code="precondition")
+         if account["document"]["state"] == "completed":
+             return account["document"]
+-        if account["runtime"]["execution_runtime"] not in runtime.QUIESCENT_STATES:
++        # W133129 review 2026-09-10T21:10:42Z [P1]: THE SECOND HALF OF THE SAME
++        # MISMATCH. `QUIESCENT_STATES` is exactly `quiescent`/`destroyed` -- the
++        # two words a container that RAN and stopped earns -- while the
++        # model-free account proves the opposite fact, that no runtime ever ran.
++        # So even a `not-started` row could not pass here, and a branch with no
++        # row at all certainly could not. The direct branch's requirement is
++        # unchanged; the reconciled one is not skipped but answered by its own
++        # proof, which `_reconciled_account` has already established: the
++        # coordinator's released grant on the exact fence, and the absence of
++        # any runtime under this attempt's identity.
++        if not account.get("model_free") and \
++                account["runtime"]["execution_runtime"] \
++                not in runtime.QUIESCENT_STATES:
+             _refuse("terminal integration handoff requires proved worker exclusion", category="refused", code="precondition")
+         _authority_read("integration terminal pass", lambda: self.deployment.sessions["integrator"].pass_work({
+             "expect": account["document"]["assignment"], "operation_id": account["operation_id"],
+--- candidate139082/v12/python/tests/integration/test_driver.py
++++ candidate140229/v12/python/tests/integration/test_driver.py
+@@ -361,8 +361,15 @@
+     def call(self, *, lease=None, delivery=None, entry_state="queued",
+              outcome="running", witness="not-started", observed="waiting"):
+         self.entry["state"] = entry_state
++        # W133129: THE GRANT THE REAL COMPOSED ASSIGNMENT CARRIES. A settled
++        # integrated answer is composed under a granted lease, and the
++        # completion now re-proves that exact grant immediately before the
++        # separate Authority receipt -- so a double whose assignment names no
++        # lease or fence is modelling an assignment that could not exist.
+         answer = {"outcome": outcome, "entry": self.entry_id,
+-                  "assignment": {"owned": True}, "observed": None,
++                  "assignment": {"owned": True, "lease_id": "lease-1",
++                                 "fence": 1},
++                  "observed": None,
+                   "settlement": {"imported_paths": [], "verification": {}}}
+         accepted_receipts = (copy.deepcopy(self.accepted),
+                              copy.deepcopy(self.proposal), {"ok": True})
+@@ -420,7 +427,15 @@
+             lease=lease, delivery=object(), outcome="integrated")
+         integrate.assert_not_called()
+         publish.assert_called_once()
+-        live.assert_called_once()
++        # W133129, review 2026-09-10T17:55:49Z: TWO CUTPOINTS, NOT ONE. This
++        # asserted a single live-grant proof, which was true while the only one
++        # was the pre-write cutpoint. The Authority receipt is a SEPARATE effect
++        # -- written outside this store, unfenced by it and not undone by a
++        # later refusal -- so the grant is proved again immediately before it.
++        self.assertEqual(live.call_count, 2)
++        self.assertEqual(
++            [one.kwargs["lease_id"] for one in live.call_args_list][-1],
++            "lease-1")
+         self.port.run.assert_called_once()
+         settle.assert_called_once()
+         complete.assert_called_once()
+@@ -521,8 +536,15 @@
+         """
+         self.entry["state"] = entry_state
+         held = self.live() if lease is ... else lease
++        # W133129: THE GRANT THE REAL COMPOSED ASSIGNMENT CARRIES. A settled
++        # integrated answer is composed under a granted lease, and the
++        # completion now re-proves that exact grant immediately before the
++        # separate Authority receipt -- so a double whose assignment names no
++        # lease or fence is modelling an assignment that could not exist.
+         answer = {"outcome": outcome, "entry": self.entry_id,
+-                  "assignment": {"owned": True}, "observed": None,
++                  "assignment": {"owned": True, "lease_id": "lease-1",
++                                 "fence": 1},
++                  "observed": None,
+                   "settlement": {"imported_paths": [], "verification": {}}}
+         accepted_receipts = (copy.deepcopy(self.accepted),
+                              copy.deepcopy(self.proposal), {"ok": True})
+--- candidate139082/v12/python/tests/integration/test_execution.py
++++ candidate140229/v12/python/tests/integration/test_execution.py
+@@ -35,6 +35,7 @@
+ from baton_v12.integration import (admission, driver, execution, reconciliation,
+                                    runtime)
+ from baton_v12.integration.admission import admit_candidate
++from baton_v12.integration.queue import grant_lease
+ from baton_v12.integration.queue import (abandon_lease, block_target,
+                                          enqueue)
+ from baton_v12.source_profiles import GIT_PROFILE
+@@ -1389,6 +1390,125 @@
+         self.assertIn("imported by its own owner", refused.message)
+ 
+ 
++class TheDirectFinalizationRefusesBeforeItWritesAnything(ExecutionCase):
++    """W133129, owner return137905's amendment: the three refusals that protect
++    the dedicated Git target, each proved to write NOTHING.
++
++    THE PROFILE IS AN INJECTED CAPABILITY, exactly as the runtime port is, and
++    that is what makes "nothing was written" provable rather than asserted: this
++    one answers `revision` and RAISES from `held` and `advance`. A control that
++    let a real profile run could only check the target afterwards and could not
++    distinguish "refused before the write" from "wrote and then refused".
++    """
++
++    CANDIDATE = "d" * 40
++    ACCEPTED_OLD = "e" * 40
++    REFERENCE = "refs/heads/main"
++
++    class Profile:
++        """`revision` answers; every write raises. `asked` is the whole log."""
++
++        def __init__(self, revision):
++            self._revision = revision
++            self.asked = []
++
++        def revision(self, root, reference):
++            self.asked.append(("revision", root, reference))
++            return self._revision
++
++        def held(self, root, revision, what):
++            self.asked.append(("held", root, revision, what))
++            return {"head": revision, "tree": "f" * 40}
++
++        def advance(self, root, *, reference, imported, reviewed):
++            self.asked.append(("advance", root, reference, imported, reviewed))
++            raise AssertionError("the reference was advanced after a refusal")
++
++    def granted(self):
++        """The real live grant this finalization would hold."""
++        return grant_lease(self.coordinator, canonical_target_id=TARGET,
++                           entry_id="entry-1", lease_id="lease-1",
++                           integrator_participant=INTEGRATOR,
++                           attempt_id="attempt-1")["lease"]
++
++    def finalizing(self, profile, **changed):
++        operands = {"canonical_target_id": TARGET, "entry_id": "entry-1",
++                    "lease_id": "lease-1", "fence": self.granted()["fence"],
++                    "source": self.target, "candidate": self.CANDIDATE,
++                    "accepted_old": self.ACCEPTED_OLD,
++                    "target_root": self.target, "reference": self.REFERENCE}
++        operands.update(changed)
++
++        def runner(argv):
++            raise AssertionError(f"a Git command ran after a refusal: {argv}")
++
++        return execution.finalize_direct_target(
++            self.coordinator, profile, runner, **operands)
++
++    def test_a_target_that_moved_is_reconciled_and_never_overwritten(self):
++        """THE STALE TARGET. The reference holds neither the revision this
++        integration was accepted against nor its candidate, so a second writer
++        moved it -- and an accepted-against comparison is what makes that a
++        refusal instead of a new baseline."""
++        profile = self.Profile("9" * 40)
++        caught = self.refusal(self.finalizing, profile)
++        self.assertEqual(caught.category, "stale-assignment")
++        self.assertEqual(caught.code, "target")
++        self.assertIn("a target that moved is reconciled again rather than "
++                      "overwritten", caught.message)
++        # AND THE REVISION READ WAS THE ONLY THING IT DID.
++        self.assertEqual(profile.asked,
++                         [("revision", self.target, self.REFERENCE)])
++
++    def test_an_already_finalized_reference_is_held_and_never_adopted(self):
++        """ALREADY AT THE CANDIDATE. Nothing in this build records that THIS
++        operation advanced the reference, so an adoption cannot be proved --
++        and the conservative direction is to hold. The grant and the content
++        are proved first, so the sentence names a real holder."""
++        profile = self.Profile(self.CANDIDATE)
++        caught = self.refusal(self.finalizing, profile)
++        self.assertEqual(caught.category, "stale-assignment")
++        self.assertEqual(caught.code, "target")
++        self.assertIn("an unprovable finalization is held rather than adopted",
++                      caught.message)
++        self.assertIn(self.CANDIDATE, caught.message)
++        # THE CONTENT WAS PROVED AND THE REFERENCE WAS NOT TOUCHED.
++        self.assertEqual(
++            profile.asked,
++            [("revision", self.target, self.REFERENCE),
++             ("held", self.target, self.CANDIDATE, "the accepted candidate")])
++
++    def test_a_grant_that_ended_finalizes_nothing(self):
++        """THE ENDED GRANT. The live grant is re-read immediately before the
++        first byte moves, so a holder whose exclusion ended delivers no object
++        and advances no reference."""
++        fence = self.granted()["fence"]
++        block_target(self.coordinator, canonical_target_id=TARGET,
++                     entry_id="entry-1", lease_id="lease-1", fence=fence,
++                     reason="integrity", detail={"observed": "an operator"})
++        abandon_lease(self.coordinator, lease_id="lease-1", fence=fence,
++                      recovery={"attempt_id": "attempt-1",
++                                "evidence": "the operator ended it"})
++        profile = self.Profile(self.ACCEPTED_OLD)
++        caught = self.refusal(
++            execution.finalize_direct_target, self.coordinator, profile,
++            self._forbidden_runner(), canonical_target_id=TARGET,
++            entry_id="entry-1", lease_id="lease-1", fence=fence,
++            source=self.target, candidate=self.CANDIDATE,
++            accepted_old=self.ACCEPTED_OLD, target_root=self.target,
++            reference=self.REFERENCE)
++        self.assertIn("a grant is proved live at the moment it is used",
++                      caught.message)
++        # THE ACCEPTED-OLD COMPARISON PASSED AND THE WRITE STILL DID NOT HAPPEN.
++        self.assertEqual(profile.asked,
++                         [("revision", self.target, self.REFERENCE)])
++
++    def _forbidden_runner(self):
++        def runner(argv):
++            raise AssertionError(f"a Git command ran after a refusal: {argv}")
++        return runner
++
++
+ class ThePortIsInjectedAndTyped(ExecutionCase):
+ 
+     def test_a_port_without_its_one_verb_is_refused(self):
+--- candidate139082/v12/python/tests/job_manager/test_delegation.py
++++ candidate140229/v12/python/tests/job_manager/test_delegation.py
+@@ -451,12 +451,67 @@
+         self.assertEqual(held.code, "operation-collision")
+         self.assertIn("fixed assignment", held.message)
+ 
+-    def test_a_document_before_activation_fails_closed(self):
+-        runtime = {"attempt_id": "attempt-1", "runtime_id": None,
++    UNACTIVATED = {"attempt_id": "attempt-1", "runtime_id": None,
+                    "execution_runtime": "not-started", "assignment": None}
+-        held = self.refusing(runtime=runtime)
+-        self.assertEqual(held.category, "refused")
+-        self.assertIn("before activation", held.message)
++
++    def test_a_runtime_composed_completion_without_an_activation_refuses(self):
++        """W133129: THE FABRICATION THIS GUARD EXISTS TO STOP, kept exactly.
++
++        A completion that says a container ran this integration, over an
++        attempt this manager never activated, is a claim about a model that
++        never ran here -- and it fails closed whether the runtime record is
++        unactivated or absent altogether.
++        """
++        for runtime in (self.UNACTIVATED, None):
++            with self.subTest(runtime=runtime):
++                held = self.refusing(
++                    integration=self.document(state="completed",
++                                              completion=self.completion()),
++                    runtime=runtime)
++                self.assertEqual(held.category, "refused")
++                self.assertEqual(held.code, "precondition")
++                self.assertIn("model that never ran here", held.message)
++
++    def test_an_unactivated_attempt_that_names_a_runtime_refuses(self):
++        """And an unactivated record may not name a runtime identity either:
++        the two halves of "nothing ran here" have to agree."""
++        runtime = dict(self.UNACTIVATED, runtime_id="runtime-9")
++        held = self.refusing(integration=self.document(), runtime=runtime)
++        self.assertEqual(held.code, "operation-collision")
++        self.assertIn("runtime-9", held.message)
++
++    def test_the_model_free_completion_binds_without_an_activation(self):
++        """W133129: THE CASE THE OLD RULE MADE UNREACHABLE.
++
++        A reconciled import composes no model, so nothing activates a manager
++        attempt for it. Its completion says `absent` and names its
++        reconciliation result, which is the pair `_integration_completion`
++        binds from the other side -- and the assignment it names is the
++        coordinator's own immutable operand rather than a runtime's copy.
++        """
++        for runtime in (self.UNACTIVATED, None):
++            with self.subTest(runtime=runtime):
++                answered = self.bound(
++                    integration=self.document(
++                        state="completed",
++                        completion=self.reconciled_completion()),
++                    runtime=runtime)
++                held = answered["integration"]
++                self.assertEqual(held["state"], "completed")
++                self.assertEqual(held["completion"]["execution_runtime"],
++                                 "absent")
++                self.assertEqual(held["completion"]["result_id"], "result-1")
++                self.assertEqual(held["assignment"], self.ASSIGNMENT)
++
++    def test_no_completion_yet_claims_nothing_to_bind(self):
++        """Before there is any completion nothing is being claimed, so there is
++        nothing for this plane to bind -- and the assignment's provenance is
++        then the coordinator's record, which is the consumer's proof to make."""
++        answered = self.bound(integration=self.document(),
++                              runtime=self.UNACTIVATED)
++        self.assertEqual(answered["integration"]["assignment"],
++                         self.ASSIGNMENT)
++        self.assertIsNone(answered["integration"]["completion"])
+ 
+     def test_a_document_supplied_for_another_kind_refuses(self):
+         """[1]. The ids and the assignment bind this document to an attempt,
+--- candidate139082/v12/python/tests/tools/test_stage_execution.py
++++ candidate140229/v12/python/tests/tools/test_stage_execution.py
+@@ -7583,7 +7583,7 @@
+         # snapshot Job A left.
+         composed_result = reconciliation.result_of(deployment.integration,
+                                                    result_id)
+-        observed = composed_result["causal_observations"]["observations"]
++        observed = composed_result["causal_observations"]
+         argv = json.loads(self.shared_task_bytes)["verification"]
+         required = " ".join(argv)
+         self.assertEqual(argv, ["python3", "feature_check.py"])
+@@ -7679,7 +7679,7 @@
+         # THE SOURCE AND THE DERIVED COMPLETION ARE LINKED EXACTLY, and the
+         # reconciled branch's own absent runtime is named rather than borrowed.
+         attempt = self.attempted(held.job, "job-b/integration")
+-        completion = held.composed.observe(attempt)["completion"]
++        completion = self.completion_of(held, attempt)
+         self.assertEqual(completion["result_id"], result_id)
+         self.assertEqual(completion["source_proposal_id"],
+                          original["proposal_id"])
+@@ -7691,8 +7691,8 @@
+                          original["proposal_id"])
+         self.assertEqual(completion["entry_id"], settled["entry_id"])
+         # AND JOB A'S OWN COMPLETION IS THE OTHER BRANCH, on the same target.
+-        direct = held.composed.observe(
+-            self.attempted(held.job, "job-a/integration"))["completion"]
++        direct = self.completion_of(
++            held, self.attempted(held.job, "job-a/integration"))
+         self.assertIsNone(direct["result_id"])
+         self.assertEqual(direct["execution_runtime"], "quiescent")
+ 
+@@ -7743,6 +7743,22 @@
+         self.assertEqual(allocation["release_reason"],
+                          scheduler.INTEGRATION_COMPLETED)
+ 
++    def completion_of(self, held, attempt):
++        """One integration stage's completion, through its PUBLIC owner.
++
++        `StageExecution.observe` answers one member per surface and the
++        integration document is under `integration`; the completion is that
++        document's own member. Review 2026-09-10T21:10:42Z: both lookups here
++        indexed `completion` at the top level, which is not where the public
++        response carries it -- and the public response is not changed to suit
++        the test.
++        """
++        observed = held.composed.observe(attempt)
++        self.assertIsNotNone(observed["integration"],
++                            f"no integration observation for "
++                            f"{attempt['stage_id']}")
++        return observed["integration"]["completion"]
++
+     def entry_at(self, place, revision, named):
+         """One path's exact tree entry -- its MODE and its object."""
+         listed = self.vcs_in(place, "ls-tree", revision, "--", named)
+@@ -7755,6 +7771,74 @@
+         return _subprocess.run(["git", "-C", place] + list(arguments),
+                                capture_output=True, text=True,
+                                timeout=30).stdout.strip()
++
++    def refused_rows(self, report, stage_id):
++        """Every row of one tick's report that REFUSED or deferred a stage."""
++        held = []
++        for key in sorted(report):
++            if not isinstance(report[key], list):
++                continue
++            for one in report[key]:
++                if not isinstance(one, dict) or one.get("stage_id") != stage_id:
++                    continue
++                if one.get("outcome") in ("deferred", "refused"):
++                    held.append(one)
++        return held
++
++    def objects_at(self, place):
++        """What a repository HOLDS -- every object it can name, and its own
++        count. A fetch into it changes both."""
++        return (sorted(self.vcs_in(place, "cat-file", "--batch-all-objects",
++                                   "--batch-check=%(objectname)").split()),
++                self.vcs_in(place, "count-objects", "-v"))
++
++    def test_a_workspace_aliasing_the_target_fetches_and_writes_nothing(self):
++        """W133129: THE BRANCH-LEVEL no-fetch/no-write CONTROL.
++
++        Reviews 2026-09-10T17:55:49Z and 21:10:42Z: the sibling case only
++        compares the profile's identity answers, which proves the READER and
++        not the guard. This drives the actual reconciled branch with the
++        integration workspace configured as a SYMLINK ALIAS of the dedicated
++        target -- the exact counterexample the guard exists for, because the
++        candidate fetch is this branch's first write and `_place` only stats
++        the path it was named by.
++
++        WHAT IS MEASURED IS THE TARGET'S OWN CONTENT. A fetch into the alias is
++        a fetch into the target, so every object the target can name and its
++        own object count are compared across the refusal, together with the
++        configured reference. Nothing is written and nothing is fetched.
++        """
++        held = self.integrating()
++        self.drive_job(held.job, held.composed, "job-a", "integration",
++                       "completed", ticks=4)
++        deployment = self.deployment_of(held.composed)
++        # THE ALIAS: another name for the repository that is the target.
++        alias = os.path.join(self.root, "workspace-that-is-the-target")
++        if not os.path.exists(alias):
++            os.symlink(self.source, alias)
++        deployment.given["integration_workspace"] = alias
++        before = self.objects_at(self.source)
++        reference = self.vcs("rev-parse", "refs/heads/main").strip()
++
++        refused = []
++        for _ in range(8):
++            refused = self.refused_rows(self.tick(held), "job-b/integration")
++            if refused:
++                break
++        self.assertTrue(refused, "the aliased workspace was never refused")
++        [detail] = [one["detail"] for one in refused]
++        self.assertEqual(detail["category"], "refused")
++        self.assertEqual(detail["code"], "capability")
++        self.assertIn("is the same repository as", detail["message"])
++        self.assertIn("nothing is fetched into shared storage",
++                      detail["message"])
++        # AND THE TARGET IS BYTE-FOR-BYTE WHERE IT WAS.
++        self.assertEqual(self.objects_at(self.source), before)
++        self.assertEqual(self.vcs("rev-parse", "refs/heads/main").strip(),
++                         reference)
++        # NO RESULT WAS COMPOSED EITHER: the guard runs before `prepare_result`.
++        self.assertIsNone(deployment.integration._connection.execute(
++            "SELECT result_id FROM integration_results").fetchone())
+ 
+     def test_a_workspace_that_is_the_target_is_the_same_repository(self):
+         """The alias no-write control for the pre-write isolation guard: the

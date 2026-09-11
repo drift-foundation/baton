@@ -1,0 +1,18 @@
+{
+  "src/baton_v12/job_manager/scheduler.py": {
+    "sha256": "aec56f1fe1d78bd50798403b46648c63c6c6231678971399da339246a7901194",
+    "mode": "0o664"
+  },
+  "tests/job_manager/test_scheduling.py": {
+    "sha256": "79ba448c1f21a6c92bc9230291b5bfd04273024280b00ea197d1fa700066c103",
+    "mode": "0o664"
+  },
+  "tests/tools/test_stage_execution.py": {
+    "sha256": "86610e63bb64260502a1cb1a2bb2b77aa41b9a3efee338364cb46c78dedad737",
+    "mode": "0o664"
+  },
+  "tools/stage_execution.py": {
+    "sha256": "2b1a4324443b39d92e8aadee9146e6216321525eace81ff9a4ea00fe3a77a3b0",
+    "mode": "0o664"
+  }
+}

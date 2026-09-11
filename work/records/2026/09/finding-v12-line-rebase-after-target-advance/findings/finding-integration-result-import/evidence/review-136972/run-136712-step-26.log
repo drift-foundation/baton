@@ -1,0 +1,93 @@
+### label: R3-diagnostic-probe
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/diag_r3.py"]
+### exit: 0
+### elapsed_seconds: 0.310868
+### STDOUT
+journal before tick:
+   target.activate committed target.activate:target:mainline:sha256:5aeb470cafbc0d255ac8d63821314f9
+   result.prepare committed result.prepare:result-26f9f4d724881bb17200ca0130c4f2e706e09a239231334d
+   result.prepared committed result.prepared:result-26f9f4d724881bb17200ca0130c4f2e706e09a239231334
+   result.observed committed result.observed:result-26f9f4d724881bb17200ca0130c4f2e706e09a239231334
+   result.publish committed result.publish:result-26f9f4d724881bb17200ca0130c4f2e706e09a239231334d
+   result.evidence committed result.evidence:result-26f9f4d724881bb17200ca0130c4f2e706e09a239231334
+recovering holder: {'lease_id': 'integration-driver.lease:51faba292232cd5354e2dfbb9db1471fee85bc513a770225bd3463c91775f281', 'entry_id': 'integration-driver.entry:ea6c0168ca09f7dd6a5de4ba1c8a9d8938801604418ab6d0aa442501911ffddf', 'fence': 1}
+REFUSED: ContractRefusal operation 'target.block:target:mainline:sha256:7e8ea31e69763998619e9c9… is already recorded with a different kind or signature; reusing an id with different operands changes nothing
+
+### STDERR
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/execution.py", line 828, in import_authorized_result
+    executed = _post_import_execution(verifier, basis)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/execution.py", line 678, in _post_import_execution
+    getattr(verifier, POST_IMPORT_VERB)(dict(basis)),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/tmp/diag_r3.py", line 38, in verify_imported
+    abandon_lease(case.store, lease_id=lease["lease_id"],
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  fence=lease["fence"],
+                  ^^^^^^^^^^^^^^^^^^^^^
+                  recovery={"observed": "the holder is gone",
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "by": "baton.operator"})
+                            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 2172, in abandon_lease
+    account = _recovery(recovery, "a lease recovery account")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 163, in _recovery
+    account = boundaries.document(value, what, required=RECOVERY_MEMBERS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a lease recovery account needs attempt_id, evidence
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/diag_r3.py", line 45, in <module>
+    case.tick(held, verifier=V(case))
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_execution.py", line 1060, in tick
+    return driver.admit_authorized_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.profile, runner, self.manager, self.jobs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.authority, self.session, verifier or self.verifier,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **operands)
+        ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1301, in admit_authorized_result
+    answer = execution.import_authorized_result(
+        store, profile, runner, manager, jobs, authority, verifier,
+        canonical_target_id=canonical_target_id, entry_id=entry_id,
+        lease_id=lease_id, integrator_participant=participant,
+        attempt_id=attempt_id, result_id=result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/execution.py", line 839, in import_authorized_result
+    block_target(store, canonical_target_id=canonical_target_id,
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 entry_id=entry_id, lease_id=lease_id, fence=fence,
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 reason=held_account["reason"],
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 detail=held_account["detail"])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 2144, in block_target
+    return _transact(store, operation_id, "target.block", signature, perform)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 915, in _transact
+    return store.transact(operation_id, kind, signature, action,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_proved)
+                          ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 555, in transact
+    found, value = self.replay(operation_id, signature, kind=kind,
+                   ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               witness=witness)
+                               ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 667, in replay
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"different operands changes nothing")
+baton_v12.contracts.errors.ContractRefusal: operation 'target.block:target:mainline:sha256:7e8ea31e69763998619e9c9… is already recorded with a different kind or signature; reusing an id with different operands changes nothing

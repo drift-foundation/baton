@@ -1,0 +1,13 @@
+### label: direct-path-and-controls-after-finalization
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_jobs_published_proposal_survives_the_advance", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_workspace_that_is_the_target_is_the_same_repository", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"]
+### exit: 0
+### elapsed_seconds: 4.348399
+### STDOUT
+
+### STDERR
+..............
+----------------------------------------------------------------------
+Ran 14 tests in 4.164s
+
+OK

@@ -1,0 +1,32 @@
+### label: witness-first-run
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET"]
+### exit: 1
+### elapsed_seconds: 0.228380
+### STDOUT
+
+### STDERR
+E
+======================================================================
+ERROR: test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET)
+W131409's WHOLE POINT, driven through the ordinary configured tick.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7467, in test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7556, in integrating
+    held = self.both_accepted()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7168, in both_accepted
+    held = self.coding()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6842, in coding
+    **self.traversing(**members))
+      ~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6672, in traversing
+    self.assertEqual(_run(["git", "-C", workspace, "init", "-q",
+                     ^^^^
+NameError: name '_run' is not defined
+
+----------------------------------------------------------------------
+Ran 1 test in 0.029s
+
+FAILED (errors=1)

@@ -1,0 +1,23 @@
+### label: existing-schema-and-admission-controls-unchanged-paths
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance", "tests.integration.test_admission.TheSourceAccountIsEligibilityOnly", "tests.integration.test_admission.TheDirectImportAccountKeepsItsExactTarget"]
+### exit: 1
+### elapsed_seconds: 0.171773
+### STDOUT
+
+### STDERR
+........EE
+======================================================================
+ERROR: TheSourceAccountIsEligibilityOnly (unittest.loader._FailedTest.TheSourceAccountIsEligibilityOnly)
+----------------------------------------------------------------------
+AttributeError: module 'tests.integration.test_admission' has no attribute 'TheSourceAccountIsEligibilityOnly'
+
+======================================================================
+ERROR: TheDirectImportAccountKeepsItsExactTarget (unittest.loader._FailedTest.TheDirectImportAccountKeepsItsExactTarget)
+----------------------------------------------------------------------
+AttributeError: module 'tests.integration.test_admission' has no attribute 'TheDirectImportAccountKeepsItsExactTarget'
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.009s
+
+FAILED (errors=2)

@@ -1,0 +1,98 @@
+{
+  "work": "W130216",
+  "claim": 130258,
+  "parent": "W119405",
+  "authority": "owner M130205 through ../../ALLOCATION-2026-09-09.md; this child's FINDING and PLAN; standing W71830 test authority",
+  "reviewed_input_revalidated": {
+    "tools/stage_execution.py": "6c9007ba241fce41f63c3bae1d93dd37b0ee5bf351b48c9ba1fe843e7ef38550",
+    "tests/tools/test_stage_execution.py": "714a49b1ccf82e998b903131231beb4d18c02f8cbe2a5c52dbb54bd0fed3487a",
+    "both": "byte-identical to evidence/review-130139/candidate/, checked before any edit"
+  },
+  "paths": {
+    "tools/stage_execution.py": "c4d6231838137e5fa66ee6768ab36d0bbcc112bb4327160d7f166e53c1127ba3",
+    "tests/tools/test_stage_execution.py": "26ada3518b406937e492a4a8da9e63c351ac40a3e53bb3192ad6778ab12b4012",
+    "mode": "0664 both"
+  },
+  "p1_every_role_validated": {
+    "was": "`_job_eligibility` derived compatibility and exclusions only when stage.kind == 'implementation'. Review and integration got an empty exclusion list after one Work comparison, so job-b/review on Work B reserved the review worker whose manifest names Work A; `single_worker` refused it correctly but only AFTER the reservation, leaving RESERVED capacity and no admit receipt.",
+    "now": "`_job_workers(deployment, stage, job)` derives the servable workers for EVERY role by one rule, and `_disagreements` reads `single_worker._matches`'s own six operands from the worker's held deployment rather than restating them: launch role, the manifest's Work, the workload profile name and digest, the manifest digest against the Job's submitted input, and the policy digest. `_job_eligibility` excludes every configured worker outside that set, so only a Job-compatible worker is reservable. A stage with NO compatible worker is refused before reserve, naming each lane worker's disagreements.",
+    "still_bound_by_identity": "the implementation kind is additionally held to the binding's `source_worker_id`: another worker agreeing on every digest is still some other Job's source",
+    "integration_scoped_to_the_configured_actor": "the integration kind is additionally held to the deployment's own `integration_profile.integrator_participant`, because the profile, the delivery and all four receipt sessions belong to that actor. This constrains eligibility to an actor already configured; it grants no second integrator and no new profile or driver capability."
+  },
+  "p1_reconstruction": {
+    "was": "`_allocation` consults the independence callback ONLY when it creates a reservation, so an allocation recorded before this deployment bound the Job was used on every later tick with nothing re-deriving whether that worker still serves it.",
+    "now": "`StageExecution.admit` is spelled here -- it was reaching the pooled surface by delegation -- and revalidates a RECORDED allocation's worker against the same `_job_workers` rule before delegating. It reserves nothing, releases nothing and adds no scheduler operation; it refuses to admit against an allocation that cannot serve the Job.",
+    "signature": "admit(stage, job=None); the manager calls admit(stage, job) and the pooled surface is called with exactly what this was handed"
+  },
+  "coherent_fixture": {
+    "what_was_wrong": "the predecessor's fixture changed only source and participant and left Job B's producer, reviewer and integrator on Work A, so the per-Job cases were asserted over operands that were never distinct",
+    "now": [
+      "`manifest_for(work_id)` derives a real held manifest for a Work -- the work_ref changed and the digest recomputed over the whole document",
+      "`role_worker(role, work_id, worker_id, **members)` composes one configured worker coherent with the Job it serves",
+      "`second_submission()` submits BOTH Jobs in ONE submission, each against its own input digest and Work",
+      "five configured workers: Job A's three, plus implementation-worker-b (its own real source, base and Work) and review-worker-b"
+    ],
+    "shared": "built on EachJobBindsItsOwnDeploymentAndLine so the serial successors reuse it rather than composing a third fixture"
+  },
+  "reported_boundary_not_worked_around": {
+    "what": "a second Job's INTEGRATION stage has no worker that can serve it, and this cut refuses it before reserving anything.",
+    "why_measured": "a second integration worker under the SAME actor is refused by `scheduler.own_pool` -- one participant per worker, because two entries sharing one are not distinct capacity (observed directly while building the fixture, not asserted from reading). A second ACTOR would contradict the single configured `integrator_participant` and is the multi-integrator provider this Work may not imply.",
+    "what_this_cut_owes_and_gives": "the refusal happens before allocation and names why, instead of taking the first Job's integrator and discovering it at the delivery",
+    "test": "test_the_second_jobs_integration_stage_is_a_reported_boundary"
+  },
+  "test_delta_under_standing_authority": [
+    {
+      "case": "EachJobBindsItsOwnDeploymentAndLine.two_jobs / setUp",
+      "change": "Job B's producer gains its own derived manifest; review-worker-b added; helpers manifest_for/role_worker/second_submission added",
+      "reason": "the coherent per-Job fixture this FINDING requires. The 12 inherited cases are unchanged and all still pass."
+    },
+    {
+      "case": "added EveryJobRoleIsValidatedBeforeAllocation, 6 cases",
+      "reason": "this cut's own proof, measured on public allocation rows and the operations journal after ordinary sweeps"
+    }
+  ],
+  "what_is_measured": {
+    "positives": [
+      "job-a/implementation -> implementation-worker and job-b/implementation -> implementation-worker-b, after ordinary ticks, read from stage_allocations",
+      "job-b/review -> review-worker-b and NOT review-worker, though both are eligible for the same lane and kind"
+    ],
+    "negatives": [
+      "a job-b review worker left on Work A reaches NO allocation and NO admit operation in the journal",
+      "an unknown Job is refused before any line is made",
+      "a recorded allocation moved to a worker that cannot serve the Job is refused at admit"
+    ],
+    "fault_capacity": "with job-b's review worker incoherent, both Jobs' implementation stages still reach their own workers; the incompatible stage consumes nothing"
+  },
+  "runs": [
+    {
+      "run": "EveryJobRoleIsValidatedBeforeAllocation, seven timed iterations while the six-worker fixture, the pool's one-participant rule, the journal table, the allocation FK and the reconstruction operand were settled",
+      "wall": "0.596 + 0.687 + 0.719 + 1.069 + 0.950 + 0.964 + 0.956 = 5.941s"
+    },
+    {
+      "run": "one single-case iteration",
+      "wall": "0.097s"
+    },
+    {
+      "run": "TWO UNTIMED class iterations, run to list failing case names",
+      "wall": "not measured; the iterations bracketing them measured 0.950s and 0.964s, so about 1.9s. RECORDED AS UNCERTAIN rather than estimated away."
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution",
+      "wall": "22.714s (22.467s inside unittest)",
+      "log": "evidence/run-130258-module.log",
+      "result": "203 tests, OK -- 185 accepted plus this cut's 18"
+    }
+  ],
+  "budget": {
+    "incremental_declared": 30.0,
+    "timed": 28.752,
+    "untimed": "two class iterations, about 1.9s, not measured",
+    "spent": "about 30.65s wall",
+    "over_by": "about 0.65s",
+    "campaign": "charged to the owner-approved 400s W119405 cap; prior 233s planning charge retains its own untimed-run uncertainty and is NOT reset",
+    "carry_for_the_next_child": "about 263.65s of 400s consumed, with the prior 233s figure's uncertainty unchanged",
+    "statement": "I went about 0.65s past the 30s increment. The overrun is the single full-module regression run, which is what proves the source change did not disturb the 185 accepted cases. I am reporting it rather than rounding it down or resetting."
+  },
+  "not_run": "no neighbour suites, no whole-suite pass, no live model and no OCI demonstration",
+  "not_claimed": "no lifecycle acceptance. Actual endings, two-Job traversal, correction, reconstruction of a real correction round and read-only observation remain the serial successors' scope; W119405 still needs their joined evidence."
+}

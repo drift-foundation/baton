@@ -1,0 +1,77 @@
+{
+  "pinned_harness": "from feature import total\n\nanswered = total([1, 2, 3])\nassert answered == 6, f'total answered {answered}'\nprint('the regression harness passed')\n",
+  "submission_base": "2ce7706a6a71b97129f5954a038e236d7afae910",
+  "target_after_the_first_job": "d96e2cd8073e8799e570bfaaba6e204e997fdc13",
+  "result": {
+    "result_id": "result-6a0d76d7e0a221f70cbd4a525b941a3bea77e7b42a98874f9ce795ea75c49ac4",
+    "state": "prepared",
+    "target_revision": "d96e2cd8073e8799e570bfaaba6e204e997fdc13",
+    "prepared_head": "e5450186d1fb1ec327a2dd8404807e0ac738e563",
+    "prepared_tree": "470da0d34c0b0215515516f89440f9f1774625fe",
+    "content": {
+      "feature.py": "100644",
+      "harness.py": "100644",
+      "other.py": "100644",
+      "scale.py": "100644"
+    },
+    "content_digest": "sha256:2d56bfd91d6ab750c8fd8a06f0c45ca782cfb49a157f3f6e1cb55707c4b6c573"
+  },
+  "observations": {
+    "base": {
+      "command": [
+        "/usr/bin/python3",
+        "harness.py"
+      ],
+      "harness_digest": "sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c",
+      "harness_added": true,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": [
+        "AssertionError: total answered 5"
+      ]
+    },
+    "isolated": {
+      "command": [
+        "/usr/bin/python3",
+        "harness.py"
+      ],
+      "harness_digest": "sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c",
+      "harness_added": false,
+      "returncode": 0,
+      "stdout": "the regression harness passed",
+      "stderr": []
+    },
+    "combined": {
+      "command": [
+        "/usr/bin/python3",
+        "harness.py"
+      ],
+      "harness_digest": "sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c",
+      "harness_added": false,
+      "returncode": 0,
+      "stdout": "the regression harness passed",
+      "stderr": []
+    }
+  },
+  "combined_fail": {
+    "target_after_the_third_job": "f9924b835da696247813da5b3bb06dde22c8d287",
+    "result_id": "result-fc908c1b0c4d83ea35fda67eb4a91cbe3286446892066b6e445dd9d25d6ff52d",
+    "state": "prepared",
+    "prepared_head": "ddd838feec2139f012bfd75ddb5e9a78f3be8508",
+    "observation": {
+      "command": [
+        "/usr/bin/python3",
+        "harness.py"
+      ],
+      "harness_digest": "sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c",
+      "harness_added": false,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": [
+        "AssertionError: total answered 12"
+      ]
+    }
+  }
+}
+
+CAUSAL: OK

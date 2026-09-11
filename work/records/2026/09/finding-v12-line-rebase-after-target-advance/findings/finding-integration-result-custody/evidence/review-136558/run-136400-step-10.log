@@ -1,0 +1,13 @@
+### label: existing-admission-and-schema-controls-on-unchanged-paths
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_admission.AcceptedAccount", "tests.integration.test_admission.RefusalBeforeMutation", "tests.integration.test_admission.SourceEligibilityIsNotResultFreshness", "tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance"]
+### exit: 0
+### elapsed_seconds: 0.205080
+### STDOUT
+
+### STDERR
+...........................
+----------------------------------------------------------------------
+Ran 27 tests in 0.045s
+
+OK

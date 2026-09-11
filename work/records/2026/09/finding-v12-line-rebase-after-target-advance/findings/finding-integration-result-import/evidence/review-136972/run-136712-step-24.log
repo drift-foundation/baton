@@ -1,0 +1,25 @@
+### label: R3-correction-focused-group
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"]
+### exit: 1
+### elapsed_seconds: 1.687995
+### STDOUT
+
+### STDERR
+...F.......
+======================================================================
+FAIL: test_a_grant_RECOVERED_WHILE_THE_TESTS_RAN_advances_nothing (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_grant_RECOVERED_WHILE_THE_TESTS_RAN_advances_nothing)
+REVIEW 2026-09-10T14:33:43Z [R3], at the boundary the verification
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_execution.py", line 1343, in test_a_grant_RECOVERED_WHILE_THE_TESTS_RAN_advances_nothing
+    self.assertIn("a grant is proved live at the moment it is used",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  caught.exception.message)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a grant is proved live at the moment it is used' not found in "operation 'target.block:target:mainline:sha256:f157e02e52f0afbdfc9aa3e… is already recorded with a different kind or signature; reusing an id with different operands changes nothing"
+
+----------------------------------------------------------------------
+Ran 11 tests in 1.512s
+
+FAILED (failures=1)

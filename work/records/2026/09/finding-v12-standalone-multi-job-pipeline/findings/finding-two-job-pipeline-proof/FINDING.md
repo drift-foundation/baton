@@ -317,3 +317,13 @@ review-2026-09-08T13-31-47Z.md; exact observations are retained in
 evidence/placement-119493-ledger.json. Lightweight W115599 placement is complete;
 actual successor implementation and independent joined acceptance are still
 required before freeze. No product acceptance or prerequisite was waived.
+
+## 2026-09-11T00:40:24Z — owner acceptance applied
+
+Owner M140286/M140288 in T133129 and baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/FINDING.md / PLAN.md at 2026-09-11T00:30:54Z govern. This explicitly supersedes older mandatory, essential and no-waiver wording below ONLY where it makes stronger robustness/resilience demonstrations prerequisites. Ordinary correctness, authorization, honest evidence, existing source scopes, cumulative budgets and file ownership remain. Deferred claims are unproved, never passed. No new planning Work or approval round is required.
+
+Freeze and execute the ordinary standalone A/B feasibility run through the existing handoff after accepted provider composition. Name exact candidate/base, A/B task contracts, actual runtime/provider profiles, commands, target/artifact roots and existing resource/time limits. Submit A and B through normal coordination and collect actual review/test authorization for the original submissions and separately merged result, both landed changes, original private bases and honest terminal evidence. Use required public status readers. No demo-only bypass, manual lifecycle/target repair, synthetic receipt/runtime/completion, or fixture-provider substitution.
+
+Explicitly superseded: the older three-Job freeze, submit-all-three, deliberate fault-C containment, injected failure, companion-refusal and crash/restart/adversarial/race prerequisites. Do not add fault Job C to the immediate run or wait for its acceptance. Deliberate correction/failure exercises whose sole purpose is robustness are likewise deferred; normal review-requested correction, if it occurs, must still execute legitimately.
+
+Indexed deferral C-1: real fault-Job containment and fault-capacity behavior, plus companion negative/refusal scenarios, remain unproved as standalone guarantees. Revisit after successful A/B feasibility when the owner schedules robustness/resilience; use retained component evidence only for its stated boundary. No new planning Work or approval round solely to narrow to A/B. A concrete defect blocking/falsifying ordinary A/B is returned to its owner and fixed, never patched around in the demo. Existing source scope and run budgets remain; actual standalone evidence has not yet been produced by R.

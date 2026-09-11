@@ -1,0 +1,722 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codex",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": [
+    {
+      "actor": "pc.plan",
+      "kind": "runtime_end",
+      "payload": {
+        "cause": null,
+        "detail": "codex dispatcher stopped",
+        "from_state": "idle",
+        "incarnation": "ccef3cfa-134f-470b-8ff1-3b73357d8cb1",
+        "participant": "pc.plan",
+        "state": "offline"
+      },
+      "references": [],
+      "seq": 133610,
+      "ts": "2026-09-10T04:41:40Z"
+    },
+    {
+      "actor": "pc.tuner",
+      "kind": "runtime_end",
+      "payload": {
+        "cause": null,
+        "detail": "codex dispatcher stopped",
+        "from_state": "idle",
+        "incarnation": "43bde7e9-c797-4178-a7d3-ec88cedbde8e",
+        "participant": "pc.tuner",
+        "state": "offline"
+      },
+      "references": [],
+      "seq": 133611,
+      "ts": "2026-09-10T04:41:40Z"
+    },
+    {
+      "actor": "baton.codex",
+      "kind": "runtime_end",
+      "payload": {
+        "cause": null,
+        "detail": "codex dispatcher stopped",
+        "from_state": "idle",
+        "incarnation": "f3737ad0-fe36-48c9-9a7f-d9c46d27dd94",
+        "participant": "baton.codex",
+        "state": "offline"
+      },
+      "references": [],
+      "seq": 133612,
+      "ts": "2026-09-10T04:41:40Z"
+    },
+    {
+      "actor": "baton.prompt",
+      "kind": "runtime_end",
+      "payload": {
+        "cause": null,
+        "detail": "codex dispatcher stopped",
+        "from_state": "idle",
+        "incarnation": "fb9a3a4d-3d74-4365-b6a6-5aa56a678d77",
+        "participant": "baton.prompt",
+        "state": "offline"
+      },
+      "references": [],
+      "seq": 133613,
+      "ts": "2026-09-10T04:41:40Z"
+    },
+    {
+      "actor": "baton.prompt",
+      "kind": "runtime_start",
+      "payload": {
+        "action_owner": "baton.slaw",
+        "adapter": "codex",
+        "expires_at": "2026-09-10T04:47:08Z",
+        "incarnation": "4035deaa-807c-4c0c-935e-43198e66f370",
+        "model": null,
+        "participant": "baton.prompt",
+        "provider": null,
+        "rationale": "codex adapter launched; this incarnation replaces any previous lease for this participant",
+        "session": "01a0899f-1ab8-7c42-bcfc-844884289819",
+        "state": "idle",
+        "superseded": "fb9a3a4d-3d74-4365-b6a6-5aa56a678d77"
+      },
+      "references": [],
+      "seq": 133614,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "pc.plan",
+      "kind": "runtime_start",
+      "payload": {
+        "action_owner": "pc.slaw",
+        "adapter": "codex",
+        "expires_at": "2026-09-10T04:47:08Z",
+        "incarnation": "8cd67dfb-254d-4fc4-aba5-b2e446d4449a",
+        "model": null,
+        "participant": "pc.plan",
+        "provider": null,
+        "rationale": "codex adapter launched; this incarnation replaces any previous lease for this participant",
+        "session": "01a0899f-65c6-7fd3-ac73-5c653e63b2fd",
+        "state": "idle",
+        "superseded": "ccef3cfa-134f-470b-8ff1-3b73357d8cb1"
+      },
+      "references": [],
+      "seq": 133615,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "pc.tuner",
+      "kind": "runtime_start",
+      "payload": {
+        "action_owner": "pc.slaw",
+        "adapter": "codex",
+        "expires_at": "2026-09-10T04:47:08Z",
+        "incarnation": "1a0e2ee4-666a-43d2-bd24-37640d0b23a4",
+        "model": null,
+        "participant": "pc.tuner",
+        "provider": null,
+        "rationale": "codex adapter launched; this incarnation replaces any previous lease for this participant",
+        "session": "01a0899f-7599-7fb0-af80-06ee766c1cac",
+        "state": "idle",
+        "superseded": "43bde7e9-c797-4178-a7d3-ec88cedbde8e"
+      },
+      "references": [],
+      "seq": 133616,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "pc.prompt",
+      "kind": "runtime_start",
+      "payload": {
+        "action_owner": "pc.slaw",
+        "adapter": "codex",
+        "expires_at": "2026-09-10T04:47:08Z",
+        "incarnation": "6871d297-28ae-4ab2-8417-e1613141721c",
+        "model": null,
+        "participant": "pc.prompt",
+        "provider": null,
+        "rationale": "codex adapter launched; this incarnation replaces any previous lease for this participant",
+        "session": "01a0899f-57b6-76a2-be30-3bb80015daf9",
+        "state": "idle",
+        "superseded": "9a1cfb59-21c0-4e1b-845e-6b11b08e5519"
+      },
+      "references": [],
+      "seq": 133617,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "baton.tuner",
+      "kind": "runtime_start",
+      "payload": {
+        "action_owner": "baton.slaw",
+        "adapter": "codex",
+        "expires_at": "2026-09-10T04:47:08Z",
+        "incarnation": "774859e0-31e5-4d1c-8479-3dcd242c0c99",
+        "model": null,
+        "participant": "baton.tuner",
+        "provider": null,
+        "rationale": "codex adapter launched; this incarnation replaces any previous lease for this participant",
+        "session": "01a0899f-3a43-7473-96db-5ef8b39db42d",
+        "state": "idle",
+        "superseded": "e9dbd34f-4138-442c-8a44-4af08a873c7f"
+      },
+      "references": [],
+      "seq": 133618,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "baton.merge",
+      "kind": "runtime_start",
+      "payload": {
+        "action_owner": "baton.slaw",
+        "adapter": "codex",
+        "expires_at": "2026-09-10T04:47:08Z",
+        "incarnation": "bdff3106-d27a-4c1f-8822-b6ff43fc7db1",
+        "model": null,
+        "participant": "baton.merge",
+        "provider": null,
+        "rationale": "codex adapter launched; this incarnation replaces any previous lease for this participant",
+        "session": "01a0899f-4aeb-7571-b633-8854957ab3d4",
+        "state": "idle",
+        "superseded": "56471c2a-8a30-43d3-b963-54043d33f9d8"
+      },
+      "references": [],
+      "seq": 133619,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "baton.codex",
+      "kind": "runtime_start",
+      "payload": {
+        "action_owner": "baton.slaw",
+        "adapter": "codex",
+        "expires_at": "2026-09-10T04:47:08Z",
+        "incarnation": "56b180a4-94a7-4e27-9d20-966592a5c65b",
+        "model": null,
+        "participant": "baton.codex",
+        "provider": null,
+        "rationale": "codex adapter launched; this incarnation replaces any previous lease for this participant",
+        "session": "01a0899f-2ced-7101-831e-342d44f3ac69",
+        "state": "idle",
+        "superseded": "f3737ad0-fe36-48c9-9a7f-d9c46d27dd94"
+      },
+      "references": [],
+      "seq": 133620,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "pc.tuner",
+      "kind": "runtime_facts",
+      "payload": {
+        "answered": false,
+        "answers": null,
+        "facts": {
+          "dispatcher": "local/pc-tuner",
+          "readiness": "/home/sl/baton-v11.14aecfb/run/codex-events.sock",
+          "service": "codex-event-bridge pid 3750953"
+        },
+        "incarnation": "1a0e2ee4-666a-43d2-bd24-37640d0b23a4",
+        "observed_at": "2026-09-10T04:42:08Z",
+        "participant": "pc.tuner",
+        "source": "configured"
+      },
+      "references": [],
+      "seq": 133621,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "pc.plan",
+      "kind": "runtime_facts",
+      "payload": {
+        "answered": false,
+        "answers": null,
+        "facts": {
+          "dispatcher": "local/pc-plan",
+          "readiness": "/home/sl/baton-v11.14aecfb/run/codex-events.sock",
+          "service": "codex-event-bridge pid 3750953"
+        },
+        "incarnation": "8cd67dfb-254d-4fc4-aba5-b2e446d4449a",
+        "observed_at": "2026-09-10T04:42:08Z",
+        "participant": "pc.plan",
+        "source": "configured"
+      },
+      "references": [],
+      "seq": 133622,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "pc.prompt",
+      "kind": "runtime_facts",
+      "payload": {
+        "answered": false,
+        "answers": null,
+        "facts": {
+          "dispatcher": "local/pc-prompt",
+          "readiness": "/home/sl/baton-v11.14aecfb/run/codex-events.sock",
+          "service": "codex-event-bridge pid 3750953"
+        },
+        "incarnation": "6871d297-28ae-4ab2-8417-e1613141721c",
+        "observed_at": "2026-09-10T04:42:08Z",
+        "participant": "pc.prompt",
+        "source": "configured"
+      },
+      "references": [],
+      "seq": 133623,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "baton.prompt",
+      "kind": "runtime_facts",
+      "payload": {
+        "answered": false,
+        "answers": null,
+        "facts": {
+          "dispatcher": "local/baton-prompt",
+          "readiness": "/home/sl/baton-v11.14aecfb/run/codex-events.sock",
+          "service": "codex-event-bridge pid 3750953"
+        },
+        "incarnation": "4035deaa-807c-4c0c-935e-43198e66f370",
+        "observed_at": "2026-09-10T04:42:08Z",
+        "participant": "baton.prompt",
+        "source": "configured"
+      },
+      "references": [],
+      "seq": 133624,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "baton.tuner",
+      "kind": "runtime_facts",
+      "payload": {
+        "answered": false,
+        "answers": null,
+        "facts": {
+          "dispatcher": "local/baton-tuner",
+          "readiness": "/home/sl/baton-v11.14aecfb/run/codex-events.sock",
+          "service": "codex-event-bridge pid 3750953"
+        },
+        "incarnation": "774859e0-31e5-4d1c-8479-3dcd242c0c99",
+        "observed_at": "2026-09-10T04:42:08Z",
+        "participant": "baton.tuner",
+        "source": "configured"
+      },
+      "references": [],
+      "seq": 133625,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "baton.merge",
+      "kind": "runtime_facts",
+      "payload": {
+        "answered": false,
+        "answers": null,
+        "facts": {
+          "dispatcher": "local/baton-integrator",
+          "readiness": "/home/sl/baton-v11.14aecfb/run/codex-events.sock",
+          "service": "codex-event-bridge pid 3750953"
+        },
+        "incarnation": "bdff3106-d27a-4c1f-8822-b6ff43fc7db1",
+        "observed_at": "2026-09-10T04:42:08Z",
+        "participant": "baton.merge",
+        "source": "configured"
+      },
+      "references": [],
+      "seq": 133626,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "baton.codex",
+      "kind": "runtime_facts",
+      "payload": {
+        "answered": false,
+        "answers": null,
+        "facts": {
+          "dispatcher": "local/baton-reviewer",
+          "readiness": "/home/sl/baton-v11.14aecfb/run/codex-events.sock",
+          "service": "codex-event-bridge pid 3750953"
+        },
+        "incarnation": "56b180a4-94a7-4e27-9d20-966592a5c65b",
+        "observed_at": "2026-09-10T04:42:08Z",
+        "participant": "baton.codex",
+        "source": "configured"
+      },
+      "references": [],
+      "seq": 133627,
+      "ts": "2026-09-10T04:42:08Z"
+    },
+    {
+      "actor": "baton.claude",
+      "kind": "runtime_start",
+      "payload": {
+        "action_owner": "baton.slaw",
+        "adapter": "acp",
+        "expires_at": "2026-09-10T04:47:13Z",
+        "incarnation": "05300cba-b357-49ba-a59c-78940b7dcfc8",
+        "model": null,
+        "participant": "baton.claude",
+        "provider": null,
+        "rationale": "acp adapter launched; this incarnation replaces any previous lease for this participant",
+        "session": null,
+        "state": "idle",
+        "superseded": "5e452a23-257a-4501-af34-1da08ab42149"
+      },
+      "references": [],
+      "seq": 133628,
+      "ts": "2026-09-10T04:42:13Z"
+    },
+    {
+      "actor": "baton.claude",
+      "kind": "runtime_facts",
+      "payload": {
+        "answered": false,
+        "answers": null,
+        "facts": {
+          "readiness": "/home/sl/baton-v11.14aecfb/baton.json",
+          "service": "acp-baton-bridge pid 3751583",
+          "workdir": "/home/sl/src/baton"
+        },
+        "incarnation": "05300cba-b357-49ba-a59c-78940b7dcfc8",
+        "observed_at": "2026-09-10T04:42:13Z",
+        "participant": "baton.claude",
+        "source": "configured"
+      },
+      "references": [],
+      "seq": 133629,
+      "ts": "2026-09-10T04:42:13Z"
+    },
+    {
+      "actor": "pc.code",
+      "kind": "runtime_start",
+      "payload": {
+        "action_owner": "pc.slaw",
+        "adapter": "acp",
+        "expires_at": "2026-09-10T04:47:14Z",
+        "incarnation": "1f6eeac6-5622-48a6-acc6-e00a5a24aaf6",
+        "model": null,
+        "participant": "pc.code",
+        "provider": null,
+        "rationale": "acp adapter launched; this incarnation replaces any previous lease for this participant",
+        "session": null,
+        "state": "idle",
+        "superseded": "d64d4f62-271a-4266-b8e1-7c6a4c812703"
+      },
+      "references": [],
+      "seq": 133630,
+      "ts": "2026-09-10T04:42:14Z"
+    },
+    {
+      "actor": "pc.code",
+      "kind": "runtime_facts",
+      "payload": {
+        "answered": false,
+        "answers": null,
+        "facts": {
+          "readiness": "/home/sl/baton-v11.14aecfb/baton.json",
+          "service": "acp-baton-bridge pid 3751601",
+          "workdir": "/home/sl/src/pushcoin"
+        },
+        "incarnation": "1f6eeac6-5622-48a6-acc6-e00a5a24aaf6",
+        "observed_at": "2026-09-10T04:42:14Z",
+        "participant": "pc.code",
+        "source": "configured"
+      },
+      "references": [],
+      "seq": 133631,
+      "ts": "2026-09-10T04:42:14Z"
+    },
+    {
+      "actor": "baton.prompt",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:47:31Z",
+        "from_state": "idle",
+        "incarnation": "4035deaa-807c-4c0c-935e-43198e66f370",
+        "participant": "baton.prompt",
+        "renewal": false,
+        "renewed_after_expiry": false,
+        "session": "01a0899f-1ab8-7c42-bcfc-844884289819",
+        "state": "working",
+        "work": null
+      },
+      "references": [],
+      "seq": 133632,
+      "ts": "2026-09-10T04:42:31Z"
+    },
+    {
+      "actor": "pc.plan",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:48:48Z",
+        "from_state": "idle",
+        "incarnation": "8cd67dfb-254d-4fc4-aba5-b2e446d4449a",
+        "participant": "pc.plan",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133633,
+      "ts": "2026-09-10T04:43:48Z"
+    },
+    {
+      "actor": "pc.tuner",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:48:48Z",
+        "from_state": "idle",
+        "incarnation": "1a0e2ee4-666a-43d2-bd24-37640d0b23a4",
+        "participant": "pc.tuner",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133634,
+      "ts": "2026-09-10T04:43:48Z"
+    },
+    {
+      "actor": "pc.prompt",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:48:48Z",
+        "from_state": "idle",
+        "incarnation": "6871d297-28ae-4ab2-8417-e1613141721c",
+        "participant": "pc.prompt",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133635,
+      "ts": "2026-09-10T04:43:48Z"
+    },
+    {
+      "actor": "baton.tuner",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:48:48Z",
+        "from_state": "idle",
+        "incarnation": "774859e0-31e5-4d1c-8479-3dcd242c0c99",
+        "participant": "baton.tuner",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133636,
+      "ts": "2026-09-10T04:43:48Z"
+    },
+    {
+      "actor": "baton.merge",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:48:48Z",
+        "from_state": "idle",
+        "incarnation": "bdff3106-d27a-4c1f-8822-b6ff43fc7db1",
+        "participant": "baton.merge",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133637,
+      "ts": "2026-09-10T04:43:48Z"
+    },
+    {
+      "actor": "baton.codex",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:48:48Z",
+        "from_state": "idle",
+        "incarnation": "56b180a4-94a7-4e27-9d20-966592a5c65b",
+        "participant": "baton.codex",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133638,
+      "ts": "2026-09-10T04:43:48Z"
+    },
+    {
+      "actor": "baton.claude",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:48:53Z",
+        "from_state": "idle",
+        "incarnation": "05300cba-b357-49ba-a59c-78940b7dcfc8",
+        "participant": "baton.claude",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133639,
+      "ts": "2026-09-10T04:43:53Z"
+    },
+    {
+      "actor": "pc.code",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:48:54Z",
+        "from_state": "idle",
+        "incarnation": "1f6eeac6-5622-48a6-acc6-e00a5a24aaf6",
+        "participant": "pc.code",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133640,
+      "ts": "2026-09-10T04:43:54Z"
+    },
+    {
+      "actor": "baton.prompt",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:49:11Z",
+        "from_state": "working",
+        "incarnation": "4035deaa-807c-4c0c-935e-43198e66f370",
+        "participant": "baton.prompt",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "working",
+        "work": null
+      },
+      "references": [],
+      "seq": 133641,
+      "ts": "2026-09-10T04:44:11Z"
+    },
+    {
+      "actor": "baton.prompt",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:49:16Z",
+        "from_state": "working",
+        "incarnation": "4035deaa-807c-4c0c-935e-43198e66f370",
+        "participant": "baton.prompt",
+        "renewal": false,
+        "renewed_after_expiry": false,
+        "session": "01a0899f-1ab8-7c42-bcfc-844884289819",
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133642,
+      "ts": "2026-09-10T04:44:16Z"
+    },
+    {
+      "actor": "baton.slaw",
+      "kind": "dispatch_resume",
+      "payload": {
+        "boundary_seq": 133643,
+        "from_mode": "paused",
+        "generation": 107,
+        "mode": "running"
+      },
+      "references": [],
+      "seq": 133643,
+      "ts": "2026-09-10T04:44:27Z"
+    },
+    {
+      "actor": "baton.claude",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": 133596,
+        "expires_at": "2026-09-10T04:49:28Z",
+        "from_state": "idle",
+        "incarnation": "05300cba-b357-49ba-a59c-78940b7dcfc8",
+        "participant": "baton.claude",
+        "renewal": false,
+        "renewed_after_expiry": false,
+        "session": "3138d003-8de2-41a6-b35c-057fba0191d7",
+        "state": "working",
+        "work": "2b077949-W133117"
+      },
+      "references": [],
+      "seq": 133644,
+      "ts": "2026-09-10T04:44:28Z"
+    },
+    {
+      "actor": "baton.claude",
+      "kind": "claim",
+      "payload": {
+        "claimant": "baton.claude",
+        "from_phase": "queued",
+        "phase": "active",
+        "phase_now": [
+          {
+            "phase": "active",
+            "work": "2b077949-W133117"
+          }
+        ],
+        "resolution": {
+          "endpoint": "baton.impl",
+          "generation": 9,
+          "handlers": [
+            "claude"
+          ],
+          "role": "impl",
+          "route": "impl"
+        },
+        "work": "2b077949-W133117"
+      },
+      "references": [],
+      "seq": 133645,
+      "ts": "2026-09-10T04:44:43Z"
+    }
+  ],
+  "snapshot_seq": 133692
+}

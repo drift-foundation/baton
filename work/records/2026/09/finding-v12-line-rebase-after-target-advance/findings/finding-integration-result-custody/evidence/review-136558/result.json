@@ -1,0 +1,162 @@
+{
+  "candidate": {
+    "v12/python/src/baton_v12/integration/reconciliation.py": {
+      "sha256": "caa250d3bca47f713e9b49ed33646c9cdfad6f6a01fa80c2fe01b9388612470a",
+      "bytes": 92162,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/git_profile.py": {
+      "sha256": "ccd0b048ae039df779cbb2ae468c63b8c5f43f73346b4643dd9cefdde89b7902",
+      "bytes": 26640,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "164de55dd44ab31f0e4a761dfa96eb1dddc893f0954d9697306f4306e0d4523d",
+      "bytes": 27668,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "bytes": 36152,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791",
+      "bytes": 19998,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "c5a86008a96f773c0fa884cb7b501197dc29d20eaa638f90957f47e17737bf3e",
+      "bytes": 92978,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4",
+      "bytes": 3875,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_reconciliation.py": {
+      "sha256": "55c25a07bc11993dad4afb6c1a622a90fe85f2dd4a39ea2be6cbe982ded465fe",
+      "bytes": 91387,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce",
+      "bytes": 19242,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "bytes": 136269,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea",
+      "bytes": 183456,
+      "mode": "0o664"
+    }
+  },
+  "argv": [
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/review-136558-probe.py"
+  ],
+  "returncode": 0,
+  "stdout": "{\n  \"furthest_transition\": \"authorized import account with actual Authority cursor at A\",\n  \"states\": [\n    \"prepared\",\n    \"awaiting-evidence\",\n    \"published\",\n    \"authorized\"\n  ],\n  \"account\": {\n    \"result_id\": \"result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca\",\n    \"canonical_target_id\": \"target:mainline\",\n    \"authority_uuid\": \"0123456789abcdef0123456789abcdef\",\n    \"work_id\": \"0123456f-W133117\",\n    \"job_id\": \"job-b\",\n    \"source_proposal_id\": \"proposal-b1\",\n    \"source_checkpoint_id\": \"checkpoint-b1\",\n    \"derived_proposal_id\": \"proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca\",\n    \"derived_result_id\": \"derived-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca\",\n    \"derived_result_digest\": \"sha256:24c9f1d6ddef1ef5fbda933846a1ce2d5e92eafdd9e581253d18319ab4dfc2f2\",\n    \"candidate_digest\": \"00d0f4f0c6eabd781a5d54d178dfcd4ef6816240\",\n    \"expected_target_revision\": \"d96e2cd8073e8799e570bfaaba6e204e997fdc13\",\n    \"content\": {\n      \"feature.py\": {\n        \"mode\": \"100644\",\n        \"object\": \"d59260fe8bd4da053c08032bd7de0ee57d287d41\"\n      },\n      \"harness.py\": {\n        \"mode\": \"100644\",\n        \"object\": \"c9ebbe3edbda46386bddaba1bbf00eb8413fceeb\"\n      },\n      \"other.py\": {\n        \"mode\": \"100644\",\n        \"object\": \"e56fd15180994cc6f768ae9f11ad699d925225c6\"\n      },\n      \"scale.py\": {\n        \"mode\": \"100644\",\n        \"object\": \"88e8526c8db854dfa5152d6b2f570896162ec966\"\n      }\n    },\n    \"content_digest\": \"sha256:853979c70d0e19809f5ed17e4e310ba572946debc030edc53a8f19c0812d0c4f\",\n    \"evidence\": {\n      \"approval\": {\n        \"actor\": \"baton.result-approve\",\n        \"candidate_digest\": \"00d0f4f0c6eabd781a5d54d178dfcd4ef6816240\",\n        \"decision\": {\n          \"effective_scope\": \"scope:deployment\",\n          \"endpoint\": \"baton.result-approve\",\n          \"grant\": \"direct\",\n          \"policy_generation\": 11,\n          \"principal\": \"principal:baton.result-approve\",\n          \"role\": \"approve\"\n        },\n        \"disposition\": \"approved\",\n        \"kind\": \"approval\",\n        \"policy_generation\": 11,\n        \"proposal_id\": \"proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca\",\n        \"receipt_id\": \"proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca-approval\",\n        \"recorded_at\": \"2026-09-10T13:34:25.652Z\",\n        \"target\": \"d96e2cd8073e8799e570bfaaba6e204e997fdc13\"\n      },\n      \"review\": {\n        \"actor\": \"baton.result-review\",\n        \"candidate_digest\": \"00d0f4f0c6eabd781a5d54d178dfcd4ef6816240\",\n        \"decision\": {\n          \"effective_scope\": \"scope:deployment\",\n          \"endpoint\": \"baton.result-review\",\n          \"grant\": \"direct\",\n          \"policy_generation\": 11,\n          \"principal\": \"principal:baton.result-review\",\n          \"role\": \"review\"\n        },\n        \"disposition\": \"accepted\",\n        \"kind\": \"review\",\n        \"policy_generation\": null,\n        \"proposal_id\": \"proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca\",\n        \"receipt_id\": \"proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca-review\",\n        \"recorded_at\": \"2026-09-10T13:34:25.651Z\",\n        \"target\": \"d96e2cd8073e8799e570bfaaba6e204e997fdc13\"\n      },\n      \"verification\": {\n        \"actor\": \"baton.result-verify\",\n        \"candidate_digest\": \"00d0f4f0c6eabd781a5d54d178dfcd4ef6816240\",\n        \"decision\": {\n          \"effective_scope\": \"scope:deployment\",\n          \"endpoint\": \"baton.result-verify\",\n          \"grant\": \"direct\",\n          \"policy_generation\": 11,\n          \"principal\": \"principal:baton.result-verify\",\n          \"role\": \"verify\"\n        },\n        \"disposition\": \"passed\",\n        \"kind\": \"verification\",\n        \"policy_generation\": null,\n        \"proposal_id\": \"proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca\",\n        \"receipt_id\": \"proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca-verification\",\n        \"recorded_at\": \"2026-09-10T13:34:25.651Z\",\n        \"target\": \"d96e2cd8073e8799e570bfaaba6e204e997fdc13\"\n      }\n    },\n    \"causal_observations\": {\n      \"base\": {\n        \"command\": [\n          \"/usr/bin/python3\",\n          \"harness.py\"\n        ],\n        \"environment\": \"/usr/bin/python3 / git\",\n        \"execution\": \"baton.result-observe\",\n        \"harness_added\": true,\n        \"input_commit\": \"2ce7706a6a71b97129f5954a038e236d7afae910\",\n        \"input_tree\": \"cb2b91463f02872c0350976df9d33e5daa39ca2e\",\n        \"output\": \"AssertionError: total answered 5\",\n        \"status\": 1,\n        \"test_digest\": \"sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c\",\n        \"test_identity\": \"regression/total-keeps-the-first-value\"\n      },\n      \"combined\": {\n        \"command\": [\n          \"/usr/bin/python3\",\n          \"harness.py\"\n        ],\n        \"environment\": \"/usr/bin/python3 / git\",\n        \"execution\": \"baton.result-observe\",\n        \"harness_added\": false,\n        \"input_commit\": \"00d0f4f0c6eabd781a5d54d178dfcd4ef6816240\",\n        \"input_tree\": \"470da0d34c0b0215515516f89440f9f1774625fe\",\n        \"output\": \"the regression harness passed\",\n        \"status\": 0,\n        \"test_digest\": \"sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c\",\n        \"test_identity\": \"regression/total-keeps-the-first-value\"\n      },\n      \"isolated\": {\n        \"command\": [\n          \"/usr/bin/python3\",\n          \"harness.py\"\n        ],\n        \"environment\": \"/usr/bin/python3 / git\",\n        \"execution\": \"baton.result-observe\",\n        \"harness_added\": false,\n        \"input_commit\": \"cf169930f699e268dd9f0d106cd1d3677f99608e\",\n        \"input_tree\": \"aa6cc5b41ab480b401bfd57abca9ccb3900571ed\",\n        \"output\": \"the regression harness passed\",\n        \"status\": 0,\n        \"test_digest\": \"sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c\",\n        \"test_identity\": \"regression/total-keeps-the-first-value\"\n      }\n    },\n    \"integration_assignment\": {\n      \"generation\": 2,\n      \"participant\": \"baton.integrator\",\n      \"work_ref\": {\n        \"authority_uuid\": \"0123456789abcdef0123456789abcdef\",\n        \"work_id\": \"0123456f-W133117\"\n      }\n    }\n  },\n  \"observations\": {\n    \"base\": {\n      \"command\": [\n        \"/usr/bin/python3\",\n        \"harness.py\"\n      ],\n      \"environment\": \"/usr/bin/python3 / git\",\n      \"execution\": \"baton.result-observe\",\n      \"harness_added\": true,\n      \"input_commit\": \"2ce7706a6a71b97129f5954a038e236d7afae910\",\n      \"input_tree\": \"cb2b91463f02872c0350976df9d33e5daa39ca2e\",\n      \"output\": \"AssertionError: total answered 5\",\n      \"status\": 1,\n      \"test_digest\": \"sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c\",\n      \"test_identity\": \"regression/total-keeps-the-first-value\"\n    },\n    \"combined\": {\n      \"command\": [\n        \"/usr/bin/python3\",\n        \"harness.py\"\n      ],\n      \"environment\": \"/usr/bin/python3 / git\",\n      \"execution\": \"baton.result-observe\",\n      \"harness_added\": false,\n      \"input_commit\": \"00d0f4f0c6eabd781a5d54d178dfcd4ef6816240\",\n      \"input_tree\": \"470da0d34c0b0215515516f89440f9f1774625fe\",\n      \"output\": \"the regression harness passed\",\n      \"status\": 0,\n      \"test_digest\": \"sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c\",\n      \"test_identity\": \"regression/total-keeps-the-first-value\"\n    },\n    \"isolated\": {\n      \"command\": [\n        \"/usr/bin/python3\",\n        \"harness.py\"\n      ],\n      \"environment\": \"/usr/bin/python3 / git\",\n      \"execution\": \"baton.result-observe\",\n      \"harness_added\": false,\n      \"input_commit\": \"cf169930f699e268dd9f0d106cd1d3677f99608e\",\n      \"input_tree\": \"aa6cc5b41ab480b401bfd57abca9ccb3900571ed\",\n      \"output\": \"the regression harness passed\",\n      \"status\": 0,\n      \"test_digest\": \"sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c\",\n      \"test_identity\": \"regression/total-keeps-the-first-value\"\n    }\n  },\n  \"derived_receipts\": [\n    {\n      \"receipt_id\": \"proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca-review\",\n      \"kind\": \"review\",\n      \"proposal_id\": \"proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca\",\n      \"actor\": \"baton.result-review\",\n      \"disposition\": \"accepted\",\n      \"candidate_digest\": \"00d0f4f0c6eabd781a5d54d178dfcd4ef6816240\",\n      \"target\": \"d96e2cd8073e8799e570bfaaba6e204e997fdc13\",\n      \"policy_generation\": null,\n      \"recorded_at\": \"2026-09-10T13:34:25.651Z\",\n      \"decision\": {\n        \"endpoint\": \"baton.result-review\",\n        \"principal\": \"principal:baton.result-review\",\n        \"effective_scope\": \"scope:deployment\",\n        \"role\": \"review\",\n        \"grant\": \"direct\",\n        \"policy_generation\": 11\n      }\n    },\n    {\n      \"receipt_id\": \"proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca-verification\",\n      \"kind\": \"verification\",\n      \"proposal_id\": \"proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca\",\n      \"actor\": \"baton.result-verify\",\n      \"disposition\": \"passed\",\n      \"candidate_digest\": \"00d0f4f0c6eabd781a5d54d178dfcd4ef6816240\",\n      \"target\": \"d96e2cd8073e8799e570bfaaba6e204e997fdc13\",\n      \"policy_generation\": null,\n      \"recorded_at\": \"2026-09-10T13:34:25.651Z\",\n      \"decision\": {\n        \"endpoint\": \"baton.result-verify\",\n        \"principal\": \"principal:baton.result-verify\",\n        \"effective_scope\": \"scope:deployment\",\n        \"role\": \"verify\",\n        \"grant\": \"direct\",\n        \"policy_generation\": 11\n      }\n    },\n    {\n      \"receipt_id\": \"proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca-approval\",\n      \"kind\": \"approval\",\n      \"proposal_id\": \"proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b5b7d2c73a4ca\",\n      \"actor\": \"baton.result-approve\",\n      \"disposition\": \"approved\",\n      \"candidate_digest\": \"00d0f4f0c6eabd781a5d54d178dfcd4ef6816240\",\n      \"target\": \"d96e2cd8073e8799e570bfaaba6e204e997fdc13\",\n      \"policy_generation\": 11,\n      \"recorded_at\": \"2026-09-10T13:34:25.652Z\",\n      \"decision\": {\n        \"endpoint\": \"baton.result-approve\",\n        \"principal\": \"principal:baton.result-approve\",\n        \"effective_scope\": \"scope:deployment\",\n        \"role\": \"approve\",\n        \"grant\": \"direct\",\n        \"policy_generation\": 11\n      }\n    }\n  ],\n  \"source_receipts_unchanged\": true,\n  \"producer_unchanged\": true,\n  \"refusals\": [\n    {\n      \"boundary\": \"adopt_missing_receipts\",\n      \"refusal\": \"the Authority holds no verification receipt on derived proposal 'proposal-result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf7\\u2026; a published result is a candidate and is authorized only by the independent receipts its own owners record on it\"\n    },\n    {\n      \"boundary\": \"import_published\",\n      \"refusal\": \"result 'result-53799b5f79b1c585c4c57c5c291e903a141c8fcfdf72a445d18b\\u2026 is 'published'; an import account is resolved for an authorized result, and a published one is a candidate its owners have not accepted yet\"\n    }\n  ]\n}\n",
+  "stderr": "test_a_COMBINED_FAILURE_IS_RETAINED_and_blocks (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_a_COMBINED_FAILURE_IS_RETAINED_and_blocks)\nREVIEW 2026-09-10T05:41:11Z [R1], the correction that matters. ... ok\ntest_the_producers_own_line_may_not_be_the_workspace (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_the_producers_own_line_may_not_be_the_workspace) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.249s\n\nOK\n",
+  "author_logs": [
+    {
+      "step": 1,
+      "exit": 0,
+      "seconds": 0.010673656999870218,
+      "sha256": "579a28fdfbf61c92dc1050fab1271b379c38dddd3ef48688c3dfdeb51e18e76e",
+      "bytes": 7908
+    },
+    {
+      "step": 2,
+      "exit": 0,
+      "seconds": 0.20339389200012192,
+      "sha256": "cf33a89bfb74e01dee602f91313129fd959f900e5ab00cc5eba3faa15a4739ea",
+      "bytes": 3606
+    },
+    {
+      "step": 3,
+      "exit": 0,
+      "seconds": 0.019662003999883382,
+      "sha256": "08f62253a8ed796dcb075d32dd6a2904c80f13969a1f43143db8f1d8ff3e8cdf",
+      "bytes": 387
+    },
+    {
+      "step": 4,
+      "exit": 1,
+      "seconds": 0.005449002999739605,
+      "sha256": "b78b5dc05c4db3876294f386eb01f3d57a6ac426985783679e5ad73ef3f1cc67",
+      "bytes": 397
+    },
+    {
+      "step": 5,
+      "exit": 1,
+      "seconds": 1.9635974950001582,
+      "sha256": "196927bbf7c7cee10935097e067c151e476f1351b39cd3502fc81a0b6d2f13cb",
+      "bytes": 53279
+    },
+    {
+      "step": 6,
+      "exit": 1,
+      "seconds": 2.220194259999971,
+      "sha256": "eb9cb47cd78463f47850816d68080b5bd293510922c4afa485047b9dc8ce2d79",
+      "bytes": 10741
+    },
+    {
+      "step": 7,
+      "exit": 0,
+      "seconds": 2.22086806399966,
+      "sha256": "e808413a6b68e31e9fa9925e75d66f0f10af0871042627fc58a576f23cb44121",
+      "bytes": 492
+    },
+    {
+      "step": 8,
+      "exit": 0,
+      "seconds": 5.5164237039998625,
+      "sha256": "1f65f3eb39e11767a0c93c62dcf9955533417d1c11ce78e577517d4b60af60e6",
+      "bytes": 1030
+    },
+    {
+      "step": 9,
+      "exit": 1,
+      "seconds": 0.17177287699996668,
+      "sha256": "cee3619ce987f35dd8ccc838ecc03abc3920c0b5320d2d3e2addb4a85b0eef46",
+      "bytes": 1337
+    },
+    {
+      "step": 10,
+      "exit": 0,
+      "seconds": 0.20508027500000026,
+      "sha256": "b326cfa92f5a5cea8b5dc118e826558144ba9415d96b9655f310aec39f5196a4",
+      "bytes": 636
+    },
+    {
+      "step": 11,
+      "exit": 0,
+      "seconds": 7.561018943000363,
+      "sha256": "38889dc536bbf2ebfcc09da344c574ce0b16a85a899352c8da79faea7ed1bcf5",
+      "bytes": 24045
+    },
+    {
+      "step": 12,
+      "exit": 0,
+      "seconds": 0.010642962000019907,
+      "sha256": "906a6d6cbd552d9d78c430ad8ec45684896a2c08e40fc8767b90245436132c16",
+      "bytes": 2039
+    }
+  ],
+  "author_measured_seconds": 20.108777135999617,
+  "author_failed_steps": [
+    4,
+    5,
+    6,
+    9
+  ],
+  "charged_seconds": 0.5457380799998646,
+  "review_cumulative_seconds": 3.122893249213803,
+  "review_remaining_seconds": 4.877106750786197
+}

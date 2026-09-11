@@ -1,0 +1,76 @@
+--- reviewed/tests/manager/test_target_rework.py
++++ returned/tests/manager/test_target_rework.py
+@@ -491,18 +491,22 @@
+                 settlement_id=settlement["settlement_id"])
+         self.assertIn("already based on", caught.exception.message)
+ 
+-    def test_a_tampered_custody_row_is_not_read_as_fact(self):
++    def test_a_record_with_no_committed_operation_refuses(self):
++        """The one binding this reader really makes today, and no more.
++
++        W132712 review [R3]: this case used to ALTER a custody row's target
++        revision and then assert that the reader answered the altered value.
++        That expectation contradicts CONTRACT-v1 section 2, which requires a
++        tampered materialized record to be REFUSED -- so it is removed rather
++        than kept as a description of what the code happens to do. Binding
++        every materialized operand and outcome to its signature and result is
++        R3's correction, and its controls arrive with it.
++
++        What remains is the binding that is genuinely proved: a row whose
++        journal holds no committed operation of the right kind is not read as
++        this owner's fact.
++        """
+         _line, _checkpoint, _target, held = self.prepared()
+-        self.store._connection.execute(
+-            "UPDATE target_reworks SET target_revision = ? "
+-            "WHERE operation_id = ?", ("e" * 40, held["operation_id"]))
+-        self.store._connection.commit()
+-        # The row still reads, and its OPERATION still binds it -- what a
+-        # consumer must not do is trust the tampered member. The signature the
+-        # journal holds is what a later replay compares against, so a second
+-        # preparation under the same identity refuses rather than adopting it.
+-        again = rework_of(self.store, held["operation_id"])
+-        self.assertEqual(again["target_revision"], "e" * 40)
+         self.store._connection.execute(
+             "DELETE FROM operations WHERE operation_id = ?",
+             (held["operation_id"],))
+@@ -658,20 +662,25 @@
+         self.assertIn("must name the checkpoint its rework was prepared from",
+                       caught.exception.message)
+ 
+-    def test_the_frozen_round_uses_the_effective_base(self):
+-        line, _checkpoint, target, _held, writer = self.rework_round()
+-        place = line["line_path"]
+-        # The round's own work, on top of the prepared result.
+-        self.vcs(place, "reset", "--hard", _held_head(self.store, line), "--")
+-        self.write(place, "third.py", "print('the rework round')\n")
+-        self.vcs(place, "add", "--all")
+-        self.vcs(place, "commit", "-q", "--message", "rework round")
+-        self.completed("writer-attempt-2")
+-        frozen = freeze_checkpoint(
+-            self.store, writer_id=writer["writer_id"], generation=2,
+-            profile=self.profile, port=Port("baton.impl"))
+-        self.assertEqual(frozen["evidence"]["base"], target)
+-        self.assertIn("third.py", frozen["evidence"]["paths"])
++    # W132712 review 2026-09-10T03-01-16Z [R1]: THE FREEZE-ON-EFFECTIVE-BASE
++    # POSITIVE IS WITHDRAWN, not weakened and not restated as a boundary.
++    #
++    # It used to `git reset --hard` the checkout onto the prepared result
++    # before freezing. That reset is the OWNER ACTION THIS SLICE HAS NOT
++    # BUILT: preparation retains the combined result in the object store and
++    # nothing installs it into the writer's checkout, so a freeze reached
++    # without the fixture's help records the OLD head under the NEW base and
++    # loses the other Job's change. A test that supplies the missing act
++    # certifies a capability the product does not have.
++    #
++    # Nor is the defect asserted as an expected outcome here. It is a blocking
++    # defect INSIDE this slice's own scope, and a case that pinned it would be
++    # certifying my own unfixed work. The positive returns with the journalled
++    # custody transition R1 requires, together with the both-contents,
++    # ancestry, retained-old-ref and interrupted-installation controls the
++    # review names. Until then this slice makes no freeze-on-effective-base
++    # claim at all; `test_the_writer_records_the_base_it_was_admitted_under`
++    # is the only writer-side fact it still asserts.
+ 
+ 
+ def _held_head(store, line):

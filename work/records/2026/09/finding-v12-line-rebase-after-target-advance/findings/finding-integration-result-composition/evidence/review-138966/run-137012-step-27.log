@@ -1,0 +1,20 @@
+### label: baseline-revalidation-at-claim137928
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/base129.py"]
+### exit: 0
+### elapsed_seconds: 0.012530
+### STDOUT
+union entries checked: 43
+  digest/size/mode compared: 41
+  recorded absences confirmed absent: 2
+MISMATCHES: ['v12/python/src/baton_v12/job_manager/delegation.py', 'v12/python/tests/job_manager/test_delegation.py', 'v12/python/tests/tools/test_stage_execution.py', 'v12/python/tools/stage_execution.py']
+PRESENT UNEXPECTEDLY: []
+R base paths:
+   af68a781791aee6beb402bc06de1413f7d1260ac8635c4a9cdc9559270da3b2f 0o664 196612 v12/python/tools/stage_execution.py
+   2ad0b1e8ebf1a9bdc90d84731c3bb271e0d16466be4217e84b68cb5da9f68b74 0o664 59647 v12/python/src/baton_v12/job_manager/delegation.py
+   0ee2369c991470bc83306c33dd3e3849a6bf3faa371d4f6031ea0766f80858c5 0o664 19314 v12/README.md
+   f22dcfc874c495589ff0459a67ff26701fee2aa01c0de837c7c2099423396b59 0o664 384857 v12/python/tests/tools/test_stage_execution.py
+   c7da43a3e3c6fb5169ec3c523f7f7693daedccc1936f77e180624b492a40172d 0o664 29163 v12/python/tests/job_manager/test_delegation.py
+   79ba448c1f21a6c92bc9230291b5bfd04273024280b00ea197d1fa700066c103 0o664 71619 v12/python/tests/job_manager/test_scheduling.py
+
+### STDERR

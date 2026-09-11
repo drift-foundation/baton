@@ -1,0 +1,14 @@
+### label: import-check-2
+### cwd: /home/sl/src/baton
+### argv: ["python3", "-c", "\nimport sys\nsys.path.insert(0,'v12/python/src'); sys.path.insert(0,'v12/python/tools')\nimport stage_execution as S\nprint('reconciled:', hasattr(S.Integration,'reconciled'))\nprint('observer:', hasattr(S,'_CausalObserver'), 'verifier:', hasattr(S,'_ImportedVerifier'))\n"]
+### exit: 1
+### elapsed_seconds: 0.165608
+### STDOUT
+
+### STDERR
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+    import stage_execution as S
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 73, in <module>
+    from . import single_worker
+ImportError: attempted relative import with no known parent package

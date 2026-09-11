@@ -1,0 +1,379 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codex",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "events": [
+      {
+        "actor": "baton.claude",
+        "claim_interval": {
+          "claim_seq": 133218,
+          "claimant": "baton.claude",
+          "elapsed_seconds": 502,
+          "end_kind": "release",
+          "end_seq": 133270,
+          "ended_at": "2026-09-10T03:50:43Z",
+          "started_at": "2026-09-10T03:42:21Z"
+        },
+        "kind": "claim",
+        "payload": {
+          "claimant": "baton.claude",
+          "from_phase": "queued",
+          "phase": "active",
+          "phase_now": [
+            {
+              "phase": "active",
+              "work": "2b077949-W133117"
+            }
+          ],
+          "resolution": {
+            "endpoint": "baton.impl",
+            "generation": 8,
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "work": "2b077949-W133117"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 502,
+          "end_kind": "release",
+          "end_seq": 133270,
+          "ended_at": "2026-09-10T03:50:43Z",
+          "open": false,
+          "phase": "active",
+          "start_seq": 133218,
+          "started_at": "2026-09-10T03:42:21Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 133218,
+        "ts": "2026-09-10T03:42:21Z"
+      },
+      {
+        "actor": "baton.slaw",
+        "claim_interval": {
+          "claim_seq": 133218,
+          "claimant": "baton.claude",
+          "elapsed_seconds": 502,
+          "end_kind": "release",
+          "end_seq": 133270,
+          "ended_at": "2026-09-10T03:50:43Z",
+          "started_at": "2026-09-10T03:42:21Z"
+        },
+        "kind": "release",
+        "payload": {
+          "authorization": "recover",
+          "episode": 133208,
+          "expect": "baton.claude",
+          "phase_now": [
+            {
+              "phase": "queued",
+              "work": "2b077949-W133117"
+            }
+          ],
+          "reason": "Incident47: ACP turn ended and no execution remains; release orphaned claim for redelivery, preserving partial work, evidence and budget history.",
+          "released_claimant": "baton.claude",
+          "resolution": {
+            "endpoint": "baton.impl",
+            "generation": 8,
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "work": "2b077949-W133117"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 35,
+          "end_kind": "claim",
+          "end_seq": 133275,
+          "ended_at": "2026-09-10T03:51:18Z",
+          "open": false,
+          "phase": "queued",
+          "start_seq": 133270,
+          "started_at": "2026-09-10T03:50:43Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 133270,
+        "ts": "2026-09-10T03:50:43Z"
+      },
+      {
+        "actor": "baton.claude",
+        "claim_interval": {
+          "claim_seq": 133275,
+          "claimant": "baton.claude",
+          "elapsed_seconds": 319,
+          "end_kind": "release",
+          "end_seq": 133315,
+          "ended_at": "2026-09-10T03:56:37Z",
+          "started_at": "2026-09-10T03:51:18Z"
+        },
+        "kind": "claim",
+        "payload": {
+          "claimant": "baton.claude",
+          "from_phase": "queued",
+          "phase": "active",
+          "phase_now": [
+            {
+              "phase": "active",
+              "work": "2b077949-W133117"
+            }
+          ],
+          "resolution": {
+            "endpoint": "baton.impl",
+            "generation": 8,
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "work": "2b077949-W133117"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 319,
+          "end_kind": "release",
+          "end_seq": 133315,
+          "ended_at": "2026-09-10T03:56:37Z",
+          "open": false,
+          "phase": "active",
+          "start_seq": 133275,
+          "started_at": "2026-09-10T03:51:18Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 133275,
+        "ts": "2026-09-10T03:51:18Z"
+      },
+      {
+        "actor": "baton.slaw",
+        "claim_interval": {
+          "claim_seq": 133275,
+          "claimant": "baton.claude",
+          "elapsed_seconds": 319,
+          "end_kind": "release",
+          "end_seq": 133315,
+          "ended_at": "2026-09-10T03:56:37Z",
+          "started_at": "2026-09-10T03:51:18Z"
+        },
+        "kind": "release",
+        "payload": {
+          "authorization": "recover",
+          "episode": 133270,
+          "expect": "baton.claude",
+          "phase_now": [
+            {
+              "phase": "queued",
+              "work": "2b077949-W133117"
+            }
+          ],
+          "reason": "Incident48: turn ended and no execution remains; recover exact orphaned claim for redelivery. Continuation discipline recorded in T133117; preserve partial work and budget.",
+          "released_claimant": "baton.claude",
+          "resolution": {
+            "endpoint": "baton.impl",
+            "generation": 8,
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "work": "2b077949-W133117"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 25,
+          "end_kind": "claim",
+          "end_seq": 133318,
+          "ended_at": "2026-09-10T03:57:02Z",
+          "open": false,
+          "phase": "queued",
+          "start_seq": 133315,
+          "started_at": "2026-09-10T03:56:37Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 133315,
+        "ts": "2026-09-10T03:56:37Z"
+      },
+      {
+        "actor": "baton.claude",
+        "claim_interval": {
+          "claim_seq": 133318,
+          "claimant": "baton.claude",
+          "elapsed_seconds": 344,
+          "end_kind": "release",
+          "end_seq": 133349,
+          "ended_at": "2026-09-10T04:02:46Z",
+          "started_at": "2026-09-10T03:57:02Z"
+        },
+        "kind": "claim",
+        "payload": {
+          "claimant": "baton.claude",
+          "from_phase": "queued",
+          "phase": "active",
+          "phase_now": [
+            {
+              "phase": "active",
+              "work": "2b077949-W133117"
+            }
+          ],
+          "resolution": {
+            "endpoint": "baton.impl",
+            "generation": 8,
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "work": "2b077949-W133117"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 344,
+          "end_kind": "release",
+          "end_seq": 133349,
+          "ended_at": "2026-09-10T04:02:46Z",
+          "open": false,
+          "phase": "active",
+          "start_seq": 133318,
+          "started_at": "2026-09-10T03:57:02Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 133318,
+        "ts": "2026-09-10T03:57:02Z"
+      },
+      {
+        "actor": "baton.slaw",
+        "claim_interval": {
+          "claim_seq": 133318,
+          "claimant": "baton.claude",
+          "elapsed_seconds": 344,
+          "end_kind": "release",
+          "end_seq": 133349,
+          "ended_at": "2026-09-10T04:02:46Z",
+          "started_at": "2026-09-10T03:57:02Z"
+        },
+        "kind": "release",
+        "payload": {
+          "authorization": "recover",
+          "episode": 133315,
+          "expect": "baton.claude",
+          "phase_now": [
+            {
+              "phase": "queued",
+              "work": "2b077949-W133117"
+            }
+          ],
+          "reason": "Incident49: no execution remains; recover orphaned claim, preserving partial work and cumulative budget. Repeated turn termination remains unresolved.",
+          "released_claimant": "baton.claude",
+          "resolution": {
+            "endpoint": "baton.impl",
+            "generation": 8,
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "work": "2b077949-W133117"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 11,
+          "end_kind": "claim",
+          "end_seq": 133353,
+          "ended_at": "2026-09-10T04:02:57Z",
+          "open": false,
+          "phase": "queued",
+          "start_seq": 133349,
+          "started_at": "2026-09-10T04:02:46Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 133349,
+        "ts": "2026-09-10T04:02:46Z"
+      },
+      {
+        "actor": "baton.claude",
+        "claim_interval": {
+          "claim_seq": 133353,
+          "claimant": "baton.claude",
+          "elapsed_seconds": 326,
+          "end_kind": null,
+          "end_seq": null,
+          "ended_at": null,
+          "started_at": "2026-09-10T04:02:57Z"
+        },
+        "kind": "claim",
+        "payload": {
+          "claimant": "baton.claude",
+          "from_phase": "queued",
+          "phase": "active",
+          "phase_now": [
+            {
+              "phase": "active",
+              "work": "2b077949-W133117"
+            }
+          ],
+          "resolution": {
+            "endpoint": "baton.impl",
+            "generation": 8,
+            "handlers": [
+              "claude"
+            ],
+            "role": "impl",
+            "route": "impl"
+          },
+          "work": "2b077949-W133117"
+        },
+        "phase_interval": {
+          "elapsed_seconds": 326,
+          "end_kind": null,
+          "end_seq": null,
+          "ended_at": null,
+          "open": true,
+          "phase": "active",
+          "start_seq": 133353,
+          "started_at": "2026-09-10T04:02:57Z"
+        },
+        "references": [],
+        "related": [],
+        "roles": [
+          "subject"
+        ],
+        "seq": 133353,
+        "ts": "2026-09-10T04:02:57Z"
+      }
+    ],
+    "local_id": "W133117",
+    "next_after": null,
+    "next_before": null,
+    "title": "V12: isolated submission and integration-result custody",
+    "work": "2b077949-W133117"
+  },
+  "snapshot_seq": 133393
+}

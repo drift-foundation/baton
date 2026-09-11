@@ -1,0 +1,62 @@
+{
+  "work": "W132712",
+  "claim": 132949,
+  "participant": "baton.claude",
+  "role": "impl",
+  "responding_to": "review-2026-09-10T03-01-16Z.md, reviewer claim132898",
+  "candidate_revalidated": "all nine changed/new slice-A paths matched the reviewed handoff hashes before any edit",
+  "all_four_defects": "ACCEPTED. R1, R2, R3 and R4 are real, independently reproduced, and each is a defect in my implementation rather than a disagreement about the contract. Nothing below argues with any of them.",
+  "what_this_claim_changed": {
+    "tests/manager/test_target_rework.py": "edb9d44c37a5fdd8db4063d407b82b998395e4ebf7ae2e13a389bdd790ecb997 (0664), from 142e27f0",
+    "withdrawn_R1_positive": "`test_the_frozen_round_uses_the_effective_base` performed `git reset --hard` onto the prepared result before freezing. That reset IS the owner action this slice never built, so the case certified a capability the product does not have. It is withdrawn, not weakened and not restated as a boundary case: R1 is a blocking defect inside this slice's own scope, and a case pinning it would be certifying my own unfixed work. This slice now makes NO freeze-on-effective-base claim.",
+    "corrected_R3_expectation": "`test_a_tampered_custody_row_is_not_read_as_fact` asserted that the reader ANSWERS an altered target revision. CONTRACT-v1 section 2 requires that record to be refused, so the expectation is removed rather than kept as a description of current behaviour. What remains is renamed to the binding actually proved: a row whose journal holds no committed operation of the right kind is refused.",
+    "no_source_change": "no product file was touched under this claim. The remaining eight candidate paths are byte-identical to the reviewed handoff.",
+    "verification": "tests.manager.test_target_rework, 31 tests, OK, 1.23s"
+  },
+  "why_no_correction_was_attempted": "the four blockers are interdependent and the remaining allocation cannot verify any one of them. R1 changes what a ready record MEANS; R2 changes the act's control flow around it; R3 changes what every public reader may return; R4 changes how a grant is signed. A partial fix would leave a half-corrected candidate whose failures are harder to attribute than a clean statement, and the review's own instruction is to return a concrete costed request BEFORE spending beyond the allocation. About 7.4s remains and the smallest of the four needs more than that to verify.",
+  "costed_request": {
+    "R4_grant_replay": {
+      "change": "recover the immutable original grant operands for the derived writer id before consulting any fact the grant already changed, and sign from those; derive from live line state only on a first grant. Keep the writer's recorded effective base and rework identity authoritative for its whole lifecycle.",
+      "controls": "exact replay immediately, after reopen and after later line transitions; altered caller operands still collide",
+      "estimate_seconds": 8
+    },
+    "R2_intent_resume": {
+      "change": "distinguish committed INTENT from settled OUTCOME. A committed `preparing` record resumes from its own recorded operands -- including the ORIGINAL target selection, never a fresh Authority read -- validating and reusing an already retained rework reference; only a final ready/held outcome replays.",
+      "controls": "before-profile, after-ref and before-outcome cutpoints, each reopened; tampered and incomplete retained references refuse",
+      "estimate_seconds": 12
+    },
+    "R3_reader_binding": {
+      "change": "bind every materialized operand and outcome to the journal's signature and recorded result in `_committed`, enforce the closed typed shapes of the nested documents, and cross-check every fixed identity and the outcome operation before a typed ready record is exposed. `seal_of` and `settlement_of` take the same treatment.",
+      "controls": "alter each consequential identity and evidence member with an otherwise valid journal, and assert typed refusal from every public reader and from `effective_base` as their consumer",
+      "estimate_seconds": 15
+    },
+    "R1_prepared_content_reaches_the_writer": {
+      "change": "the missing owner act: a journalled, custody-safe installation of the prepared result into the writer's checkout, performed through the profile over the HELD object and validated by its owner before the grant is usable. Object-store preparation stays; what is added is the transition and its record.",
+      "controls": "public prepare/grant/freeze with NO fixture repair, asserting BOTH Jobs' contents, actual ancestry and the retained old references; refusal and recovery controls for a wrong or interrupted installation",
+      "estimate_seconds": 25
+    },
+    "final_regression": {
+      "change": "the six in-scope modules once, after all four",
+      "estimate_seconds": 8
+    },
+    "total_implementation_seconds": 68,
+    "independent_review_seconds": 8,
+    "held_against": "about 7.4s of this slice's 80s remains and the reviewer holds about 7.71s of its 8s. The request is for a NEW allocation against the parent's 200s envelope, not a transfer, a reserve draw or anything from W119405.",
+    "explicitly_not_included": "the six items the review lists as still unproved -- real bound Authority handoff and readback, live lease and unknown-mutation holds, concurrent seal/launch exclusion, exact source-object custody across profile calls, post-profile revalidation before ready publication, and typed settlement linkage to the selected old stage/episode/allocation -- and the successor rule for a non-null current_rework_id after a completed rework. Each needs its own scope decision and cost; none is smuggled into the numbers above."
+  },
+  "the_broad_run_i_should_not_have_made": {
+    "what_the_review_asked": "retain the exact failure output, attribute relevant failures with bounded focused controls, do not rerun the broad selector and do not erase its cost",
+    "state": "the 26.73s cost stands in this record and in provider-132749.json and is not erased. The exact failure output was NOT retained to a file -- it was read from the terminal and is gone, which is my error and is recorded as one. Re-obtaining it means re-running that selector, which the review forbids, so attribution now belongs to the bounded focused controls of a later pass rather than to a recovered log.",
+    "the_one_attribution_that_stands": "`EveryPublicSurfaceIsAccountedFor` names `discharge_abandoned_quiescence_gate`, exported by the package and unclassified by that test; this slice adds nothing to `__all__`. That failure is pre-existing. It explains one failure and not the rest, exactly as the review says."
+  },
+  "budget": {
+    "increment": 80.0,
+    "prior_claim": "63.33s timed plus one unmeasured run provisionally charged about 8s",
+    "this_claim": "1.23s, one run",
+    "spent": "about 72.56s of 80s including the retained uncertainty",
+    "remaining": "about 7.44s, unspent",
+    "review_allocation": "about 7.71s of 8s remains with the reviewer",
+    "not_touched": "the 10s owner-held reserve and every W119405 allocation"
+  },
+  "not_claimed": "nothing new. This candidate remains unaccepted and slices B and C stay gated."
+}

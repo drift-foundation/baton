@@ -1,0 +1,637 @@
+### label: focused-evidence-and-storage-groups
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "-v", "tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes", "tests.integration.test_reconciliation.TheNominatedStorageIsProved"]
+### exit: 1
+### elapsed_seconds: 1.963597
+### STDOUT
+
+### STDERR
+test_a_published_result_with_no_receipts_authorizes_nothing (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_published_result_with_no_receipts_authorizes_nothing)
+PUBLICATION-WITHOUT-IMPORT, the amendment's scheduled replacement ... ERROR
+test_a_receipt_by_another_actor_is_not_this_owners (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_receipt_by_another_actor_is_not_this_owners)
+The record adopts the receipt of the participant it was given, and ... ERROR
+test_a_receipt_on_the_producers_proposal_is_not_this_results (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_receipt_on_the_producers_proposal_is_not_this_results)
+The submission's own three receipts are real, accepting and on the ... ERROR
+test_a_refusing_owner_does_not_authorize (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_refusing_owner_does_not_authorize)
+A NONACCEPTING DECISION IS RETAINED BY ITS OWNER and is not an ... ERROR
+test_an_absent_or_unconfigured_owner_refuses (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_an_absent_or_unconfigured_owner_refuses) ... ERROR
+test_an_approval_under_a_superseded_policy_is_not_adopted (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_an_approval_under_a_superseded_policy_is_not_adopted) ... ERROR
+test_evidence_for_one_result_cannot_authorize_another (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_evidence_for_one_result_cannot_authorize_another)
+THE REPRODUCED COUNTEREXAMPLE, now closed twice over. ... ERROR
+test_one_actor_may_not_give_two_judgements (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_one_actor_may_not_give_two_judgements) ... ERROR
+test_the_derived_digest_binds_the_bytes_the_runs_and_the_observer (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_derived_digest_binds_the_bytes_the_runs_and_the_observer)
+WHAT A RECEIPT IS ABOUT, given that a receipt has no field for it. ... ERROR
+test_the_evidence_is_the_authoritys_receipts_and_the_record_writes_none (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_evidence_is_the_authoritys_receipts_and_the_record_writes_none)
+THE AMENDMENT'S CENTRAL CLAIM, asked of a real Authority. ... ERROR
+test_the_owner_that_ran_the_harness_may_not_judge_it (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_owner_that_ran_the_harness_may_not_judge_it) ... ERROR
+test_the_policy_generation_is_the_approval_receipts_own (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_policy_generation_is_the_approval_receipts_own) ... ERROR
+test_the_preparer_cannot_review_its_own_composition (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_preparer_cannot_review_its_own_composition) ... ERROR
+test_REPLACED_storage_refuses_at_import_admission (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_REPLACED_storage_refuses_at_import_admission)
+The point of recording an inode: the directory is swapped for a ... ERROR
+test_a_false_target_source_inode_prepares_nothing (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_a_false_target_source_inode_prepares_nothing) ... ok
+test_a_false_workspace_inode_prepares_nothing (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_a_false_workspace_inode_prepares_nothing) ... ok
+test_a_linked_worktree_shares_the_producers_repository (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_a_linked_worktree_shares_the_producers_repository)
+Its own Git directory, its own path, ONE common directory -- and a ... ok
+test_a_separate_workspace_is_accepted_and_is_where_it_writes (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_a_separate_workspace_is_accepted_and_is_where_it_writes)
+The positive beside the four refusals: an integration-owned ... ok
+test_a_symlink_to_the_producers_line_is_the_same_storage (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_a_symlink_to_the_producers_line_is_the_same_storage)
+A canonical path comparison sees two different paths here. ... ok
+test_isolation_is_proved_again_at_import_admission (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_isolation_is_proved_again_at_import_admission)
+The Manager's answer can move after preparation, so admission asks ... ERROR
+test_storage_that_is_not_a_directory_refuses (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_storage_that_is_not_a_directory_refuses) ... ok
+test_storage_that_is_not_there_refuses (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_storage_that_is_not_there_refuses) ... ok
+test_the_dedicated_target_may_not_be_the_workspace (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_the_dedicated_target_may_not_be_the_workspace) ... ok
+test_the_producers_own_line_may_not_be_the_workspace (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_the_producers_own_line_may_not_be_the_workspace) ... ok
+
+======================================================================
+ERROR: test_a_published_result_with_no_receipts_authorizes_nothing (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_published_result_with_no_receipts_authorizes_nothing)
+PUBLICATION-WITHOUT-IMPORT, the amendment's scheduled replacement
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 997, in test_a_published_result_with_no_receipts_authorizes_nothing
+    published = self.through_publication()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 585, in through_publication
+    return self.publish(self.observe_result(held))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_a_receipt_by_another_actor_is_not_this_owners (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_receipt_by_another_actor_is_not_this_owners)
+The record adopts the receipt of the participant it was given, and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1079, in test_a_receipt_by_another_actor_is_not_this_owners
+    published = self.through_publication()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 585, in through_publication
+    return self.publish(self.observe_result(held))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_a_receipt_on_the_producers_proposal_is_not_this_results (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_receipt_on_the_producers_proposal_is_not_this_results)
+The submission's own three receipts are real, accepting and on the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1089, in test_a_receipt_on_the_producers_proposal_is_not_this_results
+    published = self.through_publication()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 585, in through_publication
+    return self.publish(self.observe_result(held))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_a_refusing_owner_does_not_authorize (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_refusing_owner_does_not_authorize)
+A NONACCEPTING DECISION IS RETAINED BY ITS OWNER and is not an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1128, in test_a_refusing_owner_does_not_authorize
+    published = self.through_publication()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 585, in through_publication
+    return self.publish(self.observe_result(held))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_an_absent_or_unconfigured_owner_refuses (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_an_absent_or_unconfigured_owner_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1106, in test_an_absent_or_unconfigured_owner_refuses
+    published = self.through_publication()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 585, in through_publication
+    return self.publish(self.observe_result(held))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_an_approval_under_a_superseded_policy_is_not_adopted (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_an_approval_under_a_superseded_policy_is_not_adopted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1155, in test_an_approval_under_a_superseded_policy_is_not_adopted
+    published = self.through_publication()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 585, in through_publication
+    return self.publish(self.observe_result(held))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_evidence_for_one_result_cannot_authorize_another (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_evidence_for_one_result_cannot_authorize_another)
+THE REPRODUCED COUNTEREXAMPLE, now closed twice over.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1022, in test_evidence_for_one_result_cannot_authorize_another
+    authorized = self.authorize(first)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 569, in authorize
+    else self.publish(witnessed))
+         ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_one_actor_may_not_give_two_judgements (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_one_actor_may_not_give_two_judgements)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1116, in test_one_actor_may_not_give_two_judgements
+    published = self.through_publication()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 585, in through_publication
+    return self.publish(self.observe_result(held))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_the_derived_digest_binds_the_bytes_the_runs_and_the_observer (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_derived_digest_binds_the_bytes_the_runs_and_the_observer)
+WHAT A RECEIPT IS ABOUT, given that a receipt has no field for it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1052, in test_the_derived_digest_binds_the_bytes_the_runs_and_the_observer
+    authorized = self.through_authorization()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 589, in through_authorization
+    return self.authorize(self.prepare())
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 569, in authorize
+    else self.publish(witnessed))
+         ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_the_evidence_is_the_authoritys_receipts_and_the_record_writes_none (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_evidence_is_the_authoritys_receipts_and_the_record_writes_none)
+THE AMENDMENT'S CENTRAL CLAIM, asked of a real Authority.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 968, in test_the_evidence_is_the_authoritys_receipts_and_the_record_writes_none
+    published = self.through_publication()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 585, in through_publication
+    return self.publish(self.observe_result(held))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_the_owner_that_ran_the_harness_may_not_judge_it (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_owner_that_ran_the_harness_may_not_judge_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1070, in test_the_owner_that_ran_the_harness_may_not_judge_it
+    published = self.through_publication()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 585, in through_publication
+    return self.publish(self.observe_result(held))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_the_policy_generation_is_the_approval_receipts_own (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_policy_generation_is_the_approval_receipts_own)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1142, in test_the_policy_generation_is_the_approval_receipts_own
+    published = self.through_publication()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 585, in through_publication
+    return self.publish(self.observe_result(held))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_the_preparer_cannot_review_its_own_composition (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_preparer_cannot_review_its_own_composition)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1098, in test_the_preparer_cannot_review_its_own_composition
+    published = self.through_publication()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 585, in through_publication
+    return self.publish(self.observe_result(held))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_REPLACED_storage_refuses_at_import_admission (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_REPLACED_storage_refuses_at_import_admission)
+The point of recording an inode: the directory is swapped for a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1558, in test_REPLACED_storage_refuses_at_import_admission
+    published = self.through_authorization()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 589, in through_authorization
+    return self.authorize(self.prepare())
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 569, in authorize
+    else self.publish(witnessed))
+         ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+======================================================================
+ERROR: test_isolation_is_proved_again_at_import_admission (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_isolation_is_proved_again_at_import_admission)
+The Manager's answer can move after preparation, so admission asks
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1640, in test_isolation_is_proved_again_at_import_admission
+    authorized = self.through_authorization()
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 589, in through_authorization
+    return self.authorize(self.prepare())
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 569, in authorize
+    else self.publish(witnessed))
+         ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 508, in publish
+    return reconciliation.publish_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.session, result_id=held["result_id"], **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1164, in publish_result
+    accepted_input, accepted_policy = _accepted_digests(publisher, held)
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 651, in _accepted_digests
+    document = boundaries.document(
+        answer, "the producer's own proposal",
+        required=("proposal_id", "result_id", "result_digest", "input_digest",
+                  "policy_digest"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the producer's own proposal also carries assignment_ref, candidate_digest, decision, published_at, target, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+----------------------------------------------------------------------
+Ran 24 tests in 1.770s
+
+FAILED (errors=15)

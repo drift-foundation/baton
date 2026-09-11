@@ -1,0 +1,47 @@
+E...
+======================================================================
+ERROR: test_preparing_publishing_and_admitting_touch_no_producer_byte (tests.integration.test_reconciliation.OriginalSubmissionIsImmutable.test_preparing_publishing_and_admitting_touch_no_producer_byte)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 570, in test_preparing_publishing_and_admitting_touch_no_producer_byte
+    account = self.import_account(published)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 520, in import_account
+    return reconciliation.resolve_import_account(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.profile, self.manager, self.jobs, self.authority,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        result_id=held["result_id"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1040, in resolve_import_account
+    _derived_still_stands(authority, held)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 982, in _derived_still_stands
+    return _published(answer, held, held["derived_proposal_id"],
+                      held["derived_result_id"],
+                      held["derived_result_digest"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 943, in _published
+    document = boundaries.document(proposal, "the derived proposal",
+                                   required=("proposal_id", "assignment_ref",
+    ...<2 lines>...
+                                             "input_digest", "policy_digest",
+                                             "target"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the derived proposal also carries decision, published_at, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.359s
+
+FAILED (errors=1)

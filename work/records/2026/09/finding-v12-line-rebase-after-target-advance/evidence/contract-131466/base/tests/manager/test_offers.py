@@ -1,0 +1,1383 @@
+"""W4 cut C — the offer and the claim, against a strict fake session.
+
+PLAN item 4bd. Every case here is about one question: after a crash, can the
+next incarnation tell what actually happened?
+
+THE FAKE IS STRICT ON PURPOSE. A permissive one would let the manager call
+things the real session does not have and pass anyway -- which is the opposite
+of what a port is for. It answers exactly the five members `AuthorityPort` names
+and records what it was asked.
+"""
+
+import os
+import sqlite3
+import tempfile
+import threading
+import unittest
+
+from baton_v12.contracts import ContractRefusal, digest
+from baton_v12.worker_manager import (AuthorityPort, ControlStore,
+                                      OFFER_TTL_SECONDS, SETTLE_SECONDS,
+                                      accept_offer, certify_profile,
+                                      claim_operation_id, expire_overdue,
+                                      issue_offer, recover_on_restart,
+                                      settle_claim, submit_claim)
+
+NOW = "2026-08-24T00:00:00.000Z"
+LATER = "2026-08-24T00:01:00.000Z"
+MUCH_LATER = "2026-08-24T00:10:00.000Z"
+WORK = "0000000a-W1"
+UUID = "0" * 31 + "a"
+WHO = "baton.claude"
+PROFILE = "sha256:" + "b" * 64
+
+# W16823: the authorization context the authority now answers a claim with.
+# The endpoint is `WHO`; the PRINCIPAL is a separate value on purpose, because
+# a fixture that spelled them the same could not tell the two apart and every
+# case built on it would pass whichever one the manager stored.
+SCOPE = "scope:deployment"
+ROUTE = "baton.impl"
+PRINCIPAL = "principal:org-a"
+
+
+def decision(participant=WHO, principal=PRINCIPAL, scope=SCOPE, role=ROUTE,
+             grant="direct", policy_generation=1):
+    """One authorization decision in the authority's own vocabulary."""
+    return {"endpoint": participant, "principal": principal,
+            "effective_scope": scope, "role": role, "grant": grant,
+            "policy_generation": policy_generation}
+
+
+class FakeSession:
+    """Exactly the five members the port names, and a record of every call."""
+
+    def __init__(self, participant=WHO, work=None, held=None):
+        self.participant = participant
+        self._work = work if work is not None else {
+            "status": "open", "phase": "queued", "handler": None, "gate": None,
+            "authority_uuid": UUID,
+            # W16823: the two facts an offer freezes about the Work, and the
+            # two the claim decision is later held to.
+            "scope": SCOPE, "route": ROUTE}
+        self._held = held
+        self.calls = []
+        # W16823: the CLOSED claim result -- the unchanged four-part fence, the
+        # authority's exact claim event, and the decision it was authorized
+        # under.
+        self.claim_answer = {
+            "assignment": {"work_ref": {"authority_uuid": UUID,
+                                        "work_id": WORK},
+                           "participant": participant, "generation": 1},
+            "claim_event": 1,
+            "decision": decision(participant=participant)}
+        self.settle_answer = {"kind": "live", "record": None}
+        # W6627: what Baton answers when this manager publishes a model's
+        # answer. Settable because the port owns the ANSWER as well as the
+        # call -- a session that returned `None` would otherwise make `None` a
+        # durable reference.
+        self._published = "baton:M1"
+        # Cut D: the authority's own live-assignment projection, in the shape
+        # the authority answers with.
+        self.live_assignment = {"work_ref": {"authority_uuid": UUID,
+                                             "work_id": WORK},
+                                "participant": participant, "generation": 1}
+        # What the authority answers when it fences a generation, ends the
+        # assignment and installs the typed quiescence gate -- one transaction,
+        # one document.
+        self.fence_answer = {"cause": "cancelled",
+                             "assignment": dict(self.live_assignment),
+                             "phase": "block",
+                             "gate": "runtime-quiescence:1",
+                             "fenced": True}
+        # W119548: what the authority answers when it discharges that same
+        # gate, and the journal of the ones it has already answered. Settable
+        # for the reason every other answer here is: the port owns the ANSWER
+        # as well as the call.
+        self.discharge_answer = {"gate": "runtime-quiescence:1",
+                                 "kind": "runtime-quiescence",
+                                 "phase": "queued"}
+        self.discharged = {}
+        self.gate_evidence = []
+
+    def project_work(self, work_id):
+        self.calls.append(("project_work", work_id))
+        return self._work
+
+    def slot_holder(self, participant):
+        self.calls.append(("slot_holder", participant))
+        return self._held
+
+    def assignment_of(self, work_id):
+        self.calls.append(("assignment_of", work_id))
+        return self.live_assignment
+
+    def cancel(self, operands):
+        self.calls.append(("cancel", dict(operands)))
+        if isinstance(self.fence_answer, BaseException):
+            raise self.fence_answer
+        return self.fence_answer
+
+    # W119548: THE OTHER END OF THE FENCE, and the shared fake capability the
+    # gate-discharge cases are driven through. It is on this session rather
+    # than on a second one because a fence and its discharge are two acts of
+    # ONE authority: a fake that installed a gate here and discharged it
+    # somewhere else would let a case pass while the two halves disagreed
+    # about which gate exists.
+    #
+    # IT MODELS THE AUTHORITY'S OWN TWO RULES and nothing else. The gate token
+    # must be exactly the one holding the Work, and an operation identity that
+    # already committed REPLAYS its recorded answer without consulting the
+    # gate again -- which is what makes a remote commit with a lost local
+    # receipt idempotent rather than a second act.
+    def satisfy_gate(self, operands):
+        self.calls.append(("satisfy_gate", dict(operands)))
+        if isinstance(self.discharge_answer, BaseException):
+            raise self.discharge_answer
+        held = self.discharged.get(operands["operation_id"])
+        if held is not None:
+            return dict(held)
+        if self._work.get("gate") != operands["gate"]:
+            raise ContractRefusal(
+                "refused", "precondition",
+                "that gate is not the one holding this Work")
+        answer = dict(self.discharge_answer, gate=operands["gate"])
+        self.discharged[operands["operation_id"]] = answer
+        self._work = dict(self._work, gate=None, phase="queued")
+        self.gate_evidence.append(dict(operands["evidence"]))
+        return dict(answer)
+
+    def claim(self, operands):
+        self.calls.append(("claim", dict(operands)))
+        if isinstance(self.claim_answer, BaseException):
+            raise self.claim_answer
+        return self.claim_answer
+
+    def settle_operation(self, operands):
+        self.calls.append(("settle_operation", dict(operands)))
+        return self.settle_answer
+
+    def publish_answer(self, operands):
+        # W6627: the manager is the ONE Baton client, so a conversational
+        # answer reaches Baton through the injected session and never through
+        # the worker. Every suite that builds a port inherits the member from
+        # here, because the port types the whole session surface at
+        # construction -- a capability that cannot be called would otherwise
+        # fault inside a transaction.
+        self.calls.append(("publish_answer", dict(operands)))
+        return self._published
+
+
+def fake_claim_signature(work_id, participant):
+    # Stands in for the authority's own derivation. The manager consumes it and
+    # never recomputes it, so a fake proves the manager USES what it is given.
+    return f"claim-signature({work_id},{participant})"
+
+
+class OfferCase(unittest.TestCase):
+
+    def setUp(self):
+        self._root = tempfile.TemporaryDirectory(prefix="v12-worker-manager-")
+        self.addCleanup(self._root.cleanup)
+        self.root = self._root.name
+        self.path = os.path.join(self.root, "control.sqlite3")
+        self.instants = [NOW]
+        self.store = self.open_store()
+        self.session = FakeSession()
+        self.port = AuthorityPort(self.session, fake_claim_signature)
+        certify_profile(self.store, "runtime", "reference", PROFILE)
+        self.minted = []
+
+    def open_store(self, incarnation="manager-1"):
+        store = ControlStore.open(self.path, incarnation=incarnation,
+                                  clock=lambda: self.instants[-1])
+        self.addCleanup(store.close)
+        return store
+
+    def mint(self, bearer="bearer-1"):
+        def mint_bearer():
+            self.minted.append(bearer)
+            return bearer
+        return mint_bearer
+
+    def issue(self, offer_id="offer-1", bearer="bearer-1", **overrides):
+        operands = dict(offer_id=offer_id, work_id=WORK,
+                        runtime_attempt_id="attempt-1",
+                        input_digest="sha256:" + "1" * 64,
+                        policy_digest="sha256:" + "2" * 64,
+                        profile_digest=PROFILE, profile_name="reference",
+                        mint_bearer=self.mint(bearer))
+        operands.update(overrides)
+        return issue_offer(self.store, self.port, **operands)
+
+    def accept(self, offer_id="offer-1", bearer="bearer-1", now=NOW,
+               decision="accept", **overrides):
+        operands = dict(offer_id=offer_id, decision=decision, bearer=bearer,
+                        now=now, runtime_attempt_id="attempt-1",
+                        work_ref={"authority_uuid": UUID, "work_id": WORK})
+        operands.update(overrides)
+        return accept_offer(self.store, self.port, **operands)
+
+    def decline(self, offer_id="offer-1", now=NOW, **overrides):
+        """W33937: THE TWO DECISIONS HAVE DIFFERENT OPERAND SETS.
+
+        A decline carries no bearer, so the fixture OMITS the operand rather
+        than passing a falsy one -- absence is what the boundary requires, and
+        an empty string is a carried value like any other. `**overrides` is how
+        a case puts one back to prove that carrying one is refused.
+        """
+        operands = dict(offer_id=offer_id, decision="decline", now=now,
+                        runtime_attempt_id="attempt-1",
+                        work_ref={"authority_uuid": UUID, "work_id": WORK})
+        operands.update(overrides)
+        return accept_offer(self.store, self.port, **operands)
+
+    def row(self, offer_id="offer-1"):
+        found = self.store._connection.execute(
+            "SELECT * FROM offers WHERE offer_id = ?", (offer_id,)).fetchone()
+        return None if found is None else {k: found[k] for k in found.keys()}
+
+
+class TheInjectedCapabilityIsTyped(OfferCase):
+
+    def test_a_session_missing_what_the_manager_uses_is_refused(self):
+        class Partial:
+            participant = WHO
+
+            def project_work(self, work_id):
+                return {}
+
+        with self.assertRaises(ContractRefusal) as caught:
+            AuthorityPort(Partial(), fake_claim_signature)
+        self.assertIn("slot_holder", str(caught.exception))
+
+    def test_a_session_that_names_no_participant_is_refused(self):
+        for what, participant in [("none", None), ("empty", ""),
+                                  ("a number", 7)]:
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal) as caught:
+                    AuthorityPort(FakeSession(participant=participant),
+                                  fake_claim_signature)
+                self.assertIn("binds", str(caught.exception))
+
+    def test_the_bound_participant_is_owned_when_the_port_receives_it(self):
+        with self.assertRaises(ContractRefusal):
+            AuthorityPort(FakeSession(participant="\ud800"),
+                          fake_claim_signature)
+
+    def test_the_signature_derivation_is_injected_not_optional(self):
+        with self.assertRaises(ContractRefusal):
+            AuthorityPort(FakeSession(), "not callable")
+
+    def test_every_session_operation_the_port_names_is_callable(self):
+        for member in ("project_work", "slot_holder", "claim",
+                       "settle_operation"):
+            with self.subTest(member=member):
+                session = FakeSession()
+                setattr(session, member, None)
+                with self.assertRaises(ContractRefusal):
+                    AuthorityPort(session, fake_claim_signature)
+
+    def test_the_port_supplies_no_participant_to_the_claim(self):
+        # The session takes its claimant from its BINDING and refuses a supplied
+        # one, which is the whole reason an offer's participant is checked
+        # against the binding rather than carried beside it.
+        self.issue()
+        self.accept()
+        submit_claim(self.store, self.port, offer_id="offer-1")
+        claim = [operands for name, operands in self.session.calls
+                 if name == "claim"][0]
+        self.assertEqual(sorted(claim), ["operation_id", "work_id"])
+
+
+class TheParticipantIsTheBinding(OfferCase):
+
+    def test_an_offer_naming_another_participant_is_refused(self):
+        with self.assertRaises(ContractRefusal) as caught:
+            self.issue(participant="baton.someone-else")
+        self.assertIn("would be taken by the binding", str(caught.exception))
+        self.assertIsNone(self.row())
+
+    def test_the_offer_records_the_binding(self):
+        answer = self.issue()
+        self.assertEqual(answer["participant"], WHO)
+        self.assertEqual(self.row()["participant"], WHO)
+
+
+class WhatMustHoldBeforeEntropyIsSpent(OfferCase):
+
+    def test_the_mint_capability_is_typed_before_authority_reads(self):
+        with self.assertRaises(ContractRefusal):
+            self.issue(mint_bearer=None)
+        self.assertEqual(self.session.calls, [])
+        self.assertIsNone(self.row())
+
+    def test_the_injected_work_projection_is_owned_before_use(self):
+        self.session._work = 7
+        with self.assertRaises(ContractRefusal):
+            self.issue()
+        self.assertEqual(self.minted, [])
+        self.assertIsNone(self.row())
+
+    def test_the_injected_work_projection_is_a_closed_document(self):
+        self.session._work["unexpected"] = "member"
+        with self.assertRaises(ContractRefusal):
+            self.issue()
+        self.assertEqual(self.minted, [])
+        self.assertIsNone(self.row())
+
+    def test_the_injected_work_projection_owns_the_members_it_persists(self):
+        self.session._work["authority_uuid"] = 7
+        with self.assertRaises(ContractRefusal):
+            self.issue()
+        self.assertEqual(self.minted, [])
+        self.assertIsNone(self.row())
+
+    def test_a_nonpositive_ttl_is_refused_before_entropy(self):
+        with self.assertRaises(ContractRefusal):
+            self.issue(ttl_seconds=-1)
+        self.assertEqual(self.minted, [])
+        self.assertIsNone(self.row())
+
+    def test_a_positive_ttl_must_fit_deadline_arithmetic_before_reads(self):
+        with self.assertRaises(ContractRefusal):
+            self.issue(ttl_seconds=10 ** 100)
+        self.assertEqual(self.session.calls, [])
+        self.assertEqual(self.minted, [])
+        self.assertIsNone(self.row())
+
+    def test_the_deadline_source_must_be_representable_before_reads(self):
+        self.instants[-1] = "2026-99-99T99:99:99.999Z"
+        with self.assertRaises(ContractRefusal):
+            self.issue()
+        self.assertEqual(self.session.calls, [])
+        self.assertEqual(self.minted, [])
+        self.assertIsNone(self.row())
+
+    def test_cut_c_text_is_encodable_before_any_sql_read(self):
+        surrogate = "\ud800"
+        for operation in (
+                lambda: accept_offer(
+                    self.store, self.port, offer_id="offer-" + surrogate,
+                    decision="accept", bearer="bearer", now=NOW,
+                    runtime_attempt_id="attempt-1",
+                    work_ref={"authority_uuid": UUID, "work_id": WORK}),
+                lambda: expire_overdue(self.store, "2026-" + surrogate)):
+            with self.subTest(operation=operation):
+                with self.assertRaises(ContractRefusal):
+                    operation()
+
+    def test_every_public_offer_lookup_proves_text_before_sql(self):
+        surrogate = "offer-\ud800"
+        for operation in (
+                lambda: submit_claim(
+                    self.store, self.port, offer_id=surrogate),
+                lambda: settle_claim(
+                    self.store, self.port, offer_id=surrogate, now=NOW),
+                lambda: expire_overdue(
+                    self.store, NOW, work_id="work-\ud800")):
+            with self.subTest(operation=operation):
+                with self.assertRaises(ContractRefusal):
+                    operation()
+
+    def test_profile_certification_owns_key_text_before_composing_sql(self):
+        for what, kind, name in [("kind", 7, "profile"),
+                                 ("name", "runtime", 7)]:
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal):
+                    certify_profile(self.store, kind, name, PROFILE)
+
+    def test_time_comparison_refuses_text_outside_the_instant_grammar(self):
+        self.issue()
+        with self.assertRaises(ContractRefusal):
+            expire_overdue(self.store, "not-an-instant")
+        self.assertEqual(self.row()["state"], "issued")
+
+    def test_time_comparison_refuses_a_calendar_impossible_instant(self):
+        self.issue()
+        with self.assertRaises(ContractRefusal):
+            expire_overdue(self.store, "2026-99-99T99:99:99.999Z")
+        self.assertEqual(self.row()["state"], "issued")
+
+    def test_the_work_must_be_open_queued_unclaimed_and_ungated(self):
+        for what, work in [
+                ("closed", {"status": "closed", "phase": "queued",
+                            "handler": None, "gate": None,
+                            "authority_uuid": UUID}),
+                ("active", {"status": "open", "phase": "active",
+                            "handler": None, "gate": None,
+                            "authority_uuid": UUID}),
+                ("claimed", {"status": "open", "phase": "queued",
+                             "handler": WHO, "gate": None,
+                             "authority_uuid": UUID}),
+                ("gated", {"status": "open", "phase": "queued",
+                           "handler": None, "gate": "quiescence:x",
+                           "authority_uuid": UUID})]:
+            with self.subTest(what=what):
+                self.session._work = work
+                with self.assertRaises(ContractRefusal):
+                    self.issue(offer_id=f"offer-{what}")
+                self.assertEqual(self.minted, [], "entropy was spent")
+
+    def test_certification_is_unavoidable(self):
+        """A check a caller can skip by not mentioning it is not a boundary.
+
+        The frozen host's comparison was conditional on an operand being
+        supplied, so omitting it issued an offer with no certification check at
+        all -- and its happy-path fixtures omitted it throughout. There is no
+        operand here: the control store's own record is the only fact.
+        """
+        store = ControlStore.open(
+            os.path.join(self.root, "uncertified.sqlite3"),
+            incarnation="m", clock=lambda: NOW)
+        self.addCleanup(store.close)
+        with self.assertRaises(ContractRefusal) as caught:
+            issue_offer(store, self.port, offer_id="offer-1", work_id=WORK,
+                        runtime_attempt_id="attempt-1",
+                        input_digest="sha256:" + "1" * 64,
+                        policy_digest="sha256:" + "2" * 64,
+                        profile_digest=PROFILE, profile_name="reference",
+                        mint_bearer=self.mint())
+        self.assertEqual(caught.exception.code, "profile-uncertified")
+        # THE REASON, not only the code. Both refusals here carry
+        # `policy/profile-uncertified`, so a case reading the code alone cannot
+        # tell "nothing certifies this" from "we certified something else" --
+        # and a mutation removing the first branch measured zero until this
+        # asserted which one answered.
+        self.assertIn("nothing certifies", str(caught.exception))
+        self.assertEqual(self.minted, [])
+
+    def test_a_profile_digest_the_store_does_not_certify_is_refused(self):
+        with self.assertRaises(ContractRefusal) as caught:
+            self.issue(profile_digest="sha256:" + "9" * 64)
+        self.assertEqual(caught.exception.code, "profile-uncertified")
+        self.assertIn("has certified", str(caught.exception))
+        self.assertEqual(self.minted, [])
+
+    def test_capacity_is_checked_before_a_bearer_is_minted(self):
+        self.session._held = "0000000a-W9"
+        with self.assertRaises(ContractRefusal) as caught:
+            self.issue()
+        self.assertIn("already holds", str(caught.exception))
+        self.assertEqual(self.minted, [], "a bearer was minted for a claim "
+                                          "that cannot be taken")
+
+    def test_an_exact_replay_refuses_without_minting_anything(self):
+        """The bearer existed only in the process that minted it.
+
+        The frozen host minted first, so an exact replay answered with the FIRST
+        offer's durable verifier beside a newly minted bearer that does not
+        derive it -- a secret the holder cannot use and cannot tell is unusable.
+        """
+        self.issue()
+        self.assertEqual(len(self.minted), 1)
+        with self.assertRaises(ContractRefusal) as caught:
+            self.issue()
+        self.assertIn("already issued", str(caught.exception))
+        self.assertEqual(len(self.minted), 1, "a second bearer was minted")
+        # THE SECRET, not the word. My first assertion looked for "bearer" and
+        # the refusal legitimately says it -- a case that would have passed only
+        # by the message being less clear.
+        self.assertNotIn("bearer-1", str(caught.exception))
+
+
+class TheOfferRecordsTheVerifierAndReturnsTheBearer(OfferCase):
+
+    def test_the_bearer_is_returned_and_never_stored(self):
+        answer = self.issue(bearer="the-secret")
+        self.assertEqual(answer["bearer"], "the-secret")
+        self.assertEqual(answer["verifier"], digest("the-secret"))
+        stored = self.row()
+        self.assertEqual(stored["verifier"], digest("the-secret"))
+        self.assertNotIn("the-secret", str(stored))
+        # And not in the journal either.
+        record = self.store.operation_record("offer.issue:offer-1")
+        self.assertNotIn("the-secret", str(record))
+
+    def test_every_durable_operand_rides_the_signature(self):
+        # An operation identity that ignores operands is not an identity: the
+        # frozen host covered only (offer, work, participant), so a changed
+        # policy digest REPLAYED the first offer as though it were the same
+        # request.
+        self.issue()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.issue(policy_digest="sha256:" + "7" * 64)
+        self.assertEqual(caught.exception.code, "operation-collision")
+
+    def test_the_authority_is_part_of_the_offer_identity(self):
+        # The frozen host's signature carried the local Work id while the row
+        # persists the authority too, so reusing an issue identity against
+        # ANOTHER authority read as an exact replay rather than a collision. The
+        # authority a Work belongs to is as durable as the Work.
+        self.issue()
+        # THE SAME INSTANT, so only the authority differs. My first version also
+        # advanced the clock, which changes `expires_at` -- itself a signed
+        # operand -- so the collision fired for that instead and removing the
+        # authority from the signature measured zero. A case that varies two
+        # things measures neither.
+        self.session._work = dict(self.session._work, authority_uuid="9" * 32)
+        with self.assertRaises(ContractRefusal) as caught:
+            self.issue()
+        self.assertEqual(caught.exception.code, "operation-collision")
+
+    def test_a_concurrent_exact_issuer_is_told_it_lost(self):
+        """The COMMIT MARKER, witnessed where it can actually be reached.
+
+        The optimistic replay check answers the sequential case and two
+        concurrent exact issuers both pass it -- the winner commits its verifier
+        and `transact` hands the LOSER that committed record. Returning it beside
+        the loser's freshly minted bearer is the unusable pair the whole step
+        exists to prevent, and provenance must come from the journal rather than
+        from any property of the secret.
+
+        The window is opened on purpose, because a race that has to be timed is
+        a case that passes when the timing is kind.
+        """
+        import sqlite3
+        competitor = sqlite3.connect(self.path, isolation_level=None)
+        self.addCleanup(competitor.close)
+        original = self.store.replay
+        peeked = []
+
+        def racing_replay(operation_id, signature, *, kind=None):
+            answer = original(operation_id, signature, kind=kind)
+            if operation_id == "offer.issue:offer-1" and not peeked:
+                peeked.append("peeked")
+                # The other manager wins, right here, with ITS bearer.
+                competitor.execute(
+                    "INSERT INTO offers (offer_id, work_id, authority_uuid, "
+                    "participant, runtime_attempt_id, incarnation, "
+                    "input_digest, policy_digest, profile_digest, verifier, "
+                    # W16823: the offer freezes the Work's scope and route.
+                    "work_scope, work_route, "
+                    "issued_at, expires_at, state) VALUES "
+                    "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,'issued')",
+                    ("offer-1", WORK, UUID, WHO, "attempt-1", "other",
+                     "sha256:" + "1" * 64, "sha256:" + "2" * 64, PROFILE,
+                     digest("their-bearer"), SCOPE, ROUTE,
+                     NOW, "2030-01-01T00:00:00.000Z"))
+                competitor.execute(
+                    "INSERT INTO operations (operation_id, kind, signature, "
+                    "state, result, settled_at) VALUES (?,?,?,'committed',?,?)",
+                    ("offer.issue:offer-1", "offer.issue", signature,
+                     '{"verifier":"' + digest("their-bearer") + '"}', NOW))
+            return answer
+
+        self.store.replay = racing_replay
+        with self.assertRaises(ContractRefusal) as caught:
+            self.issue()
+        self.assertIn("issued concurrently", str(caught.exception))
+        self.assertNotIn("bearer-1", str(caught.exception))
+
+    def test_a_boolean_ttl_is_not_a_duration(self):
+        # `True` is an `int` in Python and is greater than zero, so without the
+        # bool check it becomes a one-second offer -- accepted, committed and
+        # expiring immediately. A mutation removing that check measured zero
+        # until this case existed.
+        for what, ttl in [("true", True), ("false", False)]:
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal):
+                    self.issue(offer_id=f"offer-{what}", ttl_seconds=ttl)
+                self.assertEqual(self.minted, [])
+
+    def test_one_live_offer_per_work(self):
+        # `assertRaises(Exception)` is what this said first, and it passed on a
+        # raw `sqlite3.IntegrityError` -- the weak assertion I have criticised
+        # in other people's cases, written by me. It names the closed pair now,
+        # and naming it is what found that the index violation was escaping as a
+        # driver fault.
+        self.issue()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.issue(offer_id="offer-2", bearer="bearer-2")
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIn("live offer", str(caught.exception))
+
+
+class AcceptanceBindsAndConsumes(OfferCase):
+
+    def test_acceptance_fields_are_all_frozen_or_all_absent_in_the_schema(self):
+        self.issue()
+        self.issue(offer_id="offer-2", bearer="bearer-2",
+                   work_id="0000000a-W2")
+        for what, statement, operands in [
+                ("accepted without its frozen identity",
+                 "UPDATE offers SET state = 'accepted' WHERE offer_id = ?",
+                 ("offer-1",)),
+                ("issued carrying acceptance fields",
+                 "UPDATE offers SET accepted_at = ?, settle_by = ? "
+                 "WHERE offer_id = ?", (NOW, LATER, "offer-2"))]:
+            with self.subTest(what=what):
+                with self.assertRaises(sqlite3.IntegrityError):
+                    self.store._connection.execute(statement, operands)
+
+    def test_the_injected_claim_signature_result_is_durable_text(self):
+        self.issue()
+        self.port = AuthorityPort(self.session, lambda work_id, participant: None)
+        with self.assertRaises(ContractRefusal):
+            self.accept()
+        self.assertEqual(self.row()["state"], "issued")
+
+    def test_a_decision_naming_another_attempt_or_work_is_refused(self):
+        self.issue()
+        for what, overrides in [
+                ("another attempt", {"runtime_attempt_id": "attempt-9"}),
+                ("another work", {"work_ref": {"authority_uuid": UUID,
+                                               "work_id": "0000000a-W9"}}),
+                ("another authority", {"work_ref": {"authority_uuid": "9" * 32,
+                                                    "work_id": WORK}})]:
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal):
+                    self.accept(**overrides)
+                self.assertEqual(self.row()["state"], "issued")
+
+    def test_a_decision_without_the_bearer_is_refused(self):
+        self.issue()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.accept(bearer="not-the-bearer")
+        self.assertEqual(caught.exception.code, "capability")
+        self.assertEqual(self.row()["state"], "issued")
+
+    def test_acceptance_freezes_the_intent_and_the_claim_identity(self):
+        self.issue()
+        answer = self.accept()
+        stored = self.row()
+        self.assertEqual(stored["state"], "accepted")
+        self.assertEqual(stored["verifier_spent"], 1)
+        self.assertEqual(stored["intent_digest"], answer["intent_digest"])
+        self.assertEqual(stored["claim_operation_id"],
+                         claim_operation_id("offer-1", answer["intent_digest"]))
+        # THE AUTHORITY'S OWN SIGNATURE, consumed rather than recomputed.
+        self.assertEqual(stored["claim_signature"],
+                         fake_claim_signature(WORK, WHO))
+        self.assertEqual(stored["settle_by"], _later(NOW, SETTLE_SECONDS))
+
+    def test_the_acceptance_deadline_fields_are_part_of_the_invariant(self):
+        # The reviewer's row omits all five, and a CHECK naming only three still
+        # refuses it -- so the deadline half was untested. This row carries the
+        # three and omits `accepted_at` and `settle_by`, which is the shape an
+        # acceptance that froze an identity it cannot settle would leave.
+        import sqlite3
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.store._connection.execute(
+                "INSERT INTO offers (offer_id, work_id, authority_uuid, "
+                "participant, runtime_attempt_id, incarnation, input_digest, "
+                "policy_digest, profile_digest, verifier, issued_at, "
+                "expires_at, state, intent_digest, claim_operation_id, "
+                "claim_signature) VALUES "
+                "(?,?,?,?,?,?,?,?,?,?,?,?,'accepted',?,?,?)",
+                ("offer-half", WORK, UUID, WHO, "attempt-1", "m", "d", "d",
+                 PROFILE, "v", NOW, MUCH_LATER, "intent", "claim:x", "sig"))
+
+    def test_the_bearer_is_single_use_across_every_outcome(self):
+        # A DIFFERENT WORK PER SUBTEST. My first version reused one, and the
+        # one-live-offer index refused the second issue -- the rule working, and
+        # my fixture asking for something the contract forbids.
+        #
+        # W33937: the two decisions are settled through different operand sets
+        # now -- an acceptance carries the bearer, a decline carries none -- and
+        # the rule they share is unchanged. What single use means once an EXACT
+        # repeat replays (proved separately) is that the verifier buys no
+        # second, DIFFERENT outcome: after either decision commits, the other
+        # one is refused and rewrites nothing.
+        for index, what in enumerate(("acceptance", "decline"), start=2):
+            with self.subTest(what=what):
+                offer_id = f"offer-{what}"
+                bearer = f"bearer-{what}"
+                bound = dict(offer_id=offer_id,
+                             work_ref={"authority_uuid": UUID,
+                                       "work_id": f"0000000a-W{index}"})
+                self.issue(bearer=bearer, work_id=bound["work_ref"]["work_id"],
+                           offer_id=offer_id)
+                if what == "acceptance":
+                    self.accept(bearer=bearer, **bound)
+                else:
+                    self.decline(**bound)
+                stored = self.row(offer_id)
+                self.assertEqual(stored["verifier_spent"], 1)
+                with self.assertRaises(ContractRefusal):
+                    if what == "acceptance":
+                        self.decline(**bound)
+                    else:
+                        self.accept(bearer=bearer, **bound)
+                self.assertEqual(self.row(offer_id), stored)
+
+    def test_an_exact_acceptance_retry_replays_the_committed_acceptance(self):
+        """The verifier is spent by the acceptance it PAID FOR.
+
+        A retry carrying it is what a lost reply looks like, not a second
+        acceptance -- so refusing it merely because the verifier is now spent
+        would fail the retry for doing exactly what a retry is for.
+        """
+        self.issue()
+        first = self.accept()
+        stored = self.row()
+        self.assertEqual(stored["verifier_spent"], 1)
+        self.assertEqual(self.accept(), first)
+        # THE CLOCK IS NOT ONE OF ITS OPERANDS: the same decision arriving
+        # later is the same decision.
+        self.assertEqual(self.accept(now=LATER), first)
+        self.assertEqual(self.row(), stored)
+        # AND PAST THE CLAIM IT AUTHORIZED. Submitting moves the offer to
+        # `claimed` and does not unmake the acceptance this operation
+        # committed, so the retry still replays the acceptance rather than
+        # reporting the claim's state or refusing.
+        submit_claim(self.store, self.port, offer_id="offer-1")
+        self.assertEqual(self.row()["state"], "claimed")
+        self.assertEqual(self.accept(), first)
+        self.assertEqual(self.row()["state"], "claimed")
+
+    def test_a_wrong_acceptance_retry_is_refused_rather_than_replayed(self):
+        """Replay is for the EXACT decision; everything else is a new one.
+
+        The binding and possession are proved before the replay is decided, so
+        a retry that changes any of them is refused on its own terms and the
+        committed acceptance is not handed to it.
+        """
+        self.issue()
+        first = self.accept()
+        stored = self.row()
+        for what, overrides in [
+                ("another secret", {"bearer": "bearer-2"}),
+                ("no secret at all", {"bearer": None}),
+                ("another attempt", {"runtime_attempt_id": "attempt-9"}),
+                ("another Work", {"work_ref": {"authority_uuid": UUID,
+                                               "work_id": "0000000a-W9"}}),
+                ("another authority", {"work_ref": {"authority_uuid": "9" * 32,
+                                                    "work_id": WORK}})]:
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal):
+                    self.accept(**overrides)
+                self.assertEqual(self.row(), stored)
+        self.assertEqual(self.accept(), first)
+
+    def test_a_decline_cannot_be_replayed_into_an_acceptance(self):
+        self.issue()
+        self.decline(reason="busy")
+        self.assertEqual(self.row()["state"], "declined")
+        with self.assertRaises(ContractRefusal):
+            self.accept(decision="accept")
+        self.assertEqual(self.row()["state"], "declined")
+
+
+class TheDeclineCarriesNoBearer(OfferCase):
+    """W33937, ruled 2026-08-28 and reaffirmed 2026-09-02.
+
+    The claim bearer is ACCEPTANCE's capability. A decline is authorized by the
+    exact binding it names, carries no bearer, mints no claim, and consumes the
+    verifier so the offer is terminal for that secret.
+    """
+
+    def test_a_bearer_free_decline_terminates_and_consumes_the_verifier(self):
+        issued = self.issue()
+        settled = self.decline(reason="busy")
+        self.assertEqual(settled, {"offer_id": "offer-1", "state": "declined",
+                                   "reason": "busy"})
+        stored = self.row()
+        self.assertEqual(stored["state"], "declined")
+        self.assertEqual(stored["decision_reason"], "busy")
+        self.assertEqual(stored["decided_at"], NOW)
+        # ATOMICALLY, IN THE SETTLEMENT ITSELF: the verifier is spent by the
+        # same compare-and-swap that made the offer terminal, so the bearer the
+        # issue answered with can never accept it afterwards.
+        self.assertEqual(stored["verifier_spent"], 1)
+        self.assertEqual(stored["verifier"], digest(issued["bearer"]))
+        # AND NO CLAIM WAS MINTED. The five acceptance freezes stay absent, so
+        # there is no fixed claim identity, no settlement deadline and nothing
+        # for a later incarnation to settle.
+        for column in ("intent_digest", "accepted_at", "settle_by",
+                       "claim_operation_id", "claim_signature"):
+            self.assertIsNone(stored[column], column)
+
+    def test_a_decline_carrying_any_bearer_value_is_refused_unchanged(self):
+        """Including the empty string, which is a carried value like any other.
+
+        ONE OFFER FOR EVERY SUBTEST, deliberately: what is asserted is that
+        each refusal left the offer and the journal exactly as they were, so
+        the next probe finding a live issued offer IS the previous one's
+        evidence.
+        """
+        self.issue()
+        before = self.row()
+        for what, carried in [("this offer's own bearer", "bearer-1"),
+                              ("another offer's bearer", "bearer-2"),
+                              ("an empty string", ""),
+                              ("a null claim token", None),
+                              ("a value that is not text", 7)]:
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self.decline(bearer=carried, reason="busy")
+                self.assertEqual((caught.exception.category,
+                                  caught.exception.code),
+                                 ("integrity", "schema"))
+                self.assertEqual(self.row(), before)
+                self.assertIsNone(
+                    self.store.operation_record("offer.declined:offer-1"))
+        # STILL DECLINABLE: none of those refusals settled anything.
+        self.decline(reason="busy")
+        self.assertEqual(self.row()["state"], "declined")
+
+    def test_an_exact_committed_decline_replays_its_committed_result(self):
+        self.issue()
+        first = self.decline(reason="busy")
+        stored = self.row()
+        self.assertEqual(self.decline(reason="busy"), first)
+        # THE CLOCK IS NOT ONE OF ITS OPERANDS: the same decision arriving
+        # later is the same decision, replayed rather than re-decided.
+        self.assertEqual(self.decline(reason="busy", now=LATER), first)
+        self.assertEqual(self.row(), stored)
+
+    def test_a_decline_that_changes_its_reason_is_an_operation_collision(self):
+        """§4.2: reusing a recorded identity with different operands changes
+        nothing and says so. The reason is a durable operand of the settlement,
+        so a second decline that rewords it is not this one's replay."""
+        self.issue()
+        first = self.decline(reason="busy")
+        stored = self.row()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.decline(reason="a different reason")
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "operation-collision"))
+        self.assertEqual(self.row(), stored)
+        self.assertEqual(self.decline(reason="busy"), first)
+
+    def test_a_differently_bound_decline_terminates_nothing(self):
+        """A decline proves the IDENTITY of the offer it is ending, so a
+        decision naming another attempt, Work or authority is not this offer's
+        decision -- before its own decision commits and after it."""
+        self.issue()
+        elsewhere = [
+            ("another attempt", {"runtime_attempt_id": "attempt-9"}),
+            ("another Work", {"work_ref": {"authority_uuid": UUID,
+                                           "work_id": "0000000a-W9"}}),
+            ("another authority", {"work_ref": {"authority_uuid": "9" * 32,
+                                                "work_id": WORK}}),
+            ("no offer of that name", {"offer_id": "offer-9"})]
+        for what, overrides in elsewhere:
+            with self.subTest(what=what, committed=False):
+                with self.assertRaises(ContractRefusal) as caught:
+                    self.decline(reason="busy", **overrides)
+                self.assertEqual(caught.exception.code, "precondition")
+                self.assertEqual(self.row()["state"], "issued")
+        committed = self.decline(reason="busy")
+        stored = self.row()
+        for what, overrides in elsewhere:
+            with self.subTest(what=what, committed=True):
+                with self.assertRaises(ContractRefusal):
+                    self.decline(reason="busy", **overrides)
+                self.assertEqual(self.row(), stored)
+        self.assertEqual(self.decline(reason="busy"), committed)
+
+    def test_a_late_decline_settles_the_row_as_expired_and_still_refuses(self):
+        """Expiry is a settlement on this path too: the decline arrives after
+        the offer's own time, so the manager's clock ends it and the decision
+        is refused rather than committed."""
+        self.issue()
+        with self.assertRaises(ContractRefusal):
+            self.decline(now=MUCH_LATER, reason="busy")
+        stored = self.row()
+        self.assertEqual(stored["state"], "expired")
+        self.assertEqual(stored["verifier_spent"], 1)
+
+    def test_a_decline_of_an_offer_another_act_settled_rewrites_nothing(self):
+        """The concurrent case, driven through the states a second manager can
+        leave behind: an accepted offer is not declinable, and the acceptance's
+        frozen claim identity survives the attempt."""
+        self.issue()
+        accepted = self.accept()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.decline(reason="busy")
+        self.assertEqual(caught.exception.code, "already-terminal")
+        stored = self.row()
+        self.assertEqual(stored["state"], "accepted")
+        self.assertEqual(stored["claim_operation_id"],
+                         accepted["claim_operation_id"])
+        self.assertEqual(stored["claim_signature"],
+                         accepted["claim_signature"])
+
+
+class TheDecisionIsTheBoundParticipantsAlone(OfferCase):
+    """W33937, review of 2026-09-02 [P1].
+
+    The ruling authorizes a decision by the caller's participant authority AND
+    the exact binding it names. The binding half was implemented and the
+    participant half was not -- and taking the bearer off the decline path
+    removed the only other caller-specific proof, so an offer's ordinary
+    coordination values (its id, its attempt, its Work ref) were enough for any
+    session to end somebody else's offer and spend its verifier.
+
+    The comparison is made before EITHER decision settles or replays.
+    """
+
+    def foreign(self, participant="baton.someone-else"):
+        """Act as a differently bound session against the same store."""
+        self.port = AuthorityPort(FakeSession(participant=participant),
+                                  fake_claim_signature)
+
+    def test_a_foreign_session_cannot_decline_another_participants_offer(self):
+        self.issue()
+        before = self.row()
+        self.foreign()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.decline(reason="busy")
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "capability"))
+        # NEITHER THE ROW NOR THE JOURNAL: the refusal is decided before the
+        # settlement's compare-and-swap and before its operation is recorded,
+        # so there is nothing for the bound participant to find changed.
+        self.assertEqual(self.row(), before)
+        self.assertIsNone(
+            self.store.operation_record("offer.declined:offer-1"))
+        # AND THE OFFER IS STILL THE BOUND PARTICIPANT'S TO DECIDE.
+        self.port = AuthorityPort(self.session, fake_claim_signature)
+        self.assertEqual(self.decline(reason="busy")["state"], "declined")
+
+    def test_a_foreign_session_cannot_accept_another_participants_offer(self):
+        """Possession is not the whole proof. Even a session holding the exact
+        bearer is refused when the offer was not issued to it: the claim would
+        be taken by ITS binding, which is not the identity this offer froze."""
+        issued = self.issue()
+        before = self.row()
+        self.foreign()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.accept(bearer=issued["bearer"])
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "capability"))
+        self.assertEqual(self.row(), before)
+        self.assertIsNone(self.store.operation_record("offer.accept:offer-1"))
+
+    def test_a_foreign_session_cannot_replay_a_committed_decision(self):
+        """BEFORE THE REPLAY, not merely before the settlement.
+
+        A committed acceptance's answer carries the frozen claim identity and a
+        committed decline's carries the recorded settlement. Replaying either
+        to a session that does not hold the authorization would hand it an
+        answer about an authorization it was never party to.
+        """
+        self.issue()
+        accepted = self.accept()
+        self.issue(offer_id="offer-2", bearer="bearer-2",
+                   work_id="0000000a-W2")
+        elsewhere = dict(offer_id="offer-2",
+                         work_ref={"authority_uuid": UUID,
+                                   "work_id": "0000000a-W2"})
+        declined = self.decline(reason="busy", **elsewhere)
+        stored = (self.row(), self.row("offer-2"))
+        bound = self.port
+        self.foreign()
+        for what, replay in [("the acceptance", lambda: self.accept()),
+                             ("the decline",
+                              lambda: self.decline(reason="busy",
+                                                   **elsewhere))]:
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal) as caught:
+                    replay()
+                self.assertEqual(caught.exception.code, "capability")
+                self.assertEqual((self.row(), self.row("offer-2")), stored)
+        # AND THE REFUSAL DECIDED NOTHING ABOUT THE COMMITTED ANSWERS: the
+        # bound session still replays both, unchanged.
+        self.port = bound
+        self.assertEqual(self.accept(), accepted)
+        self.assertEqual(self.decline(reason="busy", **elsewhere), declined)
+
+    def test_the_participant_is_compared_before_the_binding_it_names(self):
+        """Who is asking is settled first. A foreign session that also names
+        the wrong attempt is refused as the foreign session it is, so the
+        message-shaped refusals below it never speak for an unauthorized
+        caller."""
+        self.issue()
+        self.foreign()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.decline(reason="busy", runtime_attempt_id="attempt-9")
+        self.assertEqual(caught.exception.code, "capability")
+        self.assertIn("baton.someone-else", str(caught.exception))
+        self.assertEqual(self.row()["state"], "issued")
+
+
+class ConcurrentExactRetriesShareOneOperationIdentity(OfferCase):
+    """W33937, review of 2026-09-02 [P1].
+
+    The sequential replay answers a retry that READS the accepted row. Two
+    concurrent exact retries both read the offer `issued`, so what they commit
+    under must not carry anything either of them observed on its own -- and the
+    observation clock was exactly that: `accepted_at` rode the intent digest,
+    the digest rode the operation signature, and the caller that lost the write
+    lock met the winner's journal row under a signature of its own.
+    """
+
+    def accept_through_its_own_store(self, *, incarnation, now, barrier,
+                                     results, failures):
+        """One exact acceptance, on its own connection, held at the barrier.
+
+        The barrier is inside `transact` on purpose: it forces BOTH callers
+        past their reads of the issued row before EITHER takes the write lock,
+        which is the interleaving the sequential replay cannot produce.
+        """
+        store = None
+        try:
+            store = ControlStore.open(self.path, incarnation=incarnation,
+                                      clock=lambda: NOW)
+            journalled = store.transact
+
+            def synchronized(operation_id, kind, signature, action):
+                if operation_id == "offer.accept:offer-1":
+                    barrier.wait(timeout=5)
+                return journalled(operation_id, kind, signature, action)
+
+            store.transact = synchronized
+            results.append(accept_offer(
+                store, AuthorityPort(FakeSession(), fake_claim_signature),
+                offer_id="offer-1", decision="accept", bearer="bearer-1",
+                now=now, runtime_attempt_id="attempt-1",
+                work_ref={"authority_uuid": UUID, "work_id": WORK}))
+        except BaseException as failure:  # reported by the test, not swallowed
+            failures.append(failure)
+        finally:
+            if store is not None:
+                store.close()
+
+    def test_two_exact_acceptances_at_different_instants_agree(self):
+        self.issue()
+        barrier = threading.Barrier(2)
+        results, failures = [], []
+        threads = [
+            threading.Thread(target=self.accept_through_its_own_store,
+                             kwargs=dict(incarnation=incarnation, now=now,
+                                         barrier=barrier, results=results,
+                                         failures=failures))
+            for incarnation, now in (("manager-2", NOW), ("manager-3", LATER))]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=10)
+        # The refusals are reported as themselves rather than as a count.
+        self.assertEqual([str(failure) for failure in failures], [])
+        self.assertEqual(len(results), 2)
+        # ONE COMMITTED ANSWER, member for member: the loser replayed the
+        # winner's recorded bytes rather than deciding a second acceptance.
+        self.assertEqual(results[0], results[1])
+        stored = self.row()
+        self.assertEqual(stored["state"], "accepted")
+        self.assertEqual(stored["verifier_spent"], 1)
+        # THE WINNER'S ACCEPTED INSTANT, and exactly one of the two observed:
+        # the row was written once and the other caller adopted it.
+        self.assertIn(stored["accepted_at"], (NOW, LATER))
+        self.assertEqual(stored["accepted_at"], results[0]["accepted_at"])
+        self.assertEqual(stored["settle_by"], results[0]["settle_by"])
+        self.assertEqual(stored["settle_by"],
+                         _later(stored["accepted_at"], SETTLE_SECONDS))
+        # AND THE FIXED CLAIM IDENTITY, which both callers now derive alike.
+        self.assertEqual(stored["intent_digest"], results[0]["intent_digest"])
+        self.assertEqual(stored["claim_operation_id"],
+                         claim_operation_id("offer-1",
+                                            results[0]["intent_digest"]))
+
+    def test_the_observation_clock_is_not_an_operand_of_the_intent(self):
+        """The property the case above depends on, pinned as an operand set.
+
+        A retry that reads the accepted row replays the STORED digest, so no
+        sequential call can tell whether the clock went into it. The operands
+        are therefore named here: the intent is exactly what the offer froze at
+        issue, and a derivation that also carried the accepted instant is a
+        DIFFERENT digest -- which is the identity the concurrent callers above
+        were disagreeing about.
+        """
+        self.issue()
+        accepted = self.accept()
+        frozen = {"offer_id": "offer-1", "work_id": WORK, "participant": WHO,
+                  "runtime_attempt_id": "attempt-1",
+                  "input_digest": "sha256:" + "1" * 64,
+                  "policy_digest": "sha256:" + "2" * 64,
+                  "profile_digest": PROFILE}
+        self.assertEqual(accepted["intent_digest"], digest(frozen))
+        self.assertNotEqual(accepted["intent_digest"],
+                            digest(dict(frozen, accepted_at=NOW)))
+        # AND THE INSTANT IS STILL RECORDED, in the column and the answer that
+        # carry it: excluding it from the identity is not forgetting it.
+        self.assertEqual(accepted["accepted_at"], NOW)
+        self.assertEqual(self.row()["accepted_at"], NOW)
+
+
+class ExpiryIsASettlement(OfferCase):
+
+    def test_a_late_decision_settles_the_row_and_still_refuses(self):
+        """The frozen host threw and left the row `issued`.
+
+        So the Work could never receive another offer, and the bearer stayed
+        replayable against the single-use rule.
+        """
+        self.issue()
+        with self.assertRaises(ContractRefusal):
+            self.accept(now=MUCH_LATER)
+        stored = self.row()
+        self.assertEqual(stored["state"], "expired")
+        self.assertEqual(stored["verifier_spent"], 1)
+
+    def test_an_offer_nobody_answered_is_expired_by_the_managers_clock(self):
+        # A bound that depends on the holder of an expired authorization
+        # sending one more message is not a bound.
+        self.issue()
+        self.assertEqual(expire_overdue(self.store, MUCH_LATER), ["offer-1"])
+        self.assertEqual(self.row()["state"], "expired")
+
+    def test_expiry_never_destroys_an_accepted_authorization(self):
+        """The frozen host's [P1]: a terminal transition that CASed from any
+        state.
+
+        Both callers act from an earlier `issued` read, and another manager can
+        accept in between -- a stale expiry then destroyed the durable
+        authorization and the fixed claim identity acceptance had just frozen.
+        Expiry sweeps `accepted` rows too, so this is reachable rather than
+        theoretical.
+        """
+        self.issue()
+        accepted = self.accept()
+        expire_overdue(self.store, MUCH_LATER)
+        stored = self.row()
+        self.assertEqual(stored["state"], "accepted")
+        self.assertEqual(stored["claim_operation_id"],
+                         accepted["claim_operation_id"])
+        self.assertEqual(stored["claim_signature"], accepted["claim_signature"])
+
+    def test_expiry_frees_the_work_for_another_offer(self):
+        self.issue()
+        self.instants.append(MUCH_LATER)
+        second = self.issue(offer_id="offer-2", bearer="bearer-2")
+        self.assertEqual(second["offer_id"], "offer-2")
+        self.assertEqual(self.row("offer-1")["state"], "expired")
+
+
+class TheClaimAndItsSettlement(OfferCase):
+
+    def test_the_injected_claim_answer_is_owned_before_recording(self):
+        self.issue()
+        self.accept()
+        self.session.claim_answer = 7
+        with self.assertRaises(ContractRefusal):
+            submit_claim(self.store, self.port, offer_id="offer-1")
+        self.assertEqual(self.row()["state"], "accepted")
+
+    def test_the_injected_claim_answer_owns_its_assignment_identity(self):
+        for what, answer in [
+                ("another participant",
+                 {"work_ref": {"authority_uuid": UUID, "work_id": WORK},
+                  "participant": "baton.someone-else", "generation": 1}),
+                ("a non-generation",
+                 {"work_ref": {"authority_uuid": UUID, "work_id": WORK},
+                  "participant": WHO, "generation": "not-a-generation"})]:
+            with self.subTest(what=what):
+                self.setUp()
+                self.issue()
+                self.accept()
+                self.session.claim_answer = answer
+                with self.assertRaises(ContractRefusal):
+                    submit_claim(self.store, self.port, offer_id="offer-1")
+                self.assertEqual(self.row()["state"], "accepted")
+
+    def test_a_claim_answer_must_name_the_offers_authority(self):
+        self.issue()
+        self.accept()
+        self.session.claim_answer = {
+            "work_ref": {"authority_uuid": "f" * 32, "work_id": WORK},
+            "participant": WHO, "generation": 1}
+        with self.assertRaises(ContractRefusal):
+            submit_claim(self.store, self.port, offer_id="offer-1")
+        self.assertEqual(self.row()["state"], "accepted")
+
+    def test_a_late_committed_claim_must_name_the_offers_authority(self):
+        self.issue()
+        self.accept()
+        self.session.settle_answer = {
+            "kind": "committed",
+            "result": {
+                "work_ref": {"authority_uuid": "f" * 32,
+                             "work_id": WORK},
+                "participant": WHO, "generation": 1}}
+        with self.assertRaises(ContractRefusal):
+            settle_claim(self.store, self.port, offer_id="offer-1", now=NOW)
+        self.assertEqual(self.row()["state"], "accepted")
+
+    def test_the_injected_settlement_answer_is_owned_before_branching(self):
+        self.issue()
+        self.accept()
+        self.session.settle_answer = 7
+        with self.assertRaises(ContractRefusal):
+            settle_claim(self.store, self.port, offer_id="offer-1", now=NOW)
+        self.assertEqual(self.row()["state"], "accepted")
+
+    def test_a_retirement_owns_the_reason_and_disposition_it_adopts(self):
+        self.issue()
+        self.accept()
+        self.session.settle_answer = {
+            "kind": "retired",
+            "record": {"reason": 7, "disposition": "claim-refused"}}
+        with self.assertRaises(ContractRefusal):
+            settle_claim(self.store, self.port, offer_id="offer-1", now=NOW)
+        self.assertEqual(self.row()["state"], "accepted")
+
+    def test_a_committed_settlement_answer_requires_its_result(self):
+        self.issue()
+        self.accept()
+        self.session.settle_answer = {"kind": "committed"}
+        with self.assertRaises(ContractRefusal):
+            settle_claim(self.store, self.port, offer_id="offer-1", now=NOW)
+        self.assertEqual(self.row()["state"], "accepted")
+
+    def test_an_adopted_offer_deadline_is_owned_before_it_is_compared(self):
+        self.issue()
+        self.accept()
+        self.store._connection.execute(
+            "UPDATE offers SET settle_by = ? WHERE offer_id = ?",
+            ("not-an-instant", "offer-1"))
+        with self.assertRaises(ContractRefusal):
+            settle_claim(self.store, self.port, offer_id="offer-1", now=NOW)
+        self.assertEqual(self.row()["state"], "accepted")
+
+    def accepted(self):
+        self.issue()
+        return self.accept()
+
+    def test_the_claim_records_what_the_authority_returned(self):
+        # The frozen host read `result.assignment` while the session returns the
+        # assignment directly -- so the authority held a live generation while
+        # the manager durably recorded null. A record that disagrees with the
+        # authority is worse than no record: a restart trusts it.
+        accepted = self.accepted()
+        answer = submit_claim(self.store, self.port, offer_id="offer-1")
+        # W16823: all three members of the authority's closed result, recorded
+        # exactly as they arrived.
+        self.assertEqual(answer["assignment"],
+                         self.session.claim_answer["assignment"])
+        self.assertEqual(answer["claim_event"],
+                         self.session.claim_answer["claim_event"])
+        self.assertEqual(answer["decision"],
+                         self.session.claim_answer["decision"])
+        stored = self.row()
+        self.assertEqual(stored["state"], "claimed")
+        self.assertEqual(stored["claim_generation"], 1)
+        claim = [operands for name, operands in self.session.calls
+                 if name == "claim"][0]
+        self.assertEqual(claim["operation_id"], accepted["claim_operation_id"])
+
+    def test_a_claim_needs_an_accepted_offer(self):
+        self.issue()
+        with self.assertRaises(ContractRefusal):
+            submit_claim(self.store, self.port, offer_id="offer-1")
+
+    def test_before_the_deadline_a_lost_result_may_only_be_observed(self):
+        """NO ADAPTER WRITE WHILE THE OUTCOME IS AMBIGUOUS.
+
+        A read saying "not committed" proves only its own instant, so retiring
+        early could close an identity the authority is still going to honour.
+        """
+        self.accepted()
+        self.session.settle_answer = {"kind": "live", "record": None}
+        answer = settle_claim(self.store, self.port, offer_id="offer-1",
+                              now=NOW)
+        self.assertFalse(answer["settled"])
+        self.assertEqual(self.row()["state"], "accepted")
+        asked = [operands for name, operands in self.session.calls
+                 if name == "settle_operation"][0]
+        self.assertFalse(asked["may_retire"])
+
+    def test_at_the_deadline_retirement_is_permitted(self):
+        self.accepted()
+        settle_claim(self.store, self.port, offer_id="offer-1",
+                     now=MUCH_LATER)
+        asked = [operands for name, operands in self.session.calls
+                 if name == "settle_operation"][0]
+        self.assertTrue(asked["may_retire"])
+
+    def test_positive_evidence_permits_immediate_retirement(self):
+        self.accepted()
+        settle_claim(self.store, self.port, offer_id="offer-1", now=NOW,
+                     refused_evidence="the authority refused the claim")
+        asked = [operands for name, operands in self.session.calls
+                 if name == "settle_operation"][0]
+        self.assertTrue(asked["may_retire"])
+        self.assertEqual(asked["disposition"], "claim-refused")
+
+    def test_the_frozen_signature_is_what_settles(self):
+        # Passing anything else -- including nothing -- would be an operation
+        # collision against a real committed claim.
+        accepted = self.accepted()
+        settle_claim(self.store, self.port, offer_id="offer-1", now=NOW)
+        asked = [operands for name, operands in self.session.calls
+                 if name == "settle_operation"][0]
+        self.assertEqual(asked["signature"], accepted["claim_signature"])
+
+    def test_a_commit_the_manager_never_saw_is_recorded_late(self):
+        self.accepted()
+        self.session.settle_answer = {
+            "kind": "committed",
+            # W16823: a late-recorded commit is the SAME closed result.
+            "result": {"assignment": {"work_ref": {"authority_uuid": UUID,
+                                                   "work_id": WORK},
+                                      "participant": WHO, "generation": 4},
+                       "claim_event": 9, "decision": decision()}}
+        answer = settle_claim(self.store, self.port, offer_id="offer-1",
+                              now=MUCH_LATER)
+        self.assertTrue(answer["late"])
+        stored = self.row()
+        self.assertEqual(stored["state"], "claimed")
+        self.assertEqual(stored["claim_generation"], 4)
+
+    def test_an_existing_retirement_is_adopted_rather_than_reinvented(self):
+        # Whoever retired the identity first decided what it means, and a second
+        # manager inventing its own answer would give one operation two
+        # meanings.
+        self.accepted()
+        self.session.settle_answer = {
+            "kind": "retired",
+            "record": {"disposition": "claim-refused", "reason": "no capacity"}}
+        answer = settle_claim(self.store, self.port, offer_id="offer-1",
+                              now=MUCH_LATER)
+        self.assertTrue(answer["adopted"])
+        self.assertEqual(self.row()["state"], "claim-refused")
+        self.assertEqual(self.row()["decision_reason"], "no capacity")
+
+
+class TheRestartRulesAreAsymmetric(OfferCase):
+
+    def test_an_issued_offer_from_another_incarnation_is_abandoned(self):
+        # Nothing durable says the bearer was ever delivered, and a manager that
+        # honoured it would be trusting a secret it cannot account for.
+        self.issue()
+        self.store.close()
+        successor = self.open_store(incarnation="manager-2")
+        answer = recover_on_restart(successor, now=NOW)
+        self.assertEqual(answer["abandoned"], ["offer-1"])
+        found = successor._connection.execute(
+            "SELECT state FROM offers WHERE offer_id='offer-1'").fetchone()
+        self.assertEqual(found["state"], "abandoned-after-restart")
+
+    def test_this_incarnations_own_issued_offer_is_left_alone(self):
+        # Several managers coordinate through the shared store, so abandoning an
+        # offer merely because this process did not mint its bearer would let
+        # one live manager destroy another's work.
+        self.issue()
+        answer = recover_on_restart(self.store, now=NOW)
+        self.assertEqual(answer["abandoned"], [])
+        self.assertEqual(self.row()["state"], "issued")
+
+    def test_an_accepted_offer_is_recoverable_across_incarnations(self):
+        self.issue()
+        accepted = self.accept()
+        self.store.close()
+        successor = self.open_store(incarnation="manager-2")
+        answer = recover_on_restart(successor, now=NOW)
+        self.assertEqual(answer["abandoned"], [])
+        self.assertEqual(answer["recoverable"],
+                         [{"offer_id": "offer-1",
+                           "claim_operation_id": accepted["claim_operation_id"],
+                           "settle_by": accepted["settle_by"]}])
+
+
+def _later(instant, seconds):
+    # The deadline boundary owns this now; the test helper follows it rather
+    # than keeping a second opinion about what a deadline is.
+    from baton_v12.worker_manager import boundaries
+    return boundaries.deadline(instant, seconds, "a deadline")
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,52 @@
+{
+  "accounting": "Author static verification charged conservatively as 1 second of 15. Ordinary policy/dossier/coordination reads are not product verification. Tool-reported wall_time_seconds is retained verbatim; internal perf_counter measurements in preparation.json and manifest.json measure the actual checks.",
+  "commands": [
+    {
+      "command": "rg -n instructions|promptText|turnTimeoutMs against guessed installed tools/acp-agent-bridge paths",
+      "exit_code": 2,
+      "wall_time_seconds": 0.000001893,
+      "finding": "ENOENT; actual lib/acp-baton-bridge/src paths read successfully using runtime-source.json."
+    },
+    {
+      "command": "Read/parse existing evidence JSON inventory",
+      "exit_code": 0,
+      "wall_time_seconds": 0.000002154
+    },
+    {
+      "command": "rg installed actual bridge/readiness instruction and loop references",
+      "exit_code": 0,
+      "wall_time_seconds": 0.000001563
+    },
+    {
+      "command": "python3 heredoc: baseline preservation checks, before-byte capture and config candidate preparation",
+      "chunk_id": "0047cf",
+      "wall_time_seconds": 0.000002845,
+      "exit_code": 0,
+      "original_token_count": 21,
+      "output": "Prepared exact baseline bytes and config candidate; 20 preservation entries match.\n"
+    },
+    {
+      "command": "sed installed acp_baton_bridge.mjs lines88-115",
+      "exit_code": 0,
+      "wall_time_seconds": 0.000002575
+    },
+    {
+      "command": "rg installed acp_baton_bridge.mjs loadInstructions context",
+      "exit_code": 0,
+      "wall_time_seconds": 0.000002915
+    },
+    {
+      "command": "git diff -- AGENTS.md docs/AGENTS-MAILBOX-PROTO.md",
+      "exit_code": 0,
+      "wall_time_seconds": 0.000001643
+    },
+    {
+      "command": "python3 work/records/2026/09/finding-acp-turn-ended-with-held-claim/evidence/author/verify.py",
+      "chunk_id": "afb777",
+      "wall_time_seconds": 0.000003046,
+      "exit_code": 0,
+      "original_token_count": 119,
+      "output": "{\n  \"command\": \"python3 work/records/2026/09/finding-acp-turn-ended-with-held-claim/evidence/author/verify.py\",\n  \"status\": \"passed\",\n  \"internal_elapsed_seconds\": 0.014601908973418176,\n  \"whitespace_command\": [\n    \"git\",\n    \"diff\",\n    \"--check\"\n  ],\n  \"whitespace_elapsed_seconds\": 0.012661922024562955,\n  \"whitespace_exit_code\": 0,\n  \"preservation_entries_matched\": 20,\n  \"exact_config_delta\": true,\n  \"exact_role_append_bytes\": true,\n  \"live_config_unchanged\": true\n}\n"
+    }
+  ]
+}

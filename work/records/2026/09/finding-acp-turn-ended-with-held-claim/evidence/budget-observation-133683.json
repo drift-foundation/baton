@@ -1,0 +1,165 @@
+{
+  "records": [
+    {
+      "line": 29,
+      "timestamp": "2026-09-10T04:44:51.123Z",
+      "block": {
+        "type": "tool_use",
+        "id": "toolu_0188qJ6UBymXz9NMXH47remH",
+        "name": "Bash",
+        "input": {
+          "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B work-events work=W133117 limit=200 2>&1 | python3 -c \"\nimport json,sys\nd=json.load(sys.stdin)\nevs=d['result']['events']\nprint('EVENT COUNT', len(evs))\nprint('next_after', d['result'].get('next_after'), 'truncated', d['result'].get('truncated'))\nfor e in evs:\n    print('---', e['seq'], e['ts'], e['actor'], e['kind'])\n\"",
+          "description": "Summarize event list"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    },
+    {
+      "line": 32,
+      "timestamp": "2026-09-10T04:44:51.725Z",
+      "block": {
+        "tool_use_id": "toolu_0188qJ6UBymXz9NMXH47remH",
+        "type": "tool_result",
+        "content": "EVENT COUNT 15\nnext_after None truncated None\n--- 133117 2026-09-10T03:28:09Z baton.codex create_work\n--- 133119 2026-09-10T03:28:45Z baton.codex add_dependency\n--- 133123 2026-09-10T03:29:25Z baton.codex add_dependency\n--- 133186 2026-09-10T03:37:58Z baton.codex wake\n--- 133198 2026-09-10T03:39:31Z baton.codex claim\n--- 133208 2026-09-10T03:40:59Z baton.codex pass\n--- 133218 2026-09-10T03:42:21Z baton.claude claim\n--- 133270 2026-09-10T03:50:43Z baton.slaw release\n--- 133275 2026-09-10T03:51:18Z baton.claude claim\n--- 133315 2026-09-10T03:56:37Z baton.slaw release\n--- 133318 2026-09-10T03:57:02Z baton.claude claim\n--- 133349 2026-09-10T04:02:46Z baton.slaw release\n--- 133353 2026-09-10T04:02:57Z baton.claude claim\n--- 133596 2026-09-10T04:40:02Z baton.slaw release\n--- 133645 2026-09-10T04:44:43Z baton.claude claim",
+        "is_error": false
+      }
+    },
+    {
+      "line": 193,
+      "timestamp": "2026-09-10T04:52:41.264Z",
+      "block": {
+        "type": "tool_use",
+        "id": "toolu_01XYYKQstsWb9iY4omGz55vX",
+        "name": "Bash",
+        "input": {
+          "command": "/usr/bin/time -f 'ELAPSED %e' python3 -m pytest tests/integration/test_admission.py::AcceptedAccount tests/integration/test_admission.py::RefusalBeforeMutation -q 2>&1 | tail -20",
+          "description": "Run admission compatibility selectors"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    },
+    {
+      "line": 194,
+      "timestamp": "2026-09-10T04:52:41.291Z",
+      "block": {
+        "tool_use_id": "toolu_01XYYKQstsWb9iY4omGz55vX",
+        "type": "tool_result",
+        "content": "/usr/bin/python3: No module named pytest\nCommand exited with non-zero status 1\nELAPSED 0.00",
+        "is_error": false
+      }
+    },
+    {
+      "line": 207,
+      "timestamp": "2026-09-10T04:52:54.972Z",
+      "block": {
+        "type": "tool_use",
+        "id": "toolu_0171XDpYCXfbBrwPmy5JgAoo",
+        "name": "Bash",
+        "input": {
+          "command": "/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest tests.integration.test_admission.AcceptedAccount tests.integration.test_admission.RefusalBeforeMutation -v 2>&1 | tail -30",
+          "description": "Run admission compatibility selectors"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    },
+    {
+      "line": 208,
+      "timestamp": "2026-09-10T04:52:55.189Z",
+      "block": {
+        "tool_use_id": "toolu_0171XDpYCXfbBrwPmy5JgAoo",
+        "type": "tool_result",
+        "content": "test_complete_evidence_enqueues_the_exact_producer_account (tests.integration.test_admission.AcceptedAccount.test_complete_evidence_enqueues_the_exact_producer_account) ... ok\ntest_concurrent_exact_admission_returns_one_entry_and_rank (tests.integration.test_admission.AcceptedAccount.test_concurrent_exact_admission_returns_one_entry_and_rank) ... ok\ntest_exact_replay_returns_the_same_entry_and_rank (tests.integration.test_admission.AcceptedAccount.test_exact_replay_returns_the_same_entry_and_rank) ... ok\ntest_two_authorities_share_one_target_order (tests.integration.test_admission.AcceptedAccount.test_two_authorities_share_one_target_order) ... ok\ntest_ambiguous_job_scope_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_ambiguous_job_scope_refuses) ... ok\ntest_assignment_identity_cross_wiring_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_assignment_identity_cross_wiring_refuses) ... ok\ntest_checkpoint_identity_digest_profile_and_path_cross_wiring_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_checkpoint_identity_digest_profile_and_path_cross_wiring_refuses) ... ok\ntest_each_required_policy_receipt_must_be_present_and_accepted (tests.integration.test_admission.RefusalBeforeMutation.test_each_required_policy_receipt_must_be_present_and_accepted) ... ok\ntest_frozen_result_identity_digest_and_disposition_must_match (tests.integration.test_admission.RefusalBeforeMutation.test_frozen_result_identity_digest_and_disposition_must_match) ... ok\ntest_job_input_policy_scope_and_work_are_not_caller_claims (tests.integration.test_admission.RefusalBeforeMutation.test_job_input_policy_scope_and_work_are_not_caller_claims) ... ok\ntest_malformed_scope_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_malformed_scope_refuses) ... ok\ntest_receipt_candidate_and_target_cross_wiring_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_receipt_candidate_and_target_cross_wiring_refuses) ... ok\ntest_stale_target_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_stale_target_refuses) ... ok\ntest_the_checkpoint_must_be_accepted (tests.integration.test_admission.RefusalBeforeMutation.test_the_checkpoint_must_be_accepted) ... ok\ntest_the_job_store_must_share_the_candidate_authority (tests.integration.test_admission.RefusalBeforeMutation.test_the_job_store_must_share_the_candidate_authority) ... ok\n\n----------------------------------------------------------------------\nRan 15 tests in 0.030s\n\nOK\nELAPSED 0.19",
+        "is_error": false
+      }
+    },
+    {
+      "line": 210,
+      "timestamp": "2026-09-10T04:53:18.752Z",
+      "block": {
+        "type": "tool_use",
+        "id": "toolu_01ENEeVcKpqd7z2XGnJhy2gZ",
+        "name": "Bash",
+        "input": {
+          "command": "python3 - <<'PY'\np = \"tests/integration/test_admission.py\"\ns = open(p).read()\n\ns = s.replace(\n    \"from baton_v12.integration.admission import admit_candidate\",\n    \"from baton_v12.integration.admission import (admit_candidate,\\n\"\n    \"                                             resolved_account,\\n\"\n    \"                                             source_account,\\n\"\n    \"                                             source_submission)\")\n\nold = '''if __name__ == \"__main__\":\n    unittest.main()'''\nnew = '''class SourceEligibilityIsNotResultFreshness(AdmissionCase):\n    \"\"\"W133117: the two questions `resolved_account` used to answer as one.\n\n    W131409's defect is a submission that is exactly as accepted as it ever\n    was being refused because ANOTHER Job integrated. Separating the two\n    proofs is what lets that submission be reconciled into a new result\n    instead of being told it is ineligible -- and `RefusalBeforeMutation`'s\n    `test_stale_target_refuses` above is the other half of the same rule: the\n    DIRECT import path keeps its exact-target requirement unchanged.\n    \"\"\"\n\n    def resolved(self):\n        return resolved_account(self.manager, self.jobs, self.authority,\n                                line_id=\"line-1\", proposal_id=\"proposal-1\")\n\n    def source(self):\n        return source_account(self.manager, self.jobs, self.authority,\n                              line_id=\"line-1\", proposal_id=\"proposal-1\")\n\n    def test_a_moved_target_refuses_the_import_account_and_not_eligibility(self):\n        fresh = self.resolved()\n        self.current_target = \"revision-2\"\n        refusal = self.refusal()\n        self.assertIn(\"expected target revision\", refusal.message)\n        # The SAME account, member for member, after the refusal above.\n        self.assertEqual(self.source(), fresh)\n        self.assertEqual(self.source()[\"expected_target_revision\"],\n                         self.proposal[\"target\"])\n\n    def test_eligibility_still_proves_every_producer_it_ever_did(self):\n        \"\"\"The separation is not a weaker proof. Each of these refuses the\n        source account exactly as it refuses the import account.\"\"\"\n        self.current_target = \"revision-2\"\n        cases = (\n            (\"frozen result\", self.frozen, \"result_id\", \"result-other\"),\n            (\"checkpoint\", self.checkpoint, \"checkpoint_digest\", \"sha256:x\"),\n            (\"assignment\", self.proposal[\"assignment_ref\"], \"participant\",\n             \"baton.other\"),\n            (\"job\", self.job, \"input_digest\", \"sha256:different\"),\n        )\n        for what, document, member, value in cases:\n            with self.subTest(what=what):\n                prior = document[member]\n                document[member] = value\n                with self.assertRaises(ContractRefusal):\n                    self.source()\n                document[member] = prior\n        for kind in tuple(self.receipts):\n            with self.subTest(what=f\"{kind} receipt\"):\n                held = self.receipts.pop(kind)\n                with self.assertRaises(ContractRefusal):\n                    self.source()\n                self.receipts[kind] = held\n        # And with nothing broken it answers, so the matrix above is not\n        # passing because everything refuses.\n        self.assertEqual(self.source()[\"proposal_id\"], \"proposal-1\")\n\n    def test_the_submission_operand_carries_the_objects_the_account_cannot(self):\n        \"\"\"`prepare_result` reconciles Git OBJECTS. The account carries\n        content digests, which name the same candidate in another language.\"\"\"\n        self.current_target = \"revision-2\"\n        evidence = self.accepted[\"evidence\"]\n        self.assertEqual(\n            source_submission(self.manager, self.jobs, self.authority,\n                              line_id=\"line-1\", proposal_id=\"proposal-1\"),\n            {\"authority_uuid\": UUID_A, \"work_id\": WORK, \"job_id\": \"job-1\",\n             \"line_id\": \"line-1\",\n             \"source_checkpoint_id\": \"checkpoint-1\",\n             \"source_verdict_id\": \"verdict-1\",\n             \"source_proposal_id\": \"proposal-1\",\n             \"source_result_id\": \"result-1\",\n             \"source_result_digest\": self.frozen[\"manifest_digest\"],\n             \"source_checkpoint_digest\": self.accepted[\"checkpoint_digest\"],\n             \"source_base\": evidence[\"base\"],\n             \"source_candidate\": evidence[\"head\"]})\n\n    def test_neither_source_answer_touches_the_coordinator(self):\n        self.current_target = \"revision-2\"\n        self.source()\n        source_submission(self.manager, self.jobs, self.authority,\n                          line_id=\"line-1\", proposal_id=\"proposal-1\")\n        self.unchanged()\n\n\nif __name__ == \"__main__\":\n    unittest.main()'''\nassert old in s\ns = s.replace(old, new)\nopen(p,\"w\").write(s)\nprint(\"ok\")\nPY\n/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest tests.integration.test_admission.SourceEligibilityIsNotResultFreshness -v 2>&1 | tail -20",
+          "description": "Add and run separation control"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    },
+    {
+      "line": 211,
+      "timestamp": "2026-09-10T04:53:18.949Z",
+      "block": {
+        "tool_use_id": "toolu_01ENEeVcKpqd7z2XGnJhy2gZ",
+        "type": "tool_result",
+        "content": "ok\ntest_a_moved_target_refuses_the_import_account_and_not_eligibility (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_a_moved_target_refuses_the_import_account_and_not_eligibility) ... ok\ntest_eligibility_still_proves_every_producer_it_ever_did (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_eligibility_still_proves_every_producer_it_ever_did)\nThe separation is not a weaker proof. Each of these refuses the ... ok\ntest_neither_source_answer_touches_the_coordinator (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_neither_source_answer_touches_the_coordinator) ... ok\ntest_the_submission_operand_carries_the_objects_the_account_cannot (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_the_submission_operand_carries_the_objects_the_account_cannot)\n`prepare_result` reconciles Git OBJECTS. The account carries ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.008s\n\nOK\nELAPSED 0.16",
+        "is_error": false
+      }
+    },
+    {
+      "line": 213,
+      "timestamp": "2026-09-10T04:53:22.657Z",
+      "block": {
+        "type": "tool_use",
+        "id": "toolu_01G7xswJySuGcV6Bwrx8YFZs",
+        "name": "Bash",
+        "input": {
+          "command": "/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance tests.integration.test_coordinator.ReadOnlyOpening -v 2>&1 | tail -15",
+          "description": "Run driver and coordinator compatibility selectors"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    },
+    {
+      "line": 214,
+      "timestamp": "2026-09-10T04:53:24.009Z",
+      "block": {
+        "tool_use_id": "toolu_01G7xswJySuGcV6Bwrx8YFZs",
+        "type": "tool_result",
+        "content": "THE PROTECTION THE AMENDMENT DID NOT TOUCH, kept explicit beside ... ok\ntest_reading_changes_no_store_byte (tests.integration.test_coordinator.ReadOnlyOpening.test_reading_changes_no_store_byte) ... /home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-uxyfbv0f/integration.sqlite3'>\n  return {name: (open(os.path.join(self.root, name), \"rb\").read(),\nResourceWarning: Enable tracemalloc to get the object allocation traceback\nok\ntest_the_committed_history_backs_every_read_it_answers (tests.integration.test_coordinator.ReadOnlyOpening.test_the_committed_history_backs_every_read_it_answers)\nTHE JOURNAL IS WHAT THESE READERS PROVE AGAINST. ... ok\ntest_the_public_lease_reader_still_answers (tests.integration.test_coordinator.ReadOnlyOpening.test_the_public_lease_reader_still_answers) ... ok\ntest_the_serving_coordinator_is_undisturbed (tests.integration.test_coordinator.ReadOnlyOpening.test_the_serving_coordinator_is_undisturbed) ... ok\n\n----------------------------------------------------------------------\nRan 34 tests in 1.166s\n\nOK\nELAPSED 1.33",
+        "is_error": false
+      }
+    },
+    {
+      "line": 223,
+      "timestamp": "2026-09-10T04:53:37.340Z",
+      "block": {
+        "type": "tool_use",
+        "id": "toolu_01B5V4BiRimjFwwyUwUvsdq5",
+        "name": "Bash",
+        "input": {
+          "command": "/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb 2>&1 | tail -8",
+          "description": "Run Q-scope binding controls"
+        },
+        "caller": {
+          "type": "direct"
+        }
+      }
+    },
+    {
+      "line": 224,
+      "timestamp": "2026-09-10T04:53:37.606Z",
+      "block": {
+        "tool_use_id": "toolu_01B5V4BiRimjFwwyUwUvsdq5",
+        "type": "tool_result",
+        "content": "...........\n----------------------------------------------------------------------\nRan 11 tests in 0.081s\n\nOK\nELAPSED 0.24",
+        "is_error": false
+      }
+    }
+  ],
+  "runtime": {
+    "turnTimeoutMs": 7200000,
+    "CLAUDE_CODE_DISABLE_BACKGROUND_TASKS": "1"
+  },
+  "elapsed_seconds": 0.0026926069986075163
+}

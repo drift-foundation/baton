@@ -1,0 +1,1857 @@
+"""Replay-safe composition of proposal publication and accepted integration.
+
+W103077.  This module adds no new authority, queue, runtime, or recovery
+state.  It gives the accepted operations stable identities, selects their
+inputs from the stores that own them, and orders them so a restart adopts each
+durable cutpoint before attempting the next one.
+
+Publication is deliberately separate.  It must run while the implementation
+assignment is still live; checkpoint freezing fences that assignment.  The
+later accepted path writes the three configured receipts, admits the account,
+and drives (or adopts) its one serialized integration.
+"""
+
+import re
+
+from ..authority.errors import Refusal as AuthorityRefusal
+from ..contracts import ContractRefusal, check_no_durable_secret, digest
+from ..contracts.errors import name_value
+from ..worker_manager import boundaries
+from ..worker_manager.attempts import assignment_of
+from ..worker_manager.manifests import load_manifest, retain_manifest
+from ..worker_manager.output import frozen_output_of
+from ..worker_manager.review_cycles import (checkpoint_of,
+                                            integration_checkpoint,
+                                            writer_of)
+from ..worker_manager.store import manager_signature
+from . import admission, execution, reconciliation, recovery, runtime
+from .admission import admit_candidate, resolved_account
+# W133120 R2: ONE owner for the reconciled account composition. It lives beside
+# the importer that must re-prove it against the granted entry before any
+# write, and driver re-exports it because the tick is still where a caller
+# starts. Two spellings of one composition is the defect, not the safety.
+from .execution import authorized_result_eligibility
+from .queue import entries_of, enqueue, lease_of, live_grant, target_of
+
+__all__ = ["PUBLICATION_KIND", "PUBLICATION_RECEIPT", "admit_accepted",
+           "admit_authorized_result", "authorized_result_eligibility",
+           "continue_accepted", "publication_for_attempt", "publication_of",
+           "publish_candidate", "retain_proposal"]
+
+# W120763: THE LOCAL RECORD THAT A PUBLICATION ACTUALLY HAPPENED, and its
+# closed shape.
+#
+# WHAT WAS MISSING, AND IT IS NOT A STEP OF THE PUBLICATION. `retain_proposal`
+# composes and retains a manifest, and a retained manifest is a proposal this
+# manager was PREPARED to publish -- it exists whether or not the Authority
+# was ever asked. So a consumer recovering a composed ending had nothing local
+# that distinguished "retained" from "published", and reading the retained
+# manifest as evidence of publication is exactly the inference this record
+# exists to stop.
+#
+# IN THE EXISTING WORKER MANAGER JOURNAL. No schema, no second store and no
+# integration queue entry: the publication is about one attempt's result, the
+# journal that already holds every other fact about that attempt is the one
+# place a later reader will look, and an operation identity derived from the
+# attempt and its selector is what makes a retry replay instead of repeat.
+PUBLICATION_KIND = "integration.publication"
+
+# Every member is a SELECTOR or an answer this module read back from its
+# owner. `published` is the Authority's own recorded proposal, kept whole
+# because it is the one member no local record can re-derive.
+PUBLICATION_RECEIPT = ("attempt_id", "assignment", "proposal_id",
+                       "proposal_manifest_digest", "result_id",
+                       "result_manifest_digest", "candidate_digest", "target",
+                       "published")
+
+# The one declared output type a proposal is made of.
+PROPOSAL_OUTPUT = "git-change-proposal"
+
+# THE WORKER'S OWN CLAIM, and its closed member set. `result_metadata` is the
+# frozen schema's opaque per-output extension point: the worker writes it, the
+# generic Worker Manager carries it without reading it, and THIS module is the
+# format-specific party that finally interprets it.
+#
+# FOUR MEMBERS AND NO FIFTH. What the turn was built on, what it produced,
+# where its objects sit inside its own measured output, and what it did in
+# words. Every manager measurement and custody identity is composed here from
+# the accepted producer instead -- a worker that named an artifact id, a
+# content digest or an assignment reference would be certifying its own output,
+# and an extra member is refused rather than ignored.
+CLAIM_NAMESPACE = "baton.git-proposal/1"
+CLAIM_MEMBERS = ("base", "head", "recap", "transport")
+
+# `implementation_recap` and the transport locator's own frozen ceilings.
+MAX_RECAP = 16000
+MAX_TRANSPORT = 128
+
+# THE OBJECT-NAME NAMESPACE IS THE WIDTH, and this is the accepted rule rather
+# than a second opinion about it: `source_profiles.BASE_KINDS` fixes the same
+# two widths for the same reason, and neither is ever converted into the other.
+# Spelled here instead of imported because the worker's profile package is the
+# CONSUMER of a mounted source, and an integration module reaching into it
+# would couple two packages that have no other business together.
+_OBJECT_NAMESPACES = {40: "sha1", 64: "sha256"}
+_OBJECT_NAME = re.compile(r"\A[0-9a-f]+\Z")
+
+
+def _refuse(message, *, category="integrity", code="schema"):
+    raise ContractRefusal(category, code, message)
+
+
+def _authority(action, what, operands=None):
+    try:
+        return action() if operands is None else action(operands)
+    except AuthorityRefusal as refused:
+        _refuse(f"the Authority refused {what}: {refused}",
+                category="refused", code="precondition")
+
+
+def _capability(owner, name, what):
+    return boundaries.capability(getattr(owner, name, None),
+                                 f"{what}'s {name}")
+
+
+def _identity(kind, account):
+    """A bounded operation identity derived from its complete account."""
+    return f"integration-driver.{kind}:" + digest(account)[len("sha256:"):]
+
+
+def _assignment(manager, attempt_id):
+    fixed = assignment_of(manager, attempt_id)
+    return {
+        "work_ref": {"authority_uuid": fixed["authority_uuid"],
+                     "work_id": fixed["work_id"]},
+        "participant": fixed["participant"],
+        "generation": fixed["generation"]}
+
+
+def _manifest(manager, manifest_digest, definition, what):
+    found = load_manifest(manager, manifest_digest, definition)
+    if found is None:
+        _refuse(f"the Worker Manager holds no {what} at "
+                f"{name_value(manifest_digest)}", category="refused",
+                code="precondition")
+    return found
+
+
+def _one_output(result):
+    """The single present proposal output of a frozen result.
+
+    SELECTION ONLY, and separated from the cross-binding below because the two
+    have different callers: the producer has no proposal to compare against
+    yet, and one rule read twice is the thing this split exists to avoid.
+    """
+    matches = [one for one in result["outputs"]
+               if one["type"] == PROPOSAL_OUTPUT]
+    if len(matches) != 1:
+        _refuse(f"the frozen result carries {len(matches)} "
+                f"{PROPOSAL_OUTPUT} outputs; publication needs exactly one")
+    output = matches[0]
+    if output["status"] != "present" or output["artifact"] is None \
+            or output["content_manifest"] is None:
+        _refuse("the frozen proposal output is not present with both its "
+                "artifact and content manifest")
+    return output
+
+
+def _one_proposal_output(result, proposal):
+    output = _one_output(result)
+    if output["artifact"] != proposal["proposal_artifact"]:
+        _refuse("the proposal manifest's artifact is not the artifact frozen "
+                "in its result")
+    if proposal["output_digest"] != output["content_manifest"]["tree_digest"]:
+        _refuse("the proposal manifest's output digest is not its frozen "
+                "content-tree digest")
+    return output
+
+
+def _publish_signature(operands):
+    """§4.2's operation identity over the durable publish operands.
+
+    ONE SPELLING FOR TWO CALLERS. The producer composes this digest into the
+    manifest it retains and the publisher recomputes it before calling the
+    Authority; two copies of the payload rule would be two things to keep
+    equal, and a producer whose signature its own consumer rejects is a Work
+    that cannot publish at all.
+    """
+    return digest({"kind": "publish", "operands": {
+        name: value for name, value in operands.items()
+        if name != "operation_id"}})
+
+
+def _expected_answer(operands, fixed):
+    """The exact Authority answer these operands ask for, and it is one
+    spelling for the same two callers."""
+    return {
+        "proposal_id": operands["proposal_id"],
+        "assignment_ref": fixed,
+        "result_id": operands["result_id"],
+        "result_digest": operands["result_digest"],
+        "candidate_digest": operands["candidate_digest"],
+        "input_digest": operands["input_digest"],
+        "policy_digest": operands["policy_digest"],
+        "target": operands["target"]}
+
+
+def _object_name(value, what):
+    """One `gitObject`, with its namespace taken from the object-name width.
+
+    THE WIDTH IS THE NAMESPACE and neither name is ever converted into the
+    other: a sha1 name under a sha256 repository is a different object, not a
+    shorter digest. Lower case only, for the reason the profile package gives:
+    the same object in two spellings is two objects to every comparison
+    downstream.
+    """
+    boundaries.text(value, what)
+    kind = _OBJECT_NAMESPACES.get(len(value))
+    if kind is None or not _OBJECT_NAME.match(value):
+        widths = sorted(str(one) for one in _OBJECT_NAMESPACES)
+        _refuse(f"{what} is a full lower-case object name at one of "
+                f"{' or '.join(str(one) for one in widths)}"
+                f" characters; this is {name_value(value)}")
+    return {"algorithm": kind, "hex": value}
+
+
+def _claim_of(output):
+    """The worker's own proposal facts, adopted and never extended.
+
+    ADOPTED AS A CLOSED DOCUMENT. An extra member is refused rather than
+    ignored, because the members this producer would be tempted to accept are
+    exactly the ones it must compose itself -- an artifact id, a content
+    digest, an assignment reference. A worker that supplied one of those would
+    be certifying the manager's measurement of its own output.
+
+    THE TRANSPORT IS BOUND TO THE MEASUREMENT. A worker names where its objects
+    sit inside its declared output; whether anything is there is the manager's
+    content manifest to say. Checking the name against that measured entry list
+    is what keeps the locator from being a claim about bytes nobody weighed.
+    """
+    metadata = output["result_metadata"]
+    if type(metadata) is not dict or CLAIM_NAMESPACE not in metadata:
+        _refuse(f"the frozen proposal output carries no "
+                f"{name_value(CLAIM_NAMESPACE)} claim; the proposal head and "
+                f"the base it was built on are the worker's own facts and "
+                f"this producer will not invent them")
+    claim = boundaries.document(metadata[CLAIM_NAMESPACE],
+                                "a worker proposal claim",
+                                required=CLAIM_MEMBERS)
+    boundaries.text(claim["recap"], "the worker's implementation recap")
+    if len(claim["recap"]) > MAX_RECAP:
+        _refuse(f"the worker's implementation recap is wider than "
+                f"{MAX_RECAP} characters")
+    transport = claim["transport"]
+    boundaries.text(transport, "the worker's object transport")
+    if len(transport) > MAX_TRANSPORT:
+        _refuse(f"the worker's object transport name is wider than "
+                f"{MAX_TRANSPORT} characters")
+    measured = output["content_manifest"]["entries"]
+    entries = {entry["path"] for entry in measured}
+    if transport not in entries:
+        _refuse(f"the worker names its object transport at "
+                f"{name_value(transport)} and the frozen content manifest "
+                f"measured nothing there")
+    return claim
+
+
+def retain_proposal(manager, publisher, *, attempt_id):
+    """Compose, validate and retain ONE proposal manifest; answer its digest.
+
+    W103874, and the seam it fills is `publish_candidate`'s: that operation
+    takes a retained `proposalManifest` as a selector and re-reads every
+    publication member out of it. Nothing produced one. This does, from the
+    exact frozen result and nowhere else.
+
+    THE TWO HALVES ARE COMPOSED BY THE PARTY THAT OWNS EACH. The worker-owned
+    half -- the base it built on, the head it made, where its objects are, and
+    what it did -- arrives opaquely through `result_metadata` and is ADOPTED.
+    Every other member is read back here from its accepted producer: the fixed
+    assignment, the frozen result summary and its retained manifest, that
+    result's retained input manifest, the manager's own measurement of the
+    proposal output, and the Authority's current canonical target. Neither side
+    may manufacture the other's half, which is why the claim is a closed
+    four-member document and why nothing below reads a mutable `/output` path
+    or a custody byte.
+
+    IT REFUSES TARGET DRIFT AND RETAINS NOTHING. A proposal is offered against
+    the revision it was built on; if the Authority has moved on, the manifest
+    that would be composed is one `publish_candidate` must reject anyway, and
+    retaining it would leave a second durable account of one frozen result for
+    a publication that never happens.
+
+    REPLAY IS BY CONSTRUCTION RATHER THAN BY A JOURNAL. Every member is derived
+    from immutable evidence -- including `created_at`, which is the frozen
+    result's own `manager_observed_at` and NOT a fresh clock read: retention is
+    keyed by the digest of the bytes, so a clock would retain a differently
+    keyed account of the same result on every call and the exact-replay
+    guarantee would be silently false.
+    """
+    boundaries.capability(getattr(manager, "_connection", None),
+                          "the Worker Manager store")
+    boundaries.identity(attempt_id, "an implementation attempt id")
+    _capability(publisher, "canonical_target", "the publisher session")
+    frozen = frozen_output_of(manager, attempt_id)
+    if frozen is None or frozen["disposition"] != "completed":
+        _refuse(f"attempt {name_value(attempt_id)} has no completed frozen "
+                "result to propose", category="refused", code="precondition")
+    result = _manifest(manager, frozen["manifest_digest"], "resultManifest",
+                       "result manifest")
+    given = _manifest(manager, result["input_manifest_digest"],
+                      "inputManifest", "input manifest")
+    fixed = _assignment(manager, attempt_id)
+    if result["assignment_ref"] != fixed:
+        _refuse("the frozen result and the implementation attempt do not name "
+                "one assignment")
+    if result["result_id"] != frozen["result_id"]:
+        _refuse("the frozen result summary and its retained manifest name "
+                "different results")
+    output = _one_output(result)
+    claim = _claim_of(output)
+    source_base = _object_name(claim["base"], "the worker's declared base")
+    proposal_head = _object_name(claim["head"], "the worker's proposal head")
+    current = _authority(publisher.canonical_target,
+                         "the canonical target read")
+    target_revision = _object_name(current, "the Authority's canonical target")
+    if source_base != target_revision:
+        _refuse(f"the worker built on {name_value(claim['base'])} and the "
+                f"Authority target is {name_value(current)}; a proposal "
+                f"is offered against the revision it was built from",
+                category="refused", code="precondition")
+    if proposal_head["algorithm"] != target_revision["algorithm"]:
+        _refuse("the proposal head and target revision use different object "
+                "namespaces")
+
+    # THE ACCOUNT BOTH DERIVED IDENTITIES ARE TAKEN FROM. One dictionary rather
+    # than two spellings of it, because the whole property they carry is that
+    # two different frozen results never produce the same identity and one
+    # frozen result always produces the same one.
+    account = {"assignment_ref": fixed, "result_id": result["result_id"],
+               "result_digest": frozen["manifest_digest"],
+               "candidate_digest": proposal_head["hex"]}
+    operands = {
+        "expect": fixed,
+        "proposal_id": _identity("proposal", account),
+        "result_id": result["result_id"],
+        "result_digest": frozen["manifest_digest"],
+        "candidate_digest": proposal_head["hex"],
+        "input_digest": result["input_manifest_digest"],
+        "policy_digest": result["policy_digest"],
+        "target": target_revision["hex"]}
+    signature = _publish_signature(operands)
+    body = {
+        "version": {"major": 1, "minor": 0},
+        # DERIVED, NOT PREFIXED. W103874 candidate review 2026-09-07: a result
+        # id and a manifest id are both `opaqueId`, which is bounded at 160
+        # characters -- so `proposal-<result_id>` is longer than its own type
+        # allows for every result id from 152 characters up, and the producer
+        # refused perfectly valid frozen results at retention. A prefix is a
+        # composition whose length is the INPUT's; a digest over the account is
+        # one whose length is this module's, which is the only kind of identity
+        # a bounded member can carry. It stays deterministic and stays distinct
+        # -- the account is the same one `proposal_id` is taken from -- and
+        # nothing is truncated, because truncation is how two distinct results
+        # become one name.
+        "manifest_id": _identity("proposal-manifest", account),
+        # THE FROZEN INSTANT, NOT THIS CALL'S. See the docstring: a clock read
+        # here would make every replay a new document.
+        "created_at": result["manager_observed_at"],
+        "extensions": {},
+        "schema": "baton.worker-manifest/proposal",
+        "proposal_id": operands["proposal_id"],
+        "assignment_ref": fixed,
+        "result_id": operands["result_id"],
+        "result_manifest_digest": operands["result_digest"],
+        "input_manifest_digest": operands["input_digest"],
+        "policy_digest": operands["policy_digest"],
+        "runtime_profile_digest": given["runtime_profile_digest"],
+        "output_digest": output["content_manifest"]["tree_digest"],
+        "source_base": source_base,
+        "target_revision": target_revision,
+        "proposal_head": proposal_head,
+        "proposal_artifact": output["artifact"],
+        # A WORKER CANNOT MINT CUSTODY IDENTITIES, and an `evidenceRef` is
+        # made of one. The empty lists are the honest answer rather than a
+        # placeholder: this producer has no independent certification to offer
+        # and will not present the worker's word as one.
+        "author_tests": [],
+        "implementation_recap": claim["recap"],
+        "dossier_evidence": [],
+        "publish_operation": {
+            "operation_id": _identity("publish-operation",
+                                      {"signature_digest": signature}),
+            "signature_digest": signature},
+        "publish_receipt_digest": digest(_expected_answer(operands, fixed))}
+    # §13 BEFORE IT BECOMES DURABLE, exactly as the seal does it: a
+    # proposal is composed from identities and locators this producer was
+    # handed, and a locator is the kind of member a credential rides in.
+    check_no_durable_secret(body, what="a retained proposal")
+    return retain_manifest(manager, {**body, "manifest_digest": digest(body)},
+                           "proposalManifest")["digest"]
+
+
+def _publish_operands(manager, attempt_id, proposal_manifest_digest):
+    boundaries.capability(getattr(manager, "_connection", None),
+                          "the Worker Manager store")
+    boundaries.identity(attempt_id, "an implementation attempt id")
+    boundaries.identity(proposal_manifest_digest,
+                        "a retained proposal manifest digest")
+    frozen = frozen_output_of(manager, attempt_id)
+    if frozen is None or frozen["disposition"] != "completed":
+        _refuse(f"attempt {name_value(attempt_id)} has no completed frozen "
+                "result to publish", category="refused", code="precondition")
+    proposal = _manifest(manager, proposal_manifest_digest,
+                         "proposalManifest", "proposal manifest")
+    result = _manifest(manager, frozen["manifest_digest"], "resultManifest",
+                       "result manifest")
+    fixed = _assignment(manager, attempt_id)
+
+    if proposal["assignment_ref"] != fixed \
+            or result["assignment_ref"] != fixed:
+        _refuse("the retained proposal, frozen result and implementation "
+                "attempt do not name one assignment")
+    if proposal["result_id"] != frozen["result_id"] \
+            or proposal["result_id"] != result["result_id"]:
+        _refuse("the retained proposal does not name the frozen result")
+    if proposal["result_manifest_digest"] != frozen["manifest_digest"]:
+        _refuse("the retained proposal does not bind the frozen result bytes")
+    if result["input_manifest_digest"] != proposal["input_manifest_digest"] \
+            or result["policy_digest"] != proposal["policy_digest"]:
+        _refuse("the retained proposal and frozen result disagree about their "
+                "input or policy")
+    _one_proposal_output(result, proposal)
+    if proposal["source_base"] != proposal["target_revision"]:
+        _refuse("the proposal was not built from the target revision it asks "
+                "the Authority to replace")
+    if proposal["proposal_head"]["algorithm"] \
+            != proposal["target_revision"]["algorithm"]:
+        _refuse("the proposal head and target revision use different object "
+                "namespaces")
+
+    candidate = proposal["proposal_head"]["hex"]
+    target = proposal["target_revision"]["hex"]
+    operands = {
+        "expect": fixed,
+        "operation_id": proposal["publish_operation"]["operation_id"],
+        "proposal_id": proposal["proposal_id"],
+        "result_id": proposal["result_id"],
+        "result_digest": proposal["result_manifest_digest"],
+        "candidate_digest": candidate,
+        "input_digest": proposal["input_manifest_digest"],
+        "policy_digest": proposal["policy_digest"],
+        "target": target}
+    signature = _publish_signature(operands)
+    if proposal["publish_operation"]["signature_digest"] != signature:
+        _refuse("the proposal manifest's publish operation does not bind its "
+                "exact Authority operands")
+    expected = _expected_answer(operands, fixed)
+    if proposal["publish_receipt_digest"] != digest(expected):
+        _refuse("the proposal manifest's publish receipt digest does not bind "
+                "the Authority answer it requests")
+    return proposal, operands, expected
+
+
+def publish_candidate(manager, publisher, *, attempt_id,
+                      proposal_manifest_digest):
+    """Publish one manager-owned proposal while its producer remains live.
+
+    The manifest digest is only a selector.  Every publication member is read
+    back from the retained manifest, frozen result, fixed assignment, and live
+    Authority target before ``publish`` is called.
+    """
+    _capability(publisher, "publish", "the publisher session")
+    _capability(publisher, "proposal", "the publisher session")
+    _capability(publisher, "canonical_target", "the publisher session")
+    proposal, operands, expected = _publish_operands(
+        manager, attempt_id, proposal_manifest_digest)
+    current = _authority(publisher.canonical_target,
+                         "the canonical target read")
+    if current != operands["target"]:
+        _refuse(f"the Authority target is {name_value(current)} and the "
+                f"proposal was built from {name_value(operands['target'])}",
+                category="refused", code="precondition")
+    answer = _authority(publisher.publish, "proposal publication", operands)
+    if answer != expected:
+        _refuse("the Authority's publication answer is not the exact proposal "
+                "the manager requested")
+    recorded = _authority(
+        lambda: publisher.proposal(proposal["proposal_id"]),
+        "published proposal read")
+    for name, value in expected.items():
+        if recorded.get(name) != value:
+            _refuse(f"the recorded Authority proposal disagrees about {name}")
+    # W120763: AND THE LOCAL RECORD THAT THIS HAPPENED, BEFORE SUCCESS IS
+    # REPORTED. Everything above is remote or was true before the Authority
+    # was asked, so a caller that died here left a published proposal nothing
+    # local could distinguish from a merely retained one. The commit is last
+    # because it records an act rather than an intent, and it is BEFORE the
+    # return because a publication this manager cannot show it made is not one
+    # it may report as a completed step.
+    _retain_publication(manager, attempt_id, proposal_manifest_digest,
+                        proposal, operands, recorded)
+    return recorded
+
+
+def _typed_assignment(value, what):
+    """The four-part assignment with its member TYPES proved, not just equal.
+
+    W120763 review 2026-09-08T17-15-33Z [P2]. `True == 1` in Python, so a
+    recorded assignment whose generation was JSON `true` compared equal to the
+    first generation ever minted and every equality check in this module
+    passed it through. The journal signature does not close the gap either: it
+    is derived for integer generation 1 and says nothing about the types of the
+    members the RESULT carries.
+
+    `boundaries.generation` excludes `bool` for exactly this reason and says so
+    in its own words, so the fix is to own the document before comparing it
+    rather than to invent a second rule about numbers here.
+    """
+    held = boundaries.document(value, what,
+                               required=("work_ref", "participant",
+                                         "generation"))
+    ref = boundaries.document(held["work_ref"], f"{what}'s Work reference",
+                              required=("authority_uuid", "work_id"))
+    boundaries.text(ref["authority_uuid"], f"{what}'s Authority")
+    boundaries.text(ref["work_id"], f"{what}'s Work id")
+    boundaries.text(held["participant"], f"{what}'s participant")
+    boundaries.generation(held["generation"], f"{what}'s generation")
+    return held
+
+
+def _candidate(row, attempt_id, what):
+    """Whether one journalled publication row is THIS attempt's, or refuses.
+
+    W121793. THREE ANSWERS AND NOT TWO. A row about another attempt is
+    somebody else's ordinary record and is skipped; a row about this one
+    answers its selector; and a row this reader cannot classify refuses,
+    because deciding a record is not about this attempt REQUIRES reading it,
+    and a scan that skipped what it could not read would answer absence with a
+    real record sitting in front of it.
+
+    THE FILED IDENTITY IS PART OF THE CLASSIFICATION. `publication_of`
+    re-derives the operation id from the attempt and the selector, so a record
+    filed anywhere else would be invisible to it -- and answering absence for a
+    present record is exactly what this reader exists to stop. A row whose own
+    members do not derive the identity it sits at is therefore a refusal rather
+    than a skip.
+    """
+    if row["state"] != "committed":
+        _refuse(f"{what} is recorded {name_value(row['state'])}; a "
+                f"publication is read from a committed act and never from one "
+                f"that did not settle", category="refused",
+                code="precondition")
+    held = boundaries.document(boundaries.adopted(row["result"], what), what,
+                               required=PUBLICATION_RECEIPT)
+    boundaries.identity(held["attempt_id"], f"{what}'s attempt")
+    boundaries.identity(held["proposal_manifest_digest"],
+                        f"{what}'s retained proposal manifest digest")
+    filed = _publication_operation_id(held["attempt_id"],
+                                      held["proposal_manifest_digest"])
+    if filed != row["operation_id"]:
+        _refuse(f"{what} sits at {name_value(row['operation_id'])} and its own "
+                f"attempt and selector derive {name_value(filed)}; a record is "
+                f"filed under an identity built from its own members")
+    if held["attempt_id"] != attempt_id:
+        return None
+    return held["proposal_manifest_digest"]
+
+
+def publication_for_attempt(manager, *, attempt_id):
+    """The committed publication for one attempt, with nothing remembered.
+
+    W121793, `work/records/2026/09/finding-v12-publication-by-attempt-reader/`.
+
+    WHY `publication_of` IS NOT ENOUGH BY ITSELF. Its selector is the retained
+    proposal manifest digest, which is the right identity for a caller that
+    still holds it -- and a COLD one does not. Re-deriving it means asking
+    `retain_proposal` to compose the manifest again, which opens a write
+    transaction on a recovery path that may not write, so a consumer was left
+    carrying the selector across the very restart the record exists to
+    survive. This answers from the attempt alone.
+
+    IT SCANS THIS MODULE'S OWN KIND, and that is a considered exception rather
+    than a habit. Every other reader here selects by a derived identity, and
+    this one cannot: the publication identity is a digest over the attempt AND
+    the selector, so the attempt alone derives nothing. What bounds the scan is
+    that `integration.publication` is a kind this module writes and no other
+    party produces, so the rows it walks are its own.
+
+    AMBIGUITY IS A REFUSAL. One attempt may legitimately have prepared several
+    proposals over its life, but only one can have been published while its
+    producer assignment was live; two committed publications for one attempt is
+    a store this build cannot explain, and choosing between them by row order
+    would be inventing which publication was the real one.
+
+    EVERY VALIDATION IS `publication_of`'S. This finds WHICH record and then
+    hands the selector to the owner, so there is exactly one place that decides
+    whether a publication record is sound -- and a caller gets the same
+    validated receipt whichever entry point it came through.
+    """
+    boundaries.capability(getattr(manager, "_connection", None),
+                          "the Worker Manager store")
+    boundaries.identity(attempt_id, "an implementation attempt id")
+    what = f"a journalled publication beside attempt {name_value(attempt_id)}"
+    found = []
+    for row in manager._connection.execute(
+            "SELECT operation_id, state, result FROM operations "
+            "WHERE kind = ? ORDER BY operation_id",
+            (PUBLICATION_KIND,)).fetchall():
+        selector = _candidate(row, attempt_id, what)
+        if selector is not None and selector not in found:
+            found.append(selector)
+    if not found:
+        return None
+    if len(found) > 1:
+        _refuse(f"attempt {name_value(attempt_id)} carries "
+                f"{len(found)} committed publications; one attempt publishes "
+                f"once while its producer assignment is live, and choosing "
+                f"between them by row order would invent which one happened",
+                category="refused", code="operation-collision")
+    return publication_of(manager, attempt_id=attempt_id,
+                          proposal_manifest_digest=found[0])
+
+
+def _publication_operation_id(attempt_id, proposal_manifest_digest):
+    """The one identity this attempt's publication record is journalled by.
+
+    OVER THE ATTEMPT AND THE SELECTOR THAT CHOSE THE PROPOSAL, so an exact
+    retry of `publish_candidate` re-derives it and replays rather than writing
+    a second account of one act -- and a different proposal for the same
+    attempt is a different act with a different name.
+    """
+    return _identity("publication",
+                     {"attempt_id": attempt_id,
+                      "proposal_manifest_digest": proposal_manifest_digest})
+
+
+def _publication_signature(attempt_id, proposal_manifest_digest, operands):
+    """The operands this record is compared as, and they are the ones the
+    Authority was asked for."""
+    return manager_signature(
+        PUBLICATION_KIND,
+        {"attempt_id": attempt_id,
+         "proposal_manifest_digest": proposal_manifest_digest,
+         "expect": operands["expect"],
+         "proposal_id": operands["proposal_id"],
+         "result_id": operands["result_id"],
+         "result_digest": operands["result_digest"],
+         "candidate_digest": operands["candidate_digest"],
+         "target": operands["target"]})
+
+
+def _publication_receipt(attempt_id, proposal_manifest_digest, operands,
+                         recorded):
+    return {"attempt_id": attempt_id,
+            "assignment": operands["expect"],
+            "proposal_id": operands["proposal_id"],
+            "proposal_manifest_digest": proposal_manifest_digest,
+            "result_id": operands["result_id"],
+            "result_manifest_digest": operands["result_digest"],
+            "candidate_digest": operands["candidate_digest"],
+            "target": operands["target"],
+            "published": recorded}
+
+
+def _retain_publication(manager, attempt_id, proposal_manifest_digest,
+                        proposal, operands, recorded):
+    """Commit the closed publication record, effectively once."""
+    del proposal
+    # THE TYPES ARE PROVED BEFORE ANYTHING IS COMMITTED, on both accounts of
+    # the assignment this record will carry: the operands this manager asked
+    # with, and the answer the Authority read back. Review [P2]: a boolean
+    # generation in the readback was committed, so the record itself carried a
+    # member no reader could then reject on value alone.
+    _typed_assignment(operands["expect"],
+                      "a publication's requested assignment")
+    _typed_assignment(recorded.get("assignment_ref"),
+                      "a published proposal's assignment")
+    receipt = _publication_receipt(attempt_id, proposal_manifest_digest,
+                                   operands, recorded)
+    check_no_durable_secret(receipt, what="a retained publication record")
+    return manager.transact(
+        _publication_operation_id(attempt_id, proposal_manifest_digest),
+        PUBLICATION_KIND,
+        _publication_signature(attempt_id, proposal_manifest_digest, operands),
+        lambda connection: receipt)
+
+
+def publication_of(manager, *, attempt_id, proposal_manifest_digest):
+    """The committed publication for this attempt and proposal, or absence.
+
+    W120763, `work/records/2026/09/finding-v12-committed-publication-history/`.
+
+    WHAT A RETAINED MANIFEST PROVES, AND IT IS NOT THIS. `retain_proposal`
+    composes a proposal from a frozen result and retains it; that manifest
+    exists whether or not the Authority was ever asked to publish it, and a
+    consumer reading it as publication evidence is inferring an act from its
+    preparation. This answers the other question directly: did
+    `publish_candidate` complete -- publish, read back and agree -- for this
+    exact proposal.
+
+    LOCAL READS ONLY, AND NO PUBLISHER. It takes none, so there is no branch
+    in it that could republish, re-grant, re-fence or ask the Authority
+    anything; a consumer recovering after the producer assignment was fenced
+    could not use it otherwise.
+
+    ABSENCE IS ABSENCE AND A PRESENT INVALID RECORD IS NOT. Only a genuinely
+    missing operation answers `None`. That matters more here than almost
+    anywhere: an interrupted publish leaves the Authority holding a proposal
+    and this manager holding nothing, so `None` means "no local evidence" and
+    NEVER "not published" -- ordinary recovery re-enters `publish_candidate`
+    under the already-owned publication identity while the assignment still
+    permits it, and this reader is not the place that decides otherwise.
+
+    WHAT IS OWNED BEFORE ANYTHING IS RETURNED. The journalled signature is
+    re-derived from the retained proposal and compared against the row, so a
+    record signed over other operands is not this act; the receipt is held to
+    its closed contract; and every selector is cross-bound -- the attempt, its
+    immutable assignment, the retained proposal manifest at the digest that
+    chose it, the frozen result that proposal was composed from, and the
+    Authority's own recorded answer against the one those operands ask for.
+    """
+    boundaries.capability(getattr(manager, "_connection", None),
+                          "the Worker Manager store")
+    boundaries.identity(attempt_id, "an implementation attempt id")
+    boundaries.identity(proposal_manifest_digest,
+                        "a retained proposal manifest digest")
+    operation_id = _publication_operation_id(attempt_id,
+                                             proposal_manifest_digest)
+    record = manager.operation_record(operation_id)
+    if record is None:
+        return None
+    what = (f"attempt {name_value(attempt_id)}'s committed publication")
+    if record["kind"] != PUBLICATION_KIND:
+        _refuse(f"{what} is journalled as {name_value(record['kind'])} and "
+                f"this build records it as {name_value(PUBLICATION_KIND)}")
+    # THE OPERANDS ARE RE-DERIVED FROM THE RETAINED PROPOSAL, which is what
+    # makes the signature comparison a proof rather than a formality: the
+    # proposal manifest, the frozen result and the fixed assignment all have
+    # to still say what they said when the publication was requested.
+    proposal, operands, expected = _publish_operands(
+        manager, attempt_id, proposal_manifest_digest)
+    del proposal
+    signature = _publication_signature(attempt_id, proposal_manifest_digest,
+                                       operands)
+    if record["signature"] != signature:
+        _refuse(f"{what} is journalled under a signature this manager does "
+                f"not derive for it; the record and the retained proposal it "
+                f"names disagree about what was published")
+    found, committed = manager.replay(operation_id, signature,
+                                      kind=PUBLICATION_KIND)
+    if not found:
+        _refuse(f"{what} has a journal row and no committed answer",
+                category="refused", code="precondition")
+    taken = boundaries.document(committed, what,
+                                required=PUBLICATION_RECEIPT)
+    # TYPES FIRST, THEN VALUES, for both accounts. `True == 1`, so an equality
+    # comparison alone accepts a boolean generation wherever the real one is 1.
+    _typed_assignment(taken["assignment"], f"{what}'s assignment")
+    if taken != _publication_receipt(attempt_id, proposal_manifest_digest,
+                                     operands, taken["published"]):
+        _refuse(f"{what} names selectors this manager does not derive for it")
+    # THE ANSWER IS OWNED AS A DOCUMENT AND COMPARED MEMBER BY MEMBER, exactly
+    # as `publish_candidate` compared it when it arrived. Holding it to a
+    # closed member set here would refuse an Authority that answers more than
+    # this build reads -- which the publishing path accepts, so the reader
+    # accepts it too rather than inventing a second contract for one fact.
+    published = boundaries.document(taken["published"], f"{what}'s answer")
+    _typed_assignment(published.get("assignment_ref"),
+                      f"{what}'s recorded assignment")
+    for name, value in expected.items():
+        if published.get(name) != value:
+            _refuse(f"{what} records an Authority answer that disagrees about "
+                    f"{name}")
+    return taken
+
+
+def _receipt(session, kind, basis, prefix=None, **members):
+    """One separately attributable receipt, under an identity that says what
+    kind of evidence it rests on.
+
+    W112029 review [P2]: the verification receipt's identities were the generic
+    `verification-receipt` and `verification-operation` whatever the evidence
+    was, and the ordinary-tests marker existed only inside the hashed basis --
+    invisible in the opaque id an operator actually reads. The accepted plan
+    asks for an explicit prefix, so this workflow's verification identities
+    carry one. Review and approval keep theirs: what changed is which evidence
+    a VERIFICATION receipt rests on, and relabelling the other two would be
+    claiming something about acts this Work did not change.
+    """
+    verb = {"verification": "verify", "review": "review",
+            "approval": "approve"}[kind]
+    _capability(session, verb, f"the configured {kind} session")
+    participant = boundaries.text(getattr(session, "participant", None),
+                                  f"the configured {kind} participant")
+    named = prefix or kind
+    receipt_basis = dict(basis, kind=kind)
+    receipt_id = _identity(f"{named}-receipt", receipt_basis)
+    operation_basis = dict(receipt_basis, actor=participant, **members)
+    operands = {"proposal_id": basis["proposal_id"],
+                {"verification": "verification_id", "review": "review_id",
+                 "approval": "approval_id"}[kind]: receipt_id,
+                "operation_id": _identity(f"{named}-operation",
+                                          operation_basis), **members}
+    return _authority(getattr(session, verb), f"the {kind} receipt", operands)
+
+
+
+# -- W112029: the ordinary-test observation, and what it may authorize --------
+#
+# `work/records/2026/09/finding-v12-ordinary-test-admission/`.
+#
+# WHAT WAS WRONG, AND IT WAS ONE WORD. `_accepted_receipts` published the
+# Authority's verification receipt with `observation="passed"` unconditionally,
+# for every accepted checkpoint, whatever any test had done. An accepted
+# TECHNICAL REVIEW is a human-or-model judgement about a change; it is not a
+# statement that the required commands ran and exited zero, and publishing one
+# as the other made the strongest receipt in the protocol the least evidenced.
+#
+# WHAT REPLACES IT IS NOT A NEW PRODUCER. Owner ruling M111752: this milestone's
+# verification is the implementer running the ordinary required tests plus an
+# independent review. The worker ALREADY runs the frozen task's own verification
+# argv, and W112029's worker half exposes that same answer on the frozen
+# proposal output. So this reads an observation somebody already made rather
+# than commissioning one, and it says so in the receipt's own identity.
+#
+# AND IT IS HONEST ABOUT WHAT IT IS. This is author-container testing plus
+# independent review. It is NOT clean candidate-merge certification, no part of
+# it claims to be, and the ordinary-tests marker in the operation identity is
+# there so a later reader cannot mistake one for the other.
+
+ORDINARY_TESTS_NAMESPACE = "baton.git-ordinary-tests/1"
+ORDINARY_TESTS_MEMBERS = ("argv", "base", "head", "status", "task_digest",
+                          "task_id")
+
+# WHAT A DEPLOYMENT SUPPLIES AS ITS REQUIREMENT, and every member of it is a
+# SELECTION rather than an answer. There is no `status` here and there never
+# will be: a caller that could supply the observation would be certifying its
+# own candidate, which is the exact defect the unconditional `passed` was.
+REQUIRED_TESTS_MEMBERS = ("argv", "input_manifest_digest", "task_digest",
+                          "task_id")
+
+# The marker that rides in the receipt and operation identity. Deliberately not
+# a word like `verified` or `certified`: what happened is that the author's own
+# container ran the required command.
+ORDINARY_TESTS_WORKFLOW = "ordinary-tests/1"
+
+# AND THE PREFIX THE EMITTED IDENTITIES ACTUALLY CARRY. Review [P2]: the marker
+# was hashed into the basis and therefore invisible in the opaque id an
+# operator reads, while the emitted prefix stayed the generic `verification-`
+# whatever the evidence was. It says `ordinary-tests` rather than `verified` or
+# `certified` for the same reason the workflow word does.
+ORDINARY_TESTS_PREFIX = "ordinary-tests-verification"
+
+
+def _owned_requirements(required_tests):
+    """The deployment's closed required-test selection.
+
+    W103083 derives this from the implementation task bytes it already holds
+    for this Job's producer, including correction attempts. It is trusted
+    configuration in exactly the sense the integration profile is: this module
+    proves the OBSERVATION against it and never the other way round.
+    """
+    held = boundaries.document(required_tests, "a required-test selection",
+                               required=REQUIRED_TESTS_MEMBERS)
+    boundaries.identity(held["task_id"], "a required-test task id")
+    boundaries.text(held["task_digest"], "a required-test task digest")
+    boundaries.text(held["input_manifest_digest"],
+                    "a required-test input manifest digest")
+    argv = held["argv"]
+    if type(argv) is not list or not argv \
+            or not all(type(one) is str and one for one in argv):
+        _refuse("a required-test selection names its command as a non-empty "
+                "list of words; a command this module would have to assemble "
+                "from a string is a shell, and there is no shell here")
+    return held
+
+
+def _observation_of(output):
+    """The worker's own ordinary-test observation, adopted and never extended.
+
+    ADOPTED AS A CLOSED DOCUMENT, for `_claim_of`'s reason: the members this
+    reader would be tempted to accept are exactly the ones it must read from
+    their owners. There is no `passed` in it and no boolean; a status is what
+    the worker's `wait` answered, and deciding about it is this module's job.
+    """
+    metadata = output["result_metadata"]
+    if type(metadata) is not dict \
+            or ORDINARY_TESTS_NAMESPACE not in metadata:
+        _refuse(f"the frozen proposal output carries no "
+                f"{name_value(ORDINARY_TESTS_NAMESPACE)} observation; what the "
+                f"required tests did is the producer's own fact and this "
+                f"module will not assume it", category="refused",
+                code="precondition")
+    held = boundaries.document(metadata[ORDINARY_TESTS_NAMESPACE],
+                               "a worker ordinary-test observation",
+                               required=ORDINARY_TESTS_MEMBERS)
+    boundaries.identity(held["task_id"], "an observed task id")
+    boundaries.text(held["task_digest"], "an observed task digest")
+    for member in ("base", "head"):
+        boundaries.text(held[member], f"an observed {member} object")
+    argv = held["argv"]
+    if type(argv) is not list or not argv \
+            or not all(type(one) is str and one for one in argv):
+        _refuse("an ordinary-test observation names its command as a "
+                "non-empty list of words")
+    status = held["status"]
+    # UNRUN IS `None` AND IS NOT A FAILURE TO PARSE. The worker writes null
+    # when the command did not produce a status at all -- skipped, timed out,
+    # or unable to start -- and all three are "no evidence", which is a
+    # different refusal from "evidence of a non-zero exit".
+    if status is not None \
+            and (type(status) is bool or type(status) is not int):
+        _refuse("an ordinary-test observation's status is a whole number or "
+                "null")
+    return held
+
+
+def ordinary_test_evidence(manager, authority, *, line_id, proposal_id):
+    """The observation an accepted checkpoint's own producer actually made.
+
+    PUBLIC AND READ-ONLY. It writes nothing and decides nothing: it resolves
+    the accepted checkpoint's producer, re-reads that attempt's frozen result
+    and retained manifest through their accepted owners, and answers the
+    worker's observation cross-bound to the proposal the Authority holds.
+
+    EVERY IDENTITY IS COMPARED THROUGH AN OWNER. The retained proposal manifest
+    names the result and the assignment; the frozen summary names the same
+    result; the published proposal names the same candidate and input and
+    policy digests; and the observation's own base and head are the ones the
+    proposal manifest recorded. A consumer that skipped any of these would be
+    reading SOME container's test result rather than this candidate's.
+
+    IT SURVIVES ORDINARY CLEANUP, which is the property that makes it usable at
+    admission: every fact above comes from a retained manifest or a durable
+    row, and none from a runtime, a workspace or an output directory that
+    cleanup removes.
+    """
+    accepted = integration_checkpoint(manager, line_id)
+    if accepted is None:
+        _refuse(f"development line {name_value(line_id)} has no accepted "
+                f"integration checkpoint", category="refused",
+                code="precondition")
+    writer = writer_of(
+        manager, checkpoint_of(
+            manager, accepted["checkpoint_id"])["writer_id"])
+    producer = writer["runtime_attempt_id"]
+    frozen = frozen_output_of(manager, producer)
+    if frozen is None or frozen["disposition"] != "completed":
+        _refuse(f"the accepted checkpoint's producer "
+                f"{name_value(producer)} has no completed frozen result",
+                category="refused", code="precondition")
+    result = _manifest(manager, frozen["manifest_digest"], "resultManifest",
+                       "result manifest")
+    if result["result_id"] != frozen["result_id"]:
+        _refuse("the frozen result summary and its retained manifest name "
+                "different results")
+    fixed = _assignment(manager, producer)
+    if result["assignment_ref"] != fixed:
+        _refuse("the frozen result and the producing attempt do not name one "
+                "assignment")
+    proposal = admission._proposal(authority, proposal_id)
+    # THE PROPOSAL'S WHOLE PRODUCER IDENTITY, BEFORE ANY RECEIPT. Review
+    # 2026-09-07T17-47-09Z [P1]: this compared the RESULT's assignment to the
+    # producer's and never the PROPOSAL's, so a published proposal naming
+    # another generation, participant or Work reached `_accepted_receipts` and
+    # had verification, review and approval written for it. `resolved_account`
+    # does make these comparisons -- three steps too late, after immutable
+    # receipts exist, and a later admission refusal cannot retract one.
+    if proposal["assignment_ref"] != fixed:
+        _refuse(f"the published proposal names assignment "
+                f"{name_value(proposal['assignment_ref'])} and the accepted "
+                f"checkpoint's producer is {name_value(fixed)}; a receipt is "
+                f"written about the attempt that made the candidate",
+                category="refused", code="precondition")
+    if proposal["result_id"] != result["result_id"] \
+            or proposal["result_digest"] != frozen["manifest_digest"]:
+        _refuse("the published proposal and the producer's frozen result name "
+                "different results; the observation must be about the "
+                "candidate this admission is for")
+    if proposal["input_digest"] != result["input_manifest_digest"] \
+            or proposal["policy_digest"] != result["policy_digest"]:
+        _refuse("the published proposal and the frozen result name different "
+                "input or policy identities")
+    output = _one_output(result)
+    claim = _claim_of(output)
+    observed = _observation_of(output)
+    for member in ("base", "head"):
+        if observed[member] != claim[member]:
+            _refuse(f"the ordinary-test observation says it ran over {member} "
+                    f"{name_value(observed[member])} and the proposal claim "
+                    f"names {name_value(claim[member])}; an observation about "
+                    f"another candidate is not this one's evidence")
+    if _object_name(claim["head"],
+                    "the worker's proposal head")["hex"] \
+            != proposal["candidate_digest"]:
+        _refuse("the proposal claim's head and the published candidate digest "
+                "disagree")
+    # THE CHECKPOINT'S OBJECTS LIVE IN ITS `evidence`, which is the shape
+    # `integration_checkpoint` actually answers. Review 2026-09-07T18-00-22Z
+    # [P1]: this read a top-level `head`, so the reader raised `KeyError` the
+    # moment it met the real owner -- and my own fixture hid it, because the
+    # document it mocked had a shape the owner never returns. The public
+    # eligibility schema is unchanged; the consumer is.
+    evidence = boundaries.document(accepted.get("evidence"),
+                                   "an accepted checkpoint's evidence",
+                                   optional=("profile", "base", "head", "tree",
+                                             "paths", "path_set_digest",
+                                             "reference"))
+    for member in ("base", "head"):
+        if member not in evidence:
+            _refuse(f"the accepted checkpoint's evidence records no "
+                    f"{member}; a receipt is written about objects this "
+                    f"manager can name", category="refused",
+                    code="precondition")
+    if evidence["head"] != claim["head"]:
+        _refuse(f"the accepted checkpoint records head "
+                f"{name_value(evidence['head'])} and the producer's proposal "
+                f"claims {name_value(claim['head'])}")
+    # AND THE REVISION THIS CANDIDATE WAS BUILT ON. Review [P1]: the proposal's
+    # target was never compared with the base the worker says it built from, so
+    # a proposal offered against another revision was receipted. The three
+    # accounts of that one fact -- the proposal's target, the worker's claimed
+    # base and the observation's own -- are compared here rather than at the
+    # canonical-target boundary, which runs after the receipts.
+    if proposal["target"] != claim["base"]:
+        _refuse(f"the published proposal is offered against target "
+                f"{name_value(proposal['target'])} and its producer built on "
+                f"{name_value(claim['base'])}; a receipt is written about the "
+                f"revision the candidate was made from", category="refused",
+                code="precondition")
+    if evidence["base"] != claim["base"]:
+        _refuse(f"the accepted checkpoint records base "
+                f"{name_value(evidence['base'])} and the producer built on "
+                f"{name_value(claim['base'])}", category="refused",
+                code="precondition")
+    return {"attempt_id": producer, "checkpoint_id": accepted["checkpoint_id"],
+            "assignment_ref": fixed,
+            "input_manifest_digest": result["input_manifest_digest"],
+            "result_id": result["result_id"],
+            "result_digest": frozen["manifest_digest"],
+            "observation": observed}
+
+
+def _ordinary_tests_passed(evidence, requirements):
+    """Whether these EXACT requirements actually ran and exited zero.
+
+    THE ONLY ROUTE TO A `passed` RECEIPT, and every clause is a way an
+    observation can be about something else: another task, another version of
+    the same task, another command, or another attempt's inputs. A status of
+    zero for a command nobody required proves nothing about the requirement.
+
+    A NON-ZERO STATUS AND AN UNRUN COMMAND ARE BOTH REFUSALS AND ARE NOT THE
+    SAME ONE. The first is evidence that the required tests failed; the second
+    is the absence of evidence. Neither may be admitted, and reporting one as
+    the other would tell an operator to look in the wrong place.
+    """
+    held = _owned_requirements(requirements)
+    observed = evidence["observation"]
+    for member in ("task_id", "task_digest"):
+        if observed[member] != held[member]:
+            _refuse(f"the required tests name {member} "
+                    f"{name_value(held[member])} and this producer observed "
+                    f"{name_value(observed[member])}; an observation of "
+                    f"another task is not evidence about this requirement",
+                    category="refused", code="precondition")
+    if list(observed["argv"]) != list(held["argv"]):
+        _refuse(f"the required tests name the command "
+                f"{name_value(' '.join(held['argv']))} and this producer "
+                f"observed {name_value(' '.join(observed['argv']))}",
+                category="refused", code="precondition")
+    if evidence["input_manifest_digest"] != held["input_manifest_digest"]:
+        _refuse("the required tests were selected for another attempt's input "
+                "manifest", category="refused", code="precondition")
+    if observed["status"] is None:
+        _refuse(f"the required tests for task "
+                f"{name_value(held['task_id'])} did not run in this "
+                f"producer's container, so nothing about them is proved; an "
+                f"accepted technical review is not a substitute",
+                category="refused", code="precondition")
+    if observed["status"] != 0:
+        _refuse(f"the required tests for task {name_value(held['task_id'])} "
+                f"exited {observed['status']} in this producer's container; a "
+                f"failing required command is not admitted and an accepted "
+                f"technical review is not a substitute", category="policy",
+                code="denied")
+    return held
+
+
+# THE ENTRY STATES A TERMINAL REPLAY OWNS, and the reason this list exists at
+# all. W110774 review 2026-09-08T02:29:59Z [P1]: both public entry points wrote
+# the accepted receipts BEFORE dispatching a settled entry to `_terminal`, and
+# the Authority holds an accepted receipt immutable -- so a process that died
+# between `settle_integrated` and `release_lease` could never replay its own
+# release tail. Every later tick refused at the approval receipt and the
+# integrated entry kept its live exclusion forever. The receipts of a terminal
+# entry were written when it was admitted; writing them again is not part of
+# reading one back.
+TERMINAL_ENTRY_STATES = ("integrated", "refused", "held")
+
+
+def _accepted_receipts(manager, authority, verification, reviewer, approver,
+                       *, line_id, proposal_id, policy_generation,
+                       required_tests, issue=True):
+    _capability(authority, "proposal", "the Authority")
+    _capability(authority, "policy_generation", "the Authority")
+    for session, kind, verb in ((verification, "verification", "verify"),
+                                (reviewer, "review", "review"),
+                                (approver, "approval", "approve")):
+        _capability(session, verb, f"the configured {kind} session")
+        boundaries.text(getattr(session, "participant", None),
+                        f"the configured {kind} participant")
+    boundaries.identity(line_id, "an accepted development line id")
+    boundaries.identity(proposal_id, "an Authority proposal id")
+    boundaries.generation(policy_generation,
+                          "the configured approval policy generation")
+    if policy_generation < 1:
+        _refuse("the configured approval policy generation counts from one")
+    current_generation = _authority(
+        authority.policy_generation, "the approval policy generation read")
+    boundaries.generation(current_generation,
+                          "the Authority's approval policy generation")
+    if current_generation != policy_generation:
+        _refuse(f"the deployment pins approval policy generation "
+                f"{policy_generation} and the Authority is at "
+                f"{name_value(current_generation)}", category="policy",
+                code="denied")
+    accepted = integration_checkpoint(manager, line_id)
+    if accepted is None:
+        _refuse(f"development line {name_value(line_id)} has no accepted "
+                "integration checkpoint", category="refused",
+                code="precondition")
+    proposal = admission._proposal(authority, proposal_id)
+    # THE EVIDENCE IS PROVED BEFORE ANY RECEIPT SIDE EFFECT. Nothing below this
+    # line is reached by a candidate whose required tests failed, did not run,
+    # or were somebody else's -- so a refusal here writes no verification,
+    # review or approval receipt and admits nothing.
+    evidence = ordinary_test_evidence(manager, authority, line_id=line_id,
+                                      proposal_id=proposal_id)
+    requirements = _ordinary_tests_passed(evidence, required_tests)
+    witness = {"workflow": ORDINARY_TESTS_WORKFLOW,
+               "ordinary_tests": digest(evidence["observation"]),
+               "required_tests": digest(requirements),
+               "producer_attempt_id": evidence["attempt_id"],
+               "result_digest": evidence["result_digest"]}
+    basis = {"proposal_id": proposal_id,
+             "candidate_digest": proposal["candidate_digest"],
+             "target": proposal["target"],
+             "line_id": accepted["line_id"],
+             "checkpoint_id": accepted["checkpoint_id"],
+             "verdict_id": accepted["verdict_id"],
+             "checkpoint_digest": accepted["checkpoint_digest"]}
+    # W112029: THE VERIFICATION RECEIPT IS EVIDENCE-DRIVEN. `observation` was
+    # the literal `passed` for every accepted checkpoint; it is now published
+    # only after `_ordinary_tests_passed` has proved an actual status-zero run
+    # of the EXACT required command by this candidate's own producer, and the
+    # receipt and operation identities carry the observation and requirement
+    # digests plus an ordinary-tests marker so the receipt says what kind of
+    # evidence it rests on.
+    if not issue:
+        # EVERY PROOF ABOVE STILL RAN. What a terminal replay skips is only the
+        # three WRITES: the generation, the accepted checkpoint, the proposal
+        # and this candidate's own ordinary-test evidence were all re-proved
+        # to reach this line.
+        return accepted, proposal, None
+    answers = {
+        "verification": _receipt(verification, "verification",
+                                 dict(basis, **witness),
+                                 prefix=ORDINARY_TESTS_PREFIX,
+                                 observation="passed"),
+        "review": _receipt(reviewer, "review", basis,
+                           disposition="accepted"),
+        "approval": _receipt(approver, "approval", basis,
+                             disposition="approved",
+                             policy_generation=policy_generation)}
+    return accepted, proposal, answers
+
+
+def _settled_entry(store, canonical_target_id, proposal_id):
+    """This target's already-settled entry for this proposal, or `None`.
+
+    READ ONLY, AND BEFORE ANY RECEIPT IS WRITTEN, which is the whole point:
+    the answer decides whether this tick may write accepted receipts at all.
+
+    AND ITS OWN ADMITTED ACCOUNT IS WHAT A REPLAY IDENTIFIES IT BY. Review
+    2026-09-08T02:29:59Z [P1], second half: once an integration completes, the
+    canonical target has MOVED, so `resolved_account` refuses -- correctly --
+    and a replay that re-resolved the account to derive the entry id could
+    never reach the entry it is trying to drain. The entry carries the
+    eligibility it was admitted with, which is the account that derived its
+    identity in the first place; reading it back is not a relaxation of any
+    check, it is the only account this entry ever had.
+
+    SELECTED BY PROPOSAL RATHER THAN BY DERIVED ENTRY IDENTITY, deliberately.
+    The entry id is derived from the re-resolved account, and resolving that
+    account before the receipt composition would move the evidence proof this
+    module states must come first. The coordinator's own entry carries the
+    proposal it was admitted for, so this asks the one question it needs to
+    ask -- has this proposal already settled here -- without reordering
+    anything. A candidate whose account has since moved derives a different
+    entry id and refuses at `_current_entry` a few lines later, with no
+    receipt written: conservative in the safe direction.
+    """
+    for one in entries_of(store, canonical_target_id):
+        held = one.get("eligibility") or {}
+        if held.get("proposal_id") == proposal_id \
+                and one.get("state") in TERMINAL_ENTRY_STATES:
+            return one
+    return None
+
+
+def _import_account(manager, jobs, authority, settled, *, line_id,
+                    proposal_id):
+    """WHICH account this import acts on, decided in one place.
+
+    W133117 separated source eligibility from the import account, and this is
+    where driver says which one it is asking for. An import is the direct
+    path: `resolved_account` is source eligibility PLUS the rule that the
+    submission's declared target is still the Authority's canonical one, and
+    INTEGRATION-CONTRACT-v1 section 6 keeps that rule exactly here. A
+    submission whose target moved is not admitted by weakening this; it is
+    reconciled into a NEW result that carries its own pinned snapshot,
+    evidence and derived proposal, and `reconciliation.resolve_import_account`
+    is that branch's answer to the same question.
+
+    AND A SETTLED ENTRY IS NOT RE-RESOLVED. Once an integration completes the
+    canonical target has MOVED, so re-resolving would refuse -- correctly --
+    and a replay could never reach the entry it is draining. The entry carries
+    the account that derived its identity in the first place; reading it back
+    is the only account that entry ever had. `_settled_entry` documents why
+    that is conservative rather than a relaxation.
+    """
+    if settled is not None:
+        return settled["eligibility"]
+    return resolved_account(manager, jobs, authority, line_id=line_id,
+                            proposal_id=proposal_id)
+
+
+def admit_authorized_result(store, profile, runner, manager, jobs, authority,
+                            integrator, verifier, *, result_id, attempt_id):
+    """Take ONE authorized reconciled result all the way onto the target.
+
+    THE MILESTONE TRANSITION OF W131409. The second Job's submission was
+    accepted, its target moved under it, P reconciled it into its own reviewed
+    and approved candidate, and until now nothing carried that candidate onto
+    the target. This does, and it accounts for having done so.
+
+    EVERY IDENTITY IS DERIVED, none accepted. The entry and the lease are
+    derived from the proved account exactly as `admit_accepted` derives them,
+    so a caller cannot name a place in the queue or a grant.
+
+    THE ENDING IS IN ITS RULED ORDER. The Authority's own integration receipt
+    on the DERIVED proposal comes first, while the live lease still excludes
+    every other writer; then the coordinator settles the entry and drains that
+    exact lease; then the terminal custody act records that this result was
+    imported through that entry, re-proving both from their owners. A tick
+    interrupted between them leaves a state the same call settles on replay,
+    and cannot import twice, because the target has already advanced and the
+    account refuses a result whose target moved. W136578 owns the exhaustive
+    crash ordering and nothing here claims it.
+    """
+    boundaries.capability(getattr(store, "_connection", None),
+                          "the integration coordinator store")
+    boundaries.identity(attempt_id, "an integrator attempt id")
+    _capability(integrator, "integrate", "the configured integration session")
+    _capability(integrator, "receipt", "the configured integration session")
+    participant = boundaries.text(getattr(integrator, "participant", None),
+                                  "the configured integration participant")
+    # A SETTLED ENTRY IS NOT RE-RESOLVED, for the reason `_settled_entry`
+    # already records and one more this branch adds. Once this import
+    # completes, the dedicated target's reference AND the Authority's canonical
+    # cursor have both moved, so `resolve_import_account` refuses -- correctly
+    # -- and a replay that re-resolved to derive the entry id could never reach
+    # the entry it is draining. `result_of` is a pure read of this record's own
+    # custody, so the derived proposal is known without re-proving anything.
+    held = reconciliation.result_of(store, result_id)
+    canonical_target_id = held["canonical_target_id"]
+    settled = _settled_entry(store, canonical_target_id,
+                             held["derived_proposal_id"])
+    if settled is not None:
+        eligibility, account = settled["eligibility"], None
+    else:
+        account, eligibility = authorized_result_eligibility(
+            store, profile, manager, jobs, authority, result_id=result_id)
+    identity_basis = {"canonical_target_id": canonical_target_id,
+                      "eligibility": eligibility}
+    entry_id = _identity("entry", identity_basis)
+    lease_id = _identity("lease", dict(identity_basis, entry_id=entry_id,
+                                       attempt_id=attempt_id))
+    if settled is None:
+        enqueue(store, canonical_target_id=canonical_target_id,
+                entry_id=entry_id, eligibility=eligibility)
+    entry = _current_entry(store, canonical_target_id, entry_id, eligibility)
+
+    basis = {"proposal_id": eligibility["proposal_id"],
+             "entry_id": entry_id,
+             "candidate_digest": eligibility["candidate_digest"],
+             "target": eligibility["expected_target_revision"],
+             "checkpoint_id": eligibility["checkpoint_id"],
+             "verdict_id": eligibility["verdict_id"]}
+    if entry["state"] == "integrated":
+        # ALREADY ON THE TARGET. Read the Authority's receipt back rather than
+        # writing a second one, and let the terminal act settle its own replay.
+        receipt = _read_integrate_receipt(integrator, basis)
+        imported = reconciliation.record_imported(store, authority,
+                                                  result_id=result_id,
+                                                  entry_id=entry_id)
+        return {"outcome": "integrated", "entry": entry_id,
+                "result_id": result_id, "authority_receipt": receipt,
+                "result": imported, "assignment": None,
+                "settlement": entry["settlement"]}
+
+    answer = execution.import_authorized_result(
+        store, profile, runner, manager, jobs, authority, verifier,
+        canonical_target_id=canonical_target_id, entry_id=entry_id,
+        lease_id=lease_id, integrator_participant=participant,
+        attempt_id=attempt_id, result_id=result_id)
+    if answer["outcome"] != "integrated":
+        return dict(answer, result_id=result_id, authority_receipt=None,
+                    result=None)
+
+    # THE GRANT IS PROVED LIVE BEFORE THE AUTHORITY IS ASKED, review
+    # 2026-09-10T14:33:43Z [R3]. `complete_reconciled` re-reads it too, but
+    # that is AFTER the receipt -- and an integration receipt is a durable
+    # Authority act that a coordinator refusal cannot take back. A grant
+    # recovered while the required tests ran must reach neither.
+    lease = answer["lease"]
+    live_grant(store, lease_id=lease["lease_id"],
+               canonical_target_id=lease["canonical_target_id"],
+               entry_id=lease["entry_id"], fence=lease["fence"])
+    receipt = _integrate_receipt(integrator, basis)
+    execution.complete_reconciled(store, answer)
+    imported = reconciliation.record_imported(store, authority,
+                                              result_id=result_id,
+                                              entry_id=entry_id)
+    return {"outcome": "integrated", "entry": entry_id,
+            "result_id": result_id, "authority_receipt": receipt,
+            "result": imported, "assignment": None,
+            "settlement": answer["settlement"], "account": account,
+            "verification": answer["verification"]}
+
+
+def _same_account(entry, current):
+    admitted = entry["eligibility"]
+    for name in sorted(admitted):
+        if current.get(name) != admitted[name]:
+            _refuse(f"entry {name_value(entry['entry_id'])} was admitted with "
+                    f"{name} {name_value(admitted[name])} and its accepted "
+                    f"producers now say {name_value(current.get(name))}",
+                    category="refused", code="precondition")
+
+
+def _current_entry(store, canonical_target_id, entry_id, account):
+    """Refresh the materialized entry after immutable enqueue replay."""
+    standing = [one for one in entries_of(store, canonical_target_id)
+                if one["entry_id"] == entry_id]
+    if len(standing) != 1:
+        _refuse(f"target {name_value(canonical_target_id)} holds "
+                f"{len(standing)} current entries named "
+                f"{name_value(entry_id)}; exactly one admitted entry is "
+                f"required")
+    current = standing[0]
+    if current["eligibility"] != account:
+        _refuse(f"entry {name_value(entry_id)} does not retain the exact "
+                f"accepted eligibility account resolved for this proposal",
+                category="refused", code="precondition")
+    return current
+
+
+def _existing_assignment(profile, held):
+    taken = runtime._owned_profile(profile)
+    if held["integrator_participant"] != taken["integrator_participant"]:
+        _refuse("the retained lease belongs to another configured integrator",
+                category="policy", code="denied")
+    return runtime._owned_assignment({
+        "schema": runtime.ASSIGNMENT_SCHEMA,
+        "canonical_target_id": held["canonical_target_id"],
+        "entry_id": held["entry_id"], "lease_id": held["lease_id"],
+        "fence": held["fence"], "attempt_id": held["attempt_id"],
+        "integrator_participant": taken["integrator_participant"],
+        "profile_kind": taken["profile_kind"],
+        "profile_version": taken["profile_version"],
+        "instructions_digest": taken["instructions_digest"],
+        "target_access": "writable"})
+
+
+def _integrate_receipt(session, basis):
+    _capability(session, "integrate", "the configured integration session")
+    _capability(session, "receipt", "the configured integration session")
+    participant = boundaries.text(getattr(session, "participant", None),
+                                  "the configured integration participant")
+    integration_id = _identity("integration-receipt", basis)
+    operands = {"proposal_id": basis["proposal_id"],
+                "integration_id": integration_id,
+                "operation_id": _identity(
+                    "integration-operation", dict(basis, actor=participant))}
+    _authority(session.integrate, "the integration receipt", operands)
+    return _read_integrate_receipt(session, basis)
+
+
+def _read_integrate_receipt(session, basis):
+    """Read and cross-bind an existing Authority integration receipt."""
+    _capability(session, "receipt", "the configured integration session")
+    participant = boundaries.text(getattr(session, "participant", None),
+                                  "the configured integration participant")
+    integration_id = _identity("integration-receipt", basis)
+    recorded = _authority(
+        lambda: session.receipt(basis["proposal_id"], "integration"),
+        "integration receipt read")
+    expected = {"kind": "integration", "receipt_id": integration_id,
+                "proposal_id": basis["proposal_id"], "actor": participant,
+                "disposition": "integrated",
+                "candidate_digest": basis["candidate_digest"],
+                "target": basis["target"]}
+    if recorded is None:
+        _refuse("the Authority holds no integration receipt for the terminal "
+                "proposal", category="refused", code="precondition")
+    for name, value in expected.items():
+        if recorded.get(name) != value:
+            _refuse(f"the recorded Authority integration receipt disagrees "
+                    f"about {name}")
+    return recorded
+
+
+def _terminal(store, manager, delivery, profile, held, entry, integrator,
+              basis):
+    if entry["state"] == "integrated":
+        receipt = _read_integrate_receipt(integrator, basis)
+        if held is None:
+            _refuse(f"integrated entry {name_value(entry['entry_id'])} has no "
+                    f"lease whose terminal ending can be proved")
+        if held["entry_id"] != entry["entry_id"]:
+            _refuse(f"lease {name_value(held['lease_id'])} is over entry "
+                    f"{name_value(held['entry_id'])}, not integrated entry "
+                    f"{name_value(entry['entry_id'])}")
+        if held["canonical_target_id"] != entry["canonical_target_id"]:
+            _refuse(f"lease {name_value(held['lease_id'])} is over target "
+                    f"{name_value(held['canonical_target_id'])}, not the "
+                    f"integrated entry's target "
+                    f"{name_value(entry['canonical_target_id'])}")
+        if held["state"] == "live":
+            # SETTLEMENT AND RELEASE ARE TWO DURABLE COORDINATOR ACTS. A
+            # process may die after the first, leaving this terminal entry
+            # behind its still-live exclusion. Reconstruct the owner-bound
+            # assignment and replay the stored settlement: the first act is
+            # already journalled, and the second drains the exact lease. The
+            # Authority receipt above is READ ONLY on this restart path.
+            assignment = _existing_assignment(profile, held)
+            execution.complete_integrated(store, assignment,
+                                          entry["settlement"])
+        elif held["state"] != "released":
+            _refuse(f"integrated entry {name_value(entry['entry_id'])} has "
+                    f"lease {name_value(held['lease_id'])} in state "
+                    f"{name_value(held['state'])}; terminal replay owns only "
+                    f"a live release tail or an already released lease")
+        return {"outcome": "integrated", "entry": entry["entry_id"],
+                "assignment": None, "observed": None,
+                "authority_receipt": receipt}
+    if entry["state"] == "refused":
+        return {"outcome": "refused", "entry": entry["entry_id"],
+                "assignment": None, "observed": None,
+                "authority_receipt": None}
+    if entry["state"] == "held":
+        if held is None:
+            _refuse(f"entry {name_value(entry['entry_id'])} is held without "
+                    "the lease whose fence owns its recovery")
+        assignment = _existing_assignment(profile, held)
+        status = (None if delivery is None else
+                  recovery.held_status(store, manager, delivery, assignment))
+        return {"outcome": "held", "entry": entry["entry_id"],
+                "assignment": assignment, "observed": status,
+                "authority_receipt": None}
+    return None
+
+
+def admit_accepted(store, manager, jobs, authority, verification, reviewer,
+                   approver, integrator, port, *, canonical_target_id,
+                   line_id, proposal_id, policy_generation, profile,
+                   attempt_id, launch_root, workspace_group, required_tests,
+                   finalize=None):
+    """Write accepted receipts and drive or adopt one serialized integration.
+
+    No identity or fence is accepted from the caller.  Entry and lease
+    identities are derived from the re-resolved accepted account and the
+    manager-owned integration attempt.  A retained delivery with a runtime
+    that may have been asked is never run again: it is handed to the accepted
+    interrupted-hold operation.
+    """
+    boundaries.capability(getattr(store, "_connection", None),
+                          "the integration coordinator store")
+    boundaries.capability(getattr(manager, "_connection", None),
+                          "the Worker Manager store")
+    boundaries.capability(getattr(jobs, "_connection", None),
+                          "the Job store")
+    boundaries.identity(canonical_target_id, "a canonical target id")
+    boundaries.identity(attempt_id, "an integrator attempt id")
+    _capability(port, "run", "the integration runtime port")
+    taken_profile = runtime._owned_profile(profile)
+    _capability(integrator, "integrate",
+                "the configured integration session")
+    _capability(integrator, "receipt",
+                "the configured integration session")
+    integration_participant = boundaries.text(
+        getattr(integrator, "participant", None),
+        "the configured integration participant")
+    if integration_participant != taken_profile["integrator_participant"]:
+        _refuse("the integration session and runtime profile name different "
+                "participants", category="policy", code="denied")
+    settled = _settled_entry(store, canonical_target_id, proposal_id)
+    accepted, proposal, receipts = _accepted_receipts(
+        manager, authority, verification, reviewer, approver,
+        line_id=line_id, proposal_id=proposal_id,
+        policy_generation=policy_generation, required_tests=required_tests,
+        issue=settled is None)
+
+    account = _import_account(manager, jobs, authority, settled,
+                              line_id=line_id, proposal_id=proposal_id)
+    identity_basis = {"canonical_target_id": canonical_target_id,
+                      "eligibility": account}
+    entry_id = _identity("entry", identity_basis)
+    lease_basis = dict(identity_basis, entry_id=entry_id,
+                       attempt_id=attempt_id)
+    lease_id = _identity("lease", lease_basis)
+    if settled is None:
+        admit_candidate(
+            store, manager, jobs, authority,
+            canonical_target_id=canonical_target_id, entry_id=entry_id,
+            line_id=line_id, proposal_id=proposal_id)
+    # `enqueue` replay returns its immutable FIRST result (`queued`) even when
+    # the entry has since settled. Terminal dispatch needs the coordinator's
+    # current semantic state, cross-bound to the newly resolved account, not
+    # that historical operation result.
+    entry = _current_entry(store, canonical_target_id, entry_id, account)
+    basis = {"proposal_id": proposal_id, "entry_id": entry_id,
+             "candidate_digest": proposal["candidate_digest"],
+             "target": proposal["target"],
+             "checkpoint_id": accepted["checkpoint_id"],
+             "verdict_id": accepted["verdict_id"]}
+
+    held = lease_of(store, lease_id)
+    delivery = runtime.adopt_delivery(
+        launch_root, attempt_id=attempt_id, workspace_group=workspace_group)
+    terminal = _terminal(store, manager, delivery, taken_profile, held, entry,
+                         integrator, basis)
+    if terminal is not None:
+        return dict(terminal, receipts=receipts)
+
+    if held is not None:
+        target = target_of(store, canonical_target_id)
+        assignment = _existing_assignment(taken_profile, held)
+        if target is not None and target["state"] == "blocked":
+            answer = recovery.held_status(store, manager, delivery, assignment)
+            return {"outcome": "held", "entry": entry_id,
+                    "assignment": assignment, "observed": answer,
+                    "authority_receipt": None, "receipts": receipts}
+        if held["state"] != "live":
+            _refuse(f"lease {name_value(lease_id)} is {held['state']} while "
+                    f"entry {name_value(entry_id)} is {entry['state']}")
+        if held["entry_id"] != entry_id:
+            _refuse(f"lease {name_value(lease_id)} is over entry "
+                    f"{name_value(held['entry_id'])}, not this proposal's "
+                    f"entry {name_value(entry_id)}")
+        assignment = runtime.compose_assignment(
+            store, manager, profile=taken_profile,
+            canonical_target_id=canonical_target_id, entry_id=entry_id,
+            lease_id=lease_id, fence=held["fence"], attempt_id=attempt_id)
+        if delivery is None:
+            answer = execution.integrate_next(
+                store, manager, jobs, authority, port,
+                canonical_target_id=canonical_target_id,
+                entry_id=entry_id,
+                profile=taken_profile,
+                lease_id=lease_id, attempt_id=attempt_id,
+                launch_root=launch_root, workspace_group=workspace_group)
+        else:
+            witness = runtime.prior_runtime_witness(manager, attempt_id)
+            observed = runtime.observed_delivery(delivery, assignment)
+            if witness["execution_runtime"] != execution.UNSTARTED:
+                status = recovery.hold_interrupted(
+                    store, manager, delivery, assignment)
+                answer = {"outcome": "held", "entry": entry_id,
+                          "assignment": assignment, "observed": status}
+            elif observed["state"] not in ("not-assigned", "waiting"):
+                status = recovery.hold_interrupted(
+                    store, manager, delivery, assignment)
+                answer = {"outcome": "held", "entry": entry_id,
+                          "assignment": assignment, "observed": status}
+            else:
+                current = _import_account(manager, jobs, authority, None,
+                                          line_id=line_id,
+                                          proposal_id=proposal_id)
+                _same_account(entry, current)
+                runtime.publish_assignment(delivery, assignment)
+                live_grant(store, lease_id=lease_id,
+                           canonical_target_id=canonical_target_id,
+                           entry_id=entry_id, fence=held["fence"])
+                port.run(delivery, assignment)
+                answer = execution.settle_observed(store, manager, delivery,
+                                                   assignment)
+    else:
+        answer = execution.integrate_next(
+            store, manager, jobs, authority, port,
+            canonical_target_id=canonical_target_id, entry_id=entry_id,
+            profile=taken_profile,
+            lease_id=lease_id, attempt_id=attempt_id,
+            launch_root=launch_root, workspace_group=workspace_group)
+
+    return _authority_completed(
+        store, manager, answer, integrator, basis, delivery, receipts,
+        canonical_target_id=canonical_target_id, entry_id=entry_id,
+        attempt_id=attempt_id, launch_root=launch_root,
+        workspace_group=workspace_group, finalize=finalize)
+
+
+def _authority_completed(store, manager, answer, integrator, basis, delivery,
+                         receipts, *, canonical_target_id, entry_id,
+                         attempt_id, launch_root, workspace_group,
+                         finalize=None):
+    """The Authority receipt and coordinator completion of one integrated
+    answer, or the hold a refusal between them earns.
+
+    W110774: EXTRACTED SO ONE ENDING HAS ONE OWNER. `admit_accepted` and
+    `continue_accepted` reach an integrated model claim by different paths --
+    one may have just asked the port, the other is advancing an integration
+    already running -- but what a claim EARNS after that is identical, and the
+    normal-continuation operation copying this ordering would be a second
+    place for the receipt-before-settlement rule to drift out of agreement.
+    """
+    receipt = None
+    if answer["outcome"] == "integrated":
+        try:
+            # W133129, owner return137905: THE DEDICATED GIT TARGET IS
+            # FINALIZED BEFORE THE AUTHORITY IS TOLD ANYTHING. The worker
+            # imports approved path bytes and deliberately changes no
+            # repository metadata, so until this ran the Authority's canonical
+            # target advanced to a candidate the dedicated repository did not
+            # even contain -- measured on W133129's own witness. A second Job's
+            # reconciliation reads that reference to pin its snapshot and
+            # advances it by compare-and-swap, so a target left behind the
+            # Authority is a target nothing can reconcile onto.
+            #
+            # IT IS POSITIONED HERE AND NOWHERE ELSE. Both `admit_accepted` and
+            # `continue_accepted` reach an integrated claim through this one
+            # route, which is why W110774 extracted it; putting the
+            # finalization before the receipt and the settlement means an
+            # interrupted one leaves the Authority untold and the entry
+            # unsettled, which is the conservative direction. `finalize` is
+            # absent when a deployment configures no dedicated target, and the
+            # accepted behaviour of every such deployment is unchanged.
+            if finalize is not None:
+                execution.finalize_direct_target(
+                    store, finalize["profile"], finalize["runner"],
+                    canonical_target_id=canonical_target_id,
+                    entry_id=entry_id,
+                    lease_id=answer["assignment"]["lease_id"],
+                    fence=answer["assignment"]["fence"],
+                    source=finalize["source"],
+                    candidate=basis["candidate_digest"],
+                    # THE ACCEPTED OLD TARGET, from the admitted account's own
+                    # proposal rather than from whatever the reference reads
+                    # now (review [R1]).
+                    accepted_old=basis["target"],
+                    target_root=finalize["target_root"],
+                    reference=finalize["reference"])
+            receipt = _integrate_receipt(integrator, basis)
+            execution.complete_integrated(store, answer["assignment"],
+                                          answer["settlement"])
+        except ContractRefusal:
+            standing = [one for one in entries_of(
+                store, canonical_target_id) if one["entry_id"] == entry_id]
+            if len(standing) != 1:
+                _refuse(f"target {name_value(canonical_target_id)} does not "
+                        f"hold exactly one entry "
+                        f"{name_value(entry_id)} after completion refused")
+            if standing[0]["state"] == "integrated":
+                # Settlement committed, so this is no longer a recoverable
+                # leased entry and `hold_interrupted` cannot own it. Preserve
+                # the live exclusion and fail closed; the terminal restart
+                # path above replays the settlement and drains its release.
+                raise
+            status = recovery.hold_interrupted(
+                store, manager, delivery or runtime.adopt_delivery(
+                    launch_root, attempt_id=attempt_id,
+                    workspace_group=workspace_group), answer["assignment"])
+            return dict(answer, outcome="held", observed=status,
+                        authority_receipt=None, receipts=receipts)
+    return dict(answer, authority_receipt=receipt, receipts=receipts)
+
+
+def continue_accepted(store, manager, jobs, authority, verification, reviewer,
+                      approver, integrator, *, canonical_target_id, line_id,
+                      proposal_id, policy_generation, profile, attempt_id,
+                      launch_root, workspace_group, required_tests,
+                      finalize=None):
+    """Advance one integration THIS live execution already started.
+
+    W110774, `HANDOFF-CONTRACT-2026-09-08.md`, approved by Slawomir on
+    2026-09-08. `admit_accepted` is the ADMISSION verb: it writes the accepted
+    receipts, admits the candidate, takes the lease and asks the port to run.
+    Re-entering it on every tick is not normal asynchronous completion --
+    a retained delivery whose runtime is no longer `not-started` is handed to
+    `hold_interrupted`, which is the RESTART rule and exactly right for a
+    process that cannot know whether it started the writer. A serving
+    execution that DID start this writer, in this process, knows better, and
+    had no operation to say so: the receipt read-back and
+    `complete_integrated` ordering lived inside admission with no other door.
+
+    THIS OPERATION STARTS NOTHING, AND CANNOT. It takes no port -- there is no
+    operand here through which a runtime could be asked to run -- and it never
+    materializes a delivery, publishes an assignment or admits an entry. What
+    it does is revalidate, and then either wait or finish: the accepted
+    account, the coordinator's live grant, the exact published assignment and
+    the manager's own runtime axis, and then the SAME ending
+    `admit_accepted` composes, through the same owner.
+
+    A RESULT IS NOT AN ENDING WHILE THE WRITER CAN STILL WRITE. The manager's
+    durable runtime state decides, never the presence of a file: anything but
+    an observed-stopped runtime answers `running` with its untrusted
+    observation carried, and a runtime nobody can account for is handed to the
+    accepted interrupted hold rather than settled around. `not-started` is an
+    inconsistency here and not an invitation: this operation exists for an
+    integration that IS running, and a caller whose marker says otherwise is
+    refused rather than quietly turned into a start.
+    """
+    boundaries.capability(getattr(store, "_connection", None),
+                          "the integration coordinator store")
+    boundaries.capability(getattr(manager, "_connection", None),
+                          "the Worker Manager store")
+    boundaries.capability(getattr(jobs, "_connection", None),
+                          "the Job store")
+    boundaries.identity(canonical_target_id, "a canonical target id")
+    boundaries.identity(attempt_id, "an integrator attempt id")
+    taken_profile = runtime._owned_profile(profile)
+    _capability(integrator, "integrate",
+                "the configured integration session")
+    _capability(integrator, "receipt",
+                "the configured integration session")
+    integration_participant = boundaries.text(
+        getattr(integrator, "participant", None),
+        "the configured integration participant")
+    if integration_participant != taken_profile["integrator_participant"]:
+        _refuse("the integration session and runtime profile name different "
+                "participants", category="policy", code="denied")
+    settled = _settled_entry(store, canonical_target_id, proposal_id)
+    accepted, proposal, receipts = _accepted_receipts(
+        manager, authority, verification, reviewer, approver,
+        line_id=line_id, proposal_id=proposal_id,
+        policy_generation=policy_generation, required_tests=required_tests,
+        issue=settled is None)
+
+    # THE IDENTITIES ARE DERIVED, NOT ACCEPTED, exactly as admission derives
+    # them: a continuation that took an entry or a lease id from its caller
+    # could be pointed at somebody else's integration by a deployment bug.
+    account = _import_account(manager, jobs, authority, settled,
+                              line_id=line_id, proposal_id=proposal_id)
+    identity_basis = {"canonical_target_id": canonical_target_id,
+                      "eligibility": account}
+    entry_id = _identity("entry", identity_basis)
+    lease_id = _identity("lease", dict(identity_basis, entry_id=entry_id,
+                                       attempt_id=attempt_id))
+    # AND NOTHING IS ADMITTED. `admit_candidate` is admission's enqueue replay;
+    # a continuation reads the entry that admission already made and refuses
+    # when there is none, because an integration this execution started has
+    # one by construction.
+    entry = _current_entry(store, canonical_target_id, entry_id, account)
+    basis = {"proposal_id": proposal_id, "entry_id": entry_id,
+             "candidate_digest": proposal["candidate_digest"],
+             "target": proposal["target"],
+             "checkpoint_id": accepted["checkpoint_id"],
+             "verdict_id": accepted["verdict_id"]}
+
+    held = lease_of(store, lease_id)
+    delivery = runtime.adopt_delivery(
+        launch_root, attempt_id=attempt_id, workspace_group=workspace_group)
+    # THE TERMINAL PATHS ARE ADMISSION'S OWN, reached through the same owner:
+    # an entry that already settled replays its release tail or reports its
+    # hold identically whichever verb a tick arrived through.
+    terminal = _terminal(store, manager, delivery, taken_profile, held, entry,
+                         integrator, basis)
+    if terminal is not None:
+        return dict(terminal, receipts=receipts)
+
+    if held is None:
+        _refuse(f"entry {name_value(entry_id)} holds no lease "
+                f"{name_value(lease_id)}, so this execution has no started "
+                f"integration to continue; admission is what takes a lease",
+                category="refused", code="precondition")
+    assignment = _existing_assignment(taken_profile, held)
+    target = target_of(store, canonical_target_id)
+    if target is not None and target["state"] == "blocked":
+        # A BLOCKED TARGET IS THE OPERATOR'S, and continuation reports it
+        # rather than reasoning about the runtime behind it.
+        answer = recovery.held_status(store, manager, delivery, assignment)
+        return {"outcome": "held", "entry": entry_id,
+                "assignment": assignment, "observed": answer,
+                "authority_receipt": None, "receipts": receipts}
+    if held["state"] != "live":
+        _refuse(f"lease {name_value(lease_id)} is {held['state']} while entry "
+                f"{name_value(entry_id)} is {entry['state']}")
+    if held["entry_id"] != entry_id:
+        _refuse(f"lease {name_value(lease_id)} is over entry "
+                f"{name_value(held['entry_id'])}, not this proposal's entry "
+                f"{name_value(entry_id)}")
+    if delivery is None:
+        _refuse(f"attempt {name_value(attempt_id)} has no integration "
+                f"delivery, so nothing was ever started for this "
+                f"continuation to advance; the namespaces are materialized "
+                f"before a runtime and never by this operation",
+                category="refused", code="precondition")
+
+    # THE LIVE GRANT, READ FROM THE COORDINATOR IN THIS CALL, and the exact
+    # document the runtime was asked with. `compose_assignment` proves the
+    # grant live and the profile the deployment's; the published assignment is
+    # the identity the writer actually holds, and the two are compared WHOLE
+    # because a continuation that advanced a different assignment than the one
+    # in the namespace would be settling somebody else's work.
+    composed = runtime.compose_assignment(
+        store, manager, profile=taken_profile,
+        canonical_target_id=canonical_target_id, entry_id=entry_id,
+        lease_id=lease_id, fence=held["fence"], attempt_id=attempt_id)
+    published = runtime.published_assignment(delivery)
+    if published is None:
+        _refuse(f"attempt {name_value(attempt_id)}'s assignment namespace "
+                f"carries no published assignment; a continuation advances an "
+                f"integration that was asked and this one never was",
+                category="refused", code="precondition")
+    if published != composed:
+        _refuse(f"the assignment published for attempt "
+                f"{name_value(attempt_id)} is not the one the grant this "
+                f"target holds composes now", category="policy", code="denied")
+    _same_account(entry, _import_account(manager, jobs, authority, None,
+                                         line_id=line_id,
+                                         proposal_id=proposal_id))
+
+    witness = runtime.prior_runtime_witness(manager, attempt_id)
+    observed_runtime = witness["execution_runtime"]
+    if observed_runtime == execution.UNSTARTED:
+        _refuse(f"the runtime of attempt {name_value(attempt_id)} is "
+                f"{name_value(execution.UNSTARTED)}; this operation continues "
+                f"an integration that is already running and never starts "
+                f"one, so a caller holding a live marker for an unstarted "
+                f"attempt is inconsistent with its own deployment",
+                category="refused", code="precondition")
+    if observed_runtime == "uncertain":
+        # NOBODY LOOKED SUCCESSFULLY. The accepted interrupted hold is what
+        # owns that, on this path exactly as on the restart path.
+        status = recovery.hold_interrupted(store, manager, delivery, composed)
+        return {"outcome": "held", "entry": entry_id, "assignment": composed,
+                "observed": status, "authority_receipt": None,
+                "receipts": receipts}
+    if observed_runtime not in runtime.QUIESCENT_STATES:
+        # STILL PENDING, WHATEVER THE FILES SAY. A writer that can still write
+        # the target has not finished writing it, so a complete-looking result
+        # is carried as an untrusted observation and NOTHING is settled or
+        # released. The next tick behind an observed-stopped runtime settles
+        # it; `settle_observed` is deliberately not reached from here, because
+        # its own quiescence proof would refuse this state as an exception
+        # rather than as the ordinary wait it is.
+        return {"outcome": "running", "entry": entry_id,
+                "assignment": composed,
+                "observed": runtime.observed_delivery(delivery, composed),
+                "authority_receipt": None, "receipts": receipts}
+
+    answer = execution.settle_observed(store, manager, delivery, composed)
+    return _authority_completed(
+        store, manager, answer, integrator, basis, delivery, receipts,
+        canonical_target_id=canonical_target_id, entry_id=entry_id,
+        attempt_id=attempt_id, launch_root=launch_root,
+        workspace_group=workspace_group, finalize=finalize)

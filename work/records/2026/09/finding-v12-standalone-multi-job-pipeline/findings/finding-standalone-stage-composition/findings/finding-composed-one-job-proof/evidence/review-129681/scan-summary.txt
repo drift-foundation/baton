@@ -1,0 +1,33 @@
+=== FAILURE: tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_covers_the_paths_it_was_written_for ===
+=== FAILURE: tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_no_refusal_renders_an_unbounded_value ===
+=== FAILURE: tests.authority.test_boundary.ExportedSurface.test_the_bootstrap_face_configures_and_reads_and_never_acts ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'intake.py:_attempt_of', 'attempts.runtime_attempt_id'), label='a persisted attempt') ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary (entry=('adopted', 'output.py:_attempt_of', 'attempts.runtime_attempt_id'), label='a persisted attempt') ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'oci.py:OciAdapter.observe', 'document.Running')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'oci.py:OciAdapter.start', 'labels.runtime_attempt_id')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.authority_uuid')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.generation')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.participant')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.principal')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.work_id')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.authority_uuid')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.generation')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.participant')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.principal')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.work_id')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'review_cycles.py:writer_boundary', 'answer.authority_uuid')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'review_cycles.py:writer_boundary', 'answer.generation')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale (table='stated', entry=('caller', 'review_cycles.py:writer_boundary', 'answer.work_id')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice (entry=('caller', 'intake.py:discharge_abandoned_quiescence_gate', 'port')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice (entry=('caller', 'intake.py:discharge_quiescence_gate', 'port')) ===
+=== FAILURE: tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice (entry=('injected', 'interrogation.py:probe', 'agent.probe.diagnostics')) ===
+=== FAILURE: tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand (function='authority_port.py:AuthorityPort:satisfy_gate', parameter='gate') ===
+=== FAILURE: tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_every_durable_writer_is_covered ===
+=== FAILURE: tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class ===
+=== FAILURE: tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_the_table_names_every_exported_callable ===
+[parallel source] 735 shards, 5336 tests, 31 failures, 0 errors, 4 skipped -> FAILED
+[summary] parallel source FAILED; the serial registry did not run

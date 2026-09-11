@@ -1,0 +1,44 @@
+### label: causal-AB-fixture-witness-2
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET"]
+### exit: 1
+### elapsed_seconds: 0.604767
+### STDOUT
+
+### STDERR
+F
+======================================================================
+FAIL: test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET)
+W131409'S WHOLE POINT, driven through the ordinary configured tick.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7517, in test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7627, in integrating
+    held = self.both_accepted()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7191, in both_accepted
+    held.first_review = self.accepted(
+                        ~~~~~~~~~~~~~^
+        held, "job-a", "implementation-worker", "review-worker",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        held.first, "print('the first job answered')\n")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6892, in accepted
+    self.produced(held, job_id, attempt_id, body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6876, in produced
+    return self.drive_job(held.job, held.composed, job_id,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "implementation", "completed")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6782, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's implementation stage never reached 'completed': {'implementation': 'answering', 'review': 'blocked', 'integration': 'blocked'}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.413s
+
+FAILED (failures=1)

@@ -1,0 +1,16 @@
+### label: ast-and-import-after-R1-R2-corrections
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/check120.py"]
+### exit: 0
+### elapsed_seconds: 0.168819
+### STDOUT
+parsed v12/python/src/baton_v12/integration/reconciliation.py
+parsed v12/python/src/baton_v12/integration/execution.py
+parsed v12/python/src/baton_v12/integration/driver.py
+parsed v12/python/tests/integration/test_reconciliation.py
+parsed v12/python/tests/integration/test_execution.py
+imported; record_imported: True
+import_authorized_result: True
+admit_authorized_result: True
+
+### STDERR

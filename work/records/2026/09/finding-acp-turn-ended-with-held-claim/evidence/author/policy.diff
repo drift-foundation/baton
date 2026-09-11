@@ -1,0 +1,42 @@
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -250,6 +250,20 @@
+ 
+ ## Non-interactive managed turns
+ 
++- On every Work readiness turn, read current canonical state with `detail` and
++  succeed at the standalone claim before Work execution. Then read the complete
++  current handoff comments through `work-events` and all associated discussion
++  through the `thread` locators in `detail`, following pagination. Do not filter
++  away comments, thread locators, messages or continuation instructions. Read
++  the bound dossier and revalidate its current scope before editing.
++- Continue authorized work within the live turn. Never end a turn holding a
++  Work claim, even after recording progress. Successfully pass completed work
++  for independent review or return incomplete work through `baton.bug`, carrying
++  exact remaining scope, evidence and cumulative verification spending. Before
++  any final response, confirm through canonical state that you no longer hold
++  the claim. If handoff fails, resolve or report the exact operational blocker
++  within the live turn; owner release and redelivery are exceptional recovery,
++  never normal work cadence. Preserve partial work and cumulative budgets.
+ - Every canonical Baton operation is
+   ONE standalone direct execution request.
+   This binds `claim` above all, because it is the mandatory first act. Issue
+--- a/docs/AGENTS-MAILBOX-PROTO.md
++++ b/docs/AGENTS-MAILBOX-PROTO.md
+@@ -200,8 +200,14 @@
+   the time it reaches the agent the Work may have been claimed, passed, or
+   closed — so re-read canonical state before acting, and expect the atomic
+   claim to be the final arbiter.
+-- Never end a turn holding work you have claimed and neither progressed nor
+-  handed back.
++- After a successful standalone claim and before Work execution, read the
++  complete current handoff through `work-events` and all associated discussion
++  through the `thread` locators in `detail`, following pagination. Preserve
++  comments, messages and continuation instructions in those reads, and revalidate
++  the bound dossier under the [repository policy](../AGENTS.md#non-interactive-managed-turns).
++- Never end a turn holding a Work claim, even after recording progress. Pass
++  completed Work or return incomplete Work through its authorized route, then
++  confirm canonically that the claim is released.
+ 
+ *If ignored:* the teeth are on `claim`, not on `wait`. Terminal output does
+ not itself wake an idle agent, so work claimed by a process whose turn has

@@ -1,0 +1,32 @@
+{
+  "binding_worker_work_mismatch": {
+    "job_b_bound_work": "0000000a-W2",
+    "job_b_source_worker_manifest_work": "0000000a-W1"
+  },
+  "integration_required_tests": {
+    "refused": true,
+    "category": "refused",
+    "code": "precondition",
+    "message": "this deployment names 2 implementation workers; the required-test selection is derived from exactly one producer's configured task"
+  },
+  "integration_global_line": {
+    "refused": true,
+    "category": "refused",
+    "code": "precondition",
+    "message": "this deployment binds 2 Jobs and this question is about one line; a line belongs to a Job, so its Job is named"
+  },
+  "implementation_publication": {
+    "refused": true,
+    "category": "refused",
+    "code": "precondition",
+    "message": "this deployment configures several implementation workers and publication is one producer's act; selecting among them is the per-Job binding cut's, not this pool's"
+  },
+  "unknown_job_admission": {
+    "refusal": null,
+    "canonical_admit_receipt_exists": true,
+    "allocation_exists": true,
+    "allocation_state": "reserved",
+    "stage_id": "job-unknown/implementation"
+  },
+  "elapsed_seconds": 0.052770797978155315
+}

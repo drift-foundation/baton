@@ -1,0 +1,15 @@
+{
+  "changed_methods": [
+    "EachJobBindsItsOwnDeploymentAndLine.setUp"
+  ],
+  "added_methods": [],
+  "removed_methods": [],
+  "candidate_stable": {
+    "tools/stage_execution.py": true,
+    "tests/tools/test_stage_execution.py": true
+  },
+  "author_this_claim_timed_subtotal": 72.92999999999999,
+  "author_cumulative_known_seconds": 211.56599999999997,
+  "untimed_module_rerun": true,
+  "reviewer_probe_cumulative": 0.890646641026251
+}

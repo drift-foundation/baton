@@ -1,0 +1,414 @@
+--- candidate139022/v12/python/tests/tools/test_stage_execution.py
++++ candidate139082/v12/python/tests/tools/test_stage_execution.py
+@@ -2432,15 +2432,7 @@
+              "instructions": "Add focused coverage for the composed line.",
+              "source_root": "source", "source_profile": "git-line",
+              "declared_base": self.base,
+-             # W133129: B'S OWN REQUIRED TEST, over B's own data path.
+-             # Reviewer 2026-09-10T20:36:08Z P1: a both-changes witness needs
+-             # the two Jobs to touch DIFFERENT paths, and a renamed
+-             # print-only harness would pass on the base and prove nothing.
+-             # `feature_check.py` ASSERTS `feature.py`'s value, so it fails on
+-             # the original base -- where `feature.py` does not exist -- with
+-             # only itself overlaid, and passes on B's isolated content and on
+-             # the combination with A's harness change.
+-             "verification": ["python3", "feature_check.py"]},
++             "verification": ["python3", "harness.py"]},
+             sort_keys=True).encode("utf-8")
+         with open(self.task_document, "wb") as writing:
+             writing.write(self.task_bytes)
+@@ -6623,7 +6615,16 @@
+              "instructions": "Add focused coverage for the second Job.",
+              "source_root": "source", "source_profile": "git-line",
+              "declared_base": self.base,
+-             "verification": ["python3", "harness.py"]},
++             # W133129: THE SECOND JOB'S OWN REQUIRED TEST, over its own data
++             # path. Reviewer 2026-09-10T20:36:08Z P1: a both-changes witness
++             # needs the two Jobs to touch DIFFERENT paths, and a renamed
++             # print-only harness would pass on the base and prove nothing.
++             # `feature_check.py` ASSERTS `feature.py`'s value, so it fails on
++             # the original base -- where `feature.py` does not exist -- with
++             # only itself overlaid, and passes on B's isolated content and on
++             # the combination with A's harness change. This is the SECOND
++             # Job's task only; Job A keeps the base fixture's harness task.
++             "verification": ["python3", "feature_check.py"]},
+             sort_keys=True).encode("utf-8")
+         with open(self.shared_task_document, "wb") as writing:
+             writing.write(self.shared_task_bytes)
+@@ -6887,9 +6888,9 @@
+         return attempt_id
+ 
+     def accepted(self, held, job_id, producer_id, reviewer_id, attempt_id,
+-                 body):
++                 body, edits=None):
+         """One Job from a coding producer to an accepted verdict."""
+-        self.produced(held, job_id, attempt_id, body)
++        self.produced(held, job_id, attempt_id, body, edits=edits)
+         self.drive_job(held.job, held.composed, job_id, "review", "waiting")
+         reviewed = self.one_attempt_of(held.composed, reviewer_id)
+         self.review_turn(held, job_id, reviewed, "accepted")
+@@ -7193,7 +7194,9 @@
+             held.first, "print('the first job answered')\n")
+         held.second_review = self.accepted(
+             held, "job-b", "implementation-worker-b", "review-worker-b",
+-            held.second, "print('the second job answered')\n")
++            held.second, "print('the second job answered')\n",
++            edits={"feature.py": self.B_FEATURE,
++                   "feature_check.py": self.B_CHECK})
+         return held
+ 
+     def test_two_accepted_jobs_share_one_integrator_one_at_a_time(self):
+@@ -7514,22 +7517,45 @@
+         Both changes end on ONE target, B's own line and proposal are never
+         rewritten, and the capacity is released.
+         """
+-        held = self.integrating()
++        from baton_v12.integration import entries_of, lease_of
++        from baton_v12.integration import reconciliation
++        from baton_v12.job_manager import scheduler
++        from baton_v12.job_manager.scheduler import allocation_of
++        from baton_v12.worker_manager import review_cycles
++
++        # ORIGINAL B EVIDENCE, READ BEFORE JOB A MOVES ANYTHING. Everything
++        # compared at the end of this case is compared against THIS reading.
++        original = {}
++
++        def capture(held):
++            deployment = self.deployment_of(held.composed)
++            line_b = deployment.line_for("job-b")
++            row = review_cycles.line_of(held.control, line_b["line_id"])
++            checkpoint = review_cycles.integration_checkpoint(
++                held.control, line_b["line_id"])
++            proposal_id = deployment.published_proposal(checkpoint)
++            original.update(
++                line_id=line_b["line_id"], line=row,
++                root=row["line_path"] or row["source_path"],
++                declared_base=line_b["declared_base"],
++                checkpoint=checkpoint, proposal_id=proposal_id,
++                proposal=deployment.authority.proposal(proposal_id),
++                receipts=deployment.authority.receipts(proposal_id))
++            original["candidate"] = self.vcs_in(original["root"],
++                                                "rev-parse", "HEAD")
++
++        held = self.integrating(before=capture)
++        self.assertEqual(original["declared_base"], self.base)
++        self.assertEqual(original["proposal"]["target"], self.base)
+         self.drive_job(held.job, held.composed, "job-a", "integration",
+                        "completed", ticks=4)
+         deployment = self.deployment_of(held.composed)
+         advanced = deployment.authority.canonical_target()
+         self.assertEqual(self.vcs("rev-parse", "refs/heads/main").strip(),
+                          advanced)
+-        line_b = deployment.line_for("job-b")["line_id"]
+-        from baton_v12.worker_manager import review_cycles
+-
+-        row = review_cycles.line_of(held.control, line_b)
+-        before_line = self.vcs_in(row["line_path"] or row["source_path"],
+-                                  "rev-parse", "HEAD")
+-        before_proposal = deployment.authority.proposal(
+-            deployment.published_proposal(
+-                review_cycles.integration_checkpoint(held.control, line_b)))
++        # AND JOB B'S LINE IS DECLARED AT THE REVISION THAT MOVED PAST, which
++        # is the whole reason a reconciliation has to happen at all.
++        self.assertNotEqual(original["declared_base"], advanced)
+ 
+         # B TAKES THE INTEGRATOR AND ITS TICK RECONCILES.
+         found = None
+@@ -7542,12 +7568,57 @@
+                 break
+         self.assertIsNotNone(found, "no reconciled result was composed")
+         self.assertEqual(found["state"], "published")
++        result_id = found["result_id"]
+         proposal_id = found["derived_proposal_id"]
+         # PENDING REAL RECEIPTS: the candidate exists and nobody has judged it.
+         self.assertEqual(deployment.authority.receipts(proposal_id), [])
+ 
+-        # THE THREE CONFIGURED PARTICIPANTS' OWN ORDINARY RECEIPTS.
++        # THE CAUSAL OBSERVATIONS ARE THE CONFIGURED REQUIRED TEST'S OWN, and
++        # they are what makes this evidence rather than an assertion: ONE
++        # harness -- Job B's own `feature_check.py`, named by Job B's own task
++        # before it was ever submitted -- run against three real content
++        # states. It FAILS on the original declared base, where `feature.py`
++        # does not exist and only the harness itself was overlaid; it passes
++        # on B's isolated candidate; and it passes on the combination with the
++        # snapshot Job A left.
++        composed_result = reconciliation.result_of(deployment.integration,
++                                                   result_id)
++        observed = composed_result["causal_observations"]["observations"]
++        argv = json.loads(self.shared_task_bytes)["verification"]
++        required = " ".join(argv)
++        self.assertEqual(argv, ["python3", "feature_check.py"])
++        # AND IT IS THE SECOND JOB'S OWN SELECTION, not the deployment's one
++        # global answer: Job A's configured task names a different command.
++        self.assertNotEqual(
++            required, " ".join(json.loads(self.task_bytes)["verification"]))
++        for state in ("base", "isolated", "combined"):
++            # THE CAUSAL OWNER RECORDS THE COMMAND WORDS; the post-import owner
++            # below records the joined line. Each is compared as its own owner
++            # stores it rather than reformatted to match the other.
++            self.assertEqual(observed[state]["command"], argv, state)
++            self.assertEqual(observed[state]["execution"],
++                             deployment.observer_participant(), state)
++        self.assertNotEqual(observed["base"]["status"], 0, observed["base"])
++        self.assertTrue(observed["base"]["harness_added"])
++        self.assertEqual(observed["isolated"]["status"], 0,
++                         observed["isolated"])
++        self.assertEqual(observed["combined"]["status"], 0,
++                         observed["combined"])
++        self.assertFalse(observed["combined"]["harness_added"])
++        # AND ALL THREE RAN THE SAME BYTES, which is what "one harness" means.
++        self.assertEqual({observed[state]["test_digest"]
++                          for state in ("base", "isolated", "combined")},
++                         {observed["combined"]["test_digest"]})
++        # THE BASE OBSERVED IS B'S OWN IMMUTABLE DECLARED BASE, not the
++        # snapshot the result was reconciled onto.
++        self.assertEqual(observed["base"]["input_commit"], self.base)
++        self.assertEqual(observed["isolated"]["input_commit"],
++                         original["candidate"])
++
++        # THE THREE CONFIGURED PARTICIPANTS' OWN ORDINARY RECEIPTS, written by
++        # real sessions against the Authority's CURRENT policy generation.
+         generation = deployment.authority.policy_generation()
++        self.assertNotEqual(generation, self.fixture_policy)
+         deployment.sessions["verification"].verify({
+             "proposal_id": proposal_id,
+             "verification_id": proposal_id + "-verification",
+@@ -7571,22 +7642,112 @@
+                 break
+         self.assertEqual(state, "imported")
+ 
+-        # BOTH CHANGES ARE ON THE ONE TARGET.
++        # BOTH CHANGES ARE ON THE ONE TARGET -- contents AND modes, and the
++        # modes are proved to be the producers' own rather than asserted as
++        # constants: each path's tree entry at the landed revision is the
++        # entry that producer's OWN accepted candidate carried.
+         landed = self.vcs("rev-parse", "refs/heads/main").strip()
+         self.assertNotEqual(landed, advanced)
+         self.assertNotEqual(landed, self.base)
+-
+-        # B'S OWN SUBMISSION AND PROPOSAL WERE NEVER REWRITTEN.
+-        self.assertEqual(self.vcs_in(row["line_path"] or row["source_path"],
+-                                     "rev-parse", "HEAD"), before_line)
++        self.assertEqual(self.vcs("show", landed + ":harness.py"),
++                         "print('the first job answered')\n")
++        self.assertEqual(self.vcs("show", landed + ":feature.py"),
++                         self.B_FEATURE)
++        self.assertEqual(self.vcs("show", landed + ":feature_check.py"),
++                         self.B_CHECK)
++        self.assertEqual(self.entry_at(self.source, landed, "harness.py"),
++                         self.entry_at(self.source, advanced, "harness.py"))
++        for named in ("feature.py", "feature_check.py"):
++            self.assertEqual(
++                self.entry_at(self.source, landed, named),
++                self.entry_at(original["root"], original["candidate"], named),
++                named)
++        # AND NOTHING OF JOB A'S WAS LOST: the landed revision descends from
++        # the revision A's own integration finalized.
++        self.assertEqual(self.vcs("merge-base", "--is-ancestor", advanced,
++                                  landed), "")
++
++        # BOTH JOBS REACH A TERMINAL INTEGRATION STAGE.
++        self.drive_job(held.job, held.composed, "job-b", "integration",
++                       "completed", ticks=6)
++        for job_id in ("job-a", "job-b"):
++            self.assertEqual(
++                self.states_for(held.job, held.composed,
++                                job_id)["integration"],
++                "completed", job_id)
++
++        # THE SOURCE AND THE DERIVED COMPLETION ARE LINKED EXACTLY, and the
++        # reconciled branch's own absent runtime is named rather than borrowed.
++        attempt = self.attempted(held.job, "job-b/integration")
++        completion = held.composed.observe(attempt)["completion"]
++        self.assertEqual(completion["result_id"], result_id)
++        self.assertEqual(completion["source_proposal_id"],
++                         original["proposal_id"])
++        self.assertEqual(completion["proposal_id"], proposal_id)
++        self.assertEqual(completion["execution_runtime"], "absent")
++        self.assertIsNone(completion["runtime_id"])
++        settled = reconciliation.result_of(deployment.integration, result_id)
++        self.assertEqual(settled["source_proposal_id"],
++                         original["proposal_id"])
++        self.assertEqual(completion["entry_id"], settled["entry_id"])
++        # AND JOB A'S OWN COMPLETION IS THE OTHER BRANCH, on the same target.
++        direct = held.composed.observe(
++            self.attempted(held.job, "job-a/integration"))["completion"]
++        self.assertIsNone(direct["result_id"])
++        self.assertEqual(direct["execution_runtime"], "quiescent")
++
++        # THE CONFIGURED REQUIRED TEST REALLY RAN AGAINST THE IMPORTED BYTES,
++        # inside the dedicated target itself, and it is B's own test.
++        [entry] = [one for one in
++                   entries_of(deployment.integration,
++                              settled["canonical_target_id"])
++                   if one["entry_id"] == settled["entry_id"]]
++        self.assertEqual(entry["state"], "integrated")
++        executed = entry["settlement"]["verification"]["post_import_tests"]
++        self.assertEqual(executed["command"], required)
++        self.assertEqual(executed["status"], 0, executed)
++
++        # B'S OWN SUBMISSION, LINE, PROPOSAL AND RECEIPTS WERE NEVER
++        # REWRITTEN -- compared against the reading taken before A moved.
++        self.assertEqual(self.vcs_in(original["root"], "rev-parse", "HEAD"),
++                         original["candidate"])
+         self.assertEqual(
+-            deployment.authority.proposal(before_proposal["proposal_id"]),
+-            before_proposal)
+-
+-        # AND THE CAPACITY IS RELEASED.
++            review_cycles.line_of(held.control,
++                                  original["line_id"])["declared_base"],
++            self.base)
++        self.assertEqual(
++            review_cycles.integration_checkpoint(held.control,
++                                                 original["line_id"]),
++            original["checkpoint"])
++        self.assertEqual(
++            deployment.authority.proposal(original["proposal_id"]),
++            original["proposal"])
++        self.assertEqual(
++            deployment.authority.receipts(original["proposal_id"]),
++            original["receipts"])
++
++        # AND THE EXCLUSION AND THE CAPACITY ARE BOTH RELEASED. The lease is
++        # the coordinator's own fence -- the thing that excluded every other
++        # writer for a branch that started no container -- and the allocation
++        # is the scheduler's.
++        lease = lease_of(deployment.integration, completion["lease_id"])
++        self.assertEqual(lease["state"], "released")
++        self.assertEqual(lease["ending"]["outcome"], "integrated")
++        self.assertEqual(lease["fence"], completion["fence"])
+         self.assertNotIn("live", [one["state"] for one in
+                                   deployment.integration._connection.execute(
+                                       "SELECT state FROM leases").fetchall()])
++        allocation = allocation_of(held.job, attempt["attempt_id"])
++        self.assertEqual(allocation["worker_id"], "integration-worker")
++        self.assertEqual(allocation["allocation_state"], "released")
++        self.assertEqual(allocation["release_reason"],
++                         scheduler.INTEGRATION_COMPLETED)
++
++    def entry_at(self, place, revision, named):
++        """One path's exact tree entry -- its MODE and its object."""
++        listed = self.vcs_in(place, "ls-tree", revision, "--", named)
++        self.assertTrue(listed, f"{named} is absent at {revision}")
++        return listed.split("\t")[0]
+ 
+     def vcs_in(self, place, *arguments):
+         import subprocess as _subprocess
+@@ -7622,9 +7783,18 @@
+ 
+         return [one["attempt_id"] for one in episodes_of(job_store, stage_id)]
+ 
+-    def integrating(self):
+-        """Both Jobs accepted, and the FIRST one integrated for real."""
++    def integrating(self, before=None):
++        """Both Jobs accepted, and the FIRST one integrated for real.
++
++        `before` is handed the accepted deployment BEFORE Job A's integration
++        opens -- the one instant at which Job B's line, base, proposal and
++        receipts are readable in their original state. A witness that captures
++        them afterwards can only prove they did not move during the second
++        half of the run, which is not the claim.
++        """
+         held = self.both_accepted()
++        if before is not None:
++            before(held)
+         self.drive_job(held.job, held.composed, "job-a", "integration",
+                        "claimed")
+         self.connect(held, {"job-a": self.integration_port(held, "job-a"),
+--- candidate139022/v12/python/tools/stage_execution.py
++++ candidate139082/v12/python/tools/stage_execution.py
+@@ -1647,7 +1647,15 @@
+         answered = subprocess.run(self._argv, cwd=where, capture_output=True,
+                                   text=True, timeout=GIT_SECONDS)
+         tail = answered.stderr.strip().splitlines()[-1:]
+-        return {"command": " ".join(self._argv),
++        # W133129, measured at step55: the causal owner refused every tick with
++        # "the base causal observation names the command that produced it"
++        # because this handed it the JOINED text. `reconciliation._observation`
++        # requires a non-empty LIST of command words and
++        # `execution._owned_post_import` requires TEXT -- two accepted contracts
++        # that type this member differently. Both are answered here and each
++        # owner below is given the shape its own contract names; nothing
++        # reformats a contract to suit the other.
++        return {"command": " ".join(self._argv), "argv": list(self._argv),
+                 "test_digest": "sha256:" + hashlib.sha256(
+                     body.encode("utf-8")).hexdigest(),
+                 "status": answered.returncode,
+@@ -1694,7 +1702,8 @@
+             _refuse(f"the configured Git runner could not read the tree of "
+                     f"{revision!r}", category="refused", code="precondition")
+         return answered["body"], {
+-            "command": answered["command"],
++            # THE CAUSAL OWNER'S OWN SHAPE: the command WORDS, not the line.
++            "command": answered["argv"],
+             "test_identity": self._identity,
+             "input_commit": revision,
+             "input_tree": tree["stdout"].strip(),
+--- candidate139022/v12/python/src/baton_v12/integration/execution.py
++++ candidate139082/v12/python/src/baton_v12/integration/execution.py
+@@ -1013,17 +1013,34 @@
+     # effect is what makes drift a refusal instead of a starting point.
+     held = profile.revision(target_root, reference)
+     if held == candidate:
+-        # ALREADY AT THE CANDIDATE. Review [R2]: this returned success without
+-        # proving anything, so a reference somebody else had moved to these
+-        # bytes was adopted as this integration's own work. The grant and the
+-        # content are proved before it is adopted, and the accepted-old
+-        # comparison below still has to hold.
++        # ALREADY AT THE CANDIDATE, AND THAT IS NOT THIS OPERATION'S RECEIPT.
++        # Reviews 2026-09-10T17:55:49Z and 20:30:00Z: an earlier draft returned
++        # success here, so a reference somebody else had moved to these bytes
++        # was adopted as this integration's own finalization -- and the comment
++        # claiming the accepted-old comparison still applied was contradicted
++        # by the return that skipped it. It could not have applied: a reference
++        # holding the candidate is by definition not holding `accepted_old`.
++        #
++        # NOTHING IN THIS BUILD RECORDS THAT *THIS* OPERATION ADVANCED THE
++        # REFERENCE. The coordinator's settlement is written after this returns,
++        # so on re-entry there is no owned custody to distinguish "I already did
++        # this and was interrupted" from "somebody else put these bytes here".
++        # Where an adoption cannot be proved, this HOLDS: the grant is proved
++        # first so the sentence names a real holder rather than a stale one,
++        # and the operator gets the exact revision and reference. That is the
++        # conservative direction the surrounding contract already takes for an
++        # interrupted finalization, and it adds no restart guarantee.
+         live_grant(store, lease_id=lease_id,
+                    canonical_target_id=canonical_target_id, entry_id=entry_id,
+                    fence=fence)
+-        proved = profile.held(target_root, candidate, "the accepted candidate")
+-        return {"reference": reference, "revision": held, "advanced": False,
+-                "tree": proved["tree"], "reviewed": accepted_old}
++        profile.held(target_root, candidate, "the accepted candidate")
++        _refuse(f"the configured reference {name_value(reference)} already "
++                f"holds this integration's candidate "
++                f"{name_value(candidate)}, and nothing records that this "
++                f"operation advanced it from "
++                f"{name_value(accepted_old)}; an unprovable finalization is "
++                f"held rather than adopted",
++                category="stale-assignment", code="target")
+     if held != accepted_old:
+         _refuse(f"this integration was accepted against target "
+                 f"{name_value(accepted_old)} and the configured reference "
+--- candidate139022/v12/python/src/baton_v12/integration/driver.py
++++ candidate139082/v12/python/src/baton_v12/integration/driver.py
+@@ -1650,6 +1650,19 @@
+                     accepted_old=basis["target"],
+                     target_root=finalize["target_root"],
+                     reference=finalize["reference"])
++            # AND THE GRANT IS PROVED AGAIN IMMEDIATELY BEFORE THE AUTHORITY
++            # EFFECT, which is a SEPARATE effect from anything the finalizer
++            # did. Review 2026-09-10T17:55:49Z: the finalizer's own cutpoints
++            # end at its compare-and-swap, and this receipt is written on the
++            # Authority -- outside this store, unfenced by it and not undone by
++            # a later refusal. `live_grant`'s own contract already names this
++            # boundary: "immediately before canonical mutation and AGAIN before
++            # Authority completion". It is unconditional because the receipt is
++            # written whether or not a dedicated target was configured.
++            live_grant(store, lease_id=answer["assignment"]["lease_id"],
++                       canonical_target_id=canonical_target_id,
++                       entry_id=entry_id,
++                       fence=answer["assignment"]["fence"])
+             receipt = _integrate_receipt(integrator, basis)
+             execution.complete_integrated(store, answer["assignment"],
+                                           answer["settlement"])

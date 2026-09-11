@@ -1,0 +1,1878 @@
+{
+  "before": {
+    "v12/python/build/lib/baton_v12/__init__.py": {
+      "sha256": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/__init__.py": {
+      "sha256": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/api.py": {
+      "sha256": "f683300c21588adf9861326c36cfddd9473fd00b97734712bb5c22aca638ae00",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/core.py": {
+      "sha256": "63e98999237e37ac1f1bb5a0cff4c885a8181b3e768c62d40a4b147abe7a8a74",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/errors.py": {
+      "sha256": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/identity.py": {
+      "sha256": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/schema.py": {
+      "sha256": "fae4ffb0231fecf2735c9d2db0315ea4f594820c1d1210f064a1f58e8e3d0a17",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/session.py": {
+      "sha256": "e82d82621a32042bfee6ee8c76dfe13ae946b182f7d15d1c606df3ad221de52b",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/store.py": {
+      "sha256": "4c16fc00fc6e66d650218da4e1f22016f98d4c747690ffb91e9e2c545cc861ca",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/__init__.py": {
+      "sha256": "ae21f4dd466740d9f010e6390c4a13a4323b74b50770405d91f6639f15b81267",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/canonical.py": {
+      "sha256": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/errors.py": {
+      "sha256": "fd8c9783a349ff35e5491c8279a678f46cd8d376bc80bb0e8da8bcfda25e8a50",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/frozen.py": {
+      "sha256": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/manifest.py": {
+      "sha256": "94b1d3aa9cbfe5cd72f0f09189a03a089d9d4195197b050af6d86f78be15e201",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/pod.py": {
+      "sha256": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/secrets.py": {
+      "sha256": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/validate.py": {
+      "sha256": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/__init__.py": {
+      "sha256": "924ba955893237436016d409f039b80d3a2ccd9baee88221e4ba104922c2a2be",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/attempts.py": {
+      "sha256": "c3ee5b9f568fa3cefce6b2bd1688ebc857dee86e6bf44c34947be3cdb03a8738",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/authority_port.py": {
+      "sha256": "8b06ed15b245e9df363c07c5706a8033b0853680979ca895da2ca4b59f523ff4",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/boundaries.py": {
+      "sha256": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/documents.py": {
+      "sha256": "fba724704fdb66c695d138bd3b0627e388fd9a735eb0cfee05bc75c3742a2b8d",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/handshake.py": {
+      "sha256": "cb117759e81856e9d1fe3e643aae83cbad18540d89b73bc119377be614a6c56b",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/interrogation.py": {
+      "sha256": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/manifests.py": {
+      "sha256": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/oci.py": {
+      "sha256": "727a5811f27ace445432f8b8dd80bbdcd317e1bf343cddd02f3ab00a8443c4e0",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/offers.py": {
+      "sha256": "bc9dc351b4aaa74df42c4fdb067ba2536024536ef7edf52b127a1ef53ce248b4",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/output.py": {
+      "sha256": "cba722dde49e5ba5a70cb0f5cefbf8f2d3d613b3ff8ddbe69d3b550bd383616b",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/posture_slots.py": {
+      "sha256": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/schema.py": {
+      "sha256": "53ab9a6272b31ca3ef85ff343169bdcd65208f2879cd1e6b8410104c5f422dd0",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/sessions.py": {
+      "sha256": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/store.py": {
+      "sha256": "5ae622902a3ae2d64e2f98ce3aad1065b3fce765b47d0db657df0e7af40cec83",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/workspaces.py": {
+      "sha256": "1a19c4584966ffb4b4a34e72be0482bcd857ba621f4b1c65944c40b502c6ec3b",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/__init__.py": {
+      "sha256": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/__init__.py": {
+      "sha256": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/api.py": {
+      "sha256": "54583b9a6f06dcb172e90ec13170541e6982a966ec3da76e7ee676f54085af90",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/core.py": {
+      "sha256": "82de49009cdb8bac507096ecf735f332e31248ff080d2321853deb54f264df16",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/errors.py": {
+      "sha256": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/identity.py": {
+      "sha256": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/labels.py": {
+      "sha256": "b3a5c82001644d7e59c460f158f2b4c25d67227141bdbc4798636054f1d2e4ec",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/principals.py": {
+      "sha256": "16ee0a55752a5abf262bef09373957a814121d6f7e8b342cd1670e835ceb7f30",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/schema.py": {
+      "sha256": "4d42d107adf0f481cef4903eecd7f11af6bdf6ac649e53504e95555ebf0e78cb",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/session.py": {
+      "sha256": "9e26aab4255c677b76b2e05208a0088b361bd805d6a81865cae5cc2452e5d4b2",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/store.py": {
+      "sha256": "4d651a2a985f38c118d60be466e0c6f6e3012eea0efaa87ae80cec3a4ba0e726",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/checkpoint_profiles.py": {
+      "sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/contracts/__init__.py": {
+      "sha256": "9d3a0e050eb09cf5ee593577c1bf1e89c27b900ff275e6a77905d6c368cf98fe",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/canonical.py": {
+      "sha256": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/errors.py": {
+      "sha256": "fd8c9783a349ff35e5491c8279a678f46cd8d376bc80bb0e8da8bcfda25e8a50",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/frozen.py": {
+      "sha256": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/manifest.py": {
+      "sha256": "53324c97c84911e571ddcffacbc8d4a312f4bdd6b0fa6649bc00c0a205071acc",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/pod.py": {
+      "sha256": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/secrets.py": {
+      "sha256": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/validate.py": {
+      "sha256": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/eventing.py": {
+      "sha256": "f4853e2bc9cbdd97b55e7607e5a418f6ec0f62c4c76ab4aa37bfe82b42898486",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "ec3a2e4fd52739c249b5a2dff102fe1be056ae6fabcb83dca52eed80d83ea8eb",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "09d8d65a13b8bd97701cf1f698026825116c2a6cffa26fcbf6ce7d08bdb2365f",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "b19839ac0d87878aba3fba89c11e823de3b324e2aed9766b192435101ae3a1a7",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/execution.py": {
+      "sha256": "91995b96369f7237dd6e8b67cf8223f3b52baf6b6304c45d53a14e13140ce330",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/oci_delivery.py": {
+      "sha256": "ccfa812ac3b6c4fa68d32bc4fcb25bf2c05c7220369af1b39dedc0aef8a08282",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/queue.py": {
+      "sha256": "2e8a153ddcdf15fcd597f51a7c81ce0405ee7b64fad9b2f3b6cf416c40489be7",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/recovery.py": {
+      "sha256": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/runtime.py": {
+      "sha256": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "d0df79b9674e1a92b7011747c0ddcd42116804a4b6f8e05526150d329557c968",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/__init__.py": {
+      "sha256": "a15728c216321d34fcdd16b3e8044bbad52d19c7e17b48a82677c359b37d12c6",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/delegation.py": {
+      "sha256": "fd83e32d0ab52b1f611c21adc3cb07b094dee9c2dd7ca904f923b82bb1e42705",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/documents.py": {
+      "sha256": "4bbac912d0bd51cacc15b9cbc36405506e651e78d723a5a18e870f2b44688b4c",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/ending.py": {
+      "sha256": "3d9c4f1914806e2b38543642c483d74628da9e1cbd36a24fa4cc04bf75ea2b99",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/episodes.py": {
+      "sha256": "32e46805540fb7aa4558a735d6d8a714e03c4b7c0e85c8695f929ca596077865",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/manager.py": {
+      "sha256": "f77a12f80c66e8dfb9ed700177b90fa4bda841788396304189f00230dfbd9c83",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/projection.py": {
+      "sha256": "d22c3e7d83731e9ecf5c74255b2d40a46f8b24b858fd091226cd60e9eba91af3",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "sha256": "b5b22535ef105f786aa74f61ff894614a1e91bb8e2739f1051151fb893ebe10c",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/scheduler.py": {
+      "sha256": "fe6d8f33204d1ecb0647eefd11cf6ca781abc22a3841f9310ed32bb1e1f36457",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/schema.py": {
+      "sha256": "1c291ddf1cd62a989fb1bd66a64a5a794ddddeb26fb92731f9ee08ddbf5915e8",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/store.py": {
+      "sha256": "5413efe1d7d25af780cba4fe421ffb4205b4e0e684ffdda1f794d3cf0d650954",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/submission.py": {
+      "sha256": "c80845d9615ec0db5e0d0d2e21d72fd7833b47985f6d5be59630a11500bd512e",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/source_profiles/__init__.py": {
+      "sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/source_profiles/checkout.py": {
+      "sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/__init__.py": {
+      "sha256": "3981073e933fb36daa4ad93091858487f3393e8ceabb69bbb26a3496bf9db798",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/attempts.py": {
+      "sha256": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/authority_port.py": {
+      "sha256": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/boundaries.py": {
+      "sha256": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/credentials.py": {
+      "sha256": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/custody.py": {
+      "sha256": "8a11cac9c2a3859392b619cd1bbaf7019c3fef57bd03c9b9cc651d7e8275dbd6",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/documents.py": {
+      "sha256": "3c67406e5b234d043581cb4b2d2cabb871e7e3ec9ac51a190a185f855395655f",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/events.py": {
+      "sha256": "20ea986b6d88d4c4584c3eeccb95f33fc502b9440460f622c8028cb8f2a6fed5",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/exchange.py": {
+      "sha256": "1fbff4e8bd73c44b658e5fc7ec0b5595ada498813ec5247ae2032c32543f35ce",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/handshake.py": {
+      "sha256": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/intake.py": {
+      "sha256": "d326fe41d0ad8ca90950be9735f4c05b1c537e70e6827f760867969830eae7b7",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/interrogation.py": {
+      "sha256": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/lanes.py": {
+      "sha256": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/launch.py": {
+      "sha256": "6546008fb4970b406d2a56adffc4f6a36c8c18f62e488a9b0ac74307059d7647",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/manifests.py": {
+      "sha256": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/oci.py": {
+      "sha256": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/offers.py": {
+      "sha256": "218dfcb11408ccd0c634a5f9cda2ae833c8de8560cc8557d75b1e88e662d7f8b",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/output.py": {
+      "sha256": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/posture_slots.py": {
+      "sha256": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/schema.py": {
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/sealing.py": {
+      "sha256": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/sessions.py": {
+      "sha256": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/source_boundary.py": {
+      "sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/store.py": {
+      "sha256": "a692a6021e57544e6c92cba89611e9e0ca3fe87ca72ca748c8155843b6a93b32",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/worker_entry.py": {
+      "sha256": "b83b8bb7bc7b41d6f9b98b49ddba3c2a7a5d5e70be802318bbce82193c685fba",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": {
+      "sha256": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+      "mode": "0o644"
+    },
+    "v12/python/tests/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_assignment.py": {
+      "sha256": "131ef58e753d83c03f73c037128522c3881195ae114c36e31be954b95e0c0539",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_boundary.py": {
+      "sha256": "605a6e655cefa2021ce6a1ce75987ce39d34a874cc1bcb0ce39b6e96394c6451",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_catalog.py": {
+      "sha256": "14ca384916dd0c175409c9af97c338f923ce73ba789f0eec68a745385904eed6",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_claim_result.py": {
+      "sha256": "b4bf19b09709a2271584df47799c16e354f7398d9c31d6e234d6aa3a4b328a9d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_contract.py": {
+      "sha256": "65791f6f8070e4fecc9eadb9837800490ed0d5988d23f7be2f666dc1b154415c",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_identity.py": {
+      "sha256": "cfb45393bcf6b58163dcc292c72c84a676ddf41df3469415e93935a860c0960e",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_operations.py": {
+      "sha256": "55e57a4164e96d2dde6a09d707a2987da9eec7e2a44745774c5f8d7b1bae12b7",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_principal_scope.py": {
+      "sha256": "f2da31ed869ade147e242c8a037c06c360504e4b261a15b551bfbb9af12c0e1b",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_session.py": {
+      "sha256": "861160064fae66a464874286f9911efec3b4ac913630da97deefc3f7b84e068c",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_store.py": {
+      "sha256": "f353132132899f2c98a9a7837edda7b6cd35a43228462e741c03fc98feebdfc0",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_work_label_exposure.py": {
+      "sha256": "81c302ec7177243eeb03f8f090f3c6162e5cdfb9e8bab883b138fa5ae6d58cac",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_work_labels.py": {
+      "sha256": "852c7732b83c7c9e3e6469c203aec81e14012c69dc36fd7f59a68919dbc7e802",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/fixtures.py": {
+      "sha256": "4cd22c4ce19e77aa42992d8f7f93528e391fc00d80931ad5acc335f776acea9d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "2afc9e5ccef3e2ecd5bbaaa803eb5c3386f9475aa7b8cf0c021c43974e2a1570",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "cda33b582b41fecfca06759fc20fe254a6a683d4b919742386a01b36acb7506e",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_execution.py": {
+      "sha256": "53c416fa603bd31d1549f8f974dba562bf082c3963866423e87d0b073ea3a398",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_recovery.py": {
+      "sha256": "c33cfa13818177afc882dd896d842036010c44656886a73c133687001e08b8fa",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_runtime.py": {
+      "sha256": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/__init__.py": {
+      "sha256": "b7dd17302f1776ffced042851cececbe58899d253c30a6da90d8ea907e60f12d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/fixtures.py": {
+      "sha256": "439a21f71a859bd4aa00092aa6bc8018d6c614825acd0a886c1e0853f91fc434",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_delegation.py": {
+      "sha256": "ce18e8dbf6d05a73dcba217b227f7c9e4d430e4aa0bc44c56fda897028d91a4a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_documents.py": {
+      "sha256": "77883eb9808208c9e59e3d7c197705c92f29c789cec0848ff7063e51ed5ab026",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_ending.py": {
+      "sha256": "30a0b759754bb78fd27e99ab6e9ea1a76949d4b644bda5f3b42fea0e72a796d9",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_exchange.py": {
+      "sha256": "945c0b0ef55a1434e72ce51d2ac841a608b2f35bd17af160bc96123f09b07016",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_launch.py": {
+      "sha256": "042fc2dc0a674b959c9f99a34c681d616abb725df7a2edadca7c963ed8c3fcb9",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_recovery.py": {
+      "sha256": "1562b294eed4539183ed72e76bdcfc15c4d7541803943fd60b27588490101a67",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_restart.py": {
+      "sha256": "3331debcda9abe722d58529426dbab7379636011a72782fc89a4108ba568b965",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_review_driver.py": {
+      "sha256": "259e1f6de4d944c1ffa384217d62e8a21a1b63e2e2e15d58e97618110c0a541f",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_scheduling.py": {
+      "sha256": "db37eba61f447fd097bdb291e241187eaa993b0281a7c32976171ff8af03b987",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_status.py": {
+      "sha256": "859869bf8538320b39ab931d54772c5bd935b2ad24f7dad72ba47414c65d62bf",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_store.py": {
+      "sha256": "f72245e326376d8efa10f02076f38efcbdf49ecee3bdc0524a67caf25223a1a8",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_submission.py": {
+      "sha256": "f1f3be22c4d4176bfa430c40afead25a64fdaa46a8beef9ad3ca94f29c4ada4b",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_sweep.py": {
+      "sha256": "09780a1fa232b29a6c047453ad8ac4967998724d21d631aacc4fa4115acb462c",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_tool.py": {
+      "sha256": "02991e0256a4b71fce3e7e1cfb6429adf4caa818db6da4a5300456ff24b1b50a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/disk_roots.py": {
+      "sha256": "53dc1fa9b99697c8b6ea0597579ba05135a6a7707f798d15d9a8da2b5dd85c08",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/input_roots.py": {
+      "sha256": "6d6fae239a3b01c72fefc01650ca198d2c46c24f14eb04528123c45210403590",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_abandoned_attempt_engine.py": {
+      "sha256": "0c4a02af28e03f6af33199b85f52b39ac713661af8286c6b947d546c7365473d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_attempts.py": {
+      "sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_boundary_inventory.py": {
+      "sha256": "e92579485bc5074b26a83d953fc08f428723c84c459fc5750f20278b81b1d401",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_canonical.py": {
+      "sha256": "d59243724d6a80025fe3cc140db98cc2976d3cab9f88051cd82f3c5b4077729e",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_checkpoint_profiles.py": {
+      "sha256": "321ac78270ee842110cd289e32ee727f5bbde842ce154c089e228607c1b5860a",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "sha256": "a6c6e57ad38dd9c24c6ad864080ed02f0106ce27a509631b52436c1f9bbf5dd7",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_contracts_inventory.py": {
+      "sha256": "3aaaacadb282692f6fe613d4b156a44e9d1cec3516128e24ad7bb9c25daa6f7e",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_credentials.py": {
+      "sha256": "8b740ca236cb5d91d882557d10a1dd62fc3a95f8e423b1c7bdf87bfa5a6249f9",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_credentials_engine.py": {
+      "sha256": "7bd5e077bba6188d5123a1f93aea5ab25b9b6d6173e718d6ba769f09702d2da4",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_custody.py": {
+      "sha256": "bb4cf40d5d7001e14d164e18ba3d803ed04d15ebdb18dd3328f857e890dd600a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_custody_engine.py": {
+      "sha256": "39028dd25b99097744f23fefea961999a2a95e0ac02ad4c1877cd1c7e2d0a4e2",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_dependencies.py": {
+      "sha256": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_diagnostic_rendering.py": {
+      "sha256": "60ee4de6f0030f18e2fa28d70d9ba36dbf01c7a19dfcf6b7afde50ecf89d0f7a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_dogfood_image.py": {
+      "sha256": "ecaae0d4518e511a77edb1198272dc111dd25ad735177b61b71c6c0b048a187d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_ended_runtime_adoption.py": {
+      "sha256": "36a4fb9fb9c3af3cfc5100c9e1fc555981264bcb914df3ae2970fad9c84ff4c3",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_exchange.py": {
+      "sha256": "7883445a419628e3263d67dfaaaa1096076d43f3b3e493138a11f2b46069730b",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_failed_start_destroy.py": {
+      "sha256": "7d33b44d5b8bace166f251a410300111c190674c5a07617a78f7f4903334b564",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_failed_start_destroy_engine.py": {
+      "sha256": "9cd33644e33c63198489027b34c92bf452b3244bdf8ae0de1693fe9957cbe6d8",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_frozen.py": {
+      "sha256": "211fdd12316abb5df8bb303705629ce09aedfa99a46487461a458317ffd34ab8",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_handshake.py": {
+      "sha256": "2e36975881250323f50035d31358f1a17744db6ad3a9df182005d59333e97208",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_input_delivery.py": {
+      "sha256": "1c53e8a888886d37cd5a83ae47ef7efb9f1d5f23e4c4d3cd975e448948cb70bf",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_intake.py": {
+      "sha256": "40cf5c6686875b8ed6a48cba3106a80ac4f98b6fcfe41334f5c869bb66d79fdf",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_integration_image.py": {
+      "sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_integration_worker.py": {
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_interrogation.py": {
+      "sha256": "09ddb18d39bf357df52484fc6522bcd7e2a1d82fada850990d96e1cd590449aa",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_launch.py": {
+      "sha256": "9e553f8a7937bc8360a33c121b25259358a90bf9145cc1668dc87f9e6c50d031",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_lifecycle_composition.py": {
+      "sha256": "3828c5bb34a2cfa81a8356af3d9f52c949770e82013d1e7e3abde5d6152be5d7",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_manifest_rules.py": {
+      "sha256": "5eae145112b0fe352a2f73f10fbe776fb51d523f34e6b60467406530ca267f29",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_negative_race_endings.py": {
+      "sha256": "dbf22f444f24e19c9e86ed7c2c3e2a9acef9ac416d4ecfc3a4b85e562ae0b412",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_oci.py": {
+      "sha256": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_oci_engine.py": {
+      "sha256": "d1b9a49099c40dfe47a3cb8208db4c42944e06577086667c862f09445f2cc67c",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_oci_integration.py": {
+      "sha256": "822bae5cb51c7f664c1f351aff9147957c930db3251c2e932330a7a125d301a6",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_offers.py": {
+      "sha256": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_output.py": {
+      "sha256": "3d5507c5bf4233359a104b8040814397c0a5031afc86b4ef1b534bd4136c72b5",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_output_custody_engine.py": {
+      "sha256": "eba4227eef5b4522b8e4f34de8a17a2d6ee53f1678937e4982498a0065fa6c11",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_pod.py": {
+      "sha256": "8ff29bc5223128096315076642d4692f44715cf373f512ace169f3c78a034e41",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_principal_context.py": {
+      "sha256": "ff9ae0530168ec79984a371da6a356f92071d28ffc0697a547e1602726a9607d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_private_line_access_engine.py": {
+      "sha256": "20981569e64054222404b4765d3114c4dbb7630c02aa70e81ac7ee0ec06ae2d7",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_refused_session_cleanup.py": {
+      "sha256": "bd0d11a34e0899233a6e1878adacba6d18e57c684b6fc420b0d23bb276dd71bb",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_refused_session_engine.py": {
+      "sha256": "e13bf32c5d03749bad5456b7f8bd669bd98727e02414981fd4c0a895ec833b7c",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_review_cycles.py": {
+      "sha256": "ed16ca105fc36a9113fe39049d02b739fe45d95d1b4c12c670aabe88620734d4",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_runtime_lane.py": {
+      "sha256": "291915203a8321824f96c26bde2b50b09911396be047b2bab3628d90299e7a06",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_sealing.py": {
+      "sha256": "14948da920b3be30da0d5e881c6243d52cc13090682640f9d257049d952fe97a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_secrets.py": {
+      "sha256": "9104bf90aa9c437eb221c8dbcd2e3528f07bc5d1c2d5174d37e71bc7ee243724",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_sessions.py": {
+      "sha256": "928eaa9e46db95b3461f45aabf06e070ea96dcc9fbb6d09e643a649e9eaef418",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_source_boundary.py": {
+      "sha256": "c36470fc694e9ec5577916757786acd6f0e2c749bfd8022af5a99fa85bee6e64",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_store.py": {
+      "sha256": "9a5566355c375c98d2464e802a4d3d599cdd24fabc1b8d2135963830e339c093",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_text_sweep.py": {
+      "sha256": "f3eff0216f98f4cd4174d4d016283612f88306ee75380cbb7ea26f802e5dbd50",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_validate.py": {
+      "sha256": "1c5cab58549e9022fc7a0e4f48c5a96c14910d4ba751c8af644162f08372945d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_worker_container.py": {
+      "sha256": "aa80886d0fa0eadcc50ceeeadc9276ae0ca8d604d9bfb8fa756887acd6d047c9",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_worker_entry.py": {
+      "sha256": "3633a9973fde4a3f777da50f9c5fe4b6354b1b76147fd4cc19a061e4ea6167e1",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_worker_entry_engine.py": {
+      "sha256": "ee9f0ac12b7e0a146b5df77c95f42045beed463e4df6e068c4c4f93b895dd008",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_worker_image.py": {
+      "sha256": "85e85a7d3cb2508bd437e9846fc7c6dfa00c505c2f528dd29e59a89dbec635ba",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_workspaces.py": {
+      "sha256": "8874973c44e83f1ccbf0c1a19fc3ac1953f220c9312d551ca0e9fe63175935d5",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/__init__.py": {
+      "sha256": "fe3f7b045b521723216772d0a0d1410e4e2746f720fbd451ee6f97d26c481b7a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_dogfood_arc_engine.py": {
+      "sha256": "4f4bf4c27e6dbc5fa7b7a2f9e213f74fd92df7dc2d2b85dd21c53365c9ae627a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_dogfood_operator.py": {
+      "sha256": "ed3cb4b0137b12d0deab6df4f00588a8b891ff358c2d08ce6b53ff8de290e857",
+      "mode": "0o644"
+    },
+    "v12/python/tests/tools/test_dogfood_retry_engine.py": {
+      "sha256": "711a389ae9fcb0cbec662606d2c05df079e8e13500450e04c5a7a1a3054176db",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_integration_worker.py": {
+      "sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_parallel_runner.py": {
+      "sha256": "690241cb9f51e1405c6d3246bd8a66620a95d4f8ecf561e8d5d4553dfd736406",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_quiescent_assignment_finalization.py": {
+      "sha256": "64a43f32a1ba6b1e496852858e6aae10be01010c8a61f80a864d606f63110ecd",
+      "mode": "0o444"
+    },
+    "v12/python/tests/tools/test_single_worker.py": {
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "0141cab042c5479a08886b94244dd447e7d8fc2c4fb2e8dfce0880019617d8e2",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution_hardening.py": {
+      "sha256": "92e7478e8ba97b104955715eb14d81b28d6279756bb78860b77a76ea8a32ebd3",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution_status_hardening.py": {
+      "sha256": "acdd44ae69d6ad2ba78567cd607ca5efb711364af544024a80de59ba2fa020af",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_user_credentials.py": {
+      "sha256": "22e2beeffb6335766382fe1d78b38e491bfd0e40addd0a9be3b04090163404db",
+      "mode": "0o444"
+    },
+    "v12/python/tests/tools/test_worker_image_build.py": {
+      "sha256": "7b335680ce6410fdbdb316e369a05f884f08ce3d8eec9df96fba35e7abb30ab2",
+      "mode": "0o664"
+    },
+    "v12/python/tools/__init__.py": {
+      "sha256": "26c21454b5f7cfde863e5f615ee1cb5a33564a7026147c4ae6c8cf5446c60bf7",
+      "mode": "0o664"
+    },
+    "v12/python/tools/dogfood_operator.py": {
+      "sha256": "a407c530735b53b8576cb7f150ae253f1fd41fd427c0939cfa4aae5ba98dca1c",
+      "mode": "0o644"
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+      "mode": "0o664"
+    },
+    "v12/python/tools/integration_worker.py": {
+      "sha256": "2c3156da8c4f9bf4430b325ca0e32fc9c8bfbb59f5caa7ccccdd71b4fca65796",
+      "mode": "0o664"
+    },
+    "v12/python/tools/job_manager.py": {
+      "sha256": "1060e26a4196bafbc55db7955271853b1a2dde45e316d39cba7681939aeb6bb7",
+      "mode": "0o664"
+    },
+    "v12/python/tools/parallel_test.py": {
+      "sha256": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+      "mode": "0o644"
+    },
+    "v12/python/tools/single_worker.py": {
+      "sha256": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+      "mode": "0o664"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "090c36119cbb2680f3c70f6c99830b3bf5258845035a81ff56b21677b35640e3",
+      "mode": "0o664"
+    },
+    "v12/python/tools/user_credentials.py": {
+      "sha256": "6b5cf07f59c3484a1e08a96f65726ebc9eef3d317a77090071fd13f4f151c61b",
+      "mode": "0o444"
+    },
+    "v12/python/tools/worker_image.py": {
+      "sha256": "6bc3f08363a13f70724001638340f21eeed21eb62ea5de9ff359fb0dcc22eeb1",
+      "mode": "0o664"
+    },
+    "v12/spike/ping-pong/preflight.py": {
+      "sha256": "1f7491ad2e0be6bb1245123263749bb2d0a9772b740ca9bad704c2e422fa167a",
+      "mode": "0o664"
+    },
+    "v12/spike/ping-pong/test_harness.py": {
+      "sha256": "d8ec6ec17f6e3ed2ebc5e62890405e86abf34d0a55c94b3657cca85c3ecf8c8b",
+      "mode": "0o664"
+    },
+    "v12/spike/ping-pong/trial.py": {
+      "sha256": "6122590459714d947bdfdd1861d949ddaccc7500a09191996eb0ef15fa9b13bb",
+      "mode": "0o664"
+    },
+    "v12/worker/baton_worker.py": {
+      "sha256": "da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923",
+      "mode": "0o664"
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+      "mode": "0o644"
+    },
+    "v12/worker/dogfood_entry.py": {
+      "sha256": "bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3",
+      "mode": "0o664"
+    },
+    "v12/worker/integration_contract.py": {
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "mode": "0o664"
+    },
+    "v12/worker/integration_entry.py": {
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "mode": "0o664"
+    },
+    "v12/worker/integration_workload.py": {
+      "sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "mode": "0o664"
+    },
+    "v12/worker/scripted_agent.py": {
+      "sha256": "f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c",
+      "mode": "0o664"
+    }
+  },
+  "after": {
+    "v12/python/build/lib/baton_v12/__init__.py": {
+      "sha256": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/__init__.py": {
+      "sha256": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/api.py": {
+      "sha256": "f683300c21588adf9861326c36cfddd9473fd00b97734712bb5c22aca638ae00",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/core.py": {
+      "sha256": "63e98999237e37ac1f1bb5a0cff4c885a8181b3e768c62d40a4b147abe7a8a74",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/errors.py": {
+      "sha256": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/identity.py": {
+      "sha256": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/schema.py": {
+      "sha256": "fae4ffb0231fecf2735c9d2db0315ea4f594820c1d1210f064a1f58e8e3d0a17",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/session.py": {
+      "sha256": "e82d82621a32042bfee6ee8c76dfe13ae946b182f7d15d1c606df3ad221de52b",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/authority/store.py": {
+      "sha256": "4c16fc00fc6e66d650218da4e1f22016f98d4c747690ffb91e9e2c545cc861ca",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/__init__.py": {
+      "sha256": "ae21f4dd466740d9f010e6390c4a13a4323b74b50770405d91f6639f15b81267",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/canonical.py": {
+      "sha256": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/errors.py": {
+      "sha256": "fd8c9783a349ff35e5491c8279a678f46cd8d376bc80bb0e8da8bcfda25e8a50",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/frozen.py": {
+      "sha256": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/manifest.py": {
+      "sha256": "94b1d3aa9cbfe5cd72f0f09189a03a089d9d4195197b050af6d86f78be15e201",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/pod.py": {
+      "sha256": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/secrets.py": {
+      "sha256": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/contracts/validate.py": {
+      "sha256": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/__init__.py": {
+      "sha256": "924ba955893237436016d409f039b80d3a2ccd9baee88221e4ba104922c2a2be",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/attempts.py": {
+      "sha256": "c3ee5b9f568fa3cefce6b2bd1688ebc857dee86e6bf44c34947be3cdb03a8738",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/authority_port.py": {
+      "sha256": "8b06ed15b245e9df363c07c5706a8033b0853680979ca895da2ca4b59f523ff4",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/boundaries.py": {
+      "sha256": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/documents.py": {
+      "sha256": "fba724704fdb66c695d138bd3b0627e388fd9a735eb0cfee05bc75c3742a2b8d",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/handshake.py": {
+      "sha256": "cb117759e81856e9d1fe3e643aae83cbad18540d89b73bc119377be614a6c56b",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/interrogation.py": {
+      "sha256": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/manifests.py": {
+      "sha256": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/oci.py": {
+      "sha256": "727a5811f27ace445432f8b8dd80bbdcd317e1bf343cddd02f3ab00a8443c4e0",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/offers.py": {
+      "sha256": "bc9dc351b4aaa74df42c4fdb067ba2536024536ef7edf52b127a1ef53ce248b4",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/output.py": {
+      "sha256": "cba722dde49e5ba5a70cb0f5cefbf8f2d3d613b3ff8ddbe69d3b550bd383616b",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/posture_slots.py": {
+      "sha256": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/schema.py": {
+      "sha256": "53ab9a6272b31ca3ef85ff343169bdcd65208f2879cd1e6b8410104c5f422dd0",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/sessions.py": {
+      "sha256": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/store.py": {
+      "sha256": "5ae622902a3ae2d64e2f98ce3aad1065b3fce765b47d0db657df0e7af40cec83",
+      "mode": "0o664"
+    },
+    "v12/python/build/lib/baton_v12/worker_manager/workspaces.py": {
+      "sha256": "1a19c4584966ffb4b4a34e72be0482bcd857ba621f4b1c65944c40b502c6ec3b",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/__init__.py": {
+      "sha256": "88c0a90eac444628f76a377f850e79a77c097bdc9ce5bd610b8dcddc55baedd0",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/__init__.py": {
+      "sha256": "f1dd5aae94f3375d3d071f93287b9c3c68e8edf80b6aa3b0d46aff63e7f30066",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/api.py": {
+      "sha256": "54583b9a6f06dcb172e90ec13170541e6982a966ec3da76e7ee676f54085af90",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/core.py": {
+      "sha256": "82de49009cdb8bac507096ecf735f332e31248ff080d2321853deb54f264df16",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/errors.py": {
+      "sha256": "09b36cf37945f88bdcc2bb90263076d6b07207f2029148f100cf30fd39f5ffce",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/identity.py": {
+      "sha256": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/labels.py": {
+      "sha256": "b3a5c82001644d7e59c460f158f2b4c25d67227141bdbc4798636054f1d2e4ec",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/principals.py": {
+      "sha256": "16ee0a55752a5abf262bef09373957a814121d6f7e8b342cd1670e835ceb7f30",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/schema.py": {
+      "sha256": "4d42d107adf0f481cef4903eecd7f11af6bdf6ac649e53504e95555ebf0e78cb",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/session.py": {
+      "sha256": "9e26aab4255c677b76b2e05208a0088b361bd805d6a81865cae5cc2452e5d4b2",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/authority/store.py": {
+      "sha256": "4d651a2a985f38c118d60be466e0c6f6e3012eea0efaa87ae80cec3a4ba0e726",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/checkpoint_profiles.py": {
+      "sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/contracts/__init__.py": {
+      "sha256": "9d3a0e050eb09cf5ee593577c1bf1e89c27b900ff275e6a77905d6c368cf98fe",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/canonical.py": {
+      "sha256": "747b1981dbd875e3d7f0ab5dd4785ba437a62d9579c7f9cda81ea104484ef8c8",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/errors.py": {
+      "sha256": "fd8c9783a349ff35e5491c8279a678f46cd8d376bc80bb0e8da8bcfda25e8a50",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/frozen.py": {
+      "sha256": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/manifest.py": {
+      "sha256": "53324c97c84911e571ddcffacbc8d4a312f4bdd6b0fa6649bc00c0a205071acc",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/pod.py": {
+      "sha256": "aa677b9a7eb708d584736725d99fd11b907356052877d4db09c4fd259cd9fd99",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/secrets.py": {
+      "sha256": "94537c592dcbb158c9525965d125b596a7d9dc72b0ff3136217bfa04ec3fa46b",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/contracts/validate.py": {
+      "sha256": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/eventing.py": {
+      "sha256": "f4853e2bc9cbdd97b55e7607e5a418f6ec0f62c4c76ab4aa37bfe82b42898486",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "ec3a2e4fd52739c249b5a2dff102fe1be056ae6fabcb83dca52eed80d83ea8eb",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "09d8d65a13b8bd97701cf1f698026825116c2a6cffa26fcbf6ce7d08bdb2365f",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "b19839ac0d87878aba3fba89c11e823de3b324e2aed9766b192435101ae3a1a7",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/execution.py": {
+      "sha256": "91995b96369f7237dd6e8b67cf8223f3b52baf6b6304c45d53a14e13140ce330",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/oci_delivery.py": {
+      "sha256": "ccfa812ac3b6c4fa68d32bc4fcb25bf2c05c7220369af1b39dedc0aef8a08282",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/queue.py": {
+      "sha256": "2e8a153ddcdf15fcd597f51a7c81ce0405ee7b64fad9b2f3b6cf416c40489be7",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/recovery.py": {
+      "sha256": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/runtime.py": {
+      "sha256": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "d0df79b9674e1a92b7011747c0ddcd42116804a4b6f8e05526150d329557c968",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/__init__.py": {
+      "sha256": "a15728c216321d34fcdd16b3e8044bbad52d19c7e17b48a82677c359b37d12c6",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/delegation.py": {
+      "sha256": "fd83e32d0ab52b1f611c21adc3cb07b094dee9c2dd7ca904f923b82bb1e42705",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/documents.py": {
+      "sha256": "4bbac912d0bd51cacc15b9cbc36405506e651e78d723a5a18e870f2b44688b4c",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/ending.py": {
+      "sha256": "3d9c4f1914806e2b38543642c483d74628da9e1cbd36a24fa4cc04bf75ea2b99",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/episodes.py": {
+      "sha256": "32e46805540fb7aa4558a735d6d8a714e03c4b7c0e85c8695f929ca596077865",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/manager.py": {
+      "sha256": "f77a12f80c66e8dfb9ed700177b90fa4bda841788396304189f00230dfbd9c83",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/projection.py": {
+      "sha256": "d22c3e7d83731e9ecf5c74255b2d40a46f8b24b858fd091226cd60e9eba91af3",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/review_driver.py": {
+      "sha256": "b5b22535ef105f786aa74f61ff894614a1e91bb8e2739f1051151fb893ebe10c",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/scheduler.py": {
+      "sha256": "fe6d8f33204d1ecb0647eefd11cf6ca781abc22a3841f9310ed32bb1e1f36457",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/schema.py": {
+      "sha256": "1c291ddf1cd62a989fb1bd66a64a5a794ddddeb26fb92731f9ee08ddbf5915e8",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/store.py": {
+      "sha256": "5413efe1d7d25af780cba4fe421ffb4205b4e0e684ffdda1f794d3cf0d650954",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/job_manager/submission.py": {
+      "sha256": "c80845d9615ec0db5e0d0d2e21d72fd7833b47985f6d5be59630a11500bd512e",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/source_profiles/__init__.py": {
+      "sha256": "c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/source_profiles/checkout.py": {
+      "sha256": "037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/__init__.py": {
+      "sha256": "3981073e933fb36daa4ad93091858487f3393e8ceabb69bbb26a3496bf9db798",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/attempts.py": {
+      "sha256": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/authority_port.py": {
+      "sha256": "174d621edfb1d8b694c9b1cbfe511d8b56c8a89e97ed89bc08534e1a029f64c6",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/boundaries.py": {
+      "sha256": "f7cd00594d836a3841531ed5b41ad7326698e937f2f18bc2ffcc9f8247325d1a",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/credentials.py": {
+      "sha256": "09eef2cc97a6f62b43dac0352a71017fced3b6c5556f6ad691f38c4267f4a8df",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/custody.py": {
+      "sha256": "8a11cac9c2a3859392b619cd1bbaf7019c3fef57bd03c9b9cc651d7e8275dbd6",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/documents.py": {
+      "sha256": "3c67406e5b234d043581cb4b2d2cabb871e7e3ec9ac51a190a185f855395655f",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/events.py": {
+      "sha256": "20ea986b6d88d4c4584c3eeccb95f33fc502b9440460f622c8028cb8f2a6fed5",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/exchange.py": {
+      "sha256": "1fbff4e8bd73c44b658e5fc7ec0b5595ada498813ec5247ae2032c32543f35ce",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/handshake.py": {
+      "sha256": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/intake.py": {
+      "sha256": "d326fe41d0ad8ca90950be9735f4c05b1c537e70e6827f760867969830eae7b7",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/interrogation.py": {
+      "sha256": "c50e20bdc3c62e87deca6ffa50a1b4473dc3bd0a8069e9695fb43d7c86dc29f0",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/lanes.py": {
+      "sha256": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/launch.py": {
+      "sha256": "6546008fb4970b406d2a56adffc4f6a36c8c18f62e488a9b0ac74307059d7647",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/manifests.py": {
+      "sha256": "4ff94931448667660bfea1b36691eecaa1cbe5ed179ce51c241e70707b796866",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/oci.py": {
+      "sha256": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/offers.py": {
+      "sha256": "218dfcb11408ccd0c634a5f9cda2ae833c8de8560cc8557d75b1e88e662d7f8b",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/output.py": {
+      "sha256": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/posture_slots.py": {
+      "sha256": "ec271f6f47ff0cbe33f6602905e45cd3c59ed5f29e1019309002c89cd6928f81",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/schema.py": {
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/sealing.py": {
+      "sha256": "fa127f926785eb0e3b56cda2359141f066b4de4851b3de1e7cd7d6d3f87fdada",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/sessions.py": {
+      "sha256": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/source_boundary.py": {
+      "sha256": "6a6b0f7ecd29ee260e55d5abb93ebcf8891641a9cd1866109a9d291bf44e918f",
+      "mode": "0o644"
+    },
+    "v12/python/src/baton_v12/worker_manager/store.py": {
+      "sha256": "a692a6021e57544e6c92cba89611e9e0ca3fe87ca72ca748c8155843b6a93b32",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/worker_entry.py": {
+      "sha256": "b83b8bb7bc7b41d6f9b98b49ddba3c2a7a5d5e70be802318bbce82193c685fba",
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": {
+      "sha256": "19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9",
+      "mode": "0o644"
+    },
+    "v12/python/tests/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_assignment.py": {
+      "sha256": "131ef58e753d83c03f73c037128522c3881195ae114c36e31be954b95e0c0539",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_boundary.py": {
+      "sha256": "605a6e655cefa2021ce6a1ce75987ce39d34a874cc1bcb0ce39b6e96394c6451",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_catalog.py": {
+      "sha256": "14ca384916dd0c175409c9af97c338f923ce73ba789f0eec68a745385904eed6",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_claim_result.py": {
+      "sha256": "b4bf19b09709a2271584df47799c16e354f7398d9c31d6e234d6aa3a4b328a9d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_contract.py": {
+      "sha256": "65791f6f8070e4fecc9eadb9837800490ed0d5988d23f7be2f666dc1b154415c",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_identity.py": {
+      "sha256": "cfb45393bcf6b58163dcc292c72c84a676ddf41df3469415e93935a860c0960e",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_operations.py": {
+      "sha256": "55e57a4164e96d2dde6a09d707a2987da9eec7e2a44745774c5f8d7b1bae12b7",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_principal_scope.py": {
+      "sha256": "f2da31ed869ade147e242c8a037c06c360504e4b261a15b551bfbb9af12c0e1b",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_session.py": {
+      "sha256": "861160064fae66a464874286f9911efec3b4ac913630da97deefc3f7b84e068c",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_store.py": {
+      "sha256": "f353132132899f2c98a9a7837edda7b6cd35a43228462e741c03fc98feebdfc0",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_work_label_exposure.py": {
+      "sha256": "81c302ec7177243eeb03f8f090f3c6162e5cdfb9e8bab883b138fa5ae6d58cac",
+      "mode": "0o664"
+    },
+    "v12/python/tests/authority/test_work_labels.py": {
+      "sha256": "852c7732b83c7c9e3e6469c203aec81e14012c69dc36fd7f59a68919dbc7e802",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/fixtures.py": {
+      "sha256": "4cd22c4ce19e77aa42992d8f7f93528e391fc00d80931ad5acc335f776acea9d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "2afc9e5ccef3e2ecd5bbaaa803eb5c3386f9475aa7b8cf0c021c43974e2a1570",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "cda33b582b41fecfca06759fc20fe254a6a683d4b919742386a01b36acb7506e",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_execution.py": {
+      "sha256": "53c416fa603bd31d1549f8f974dba562bf082c3963866423e87d0b073ea3a398",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_recovery.py": {
+      "sha256": "c33cfa13818177afc882dd896d842036010c44656886a73c133687001e08b8fa",
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_runtime.py": {
+      "sha256": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/__init__.py": {
+      "sha256": "b7dd17302f1776ffced042851cececbe58899d253c30a6da90d8ea907e60f12d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/fixtures.py": {
+      "sha256": "439a21f71a859bd4aa00092aa6bc8018d6c614825acd0a886c1e0853f91fc434",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_delegation.py": {
+      "sha256": "ce18e8dbf6d05a73dcba217b227f7c9e4d430e4aa0bc44c56fda897028d91a4a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_documents.py": {
+      "sha256": "77883eb9808208c9e59e3d7c197705c92f29c789cec0848ff7063e51ed5ab026",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_ending.py": {
+      "sha256": "30a0b759754bb78fd27e99ab6e9ea1a76949d4b644bda5f3b42fea0e72a796d9",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_exchange.py": {
+      "sha256": "945c0b0ef55a1434e72ce51d2ac841a608b2f35bd17af160bc96123f09b07016",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_launch.py": {
+      "sha256": "042fc2dc0a674b959c9f99a34c681d616abb725df7a2edadca7c963ed8c3fcb9",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_recovery.py": {
+      "sha256": "1562b294eed4539183ed72e76bdcfc15c4d7541803943fd60b27588490101a67",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_restart.py": {
+      "sha256": "3331debcda9abe722d58529426dbab7379636011a72782fc89a4108ba568b965",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_review_driver.py": {
+      "sha256": "259e1f6de4d944c1ffa384217d62e8a21a1b63e2e2e15d58e97618110c0a541f",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_scheduling.py": {
+      "sha256": "db37eba61f447fd097bdb291e241187eaa993b0281a7c32976171ff8af03b987",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_status.py": {
+      "sha256": "859869bf8538320b39ab931d54772c5bd935b2ad24f7dad72ba47414c65d62bf",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_store.py": {
+      "sha256": "f72245e326376d8efa10f02076f38efcbdf49ecee3bdc0524a67caf25223a1a8",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_submission.py": {
+      "sha256": "f1f3be22c4d4176bfa430c40afead25a64fdaa46a8beef9ad3ca94f29c4ada4b",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_sweep.py": {
+      "sha256": "09780a1fa232b29a6c047453ad8ac4967998724d21d631aacc4fa4115acb462c",
+      "mode": "0o664"
+    },
+    "v12/python/tests/job_manager/test_tool.py": {
+      "sha256": "02991e0256a4b71fce3e7e1cfb6429adf4caa818db6da4a5300456ff24b1b50a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/disk_roots.py": {
+      "sha256": "53dc1fa9b99697c8b6ea0597579ba05135a6a7707f798d15d9a8da2b5dd85c08",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/input_roots.py": {
+      "sha256": "6d6fae239a3b01c72fefc01650ca198d2c46c24f14eb04528123c45210403590",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_abandoned_attempt_engine.py": {
+      "sha256": "0c4a02af28e03f6af33199b85f52b39ac713661af8286c6b947d546c7365473d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_attempts.py": {
+      "sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_boundary_inventory.py": {
+      "sha256": "e92579485bc5074b26a83d953fc08f428723c84c459fc5750f20278b81b1d401",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_canonical.py": {
+      "sha256": "d59243724d6a80025fe3cc140db98cc2976d3cab9f88051cd82f3c5b4077729e",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_checkpoint_profiles.py": {
+      "sha256": "321ac78270ee842110cd289e32ee727f5bbde842ce154c089e228607c1b5860a",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "sha256": "a6c6e57ad38dd9c24c6ad864080ed02f0106ce27a509631b52436c1f9bbf5dd7",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_contracts_inventory.py": {
+      "sha256": "3aaaacadb282692f6fe613d4b156a44e9d1cec3516128e24ad7bb9c25daa6f7e",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_credentials.py": {
+      "sha256": "8b740ca236cb5d91d882557d10a1dd62fc3a95f8e423b1c7bdf87bfa5a6249f9",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_credentials_engine.py": {
+      "sha256": "7bd5e077bba6188d5123a1f93aea5ab25b9b6d6173e718d6ba769f09702d2da4",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_custody.py": {
+      "sha256": "bb4cf40d5d7001e14d164e18ba3d803ed04d15ebdb18dd3328f857e890dd600a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_custody_engine.py": {
+      "sha256": "39028dd25b99097744f23fefea961999a2a95e0ac02ad4c1877cd1c7e2d0a4e2",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_dependencies.py": {
+      "sha256": "89b00e126443f1e49227cffb57de956abaf3303dff84bbd4da0edc75abe74130",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_diagnostic_rendering.py": {
+      "sha256": "60ee4de6f0030f18e2fa28d70d9ba36dbf01c7a19dfcf6b7afde50ecf89d0f7a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_dogfood_image.py": {
+      "sha256": "ecaae0d4518e511a77edb1198272dc111dd25ad735177b61b71c6c0b048a187d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_ended_runtime_adoption.py": {
+      "sha256": "36a4fb9fb9c3af3cfc5100c9e1fc555981264bcb914df3ae2970fad9c84ff4c3",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_exchange.py": {
+      "sha256": "7883445a419628e3263d67dfaaaa1096076d43f3b3e493138a11f2b46069730b",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_failed_start_destroy.py": {
+      "sha256": "7d33b44d5b8bace166f251a410300111c190674c5a07617a78f7f4903334b564",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_failed_start_destroy_engine.py": {
+      "sha256": "9cd33644e33c63198489027b34c92bf452b3244bdf8ae0de1693fe9957cbe6d8",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_frozen.py": {
+      "sha256": "211fdd12316abb5df8bb303705629ce09aedfa99a46487461a458317ffd34ab8",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_handshake.py": {
+      "sha256": "2e36975881250323f50035d31358f1a17744db6ad3a9df182005d59333e97208",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_input_delivery.py": {
+      "sha256": "1c53e8a888886d37cd5a83ae47ef7efb9f1d5f23e4c4d3cd975e448948cb70bf",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_intake.py": {
+      "sha256": "40cf5c6686875b8ed6a48cba3106a80ac4f98b6fcfe41334f5c869bb66d79fdf",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_integration_image.py": {
+      "sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_integration_worker.py": {
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_interrogation.py": {
+      "sha256": "09ddb18d39bf357df52484fc6522bcd7e2a1d82fada850990d96e1cd590449aa",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_launch.py": {
+      "sha256": "9e553f8a7937bc8360a33c121b25259358a90bf9145cc1668dc87f9e6c50d031",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_lifecycle_composition.py": {
+      "sha256": "3828c5bb34a2cfa81a8356af3d9f52c949770e82013d1e7e3abde5d6152be5d7",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_manifest_rules.py": {
+      "sha256": "5eae145112b0fe352a2f73f10fbe776fb51d523f34e6b60467406530ca267f29",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_negative_race_endings.py": {
+      "sha256": "dbf22f444f24e19c9e86ed7c2c3e2a9acef9ac416d4ecfc3a4b85e562ae0b412",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_oci.py": {
+      "sha256": "44301b30f600abb4ce24e8c7dfb7a515fbad5778f7282b0a13f4b5d80f6cd2b8",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_oci_engine.py": {
+      "sha256": "d1b9a49099c40dfe47a3cb8208db4c42944e06577086667c862f09445f2cc67c",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_oci_integration.py": {
+      "sha256": "822bae5cb51c7f664c1f351aff9147957c930db3251c2e932330a7a125d301a6",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_offers.py": {
+      "sha256": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_output.py": {
+      "sha256": "3d5507c5bf4233359a104b8040814397c0a5031afc86b4ef1b534bd4136c72b5",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_output_custody_engine.py": {
+      "sha256": "eba4227eef5b4522b8e4f34de8a17a2d6ee53f1678937e4982498a0065fa6c11",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_pod.py": {
+      "sha256": "8ff29bc5223128096315076642d4692f44715cf373f512ace169f3c78a034e41",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_principal_context.py": {
+      "sha256": "ff9ae0530168ec79984a371da6a356f92071d28ffc0697a547e1602726a9607d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_private_line_access_engine.py": {
+      "sha256": "20981569e64054222404b4765d3114c4dbb7630c02aa70e81ac7ee0ec06ae2d7",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_refused_session_cleanup.py": {
+      "sha256": "bd0d11a34e0899233a6e1878adacba6d18e57c684b6fc420b0d23bb276dd71bb",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_refused_session_engine.py": {
+      "sha256": "e13bf32c5d03749bad5456b7f8bd669bd98727e02414981fd4c0a895ec833b7c",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_review_cycles.py": {
+      "sha256": "ed16ca105fc36a9113fe39049d02b739fe45d95d1b4c12c670aabe88620734d4",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_runtime_lane.py": {
+      "sha256": "291915203a8321824f96c26bde2b50b09911396be047b2bab3628d90299e7a06",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_sealing.py": {
+      "sha256": "14948da920b3be30da0d5e881c6243d52cc13090682640f9d257049d952fe97a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_secrets.py": {
+      "sha256": "9104bf90aa9c437eb221c8dbcd2e3528f07bc5d1c2d5174d37e71bc7ee243724",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_sessions.py": {
+      "sha256": "928eaa9e46db95b3461f45aabf06e070ea96dcc9fbb6d09e643a649e9eaef418",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_source_boundary.py": {
+      "sha256": "c36470fc694e9ec5577916757786acd6f0e2c749bfd8022af5a99fa85bee6e64",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_store.py": {
+      "sha256": "9a5566355c375c98d2464e802a4d3d599cdd24fabc1b8d2135963830e339c093",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_text_sweep.py": {
+      "sha256": "f3eff0216f98f4cd4174d4d016283612f88306ee75380cbb7ea26f802e5dbd50",
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_validate.py": {
+      "sha256": "1c5cab58549e9022fc7a0e4f48c5a96c14910d4ba751c8af644162f08372945d",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_worker_container.py": {
+      "sha256": "aa80886d0fa0eadcc50ceeeadc9276ae0ca8d604d9bfb8fa756887acd6d047c9",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_worker_entry.py": {
+      "sha256": "3633a9973fde4a3f777da50f9c5fe4b6354b1b76147fd4cc19a061e4ea6167e1",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_worker_entry_engine.py": {
+      "sha256": "ee9f0ac12b7e0a146b5df77c95f42045beed463e4df6e068c4c4f93b895dd008",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_worker_image.py": {
+      "sha256": "85e85a7d3cb2508bd437e9846fc7c6dfa00c505c2f528dd29e59a89dbec635ba",
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_workspaces.py": {
+      "sha256": "8874973c44e83f1ccbf0c1a19fc3ac1953f220c9312d551ca0e9fe63175935d5",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/__init__.py": {
+      "sha256": "fe3f7b045b521723216772d0a0d1410e4e2746f720fbd451ee6f97d26c481b7a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_dogfood_arc_engine.py": {
+      "sha256": "4f4bf4c27e6dbc5fa7b7a2f9e213f74fd92df7dc2d2b85dd21c53365c9ae627a",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_dogfood_operator.py": {
+      "sha256": "ed3cb4b0137b12d0deab6df4f00588a8b891ff358c2d08ce6b53ff8de290e857",
+      "mode": "0o644"
+    },
+    "v12/python/tests/tools/test_dogfood_retry_engine.py": {
+      "sha256": "711a389ae9fcb0cbec662606d2c05df079e8e13500450e04c5a7a1a3054176db",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_integration_worker.py": {
+      "sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_parallel_runner.py": {
+      "sha256": "690241cb9f51e1405c6d3246bd8a66620a95d4f8ecf561e8d5d4553dfd736406",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_quiescent_assignment_finalization.py": {
+      "sha256": "64a43f32a1ba6b1e496852858e6aae10be01010c8a61f80a864d606f63110ecd",
+      "mode": "0o444"
+    },
+    "v12/python/tests/tools/test_single_worker.py": {
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "0141cab042c5479a08886b94244dd447e7d8fc2c4fb2e8dfce0880019617d8e2",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution_hardening.py": {
+      "sha256": "92e7478e8ba97b104955715eb14d81b28d6279756bb78860b77a76ea8a32ebd3",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution_status_hardening.py": {
+      "sha256": "acdd44ae69d6ad2ba78567cd607ca5efb711364af544024a80de59ba2fa020af",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_user_credentials.py": {
+      "sha256": "22e2beeffb6335766382fe1d78b38e491bfd0e40addd0a9be3b04090163404db",
+      "mode": "0o444"
+    },
+    "v12/python/tests/tools/test_worker_image_build.py": {
+      "sha256": "7b335680ce6410fdbdb316e369a05f884f08ce3d8eec9df96fba35e7abb30ab2",
+      "mode": "0o664"
+    },
+    "v12/python/tools/__init__.py": {
+      "sha256": "26c21454b5f7cfde863e5f615ee1cb5a33564a7026147c4ae6c8cf5446c60bf7",
+      "mode": "0o664"
+    },
+    "v12/python/tools/dogfood_operator.py": {
+      "sha256": "a407c530735b53b8576cb7f150ae253f1fd41fd427c0939cfa4aae5ba98dca1c",
+      "mode": "0o644"
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+      "mode": "0o664"
+    },
+    "v12/python/tools/integration_worker.py": {
+      "sha256": "2c3156da8c4f9bf4430b325ca0e32fc9c8bfbb59f5caa7ccccdd71b4fca65796",
+      "mode": "0o664"
+    },
+    "v12/python/tools/job_manager.py": {
+      "sha256": "1060e26a4196bafbc55db7955271853b1a2dde45e316d39cba7681939aeb6bb7",
+      "mode": "0o664"
+    },
+    "v12/python/tools/parallel_test.py": {
+      "sha256": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+      "mode": "0o644"
+    },
+    "v12/python/tools/single_worker.py": {
+      "sha256": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+      "mode": "0o664"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "090c36119cbb2680f3c70f6c99830b3bf5258845035a81ff56b21677b35640e3",
+      "mode": "0o664"
+    },
+    "v12/python/tools/user_credentials.py": {
+      "sha256": "6b5cf07f59c3484a1e08a96f65726ebc9eef3d317a77090071fd13f4f151c61b",
+      "mode": "0o444"
+    },
+    "v12/python/tools/worker_image.py": {
+      "sha256": "6bc3f08363a13f70724001638340f21eeed21eb62ea5de9ff359fb0dcc22eeb1",
+      "mode": "0o664"
+    },
+    "v12/spike/ping-pong/preflight.py": {
+      "sha256": "1f7491ad2e0be6bb1245123263749bb2d0a9772b740ca9bad704c2e422fa167a",
+      "mode": "0o664"
+    },
+    "v12/spike/ping-pong/test_harness.py": {
+      "sha256": "d8ec6ec17f6e3ed2ebc5e62890405e86abf34d0a55c94b3657cca85c3ecf8c8b",
+      "mode": "0o664"
+    },
+    "v12/spike/ping-pong/trial.py": {
+      "sha256": "6122590459714d947bdfdd1861d949ddaccc7500a09191996eb0ef15fa9b13bb",
+      "mode": "0o664"
+    },
+    "v12/worker/baton_worker.py": {
+      "sha256": "da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923",
+      "mode": "0o664"
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+      "mode": "0o644"
+    },
+    "v12/worker/dogfood_entry.py": {
+      "sha256": "bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3",
+      "mode": "0o664"
+    },
+    "v12/worker/integration_contract.py": {
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "mode": "0o664"
+    },
+    "v12/worker/integration_entry.py": {
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "mode": "0o664"
+    },
+    "v12/worker/integration_workload.py": {
+      "sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "mode": "0o664"
+    },
+    "v12/worker/scripted_agent.py": {
+      "sha256": "f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c",
+      "mode": "0o664"
+    }
+  }
+}

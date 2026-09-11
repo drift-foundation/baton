@@ -1,0 +1,115 @@
+### label: driver-completion-ordering-regression
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.integration.test_driver.DriverCase", "tests.integration.test_driver.ContinuationCase", "tests.integration.test_driver.TerminalReleaseReplayCase"]
+### exit: 1
+### elapsed_seconds: 0.214030
+### STDOUT
+
+### STDERR
+E....E....EE......
+======================================================================
+ERROR: test_authority_refusal_holds_before_coordinator_completion (tests.integration.test_driver.DriverCase.test_authority_refusal_holds_before_coordinator_completion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 447, in test_authority_refusal_holds_before_coordinator_completion
+    answer, _, _, _, _, _, hold, complete = self.call(
+                                            ~~~~~~~~~^
+        outcome="integrated")
+        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 397, in call
+    result = driver.admit_accepted(
+        self.store, self.manager, self.jobs, self.authority,
+    ...<4 lines>...
+        launch_root="/launch", workspace_group=object(),
+        required_tests=self.required)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1596, in admit_accepted
+    return _authority_completed(
+        store, manager, answer, integrator, basis, delivery, receipts,
+        canonical_target_id=canonical_target_id, entry_id=entry_id,
+        attempt_id=attempt_id, launch_root=launch_root,
+        workspace_group=workspace_group, finalize=finalize)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1662, in _authority_completed
+    live_grant(store, lease_id=answer["assignment"]["lease_id"],
+                               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'lease_id'
+
+======================================================================
+ERROR: test_restart_before_run_adopts_then_uses_the_final_live_cutpoint (tests.integration.test_driver.DriverCase.test_restart_before_run_adopts_then_uses_the_final_live_cutpoint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 419, in test_restart_before_run_adopts_then_uses_the_final_live_cutpoint
+    answer, _, integrate, publish, live, settle, hold, complete = self.call(
+                                                                  ~~~~~~~~~^
+        lease=lease, delivery=object(), outcome="integrated")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 397, in call
+    result = driver.admit_accepted(
+        self.store, self.manager, self.jobs, self.authority,
+    ...<4 lines>...
+        launch_root="/launch", workspace_group=object(),
+        required_tests=self.required)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1596, in admit_accepted
+    return _authority_completed(
+        store, manager, answer, integrator, basis, delivery, receipts,
+        canonical_target_id=canonical_target_id, entry_id=entry_id,
+        attempt_id=attempt_id, launch_root=launch_root,
+        workspace_group=workspace_group, finalize=finalize)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1662, in _authority_completed
+    live_grant(store, lease_id=answer["assignment"]["lease_id"],
+                               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'lease_id'
+
+======================================================================
+ERROR: test_a_stopped_runtime_completes_through_the_receipt_then_the_store (tests.integration.test_driver.ContinuationCase.test_a_stopped_runtime_completes_through_the_receipt_then_the_store)
+The ordinary ending, in the order the coordinator requires: the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 603, in test_a_stopped_runtime_completes_through_the_receipt_then_the_store
+    self.call()
+    ~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 572, in call
+    result = driver.continue_accepted(
+        self.store, self.manager, self.jobs, self.authority,
+    ...<4 lines>...
+        launch_root="/launch", workspace_group=object(),
+        required_tests=self.required)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1866, in continue_accepted
+    return _authority_completed(
+        store, manager, answer, integrator, basis, delivery, receipts,
+        canonical_target_id=canonical_target_id, entry_id=entry_id,
+        attempt_id=attempt_id, launch_root=launch_root,
+        workspace_group=workspace_group, finalize=finalize)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1662, in _authority_completed
+    live_grant(store, lease_id=answer["assignment"]["lease_id"],
+                               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'lease_id'
+
+======================================================================
+ERROR: test_an_authority_refusal_holds_before_coordinator_completion (tests.integration.test_driver.ContinuationCase.test_an_authority_refusal_holds_before_coordinator_completion)
+The same ending admission composes, through the same owner: a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 696, in test_an_authority_refusal_holds_before_coordinator_completion
+    answer, _, _, _, _, _, _, hold, complete = self.call()
+                                               ~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_driver.py", line 572, in call
+    result = driver.continue_accepted(
+        self.store, self.manager, self.jobs, self.authority,
+    ...<4 lines>...
+        launch_root="/launch", workspace_group=object(),
+        required_tests=self.required)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1866, in continue_accepted
+    return _authority_completed(
+        store, manager, answer, integrator, basis, delivery, receipts,
+        canonical_target_id=canonical_target_id, entry_id=entry_id,
+        attempt_id=attempt_id, launch_root=launch_root,
+        workspace_group=workspace_group, finalize=finalize)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1662, in _authority_completed
+    live_grant(store, lease_id=answer["assignment"]["lease_id"],
+                               ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'lease_id'
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.053s
+
+FAILED (errors=4)

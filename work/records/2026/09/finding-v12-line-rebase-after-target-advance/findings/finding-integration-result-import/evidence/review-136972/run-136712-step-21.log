@@ -1,0 +1,33 @@
+### label: final-named-method-verification-of-R1-R2-corrections
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "-v", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_the_required_post_import_tests_ACTUALLY_RUN", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_FAILED_post_import_test_holds_and_never_advances", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_GRANT_FOR_ANOTHER_PROPOSAL_writes_nothing", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_both_jobs_changes_land_on_the_target_and_it_settles", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_the_tick_replays_after_the_import_completed", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_target_that_moved_AGAIN_takes_no_rank_and_no_byte", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_target_that_moves_UNDER_THE_GRANT_refuses_the_entry", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_an_unapproved_result_imports_nothing", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_blocked_combination_never_reaches_the_target", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_reconciled_entry_is_never_handed_to_a_runtime", "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_a_real_entry_and_a_real_receipt_settle_the_result"]
+### exit: 0
+### elapsed_seconds: 1.671495
+### STDOUT
+
+### STDERR
+test_the_required_post_import_tests_ACTUALLY_RUN (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_the_required_post_import_tests_ACTUALLY_RUN)
+REVIEW 2026-09-10T14:20:24Z [R1]. The settlement retains an ... ok
+test_a_FAILED_post_import_test_holds_and_never_advances (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_FAILED_post_import_test_holds_and_never_advances)
+The deployment's own check really fails on the imported bytes. The ... ok
+test_a_GRANT_FOR_ANOTHER_PROPOSAL_writes_nothing (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_GRANT_FOR_ANOTHER_PROPOSAL_writes_nothing)
+REVIEW [R2], the reviewer's own probe. An entry admitted for the ... ok
+test_both_jobs_changes_land_on_the_target_and_it_settles (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_both_jobs_changes_land_on_the_target_and_it_settles) ... ok
+test_the_tick_replays_after_the_import_completed (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_the_tick_replays_after_the_import_completed)
+The target and the Authority cursor have both moved, so nothing can ... ok
+test_a_target_that_moved_AGAIN_takes_no_rank_and_no_byte (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_target_that_moved_AGAIN_takes_no_rank_and_no_byte)
+A third Job advanced the dedicated reference before this tick. The ... ok
+test_a_target_that_moves_UNDER_THE_GRANT_refuses_the_entry (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_target_that_moves_UNDER_THE_GRANT_refuses_the_entry)
+THE RACE THE PRE-WRITE PROOF EXISTS FOR. The entry took its rank ... ok
+test_an_unapproved_result_imports_nothing (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_an_unapproved_result_imports_nothing)
+PUBLICATION IS NOT AUTHORIZATION, and this is where that matters ... ok
+test_a_blocked_combination_never_reaches_the_target (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_blocked_combination_never_reaches_the_target)
+The combined run FAILED, so there is no candidate at all. ... ok
+test_a_reconciled_entry_is_never_handed_to_a_runtime (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_reconciled_entry_is_never_handed_to_a_runtime)
+Its bytes were composed, observed and approved already; there is ... ok
+test_a_real_entry_and_a_real_receipt_settle_the_result (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_a_real_entry_and_a_real_receipt_settle_the_result) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 1.506s
+
+OK

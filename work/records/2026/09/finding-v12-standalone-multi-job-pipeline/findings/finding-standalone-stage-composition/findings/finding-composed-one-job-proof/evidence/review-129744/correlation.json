@@ -1,0 +1,8 @@
+{
+  "result_manifest": true,
+  "result_identity": true,
+  "candidate_pin": true,
+  "checkpoint": true,
+  "line": true,
+  "terminal_gate_absent": true
+}

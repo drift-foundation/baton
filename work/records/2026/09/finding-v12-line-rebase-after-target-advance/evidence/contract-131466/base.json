@@ -1,0 +1,119 @@
+{
+  "claim": 131466,
+  "captured_at": "2026-09-09T22:43:15.461017+00:00",
+  "runtime_seconds": 0,
+  "paths": {
+    "src/baton_v12/checkpoint_profiles.py": {
+      "sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "mode": "0o644"
+    },
+    "src/baton_v12/job_manager/delegation.py": {
+      "sha256": "fd83e32d0ab52b1f611c21adc3cb07b094dee9c2dd7ca904f923b82bb1e42705",
+      "mode": "0o664"
+    },
+    "src/baton_v12/job_manager/documents.py": {
+      "sha256": "4bbac912d0bd51cacc15b9cbc36405506e651e78d723a5a18e870f2b44688b4c",
+      "mode": "0o664"
+    },
+    "src/baton_v12/job_manager/episodes.py": {
+      "sha256": "32e46805540fb7aa4558a735d6d8a714e03c4b7c0e85c8695f929ca596077865",
+      "mode": "0o664"
+    },
+    "src/baton_v12/job_manager/manager.py": {
+      "sha256": "f77a12f80c66e8dfb9ed700177b90fa4bda841788396304189f00230dfbd9c83",
+      "mode": "0o664"
+    },
+    "src/baton_v12/job_manager/projection.py": {
+      "sha256": "d22c3e7d83731e9ecf5c74255b2d40a46f8b24b858fd091226cd60e9eba91af3",
+      "mode": "0o664"
+    },
+    "src/baton_v12/job_manager/scheduler.py": {
+      "sha256": "aec56f1fe1d78bd50798403b46648c63c6c6231678971399da339246a7901194",
+      "mode": "0o664"
+    },
+    "src/baton_v12/job_manager/target_rework.py": {
+      "state": "planned-new-file",
+      "expected_absent": true
+    },
+    "src/baton_v12/worker_manager/attempts.py": {
+      "sha256": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+      "mode": "0o644"
+    },
+    "src/baton_v12/worker_manager/offers.py": {
+      "sha256": "218dfcb11408ccd0c634a5f9cda2ae833c8de8560cc8557d75b1e88e662d7f8b",
+      "mode": "0o664"
+    },
+    "src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+      "mode": "0o644"
+    },
+    "src/baton_v12/worker_manager/schema.py": {
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "mode": "0o644"
+    },
+    "src/baton_v12/worker_manager/target_rework.py": {
+      "state": "planned-new-file",
+      "expected_absent": true
+    },
+    "tests/job_manager/test_delegation.py": {
+      "sha256": "ce18e8dbf6d05a73dcba217b227f7c9e4d430e4aa0bc44c56fda897028d91a4a",
+      "mode": "0o664"
+    },
+    "tests/job_manager/test_documents.py": {
+      "sha256": "77883eb9808208c9e59e3d7c197705c92f29c789cec0848ff7063e51ed5ab026",
+      "mode": "0o664"
+    },
+    "tests/job_manager/test_launch.py": {
+      "sha256": "042fc2dc0a674b959c9f99a34c681d616abb725df7a2edadca7c963ed8c3fcb9",
+      "mode": "0o664"
+    },
+    "tests/job_manager/test_scheduling.py": {
+      "sha256": "79ba448c1f21a6c92bc9230291b5bfd04273024280b00ea197d1fa700066c103",
+      "mode": "0o664"
+    },
+    "tests/job_manager/test_status.py": {
+      "sha256": "859869bf8538320b39ab931d54772c5bd935b2ad24f7dad72ba47414c65d62bf",
+      "mode": "0o664"
+    },
+    "tests/job_manager/test_sweep.py": {
+      "sha256": "09780a1fa232b29a6c047453ad8ac4967998724d21d631aacc4fa4115acb462c",
+      "mode": "0o664"
+    },
+    "tests/job_manager/test_target_rework.py": {
+      "state": "planned-new-file",
+      "expected_absent": true
+    },
+    "tests/manager/test_attempts.py": {
+      "sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0",
+      "mode": "0o664"
+    },
+    "tests/manager/test_checkpoint_profiles.py": {
+      "sha256": "321ac78270ee842110cd289e32ee727f5bbde842ce154c089e228607c1b5860a",
+      "mode": "0o644"
+    },
+    "tests/manager/test_offers.py": {
+      "sha256": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+      "mode": "0o664"
+    },
+    "tests/manager/test_review_cycles.py": {
+      "sha256": "ed16ca105fc36a9113fe39049d02b739fe45d95d1b4c12c670aabe88620734d4",
+      "mode": "0o644"
+    },
+    "tests/manager/test_store.py": {
+      "sha256": "9a5566355c375c98d2464e802a4d3d599cdd24fabc1b8d2135963830e339c093",
+      "mode": "0o644"
+    },
+    "tests/manager/test_target_rework.py": {
+      "state": "planned-new-file",
+      "expected_absent": true
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "1ebba932945b8f1c93f80aaa61835b3188ef489073fb39887a20806d6b7fe93c",
+      "mode": "0o664"
+    },
+    "tools/stage_execution.py": {
+      "sha256": "28ee42a2aaca4e9f596ff5accfebb60f5bc1c6f888e1c9e3c128d7ee93993302",
+      "mode": "0o664"
+    }
+  }
+}

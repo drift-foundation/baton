@@ -1,0 +1,49 @@
+### label: delegation-controls
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.job_manager.test_delegation"]
+### exit: 1
+### elapsed_seconds: 0.208602
+### STDOUT
+
+### STDERR
+..........................EE..............
+======================================================================
+ERROR: test_a_reconciled_completion_may_not_name_a_runtime (tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead.test_a_reconciled_completion_may_not_name_a_runtime) (runtime_id='runtime-1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_delegation.py", line 573, in test_a_reconciled_completion_may_not_name_a_runtime
+    completion=self.reconciled_completion(**wrong)))
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_delegation.py", line 374, in reconciled_completion
+    return self.completion(proposal_id="proposal-derived-1",
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           source_proposal_id="proposal-1",
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           result_id="result-1", runtime_id=None,
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           execution_runtime="absent", **changed)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead.completion() got multiple values for keyword argument 'runtime_id'
+
+======================================================================
+ERROR: test_a_reconciled_completion_may_not_name_a_runtime (tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead.test_a_reconciled_completion_may_not_name_a_runtime) (execution_runtime='quiescent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_delegation.py", line 573, in test_a_reconciled_completion_may_not_name_a_runtime
+    completion=self.reconciled_completion(**wrong)))
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_delegation.py", line 374, in reconciled_completion
+    return self.completion(proposal_id="proposal-derived-1",
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           source_proposal_id="proposal-1",
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           result_id="result-1", runtime_id=None,
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           execution_runtime="absent", **changed)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead.completion() got multiple values for keyword argument 'execution_runtime'
+
+----------------------------------------------------------------------
+Ran 41 tests in 0.057s
+
+FAILED (errors=2)

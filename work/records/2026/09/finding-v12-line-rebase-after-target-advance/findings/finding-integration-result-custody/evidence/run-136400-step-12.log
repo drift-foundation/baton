@@ -1,0 +1,30 @@
+### label: candidate-manifest-and-ledger
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/manifest.py"]
+### exit: 0
+### elapsed_seconds: 0.010643
+### STDOUT
+{
+ "amendment_paths_changed": [
+  "v12/python/src/baton_v12/integration/git_profile.py",
+  "v12/python/src/baton_v12/integration/reconciliation.py",
+  "v12/python/src/baton_v12/integration/schema.py",
+  "v12/python/tests/integration/test_reconciliation.py"
+ ],
+ "paths_outside_the_amendment_that_moved": [],
+ "new_author_spent_seconds": 20.098134173999597,
+ "new_author_remaining_seconds": 9.901865826000403
+}
+caa250d3bca47f713e9b49ed33646c9cdfad6f6a01fa80c2fe01b9388612470a 0o664 92162 CHANGED v12/python/src/baton_v12/integration/reconciliation.py
+ccd0b048ae039df779cbb2ae468c63b8c5f43f73346b4643dd9cefdde89b7902 0o664 26640 CHANGED v12/python/src/baton_v12/integration/git_profile.py
+164de55dd44ab31f0e4a761dfa96eb1dddc893f0954d9697306f4306e0d4523d 0o664 27668 CHANGED v12/python/src/baton_v12/integration/schema.py
+8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49 0o664 36152 same v12/python/src/baton_v12/integration/store.py
+93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791 0o664 19998 same v12/python/src/baton_v12/integration/admission.py
+c5a86008a96f773c0fa884cb7b501197dc29d20eaa638f90957f47e17737bf3e 0o664 92978 same v12/python/src/baton_v12/integration/driver.py
+ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4 0o664 3875 same v12/python/src/baton_v12/integration/__init__.py
+55c25a07bc11993dad4afb6c1a622a90fe85f2dd4a39ea2be6cbe982ded465fe 0o664 91387 CHANGED v12/python/tests/integration/test_reconciliation.py
+c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce 0o664 19242 same v12/python/tests/integration/test_admission.py
+ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7 0o664 136269 same v12/python/tests/integration/test_driver.py
+7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea 0o664 183456 same v12/python/tests/integration/test_coordinator.py
+
+### STDERR

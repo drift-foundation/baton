@@ -1,0 +1,50 @@
+{
+  "src/baton_v12/checkpoint_profiles.py": {
+    "sha256": "134a1d6be95b03d13c87bf85c966ef037970c090b508222796c2e2fbf572a026",
+    "mode": "0o644"
+  },
+  "src/baton_v12/worker_manager/schema.py": {
+    "sha256": "ba81c082434dee401817af3adc86334f7ac643e698a0db95860d092738cbd3c4",
+    "mode": "0o644"
+  },
+  "src/baton_v12/worker_manager/review_cycles.py": {
+    "sha256": "b2b1539c8db2b25e3037db75e4b2684a023de9af7bd168d9355b9ddd29775736",
+    "mode": "0o644"
+  },
+  "src/baton_v12/worker_manager/target_rework.py": {
+    "sha256": "ef995f0c0da3d024067825b6fb87ca0bb91b9eb659a95d4ddd73e48f753403a8",
+    "mode": "0o664"
+  },
+  "src/baton_v12/worker_manager/attempts.py": {
+    "sha256": "b7ff509dfa66a979feab5f9c8f38b0e1fdbee5be5b464a299ff45d1c32cba2c0",
+    "mode": "0o644"
+  },
+  "src/baton_v12/worker_manager/offers.py": {
+    "sha256": "218dfcb11408ccd0c634a5f9cda2ae833c8de8560cc8557d75b1e88e662d7f8b",
+    "mode": "0o664"
+  },
+  "tests/manager/test_target_rework.py": {
+    "sha256": "142e27f09a2d0fa34c236567bf9c06dcdd0acc9ac6d894016a283cb3a9d93e42",
+    "mode": "0o664"
+  },
+  "tests/manager/test_attempts.py": {
+    "sha256": "d45adc60494e3ebb5f8fa6fa6cd4b67e7fea65b18ef3515d72546cdf5492fbbe",
+    "mode": "0o664"
+  },
+  "tests/manager/test_store.py": {
+    "sha256": "a90d3a212ca112fb3a5f9bd26e12b07a47bf2c47b0a0a587a591aa94adfdc19b",
+    "mode": "0o644"
+  },
+  "tests/manager/test_checkpoint_profiles.py": {
+    "sha256": "321ac78270ee842110cd289e32ee727f5bbde842ce154c089e228607c1b5860a",
+    "mode": "0o644"
+  },
+  "tests/manager/test_review_cycles.py": {
+    "sha256": "ed16ca105fc36a9113fe39049d02b739fe45d95d1b4c12c670aabe88620734d4",
+    "mode": "0o644"
+  },
+  "tests/manager/test_offers.py": {
+    "sha256": "153029ef56850a19055eab29e9e7778ce86401a4e7f7faf92be87a79c527bec6",
+    "mode": "0o664"
+  }
+}

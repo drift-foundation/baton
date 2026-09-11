@@ -60,3 +60,37 @@ The existing pipeline source immutability, custody, reviewer separation,
 zero-ordinary-operator-transition, failure containment and successful import
 requirements remain. Six slots are a proposed freeze arrangement, not a new
 mandatory scheduler constant. The companion-refusal decision is separate.
+
+## 2026-09-11T00:40:24Z — owner acceptance applied
+
+Owner M140286/M140288 in T133129 and baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/FINDING.md / PLAN.md at 2026-09-11T00:30:54Z govern. This explicitly supersedes older mandatory, essential and no-waiver wording below ONLY where it makes stronger robustness/resilience demonstrations prerequisites. Ordinary correctness, authorization, honest evidence, existing source scopes, cumulative budgets and file ownership remain. Deferred claims are unproved, never passed. No new planning Work or approval round is required.
+
+Consume the independently accepted pool, per-Job binding and R-backed ordinary A/B evidence at the existing W119405 handoff. Reconcile exact candidate continuity, actual configured worker/Job identities, ordinary overlap, independent review and serialized successful integrations once, then supply the concrete deployment/evidence to W103068. No fresh implementation/test campaign or repeated restart/custody collection at this parent.
+
+Earlier joined fault-capacity, fault-C, crash/restart, adversarial and race proof requirements are deferred as resilience claims. Retain passing controls without rerunning them. A real ordinary binding, authorization, observation or completion defect remains actionable under its existing owner. Source scope and budgets are unchanged; this parent does not execute or claim the real standalone demonstration.
+
+## 2026-09-11T01:15:02Z — deployment component accepted
+
+Reviewer140552 accepts the joined result in review-2026-09-11T01-15-02Z.md.
+Pool W119403 and per-Job W119405 are closed satisfying; final R14022943-entry
+union and actual ordinary A/B component evidence are reconciled. This supersedes
+the baseline limitation and incomplete deployment state above. The /1 form and
+actual ownership/authorization remain; no standalone runtime/model proof inferred.
+
+DEPLOYMENT-HANDOFF-2026-09-11.md supplies W103068/W71879's existing handoff.
+Detached observation remains W136578 H-7. Unclaimed W129838 cleanup hardening
+is deferred at this safe handoff, preserving its defect, future scope/budget and
+author while parking after the normal gate wake. No source/test edits or new
+verification in this review; all cumulative spending/uncertainty remains.
+
+## 2026-09-11T01:22:35Z — downstream production handoff clarification
+
+W103068 review-2026-09-11T01-22-35Z.md at
+baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/
+confirms that tools.stage_execution:factory never constructs a direct integration
+runtime port. The accepted controlled fixture supplies ports and reconnects;
+derived-result judgments likewise have fixture-issued real receipts whose
+production consumer remains to be established. This does not erase the accepted
+component operations, but explicitly supersedes any inference that this handoff
+alone makes a standalone factory runnable. W103068 remains open for that actual
+ordinary-success correction; W71879 must not repair the gap in its proof harness.

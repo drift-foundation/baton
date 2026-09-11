@@ -1,0 +1,25 @@
+### label: R3-diagnose
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_grant_RECOVERED_WHILE_THE_TESTS_RAN_advances_nothing"]
+### exit: 1
+### elapsed_seconds: 0.315498
+### STDOUT
+
+### STDERR
+F
+======================================================================
+FAIL: test_a_grant_RECOVERED_WHILE_THE_TESTS_RAN_advances_nothing (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_grant_RECOVERED_WHILE_THE_TESTS_RAN_advances_nothing)
+REVIEW 2026-09-10T14:33:43Z [R3], at the boundary the verification
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_execution.py", line 1343, in test_a_grant_RECOVERED_WHILE_THE_TESTS_RAN_advances_nothing
+    self.assertIn("a grant is proved live at the moment it is used",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  caught.exception.message)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a grant is proved live at the moment it is used' not found in "operation 'target.block:target:mainline:sha256:71e93bbf0160696d7e1b1b7… is already recorded with a different kind or signature; reusing an id with different operands changes nothing"
+
+----------------------------------------------------------------------
+Ran 1 test in 0.152s
+
+FAILED (failures=1)

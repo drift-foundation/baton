@@ -1,0 +1,56 @@
+{
+  "cap_seconds": 5,
+  "wall_seconds": 0.09824864903930575,
+  "results": [
+    {
+      "aliases": false,
+      "allocated": [
+        {
+          "stage_id": "capacity-0/implementation",
+          "worker_id": "implementation-worker",
+          "participant": "baton.claude",
+          "canonical_principal": "principal:baton.claude",
+          "allocation_state": "reserved",
+          "lane": "implementation"
+        },
+        {
+          "stage_id": "capacity-1/implementation",
+          "worker_id": "implementation-worker-2",
+          "participant": "baton.second",
+          "canonical_principal": "principal:baton.second",
+          "allocation_state": "reserved",
+          "lane": "implementation"
+        },
+        {
+          "stage_id": "capacity-3/review",
+          "worker_id": "review-worker",
+          "participant": "baton.reviewer",
+          "canonical_principal": "principal:baton.reviewer",
+          "allocation_state": "reserved",
+          "lane": "review"
+        },
+        {
+          "stage_id": "capacity-4/review",
+          "worker_id": "review-worker-2",
+          "participant": "baton.reviewer-2",
+          "canonical_principal": "principal:baton.reviewer-2",
+          "allocation_state": "reserved",
+          "lane": "review"
+        }
+      ],
+      "refused": [
+        {
+          "i": 2,
+          "category": "refused",
+          "code": "precondition"
+        }
+      ],
+      "exact_replay": true
+    },
+    {
+      "aliases": true,
+      "error": "Traceback (most recent call last):\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-multi-job-deployment/findings/finding-multi-worker-pool/evidence/review-129906/probe.py\", line 18, in <module>\n    jobs,control,composed=f.serving(**members)\n                          ~~~~~~~~~^^^^^^^^^^^\n  File \"/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py\", line 1580, in serving\n    composed = stage_execution.operations_from(\n        self.composed_document(**members), job, control,\n        engine_run=Engine(),\n        credential_provider=lambda provider, reference: self.secret,\n        clock=lambda: fixtures.NOW, checkout=self.checkout)\n  File \"/home/sl/src/baton/v12/python/tools/stage_execution.py\", line 2023, in operations_from\n    pool = _pool_generation(job_store, given, resolved)\n  File \"/home/sl/src/baton/v12/python/tools/stage_execution.py\", line 2108, in _pool_generation\n    pool = scheduler.own_pool(_pool(given, resolved))\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py\", line 100, in own_pool\n    _unique([one[\"participant\"] for one in owned], \"participant\")\n    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py\", line 42, in _unique\n    _refuse(f\"a worker pool names one {what} per worker; duplicate \"\n    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n            f\"{what} values are not distinct capacity\")\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py\", line 37, in _refuse\n    raise ContractRefusal(\"integrity\", \"schema\", message, durable=durable)\nbaton_v12.contracts.errors.ContractRefusal: a worker pool names one participant per worker; duplicate participant values are not distinct capacity\n"
+    }
+  ],
+  "passed": false
+}

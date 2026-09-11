@@ -1,0 +1,401 @@
+{
+  "candidate": {
+    "AGENTS.md": {
+      "sha256": "a7323bbc227aabe8322f747d5750bc4823cbad2b56dce1f863ddd5921223eb7f",
+      "bytes": 20951,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4",
+      "bytes": 3875,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791",
+      "bytes": 19998,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "fa0cf3dd1404528e5573a736dc99fa841da1feeeb4a760f6be905f0e755b6ba5",
+      "bytes": 99513,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/execution.py": {
+      "sha256": "4a3aa4da6dcc0c94e303278da2e0f8f415f88709c157aeff8399661b383b121a",
+      "bytes": 54092,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/git_profile.py": {
+      "sha256": "ccd0b048ae039df779cbb2ae468c63b8c5f43f73346b4643dd9cefdde89b7902",
+      "bytes": 26640,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/queue.py": {
+      "sha256": "18ced502ebcff18946c1c72914223166c995484ce2baccd6423bb3f7ca0b23a0",
+      "bytes": 117048,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/reconciliation.py": {
+      "sha256": "c575077386c81c135b337b5e5a940aeabfe2d142c15edcbade6e905bbc36af6d",
+      "bytes": 102329,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/recovery.py": {
+      "sha256": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732",
+      "bytes": 12424,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/runtime.py": {
+      "sha256": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+      "bytes": 50412,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "164de55dd44ab31f0e4a761dfa96eb1dddc893f0954d9697306f4306e0d4523d",
+      "bytes": 27668,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "bytes": 36152,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce",
+      "bytes": 19242,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea",
+      "bytes": 183456,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "bytes": 136269,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_execution.py": {
+      "sha256": "3210cc2569b0c6edcda77db6b63ef7b9ed3e982f3a726bb531d58bfb53b3d9c8",
+      "bytes": 71377,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_reconciliation.py": {
+      "sha256": "213520989b628f414d3f0ad27fce2d1f4131cf48435f2ed6af1c5f4c29b77a72",
+      "bytes": 101604,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_recovery.py": {
+      "sha256": "c33cfa13818177afc882dd896d842036010c44656886a73c133687001e08b8fa",
+      "bytes": 10108,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_runtime.py": {
+      "sha256": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+      "bytes": 59397,
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_integration_image.py": {
+      "sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "bytes": 13167,
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_integration_worker.py": {
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "bytes": 79007,
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "bytes": 119971,
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_integration_worker.py": {
+      "sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "bytes": 56217,
+      "mode": "0o664"
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+      "bytes": 62209,
+      "mode": "0o664"
+    },
+    "v12/python/tools/integration_worker.py": {
+      "sha256": "2c3156da8c4f9bf4430b325ca0e32fc9c8bfbb59f5caa7ccccdd71b4fca65796",
+      "bytes": 42887,
+      "mode": "0o664"
+    },
+    "v12/worker/Dockerfile.integration": {
+      "sha256": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "bytes": 5790,
+      "mode": "0o664"
+    },
+    "v12/worker/integration_contract.py": {
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "bytes": 57431,
+      "mode": "0o664"
+    },
+    "v12/worker/integration_entry.py": {
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "bytes": 5287,
+      "mode": "0o664"
+    },
+    "v12/worker/integration_workload.py": {
+      "sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "bytes": 70815,
+      "mode": "0o664"
+    }
+  },
+  "argv": [
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/review-136972-probe.py"
+  ],
+  "returncode": 0,
+  "stdout": "{\"observation\": \"reference and Authority unchanged after grant abandoned during verification\", \"before\": \"d96e2cd8073e8799e570bfaaba6e204e997fdc13\", \"after\": \"d96e2cd8073e8799e570bfaaba6e204e997fdc13\", \"receipt\": null, \"refusal\": \"lease 'integration-driver.lease:69bce7c7fb7d8f5fe26b15551ab89bfd99\\u2026 is abandoned over target 'target:mainline' entry 'integration-driver.entry:fbaa49a013efd3725deacc27a0437b23f3\\u2026 at fence 1, and this caller presents target 'target:mainline' entry 'integration-driver.entry:fbaa49a013efd3725deacc27a0437b23f3\\u2026 at fence 1; a grant is proved live at the moment it is used\"}\n",
+  "stderr": "test_both_jobs_changes_land_on_the_target_and_it_settles (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_both_jobs_changes_land_on_the_target_and_it_settles) ... ok\ntest_the_required_post_import_tests_ACTUALLY_RUN (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_the_required_post_import_tests_ACTUALLY_RUN)\nREVIEW 2026-09-10T14:20:24Z [R1]. The settlement retains an ... ok\ntest_a_FAILED_post_import_test_holds_and_never_advances (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_FAILED_post_import_test_holds_and_never_advances)\nThe deployment's own check really fails on the imported bytes. The ... ok\ntest_a_GRANT_FOR_ANOTHER_PROPOSAL_writes_nothing (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_GRANT_FOR_ANOTHER_PROPOSAL_writes_nothing)\nREVIEW [R2], the reviewer's own probe. An entry admitted for the ... ok\ntest_grant_ended_during_verification_advances_neither_owner (__main__.Review.test_grant_ended_during_verification_advances_neither_owner) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.762s\n\nOK\n",
+  "elapsed_seconds": 0.934536382999795,
+  "prior_review_charge_seconds": 1.9339320230004886,
+  "outer_overhead_reserved_seconds": 0.1,
+  "review_cumulative_charge_seconds": 2.9684684060002837,
+  "author_logs": [
+    {
+      "step": 1,
+      "exit": 0,
+      "seconds": 0.011190686000190908,
+      "sha256": "8af4def4819ee1da8b612ebeff3b39ad2f9c6bbf52e13a8f5db0bd66acc5a31f",
+      "bytes": 346
+    },
+    {
+      "step": 2,
+      "exit": 0,
+      "seconds": 0.17193707699971128,
+      "sha256": "92888b2acc008bbae06178592feededab8eac23ae922e313659c60aec6241478",
+      "bytes": 567
+    },
+    {
+      "step": 3,
+      "exit": 1,
+      "seconds": 1.1908002600002874,
+      "sha256": "f4fd59b100c9f004e8160c9c918799df69876d9b90840a907fec31dea2fb8e31",
+      "bytes": 12046
+    },
+    {
+      "step": 4,
+      "exit": 1,
+      "seconds": 1.156448444000489,
+      "sha256": "35f9ce533d473983d29fc88a03f833673d3e25945bb3a12635be07306543c4de",
+      "bytes": 27486
+    },
+    {
+      "step": 5,
+      "exit": 1,
+      "seconds": 1.1955602669995642,
+      "sha256": "f823754e0e6f536c170087fc7b8140b66efa8ce8009b9b888532139fb6a3804d",
+      "bytes": 28614
+    },
+    {
+      "step": 6,
+      "exit": 1,
+      "seconds": 1.2436461150000468,
+      "sha256": "b567b5eee866f17291c5184545f97e812a055b785bd82908367031f93900b061",
+      "bytes": 8722
+    },
+    {
+      "step": 7,
+      "exit": 1,
+      "seconds": 1.3343486650001068,
+      "sha256": "6c9e50970c4c201e9430571fc6c6dc999d457478cad2060715c9da0c8f70dc1f",
+      "bytes": 3462
+    },
+    {
+      "step": 8,
+      "exit": 0,
+      "seconds": 1.344439751000209,
+      "sha256": "24b1782f1efe149fc2628bdebfa5316ed419b11e50c1e9d6a5b0b4d1a908c8ec",
+      "bytes": 398
+    },
+    {
+      "step": 9,
+      "exit": 1,
+      "seconds": 0.9819297430003644,
+      "sha256": "ae4c481d9e87b0d3edf3137523769c36e8c2a334e98df97fbbe5de391992e18a",
+      "bytes": 3224
+    },
+    {
+      "step": 10,
+      "exit": 0,
+      "seconds": 1.0676845550005964,
+      "sha256": "d2fdd8edb9eb5594caa15ef4f4e2e1e7193405ab0fc74d332a942bf622d07685",
+      "bytes": 389
+    },
+    {
+      "step": 11,
+      "exit": 0,
+      "seconds": 1.071925289000319,
+      "sha256": "435006ac1d39896cace42079854e31ed74044c64bdb5df0feb01d190141c703b",
+      "bytes": 1032
+    },
+    {
+      "step": 12,
+      "exit": 0,
+      "seconds": 0.790074005999486,
+      "sha256": "0fe53e2ec6b2db3563f93fcb7a1485fa00fdd1de2357a9fa434270745611a931",
+      "bytes": 1292
+    },
+    {
+      "step": 13,
+      "exit": 0,
+      "seconds": 7.477349105999565,
+      "sha256": "4da415de16d9fb1fbd45d67c7e9c2edd2a1889576aac996b2ade3c2c1026c3cf",
+      "bytes": 1206
+    },
+    {
+      "step": 14,
+      "exit": 0,
+      "seconds": 0.6228752589995565,
+      "sha256": "c96c550a9c593fecfea522248e07c6324c59483350edaf6c81bd21eac1919fba",
+      "bytes": 968
+    },
+    {
+      "step": 15,
+      "exit": 0,
+      "seconds": 11.599877663999905,
+      "sha256": "c2de46940ff8c219fbbf82a05070d7c0ba852d9f6b62db89e0357c88508e3c7d",
+      "bytes": 69713
+    },
+    {
+      "step": 16,
+      "exit": 0,
+      "seconds": 0.011178040999766381,
+      "sha256": "ded667a875c04be97248085e324da7678edd9af46d6e820b3b7eac704fdeb055",
+      "bytes": 1051
+    },
+    {
+      "step": 17,
+      "exit": 0,
+      "seconds": 0.16881869600001664,
+      "sha256": "4c3ac9ebae7c9cea1fe60d78887279066c1aca580a76430310ff58c988e9b099",
+      "bytes": 564
+    },
+    {
+      "step": 18,
+      "exit": 1,
+      "seconds": 1.5545198800000435,
+      "sha256": "90de7edd505084267fa72d881eb05765802d05613b865df4ebf776b3fe1028ad",
+      "bytes": 3688
+    },
+    {
+      "step": 19,
+      "exit": 0,
+      "seconds": 1.5449529670004267,
+      "sha256": "3597f7b831e6294fbbfe46ebbb452ee6011d6cc771c1dd5f072e0da926746685",
+      "bytes": 390
+    },
+    {
+      "step": 20,
+      "exit": 0,
+      "seconds": 2.9848074840001573,
+      "sha256": "4fad3c89dbd370f06f3d9598c93f17692b848d51133721c53d59846c8a7f7cd9",
+      "bytes": 1388
+    },
+    {
+      "step": 21,
+      "exit": 0,
+      "seconds": 1.6714946189995317,
+      "sha256": "fdcddf19c018623f9bf407c38acc8bbc3eb67f40433222cee6ae012465606633",
+      "bytes": 4394
+    },
+    {
+      "step": 22,
+      "exit": 0,
+      "seconds": 0.01116711699978623,
+      "sha256": "dde1149cd64d82df0ee7264360f3b43c2b7e94367601b695ea16cde6391062f7",
+      "bytes": 1072
+    },
+    {
+      "step": 23,
+      "exit": 0,
+      "seconds": 0.009552716000143846,
+      "sha256": "6f1438d5c6b8d555e3497c4d012fc84b3db7265d09fdec02d53dd22e167cb8d2",
+      "bytes": 730
+    },
+    {
+      "step": 24,
+      "exit": 1,
+      "seconds": 1.6879947050001647,
+      "sha256": "3a30f42b2f776506e8cff2528a5f47a84c6972a8147b4850346fc300377b5a2a",
+      "bytes": 1498
+    },
+    {
+      "step": 25,
+      "exit": 1,
+      "seconds": 0.3154975300003571,
+      "sha256": "bc5ae9de7c1b074b4b6e456daf3e7135c242b3861f9efb34455825624183f306",
+      "bytes": 1530
+    },
+    {
+      "step": 26,
+      "exit": 0,
+      "seconds": 0.31086794499969983,
+      "sha256": "fa8dd9922ba61c5fceb0c5fc6e6c6f1fa4aa4b11a97f1af0121aa932b9a495ce",
+      "bytes": 6080
+    },
+    {
+      "step": 27,
+      "exit": 1,
+      "seconds": 1.6930464960005338,
+      "sha256": "9db2672a5804b6d4cc7cb882b79a93189003ad5684f98690c80e76b48b2f9797",
+      "bytes": 1358
+    },
+    {
+      "step": 28,
+      "exit": 1,
+      "seconds": 1.7014192779997757,
+      "sha256": "a155bfbd041b62bee608927b1e05536400d7b7022f6aca4efcb4eebe064c3dc0",
+      "bytes": 1347
+    },
+    {
+      "step": 29,
+      "exit": 0,
+      "seconds": 1.7002094299996315,
+      "sha256": "d679bcf05806a8abc617727c50bb99be7f96f0aefd9cb59cb886498bc5686ffa",
+      "bytes": 386
+    },
+    {
+      "step": 30,
+      "exit": 1,
+      "seconds": 1.448369804000322,
+      "sha256": "e659902f3487642743921c31e3c8174d64572f8977b1380b0f6c71c02e4b9372",
+      "bytes": 4396
+    },
+    {
+      "step": 31,
+      "exit": 0,
+      "seconds": 1.734435115999986,
+      "sha256": "2847022b6f12cfb76a4adec788e45349cc2916db98a39c124af84d91b67ce6a8",
+      "bytes": 5090
+    },
+    {
+      "step": 32,
+      "exit": 0,
+      "seconds": 0.011711950000062643,
+      "sha256": "841ce286e37903ac1aba03bfefcc4263a63bb4a0666f67320c4ded9898ffd3da",
+      "bytes": 1072
+    },
+    {
+      "step": 33,
+      "exit": 0,
+      "seconds": 0.01997738299996854,
+      "sha256": "cb47d5520875471e7f85b0705706aab6144759783486f30e7da928bed58dc6c8",
+      "bytes": 994
+    },
+    {
+      "step": 34,
+      "exit": 0,
+      "seconds": 0.009151930999905744,
+      "sha256": "60c6f22d0f4fedc4d50174900b73045321d07d1d4d269a787bcaeab64aedb4e1",
+      "bytes": 977
+    }
+  ],
+  "author_measured_seconds": 49.84925997500068
+}

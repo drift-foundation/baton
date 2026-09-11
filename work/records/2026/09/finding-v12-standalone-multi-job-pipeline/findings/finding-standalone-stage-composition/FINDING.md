@@ -247,3 +247,62 @@ An explicit new multi-Job configuration variant preserves the old one-Job
 schema/refusals; enumerate its exact document/interface before editing. No
 external schema, scheduler/driver redesign, extra source path, unrelated test
 assertion change, live runtime grant or manual-transition workaround follows.
+
+## 2026-09-09T17:57:08.562564+00:00 — assembly retained-custody acceptance cross-link
+
+baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-shared-stage-assembly/review-2026-09-09T17-57-08Z.md
+accepts the joined one-Job assembly, including the mandatory transferred
+sealed-result intake/retention, ordinary cleanup, reopened manifest/artifact
+digests and persistent line/checkpoint pin proof. Exact final consumer evidence:
+baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-composed-one-job-proof/review-2026-09-09T17-53-28Z.md.
+The same recovered Job also reaches committed terminal integration. This
+supersedes pending assembly-proof wording, not W105982 experimental-child
+disposition or production confirmed-shutdown requirements. Commands/profiles/
+locators and evidence limits are in the assembly CONSUMER-HANDOFF-2026-09-09.md.
+31 parallel scan failures remain with W115981/W48697. Standing W71830
+test-change authority supersedes historical per-test/additive-only gates.
+
+## 2026-09-09T17:59:04.128785+00:00 — remaining composition acceptance
+
+Claim129807 confirms one-Job assembly accepted but W119400, the multi-Job
+successor placed under this parent by M119126, remains an open child. Parent
+closure must wait for its joined acceptance. review-2026-09-09T17-59-04Z.md records the
+missing dependency and accepted consumer handoff. This supersedes any inference
+that W103083 closure alone now completes this parent. No new implementation,
+planning Job, test gate or scheduler feature is authorized or needed.
+
+## 2026-09-11T00:40:24Z — owner acceptance applied
+
+Owner M140286/M140288 in T133129 and baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/FINDING.md / PLAN.md at 2026-09-11T00:30:54Z govern. This explicitly supersedes older mandatory, essential and no-waiver wording below ONLY where it makes stronger robustness/resilience demonstrations prerequisites. Ordinary correctness, authorization, honest evidence, existing source scopes, cumulative budgets and file ownership remain. Deferred claims are unproved, never passed. No new planning Work or approval round is required.
+
+Reuse accepted one-Job assembly and the W119400/W119405/R candidate/evidence chain at the existing parent handoff. Reconcile the actual ordinary deployment and prepare its concrete configured invocation/input handoff for W71879; do not introduce a fresh assembly implementation, planning prerequisite or test campaign. Retain existing custody/restart evidence without reexecution.
+
+Any older mandatory restart/fault-C/adversarial/race demonstration wording is superseded for this feasibility milestone. Those stronger claims are deferred and unproved beyond retained evidence. Actual submission isolation, review/test authority, correct integration/completion and suitable public observation remain necessary. W71879 must execute real configured standalone providers; the controlled component fixture is not that execution. Existing scopes, budgets and child completion rules remain.
+
+## 2026-09-11T01:22:35Z — actual production handoff remains incomplete
+
+Confirmed under reviewer140591: tools.stage_execution:factory calls operations_from
+without integration_port; _integration_ports returns None for each Job and the
+direct Integration._run branch refuses before prepare/admission. The production
+tree contains the port class but no constructor call. The A/B fixture constructs
+ports and explicitly reconnects operations_from after acceptance. The complete
+static trace and exact current source/fixture locators are in
+review-2026-09-11T01-22-35Z.md. No execution was invented or performed here.
+
+This explicitly supersedes the inference in the preceding handoff that all
+contained provider closures permit final W103068 acceptance. Their bounded
+component/custody results remain valid; the production constructor is still
+missing from the original assembly handoff obligation. A manual test connect()
+or guessed future proposal is not a legitimate standalone fix.
+
+Confirmed additional consumer boundary: the derived B path publishes and waits
+for independently owned receipts; the fixture creates them with real sessions.
+The concrete autonomous production judgment consumer is not supplied by the
+inspected path and must be identified or wired, without fabricated approval.
+Direct A port construction is the first deterministic blocker. These concern
+ordinary successful execution and are not parked resilience demonstrations.
+
+Return W103068 through baton.ops for the bounded production correction and
+verification assignment described in the review, keeping W71879 gated. No new
+planning Work, implicit source expansion or budget transfer; existing same-scope
+component evidence is reused. Static review adds no runtime verification charge.

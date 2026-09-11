@@ -1,0 +1,84 @@
+{
+  "work": "W128698",
+  "claim": 129579,
+  "corrects": "review-2026-09-09T17-19-25Z.md and DIAGNOSIS.md, under the reviewer's continue-by-exception for this one outcome",
+  "claim_order": "claimed at seq129579 before reading the review and before any edit",
+  "paths": {
+    "src/baton_v12/job_manager/documents.py": {
+      "previous": "4bbac912d0bd51cacc15b9cbc36405506e651e78d723a5a18e870f2b44688b4c",
+      "final": "4bbac912d0bd51cacc15b9cbc36405506e651e78d723a5a18e870f2b44688b4c",
+      "mode": "664"
+    },
+    "src/baton_v12/job_manager/episodes.py": {
+      "previous": "7f442002112a49baaaee76ab1f0b1ecb343267bcfc07d3c9db3f46b9c2efb9fe",
+      "final": "32e46805540fb7aa4558a735d6d8a714e03c4b7c0e85c8695f929ca596077865",
+      "mode": "664"
+    },
+    "tests/job_manager/test_documents.py": {
+      "previous": "77883eb9808208c9e59e3d7c197705c92f29c789cec0848ff7063e51ed5ab026",
+      "final": "77883eb9808208c9e59e3d7c197705c92f29c789cec0848ff7063e51ed5ab026",
+      "mode": "664"
+    },
+    "tests/job_manager/test_recovery.py": {
+      "previous": "60555f667567fa668b64a5218c145e9e2bbd41eccff30c8932f665a8ad1eb60c",
+      "final": "1562b294eed4539183ed72e76bdcfc15c4d7541803943fd60b27588490101a67",
+      "mode": "664"
+    }
+  },
+  "one_owner_for_every_exit": {
+    "was": "two exits returned values nobody owned -- the early replay adopted only the provider half, and store.transact itself returns a COMPETING caller's committed result without entering the action, so validation inside the action could not cover it",
+    "now": "`_owned_restart` is the single owner and both `store.replay`'s answer and `store.transact`'s answer go through it",
+    "what_it_owns": [
+      "the closed receipt shape, schema, recorded ending and every identity, plus the nested assignment",
+      "the selected Job, stage, attempt and operation identity, and the assignment's generation, Work and Authority",
+      "the HISTORICAL episode row for the episode the receipt names: it must exist for this attempt and must record the exclusion ending. A receipt claiming episode 999, or one whose ending was cleared, describes a replacement this store cannot show it made",
+      "both providers' receipts and this Job's committed correction, with the correction's opened episode number correlated with the receipt's"
+    ],
+    "history_not_live_state": "nothing it reads is today's live episode, the current line state or a later writer, which is what a completed replay has to survive"
+  },
+  "correction_signature": {
+    "was": "`_job_correction` handed `record['signature']` back to `replay`, which compares that value with itself -- so a correction resigned under a foreign kind still authorized a fresh replacement",
+    "now": "the canonical CORRECT_KIND signature is recomposed from the adopted correction's own operands, with the verdict identity and its attachment taken from `verdict_of` -- the verdict's OWN owner -- rather than from the row being checked. A row's own signature is never its expected signature.",
+    "and": "the episode that correction opened is correlated with this store's own row for it, by episode number, attempt and stored offer identity; the original row stays the locator after a successor exists"
+  },
+  "concurrency_control_corrected": {
+    "was": "the hold sat in the `transact` wrapper, BEFORE the first action started, so the event did not establish that the first call held the write lock when the second arrived",
+    "now": "the hold is inside the first ACTION, the second caller's arrival is recorded on its own event and asserted, and both of its connections are opened in its own thread"
+  },
+  "controls_added": [
+    "test_a_replacement_claiming_another_job_or_episode_refuses -- the foreign job_id and the episode 999 probes",
+    "test_a_cleared_historical_ending_is_not_a_replacement",
+    "test_a_correction_resigned_under_a_foreign_kind_is_refused, proving the live episode is left untouched",
+    "test_a_valid_replay_still_answers_after_a_successor_begins -- the property the ownership check must not cost"
+  ],
+  "budget": {
+    "cap": 20.0,
+    "carried_in": 15.191,
+    "spent_this_pass": 4.148,
+    "cumulative": 19.339,
+    "remaining": 0.661,
+    "within": true,
+    "reset": false,
+    "note": "the cap is effectively reached; broad modules were not repeated, as the review directed"
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.job_manager.test_recovery.OneAbandonedCorrectionEpisodeIsReplaced",
+      "wall": "0.715s",
+      "result": "17 tests, OK after the ownership boundary"
+    },
+    {
+      "run": "same, with the four new controls and the corrected overlap hold",
+      "wall": "1.661s",
+      "log": "evidence/run-129579-class.log",
+      "result": "21 tests, OK on the first run"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.job_manager.test_documents tests.job_manager.test_recovery",
+      "wall": "1.772s",
+      "log": "evidence/run-129579-both.log",
+      "result": "87 tests, OK"
+    }
+  ],
+  "not_repeated": "the 242-test result including test_review_driver, and the 222-test neighbour result, both already audited"
+}

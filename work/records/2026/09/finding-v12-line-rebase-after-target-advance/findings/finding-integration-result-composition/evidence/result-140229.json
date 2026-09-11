@@ -1,0 +1,79 @@
+{
+ "claim": 140229,
+ "work": "W133129",
+ "participant": "baton.claude",
+ "status": "COMPLETE -- full A/B witness and all essential controls green",
+ "authorized_paths": "owner137905 ten",
+ "r_paths": {
+  "v12/README.md": {
+   "sha256": "0ee2369c991470bc83306c33dd3e3849a6bf3faa371d4f6031ea0766f80858c5",
+   "bytes": 19314,
+   "mode": "0o664",
+   "candidate139082_sha256": "0ee2369c991470bc83306c33dd3e3849a6bf3faa371d4f6031ea0766f80858c5",
+   "changed_under_claim_140229": false
+  },
+  "v12/python/src/baton_v12/integration/driver.py": {
+   "sha256": "837483eb9fb8031dae2f8c73472a63a155efbee0b46bd1b5151c70ae35372db8",
+   "bytes": 102714,
+   "mode": "0o664",
+   "candidate139082_sha256": "837483eb9fb8031dae2f8c73472a63a155efbee0b46bd1b5151c70ae35372db8",
+   "changed_under_claim_140229": false
+  },
+  "v12/python/src/baton_v12/integration/execution.py": {
+   "sha256": "af356a985d6a746a59cc26049b7acd3d5f33551c1ee8752ce931434e5f7a1a04",
+   "bytes": 61246,
+   "mode": "0o664",
+   "candidate139082_sha256": "af356a985d6a746a59cc26049b7acd3d5f33551c1ee8752ce931434e5f7a1a04",
+   "changed_under_claim_140229": false
+  },
+  "v12/python/src/baton_v12/job_manager/delegation.py": {
+   "sha256": "3019d7ea94db2fdd3b0e9c3933f0d2b10241fdaf64c2550129c7bbb81ecfadf6",
+   "bytes": 61606,
+   "mode": "0o664",
+   "candidate139082_sha256": "2ad0b1e8ebf1a9bdc90d84731c3bb271e0d16466be4217e84b68cb5da9f68b74",
+   "changed_under_claim_140229": true
+  },
+  "v12/python/tools/stage_execution.py": {
+   "sha256": "9cf2927f4057a68beec61cfd56abeca709509d7770cd577412f750bce4ae1223",
+   "bytes": 213805,
+   "mode": "0o664",
+   "candidate139082_sha256": "c8f5495bb9f824e8ae3ca3aa89c0d9224698530d8abbd2651f5e6b3b8fe18dab",
+   "changed_under_claim_140229": true
+  },
+  "v12/python/tests/integration/test_driver.py": {
+   "sha256": "aba50ff33f19a137271318ff440bb125d43211cec12de1a07e10d33b2e74e834",
+   "bytes": 137717,
+   "mode": "0o664",
+   "candidate139082_sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+   "changed_under_claim_140229": true
+  },
+  "v12/python/tests/integration/test_execution.py": {
+   "sha256": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+   "bytes": 77373,
+   "mode": "0o664",
+   "candidate139082_sha256": "3210cc2569b0c6edcda77db6b63ef7b9ed3e982f3a726bb531d58bfb53b3d9c8",
+   "changed_under_claim_140229": true
+  },
+  "v12/python/tests/job_manager/test_delegation.py": {
+   "sha256": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+   "bytes": 32154,
+   "mode": "0o664",
+   "candidate139082_sha256": "c7da43a3e3c6fb5169ec3c523f7f7693daedccc1936f77e180624b492a40172d",
+   "changed_under_claim_140229": true
+  },
+  "v12/python/tests/job_manager/test_scheduling.py": {
+   "sha256": "79ba448c1f21a6c92bc9230291b5bfd04273024280b00ea197d1fa700066c103",
+   "bytes": 71619,
+   "mode": "0o664",
+   "candidate139082_sha256": "79ba448c1f21a6c92bc9230291b5bfd04273024280b00ea197d1fa700066c103",
+   "changed_under_claim_140229": false
+  },
+  "v12/python/tests/tools/test_stage_execution.py": {
+   "sha256": "2b234a605028d08952a11e2610753ab116a0ea969957399fecac8d55dbd1bffd",
+   "bytes": 404014,
+   "mode": "0o664",
+   "candidate139082_sha256": "b9f2b3a7e735ca9f02a209764b5f0d067602660ba83d07e0dee947f66d13dcd5",
+   "changed_under_claim_140229": true
+  }
+ }
+}

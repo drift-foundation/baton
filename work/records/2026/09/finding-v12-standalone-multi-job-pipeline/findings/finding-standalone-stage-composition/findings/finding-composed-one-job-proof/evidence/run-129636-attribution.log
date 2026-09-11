@@ -1,0 +1,29 @@
+..F....
+======================================================================
+FAIL: test_every_exported_callable_is_in_exactly_one_class (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_secrets.py", line 1477, in test_every_exported_callable_is_in_exactly_one_class
+    self.assertEqual(sorted(exported - classed), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "exported surfaces with no §13 accounting")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['abandoned_gate_discharge_of', 'abandonme[49 chars]ate'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'abandoned_gate_discharge_of'
+
++ []
+- ['abandoned_gate_discharge_of',
+-  'abandonment_cleanup_of',
+-  'discharge_abandoned_quiescence_gate'] : exported surfaces with no §13 accounting
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.047s
+
+FAILED (failures=1)
+
+real	0m0.205s
+user	0m0.183s
+sys	0m0.022s

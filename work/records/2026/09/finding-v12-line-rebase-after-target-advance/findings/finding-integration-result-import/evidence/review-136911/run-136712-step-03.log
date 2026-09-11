@@ -1,0 +1,183 @@
+### label: focused-terminal-custody-group-first-run
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved"]
+### exit: 1
+### elapsed_seconds: 1.190800
+### STDOUT
+
+### STDERR
+EEEEEE.EE
+======================================================================
+ERROR: test_a_real_entry_and_a_real_receipt_settle_the_result (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_a_real_entry_and_a_real_receipt_settle_the_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1796, in test_a_real_entry_and_a_real_receipt_settle_the_result
+    entry_id = self.integrated_entry(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 614, in queued_entry
+    _account, eligibility = driver.authorized_result_eligibility(
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.profile, self.manager, self.jobs, self.authority,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        result_id=held["result_id"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1263, in authorized_result_eligibility
+    line_id=account["line_id"],
+            ~~~~~~~^^^^^^^^^^^
+KeyError: 'line_id'
+
+======================================================================
+ERROR: test_a_receipt_on_the_producers_proposal_is_not_this_results (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_a_receipt_on_the_producers_proposal_is_not_this_results)
+The SUBMISSION's proposal is a real proposal with real receipts.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1848, in test_a_receipt_on_the_producers_proposal_is_not_this_results
+    entry_id = self.integrated_entry(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 614, in queued_entry
+    _account, eligibility = driver.authorized_result_eligibility(
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.profile, self.manager, self.jobs, self.authority,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        result_id=held["result_id"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1263, in authorized_result_eligibility
+    line_id=account["line_id"],
+            ~~~~~~~^^^^^^^^^^^
+KeyError: 'line_id'
+
+======================================================================
+ERROR: test_a_result_imported_through_ANOTHER_entry_collides (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_a_result_imported_through_ANOTHER_entry_collides)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1825, in test_a_result_imported_through_ANOTHER_entry_collides
+    entry_id = self.integrated_entry(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 614, in queued_entry
+    _account, eligibility = driver.authorized_result_eligibility(
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.profile, self.manager, self.jobs, self.authority,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        result_id=held["result_id"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1263, in authorized_result_eligibility
+    line_id=account["line_id"],
+            ~~~~~~~^^^^^^^^^^^
+KeyError: 'line_id'
+
+======================================================================
+ERROR: test_an_entry_admitted_for_another_candidate_refuses (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_an_entry_admitted_for_another_candidate_refuses)
+A real integrated entry on this target, for a DIFFERENT result.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1869, in test_an_entry_admitted_for_another_candidate_refuses
+    entry_id = self.integrated_entry(first)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 614, in queued_entry
+    _account, eligibility = driver.authorized_result_eligibility(
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.profile, self.manager, self.jobs, self.authority,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        result_id=held["result_id"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1263, in authorized_result_eligibility
+    line_id=account["line_id"],
+            ~~~~~~~^^^^^^^^^^^
+KeyError: 'line_id'
+
+======================================================================
+ERROR: test_an_entry_that_is_not_integrated_supplies_no_authority (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_an_entry_that_is_not_integrated_supplies_no_authority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1859, in test_an_entry_that_is_not_integrated_supplies_no_authority
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 614, in queued_entry
+    _account, eligibility = driver.authorized_result_eligibility(
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.profile, self.manager, self.jobs, self.authority,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        result_id=held["result_id"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1263, in authorized_result_eligibility
+    line_id=account["line_id"],
+            ~~~~~~~^^^^^^^^^^^
+KeyError: 'line_id'
+
+======================================================================
+ERROR: test_an_exact_retry_replays_the_terminal_act (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_an_exact_retry_replays_the_terminal_act)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1816, in test_an_exact_retry_replays_the_terminal_act
+    entry_id = self.integrated_entry(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 614, in queued_entry
+    _account, eligibility = driver.authorized_result_eligibility(
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.profile, self.manager, self.jobs, self.authority,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        result_id=held["result_id"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1263, in authorized_result_eligibility
+    line_id=account["line_id"],
+            ~~~~~~~^^^^^^^^^^^
+KeyError: 'line_id'
+
+======================================================================
+ERROR: test_no_receipt_means_no_terminal_import (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_no_receipt_means_no_terminal_import)
+The coordinator settled it; the Authority never said so.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1835, in test_no_receipt_means_no_terminal_import
+    entry_id = self.integrated_entry(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 614, in queued_entry
+    _account, eligibility = driver.authorized_result_eligibility(
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.profile, self.manager, self.jobs, self.authority,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        result_id=held["result_id"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1263, in authorized_result_eligibility
+    line_id=account["line_id"],
+            ~~~~~~~^^^^^^^^^^^
+KeyError: 'line_id'
+
+======================================================================
+ERROR: test_the_terminal_act_is_bound_to_the_entry_it_named (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_the_terminal_act_is_bound_to_the_entry_it_named)
+Relabelling which entry a settled import went through breaks the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1893, in test_the_terminal_act_is_bound_to_the_entry_it_named
+    entry_id = self.integrated_entry(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 614, in queued_entry
+    _account, eligibility = driver.authorized_result_eligibility(
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.profile, self.manager, self.jobs, self.authority,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        result_id=held["result_id"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1263, in authorized_result_eligibility
+    line_id=account["line_id"],
+            ~~~~~~~^^^^^^^^^^^
+KeyError: 'line_id'
+
+----------------------------------------------------------------------
+Ran 9 tests in 1.014s
+
+FAILED (errors=8)

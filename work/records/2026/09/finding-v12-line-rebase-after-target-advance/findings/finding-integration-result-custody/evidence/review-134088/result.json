@@ -1,0 +1,218 @@
+{
+  "claim": 134088,
+  "candidate": {
+    "v12/python/src/baton_v12/integration/reconciliation.py": {
+      "sha256": "e99ee5e17bd7dc1b8c7d256ca6fadfa09b920ca689622392bad81ac47ee678e8",
+      "mode": "0o664",
+      "bytes": 72853
+    },
+    "v12/python/src/baton_v12/integration/git_profile.py": {
+      "sha256": "cba3f391405249f6df83985ff6c5d715ef3cec05efa85ce345cce929f90db1fb",
+      "mode": "0o664",
+      "bytes": 24064
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "e5aa57a47667528143cb8c2507e7e6523aa6fd5a37b0140184ce4a7f015661d9",
+      "mode": "0o664",
+      "bytes": 26764
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "mode": "0o664",
+      "bytes": 36152
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791",
+      "mode": "0o664",
+      "bytes": 19998
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "c5a86008a96f773c0fa884cb7b501197dc29d20eaa638f90957f47e17737bf3e",
+      "mode": "0o664",
+      "bytes": 92978
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4",
+      "mode": "0o664",
+      "bytes": 3875
+    },
+    "v12/python/tests/integration/test_reconciliation.py": {
+      "sha256": "1696fe7f5cb5a76dc3fd875442cb91115295f18c87586cd2995b7c0b81dea819",
+      "mode": "0o664",
+      "bytes": 77775
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce",
+      "mode": "0o664",
+      "bytes": 19242
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "mode": "0o664",
+      "bytes": 136269
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea",
+      "mode": "0o664",
+      "bytes": 183456
+    }
+  },
+  "preflight_errors": [],
+  "author_log_inventory": [
+    {
+      "file": "evidence/run-134000-final.log",
+      "bytes": 37787,
+      "sha256": "cf32d36f7313631783cdafe6dc0c72cfeb222ed98f62d79aee59adc807e63247",
+      "ending": [
+        "The whole point of the ordinary disposition: rank two proceeds. ... ok",
+        "test_the_selectors_come_from_the_entry_and_not_a_caller (tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb.test_the_selectors_come_from_the_entry_and_not_a_caller) ... ok",
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 167 tests in 7.888s",
+        "",
+        "OK"
+      ]
+    },
+    {
+      "file": "evidence/run-134000-step-01.log",
+      "bytes": 3396,
+      "sha256": "0bbfeee8f646073885043899f3c7b4e6f0fe6303333bec2bb96395f7a7a26ca2",
+      "ending": [
+        "    raise ContractRefusal(\"integrity\", \"schema\", message)",
+        "baton_v12.contracts.errors.ContractRefusal: the derived proposal also carries decision, published_at, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did",
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 4 tests in 0.359s",
+        "",
+        "FAILED (errors=1)"
+      ]
+    },
+    {
+      "file": "evidence/run-134000-step-02.log",
+      "bytes": 102,
+      "sha256": "87a80be024bb34b2cec4716c761499b0560c475432b4bacce96100ce17945ec5",
+      "ending": [
+        "....",
+        "----------------------------------------------------------------------",
+        "Ran 4 tests in 0.362s",
+        "",
+        "OK"
+      ]
+    },
+    {
+      "file": "evidence/run-134000-step-03.log",
+      "bytes": 16016,
+      "sha256": "6b03237906c05f39b36650dcad48c6ecb8a4fdf442b1e32d3356f9a034defbcc",
+      "ending": [
+        "    'target': 'd96e2cd8073e8799e570bfaaba6e204e997fdc13',",
+        "    'tree': '470da0d34c0b0215515516f89440f9f1774625fe'}]",
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 45 tests in 3.675s",
+        "",
+        "FAILED (failures=4, errors=12)"
+      ]
+    },
+    {
+      "file": "evidence/run-134000-step-04.log",
+      "bytes": 10179,
+      "sha256": "c1decdbf52ab7a8a58154a3d30cdb9285d9867cecb44b77286e917d00e6aaca8",
+      "ending": [
+        "    raise Refusal(f\"no such Work {name_of(work_id)}\")",
+        "baton_v12.authority.errors.Refusal: no such Work '0123456f-W9'",
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 55 tests in 4.914s",
+        "",
+        "FAILED (errors=5)"
+      ]
+    },
+    {
+      "file": "evidence/run-134000-step-05.log",
+      "bytes": 3124,
+      "sha256": "c9266274f467faca4a18610bf2eebb68af86f225a6c2ca872b0eb68e75c57c0d",
+      "ending": [
+        "+ awaiting-evidence",
+        "",
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 55 tests in 5.177s",
+        "",
+        "FAILED (failures=1, errors=1)"
+      ]
+    },
+    {
+      "file": "evidence/run-134000-step-06.log",
+      "bytes": 154,
+      "sha256": "7d5c3b2a0429850dd1ad7b6694dca45528ca460dd1d091291e36bd03952edfd3",
+      "ending": [
+        ".......................................................",
+        "----------------------------------------------------------------------",
+        "Ran 55 tests in 5.135s",
+        "",
+        "OK"
+      ]
+    },
+    {
+      "file": "evidence/run-134000-step-07.log",
+      "bytes": 2801,
+      "sha256": "a376260f65d4e6555aa046a02011a022e1f0eda71a77c075d6ac0b53575fe6f6",
+      "ending": [
+        "sqlite3.IntegrityError: CHECK constraint failed: (state = 'imported' AND entry_id IS NOT NULL)",
+        "      OR (state != 'imported')",
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 13 tests in 0.906s",
+        "",
+        "FAILED (errors=2)"
+      ]
+    },
+    {
+      "file": "evidence/run-134000-step-08.log",
+      "bytes": 1051,
+      "sha256": "5285a15ff1a7a59d81bff4ddd497b1f73e62babbcd5a5de2361c8745c13ba024",
+      "ending": [
+        "    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "AssertionError: 'result.imported' not found in \"result 'result-b968a5f07a87d93bf94012c359d766e3d5c28b2061074414fffb\u2026 is 'imported' and names operation 'result.publish:result-b968a5f07a87d93bf94012c359d766e3d5c28\u2026, which is not the act that reaches that state\"",
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 13 tests in 0.887s",
+        "",
+        "FAILED (failures=1)"
+      ]
+    },
+    {
+      "file": "evidence/run-134000-step-09.log",
+      "bytes": 113,
+      "sha256": "fb7ebf4a61d98844fec2f033fd7ff622da52fcf4547d00697a0a69c7fb269651",
+      "ending": [
+        "..............",
+        "----------------------------------------------------------------------",
+        "Ran 14 tests in 1.016s",
+        "",
+        "OK"
+      ]
+    }
+  ],
+  "prior_review_seconds": 1.2420617970637977,
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_a_COMBINED_FAILURE_IS_RETAINED_and_blocks",
+    "tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_a_blocked_result_is_not_re_observed_into_success",
+    "tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved.test_preparation_under_a_released_assignment_writes_nothing",
+    "tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved.test_an_import_account_refuses_after_the_assignment_is_released",
+    "tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved.test_an_import_account_refuses_after_the_policy_advances",
+    "tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_a_false_workspace_inode_prepares_nothing",
+    "tests.integration.test_reconciliation.TheImportedStateIsUnproved.test_an_invented_entry_does_not_supply_import_authority",
+    "tests.integration.test_reconciliation.PreparedResultReplaysItsIntent.test_exact_retries_replay_AFTER_the_record_has_moved_on"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "test_a_COMBINED_FAILURE_IS_RETAINED_and_blocks (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_a_COMBINED_FAILURE_IS_RETAINED_and_blocks)\nREVIEW 2026-09-10T05:41:11Z [R1], the correction that matters. ... ok\ntest_a_blocked_result_is_not_re_observed_into_success (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_a_blocked_result_is_not_re_observed_into_success)\nThe retained failure is not overwritten by asking again with an ... ok\ntest_preparation_under_a_released_assignment_writes_nothing (tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved.test_preparation_under_a_released_assignment_writes_nothing) ... ok\ntest_an_import_account_refuses_after_the_assignment_is_released (tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved.test_an_import_account_refuses_after_the_assignment_is_released) ... ok\ntest_an_import_account_refuses_after_the_policy_advances (tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved.test_an_import_account_refuses_after_the_policy_advances) ... ok\ntest_a_false_workspace_inode_prepares_nothing (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_a_false_workspace_inode_prepares_nothing) ... ok\ntest_an_invented_entry_does_not_supply_import_authority (tests.integration.test_reconciliation.TheImportedStateIsUnproved.test_an_invented_entry_does_not_supply_import_authority)\nThe reviewer's exact row: `entry-never-created`, which no ... ok\ntest_exact_retries_replay_AFTER_the_record_has_moved_on (tests.integration.test_reconciliation.PreparedResultReplaysItsIntent.test_exact_retries_replay_AFTER_the_record_has_moved_on)\nReview [P2]: both of these used to refuse an identical call once ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 0.939s\n\nOK\n",
+  "probe_elapsed_seconds": 1.1046158749377355,
+  "charged_elapsed_seconds": 1.1149493700359017,
+  "review_cumulative_seconds": 2.3570111670996994
+}

@@ -1,0 +1,60 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_stage_execution_hardening"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "environment_override": {
+    "PYTHONPATH": "src:."
+  },
+  "timeout_seconds": 10,
+  "elapsed_seconds": 0.28014421300031245,
+  "exit_code": 1,
+  "before": {
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "10358bdbbbf531bef6c8a2e5b0c8d90bca36bff795233e7bb71e6a68e119636a",
+      "mode": "0o664"
+    },
+    "v12/python/tools/single_worker.py": {
+      "sha256": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "62d8b13e63b73205ee565d7987842d07e0129a4aa14bddef2bf6ec44082ec616",
+      "mode": "0o664"
+    },
+    "v12/python/tools/parallel_test.py": {
+      "sha256": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+      "mode": "0o644"
+    },
+    "v12/python/tests/tools/test_stage_execution_hardening.py": {
+      "sha256": "92e7478e8ba97b104955715eb14d81b28d6279756bb78860b77a76ea8a32ebd3",
+      "mode": "0o664"
+    }
+  },
+  "after": {
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "10358bdbbbf531bef6c8a2e5b0c8d90bca36bff795233e7bb71e6a68e119636a",
+      "mode": "0o664"
+    },
+    "v12/python/tools/single_worker.py": {
+      "sha256": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "62d8b13e63b73205ee565d7987842d07e0129a4aa14bddef2bf6ec44082ec616",
+      "mode": "0o664"
+    },
+    "v12/python/tools/parallel_test.py": {
+      "sha256": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+      "mode": "0o644"
+    },
+    "v12/python/tests/tools/test_stage_execution_hardening.py": {
+      "sha256": "92e7478e8ba97b104955715eb14d81b28d6279756bb78860b77a76ea8a32ebd3",
+      "mode": "0o664"
+    }
+  }
+}

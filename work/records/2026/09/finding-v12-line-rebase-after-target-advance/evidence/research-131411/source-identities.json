@@ -1,0 +1,53 @@
+{
+  "work": "W131409",
+  "claim": 131411,
+  "captured_at": "2026-09-09T22:30:39.635969+00:00",
+  "runtime_seconds": 0,
+  "note": "Static research identities; consumer fixture belongs to active author, not an accepted or frozen implementation candidate.",
+  "paths": {
+    "src/baton_v12/authority/core.py": {
+      "sha256": "82de49009cdb8bac507096ecf735f332e31248ff080d2321853deb54f264df16",
+      "mode": "0o664"
+    },
+    "src/baton_v12/integration/driver.py": {
+      "sha256": "b19839ac0d87878aba3fba89c11e823de3b324e2aed9766b192435101ae3a1a7",
+      "mode": "0o664"
+    },
+    "src/baton_v12/integration/admission.py": {
+      "sha256": "09d8d65a13b8bd97701cf1f698026825116c2a6cffa26fcbf6ce7d08bdb2365f",
+      "mode": "0o664"
+    },
+    "src/baton_v12/checkpoint_profiles.py": {
+      "sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "mode": "0o644"
+    },
+    "src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+      "mode": "0o644"
+    },
+    "src/baton_v12/worker_manager/schema.py": {
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "mode": "0o644"
+    },
+    "src/baton_v12/worker_manager/store.py": {
+      "sha256": "a692a6021e57544e6c92cba89611e9e0ca3fe87ca72ca748c8155843b6a93b32",
+      "mode": "0o664"
+    },
+    "src/baton_v12/job_manager/review_driver.py": {
+      "sha256": "b5b22535ef105f786aa74f61ff894614a1e91bb8e2739f1051151fb893ebe10c",
+      "mode": "0o664"
+    },
+    "src/baton_v12/job_manager/episodes.py": {
+      "sha256": "32e46805540fb7aa4558a735d6d8a714e03c4b7c0e85c8695f929ca596077865",
+      "mode": "0o664"
+    },
+    "tools/stage_execution.py": {
+      "sha256": "28ee42a2aaca4e9f596ff5accfebb60f5bc1c6f888e1c9e3c128d7ee93993302",
+      "mode": "0o664"
+    },
+    "tests/tools/test_stage_execution.py": {
+      "sha256": "1ebba932945b8f1c93f80aaa61835b3188ef489073fb39887a20806d6b7fe93c",
+      "mode": "0o664"
+    }
+  }
+}

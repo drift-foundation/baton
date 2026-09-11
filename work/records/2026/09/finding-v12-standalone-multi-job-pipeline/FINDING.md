@@ -689,3 +689,154 @@ manuals. Keep role arrangements illustrative, and remove example Job/Thread IDs,
 event numbers, dated candidate values, release snapshots and local recipes from
 the shared book. This changes its presentation, not any live protocol or project
 authorization.
+
+## 2026-09-10T03:05:47Z — isolated worker evidence, integrator-owned merging
+
+Owner Slawomir approves isolated original-base worker candidates and evidence,
+with the integration role owning reconciliation against the current target
+and separately verifying the combined result. Exact decision and safe-transition
+request: work/records/2026/09/finding-v12-line-rebase-after-target-advance/FINDING.md,
+matching timestamp. This supersedes W131409's worker-rework direction and the
+campaign's prohibition on integration-role reconciliation of ordinary target
+drift, as product direction. It grants no new live v11 integrator permissions
+and does not change human Git ownership.
+
+Preserve failing-on-original-base, passing-with-isolated-fix and post-integration
+passing OR failing results as distinct attributable evidence. Original worker
+checkpoints/reviews remain immutable; the merged result has separate provenance,
+tests and independent review of substantive reconciliation changes. Checkpoint
+publication alone does not authorize integration. Semantic conflicts return for
+explicit correction; no hidden intent change or automatic correctness claim.
+
+Dedicated integration and single-target serialization remain. Preserve the real
+two-Job terminal demonstration and isolation/failure-containment goals. Managed
+reviewer reconciles the active W131409 child at safe handoff and proposes minimal
+replacement source/role scope and verification cost. Retain old work and budget
+history; no budget reset, automatic reserve use or generic-manager Git capability.
+
+## 2026-09-10T12:59:08Z — approve P amendment; reinforce delivery over hardening
+
+**Confirmed by Slawomir in the interactive conversation; recorded by baton.prompt.**
+The owner approved W133117's publication-before-authorization amendment and
+separate NEW30s author allocation, canonically recorded in return136350. The
+managed reviewer claimed136357 to pin the exact parent/P/Q/R supersession and
+dispatch the approved scope. That claim owns those dossier updates; prompt
+records only this campaign direction and its current plan.
+
+Slawomir reiterates that the purpose is reaching W71830 and expresses concern
+that the work is still in hardening. This reinforces the existing delivery-first
+rulings; it does not waive accepted isolation, independent evidence, target
+authorization or two-Job/joined acceptance. W131409's observed ordinary-path gap
+is the concrete reason for the remaining work: A integrates, then B's original
+base no longer matches the advanced target and B cannot finish integration.
+
+The accepted sequence remains bounded P custody/publication/authorization,
+Q result import and target settlement, then R's actual A-then-B terminal witness.
+Reuse that evidence for W130224/W119405 and onward composition/demonstration
+acceptance. Each further blocker must name the failed required transition or
+evidence claim, explain why it prevents the accepted demonstration, and take
+the smallest sufficient correction. Concerns that do not invalidate that
+milestone belong in later hardening. Report the furthest demonstrated transition
+and next executable step; component pass counts alone do not demonstrate progress
+toward the end-to-end result. M136361 carries this direction to the active reviewer.
+
+The workspace discussion does not authorize a detach-adoption project: revoking
+the producer's access and preventing the integration preparer from selecting
+protected storage are distinct requirements. The approved P amendment retains
+its exact four-file isolation correction. No new planning Work, broad verification
+campaign, budget reset or additional product scope follows from this reinforcement.
+
+## 2026-09-10T13:06:51Z — owner directs happy-path delivery now; park hardening
+
+**Confirmed by Slawomir; recorded by baton.prompt.** After reaffirming that A
+and B develop privately from their original bases and integration merges their
+accepted submissions in its own workspace, the owner explicitly prioritizes
+getting W71830's happy path working as soon as possible, with hardening notes
+and Jobs parked for revisit.
+
+This is actionable scope direction, not merely a request for shorter reports.
+At the next safe handoff, the managed reviewer narrows remaining dispatch and
+acceptance to the smallest work required for the agreed demonstration. Examine
+the pending Q/R work and downstream acceptance against actual A/B integration;
+carry forward existing passing evidence instead of extending component-level
+crash, tamper, race or recovery matrices merely for completeness. A negative
+control remains on the immediate path only when it establishes an essential
+demonstration boundary or prevents a falsely successful result. Park separable
+hardening Work on the ledger and retain the exact deferred concern and revisit
+condition; lightweight concerns can remain indexed notes until separately scoped.
+Do this within the existing handoff, without another research/planning Work.
+
+This supersedes earlier wording insofar as it makes exhaustive hardening a
+prerequisite regardless of its necessity for this milestone. Record concrete
+scope deferrals and their rationale before the affected implementation/review;
+do not silently weaken tests or describe deferred checks as passed. The owner's
+already approved P amendment remains the active bounded assignment; do not race
+its author or interrupt it merely to rewrite its plan. Existing budgets, Git
+ownership, independent review, source immutability, actual combined-result
+verification and safe target-write boundaries remain. No worker rebase or new
+detach-adoption project is introduced. The next visible success is A and B both
+integrated through the ordinary pipeline, followed by the existing bounded
+standalone demonstration and its honest evidence assessment.
+
+## 2026-09-11T00:30:54Z — feasibility is the milestone; robustness and resilience follow
+
+**Confirmed by Slawomir in the interactive conversation; recorded by baton.prompt.**
+The owner explicitly defines the present happy-path goal as establishing
+"what's possible", not robustness or resilience, and emphasizes that this
+distinction is very important. This is the acceptance claim for the immediate
+W71830 milestone, not merely a scheduling preference.
+
+Demonstrate one complete ordinary standalone path: A and B develop independently
+from their original private bases, actual review/test evidence authorizes their
+submissions and the separately merged result, integration lands both changes,
+and the Jobs report honest terminal completion through the normal pipeline.
+Use the configured real execution for the standalone demonstration; clearly
+distinguish the controlled component fixture and its injected providers from
+that later run. Keep original submissions and evidence attributable and preserve
+human Git ownership. Do not fake a successful handoff, bypass a failed ordinary
+transition, or claim unexecuted outcomes.
+
+Robustness/resilience demonstrations are deferred, even when an older record
+called them mandatory or essential. Crash/restart recovery, adversarial tamper
+and alias matrices, race/ended-grant experiments, and deliberate fault-Job C
+containment are follow-on evidence; they must not precede or hold open this
+feasibility milestone solely to establish those stronger guarantees. Existing
+passing evidence and conservative refusal behavior may be retained without
+another execution. Ordinary-path correctness and honest evidence remain the
+criterion: fix a defect that prevents or falsifies the demonstrated A/B result,
+not every failure mode surrounding it.
+
+This explicitly supersedes the prior requirement that the live fault-C scenario
+and robustness/resilience checks precede W71879/W71830 acceptance, and earlier
+"no acceptance waiver"/"essential controls" wording to that extent. Deferred
+claims stay unproved, never relabelled passed. The reviewer records exact
+deferrals in the owning existing plans at safe handoff and uses parked Work
+(including W136578 where appropriate) or indexed notes for their later revisit.
+No new research/plan Work or extra approval round is required merely to apply
+this owner ruling. Existing source-path and execution-budget limits remain;
+this does not grant new code scope or spending.
+
+Apply the same necessity test to W130229: provide only the observation needed
+to operate and evidence this demonstration, reuse existing public reads, and
+defer general observation hardening. Reconcile retained R evidence through
+W130224/W119405/W119400/W103068 without a fresh implementation or verification
+campaign at each parent. The next report should name the furthest successful
+ordinary transition, the one concrete remaining blocker and the command that
+will test it. A successful feasibility demonstration may explicitly remain
+fragile; later Work owns stronger guarantees.
+
+### Same-session owner clarification — legitimate coordination, no hacks
+
+Slawomir explicitly clarifies: "I don't ask for hacks or work-arounds but a
+legit coordination that results in a successful job execution." Feasibility
+means the real supported coordination path works end to end. It is not authority
+for a demonstration-only shortcut, manually repaired target or state, bypassed
+owner/gate, fabricated receipt/runtime/completion, or fixture behavior presented
+as product capability. Required transitions must be implemented by their proper
+owners and exercised through the ordinary pipeline. Independent assessment
+must establish that the observed successful execution is legitimate.
+
+The deferrals above postpone stronger failure-mode guarantees and exhaustive
+verification; they do not waive correctness or required authorization in the
+actual successful path. A temporary workaround is not the milestone deliverable.
+Fix the underlying ordinary-path defect rather than patching around the run.

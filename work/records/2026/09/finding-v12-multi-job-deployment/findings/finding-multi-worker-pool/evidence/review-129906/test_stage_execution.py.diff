@@ -1,0 +1,286 @@
+--- accepted/tests/tools/test_stage_execution.py
++++ candidate/tests/tools/test_stage_execution.py
+@@ -140,8 +140,16 @@
+         self.assertEqual(given["schema"], stage_execution.CONFIG_SCHEMA)
+ 
+     def test_another_generation_of_the_schema_is_refused(self):
+-        held = self.refused(schema="baton.v12.stage-execution-deployment/2")
++        """W119403: the value this case used to name is now a variant this
++        deployment SERVES, so it names one that is not.
++
++        The rule it is about has not moved -- a document whose schema this
++        build does not read is refused, and the refusal still names what it
++        does read. What changed is only which value is foreign.
++        """
++        held = self.refused(schema="baton.v12.stage-execution-deployment/9")
+         self.assertIn(stage_execution.CONFIG_SCHEMA, held.message)
++        self.assertIn(stage_execution.MULTI_CONFIG_SCHEMA, held.message)
+ 
+     def test_an_unknown_or_missing_member_is_refused(self):
+         with self.assertRaises(ContractRefusal):
+@@ -5234,3 +5242,265 @@
+     setattr(OrdinaryTerminalLifecycle, _borrowed,
+             getattr(UnfinishedWorkIsFencedBeforeAnythingRepeatsIt, _borrowed))
+ del _borrowed
++
++
++class TheMultiWorkerPoolComposesWithoutASecondAllocator(ServingCase):
++    """W119403: several workers for one role, through the existing pool.
++
++    THE LIMITATION THIS ANSWERS. `_held_workers` refused a repeated role, so a
++    deployment could never offer two implementation workers and additional
++    submitted Jobs could not be served at once. That is a composition limit
++    rather than a defect in the accepted scheduler -- which already takes one
++    pool entry per configured worker -- so what is added is a CONFIGURATION
++    VARIANT and not a second allocator.
++
++    THE ONE-JOB DOCUMENT IS UNTOUCHED. `/1` still refuses two workers for one
++    role and every refusal control above it still passes; a deployment asks for
++    the wider pool by naming `/2`.
++
++    WHAT THIS CUT DOES NOT CLAIM. Per-Job source, task, line, checkpoint and
++    target binding is the next cut's, and the questions that need one producer
++    refuse here with a sentence saying so rather than choosing the first
++    worker. Pool acceptance alone is not multi-Job execution.
++    """
++
++    SECOND_PRODUCER = "baton.second"
++    SECOND_REVIEWER = "baton.reviewer-2"
++
++    def setUp(self):
++        super().setUp()
++        from baton_v12.authority import Authority
++
++        authority = Authority.open(
++            self.authority_path,
++            expected_authority_uuid=self.config["authority_uuid"])
++        try:
++            # THE AUTHORITY'S OWN MAPPING, read rather than chosen: an endpoint
++            # nobody has bound resolves to this Authority's default principal,
++            # and a deployment that named a different one is refused by
++            # `_resolved` for exactly that reason.
++            self.principals.update(
++                {who: authority.principal_of(who)
++                 for who in (self.SECOND_PRODUCER, self.SECOND_REVIEWER)})
++        finally:
++            authority.dispose()
++
++    def multi(self, **members):
++        """The `/2` document: two producers, two reviewers, one integrator.
++
++        The extra workers are DERIVED from the ones the accepted composed
++        document already builds, so each keeps its role's own operands -- the
++        review worker's outgoing route, the integration worker's bearer slot --
++        rather than this case inventing a second idea of a valid worker.
++        """
++        given = self.composed_document()
++        held = {one["role"]: one for one in given["workers"]}
++        producer = copy.deepcopy(held["implementation"])
++        producer["worker_id"] = "implementation-worker-2"
++        producer["deployment"]["participant"] = self.SECOND_PRODUCER
++        producer["deployment"]["principal"] = \
++            self.principals[self.SECOND_PRODUCER]
++        reviewer = copy.deepcopy(held["review"])
++        reviewer["worker_id"] = "review-worker-2"
++        reviewer["deployment"]["participant"] = self.SECOND_REVIEWER
++        reviewer["deployment"]["principal"] = \
++            self.principals[self.SECOND_REVIEWER]
++        workers = [held["implementation"], producer, held["review"], reviewer,
++                   held["integration"]]
++        answer = {"schema": stage_execution.MULTI_CONFIG_SCHEMA,
++                  "workers": workers}
++        answer.update(members)
++        return answer
++
++    def multi_held(self, **members):
++        return stage_execution.held_configuration(
++            self.document(**self.multi(**members)), checkout=self.checkout)
++
++    def multi_refused(self, **members):
++        with self.assertRaises(ContractRefusal) as caught:
++            self.multi_held(**members)
++        return caught.exception
++
++    def serving_multi(self, **members):
++        return self.serving(**self.multi(**members))
++
++    def deployment_of(self, composed):
++        return composed.workers[0]["operations"]._worker.stage.deployment
++
++    # -- configuration --------------------------------------------------------
++
++    def test_the_variant_admits_several_workers_for_one_role(self):
++        held = self.multi_held()
++        self.assertEqual(held["schema"], stage_execution.MULTI_CONFIG_SCHEMA)
++        self.assertEqual(
++            [(one["worker_id"], one["role"]) for one in held["workers"]],
++            [("implementation-worker", "implementation"),
++             ("implementation-worker-2", "implementation"),
++             ("review-worker", "review"),
++             ("review-worker-2", "review"),
++             ("integration-worker", "integration")])
++
++    def test_the_one_job_document_still_refuses_a_repeated_role(self):
++        """The closed variant is closed, said beside the one that opens it."""
++        with self.assertRaises(ContractRefusal) as caught:
++            stage_execution.held_configuration(
++                self.document(**dict(self.multi(),
++                                     schema=stage_execution.CONFIG_SCHEMA)),
++                checkout=self.checkout)
++        self.assertIn("exactly one", caught.exception.message)
++
++    def test_a_repeated_worker_identity_is_refused(self):
++        """The rule `/1` got for free from its roles: the pool tells its
++        workers apart by identity, so it cannot hold one twice."""
++        workers = self.multi()["workers"]
++        workers[1] = dict(workers[1], worker_id="implementation-worker")
++        self.assertIn("cannot hold it twice",
++                      self.multi_refused(workers=workers).message)
++
++    def test_a_participant_serving_both_sides_of_a_review_is_refused(self):
++        """Independence is the whole reason a review exists, and the wider
++        pool is not bought with it."""
++        workers = copy.deepcopy(self.multi()["workers"])
++        workers[3]["deployment"]["participant"] = self.SECOND_PRODUCER
++        held = self.multi_refused(workers=workers)
++        self.assertEqual((held.category, held.code), ("policy", "denied"))
++        workers = copy.deepcopy(self.multi()["workers"])
++        workers[3]["deployment"]["principal"] = \
++            self.principals[self.SECOND_PRODUCER]
++        self.assertEqual(self.multi_refused(workers=workers).category,
++                         "policy")
++
++    def test_another_authority_and_a_role_mismatch_still_refuse(self):
++        workers = copy.deepcopy(self.multi()["workers"])
++        workers[1]["deployment"]["authority_uuid"] = "0" * 32
++        self.assertEqual(self.multi_refused(workers=workers).code, "capability")
++        workers = copy.deepcopy(self.multi()["workers"])
++        workers[1]["deployment"]["launch_role"] = "review"
++        self.assertIn("configured for it",
++                      self.multi_refused(workers=workers).message)
++
++    def test_every_role_is_still_served(self):
++        workers = [one for one in self.multi()["workers"]
++                   if one["role"] != "integration"]
++        self.assertIn("integration",
++                      self.multi_refused(workers=workers).message)
++
++    # -- activation and reconstruction ----------------------------------------
++
++    def test_every_configured_worker_reaches_the_pool_with_its_own_lane(self):
++        """The scheduler's own rule, quoted rather than restated: a review kind
++        is the review lane and everything else the implementation lane, and a
++        worker is eligible for exactly the kind it was configured for."""
++        from baton_v12.job_manager import scheduler
++
++        job, _control, composed = self.serving_multi()
++        self.assertEqual(scheduler.active_generation(job)["generation"], 1)
++        pooled = {one["worker_id"]: one for one in scheduler.pool_workers(job)}
++        self.assertEqual(sorted(pooled),
++                         ["implementation-worker", "implementation-worker-2",
++                          "integration-worker", "review-worker",
++                          "review-worker-2"])
++        self.assertEqual(pooled["implementation-worker-2"]["lane"],
++                         "implementation")
++        self.assertEqual(pooled["review-worker-2"]["lane"], "review")
++        self.assertEqual(pooled["implementation-worker-2"]["participant"],
++                         self.SECOND_PRODUCER)
++        self.assertEqual(sorted(composed.pooled.workers),
++                         [(1, "implementation-worker"),
++                          (1, "implementation-worker-2"),
++                          (1, "integration-worker"), (1, "review-worker"),
++                          (1, "review-worker-2")])
++
++    def test_the_eligible_kinds_are_the_roles_each_worker_was_configured_for(
++            self):
++        from baton_v12.job_manager import scheduler
++
++        job, _control, _composed = self.serving_multi()
++        # THE STORE ANSWERS ITS OWN COLUMN, which is the encoded list rather
++        # than a Python one; decoding it here is reading what was written.
++        self.assertEqual(
++            {one["worker_id"]: sorted(json.loads(one["eligible_kinds"])
++                                      if isinstance(one["eligible_kinds"], str)
++                                      else one["eligible_kinds"])
++             for one in scheduler.pool_workers(job)},
++            {"implementation-worker": ["implementation"],
++             "implementation-worker-2": ["implementation"],
++             "review-worker": ["review"], "review-worker-2": ["review"],
++             "integration-worker": ["integration"]})
++
++    def test_every_pooled_worker_carries_its_configured_profile(self):
++        from baton_v12.job_manager import scheduler
++
++        job, _control, _composed = self.serving_multi()
++        for one in scheduler.pool_workers(job):
++            self.assertEqual(one["profile_name"], self.config["profile_name"])
++            self.assertEqual(one["profile_digest"],
++                             self.config["profile_digest"])
++
++    def test_reconstruction_reattaches_the_same_pool(self):
++        """A second composition over the same stores is a RECONSTRUCTION, not
++        a new generation: `activate_pool` replays and the workers are the ones
++        already configured."""
++        from baton_v12.job_manager import scheduler
++        from tests.job_manager import fixtures
++
++        from .test_single_worker import Engine
++
++        job, control, composed = self.serving_multi()
++        before = sorted(one["worker_id"]
++                        for one in scheduler.pool_workers(job))
++        again = stage_execution.operations_from(
++            self.composed_document(**self.multi()), job, control,
++            engine_run=Engine(),
++            credential_provider=lambda provider, reference: self.secret,
++            clock=lambda: fixtures.NOW, checkout=self.checkout)
++        self.addCleanup(again.close)
++        self.assertEqual(scheduler.active_generation(job)["generation"], 1)
++        self.assertEqual(sorted(one["worker_id"]
++                                for one in scheduler.pool_workers(job)), before)
++        self.assertEqual(sorted(again.pooled.workers),
++                         sorted(composed.pooled.workers))
++
++    # -- the seam the next cut selects on -------------------------------------
++
++    def test_the_role_seam_answers_every_worker_and_never_a_singleton(self):
++        _job, _control, composed = self.serving_multi()
++        deployment = self.deployment_of(composed)
++        self.assertEqual(
++            [one["worker_id"]
++             for one in deployment.workers_for("implementation")],
++            ["implementation-worker", "implementation-worker-2"])
++        self.assertEqual(
++            [one["worker_id"] for one in deployment.workers_for("review")],
++            ["review-worker", "review-worker-2"])
++        self.assertEqual(deployment.sole_worker("integration")["worker_id"],
++                         "integration-worker")
++
++    def test_a_per_job_question_refuses_and_names_the_next_cut(self):
++        """`line()` selects one global Work and source. Under this variant that
++        is a per-Job fact, and choosing the first configured producer would be
++        this cut inventing the binding the next one owns."""
++        _job, _control, composed = self.serving_multi()
++        deployment = self.deployment_of(composed)
++        with self.assertRaises(ContractRefusal) as caught:
++            deployment.sole_worker("implementation")
++        self.assertEqual((caught.exception.category, caught.exception.code),
++                         ("refused", "precondition"))
++        self.assertIn("per-Job binding cut", caught.exception.message)
++        with self.assertRaises(ContractRefusal):
++            deployment.line()
++
++    def test_each_producer_gets_its_own_publisher_session(self):
++        """`Authority.publish` takes the PRODUCER's live assignment, and a
++        session refuses to act on an assignment naming somebody else -- so a
++        pool with two producers needs two publisher sessions."""
++        _job, _control, composed = self.serving_multi()
++        deployment = self.deployment_of(composed)
++        self.assertEqual(sorted(deployment.publishers),
++                         sorted([self.config["participant"],
++                                 self.SECOND_PRODUCER]))
++        self.assertEqual(
++            sorted(one for one in composed.sessions
++                   if one.startswith("publisher")),
++            sorted(["publisher:" + self.config["participant"],
++                    "publisher:" + self.SECOND_PRODUCER]))

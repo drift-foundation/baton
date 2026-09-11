@@ -1,0 +1,79 @@
+### label: delegation-and-direct-completion-regression
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.job_manager.test_delegation", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool"]
+### exit: 1
+### elapsed_seconds: 1.121266
+### STDOUT
+
+### STDERR
+...................F.E....F.EE..........
+======================================================================
+ERROR: test_a_completed_document_carries_its_whole_account (tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead.test_a_completed_document_carries_its_whole_account)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_delegation.py", line 496, in test_a_completed_document_carries_its_whole_account
+    answered = self.bound(integration=self.document(
+        state="completed", completion=self.completion()))
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_delegation.py", line 378, in bound
+    return delegation._bound(held, dict(self.STAGE))
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 396, in _bound
+    held["integration"] = _integration_observation(held, stage)
+                          ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 478, in _integration_observation
+    _integration_completion(document, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 553, in _integration_completion
+    held = boundaries.document(found, f"{what}'s completion account",
+                               required=INTEGRATION_COMPLETION_MEMBERS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: stage 'job-a/integration''s integration observation's completion account needs source_proposal_id, result_id
+
+======================================================================
+ERROR: test_an_incomplete_account_refuses (tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead.test_an_incomplete_account_refuses) (member='source_proposal_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_delegation.py", line 515, in test_an_incomplete_account_refuses
+    del account[member]
+        ~~~~~~~^^^^^^^^
+KeyError: 'source_proposal_id'
+
+======================================================================
+ERROR: test_an_incomplete_account_refuses (tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead.test_an_incomplete_account_refuses) (member='result_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_delegation.py", line 515, in test_an_incomplete_account_refuses
+    del account[member]
+        ~~~~~~~^^^^^^^^
+KeyError: 'result_id'
+
+======================================================================
+FAIL: test_a_boolean_fence_refuses (tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead.test_a_boolean_fence_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_delegation.py", line 523, in test_a_boolean_fence_refuses
+    self.assertIn("whole number", held.message)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'whole number' not found in "stage 'job-a/integration''s integration observation's completion account needs source_proposal_id, result_id"
+
+======================================================================
+FAIL: test_a_running_exclusion_account_refuses (tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead.test_a_running_exclusion_account_refuses)
+A completion whose runtime is still running is one nobody had
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_delegation.py", line 531, in test_a_running_exclusion_account_refuses
+    self.assertIn("proved exclusion", held.message)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'proved exclusion' not found in "stage 'job-a/integration''s integration observation's completion account needs source_proposal_id, result_id"
+
+----------------------------------------------------------------------
+Ran 39 tests in 0.926s
+
+FAILED (failures=2, errors=3)

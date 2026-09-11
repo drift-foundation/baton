@@ -1,0 +1,30 @@
+{
+  "candidate": "v12/python/tests/tools/test_stage_execution_status_hardening.py",
+  "sha256": "acdd44ae69d6ad2ba78567cd607ca5efb711364af544024a80de59ba2fa020af",
+  "mode": "0o664",
+  "cumulative_seconds": 3.481925486936234,
+  "remaining_seconds": 16.518074513063766,
+  "protected_source_paths": 234,
+  "source_changes_since_run": [],
+  "syntax_whitespace": "passed",
+  "status": {
+    "job_id": "job-a",
+    "stage_id": "job-a/integration",
+    "episode": 1,
+    "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "state": "exceptional",
+    "exchange": null,
+    "artifacts": null
+  },
+  "activity": {
+    "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+    "bytes_observed": null,
+    "observed_at": null
+  },
+  "refusal": {
+    "category": "refused",
+    "code": "precondition"
+  },
+  "preserved_positive": true,
+  "preserved_negative": true
+}

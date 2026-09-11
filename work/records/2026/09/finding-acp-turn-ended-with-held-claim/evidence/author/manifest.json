@@ -1,0 +1,134 @@
+{
+  "work": "W133361",
+  "author": "baton.tuner",
+  "claim": 133517,
+  "decision": "FINDING.md: owner acceptance133489; CORRECTION-RECOVERY-v1.md",
+  "policy_files": [
+    {
+      "path": "AGENTS.md",
+      "base": {
+        "sha256": "67cc573e143fede608169f62560ab25b8452b80bcc0b9cb4d1196e429ca95857",
+        "bytes": 19860,
+        "mode": "0o664",
+        "regular": true
+      },
+      "candidate": {
+        "sha256": "a7323bbc227aabe8322f747d5750bc4823cbad2b56dce1f863ddd5921223eb7f",
+        "bytes": 20951,
+        "mode": "0o664",
+        "regular": true
+      }
+    },
+    {
+      "path": "docs/AGENTS-MAILBOX-PROTO.md",
+      "base": {
+        "sha256": "980fffbf7803e4539a1ef874684426d928f724049aae92be67abd99b31e2bf63",
+        "bytes": 12391,
+        "mode": "0o644",
+        "regular": true
+      },
+      "candidate": {
+        "sha256": "61b75e9fd7a7a257c5525aa13892e079efc51257e48fe661ab5189c4beea93e5",
+        "bytes": 12911,
+        "mode": "0o644",
+        "regular": true
+      }
+    }
+  ],
+  "config": {
+    "live_path": "/home/sl/baton-v11.14aecfb/baton.json",
+    "base": {
+      "sha256": "b03b92c28f334bd786df3d87ecc660978c1b1a9d13541c0d146d7e15e964e998",
+      "bytes": 48615,
+      "mode": "0o664",
+      "regular": true
+    },
+    "live_mode": "0o600",
+    "candidate_path": "evidence/author/baton.next.json",
+    "candidate": {
+      "sha256": "45d3b7ab7259d763a6df856206b475bec10e495fa6582fbf19233ebbc211a73e",
+      "bytes": 49709,
+      "mode": "0o664",
+      "regular": true
+    },
+    "changed_json_pointers": [
+      "/generation",
+      "/teams/baton/roles/impl/instructions"
+    ]
+  },
+  "review_inputs": {
+    "FINDING.md": {
+      "sha256": "5f328582ad3fc4d83c1ebff45203d87d71996fd26c7f8581b8e16cbe4ca745fa",
+      "bytes": 15006,
+      "mode": "0o664",
+      "regular": true
+    },
+    "PLAN.md": {
+      "sha256": "a65903cbf6d2de3293d6bb4d70ec595dfe926c257574bf42492254c326d694c8",
+      "bytes": 2814,
+      "mode": "0o664",
+      "regular": true
+    },
+    "CORRECTION-RECOVERY-v1.md": {
+      "sha256": "1d354bb75654cbf06b2a3d6ce31a703cfadd2c93fa8f3912b3e417c9cd0b4f12",
+      "bytes": 10962,
+      "mode": "0o664",
+      "regular": true
+    },
+    "MANAGED-TURN-INSTRUCTION-v1.txt": {
+      "sha256": "e578135a7b788797792f0bdcc363ebcf90d497d5d2377a023571db1ed8d072cb",
+      "bytes": 1094,
+      "mode": "0o664",
+      "regular": true
+    },
+    "OPERATIONS-CHECKLIST-v1.md": {
+      "sha256": "df87d83ea645154183518885d36b37aa6f7ea30ff3ad0b175bfda63892b2a07e",
+      "bytes": 9301,
+      "mode": "0o664",
+      "regular": true
+    },
+    "evidence/config-change-proposal.json": {
+      "sha256": "1a4fa181cb6b029a648d742ea044ac6e61afeb5c885382cbe4e6aedc0453128e",
+      "bytes": 3113,
+      "mode": "0o664",
+      "regular": true
+    },
+    "evidence/recovery-preservation-133448.json": {
+      "sha256": "1f06ea0329780ef7ef9921f744fe347f20c1bcb79530a1b0fadd12b614f410ea",
+      "bytes": 5620,
+      "mode": "0o664",
+      "regular": true
+    }
+  },
+  "policy_diff": {
+    "sha256": "3ebaf96a3cd68c9ea9a3b72ce4847e6e4b0e2afac27ffc205847196722621244",
+    "bytes": 2502,
+    "mode": "0o664",
+    "regular": true
+  },
+  "verification": {
+    "command": "python3 work/records/2026/09/finding-acp-turn-ended-with-held-claim/evidence/author/verify.py",
+    "status": "passed",
+    "internal_elapsed_seconds": 0.014601908973418176,
+    "whitespace_command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "whitespace_elapsed_seconds": 0.012661922024562955,
+    "whitespace_exit_code": 0,
+    "preservation_entries_matched": 20,
+    "exact_config_delta": true,
+    "exact_role_append_bytes": true,
+    "live_config_unchanged": true
+  },
+  "budget": {
+    "author_allocation_seconds": 15,
+    "author_charged_seconds": 1,
+    "author_remaining_seconds": 14,
+    "accounting": "Conservative one-second charge covers preparation, static verification and supporting read-only checks; measured timings retained in preparation.json, this manifest and command-log.json. No repeat or borrowing.",
+    "review_reserved_seconds": 15,
+    "operations_reserved_seconds": 90
+  },
+  "limitations": "Candidate only. Independent review, live config acceptance, lifecycle replacement, actual instruction delivery and P handoff proof remain pending. No product tests run; P budgets unchanged."
+}

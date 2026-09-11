@@ -99,3 +99,29 @@ The reported lack of package re-exports is not a provider defect: B's accepted
 public CONTRACT locates both operations in worker_manager.review_cycles.
 Normal module import is the specified consumer interface; no workaround or
 source expansion is required.
+
+## 2026-09-09T17:19Z — review129555 narrows the remaining journal boundary
+
+The exact review129471 probes now refuse and three positive controls pass.
+Review-2026-09-09T17-19-25Z.md retains the remaining failures: foreign Job and
+episode accepted on replay, replay despite a missing historical ending, and a
+foreign correction signature permitting fresh episode closure. Full candidate
+and probe custody are in evidence/review-129555/. DIAGNOSIS.md records the
+common cause and complete owner relationship for the next correction.
+
+The ordinary successor capability and exclusion vocabulary remain established.
+After two failed candidate reviews, bounded continuation is justified because
+the unfinished outcome is one consumer journal relationship, with no separable
+capability or source allocation. This supersedes the previous three-gap plan
+as the actionable sequence. Author15.191/20s used leaves4.809s; independent
+verification this pass used0.535087/3s. Standing campaign test authority remains.
+
+## 2026-09-09T17:26Z — independent provider C acceptance
+
+Review-2026-09-09T17-26-15Z.md accepts the four candidate paths retained in
+evidence/review-129599/. All six retained counterexamples refuse, three positive
+controls pass, and an independent trace proves the second connection reaches
+BEGIN IMMEDIATE while the first action holds its transaction, with identical
+answers and one ending. Reviewer0.723306/3s; author19.339/20s,0.661s remaining.
+The previous remaining-journal diagnosis is resolved for this bounded contract.
+The accepted A/B/C chain may now be consumed by W119114's joined proof.

@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/review-134088/storage-isolation-probe.py"
+  ],
+  "returncode": 0,
+  "stdout": "{\n  \"state\": \"prepared\",\n  \"workspace_is_original_line\": true,\n  \"producer_refs_before\": \"2ce7706a6a71b97129f5954a038e236d7afae910 refs/heads/main\\n2ce7706a6a71b97129f5954a038e236d7afae910 refs/remotes/origin/HEAD\\n2ce7706a6a71b97129f5954a038e236d7afae910 refs/remotes/origin/main\",\n  \"producer_refs_after\": \"1b68df36075bbf2943998548b5b14e9ad4e98d7b refs/baton/integration/prepared/result-99dc8126db4458ccd0235cbbcc7e02c448dde7a8e59dba4121cc07bbd9cfd04b\\n2ce7706a6a71b97129f5954a038e236d7afae910 refs/heads/main\\n2ce7706a6a71b97129f5954a038e236d7afae910 refs/remotes/origin/HEAD\\n2ce7706a6a71b97129f5954a038e236d7afae910 refs/remotes/origin/main\",\n  \"prepared_reference\": \"refs/baton/integration/prepared/result-99dc8126db4458ccd0235cbbcc7e02c448dde7a8e59dba4121cc07bbd9cfd04b\"\n}\n",
+  "stderr": "",
+  "charged_elapsed_seconds": 0.21379512711428106,
+  "prior_review_seconds": 2.3570111670996994,
+  "review_cumulative_seconds": 2.5708062942139804
+}

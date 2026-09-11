@@ -1,0 +1,222 @@
+--- work/records/2026/09/finding-v12-multi-job-deployment/findings/finding-per-job-binding/findings/finding-all-role-job-admission/evidence/review-131028/candidate/tools/stage_execution.py
++++ v12/python/tools/stage_execution.py
+@@ -1430,9 +1430,63 @@
+     integrator's own fixed assignment to its configured outgoing route.
+     """
+ 
+-    def __init__(self, deployment, port=None):
++    def __init__(self, deployment, ports=None):
+         self.deployment = deployment
+-        self.port = port
++        # W130224: ONE PORT PER BOUND JOB, keyed by the Job's own id. See
++        # `_integration_ports`. A BARE PORT IS STILL THE ONE-JOB SPELLING and
++        # is the shape every accepted caller of this constructor hands it:
++        # `/1` binds one Job and answers for every Job it is asked about, so
++        # one port under that binding's own absent key is exactly what it has
++        # always been.
++        self.ports = ports if type(ports) is dict else {None: ports}
++
++    @property
++    def port(self):
++        """The one-Job spelling, kept for the accepted one-binding callers."""
++        held = sorted(self.ports)
++        if len(held) != 1:
++            _refuse(f"this deployment binds {len(held)} Jobs and an "
++                    f"integration runtime port is composed over ONE accepted "
++                    f"line, proposal and canonical target; the port belongs "
++                    f"to a Job and its Job is named",
++                    category="refused", code="precondition")
++        return self.ports[held[0]]
++
++    def port_for(self, stage, job=None):
++        """The runtime port this stage's own Job's integration is started by.
++
++        W130224. `IntegrationRuntimePort` is constructed over one accepted
++        `line_id`, one `proposal_id` and one `canonical_target_id`, and all
++        three are facts about a Job. A deployment that ran a second Job's
++        integration through the first Job's port would materialize the first
++        Job's line against the first Job's target under this Job's assignment
++        -- a cross-wire reached with a candidate already published, and one
++        the port itself cannot detect because it was told about it.
++        """
++        # THE ONE-JOB DOCUMENT ANSWERS FOR EVERY JOB IT IS ASKED ABOUT, which
++        # is exactly what `StageDeployment.binding_for` does with the binding
++        # this key comes from: `/1` names one Work, one base and one target
++        # and was written for the one Job that submits against them, so the
++        # Job id on its stages is a name this deployment never bound and never
++        # needed to. A port keyed under a REAL Job id is selected by that id.
++        if len(self.ports) == 1 and None in self.ports:
++            return self.ports[None]
++        # THE ONE-JOB DOCUMENT ANSWERS FOR EVERY JOB IT IS ASKED ABOUT, which
++        # is exactly what `StageDeployment.binding_for` does with the binding
++        # this key comes from: `/1` names one Work, one base and one target
++        # and was written for the one Job that submits against them, so the
++        # Job id on its stages is a name this deployment never bound and never
++        # needed to. A port keyed under a REAL Job id is selected by that id.
++        if len(self.ports) == 1 and None in self.ports:
++            return self.ports[None]
++        job_id = _bound_id(self.deployment, stage, job)
++        if job_id not in self.ports:
++            _refuse(f"stage {stage.get('stage_id')!r} names Job {job_id!r} and "
++                    f"this deployment composes integration runtime ports for "
++                    f"{sorted(one for one in self.ports)}; a port is bound to "
++                    f"one Job's accepted line, proposal and target",
++                    category="refused", code="precondition")
++        return self.ports[job_id]
+ 
+     def required_tests(self, job_id=None):
+         """The required-test selection, DERIVED from configured material.
+@@ -1544,7 +1598,8 @@
+ 
+     def _run(self, stage, job):
+         deployment = self.deployment
+-        if self.port is None:
++        port = self.port_for(stage, job)
++        if port is None:
+             # W103083: THE ONE CAPABILITY THIS BUILD DOES NOT HAVE. Every
+             # other operand below is composed from an accepted operation. A
+             # runtime port that starts an integration container over
+@@ -1597,10 +1652,10 @@
+             # and it must precede admission: `integrate_next` proves the
+             # runtime `not-started` BEFORE it asks the port to run, so an
+             # attempt prepared afterwards is prepared one call too late.
+-            self.port.prepare(stage, job)
++            port.prepare(stage, job)
+             return admit_accepted(
+                 deployment.integration, control, deployment.jobs,
+-                deployment.authority, *sessions, self.port, **operands)
++                deployment.authority, *sessions, port, **operands)
+ 
+         # A LATER TICK OVER A DELIVERY THIS DEPLOYMENT ALREADY PUBLISHED.
+         # Owner ruling M115946: refresh FIRST, then continue only when the
+@@ -1608,7 +1663,7 @@
+         # assignment. Reading a persisted assignment grants no permission --
+         # a fresh serving incarnation has no marker and falls through to
+         # admission, which owns the restart hold it has always owned.
+-        seen = self.port.observed(stage["attempt_id"], assignment)
++        seen = port.observed(stage["attempt_id"], assignment)
+         if seen["execution_runtime"] == _UNSTARTED:
+             # A PUBLISHED DELIVERY WITH NO RUNTIME BEHIND IT IS STILL A FIRST
+             # START, so it is prepared exactly like one. W103083 review
+@@ -1622,20 +1677,20 @@
+             # already prepared, so re-entering costs nothing and mints
+             # nothing twice. No refresh is reached: reconciling an attempt no
+             # start was ever requested for is the write that branch refuses.
+-            self.port.prepare(stage, job)
++            port.prepare(stage, job)
+         else:
+             # AND A STARTED OR UNCERTAIN RUNTIME IS NOT PREPARED HERE. Its
+             # credential custody belongs to the runtime that holds it, and the
+             # hold `admit_accepted` has always owned is what answers a marker
+             # this execution does not have.
+-            self.port.refresh(stage["attempt_id"])
+-            if self.port.may_continue(assignment, delivery):
++            port.refresh(stage["attempt_id"])
++            if port.may_continue(assignment, delivery):
+                 return continue_accepted(
+                     deployment.integration, control, deployment.jobs,
+                     deployment.authority, *sessions, **operands)
+         return admit_accepted(
+             deployment.integration, control, deployment.jobs,
+-            deployment.authority, *sessions, self.port, **operands)
++            deployment.authority, *sessions, port, **operands)
+ 
+     def account(self, stage):
+         """Cross-bind public owners without starting, refreshing or settling.
+@@ -1712,8 +1767,15 @@
+                             "candidate_digest": proposal["candidate_digest"], "target": proposal["target"]}
+         if receipt is None or any(receipt[name] != value for name, value in expected_receipt.items()):
+             _refuse("integrated entry lacks its exact Authority receipt", category="refused", code="operation-collision")
++        # W130224: THIS JOB'S OWN REQUIRED TEST. `required_tests()` with no Job
++        # selects "the one implementation worker" and refuses a deployment
++        # configuring several, so this one call site would have failed the
++        # terminal completion check of EITHER Job under a `/2` document. The
++        # binding's `source_worker_id` is the same selector the two operand
++        # lines above already use.
+         verification = entry["settlement"]["verification"]
+-        if verification["status"] != 0 or verification["argv"] != self.required_tests()["argv"]:
++        if verification["status"] != 0 or verification["argv"] != self.required_tests(
++                _bound_id(deployment, stage))["argv"]:
+             _refuse("integration settlement does not prove the configured required test")
+         if lease["state"] != "released":
+             return account
+@@ -2287,8 +2349,16 @@
+     held = worker["deployment"]
+     if worker["role"] != "integration" or binding["job_id"] is None:
+         return held
+-    producer = _producer_of(given, binding)
+-    return dict(held, input_manifest=producer["deployment"]["input_manifest"])
++    # W130224: THE MANIFEST AND THE TASK IT NAMES MOVE TOGETHER. `_held`
++    # proves the configured task document's bytes against the manifest's own
++    # human contract, so a derived document carrying this Job's manifest
++    # beside another Job's task bytes would be one that validator would never
++    # have accepted -- inert for a role that mounts nothing, and exactly the
++    # kind of half-derived document a later reader is entitled to trust.
++    producer = _producer_of(given, binding)["deployment"]
++    return dict(held, input_manifest=producer["input_manifest"],
++                task_document=producer["task_document"],
++                task_bytes=producer["task_bytes"])
+ 
+ 
+ def _disagreements(given, stage, job, binding):
+@@ -2506,6 +2576,50 @@
+             one.close()
+ 
+ 
++def _integration_ports(given, supplied):
++    """The integration runtime port each bound Job's stage is started by.
++
++    W130224. `integration_worker.IntegrationRuntimePort` is composed over ONE
++    accepted development line, ONE published proposal and ONE canonical
++    target, and every one of those is a fact about a JOB rather than about a
++    deployment -- which is exactly why the one-Job composition could not carry
++    a second one. So the injected capability is per Job here, in the one shape
++    that keeps the operator supplying what it already supplies: one port,
++    composed exactly as it is today, named by the Job it belongs to.
++
++    A SINGLE BARE PORT IS STILL THE ONE-BINDING SPELLING and nothing about it
++    changes. Under several bindings it is REFUSED rather than reused, because
++    reusing it is the global fallback this campaign exists to remove: the
++    second Job's integration would materialize the FIRST Job's line against
++    the first Job's target under this Job's assignment, and the port cannot
++    detect a cross-wire it was told about.
++
++    THIS COMPOSES NO PORT AND GRANTS NO NEW CAPABILITY. It selects among
++    objects the operator resolved, exactly as `_integration_operations`
++    selects among held operand sets over one configured worker.
++    """
++    bound = [binding["job_id"] for binding in given["job_bindings"]]
++    if supplied is None:
++        return {job_id: None for job_id in bound}
++    if type(supplied) is dict:
++        unknown = sorted(one for one in supplied if one not in bound)
++        if unknown:
++            _refuse(f"integration runtime ports were supplied for Jobs "
++                    f"{unknown} that this deployment binds nothing for; a "
++                    f"port is bound to one Job's accepted line, proposal and "
++                    f"target", category="refused", code="precondition")
++        return {job_id: supplied.get(job_id) for job_id in bound}
++    if len(bound) != 1:
++        _refuse(f"this deployment binds {len(bound)} Jobs and one integration "
++                f"runtime port was supplied for all of them; a port is "
++                f"composed over one accepted line, one published proposal and "
++                f"one canonical target, so a deployment serving several is "
++                f"handed one per Job keyed by its Job id rather than running "
++                f"a second Job's integration against the first Job's line",
++                category="refused", code="precondition")
++    return {bound[0]: supplied}
++
++
+ def _integration_operations(given, worker, provider, control_store, authority,
+                             *, engine_run, clock, checkpoint):
+     """The integration worker's operations, one held operand set per Job.
+@@ -2662,7 +2776,8 @@
+         composed.deployment = deployment
+         composed.publication = deployment.publication
+         composed.integration_profile = deployment.integration_profile
+-        composed.integrator = Integration(deployment, integration_port)
++        composed.integrator = Integration(
++            deployment, _integration_ports(given, integration_port))
+         for one, provider in zip(given["workers"], providers):
+             if one["role"] == "integration":
+                 # W130216: THE INTEGRATION ROLE IS COMPOSED PER BOUND JOB.

@@ -1,0 +1,276 @@
+{
+  "claim": 136830,
+  "candidate": {
+    "AGENTS.md": {
+      "sha256": "a7323bbc227aabe8322f747d5750bc4823cbad2b56dce1f863ddd5921223eb7f",
+      "bytes": 20951,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4",
+      "bytes": 3875,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791",
+      "bytes": 19998,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "a0f62c5aa0eb4d8cf55770600d4a55fa38692df902b22b4c03905ea5684ac450",
+      "bytes": 102544,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/execution.py": {
+      "sha256": "646f0b7182db5427e32dfdfcfebb2637eb64b4f52838e695974f384d403ba988",
+      "bytes": 35658,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/git_profile.py": {
+      "sha256": "ccd0b048ae039df779cbb2ae468c63b8c5f43f73346b4643dd9cefdde89b7902",
+      "bytes": 26640,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/queue.py": {
+      "sha256": "18ced502ebcff18946c1c72914223166c995484ce2baccd6423bb3f7ca0b23a0",
+      "bytes": 117048,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/reconciliation.py": {
+      "sha256": "c575077386c81c135b337b5e5a940aeabfe2d142c15edcbade6e905bbc36af6d",
+      "bytes": 102329,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/recovery.py": {
+      "sha256": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732",
+      "bytes": 12424,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/runtime.py": {
+      "sha256": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+      "bytes": 50412,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "164de55dd44ab31f0e4a761dfa96eb1dddc893f0954d9697306f4306e0d4523d",
+      "bytes": 27668,
+      "mode": "0o664"
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "bytes": 36152,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce",
+      "bytes": 19242,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea",
+      "bytes": 183456,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "bytes": 136269,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_execution.py": {
+      "sha256": "de18f1aef57a565080c2cc95914d0b7c21eebef1566da2fae8c2e99015a27882",
+      "bytes": 59834,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_reconciliation.py": {
+      "sha256": "213520989b628f414d3f0ad27fce2d1f4131cf48435f2ed6af1c5f4c29b77a72",
+      "bytes": 101604,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_recovery.py": {
+      "sha256": "c33cfa13818177afc882dd896d842036010c44656886a73c133687001e08b8fa",
+      "bytes": 10108,
+      "mode": "0o664"
+    },
+    "v12/python/tests/integration/test_runtime.py": {
+      "sha256": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+      "bytes": 59397,
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_integration_image.py": {
+      "sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "bytes": 13167,
+      "mode": "0o664"
+    },
+    "v12/python/tests/manager/test_integration_worker.py": {
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "bytes": 79007,
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "bytes": 119971,
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_integration_worker.py": {
+      "sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "bytes": 56217,
+      "mode": "0o664"
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+      "bytes": 62209,
+      "mode": "0o664"
+    },
+    "v12/python/tools/integration_worker.py": {
+      "sha256": "2c3156da8c4f9bf4430b325ca0e32fc9c8bfbb59f5caa7ccccdd71b4fca65796",
+      "bytes": 42887,
+      "mode": "0o664"
+    },
+    "v12/worker/Dockerfile.integration": {
+      "sha256": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "bytes": 5790,
+      "mode": "0o664"
+    },
+    "v12/worker/integration_contract.py": {
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "bytes": 57431,
+      "mode": "0o664"
+    },
+    "v12/worker/integration_entry.py": {
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "bytes": 5287,
+      "mode": "0o664"
+    },
+    "v12/worker/integration_workload.py": {
+      "sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "bytes": 70815,
+      "mode": "0o664"
+    }
+  },
+  "argv": [
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/review-136830-probe.py"
+  ],
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/review-136830-probe.py\", line 12, in <module>\n    from tests.integration import test_reconciliation as fixture\nModuleNotFoundError: No module named 'tests'\n",
+  "elapsed_seconds": 0.1713787010003216,
+  "prior_review_charge_seconds": 0.1,
+  "review_measured_cumulative_seconds": 0.2713787010003216,
+  "timing_note": "Includes manifest validation, snapshots, log retention and entire test subprocess; outer interpreter startup and final serialization unmeasured. Reserve additional0.1s.",
+  "author_logs": [
+    {
+      "step": 1,
+      "exit": 0,
+      "seconds": 0.011190686000190908,
+      "sha256": "8af4def4819ee1da8b612ebeff3b39ad2f9c6bbf52e13a8f5db0bd66acc5a31f",
+      "bytes": 346
+    },
+    {
+      "step": 2,
+      "exit": 0,
+      "seconds": 0.17193707699971128,
+      "sha256": "92888b2acc008bbae06178592feededab8eac23ae922e313659c60aec6241478",
+      "bytes": 567
+    },
+    {
+      "step": 3,
+      "exit": 1,
+      "seconds": 1.1908002600002874,
+      "sha256": "f4fd59b100c9f004e8160c9c918799df69876d9b90840a907fec31dea2fb8e31",
+      "bytes": 12046
+    },
+    {
+      "step": 4,
+      "exit": 1,
+      "seconds": 1.156448444000489,
+      "sha256": "35f9ce533d473983d29fc88a03f833673d3e25945bb3a12635be07306543c4de",
+      "bytes": 27486
+    },
+    {
+      "step": 5,
+      "exit": 1,
+      "seconds": 1.1955602669995642,
+      "sha256": "f823754e0e6f536c170087fc7b8140b66efa8ce8009b9b888532139fb6a3804d",
+      "bytes": 28614
+    },
+    {
+      "step": 6,
+      "exit": 1,
+      "seconds": 1.2436461150000468,
+      "sha256": "b567b5eee866f17291c5184545f97e812a055b785bd82908367031f93900b061",
+      "bytes": 8722
+    },
+    {
+      "step": 7,
+      "exit": 1,
+      "seconds": 1.3343486650001068,
+      "sha256": "6c9e50970c4c201e9430571fc6c6dc999d457478cad2060715c9da0c8f70dc1f",
+      "bytes": 3462
+    },
+    {
+      "step": 8,
+      "exit": 0,
+      "seconds": 1.344439751000209,
+      "sha256": "24b1782f1efe149fc2628bdebfa5316ed419b11e50c1e9d6a5b0b4d1a908c8ec",
+      "bytes": 398
+    },
+    {
+      "step": 9,
+      "exit": 1,
+      "seconds": 0.9819297430003644,
+      "sha256": "ae4c481d9e87b0d3edf3137523769c36e8c2a334e98df97fbbe5de391992e18a",
+      "bytes": 3224
+    },
+    {
+      "step": 10,
+      "exit": 0,
+      "seconds": 1.0676845550005964,
+      "sha256": "d2fdd8edb9eb5594caa15ef4f4e2e1e7193405ab0fc74d332a942bf622d07685",
+      "bytes": 389
+    },
+    {
+      "step": 11,
+      "exit": 0,
+      "seconds": 1.071925289000319,
+      "sha256": "435006ac1d39896cace42079854e31ed74044c64bdb5df0feb01d190141c703b",
+      "bytes": 1032
+    },
+    {
+      "step": 12,
+      "exit": 0,
+      "seconds": 0.790074005999486,
+      "sha256": "0fe53e2ec6b2db3563f93fcb7a1485fa00fdd1de2357a9fa434270745611a931",
+      "bytes": 1292
+    },
+    {
+      "step": 13,
+      "exit": 0,
+      "seconds": 7.477349105999565,
+      "sha256": "4da415de16d9fb1fbd45d67c7e9c2edd2a1889576aac996b2ade3c2c1026c3cf",
+      "bytes": 1206
+    },
+    {
+      "step": 14,
+      "exit": 0,
+      "seconds": 0.6228752589995565,
+      "sha256": "c96c550a9c593fecfea522248e07c6324c59483350edaf6c81bd21eac1919fba",
+      "bytes": 968
+    },
+    {
+      "step": 15,
+      "exit": 0,
+      "seconds": 11.599877663999905,
+      "sha256": "c2de46940ff8c219fbbf82a05070d7c0ba852d9f6b62db89e0357c88508e3c7d",
+      "bytes": 69713
+    },
+    {
+      "step": 16,
+      "exit": 0,
+      "seconds": 0.011178040999766381,
+      "sha256": "ded667a875c04be97248085e324da7678edd9af46d6e820b3b7eac704fdeb055",
+      "bytes": 1051
+    }
+  ],
+  "author_measured_seconds": 31.271264928000164
+}

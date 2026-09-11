@@ -1,0 +1,7 @@
+{
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"/home/sl/src/baton/work/records/2026/09/finding-v12-multi-job-deployment/findings/finding-per-job-binding/findings/finding-all-role-job-admission/evidence/review-131028/recompose.py\", line 17, in <module>\n    assert f.admitting(jobs, second, 'job-b/integration') is None\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+  "wall_seconds": 0.24963429500348866,
+  "reviewer_carry_seconds": 4.151001468016885
+}

@@ -1,0 +1,24 @@
+### label: final-ledger-read
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/ledger_final.py"]
+### exit: 0
+### elapsed_seconds: 0.009152
+### STDOUT
+runs 33
+spent through step 33: 49.840108044000772
+remaining 45.159891955999228
+failures [3, 4, 5, 6, 7, 9, 18, 24, 25, 27, 28, 30]
+  step 3 focused-terminal-custody-group-first-run exit=1 1.190800s
+  step 4 focused-terminal-custody-group-2 exit=1 1.156448s
+  step 5 focused-terminal-custody-group-3 exit=1 1.195560s
+  step 6 focused-terminal-custody-group-4 exit=1 1.243646s
+  step 7 focused-terminal-custody-group-5 exit=1 1.334349s
+  step 9 focused-end-to-end-import-first-run exit=1 0.981930s
+  step 18 corrected-import-group-first-run exit=1 1.554520s
+  step 24 R3-correction-focused-group exit=1 1.687995s
+  step 25 R3-diagnose exit=1 0.315498s
+  step 27 R3-correction-run-2 exit=1 1.693046s
+  step 28 R3-correction-run-3 exit=1 1.701419s
+  step 30 final-named-method-verification-of-R3 exit=1 1.448370s
+
+### STDERR

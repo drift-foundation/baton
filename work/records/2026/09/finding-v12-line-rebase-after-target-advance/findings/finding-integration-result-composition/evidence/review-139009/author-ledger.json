@@ -1,0 +1,765 @@
+{
+  "claim": 137012,
+  "work": "W133129",
+  "ceiling_seconds": 65.0,
+  "runs": [
+    {
+      "step": 1,
+      "label": "baseline-revalidation-accepted-DPQ-union-and-R-paths",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/base129.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.011845022000670724,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-01.log",
+      "ok": true
+    },
+    {
+      "step": 2,
+      "label": "baseline-revalidation-corrected-absence-handling",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/base129.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.013128237999808334,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-02.log",
+      "ok": true
+    },
+    {
+      "step": 3,
+      "label": "historical-publication-lookup-focused",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_jobs_candidate_is_stale_once_the_first_integrates"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 1.127026928000305,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-03.log",
+      "ok": false
+    },
+    {
+      "step": 4,
+      "label": "historical-publication-lookup-focused-2",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_jobs_published_proposal_survives_the_advance"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.098437517000093,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-04.log",
+      "ok": true
+    },
+    {
+      "step": 5,
+      "label": "published-proposal-consumers-regression",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 6.240308065000136,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-05.log",
+      "ok": true
+    },
+    {
+      "step": 6,
+      "label": "one-job-integration-and-lifecycle-regression",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle",
+        "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort",
+        "tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage",
+        "tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication",
+        "tests.tools.test_stage_execution.TheComposedLifecycleRunsOverRealStores",
+        "tests.tools.test_stage_execution.TheFocusedChecksItemFourNames"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 8.12968236800043,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-06.log",
+      "ok": true
+    },
+    {
+      "step": 7,
+      "label": "candidate-manifest-and-ledger",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/manifest129.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.012386348999825714,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-07.log",
+      "ok": true
+    },
+    {
+      "step": 8,
+      "label": "ast-and-import-after-reconciled-branch",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "-c",
+        "\nimport ast,sys\nast.parse(open('v12/python/tools/stage_execution.py').read()); print('parses')\nsys.path.insert(0,'v12/python/src'); sys.path.insert(0,'v12/python/tools')\nimport stage_execution as S\nprint('reconciled:', hasattr(S.Integration,'reconciled'))\nprint('observer:', hasattr(S,'_CausalObserver'), 'verifier:', hasattr(S,'_ImportedVerifier'))\n"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 0.1753465319998213,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-08.log",
+      "ok": false
+    },
+    {
+      "step": 9,
+      "label": "import-check-2",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "-c",
+        "\nimport sys\nsys.path.insert(0,'v12/python/src'); sys.path.insert(0,'v12/python/tools')\nimport stage_execution as S\nprint('reconciled:', hasattr(S.Integration,'reconciled'))\nprint('observer:', hasattr(S,'_CausalObserver'), 'verifier:', hasattr(S,'_ImportedVerifier'))\n"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 0.16560753299927455,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-09.log",
+      "ok": false
+    },
+    {
+      "step": 10,
+      "label": "direct-path-unbroken-named-methods",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_jobs_published_proposal_survives_the_advance",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.9782792250007333,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-10.log",
+      "ok": true
+    },
+    {
+      "step": 11,
+      "label": "candidate-manifest-2",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/manifest129.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.012573271000292152,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-11.log",
+      "ok": true
+    },
+    {
+      "step": 12,
+      "label": "delegation-and-direct-completion-regression",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_delegation",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 1.121266234000359,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-12.log",
+      "ok": false
+    },
+    {
+      "step": 13,
+      "label": "delegation-regression-2",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_delegation"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.21072516100139183,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-13.log",
+      "ok": true
+    },
+    {
+      "step": 14,
+      "label": "delegation-controls",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_delegation"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 0.2086017850015196,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-14.log",
+      "ok": false
+    },
+    {
+      "step": 15,
+      "label": "delegation-diagnose",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead.test_a_reconciled_completion_may_not_name_a_runtime"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 0.15044241699979466,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-15.log",
+      "ok": false
+    },
+    {
+      "step": 16,
+      "label": "delegation-controls-2",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.job_manager.test_delegation"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.20962031799899705,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-16.log",
+      "ok": true
+    },
+    {
+      "step": 17,
+      "label": "direct-path-unbroken-after-account-and-fetch",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_completed_integration_returns_the_integrator_to_the_next_job",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_jobs_published_proposal_survives_the_advance"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 2.8680519230001664,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-17.log",
+      "ok": true
+    },
+    {
+      "step": 18,
+      "label": "candidate-manifest-3",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/manifest129.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.012538085000414867,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-18.log",
+      "ok": true
+    },
+    {
+      "step": 19,
+      "label": "pre-write-isolation-and-direct-path",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool",
+        "tests.job_manager.test_delegation"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.1118499900003371,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-19.log",
+      "ok": true
+    },
+    {
+      "step": 20,
+      "label": "candidate-manifest-4",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/manifest129.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.013128987000527559,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-20.log",
+      "ok": true
+    },
+    {
+      "step": 21,
+      "label": "witness-first-run",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 0.22838043899901095,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-21.log",
+      "ok": false
+    },
+    {
+      "step": 22,
+      "label": "witness-run-2",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 1.0736600669988547,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-22.log",
+      "ok": false
+    },
+    {
+      "step": 23,
+      "label": "witness-diagnostic-target-reference",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/r_diag.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.076820308000606,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-23.log",
+      "ok": true
+    },
+    {
+      "step": 24,
+      "label": "blocker-and-alias-controls",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_direct_integration_leaves_no_target_revision_to_reconcile",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_workspace_that_is_the_target_is_the_same_repository"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.8954965789998823,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-24.log",
+      "ok": true
+    },
+    {
+      "step": 25,
+      "label": "direct-path-and-delegation-after-controls",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_jobs_published_proposal_survives_the_advance"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.9390011129999039,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-25.log",
+      "ok": true
+    },
+    {
+      "step": 26,
+      "label": "candidate-manifest-5",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/manifest129.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.01256011099940224,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-26.log",
+      "ok": true
+    },
+    {
+      "step": 27,
+      "label": "baseline-revalidation-at-claim137928",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/base129.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.012530141000752337,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-27.log",
+      "ok": true
+    },
+    {
+      "step": 28,
+      "label": "finalizer-import-and-direct-regression",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.integration.test_driver.DriverCase",
+        "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.6975992679981573,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-28.log",
+      "ok": true
+    },
+    {
+      "step": 29,
+      "label": "direct-target-finalization-witness",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_direct_integration_finalizes_the_dedicated_target"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.1010121330000402,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-29.log",
+      "ok": true
+    },
+    {
+      "step": 30,
+      "label": "direct-path-and-controls-after-finalization",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_jobs_published_proposal_survives_the_advance",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_workspace_that_is_the_target_is_the_same_repository",
+        "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 4.348398559999623,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-30.log",
+      "ok": true
+    },
+    {
+      "step": 31,
+      "label": "final-manifest",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/manifest129.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.012553745000332128,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-31.log",
+      "ok": true
+    },
+    {
+      "step": 32,
+      "label": "amended-path-hashes",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "-c",
+        "\nimport hashlib, os\nfor p in ('v12/python/src/baton_v12/integration/driver.py',\n          'v12/python/src/baton_v12/integration/execution.py',\n          'v12/python/tests/integration/test_driver.py',\n          'v12/python/tests/integration/test_execution.py'):\n    st = os.stat(p)\n    print(hashlib.sha256(open(p,'rb').read()).hexdigest(), oct(st.st_mode & 0o777), st.st_size, p)\n"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.0070300170009431895,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-32.log",
+      "ok": true
+    },
+    {
+      "step": 33,
+      "label": "finalizer-corrections-witness",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_direct_integration_finalizes_the_dedicated_target"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.075148050997086,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-33.log",
+      "ok": true
+    },
+    {
+      "step": 34,
+      "label": "AB-witness-first-run",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 1.4158295640008873,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-34.log",
+      "ok": false
+    },
+    {
+      "step": 35,
+      "label": "AB-diagnostic",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/r_ab_diag.py"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 1.304597061000095,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-35.log",
+      "ok": false
+    },
+    {
+      "step": 36,
+      "label": "AB-witness-run-2",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 1.7737908879971656,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-36.log",
+      "ok": false
+    },
+    {
+      "step": 37,
+      "label": "AB-diagnostic-2",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/r_ab_diag.py"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 1.60087983899939,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-37.log",
+      "ok": false
+    },
+    {
+      "step": 38,
+      "label": "AB-witness-run-3",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 1.675911874997837,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-38.log",
+      "ok": false
+    },
+    {
+      "step": 39,
+      "label": "final-hashes",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "-c",
+        "\nimport hashlib, os\nfor p in ('v12/python/tools/stage_execution.py',\n          'v12/python/src/baton_v12/integration/execution.py',\n          'v12/python/src/baton_v12/integration/driver.py',\n          'v12/python/tests/tools/test_stage_execution.py'):\n    st=os.stat(p); print(hashlib.sha256(open(p,'rb').read()).hexdigest(), oct(st.st_mode&0o777), st.st_size, p)\n"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.006894906000525225,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-39.log",
+      "ok": true
+    },
+    {
+      "step": 40,
+      "label": "source-receipt-hook-AB-witness",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 1.7255140009983734,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-40.log",
+      "ok": false
+    },
+    {
+      "step": 41,
+      "label": "AB-witness-after-historical-read",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 1.7609071299993957,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-41.log",
+      "ok": false
+    },
+    {
+      "step": 42,
+      "label": "AB-diagnostic-3",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/r_ab_diag.py"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 1.610439692001819,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-42.log",
+      "ok": false
+    },
+    {
+      "step": 43,
+      "label": "final-hashes-2",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "-c",
+        "\nimport hashlib, os\nfor p in ('v12/python/tools/stage_execution.py',):\n    st=os.stat(p); print(hashlib.sha256(open(p,'rb').read()).hexdigest(), oct(st.st_mode&0o777), st.st_size, p)\n"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.0071173389987961855,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-43.log",
+      "ok": true
+    },
+    {
+      "step": 44,
+      "label": "AB-witness-after-dedupe-and-retry",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 2.10793280299913,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-44.log",
+      "ok": false
+    },
+    {
+      "step": 45,
+      "label": "AB-diagnostic-4-hold-reason",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "/tmp/r_ab_diag.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.2454698809997353,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-45.log",
+      "ok": true
+    },
+    {
+      "step": 46,
+      "label": "final-hash",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "-c",
+        "\nimport hashlib, os\np='v12/python/tools/stage_execution.py'; st=os.stat(p)\nprint(hashlib.sha256(open(p,'rb').read()).hexdigest(), oct(st.st_mode&0o777), st.st_size)\n"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.006520940998598235,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-46.log",
+      "ok": true
+    },
+    {
+      "step": 47,
+      "label": "historical-proofs-direct-path-check",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.1501909700018587,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-47.log",
+      "ok": true
+    },
+    {
+      "step": 48,
+      "label": "final-hash-3",
+      "cwd": "/home/sl/src/baton",
+      "argv": [
+        "python3",
+        "-c",
+        "\nimport hashlib, os\np='v12/python/tools/stage_execution.py'; st=os.stat(p)\nprint(hashlib.sha256(open(p,'rb').read()).hexdigest(), oct(st.st_mode&0o777), st.st_size)\n"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.006984070998441894,
+      "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/run-137012-step-48.log",
+      "ok": true
+    }
+  ],
+  "spent_seconds": 56.75001744099154,
+  "remaining_seconds": 8.249982559008458,
+  "ceiling_note": "owner return138816 raised cumulative ceilings to author 65s / reviewer 10s; all historical measured and unmeasured spending carried, no transfer"
+}

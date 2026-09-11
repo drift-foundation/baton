@@ -1,0 +1,7 @@
+{
+  "exit_code": 0,
+  "stdout": "{\"admit_refusal\": {\"category\": \"refused\", \"code\": \"precondition\", \"message\": \"offer 'offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba59\\u2026 is already issued; its bearer existed only in the process that minted it, so this call cannot reproduce one and will not answer with a bearer that does not derive the stored verifier\"}}\n{\"same_allocation\": true, \"same_receipt\": true, \"worker\": \"integration-worker\", \"work\": \"0000000a-W2\"}\n",
+  "stderr": "",
+  "wall_seconds": 0.24068736110348254,
+  "reviewer_carry_seconds": 4.391688829120367
+}

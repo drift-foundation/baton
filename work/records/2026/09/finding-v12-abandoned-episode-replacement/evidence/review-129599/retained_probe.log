@@ -1,0 +1,57 @@
+test_the_abandoned_episode_ends_and_the_sweep_opens_one_successor (tests.job_manager.test_recovery.OneAbandonedCorrectionEpisodeIsReplaced.test_the_abandoned_episode_ends_and_the_sweep_opens_one_successor)
+THE WHOLE DEFECT, END TO END. Before this act the stage is ... ok
+test_an_exact_replay_answers_after_the_successor_has_started (tests.job_manager.test_recovery.OneAbandonedCorrectionEpisodeIsReplaced.test_an_exact_replay_answers_after_the_successor_has_started)
+The identity is derived from the attempt and its fenced generation, ... ok
+test_an_accepted_review_supersedes_the_correction (tests.job_manager.test_recovery.OneAbandonedCorrectionEpisodeIsReplaced.test_an_accepted_review_supersedes_the_correction)
+An accepted checkpoint makes the line eligible for integration; a ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.065s
+
+OK
+{
+  "accepted_review_before_commit": {
+    "outcome": [
+      "refused",
+      "precondition"
+    ],
+    "line_state": "accepted",
+    "live_episode": {
+      "stage_id": "job-a/implementation",
+      "episode": 2,
+      "offer_id": "offer-5f2ca250f1eba903fbe1bc7f141c7c438899894b9027073af3e551591f186398",
+      "attempt_id": "attempt-5f2ca250f1eba903fbe1bc7f141c7c438899894b9027073af3e551591f186398",
+      "opened_at": "2026-09-02T00:00:00.000Z",
+      "incarnation": "jobs-1",
+      "ended_state": null,
+      "ended_revision": null,
+      "ended_at": null
+    }
+  },
+  "different_checkpoint_than_job_handoff": {
+    "handoff_checkpoint": "checkpoint-59771608bff9dd3005411ec1b162143716dddf41125445ca7370e2a570d67209",
+    "restored_checkpoint": "checkpoint-8a599d046c71efe798c8bc4e830c66b56362b5fcde75cd441a00b173ccb3e390",
+    "outcome": [
+      "refused",
+      "precondition"
+    ],
+    "live_episode": {
+      "stage_id": "job-a/implementation",
+      "episode": 2,
+      "offer_id": "offer-5f2ca250f1eba903fbe1bc7f141c7c438899894b9027073af3e551591f186398",
+      "attempt_id": "attempt-5f2ca250f1eba903fbe1bc7f141c7c438899894b9027073af3e551591f186398",
+      "opened_at": "2026-09-02T00:00:00.000Z",
+      "incarnation": "jobs-1",
+      "ended_state": null,
+      "ended_revision": null,
+      "ended_at": null
+    }
+  },
+  "malformed_replay": {
+    "refusal": [
+      "integrity",
+      "schema"
+    ]
+  },
+  "controls_pass": true
+}

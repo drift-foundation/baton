@@ -1,0 +1,20 @@
+### label: witness-diagnostic-target-reference
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/r_diag.py"]
+### exit: 0
+### elapsed_seconds: 1.076820
+### STDOUT
+canonical target after A: 1455631d0dc10786778a18c8cd4124e9f3e52852
+source root: /home/sl/src/baton/v12/python/v12-w71917-hsa3xdtf/source
+$ git for-each-ref --format=%(refname) %(objectname) -> 0
+refs/heads/main 27a4053f060b573db2e4848cededd897940480a1
+$ git rev-parse HEAD -> 0
+27a4053f060b573db2e4848cededd897940480a1
+$ git symbolic-ref -q HEAD -> 0
+refs/heads/main
+$ git log --oneline -3 --all -> 0
+27a4053 base
+$ git cat-file -t 1455631d0dc10786778a18c8cd4124e9f3e52852 -> 128
+fatal: git cat-file: could not get object info
+
+### STDERR

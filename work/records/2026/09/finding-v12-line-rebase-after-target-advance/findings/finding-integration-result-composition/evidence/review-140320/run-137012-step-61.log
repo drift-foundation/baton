@@ -1,0 +1,13 @@
+### label: finalizer-refusal-controls-2
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.integration.test_execution.TheDirectFinalizationRefusesBeforeItWritesAnything"]
+### exit: 0
+### elapsed_seconds: 0.193897
+### STDOUT
+
+### STDERR
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.025s
+
+OK

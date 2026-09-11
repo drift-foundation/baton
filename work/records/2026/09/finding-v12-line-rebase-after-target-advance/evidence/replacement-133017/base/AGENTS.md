@@ -1,0 +1,284 @@
+# Baton repository agent rules
+
+## Git usage (strict)
+
+- Use `git` only for reviewing history, status, and diffs (for example,
+  `git status`, `git diff`, `git log`, `git show`, and `git blame`).
+- Slawomir alone owns the Git index, commits, branches, tags, and history.
+  Agents never stage or unstage changes (`git add`, `git restore --staged`,
+  and equivalents).
+- Agents never perform mutating Git operations, including `git commit`,
+  `merge`, `rebase`, `cherry-pick`, `reset`, `checkout`/`switch`, `stash`,
+  branch/tag operations, or pushes.
+- A request to make the repository “ready,” “clean,” or “committable” means
+  prepare and verify filesystem changes, then report the remaining diff to
+  Slawomir. It does not authorize an agent to mutate Git state.
+- Do not wrap long calls or expressions merely for readability; avoid
+  indentation churn, especially in deeply nested code.
+- Agents may always add tests without case-specific confirmation. This includes
+  new test files/functions and additive cases or members in existing exhaustive
+  test registries. Editing or weakening an existing test's assertions or
+  expected behavior still requires clear, case-specific confirmation. An
+  accepted Work description or plan that explicitly schedules adding, editing,
+  or removing tests within a bounded scope is that confirmation; it is not
+  blanket authority for a test mutation outside the scheduled scope.
+
+### W71830 standing test-change authority
+
+Owner ruling 2026-09-09T16:36Z: until W71830 completes or Slawomir revokes this
+authority, all test changes needed for its accepted scope are preapproved.
+This covers W71830, its descendants and explicitly recorded prerequisites,
+for every implementing, reviewing and integrating role. Agents may add, edit,
+replace or remove tests, fixtures, assertions, expected behavior and test
+registry entries without further per-test owner approval. This exception
+supersedes campaign additive-only, per-method approval and other-test
+preservation restrictions, including M128669/M129177 and the amendment in M129247.
+
+Record affected test paths and their reason in the owning plan/handoff and
+coordinate file ownership; do not turn that record into another approval gate.
+Independent review must evaluate the changed expectations against accepted
+behavior. Required acceptance results and genuine defect coverage cannot be
+waived merely to pass tests. Product source scope, execution budgets, claims,
+Git ownership and integration candidate/provenance checks remain applicable.
+For integration preflight, this ruling supplies the campaign's test-change
+authority; the independently reviewed candidate still binds the imported bytes.
+Do not request another per-test approval or block solely on older permission
+wording. Outside this campaign, and after its completion, the general rule above
+applies. Decision history:
+[W71830 FINDING](work/records/2026/09/finding-v12-standalone-multi-job-pipeline/FINDING.md#2026-09-09t1636z--standing-test-change-authority-through-w71830-completion).
+
+## Coordination identities
+
+- Read `docs/AGENTS-MAILBOX-PROTO.md` in full before publishing or consuming Baton handoffs. The local deployment supplies the executable and explicit absolute config path; never infer or hard-code either in repository policy.
+- This project's coordination identities are `baton.prompt` for Slawomir's
+  human-attached interactive copilot (`prompt`), `baton.codex` for the managed
+  background reviewer (`rview`), `baton.claude` for the implementer (`impl`),
+  `baton.merge` for proposal integration (`integ`), `baton.slaw` for the
+  approver (`approv`), and `baton.tuner` for final polish (`tuner`). Resolve
+  role-only instructions to those identities; never
+  substitute a participant from another domain. Every agent launch names both
+  its participant and one explicit role it holds.
+- `baton.prompt` reads, discusses, creates and coordinates Work from the one
+  interactive context, but it is not a Route handler and never consumes Baton
+  readiness. Routed review, research and planning Work belongs to the one
+  managed `baton.codex` context. Never launch a hidden second context under
+  either address or use one participant for both foreground and background
+  execution. Each runtime publisher reports only the exact context mapped to
+  its participant; runtime visibility does not imply a readiness consumer.
+- `baton.merge` is a distinct managed context, not an alias for implementation,
+  review, tuning, or approval. It imports only an independently approved,
+  digest-bound proposal into the current working tree after checking its base,
+  path set, and target for drift or overlap. It refuses missing provenance,
+  digest mismatch, divergence, overlap, or conflict rather than redesigning or
+  correcting the proposal. It never stages files or mutates Git history; after
+  bounded integration verification it passes the prepared diff to
+  `baton.slaw` for approval and Git ownership.
+- Before changing any working-tree path, `baton.merge` completes the authority
+  preflight for the whole proposed path set. An accepted Work description or
+  plan that explicitly schedules adding, editing, or removing tests within a
+  bounded scope grants the case-specific test-change authority; the W71830
+  standing exception above supplies that authority for its campaign. The newest
+  independent review still binds the immutable proposal digest, enumerates
+  every existing test path actually changed, and evaluates any assertion or
+  expected-behaviour changes. Generic sign-off, exact path or candidate-byte
+  enumeration, and proposal-wide approval without that scheduled scope do not
+  grant authority. Refuse before changing any path when scope or review is
+  missing, ambiguous, stale, digest-mismatched, or incomplete: the integrator
+  returns the Work for clarification and will never request interactive
+  approval from a managed turn. Approval is limited to the reviewed candidate
+  bytes at the named paths and does not authorize another test change,
+  weakening, redesign, conflict correction, or opportunistic edits.
+- Custody file modes protect immutable evidence and are never checkout mode
+  instructions. Before any import, `baton.merge` requires every existing target
+  to be a non-symlink regular file matching the reviewed base bytes and already
+  owner-writable. A failed type, byte, or owner-write check refuses the whole
+  import before content or mode mutation and returns it to `baton.ops` for exact
+  repair. The integrator imports reviewed content without preserving custody
+  modes and must verify final bytes and modes. It must never work around a
+  read-only target with `install`, `chmod`, or another privileged replacement. An
+  explicitly planned new regular file uses ordinary non-executable repository
+  mode; executable mode requires explicit accepted scope.
+- Run exactly one active readiness path per participant — never two concurrent
+  `wait`s for the same address. Two consumers need two participant addresses,
+  not one shared identity. Act on every wake immediately: `claim` the Work
+  before executing it, and `pass` or `close` it rather than leaving it held.
+- `wait` is read-only: it blocks until actionable state or timeout and creates
+  no claim. An active agent keeps one `wait` armed, polls its terminal, then
+  acts explicitly — `claim work=` to take Work, `respond`/`accept`/`dispose`
+  to answer a directed `@` obligation, `mark-seen` to acknowledge messages.
+  Re-arm `wait` after every result. Never leave a successful readiness result
+  unattended; terminal completion may not itself schedule a new model turn.
+- The SQLite instance is the only coordination authority. Never mutate it with raw SQL or manually reconstruct protocol state. Never read it directly either: if a question about the coordination state can only be answered by opening the store, that inability is the finding.
+
+## Confirmed decisions are pinned before implementation
+
+- `docs/EFFECTIVE-BATON.md` is a shared methodology book for all projects and
+  users: worked examples and adaptable strategies, not a prescribed setup.
+  Role splits are examples, not protocol requirements. Keep concrete Job IDs,
+  transient state and deployment recipes out of the book; exact operations
+  belong in reference manuals. Project-specific decisions,
+  temporary permissions and campaign exceptions belong in this project's
+  `AGENTS.md` and owning Work records, not in the shared book.
+- Baton discussion is coordination EVIDENCE, not the durable specification. A ruling that exists only in a message thread is one context loss away from being re-litigated or silently reversed.
+- Before implementing a confirmed product, UX, protocol, or operational decision, write it into the owning record's `FINDING.md` under `work/records/YYYY/MM/finding-<slug>/`, and reflect its queued/in-progress/done state in the applicable `PLAN.md` or umbrella. If no owning record exists, create one before editing implementation.
+- Findings preserve the CHRONOLOGICAL history of decisions; plans and umbrellas name the one that is currently actionable. The two answer different questions — "how did we get here" and "what is true now" — and collapsing them loses whichever the reader needed.
+- At implementation start, REVALIDATE the recorded ruling against current code, protocol, and later decisions. If it has changed, append an explicit dated supersession or clarification with its rationale and update the plan. Never delete or rewrite an old decision as though it had never been made: the reasoning that was superseded is how the next reader knows why the current rule is not the obvious one.
+- A superseding decision must explicitly mark the old text superseded. Two live rules that contradict each other are worse than either alone, because both look authoritative.
+- Implementation and review handoffs reference the exact decision files.
+- After a restart or context loss, resume from those repository records — never from memory, and never from a subject line.
+
+This gate exists because a ruled decision was lost: the console's `Enter` behaviour was agreed, never written into its finding, and the implementation later contradicted it. `AGENTS.md` is this rule's one owner; it is agent policy and is not duplicated in the README.
+
+
+## Review findings tracking (`work/records` dossiers)
+
+**Superseded 2026-08-16 at the schema-14 cutover (checkpoint `6c3519e6`):**
+finding dossiers are no longer ephemeral `work/finding-*` folders. A dossier
+is a PERMANENT record created at its canonical path and never moved, archived,
+or deleted by lifecycle:
+
+```text
+work/
+  open/
+    finding-friendly-name -> ../records/YYYY/MM/finding-stable-name
+  records/
+    YYYY/
+      MM/
+        finding-stable-name/
+```
+
+- The year/month is chosen at creation and the canonical `work/records/...`
+  path does not change when Work changes phase or becomes terminal. The record
+  holds the finding, plan, progress, append-only reviews, reproductions,
+  scripts, fixtures, data, and other durable evidence.
+- Baton Work bindings, messages, handoffs, reviews, and cross-references use
+  only the configured repository identity plus the canonical repository-
+  relative `work/records/...` path — never `work/open/...`, never an absolute
+  checkout path, and never a Git commit as the primary locator.
+- `work/open/` is a deliberately maintained human convenience index of
+  relative symlinks for sweeping still-open records. Its links are not
+  protocol state and carry no lifecycle semantics; unlinking a closed
+  record's symlink is later housekeeping and never touches the record.
+- Not every lightweight Baton Work needs a dossier or an open symlink. Once a
+  dossier exists its canonical record path is the stable binding; later
+  corrections to terminal evidence are explicit follow-up history, never a
+  silent rewrite or a rename.
+- Every finding dossier MUST have exactly one corresponding Work on the
+  authoritative Baton ledger, bound to its canonical `work/records/...` path.
+  Create the Work and dossier together when possible. If research creates the
+  dossier first, create its ledger Work immediately before any further work or
+  handoff. A deferred or roadmap finding is parked on the ledger; it is never
+  left as an off-ledger folder. The reverse is intentionally not required:
+  lightweight Work may still exist without a dossier.
+- Remaining `work/finding-*` folders are LEGACY items pending the deliberate
+  cleanup audit owned by `work/records/2026/08/finding-next-release/`; no new
+  folder is ever created there.
+
+The working process is unchanged by the layout:
+
+- Slawomir and the reviewer normally create, research, prioritize, and queue
+  findings. The implementer stays on the current serial item rather than
+  spending implementation cycles reconstructing queued decisions.
+- A top-level record owns `FINDING.md`, `PLAN.md`, and implementer-owned
+  `PROGRESS.md`. The finding records observed behavior, evidence, decisions,
+  and acceptance boundaries; the plan orders current work; progress is the
+  implementer's claim of current state.
+- Reviewer research should make the next item implementation-ready: include a
+  minimal repro/baseline, exact code paths and symbols, confirmed facts versus
+  hypotheses, recommended patch boundary, interactions, positive/negative/
+  race/retry regressions, focused verification, and unresolved decisions.
+  Label uncertain material **Observed**, **Confirmed**, **Inferred**,
+  **Proposed**, or **Open**. Reviewer proposals are decision support, not
+  authority; the implementer must revalidate them against the current tree.
+- Findings are worked serially to completion. Reviewer work may continue on
+  queued findings, but the implementer does not switch merely because a queued
+  record changed.
+- When starting an item, read its whole record fresh and re-check every
+  captured claim. Earlier work may have resolved or invalidated it. Record an
+  explicit resolved/superseded outcome rather than silently deleting stale
+  work or reimplementing it.
+- Discovery is recursive and role-neutral. Either role may immediately file a
+  new defect; filing does not interrupt the serial queue. Human/reviewer still
+  own formal enrichment and priority by default.
+- A causally tied child lives at
+  `work/records/YYYY/MM/finding-<parent>/findings/finding-<child>/`, with its
+  own `FINDING.md`, `PLAN.md`, and `PROGRESS.md`. The child names its
+  parent/discovery context; the parent plan/progress indexes the child and
+  status. Use a top-level record instead when it is independent, separately
+  scheduled, or may outlive the parent.
+- Do not encode hierarchy/order with dotted names or numeric prefixes. Keep at
+  most two child levels. Promote a deeper or independently scheduled child to
+  top level as a NEW record with an explicit forwarding note in the old one —
+  the old canonical path stays valid history and is never rewritten.
+  A parent cannot close while it contains an open child.
+- `PROGRESS.md` has one current writer at a time: the participant who actually
+  makes the implementation change under the authorized Work claim. Progress
+  ownership is not reserved to `baton.claude`; it belongs equally to an
+  explicitly assigned tuner, reviewer, approver, prompt participant, or other
+  Handler when that participant performs the change. If implementation passes
+  through serial claim episodes, each actual change author appends an
+  attributable entry and never rewrites or deletes a prior author's account.
+  A participant that only reviews or discusses the change still records input
+  in FINDING/PLAN, evidence files, or append-only review journals, never in
+  progress.
+- Each review pass is append-only
+  `review-YYYY-MM-DDTHH-MM-SSZ.md` in that record root (UTC). Never edit or
+  delete an earlier review. The implementer records its response and current
+  awaiting-review/changes-requested/signed-off state in `PROGRESS.md`.
+- Before parallel edits, establish file ownership explicitly. Implementation
+  handoffs reference the exact finding, plan, progress, and newest review
+  paths discussed.
+- Anything that must stand alone regardless of the record (tests, user docs,
+  durable repository policy) still lives outside it; a record is evidence and
+  decision history, not a hiding place for product artifacts.
+
+## The active-work claim (finding-active-work-claim, 2026-08-16)
+
+- No participant starts implementation, review, or other execution owned by
+  the Work's Route endpoint before the atomic `claim` operation SUCCEEDS,
+  and a competing claim fails closed.
+- Route, Handler and Next are three different questions: which endpoint MAY
+  claim, which member IS executing, and which endpoint is planned next. The
+  claim records the Handler.
+- Phase is not orthogonal to the claim. It is a closed scheduler axis —
+  `queued`, `active`, `block`, `parked`, and nothing at all once terminal —
+  and `active` means exactly "a Handler holds it". Only `claim` reaches
+  `active`; a `block` row names the one gate holding it.
+- Discussion and planning while unclaimed are fine. A pass releases the
+  claim and derives the destination phase from the destination Route
+  atomically; the recipient claims explicitly once the Work is ready.
+
+## Non-interactive managed turns
+
+- Every canonical Baton operation is
+  ONE standalone direct execution request.
+  This binds `claim` above all, because it is the mandatory first act. Issue
+  it alone —
+  never combined with `detail` or another read, another mutation, a shell
+  wrapper, or shell control syntax such as `&&`, `;`, a pipe or a
+  newline-separated batch. The deployment authorizes an EXACT canonical
+  invocation, so a batch containing one is a different command and is not
+  authorized: the read succeeds, the mutation is refused as a read-only
+  database, and the Work stays unclaimed. An exact operation that still fails
+  when issued alone is a deployment or policy incident — report it through
+  Baton as one, and
+  never retry it inside a broader command.
+- A Codex context launched by readiness is non-interactive. It never requests
+  escalation and never retries a denied command with
+  `sandbox_permissions=require_escalated`; either act within its installed
+  policy or report the exact blocker through Baton.
+- Optional cleanup is never worth quarantining the participant. In particular,
+  a managed reviewer leaves its exact temporary reproduction path for the
+  operator instead of issuing a destructive shell command merely to remove
+  it. Tests and repository helpers should clean up resources they own through
+  their already-authorized execution boundary.
+- If required verification cannot run without new authority, stop before the
+  prohibited act, preserve the evidence, and relinquish or block the Work with
+  an actionable explanation. Do not turn a permission refusal into a stronger
+  command or an unattended approval request.
+
+## Baton defects and workarounds
+
+- Never work around a Baton defect without logging a finding for it first. Log the finding, then a short-term workaround is acceptable — but only as a stated stopgap, never as the fix, and the finding is what carries the real correction.
+- This applies with particular force to agents working inside Baton's own source tree. Privileged access to the source and the store lets an agent reach past a gap that every other team hits head-on. Doing so hides the defect, produces a false report of success, and advances nothing: other teams have the CLI and nothing else, and cannot route around what this repository can.
+- The finding states what was observed, separates what is genuinely Baton's defect from the agent's own misuse of the tool, and proposes a direction. Filing it is not optional because the workaround happened to be easy.

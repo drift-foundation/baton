@@ -1,0 +1,149 @@
+{
+  "captured_at": "2026-09-10T04:19:14.451071+00:00",
+  "work": "W133117",
+  "episode": 133349,
+  "claim": 133353,
+  "reported_author_spend_seconds": 2.54,
+  "author_allocation_seconds": 77,
+  "review_allocation_seconds": 8,
+  "budget_status": "author-reported, not independently audited; all historical runs retained; no reset or transfer",
+  "paths": [
+    {
+      "path": "v12/python/src/baton_v12/integration/__init__.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 2308,
+      "sha256": "ec3a2e4fd52739c249b5a2dff102fe1be056ae6fabcb83dca52eed80d83ea8eb"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/admission.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 14098,
+      "sha256": "09d8d65a13b8bd97701cf1f698026825116c2a6cffa26fcbf6ce7d08bdb2365f"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/driver.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 91726,
+      "sha256": "b19839ac0d87878aba3fba89c11e823de3b324e2aed9766b192435101ae3a1a7"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/git_profile.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 23309,
+      "sha256": "97f90ab9c573da4cd578062320736b0f3bdbe77bbbb4ee64ffc3d4397b027864"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 35627,
+      "sha256": "4e5c9e2185f184d2e718e05309f143c76691767c64845b669ef23300147793f6"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/schema.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 24484,
+      "sha256": "5316631cbba56ba941040612c692021a8f029cee5ec5f660755b7ab0d4b9e4c9"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/store.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 36152,
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49"
+    },
+    {
+      "path": "v12/python/tests/integration/test_admission.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 14906,
+      "sha256": "2afc9e5ccef3e2ecd5bbaaa803eb5c3386f9475aa7b8cf0c021c43974e2a1570"
+    },
+    {
+      "path": "v12/python/tests/integration/test_coordinator.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 183456,
+      "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea"
+    },
+    {
+      "path": "v12/python/tests/integration/test_driver.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 136269,
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7"
+    },
+    {
+      "path": "v12/python/tests/integration/test_reconciliation.py",
+      "exists": false
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/FINDING.md",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 7530,
+      "sha256": "e3b3df7465fc6264d12d6eebdb3e9ce7efa41de76a47bd43bc391d9a4e617c1a"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/PLAN.md",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 1321,
+      "sha256": "daa9e27cc9ae21ccf233a0921e1de8a83168610414f670637a860fbaaf6ed468"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/PROGRESS.md",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 14006,
+      "sha256": "c41827429d829018f321e5ba92045f543c2e4e3bfff27cd937e06fbf0f213d37"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/dispatch-133198.json",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 432,
+      "sha256": "b8a5b25055a63f4460a4a4a1c55c869921f94aacdeff3f22c7da2febfae95d5c"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/gate-133218-authority-publication.json",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 5674,
+      "sha256": "0cf97e2f6b6550f26ab089a697309d5698c96de1a40e363dde5dd998a05feed7"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/gate-133218-probe.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 5772,
+      "sha256": "5ff26848a454239b4bcfd9e881527673213984e83e3140a9532cb2a9691914e6"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/operations-133353-probe.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 9055,
+      "sha256": "a6ce4fdc0e0ee0a3b334de1156c52a6d57b5195469dcdf152b43922e96ffb308"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/profile-133218-probe.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 5366,
+      "sha256": "ad7c15bc3eaeed17041f1f7b575ff26869fd23874103984d7408cba37504f74e"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/reconciliation-133318-probe.py",
+      "mode": "0o664",
+      "regular": true,
+      "bytes": 7048,
+      "sha256": "93fa05ba12665ecaa3557dcb8326fed064629bbd7b330544ce7f841b7055851a"
+    }
+  ]
+}

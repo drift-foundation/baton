@@ -1,0 +1,383 @@
+{
+  "owners_before": {
+    "entry": {
+      "entry_id": "integration-driver.entry:278be6c1111efeb5d7f48afee5de21e5939754ae6f88897fae7f737636ad135f",
+      "canonical_target_id": "target-1",
+      "rank": 1,
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "assignment_generation": 3,
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+      "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+      "checkpoint_digest": "sha256:86855b17a8f33c988a005c66c860a8dfb48c9587c95da376a610c20855e4afd2",
+      "proposal_id": "integration-driver.proposal:0671a49b1f3d93d58d9cffbc541fc8d67d848d6fa4a333f70e1ec2a6ff79620a",
+      "candidate_digest": "fd35c931ca056fa5591fd6974af8706afec909d9",
+      "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "result_digest": "sha256:51a298d651eb3b9efa4ce0cca3c500d20da99d05fa534967db1196901eab9614",
+      "profile_kind": "git",
+      "expected_target_revision": "853aed9b1739c6da4c7dfe19f96a8793631cb24d",
+      "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+      "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28",
+      "state": "held",
+      "enqueued_at": "2026-09-02T00:00:00.000Z",
+      "settled_at": "2026-09-02T00:00:00.000Z",
+      "settlement": {
+        "detail": {
+          "observed": "the target's version-control metadata moved during this turn, and no candidate imports it"
+        },
+        "reason": "repository-mutated"
+      },
+      "eligibility": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1",
+        "assignment_generation": 3,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+        "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+        "checkpoint_digest": "sha256:86855b17a8f33c988a005c66c860a8dfb48c9587c95da376a610c20855e4afd2",
+        "proposal_id": "integration-driver.proposal:0671a49b1f3d93d58d9cffbc541fc8d67d848d6fa4a333f70e1ec2a6ff79620a",
+        "candidate_digest": "fd35c931ca056fa5591fd6974af8706afec909d9",
+        "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "result_digest": "sha256:51a298d651eb3b9efa4ce0cca3c500d20da99d05fa534967db1196901eab9614",
+        "profile_kind": "git",
+        "expected_target_revision": "853aed9b1739c6da4c7dfe19f96a8793631cb24d",
+        "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+        "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28"
+      }
+    },
+    "target": {
+      "canonical_target_id": "target-1",
+      "document": {
+        "canonical_target_id": "target-1",
+        "description": "the disposable composed lifecycle target",
+        "schema": "baton.v12.integration-target/2"
+      },
+      "digest": "sha256:fcbfed4f2593f9c569b4ee438f1d0733eec9df2a2019e0accaa0ff6595c079b0",
+      "state": "blocked",
+      "fence": 1,
+      "blocked_reason": "repository-mutated",
+      "blocked_account": {
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "detail": {
+          "observed": "the target's version-control metadata moved during this turn, and no candidate imports it"
+        },
+        "entry_id": "integration-driver.entry:278be6c1111efeb5d7f48afee5de21e5939754ae6f88897fae7f737636ad135f",
+        "fence": 1,
+        "integrator_participant": "baton.integrator",
+        "lease_id": "integration-driver.lease:4c7cfcf762a5a8660890f22277b62869db5df9956e749c3d050b8631009cf6f0",
+        "reason": "repository-mutated"
+      },
+      "activated_at": "2026-09-02T00:00:00.000Z"
+    },
+    "runtime": {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "runtime_id": "runtime-single-5",
+      "execution_runtime": "quiescent",
+      "cleanup": "pending",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.integrator",
+        "generation": 5
+      }
+    },
+    "activity": {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "bytes_observed": null,
+      "observed_at": null
+    },
+    "output": null,
+    "allocation": {
+      "assignment_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "stage_id": "job-a/integration",
+      "episode": 1,
+      "generation": 1,
+      "worker_id": "integration-worker",
+      "lane": "implementation",
+      "participant": "baton.integrator",
+      "canonical_principal": "principal:baton.integrator",
+      "preferred_worker_id": "implementation-worker",
+      "selection_outcome": "fallback",
+      "allocation_state": "reserved",
+      "reserved_at": "2026-09-02T00:00:00.000Z",
+      "recovery_required_at": null,
+      "released_at": null,
+      "release_reason": null,
+      "variant": "baton.v12.stage-execution-deployment/1",
+      "separation_class": "provider-diverse",
+      "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+      "worker_profile_name": "reference",
+      "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "work": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "route": "integration",
+      "status": "open",
+      "phase": "active",
+      "outcome": null,
+      "rationale": null,
+      "handler": "baton.integrator",
+      "contract": "v12-assignment-1",
+      "scope": "scope:deployment",
+      "labels": [],
+      "creation": {
+        "work_id": "0000000a-W1",
+        "operation_id": "create-single-worker",
+        "kind": "trusted-bootstrap",
+        "scope": "scope:deployment",
+        "at": "2026-09-02T00:00:00.000Z"
+      },
+      "close_decision": null,
+      "generation_counter": 5,
+      "live_generation": 5,
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.integrator",
+        "generation": 5
+      },
+      "gate": null,
+      "fenced_generations": [
+        {
+          "generation": 1,
+          "cause": "cancelled",
+          "reason": "review checkpoint writer completed"
+        },
+        {
+          "generation": 2,
+          "cause": "cancelled",
+          "reason": "independent checkpoint review completed"
+        },
+        {
+          "generation": 3,
+          "cause": "cancelled",
+          "reason": "review checkpoint writer completed"
+        },
+        {
+          "generation": 4,
+          "cause": "cancelled",
+          "reason": "independent checkpoint review completed"
+        }
+      ],
+      "ready": false
+    },
+    "handoff": null
+  },
+  "stdout": "",
+  "refusal": {
+    "category": "refused",
+    "code": "precondition"
+  },
+  "owners_after": {
+    "entry": {
+      "entry_id": "integration-driver.entry:278be6c1111efeb5d7f48afee5de21e5939754ae6f88897fae7f737636ad135f",
+      "canonical_target_id": "target-1",
+      "rank": 1,
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "assignment_generation": 3,
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+      "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+      "checkpoint_digest": "sha256:86855b17a8f33c988a005c66c860a8dfb48c9587c95da376a610c20855e4afd2",
+      "proposal_id": "integration-driver.proposal:0671a49b1f3d93d58d9cffbc541fc8d67d848d6fa4a333f70e1ec2a6ff79620a",
+      "candidate_digest": "fd35c931ca056fa5591fd6974af8706afec909d9",
+      "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "result_digest": "sha256:51a298d651eb3b9efa4ce0cca3c500d20da99d05fa534967db1196901eab9614",
+      "profile_kind": "git",
+      "expected_target_revision": "853aed9b1739c6da4c7dfe19f96a8793631cb24d",
+      "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+      "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28",
+      "state": "held",
+      "enqueued_at": "2026-09-02T00:00:00.000Z",
+      "settled_at": "2026-09-02T00:00:00.000Z",
+      "settlement": {
+        "detail": {
+          "observed": "the target's version-control metadata moved during this turn, and no candidate imports it"
+        },
+        "reason": "repository-mutated"
+      },
+      "eligibility": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1",
+        "assignment_generation": 3,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+        "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+        "checkpoint_digest": "sha256:86855b17a8f33c988a005c66c860a8dfb48c9587c95da376a610c20855e4afd2",
+        "proposal_id": "integration-driver.proposal:0671a49b1f3d93d58d9cffbc541fc8d67d848d6fa4a333f70e1ec2a6ff79620a",
+        "candidate_digest": "fd35c931ca056fa5591fd6974af8706afec909d9",
+        "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "result_digest": "sha256:51a298d651eb3b9efa4ce0cca3c500d20da99d05fa534967db1196901eab9614",
+        "profile_kind": "git",
+        "expected_target_revision": "853aed9b1739c6da4c7dfe19f96a8793631cb24d",
+        "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+        "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28"
+      }
+    },
+    "target": {
+      "canonical_target_id": "target-1",
+      "document": {
+        "canonical_target_id": "target-1",
+        "description": "the disposable composed lifecycle target",
+        "schema": "baton.v12.integration-target/2"
+      },
+      "digest": "sha256:fcbfed4f2593f9c569b4ee438f1d0733eec9df2a2019e0accaa0ff6595c079b0",
+      "state": "blocked",
+      "fence": 1,
+      "blocked_reason": "repository-mutated",
+      "blocked_account": {
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "detail": {
+          "observed": "the target's version-control metadata moved during this turn, and no candidate imports it"
+        },
+        "entry_id": "integration-driver.entry:278be6c1111efeb5d7f48afee5de21e5939754ae6f88897fae7f737636ad135f",
+        "fence": 1,
+        "integrator_participant": "baton.integrator",
+        "lease_id": "integration-driver.lease:4c7cfcf762a5a8660890f22277b62869db5df9956e749c3d050b8631009cf6f0",
+        "reason": "repository-mutated"
+      },
+      "activated_at": "2026-09-02T00:00:00.000Z"
+    },
+    "runtime": {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "runtime_id": "runtime-single-5",
+      "execution_runtime": "quiescent",
+      "cleanup": "pending",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.integrator",
+        "generation": 5
+      }
+    },
+    "activity": {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "bytes_observed": null,
+      "observed_at": null
+    },
+    "output": null,
+    "allocation": {
+      "assignment_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "stage_id": "job-a/integration",
+      "episode": 1,
+      "generation": 1,
+      "worker_id": "integration-worker",
+      "lane": "implementation",
+      "participant": "baton.integrator",
+      "canonical_principal": "principal:baton.integrator",
+      "preferred_worker_id": "implementation-worker",
+      "selection_outcome": "fallback",
+      "allocation_state": "reserved",
+      "reserved_at": "2026-09-02T00:00:00.000Z",
+      "recovery_required_at": null,
+      "released_at": null,
+      "release_reason": null,
+      "variant": "baton.v12.stage-execution-deployment/1",
+      "separation_class": "provider-diverse",
+      "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+      "worker_profile_name": "reference",
+      "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "work": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "route": "integration",
+      "status": "open",
+      "phase": "active",
+      "outcome": null,
+      "rationale": null,
+      "handler": "baton.integrator",
+      "contract": "v12-assignment-1",
+      "scope": "scope:deployment",
+      "labels": [],
+      "creation": {
+        "work_id": "0000000a-W1",
+        "operation_id": "create-single-worker",
+        "kind": "trusted-bootstrap",
+        "scope": "scope:deployment",
+        "at": "2026-09-02T00:00:00.000Z"
+      },
+      "close_decision": null,
+      "generation_counter": 5,
+      "live_generation": 5,
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.integrator",
+        "generation": 5
+      },
+      "gate": null,
+      "fenced_generations": [
+        {
+          "generation": 1,
+          "cause": "cancelled",
+          "reason": "review checkpoint writer completed"
+        },
+        {
+          "generation": 2,
+          "cause": "cancelled",
+          "reason": "independent checkpoint review completed"
+        },
+        {
+          "generation": 3,
+          "cause": "cancelled",
+          "reason": "review checkpoint writer completed"
+        },
+        {
+          "generation": 4,
+          "cause": "cancelled",
+          "reason": "independent checkpoint review completed"
+        }
+      ],
+      "ready": false
+    },
+    "handoff": null
+  },
+  "databases_before": {
+    "/home/sl/src/baton/v12/python/v12-w71917-m5y041kg/authority.sqlite3": {
+      "sha256": "1eacd08ef2d7e3aa4d30e78a307f2b51ddd60c2ac1ebdc0ec263decb2c332f14",
+      "mode": "0o600"
+    },
+    "/home/sl/src/baton/v12/python/v12-w71917-m5y041kg/integration.sqlite3": {
+      "sha256": "b13c4e1e0495eefa37a95b07d796c44e048fa116651b4b78bcacf81c8bb735d7",
+      "mode": "0o644"
+    },
+    "/home/sl/src/baton/v12/python/v12-w71917-m5y041kg/jobs.sqlite3": {
+      "sha256": "aea9ad9eca53857f0204f273a1af045f263103b41f986da34a542aa6037dcb6e",
+      "mode": "0o644"
+    },
+    "/home/sl/src/baton/v12/python/v12-w71917-m5y041kg/control.sqlite3": {
+      "sha256": "25f77e15318a1b4b502c93a586d561fc405abf2bb044a378dab41960722b9ecc",
+      "mode": "0o644"
+    }
+  },
+  "databases_after": {
+    "/home/sl/src/baton/v12/python/v12-w71917-m5y041kg/authority.sqlite3": {
+      "sha256": "1eacd08ef2d7e3aa4d30e78a307f2b51ddd60c2ac1ebdc0ec263decb2c332f14",
+      "mode": "0o600"
+    },
+    "/home/sl/src/baton/v12/python/v12-w71917-m5y041kg/integration.sqlite3": {
+      "sha256": "b13c4e1e0495eefa37a95b07d796c44e048fa116651b4b78bcacf81c8bb735d7",
+      "mode": "0o644"
+    },
+    "/home/sl/src/baton/v12/python/v12-w71917-m5y041kg/jobs.sqlite3": {
+      "sha256": "aea9ad9eca53857f0204f273a1af045f263103b41f986da34a542aa6037dcb6e",
+      "mode": "0o644"
+    },
+    "/home/sl/src/baton/v12/python/v12-w71917-m5y041kg/control.sqlite3": {
+      "sha256": "25f77e15318a1b4b502c93a586d561fc405abf2bb044a378dab41960722b9ecc",
+      "mode": "0o644"
+    }
+  }
+}

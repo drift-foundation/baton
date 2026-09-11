@@ -1,0 +1,123 @@
+{
+  "work": "W119403",
+  "claim": 129811,
+  "authority": "owner M119126 through the parent W119400; this child's FINDING and PLAN",
+  "claim_order": "claimed at seq129811 before any edit; the baseline revalidation, the enumerated singleton consumers, the exact variant, the held worker and pool shape, the role-to-workers seam, the question, the 200s budget and the selectors were all recorded in PLAN.md before editing",
+  "baseline_moved": {
+    "finding_quoted": "db280363bf8e1f7bc534a25dd163275a87aad3a21d784d330801823ce9f3cb60",
+    "tree_held": "da339acb16b3a97c8eba9f71aa7c555d0293af50b869cff5a2e869ab8d8fe3ab",
+    "why": "that is W119114's independently accepted candidate, closed satisfying. The FINDING's own instruction is to revalidate the final accepted bytes before successor implementation; these are them, and the line numbers it quotes moved with them."
+  },
+  "paths": {
+    "tools/stage_execution.py": {
+      "final": "090c36119cbb2680f3c70f6c99830b3bf5258845035a81ff56b21677b35640e3",
+      "mode": "664"
+    },
+    "tests/tools/test_stage_execution.py": {
+      "final": "0141cab042c5479a08886b94244dd447e7d8fc2c4fb2e8dfce0880019617d8e2",
+      "mode": "664"
+    }
+  },
+  "the_variant": {
+    "name": "MULTI_CONFIG_SCHEMA = baton.v12.stage-execution-deployment/2",
+    "why_a_schema_and_not_a_flag": "the one-Job document is closed and stays closed; a deployment asks for the wider pool by naming a different document, which is the difference between a configuration this build can serve two Jobs from and one written for a single Job that happens to parse",
+    "one_job_untouched": "`/1` still refuses two workers for one role, with the same sentence, and the role rule is checked BEFORE the new identity rule so that refusal is the one it always was"
+  },
+  "held_worker_and_pool_shape": {
+    "entry": "unchanged: {worker_id, role, deployment}; the list may now hold several entries with one role",
+    "every_existing_rule_still_applies": [
+      "the Authority comparison first",
+      "single_worker's own launch validation",
+      "launch-role agreement",
+      "the outside-the-checkout paths",
+      "every role served",
+      "participant/principal independence across roles"
+    ],
+    "one_rule_added": "worker identities are unique across the pool -- `/1` got that for free from its roles, and with several workers per role two could otherwise be configured under one identity the scheduler cannot tell apart",
+    "pool": "`_pool` needed no change; it already emits one eligible entry per configured worker, with the lane derived by the scheduler's own rule"
+  },
+  "the_seam_for_the_next_cut": {
+    "workers_for(role)": "every configured worker for a role, in configuration order. It never reduces a role to a singleton.",
+    "sole_worker(role)": "the one worker for a role, refusing when there is more than one with a sentence naming the per-Job binding cut. `line()` asks this, so `/1` behaves exactly as it does now and `/2` refuses the per-Job question rather than choosing the first producer.",
+    "publishers": "participant -> that producer's own publisher session. `Authority.publish` takes the PRODUCER's live assignment and a session refuses to act on an assignment naming somebody else, so a pool with several producers needs several publisher sessions. `published_proposal` selects by the accepted checkpoint's writer's own recorded participant, which under `/1` is the single session it has always used.",
+    "publications": "the same mapping for the publication seam, with a `_PerJobPublication` that refuses under several producers instead of quietly picking one"
+  },
+  "what_this_cut_does_not_claim": "per-Job source, task, line, checkpoint or target binding. `line()` still selects one global Work and source and refuses under `/2`. Pool acceptance alone is not multi-Job execution.",
+  "existing_assertions": {
+    "preserved": "all 160 pre-existing cases in this module pass unchanged",
+    "one_converted": {
+      "case": "TheDeploymentDocumentIsClosed.test_another_generation_of_the_schema_is_refused",
+      "reason": "it named `.../2` as its foreign value, and that is now a variant this deployment SERVES. The rule it is about has not moved -- a schema this build does not read is refused and the refusal still names what it does read -- so it names a value that is actually foreign and additionally asserts the message names BOTH served variants.",
+      "authority": "AGENTS.md#w71830-standing-test-change-authority; path and reason recorded here and in PROGRESS"
+    },
+    "one_deliberately_left_alone": {
+      "case": "Integration.required_tests' one-producer refusal",
+      "why": "it already refuses unless there is exactly one producer -- the same answer `sole_worker` gives -- and it is reached through a deployment DOUBLE in the accepted integration cases, which holds the configuration and not this composition's readers. Routing it through the new seam broke ten accepted cases for no behavioural gain, so it is left exactly as it was."
+    }
+  },
+  "proof": {
+    "class": "TheMultiWorkerPoolComposesWithoutASecondAllocator, 13 cases",
+    "configuration": [
+      "the variant admits several workers for one role",
+      "the one-Job document still refuses a repeated role",
+      "a repeated worker identity is refused",
+      "a participant OR principal serving both sides of a review is refused as policy/denied",
+      "another Authority and a launch-role mismatch still refuse",
+      "every role is still served"
+    ],
+    "activation_and_reconstruction": [
+      "every configured worker reaches the pool with its own lane and participant, and the composition attaches to all five",
+      "eligible kinds are exactly the role each worker was configured for",
+      "every pooled worker carries its configured profile name and digest",
+      "a second composition over the same stores reattaches generation 1 and mints no second pool"
+    ],
+    "the_seam": [
+      "workers_for answers every worker and never a singleton",
+      "a per-Job question refuses and names the next cut",
+      "each producer gets its own publisher session"
+    ]
+  },
+  "budget": {
+    "declared": 200.0,
+    "spent": 89.7,
+    "remaining": 110.3,
+    "within": true,
+    "reset": false
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution",
+      "wall": "20.618s",
+      "result": "160 tests, 5 failures and 10 errors -- routing required_tests through the new seam broke the integration cases' deployment double"
+    },
+    {
+      "run": "same, with required_tests left exactly as it was",
+      "wall": "20.625s",
+      "result": "160 tests, 4 failures -- the identity rule fired before the role rule, the foreign-schema case named a served variant, and the session list grew"
+    },
+    {
+      "run": "same, after the three corrections",
+      "wall": "20.688s",
+      "result": "160 tests, OK -- the one-Job variant is untouched"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution.TheMultiWorkerPoolComposesWithoutASecondAllocator, four iterations",
+      "wall": "0.429 + 0.452 + 0.473 + 0.486 = 1.840s",
+      "log": "evidence/run-129811-class.log",
+      "result": "13 tests: 7 errors on the single-publisher session name, then on the single publication seam, then one encoded column, then OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution",
+      "wall": "20.877s",
+      "log": "evidence/run-129811-module.log",
+      "result": "173 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_single_worker tests.job_manager.test_scheduling tests.job_manager.test_sweep",
+      "wall": "4.101s",
+      "log": "evidence/run-129811-neighbours.log",
+      "result": "189 tests, OK -- the launch document's owner and the pool's"
+    }
+  ],
+  "not_run": "no live OCI or model campaign, and no whole-suite pass"
+}

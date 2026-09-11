@@ -1,0 +1,13 @@
+### label: post-correction-regression-reconciliation-and-execution
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved", "tests.integration.test_reconciliation.TheImportedStateIsUnproved", "tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment", "tests.integration.test_execution.TheSmallestEligibleEntryIsTheONEThatRuns", "tests.integration.test_execution.OneCleanImportChangesExactlyTheDeclaredPath", "tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb", "tests.integration.test_execution.TheGrantIsProvedAgainRIGHTBeforeTheModelWrites", "tests.integration.test_execution.OnlyANOTSTARTEDAttemptIsAskedToRun", "tests.integration.test_execution.ThePortIsInjectedAndTyped", "tests.integration.test_driver.DriverCase", "tests.integration.test_driver.ContinuationCase", "tests.integration.test_driver.TerminalReleaseReplayCase", "tests.integration.test_coordinator.TheJournalIsTheDurableHistory", "tests.integration.test_coordinator.EveryRecordedActIsProvedWhole"]
+### exit: 0
+### elapsed_seconds: 2.984807
+### STDOUT
+
+### STDERR
+..................................................................................................
+----------------------------------------------------------------------
+Ran 98 tests in 2.817s
+
+OK

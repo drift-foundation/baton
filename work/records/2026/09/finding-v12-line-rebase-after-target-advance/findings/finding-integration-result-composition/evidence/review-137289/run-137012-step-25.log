@@ -1,0 +1,13 @@
+### label: direct-path-and-delegation-after-controls
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_jobs_published_proposal_survives_the_advance"]
+### exit: 0
+### elapsed_seconds: 1.939001
+### STDOUT
+
+### STDERR
+..
+----------------------------------------------------------------------
+Ran 2 tests in 1.762s
+
+OK

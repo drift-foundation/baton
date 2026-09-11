@@ -1,0 +1,316 @@
+--- accepted/tools/stage_execution.py
++++ candidate/tools/stage_execution.py
+@@ -64,7 +64,8 @@
+ 
+ from . import single_worker
+ 
+-__all__ = ["CONFIG_ENV", "CONFIG_SCHEMA", "ROLES", "StageExecution",
++__all__ = ["CONFIG_ENV", "CONFIG_SCHEMA", "CONFIG_SCHEMAS",
++           "MULTI_CONFIG_SCHEMA", "ROLES", "StageExecution",
+            "factory", "observation_from", "observing_factory",
+            "operations_from"]
+ 
+@@ -74,6 +75,23 @@
+ # document from another generation is refused by an equality test rather than
+ # read as a compatible subset of this one.
+ CONFIG_SCHEMA = "baton.v12.stage-execution-deployment/1"
++# W119403: THE MULTI-WORKER VARIANT, and it is a SECOND SCHEMA rather than a
++# flag on the first.
++#
++# The one-Job document is closed and stays closed: it serves exactly one worker
++# per role and refuses a second, and nothing here loosens that. A deployment
++# that wants several producers says so by naming a different document, which is
++# the difference between a configuration this build can serve two Jobs from and
++# one that was written for a single Job and happens to parse.
++#
++# WHAT IT CHANGES IS THE POOL AND NOTHING ELSE. Per-Job source, task, line,
++# checkpoint and target binding belong to the next cut, so the consumers that
++# genuinely need one producer today refuse under this variant with a sentence
++# that says so rather than quietly choosing the first worker.
++MULTI_CONFIG_SCHEMA = "baton.v12.stage-execution-deployment/2"
++# How a per-producer publisher session is named when there is more than one.
++PUBLISHER_PREFIX = "publisher:"
++CONFIG_SCHEMAS = (CONFIG_SCHEMA, MULTI_CONFIG_SCHEMA)
+ MAX_CONFIG_BYTES = 4 * 1024 * 1024
+ 
+ # THE THREE ROLES ONE JOB NEEDS, and they are a closed set rather than free
+@@ -273,9 +291,9 @@
+     # reads the original for exactly that reason.
+     given = dict(_document(document, "a stage-execution configuration",
+                            _MEMBERS))
+-    if given["schema"] != CONFIG_SCHEMA:
+-        _refuse(f"this deployment reads {CONFIG_SCHEMA} and this document is "
+-                f"{given['schema']!r}")
++    if given["schema"] not in CONFIG_SCHEMAS:
++        _refuse(f"this deployment reads {' or '.join(CONFIG_SCHEMAS)} and this "
++                f"document is {given['schema']!r}")
+     _text(given["authority_uuid"], "the configured Authority")
+     _text(given["job_work_id"], "the implementation Work")
+     _text(given["review_work_id"], "the review Work")
+@@ -334,17 +352,32 @@
+ 
+     _document(given["integration_profile"], "the integration profile",
+               _PROFILE_MEMBERS)
+-    given["workers"] = _held_workers(given["workers"], here,
+-                                     given["authority_uuid"])
++    given["workers"] = _held_workers(
++        given["workers"], here, given["authority_uuid"],
++        many=given["schema"] == MULTI_CONFIG_SCHEMA)
+     return given
+ 
+ 
+-def _held_workers(workers, checkout, authority_uuid):
+-    """The pool, one worker per role, each with its own launch document."""
++def _held_workers(workers, checkout, authority_uuid, *, many=False):
++    """The pool, and every rule that decides whether it could serve.
++
++    W119403 ADDS ONE ADMISSION AND NOTHING ELSE. `many` is the multi-worker
++    variant, and the only rule it relaxes is "one worker per role". Every other
++    rule below applies to every worker exactly as it did: the Authority
++    comparison first, `single_worker`'s own launch validation, the launch-role
++    agreement, the outside-the-checkout paths, every role served, and the
++    participant/principal independence an honest review depends on.
++
++    AND IT ADDS ONE RULE `/1` GOT FOR FREE. With one worker per role, worker
++    identities were unique because roles were; with several, two workers could
++    be configured under one identity and the pool would then have two entries
++    the scheduler cannot tell apart. So identity uniqueness is stated here.
++    """
+     if type(workers) is not list or not workers:
+         _refuse("a stage-execution configuration names its workers as a list")
+     held = []
+     seen_roles, participants, principals = {}, {}, {}
++    identities = set()
+     for one in workers:
+         worker = _document(one, "a configured worker", _WORKER_MEMBERS)
+         _text(worker["worker_id"], "a worker id")
+@@ -352,9 +385,15 @@
+         if role not in ROLES:
+             _refuse(f"{role!r} is not a stage role; this deployment composes "
+                     f"{', '.join(ROLES)}")
+-        if role in seen_roles:
++        # THE ROLE RULE FIRST, so the one-Job variant's refusal is the exact
++        # sentence it has always been rather than one about identities.
++        if role in seen_roles and not many:
+             _refuse(f"two workers are configured for the {role} stage; each "
+                     f"stage is served by exactly one")
++        if one["worker_id"] in identities:
++            _refuse(f"two workers are configured under the identity "
++                    f"{one['worker_id']!r}; the pool tells its workers apart "
++                    f"by that identity and cannot hold it twice")
+         # THE AUTHORITY COMPARISON COMES FIRST, before the launch validator,
+         # so a worker configured for another Authority is refused as THAT.
+         # `_held` would also refuse it, through whichever of its own rules the
+@@ -385,7 +424,8 @@
+         for name in ("workspace_storage", "launch_home", "credential_home"):
+             _outside(deployment[name], checkout,
+                      f"the {role} worker's {name}")
+-        seen_roles[role] = worker["worker_id"]
++        identities.add(worker["worker_id"])
++        seen_roles.setdefault(role, []).append(worker["worker_id"])
+         participants.setdefault(deployment["participant"], []).append(role)
+         principals.setdefault(deployment["principal"], []).append(role)
+         held.append({"worker_id": worker["worker_id"], "role": role,
+@@ -442,14 +482,29 @@
+     """
+     if type(sessions) is not dict:
+         _refuse("the accepted-integration sessions are one object")
+-    for name in RECEIPT_SESSIONS + ("publisher",):
++    # W119403: EVERY PUBLISHER, AND THERE IS AT LEAST ONE. With one producer
++    # that is the single `publisher` session this deployment has always minted;
++    # with several it is one per producer participant, because
++    # `Authority.publish` takes the PRODUCER's live assignment and a session
++    # refuses to act on an assignment naming somebody else. Each is held to
++    # exactly the publisher's own verb table.
++    publishers = tuple(sorted(one for one in sessions
++                              if one == "publisher"
++                              or one.startswith(PUBLISHER_PREFIX)))
++    if not publishers:
++        _refuse("this deployment has no publisher session; publication and "
++                "the receipts that accept it are reached with somebody's "
++                "candidate already frozen", category="refused",
++                code="capability")
++    for name in RECEIPT_SESSIONS + publishers:
+         session = sessions.get(name)
+         if session is None:
+             _refuse(f"this deployment has no {name} session; publication and "
+                     f"the receipts that accept it are reached with somebody's "
+                     f"candidate already frozen", category="refused",
+                     code="capability")
+-        for verb in _SESSION_METHODS[name]:
++        for verb in _SESSION_METHODS["publisher" if name in publishers
++                                     else name]:
+             if not callable(getattr(session, verb, None)):
+                 _refuse(f"the {name} session has no {verb} method; this is "
+                         f"not the runtime face this deployment mints",
+@@ -495,8 +550,22 @@
+     participants = dict(given["receipt_participants"])
+     participants["integrator"] = \
+         given["integration_profile"]["integrator_participant"]
+-    participants["publisher"] = {one["role"]: one for one in given["workers"]
+-                                 }["implementation"]["deployment"]["participant"]
++    # W119403: ONE PUBLISHER SESSION PER DISTINCT PRODUCER PARTICIPANT.
++    # `Authority.publish` takes the PRODUCER's live assignment as its
++    # compare-and-swap operand and a session refuses to act on an assignment
++    # naming somebody else -- so a pool with several producers needs several
++    # publisher sessions, one for each. Under the one-Job variant this is
++    # exactly the single session it has always been.
++    producers = sorted({one["deployment"]["participant"]
++                        for one in given["workers"]
++                        if one["role"] == "implementation"})
++    if len(producers) == 1:
++        # UNCHANGED UNDER THE ONE-JOB VARIANT, down to the key: `publisher` is
++        # the name every existing consumer and control knows this session by.
++        participants["publisher"] = producers[0]
++    else:
++        for who in producers:
++            participants[PUBLISHER_PREFIX + who] = who
+     minted = {}
+     for name, who in sorted(participants.items()):
+         minted[name] = _authority_read(
+@@ -1223,6 +1292,11 @@
+         import hashlib
+         import json as _json
+ 
++        # W119403 LEAVES THIS EXACTLY AS IT WAS. It already refuses unless
++        # there is one producer, which is the same answer `sole_worker` gives
++        # -- and it is reached through a deployment double in the accepted
++        # integration cases, which holds the configuration and not this
++        # composition's readers.
+         named = [one for one in self.deployment.given["workers"]
+                  if one["role"] == "implementation"]
+         if len(named) != 1:
+@@ -1502,6 +1576,34 @@
+         return observed
+ 
+ 
++def _sole_producer(given):
++    """The one implementation participant, where there is exactly one."""
++    producers = sorted({one["deployment"]["participant"]
++                        for one in given["workers"]
++                        if one["role"] == "implementation"})
++    return producers[0]
++
++
++class _PerJobPublication:
++    """The publication seam a multi-producer pool cannot choose for a caller.
++
++    W119403. `Publication` publishes ONE producer's candidate under that
++    producer's own session. With several producers configured, which one
++    publishes is a per-Job fact, and this cut owns the pool rather than the
++    binding -- so the seam refuses with a sentence naming the cut that answers
++    it instead of quietly picking the first.
++    """
++
++    def _refuse_selection(self, *arguments, **operands):
++        _refuse("this deployment configures several implementation workers "
++                "and publication is one producer's act; selecting among them "
++                "is the per-Job binding cut's, not this pool's",
++                category="refused", code="precondition")
++
++    publish = _refuse_selection
++    published_of = _refuse_selection
++
++
+ class StageDeployment:
+     """Everything the three compositions above share, resolved once.
+ 
+@@ -1520,7 +1622,19 @@
+         self.integration = integration
+         self.profile = profile
+         self.sessions = sessions
+-        self.publication = Publication(control, sessions["publisher"])
++        # W119403: ONE PUBLICATION SEAM PER PRODUCER. `Authority.publish`
++        # takes the producer's live assignment, so the seam belongs to the
++        # participant whose worker produced the candidate. With one producer
++        # this is the single seam it has always been; with several, choosing
++        # among them is the per-Job binding cut's and this refuses instead.
++        self.publications = {
++            who[len(PUBLISHER_PREFIX):] if who.startswith(PUBLISHER_PREFIX)
++            else _sole_producer(given): Publication(control, session)
++            for who, session in sessions.items()
++            if who == "publisher" or who.startswith(PUBLISHER_PREFIX)}
++        self.publication = (list(self.publications.values())[0]
++                            if len(self.publications) == 1
++                            else _PerJobPublication())
+         self.integration_profile = integration_from(given)
+         self.verdict = verdict or _no_verdict
+         self.retention_disposition = given["retention_disposition"]
+@@ -1534,7 +1648,49 @@
+         # that this manager configured it. No consumer in this five-path scope
+         # needs the integer; one that did would take `.gid` at its own call.
+         self.workspace_group = configured_workspace_group(control)
+-        self._roles = {one["role"]: one for one in given["workers"]}
++        # W119403: ROLE TO WORKERS, NOT ROLE TO WORKER. The seam the next cut
++        # selects an eligible worker on; `sole_worker` is what the consumers
++        # that genuinely need one producer today ask instead.
++        self._roles = {}
++        for one in given["workers"]:
++            self._roles.setdefault(one["role"], []).append(one)
++        # THE PRODUCER PARTICIPANT TO ITS OWN PUBLISHER SESSION. With one
++        # producer that is the single `publisher` session this deployment has
++        # always minted, under its own participant's name.
++        self.publishers = {who[len(PUBLISHER_PREFIX):]: session
++                           for who, session in sessions.items()
++                           if who.startswith(PUBLISHER_PREFIX)}
++        producers = sorted({one["deployment"]["participant"]
++                            for one in given["workers"]
++                            if one["role"] == "implementation"})
++        if len(producers) == 1 and "publisher" in sessions:
++            self.publishers[producers[0]] = sessions["publisher"]
++
++    def workers_for(self, role):
++        """Every worker this deployment configured for a role, in order.
++
++        THE SEAM, and it never reduces a role to a singleton. A caller that
++        needs to choose among them chooses; a caller that cannot yet says so
++        through `sole_worker`.
++        """
++        return list(self._roles.get(role, ()))
++
++    def sole_worker(self, role):
++        """The one worker for a role, or a refusal naming what is missing.
++
++        WHAT THIS REFUSAL IS FOR. Under the multi-worker variant a source, a
++        task, a line or a target is a PER-JOB fact, and choosing the first
++        configured producer would be this cut inventing the binding the next
++        one owns. So the question is refused where it is asked, with a sentence
++        that says which cut answers it.
++        """
++        held = self.workers_for(role)
++        if len(held) != 1:
++            _refuse(f"this deployment configures {len(held)} {role} workers "
++                    f"and this question is about one; selecting among several "
++                    f"is the per-Job binding cut's, not this pool's",
++                    category="refused", code="precondition")
++        return held[0]
+ 
+     def generation_of(self, attempt_id):
+         """This attempt's assignment generation, from its own owner."""
+@@ -1549,7 +1705,7 @@
+         because what the callers need is the line's state NOW rather than what
+         it was when it was created.
+         """
+-        source = self._roles["implementation"]["deployment"]
++        source = self.sole_worker("implementation")["deployment"]
+         created = review_cycles.create_line(
+             self.control, source=source["source_nomination"],
+             declared_base=self.given["line_declared_base"],
+@@ -1571,7 +1727,16 @@
+             self.control,
+             review_cycles.checkpoint_of(
+                 self.control, accepted["checkpoint_id"])["writer_id"])
+-        retained = retain_proposal(self.control, self.sessions["publisher"],
++        # THE PRODUCER'S OWN SESSION, selected by the writer's recorded
++        # participant rather than by there being only one. Under the one-Job
++        # variant this is the same session it has always been.
++        publisher = self.publishers.get(writer["participant"])
++        if publisher is None:
++            _refuse(f"this deployment mints no publisher session for "
++                    f"{writer['participant']!r}, which is the participant the "
++                    f"accepted checkpoint's writer was assigned to",
++                    category="refused", code="capability")
++        retained = retain_proposal(self.control, publisher,
+                                    attempt_id=writer["runtime_attempt_id"])
+         held = load_manifest(self.control, retained, "proposalManifest")
+         if held is None:

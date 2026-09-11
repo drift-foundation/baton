@@ -1,0 +1,50 @@
+### label: focused-end-to-end-import-first-run
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"]
+### exit: 1
+### elapsed_seconds: 0.981930
+### STDOUT
+
+### STDERR
+..E...
+======================================================================
+ERROR: test_a_target_that_moved_AGAIN_refuses_before_any_write (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_target_that_moved_AGAIN_refuses_before_any_write)
+A third Job advanced the dedicated reference while this result
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_execution.py", line 1081, in test_a_target_that_moved_AGAIN_refuses_before_any_write
+    answer = self.tick(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_execution.py", line 1003, in tick
+    return driver.admit_authorized_result(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.store, self.profile, runner, self.manager, self.jobs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.authority, self.session, **operands)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1335, in admit_authorized_result
+    account, eligibility = authorized_result_eligibility(
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, profile, manager, jobs, authority, result_id=result_id)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1260, in authorized_result_eligibility
+    account = reconciliation.resolve_import_account(
+        store, profile, manager, jobs, authority, result_id=result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1409, in resolve_import_account
+    _refuse(f"this result was prepared onto "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['target_revision'])} and the dedicated "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"target now holds {name_value(current)}; a result whose "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"target moved is reconciled again rather than imported",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="stale-assignment", code="target")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 152, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: this result was prepared onto 'd96e2cd8073e8799e570bfaaba6e204e997fdc13' and the dedicated target now holds '39de7b818a0058f3dd36df7928bc9e440fd1cc8d'; a result whose target moved is reconciled again rather than imported
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.776s
+
+FAILED (errors=1)

@@ -1,0 +1,9 @@
+### label: focused-first-run-evidence-and-storage-groups
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["python3", "-m", "pytest", "tests/integration/test_reconciliation.py", "-q", "-p", "no:cacheprovider", "-k", "TheEvidenceIsItsOwnersAndBindsTheseBytes or TheNominatedStorageIsProved"]
+### exit: 1
+### elapsed_seconds: 0.005449
+### STDOUT
+
+### STDERR
+/usr/bin/python3: No module named pytest

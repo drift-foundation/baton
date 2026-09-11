@@ -1,0 +1,18 @@
+### label: baseline-revalidation-accepted-DPQ-union-and-R-paths
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/base129.py"]
+### exit: 0
+### elapsed_seconds: 0.011845
+### STDOUT
+accepted union paths checked: 41
+MISMATCHES: []
+MISSING: ['v12/python/src/baton_v12/worker_manager/target_rework.py', 'v12/python/tests/manager/test_target_rework.py']
+R paths declared: 6
+  exists v12/python/tools/stage_execution.py
+  exists v12/python/src/baton_v12/job_manager/delegation.py
+  exists v12/README.md
+  exists v12/python/tests/tools/test_stage_execution.py
+  exists v12/python/tests/job_manager/test_delegation.py
+  exists v12/python/tests/job_manager/test_scheduling.py
+
+### STDERR

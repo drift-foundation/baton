@@ -1,0 +1,13 @@
+### label: driver-completion-ordering-regression-3
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.integration.test_driver.DriverCase", "tests.integration.test_driver.ContinuationCase", "tests.integration.test_driver.TerminalReleaseReplayCase"]
+### exit: 0
+### elapsed_seconds: 0.225855
+### STDOUT
+
+### STDERR
+..................
+----------------------------------------------------------------------
+Ran 18 tests in 0.051s
+
+OK

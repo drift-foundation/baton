@@ -1,0 +1,30 @@
+test_coordinator_open_failure_disposes_the_acquired_authority (tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles.test_coordinator_open_failure_disposes_the_acquired_authority) ... ok
+test_preflight_failure_disposes_the_acquired_authority (tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles.test_preflight_failure_disposes_the_acquired_authority) ... ok
+test_worker_construction_failure_closes_every_acquired_handle (tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles.test_worker_construction_failure_closes_every_acquired_handle) ... FAIL
+
+======================================================================
+FAIL: test_worker_construction_failure_closes_every_acquired_handle (tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles.test_worker_construction_failure_closes_every_acquired_handle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution_hardening.py", line 112, in test_worker_construction_failure_closes_every_acquired_handle
+    self.assertEqual(closed, ["implementation", "coordinator", "authority"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['coordinator', 'authority'] != ['implementation', 'coordinator', 'authority']
+
+First differing element 0:
+'coordinator'
+'implementation'
+
+Second list contains 1 additional elements.
+First extra element 2:
+'authority'
+
+- ['coordinator', 'authority']
++ ['implementation', 'coordinator', 'authority']
+?  ++++++++++++++++++
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.110s
+
+FAILED (failures=1)

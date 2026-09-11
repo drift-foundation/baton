@@ -1,0 +1,350 @@
+{
+ "claim": 136400,
+ "work": "2b077949-W133117",
+ "participant": "baton.claude",
+ "authority": "owner return136350 approved AMENDMENT-publication-before-authorization-v1.md in full; reviewer136357 dispatched its exact four paths",
+ "candidate": {
+  "v12/python/src/baton_v12/integration/reconciliation.py": {
+   "sha256": "caa250d3bca47f713e9b49ed33646c9cdfad6f6a01fa80c2fe01b9388612470a",
+   "bytes": 92162,
+   "mode": "0o664",
+   "in_amendment_scope": true,
+   "changed_under_claim_136400": true,
+   "candidate134000_sha256": "e99ee5e17bd7dc1b8c7d256ca6fadfa09b920ca689622392bad81ac47ee678e8"
+  },
+  "v12/python/src/baton_v12/integration/git_profile.py": {
+   "sha256": "ccd0b048ae039df779cbb2ae468c63b8c5f43f73346b4643dd9cefdde89b7902",
+   "bytes": 26640,
+   "mode": "0o664",
+   "in_amendment_scope": true,
+   "changed_under_claim_136400": true,
+   "candidate134000_sha256": "cba3f391405249f6df83985ff6c5d715ef3cec05efa85ce345cce929f90db1fb"
+  },
+  "v12/python/src/baton_v12/integration/schema.py": {
+   "sha256": "164de55dd44ab31f0e4a761dfa96eb1dddc893f0954d9697306f4306e0d4523d",
+   "bytes": 27668,
+   "mode": "0o664",
+   "in_amendment_scope": true,
+   "changed_under_claim_136400": true,
+   "candidate134000_sha256": "e5aa57a47667528143cb8c2507e7e6523aa6fd5a37b0140184ce4a7f015661d9"
+  },
+  "v12/python/src/baton_v12/integration/store.py": {
+   "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+   "bytes": 36152,
+   "mode": "0o664",
+   "in_amendment_scope": false,
+   "changed_under_claim_136400": false,
+   "candidate134000_sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49"
+  },
+  "v12/python/src/baton_v12/integration/admission.py": {
+   "sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791",
+   "bytes": 19998,
+   "mode": "0o664",
+   "in_amendment_scope": false,
+   "changed_under_claim_136400": false,
+   "candidate134000_sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791"
+  },
+  "v12/python/src/baton_v12/integration/driver.py": {
+   "sha256": "c5a86008a96f773c0fa884cb7b501197dc29d20eaa638f90957f47e17737bf3e",
+   "bytes": 92978,
+   "mode": "0o664",
+   "in_amendment_scope": false,
+   "changed_under_claim_136400": false,
+   "candidate134000_sha256": "c5a86008a96f773c0fa884cb7b501197dc29d20eaa638f90957f47e17737bf3e"
+  },
+  "v12/python/src/baton_v12/integration/__init__.py": {
+   "sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4",
+   "bytes": 3875,
+   "mode": "0o664",
+   "in_amendment_scope": false,
+   "changed_under_claim_136400": false,
+   "candidate134000_sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4"
+  },
+  "v12/python/tests/integration/test_reconciliation.py": {
+   "sha256": "55c25a07bc11993dad4afb6c1a622a90fe85f2dd4a39ea2be6cbe982ded465fe",
+   "bytes": 91387,
+   "mode": "0o664",
+   "in_amendment_scope": true,
+   "changed_under_claim_136400": true,
+   "candidate134000_sha256": "1696fe7f5cb5a76dc3fd875442cb91115295f18c87586cd2995b7c0b81dea819"
+  },
+  "v12/python/tests/integration/test_admission.py": {
+   "sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce",
+   "bytes": 19242,
+   "mode": "0o664",
+   "in_amendment_scope": false,
+   "changed_under_claim_136400": false,
+   "candidate134000_sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce"
+  },
+  "v12/python/tests/integration/test_driver.py": {
+   "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+   "bytes": 136269,
+   "mode": "0o664",
+   "in_amendment_scope": false,
+   "changed_under_claim_136400": false,
+   "candidate134000_sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7"
+  },
+  "v12/python/tests/integration/test_coordinator.py": {
+   "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea",
+   "bytes": 183456,
+   "mode": "0o664",
+   "in_amendment_scope": false,
+   "changed_under_claim_136400": false,
+   "candidate134000_sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea"
+  }
+ },
+ "amendment_paths_changed": [
+  "v12/python/src/baton_v12/integration/git_profile.py",
+  "v12/python/src/baton_v12/integration/reconciliation.py",
+  "v12/python/src/baton_v12/integration/schema.py",
+  "v12/python/tests/integration/test_reconciliation.py"
+ ],
+ "paths_outside_the_amendment_that_moved": [],
+ "first_proof": {
+  "required_by": "PLAN step 2 / dispatch136398: prove the exact real scoped-session publication/receipt/result-digest round trip and pin the design BEFORE dependent implementation",
+  "answered": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/roundtrip-136400.json",
+  "probe": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/roundtrip-136400-probe.py",
+  "outcome": "expressible with no amendment and no Authority edit"
+ },
+ "verification": {
+  "runner": "PYTHONPATH=src python3 -m unittest -v",
+  "cwd": "v12/python",
+  "selectors_are_classes_not_modules": true,
+  "final_run": {
+   "tests": 109,
+   "outcome": "OK",
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-136400-step-11.log"
+  },
+  "every_run_retained_in_full": true,
+  "step_logs": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-136400-step-*.log"
+ },
+ "ledger": {
+  "claim": 136400,
+  "ceiling_seconds": 30.0,
+  "runs": [
+   {
+    "step": 1,
+    "label": "baseline-revalidation-candidate134000-and-ruling-documents",
+    "argv": [
+     "python3",
+     "/tmp/baseline.py"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 0.010673656999870218,
+    "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-136400-step-01.log",
+    "ok": true
+   },
+   {
+    "step": 2,
+    "label": "roundtrip-proof-real-authority-sessions-and-repository-identity",
+    "argv": [
+     "python3",
+     "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/roundtrip-136400-probe.py"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 0.20339389200012192,
+    "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-136400-step-02.log",
+    "ok": true
+   },
+   {
+    "step": 3,
+    "label": "ast-parse-of-the-four-amendment-paths",
+    "argv": [
+     "python3",
+     "/tmp/check.py"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 0.019662003999883382,
+    "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-136400-step-03.log",
+    "ok": true
+   },
+   {
+    "step": 4,
+    "label": "focused-first-run-evidence-and-storage-groups",
+    "cwd": "/home/sl/src/baton/v12/python",
+    "argv": [
+     "python3",
+     "-m",
+     "pytest",
+     "tests/integration/test_reconciliation.py",
+     "-q",
+     "-p",
+     "no:cacheprovider",
+     "-k",
+     "TheEvidenceIsItsOwnersAndBindsTheseBytes or TheNominatedStorageIsProved"
+    ],
+    "exit": 1,
+    "elapsed_seconds": 0.005449002999739605,
+    "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-136400-step-04.log",
+    "ok": false
+   },
+   {
+    "step": 5,
+    "label": "focused-evidence-and-storage-groups",
+    "cwd": "/home/sl/src/baton/v12/python",
+    "argv": [
+     "env",
+     "PYTHONPATH=src",
+     "python3",
+     "-m",
+     "unittest",
+     "-v",
+     "tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes",
+     "tests.integration.test_reconciliation.TheNominatedStorageIsProved"
+    ],
+    "exit": 1,
+    "elapsed_seconds": 1.9635974950001582,
+    "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-136400-step-05.log",
+    "ok": false
+   },
+   {
+    "step": 6,
+    "label": "focused-evidence-and-storage-groups-2",
+    "cwd": "/home/sl/src/baton/v12/python",
+    "argv": [
+     "env",
+     "PYTHONPATH=src",
+     "python3",
+     "-m",
+     "unittest",
+     "-v",
+     "tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes",
+     "tests.integration.test_reconciliation.TheNominatedStorageIsProved"
+    ],
+    "exit": 1,
+    "elapsed_seconds": 2.220194259999971,
+    "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-136400-step-06.log",
+    "ok": false
+   },
+   {
+    "step": 7,
+    "label": "focused-evidence-and-storage-groups-3",
+    "cwd": "/home/sl/src/baton/v12/python",
+    "argv": [
+     "env",
+     "PYTHONPATH=src",
+     "python3",
+     "-m",
+     "unittest",
+     "tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes",
+     "tests.integration.test_reconciliation.TheNominatedStorageIsProved"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 2.22086806399966,
+    "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-136400-step-07.log",
+    "ok": true
+   },
+   {
+    "step": 8,
+    "label": "focused-remaining-nine-groups",
+    "cwd": "/home/sl/src/baton/v12/python",
+    "argv": [
+     "env",
+     "PYTHONPATH=src",
+     "python3",
+     "-m",
+     "unittest",
+     "tests.integration.test_reconciliation.OriginalSubmissionIsImmutable",
+     "tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners",
+     "tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition",
+     "tests.integration.test_reconciliation.PreparedResultReplaysItsIntent",
+     "tests.integration.test_reconciliation.ResultReadersRejectTampering",
+     "tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment",
+     "tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved",
+     "tests.integration.test_reconciliation.TheImportedStateIsUnproved",
+     "tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 5.5164237039998625,
+    "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-136400-step-08.log",
+    "ok": true
+   },
+   {
+    "step": 9,
+    "label": "existing-schema-and-admission-controls-unchanged-paths",
+    "cwd": "/home/sl/src/baton/v12/python",
+    "argv": [
+     "env",
+     "PYTHONPATH=src",
+     "python3",
+     "-m",
+     "unittest",
+     "tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance",
+     "tests.integration.test_admission.TheSourceAccountIsEligibilityOnly",
+     "tests.integration.test_admission.TheDirectImportAccountKeepsItsExactTarget"
+    ],
+    "exit": 1,
+    "elapsed_seconds": 0.17177287699996668,
+    "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-136400-step-09.log",
+    "ok": false
+   },
+   {
+    "step": 10,
+    "label": "existing-admission-and-schema-controls-on-unchanged-paths",
+    "cwd": "/home/sl/src/baton/v12/python",
+    "argv": [
+     "env",
+     "PYTHONPATH=src",
+     "python3",
+     "-m",
+     "unittest",
+     "tests.integration.test_admission.AcceptedAccount",
+     "tests.integration.test_admission.RefusalBeforeMutation",
+     "tests.integration.test_admission.SourceEligibilityIsNotResultFreshness",
+     "tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 0.20508027500000026,
+    "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-136400-step-10.log",
+    "ok": true
+   },
+   {
+    "step": 11,
+    "label": "final-verification-eleven-focused-class-selectors",
+    "cwd": "/home/sl/src/baton/v12/python",
+    "argv": [
+     "env",
+     "PYTHONPATH=src",
+     "python3",
+     "-m",
+     "unittest",
+     "-v",
+     "tests.integration.test_reconciliation.OriginalSubmissionIsImmutable",
+     "tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners",
+     "tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition",
+     "tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes",
+     "tests.integration.test_reconciliation.PreparedResultReplaysItsIntent",
+     "tests.integration.test_reconciliation.ResultReadersRejectTampering",
+     "tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment",
+     "tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved",
+     "tests.integration.test_reconciliation.TheNominatedStorageIsProved",
+     "tests.integration.test_reconciliation.TheImportedStateIsUnproved",
+     "tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold",
+     "tests.integration.test_admission.AcceptedAccount",
+     "tests.integration.test_admission.RefusalBeforeMutation",
+     "tests.integration.test_admission.SourceEligibilityIsNotResultFreshness",
+     "tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance"
+    ],
+    "exit": 0,
+    "elapsed_seconds": 7.561018943000363,
+    "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-136400-step-11.log",
+    "ok": true
+   }
+  ],
+  "spent_seconds": 20.098134173999597,
+  "remaining_seconds": 9.901865826000403
+ },
+ "historical_author": {
+  "measured_subtotal_seconds": 56.46,
+  "note": "a rounded measured subtotal PLUS explicit unmeasured spending, under the historical 77s; its uncertain remainder is RETIRED for this amendment and none of it was drawn on here"
+ },
+ "new_author_ceiling_seconds": 30.0,
+ "new_author_spent_seconds": 20.098134173999597,
+ "new_author_remaining_seconds": 9.901865826000403,
+ "unmeasured_this_claim": [
+  "file reads, greps and the AST parse's own editor round trips",
+  "the three in-place edit scripts (/tmp/t1.py, /tmp/t2.py, /tmp/t3.py) and this manifest command",
+  "one harness failure at step 4 that ran no subprocess at all (measure.py used a relative evidence path from the wrong cwd) -- recorded in the ledger as an exit-1 run of 0.005449s, which is the wrapper's own cost and not a product run"
+ ],
+ "no_transfer": "no old-remainder, contingency, Q/R or W119405 borrowing"
+}

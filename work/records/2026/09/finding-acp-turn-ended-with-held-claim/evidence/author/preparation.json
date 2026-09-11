@@ -1,0 +1,19 @@
+{
+  "work": "W133361",
+  "claim": 133517,
+  "policy_files": [
+    {
+      "path": "AGENTS.md",
+      "base_sha256": "67cc573e143fede608169f62560ab25b8452b80bcc0b9cb4d1196e429ca95857",
+      "base_mode": "0o664"
+    },
+    {
+      "path": "docs/AGENTS-MAILBOX-PROTO.md",
+      "base_sha256": "980fffbf7803e4539a1ef874684426d928f724049aae92be67abd99b31e2bf63",
+      "base_mode": "0o644"
+    }
+  ],
+  "live_config_sha256": "b03b92c28f334bd786df3d87ecc660978c1b1a9d13541c0d146d7e15e964e998",
+  "preserved_paths": 20,
+  "internal_elapsed_seconds": 0.0010782040189951658
+}

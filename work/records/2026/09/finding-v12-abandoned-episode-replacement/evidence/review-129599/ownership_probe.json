@@ -1,0 +1,20 @@
+{
+  "foreign-job-and-episode": {
+    "refusal": [
+      "integrity",
+      "schema"
+    ]
+  },
+  "missing-historical-ending": {
+    "refusal": [
+      "integrity",
+      "schema"
+    ]
+  },
+  "foreign-correction-signature": {
+    "refusal": [
+      "integrity",
+      "schema"
+    ]
+  }
+}

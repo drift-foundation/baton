@@ -330,3 +330,81 @@ explicit abandonment authority, committed effects and exclusion before restore/
 replacement writes. The owner requires W119114's usage reconciliation within
 its original600s cap without reset. W122060 evidence is reused. No other
 source allocation, generic retry feature or whole-suite waiver follows.
+
+## 2026-09-09T17:27Z — accepted provider chain; final consumer dispatch
+
+Claim129617 revalidates all five consumer files byte-identical to
+review128617; evidence/base-129617/ retains the exact dispatch baseline.
+The separately allocated provider chain is now independently accepted:
+
+- A: baton:work/records/2026/09/finding-v12-abandoned-cleanup-discharge/review-2026-09-09T15-29-15Z.md and evidence/accepted-128851/ in that dossier.
+- B: baton:work/records/2026/09/finding-v12-abandoned-checkpoint-restore/review-2026-09-09T16-52-52Z.md and evidence/review-129380/ in that dossier.
+- C: baton:work/records/2026/09/finding-v12-abandoned-episode-replacement/review-2026-09-09T17-26-15Z.md and evidence/review-129599/ in that dossier.
+
+Each provider's CONTRACT.md remains the exact public receipt boundary. C uses
+the separately named EXCLUSION_ENDINGS reason, preserving terminal offer
+vocabulary. Its acceptance proves original Job/checkpoint/episode ownership,
+replay and concurrent duplicate closure, not this final assembled lifecycle.
+This supersedes provider-pending wording as the actionable plan; history stays.
+
+Standing AGENTS.md#w71830-standing-test-change-authority supersedes older
+additive-only/per-method/assertion-preservation permission limits in this
+record and allocation note. Record affected tests/reasons and independently
+review required behavior; no further per-test approval request is needed.
+Source scope and runtime budgets remain unchanged. Provider final accounts
+do not reset this Work's600s cap.
+
+Current bounded consumer change: after the explicit abandonment declaration,
+call A's abandoned-family gate discharge, B's public review_cycles restore,
+and C's episodes restart; let ordinary ticks allocate the next writer. Reuse
+the same committed-handoff/unfinished-scratch fixture and retain actual positive
+exclusion, exact checkpoint bytes, original publication and route ownership.
+Do not turn a timer into abandonment or accept component proof as fresh actual
+assignment. Finish corrected-result artifact/manifest/pin correlation after
+actual integration and terminal handoff in the same submitted Job.
+
+Before new verification the author must append the review128617 budget and
+attribution correction: reported durations sum to approximately353.487s, with
+documented uncertainty and missing exact timings, not173.7s. Reuse valid prior
+ordinary/reconstruction/read-only/serial evidence; run only required missing or
+invalidated checks within the carried600s cap. Separate whole-universe scan
+diagnostics remain with W115981/W48697 and are not waived here. If the repaired
+transition still fails, retain and diagnose that exact handoff before another
+local allocation. No new planning Job or scheduler scope is authorized.
+
+## 2026-09-09T17:41Z — recovered assignment verified; final proof still owed
+
+Review-2026-09-09T17-41-03Z.md independently verifies progression past the old
+blocked transition to one fresh assignment, scratch restoration and preserved
+effects. Its readback shows that new worker still waiting, with no frozen
+output and review/integration blocked. The author's claims that the recovered
+worker turn and same Job finish are superseded as current conclusions: the
+candidate proves admission, not that remaining execution. The corrected
+post-terminal manifest correlation requested by review128617 remains absent.
+
+Current action is to finish this same recovered fixture through terminal
+integration and reopen its corrected manifest/artifact/pins. Evidence and
+candidate custody are in evidence/review-129681/. Author approximate carry is
+457.587/600s,142.413s remaining; prior uncertainty is preserved.
+
+The review audits the requested blanket serial rerun: A/B add explicit new
+paths but leave existing engine function bodies and behavior-bearing globals
+unchanged, while affected Job/integration drivers were freshly verified.
+Reuse retained evidence for those unchanged engine scenarios under the current
+evidence-reuse policy, without claiming a new serial pass or waiving the31
+parallel failures. This supersedes the proposed300s-extension prerequisite for
+that stated reason; complete the missing fixture inside current authority and
+reassess only a concrete uncovered execution path. Existing scan remediation
+ownership remains W115981/W48697.
+
+## 2026-09-09T17:53:28Z — independent final proof accepted
+
+Reviewer claim129744 accepts provider129718. review-2026-09-09T17-53-28Z.md resolves the remaining
+terminal/corrected-manifest P1 from review-2026-09-09T17-41-03Z.md: the recovered
+same Job finishes all three stages, commits terminal pass and reopens corrected
+custody with matching result, candidate, line and checkpoint evidence. Prior
+claims that stopped at fresh assignment remain superseded history. Exact five
+files and independent0.889505s proof are in evidence/review-129744/.
+Author cumulative charge approximately484.073/600s; serial reuse stands and the
+300s request is withdrawn. Outstanding31 parallel scan failures remain with
+W115981/W48697. No per-test approval gate under standing W71830 authority.

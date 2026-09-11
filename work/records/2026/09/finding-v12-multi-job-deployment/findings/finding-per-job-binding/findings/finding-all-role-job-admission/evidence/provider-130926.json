@@ -1,0 +1,76 @@
+{
+  "work": "W130216",
+  "claim": 130926,
+  "participant": "baton.claude",
+  "role": "impl",
+  "parent": "W119405",
+  "authority": "owner return event130903 approving review-2026-09-09T19-20-19Z.md's allocation; this child's FINDING and PLAN; standing W71830 test authority",
+  "reviewed_input_revalidated": {
+    "tools/stage_execution.py": "c4d6231838137e5fa66ee6768ab36d0bbcc112bb4327160d7f166e53c1127ba3",
+    "tests/tools/test_stage_execution.py": "26ada3518b406937e492a4a8da9e63c351ac40a3e53bb3192ad6778ab12b4012",
+    "both": "byte-identical to evidence/review-130339/candidate/, checked before any edit; both 0664"
+  },
+  "candidate": {
+    "tools/stage_execution.py": "5f8de12797d1c47d4926ea6b753e97043cc061b409b8c66ca3e459418f43c9b8",
+    "tests/tools/test_stage_execution.py": "74d33e450020e9486a7f0f49c54a687a62c361760bef373c871db4bb1e66c641",
+    "mode": "0664 both"
+  },
+  "p1_second_job_integration_admission": {
+    "was": "the integration lane held ONE configured worker whose own deployment named the FIRST Job's Work and input manifest, so `_disagreements` found 'the Work' and 'the submitted input' for every other Job and `_job_workers` refused job-b/integration before reserve. The predecessor made that refusal the expected outcome.",
+    "investigated_first": "whether one capacity identity and one actor can carry per-Job held operations through existing seams, as the review directed. They can: `single_worker.worker_operations` takes a held deployment per call and `PooledManagerOperations` keys ONE operations object per (generation, worker id), so the per-Job selection fits under the existing pool entry with no scheduler, provider, driver or registry change.",
+    "now": "`_served_deployment(given, worker, binding)` answers the held deployment a worker actually serves a Job's stage under. For every role but integration, and for the one-Job `/1` document, it is the configured deployment unchanged. For an integration worker under a bound Job it is that deployment with its `input_manifest` taken from the Job's bound `source_worker_id` producer -- the same producer identity `Integration.required_tests` already derives from and the same manifest `_correspondent` compares the Job's own input digest against. `_job_workers` reads it for compatibility and `_integration_operations` composes the provider from it, so admission and `single_worker._matches` read ONE document.",
+    "capacity_unchanged": "the pool still carries exactly one integration worker under one `integrator_participant`; `scheduler.own_pool`'s one-participant rule and `scheduler.reserve`'s one-live-allocation-per-worker rule are untouched, so two Jobs' integration stages serialize over that one capacity and the second is refused for CAPACITY when the first holds it -- proved as its own case.",
+    "not_derived": "participant, principal, profile name, profile digest and policy digest stay the one configured deployment fact. Substituting a policy or a profile for a Job would be this assembly quietly choosing a security operand; a Job the configured integrator does not carry those for is still refused before anything is reserved, naming the operand.",
+    "adapter": "`_PerJobIntegration` selects the per-Job operations by the stage's own `job_id` for admit/claim/launch/dispatch/conclude/observe/refresh_runtime, and answers the deployment-scoped questions -- canonical operation identity, journal read, restart settlement, offer republication and transport pump -- from ONE entry, because every entry is the same participant and control store and `attach`/`drain` must name the same event queue. One binding composes exactly the single operations object it always did, so no `/1` composition changes."
+  },
+  "p2_evidence_corrections": {
+    "receipts": "`admitted()`'s `LIKE '%admit%'` scan of the JOB store's operations table is gone. `receipted()` reads the canonical admit receipt at its own owner through `composed.canonical_operation('admit', offer_id)` and `composed.receipt_of(...)`, and asks EVERY episode of the stage rather than only the live one -- an offer identity is derived from the stage and its episode, so a stage that has moved on carries a live episode nobody admitted. Every absence assertion is paired with a positive control that finds a receipt.",
+    "allocations": "`allocations()`'s `SELECT * FROM stage_allocations` is gone. `allocated()` reads the live episode through `live_of` and asks `scheduler.allocation_of` about the attempt it actually names.",
+    "integration_positive": "the case no longer calls `_job_workers` directly. `standalone()`/`offered()`/`attempted()`/`admitting()` submit a Job and admit its stage through `StageExecution.admit` itself -- the reviewer's own probe shape -- and both Jobs' integration admissions are measured as an allocation plus a canonical receipt.",
+    "fault_capacity": "the control now measures the REVIEW worker the incompatible review stage actually threatened: with job-b's reviewer left on Work A, job-b/review is refused with no allocation and no receipt, and job-a/review still reserves `review-worker` and records its own canonical offer afterwards.",
+    "reconstruction": "no SQL. A first composition admits job-b/review publicly and the scheduler really reserves `review-worker-b`; a second composition over the SAME stores exchanges the two reviewers' bound Jobs -- an ordinary redeployment -- and `StageExecution.admit` refuses against the recorded allocation, adding and removing nothing."
+  },
+  "test_delta_under_standing_authority": {
+    "path": "v12/python/tests/tools/test_stage_execution.py",
+    "class": "EveryJobRoleIsValidatedBeforeAllocation",
+    "removed": [
+      "test_the_second_jobs_integration_stage_is_a_reported_boundary -- its expectation (a permanent refusal for job-b/integration) is superseded by the accepted positive admission this child owed"
+    ],
+    "replaced": [
+      "admitted() -> receipted(); allocations() -> allocated(); incoherent() now answers a workers override rather than a whole document",
+      "test_a_role_worker_on_another_work_reaches_no_allocation -- public admission and canonical receipt instead of the journal scan",
+      "test_an_unrelated_incompatible_job_does_not_consume_needed_capacity -> test_an_incompatible_stage_does_not_consume_capacity_a_job_needs",
+      "test_a_recorded_allocation_that_cannot_serve_the_job_is_not_admitted -- real allocation and recomposition instead of an UPDATE"
+    ],
+    "added": [
+      "test_the_first_jobs_integration_reaches_the_configured_integrator",
+      "test_the_second_jobs_integration_reaches_the_same_integrator",
+      "test_one_integrator_serves_two_jobs_serially_and_says_so",
+      "test_a_coherent_stage_of_the_same_job_still_reaches_its_receipt",
+      "standalone/offered/attempted/admitting/allocated/receipted/swapped/recomposed helpers"
+    ],
+    "unchanged": "no inherited test method body outside this class was touched; no assertion of another owner's test was edited"
+  },
+  "runs": [
+    {"run": "EveryJobRoleIsValidatedBeforeAllocation (21 tests), first iteration", "wall": "1.20s", "result": "20 passed, 1 failed"},
+    {"run": "same class, second iteration after the receipt reader correction", "wall": "1.20s", "result": "20 passed, 1 failed"},
+    {"run": "one focused diagnostic script, episodes/allocation of job-b/review", "wall": "0.27s"},
+    {"run": "one focused diagnostic script, the exact refusal job-b/review deferred on", "wall": "0.27s"},
+    {"run": "EveryJobRoleIsValidatedBeforeAllocation (21 tests)", "wall": "1.20s", "result": "OK"},
+    {"run": "11 composition/observation/two-Job classes (56 tests)", "wall": "1.51s", "result": "OK"},
+    {"run": "5 multi-worker pool and sweep classes (29 tests)", "wall": "2.60s", "result": "OK"},
+    {"run": "2 composed lifecycle classes (14 tests)", "wall": "3.84s", "result": "OK"}
+  ],
+  "what_is_measured": "120 of the module's 203 tests were run and all passed, covering every changed path: the composition loop, the one-binding integration composition, `_served_deployment`/`_disagreements`/`_job_workers`, the `_PerJobIntegration` adapter, and the two-Job admission cases.",
+  "not_run": "the remaining 83 tests -- the terminal-lifecycle, fencing, retention and replay classes -- were NOT run. The full module is 22.7s and the remaining allocation was 14.35s, and the PLAN forbids a repeated full-module run at this correction stage. Those classes reach the composed operations through the `/1` single-binding path, which composes the identical single operations object it always did, but that is an argument and not a measurement. THIS IS THE ONE OPEN VERIFICATION GAP and it is stated rather than implied.",
+  "budget": {
+    "increment_remaining_at_claim": 14.35,
+    "timed": 12.09,
+    "untimed": "none -- every run above was wall-timed; no new uncertainty is added",
+    "spent": "12.09s wall",
+    "child_total": "about 42.74s of the approved 45s",
+    "campaign": "about 275.74s of the 400s cap; the prior 233s planning charge and the predecessor's ~1.9s untimed uncertainty are retained unchanged and NOT reset",
+    "reviewer_probe_carry": "1.890647/5s, untouched by this claim"
+  },
+  "not_claimed": "no lifecycle acceptance. Actual endings, traversal, correction and read-only status belong to W130224; this child's result is correct all-role admission and its shared fixture."
+}

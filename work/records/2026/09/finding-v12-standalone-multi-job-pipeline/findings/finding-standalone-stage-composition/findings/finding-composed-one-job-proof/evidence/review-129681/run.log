@@ -1,0 +1,19 @@
+test_the_discarded_scratch_is_gone_and_the_checkpoint_bytes_are_back (tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_discarded_scratch_is_gone_and_the_checkpoint_bytes_are_back)
+THE UNCOMMITTED WORK IS LOST AND THE RETAINED CHECKPOINT IS NOT. ... ok
+test_the_recovery_replays_and_committed_effects_are_unchanged (tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt.test_the_recovery_replays_and_committed_effects_are_unchanged)
+REPEATED COMPUTATION IS PERMITTED; COMMITTED EFFECT IS NOT REDONE. ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.741s
+
+OK
+{
+  "states": {
+    "implementation": "waiting",
+    "review": "blocked",
+    "integration": "blocked"
+  },
+  "fresh_attempt": "attempt-89a733aefd5fea36e2ef59d71963a379d60d562f61a2301d5b8a0bfecd6fb547",
+  "fresh_frozen_output": null,
+  "controls_pass": true
+}

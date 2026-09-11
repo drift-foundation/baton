@@ -1,0 +1,6 @@
+{
+  "first_holds_transaction": true,
+  "second_begin_during_first_action": true,
+  "identical_answers": true,
+  "endings": 1
+}

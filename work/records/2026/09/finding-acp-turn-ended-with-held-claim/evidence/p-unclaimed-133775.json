@@ -1,0 +1,185 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codex",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "agent": null,
+    "available_transitions": [
+      "add_dependency",
+      "claim",
+      "classify",
+      "close",
+      "create_child",
+      "create_trial",
+      "pass",
+      "prioritize",
+      "request",
+      "reroute",
+      "set_phase"
+    ],
+    "binding": {
+      "actor": "baton.codex",
+      "created_ts": "2026-09-10T03:28:09Z",
+      "git_provenance": null,
+      "path": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody",
+      "prior": 0,
+      "rationale": null,
+      "revision": 1,
+      "root": "baton",
+      "seq": 133117
+    },
+    "binding_count": 1,
+    "bindings": [
+      {
+        "actor": "baton.codex",
+        "created_ts": "2026-09-10T03:28:09Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 133117
+      }
+    ],
+    "bindings_next_after": null,
+    "bindings_truncated": false,
+    "blocking": true,
+    "breadcrumb": [
+      {
+        "id": "2b077949-W131409",
+        "title": "V12: a second Job cannot integrate once the canonical target moves past its line"
+      },
+      {
+        "id": "2b077949-W133117",
+        "title": "V12: isolated submission and integration-result custody"
+      }
+    ],
+    "claimed_at": null,
+    "classification": "confirmed-defect",
+    "duplicate_of": null,
+    "episode_seq": 133765,
+    "first_open_blocker": null,
+    "follow_up_of": null,
+    "gate": null,
+    "handler": null,
+    "handoff_at": "2026-09-10T05:04:31Z",
+    "heartbeat_at": null,
+    "id": "2b077949-W133117",
+    "last_change_seq": 133765,
+    "last_changed_at": "2026-09-10T05:04:31.707Z",
+    "links": {
+      "blocked_by": [
+        {
+          "handler": null,
+          "id": "2b077949-W132712",
+          "outcome": "cancelled",
+          "route": null,
+          "status": "closed",
+          "team": "baton",
+          "title": "V12: target rework custody and sealed prelaunch handoff",
+          "via_obligation": null
+        }
+      ],
+      "blocks": [
+        {
+          "handler": null,
+          "id": "2b077949-W133120",
+          "outcome": null,
+          "route": {
+            "endpoint": "baton.bug",
+            "handlers": [
+              "codex"
+            ],
+            "role": "rview",
+            "route": "rview"
+          },
+          "status": "open",
+          "team": "baton",
+          "title": "V12: verified integration result import and target settlement",
+          "via_obligation": null
+        }
+      ],
+      "contains": [],
+      "duplicate_of": null,
+      "duplicates": [],
+      "follow_up_of": null,
+      "follow_ups": [],
+      "id": "2b077949-W133117",
+      "parent": {
+        "handler": null,
+        "id": "2b077949-W131409",
+        "outcome": null,
+        "route": {
+          "endpoint": "baton.bug",
+          "handlers": [
+            "codex"
+          ],
+          "role": "rview",
+          "route": "rview"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "V12: a second Job cannot integrate once the canonical target moves past its line"
+      }
+    },
+    "local_id": "W133117",
+    "message_count": 4,
+    "my_pending_obligations": 0,
+    "new": 4,
+    "new_breakdown": {
+      "children": [],
+      "id": "2b077949-W133117",
+      "overlap": 0,
+      "own": 4,
+      "snapshot_seq": 133775,
+      "subtree_total": 4
+    },
+    "next": null,
+    "obligations": [],
+    "open_blockers": 0,
+    "open_dependents": 1,
+    "origin": "decomposition",
+    "outcome": null,
+    "phase": "queued",
+    "pickup": "pending",
+    "priority": "high",
+    "progress": {
+      "children": 0,
+      "closed": 0
+    },
+    "rationale": null,
+    "ready": true,
+    "revision": null,
+    "revision_count": 0,
+    "revisions": [],
+    "revisions_next_after": null,
+    "revisions_truncated": false,
+    "route": {
+      "endpoint": "baton.bug",
+      "handlers": [
+        "codex"
+      ],
+      "role": "rview",
+      "route": "rview"
+    },
+    "status": "open",
+    "team": "baton",
+    "thread_count": 1,
+    "threads": [
+      {
+        "added_seq": 133117,
+        "id": "2b077949-T133117",
+        "last_seq": 133767,
+        "new": 4,
+        "subject": "V12: isolated submission and integration-result custody"
+      }
+    ],
+    "threads_next_after": null,
+    "threads_truncated": false,
+    "title": "V12: isolated submission and integration-result custody",
+    "trials": []
+  },
+  "snapshot_seq": 133775
+}

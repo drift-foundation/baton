@@ -1,0 +1,17 @@
+### label: candidate-manifest-3
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/manifest129.py"]
+### exit: 0
+### elapsed_seconds: 0.012538
+### STDOUT
+CHANGED:
+  2ad0b1e8ebf1a9bdc90d84731c3bb271e0d16466be4217e84b68cb5da9f68b74 0o664 59647 v12/python/src/baton_v12/job_manager/delegation.py
+  c7da43a3e3c6fb5169ec3c523f7f7693daedccc1936f77e180624b492a40172d 0o664 29163 v12/python/tests/job_manager/test_delegation.py
+  eb18bffd8c5c3368becf0594935d7f0fffcb51cdd06c09d08d15f858d15e1add 0o664 378637 v12/python/tests/tools/test_stage_execution.py
+  d7c0f1bd379e565a9bcade179a939b8d7e42b0f3ae7f77297eff0de4ff7af2e0 0o664 193200 v12/python/tools/stage_execution.py
+UNCHANGED R paths: ['v12/README.md', 'v12/python/tests/job_manager/test_scheduling.py']
+UNION MISMATCH: ['v12/python/src/baton_v12/job_manager/delegation.py', 'v12/python/tests/job_manager/test_delegation.py', 'v12/python/tests/tools/test_stage_execution.py', 'v12/python/tools/stage_execution.py']
+spent 23.733328886003619/40.0 remaining 16.266671113996381
+failures: [3, 8, 9, 12, 14, 15]
+
+### STDERR

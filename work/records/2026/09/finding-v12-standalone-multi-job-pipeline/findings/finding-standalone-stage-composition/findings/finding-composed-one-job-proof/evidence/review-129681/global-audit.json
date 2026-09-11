@@ -1,0 +1,21 @@
+{
+  "A intake": {
+    "changed_existing_globals": {}
+  },
+  "B review cycles": {
+    "changed_existing_globals": {
+      "__all__": [
+        "['ATTACH_KIND', 'DISPOSITIONS', 'GRANT_KIND', 'LINE_HOME', 'VERDICT_KIND', 'attach_review', 'audit_checkpoint', 'checkpoint_of', 'create_line', 'freeze_checkpoint', 'grant_writer', 'integration_checkpoint', 'line_of', 'line_status', 'record_progress', 'record_verdict', 'review_boundary', 'review_for_attempt', 'review_of', 'verdict_of', 'writer_boundary', 'writer_for_attempt', 'writer_of']",
+        "['ABANDONED_CORRECTION', 'ABANDONED_CORRECTION_SCHEMA', 'ATTACH_KIND', 'DISPOSITIONS', 'GRANT_KIND', 'LINE_HOME', 'RESTORE_KIND', 'VERDICT_KIND', 'abandoned_correction_of', 'attach_review', 'audit_checkpoint', 'checkpoint_of', 'create_line', 'freeze_checkpoint', 'grant_writer', 'integration_checkpoint', 'line_of', 'line_status', 'record_progress', 'record_verdict', 'restore_abandoned_correction', 'review_boundary', 'review_for_attempt', 'review_of', 'verdict_of', 'writer_boundary', 'writer_for_attempt', 'writer_of']"
+      ]
+    }
+  },
+  "B profile": {
+    "changed_existing_globals": {
+      "__all__": [
+        "['GitCheckpointProfile', 'checkpoint_ref', 'diff_vector', 'status_vector', 'tree_vector', 'update_ref_vector']",
+        "['GitCheckpointProfile', 'checkpoint_ref', 'clean_vector', 'diff_vector', 'reset_vector', 'status_vector', 'tree_vector', 'update_ref_vector']"
+      ]
+    }
+  }
+}

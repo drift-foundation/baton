@@ -1,0 +1,71 @@
+{"argv": ["python3", "/home/sl/src/baton/work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-composition/evidence/review-137952/probe_finalization.py"], "cwd": "v12/python", "PYTHONPATH": "src:tools", "exit": 0, "elapsed_seconds": 0.16441496100014774}
+{
+  "boundary": "production finalizer with controlled profile, runner and grant reader; no real Git/Authority",
+  "observations": [
+    {
+      "case": "reference-already-drifted-before-call",
+      "accepted_base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "initial_reference": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "final_reference": "cccccccccccccccccccccccccccccccccccccccc",
+      "state": {
+        "live": true,
+        "grant_reads": 1,
+        "deliveries": 1
+      },
+      "swaps": [
+        {
+          "reviewed": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "imported": "cccccccccccccccccccccccccccccccccccccccc"
+        }
+      ],
+      "answer": {
+        "reference": "refs/baton/target",
+        "revision": "cccccccccccccccccccccccccccccccccccccccc",
+        "advanced": true,
+        "tree": "dddddddddddddddddddddddddddddddddddddddd",
+        "reviewed": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    },
+    {
+      "case": "grant-ended-during-delivery",
+      "accepted_base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "initial_reference": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "final_reference": "cccccccccccccccccccccccccccccccccccccccc",
+      "state": {
+        "live": false,
+        "grant_reads": 1,
+        "deliveries": 1
+      },
+      "swaps": [
+        {
+          "reviewed": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "imported": "cccccccccccccccccccccccccccccccccccccccc"
+        }
+      ],
+      "answer": {
+        "reference": "refs/baton/target",
+        "revision": "cccccccccccccccccccccccccccccccccccccccc",
+        "advanced": true,
+        "tree": "dddddddddddddddddddddddddddddddddddddddd",
+        "reviewed": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "case": "candidate-reference-skips-grant-proof",
+      "accepted_base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "initial_reference": "cccccccccccccccccccccccccccccccccccccccc",
+      "final_reference": "cccccccccccccccccccccccccccccccccccccccc",
+      "state": {
+        "live": true,
+        "grant_reads": 0,
+        "deliveries": 0
+      },
+      "swaps": [],
+      "answer": {
+        "reference": "refs/baton/target",
+        "revision": "cccccccccccccccccccccccccccccccccccccccc",
+        "advanced": false
+      }
+    }
+  ]
+}

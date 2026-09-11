@@ -1,0 +1,64 @@
+    def test_the_second_jobs_candidate_is_stale_once_the_first_integrates(
+            self):
+        """THE SECOND BOUNDARY THIS TRAVERSAL FOUND, and it is not capacity.
+
+        W131187 returned the integrator and Job B reserves it -- proved in the
+        case above and again here, because separating the two blockers is the
+        point. What Job B cannot do is PUBLISH: an Authority holds ONE
+        canonical target revision, Job A's integration advances it to Job A's
+        candidate, and `integration.driver` offers a proposal only against the
+        revision it was built from. Job B's accepted checkpoint was built on
+        the base its line was declared at, and a line's declared base is
+        immutable -- `create_line` is create-or-recover by `(authority, work)`
+        and refuses operands that disagree with the ones it recorded.
+
+        SO A SECOND JOB OWES A REBASE, AND NOTHING IN THIS BUILD PERFORMS ONE.
+        A correction round re-grants a writer on the line's CURRENT checkpoint,
+        which carries the same superseded base; there is no accepted operation
+        that advances a line to a target that moved under it, and none of the
+        three seams that would own one is inside this Work's two paths.
+
+        THIS IS REPORTED AND NOT ACCEPTED. W130224's own acceptance asks for
+        both Jobs terminal, and this case is the measured statement that the
+        second one stops here and exactly why. Nothing is worked around: no
+        fabricated completion, no stale-target bypass, no manual transition.
+        The prerequisite is filed on the ledger and named in this Work's
+        FINDING.
+        """
+        from baton_v12.contracts import ContractRefusal as Refusal
+        from baton_v12.worker_manager import review_cycles
+
+        held = self.integrating()
+        self.drive_job(held.job, held.composed, "job-a", "integration",
+                       "completed", ticks=4)
+        deployment = self.deployment_of(held.composed)
+        # THE TARGET MOVED, and it moved to Job A's own candidate.
+        advanced = deployment.authority.canonical_target()
+        self.assertNotEqual(advanced, self.base)
+        # CAPACITY IS NOT THE BLOCKER: Job B takes the integrator.
+        for _ in range(6):
+            self.tick(held)
+            if self.allocated(held.job, "job-b/integration") is not None:
+                break
+        self.assertEqual(self.allocated(held.job, "job-b/integration"),
+                         "integration-worker")
+        # AND ITS LINE IS STILL DECLARED AT THE BASE IT WAS CREATED ON, which
+        # is the revision the target has now moved past.
+        line = deployment.line_for("job-b")
+        self.assertEqual(line["declared_base"], self.base)
+        self.assertNotEqual(line["declared_base"], advanced)
+        self.assertEqual(
+            review_cycles.line_of(held.control,
+                                  line["line_id"])["declared_base"],
+            self.base)
+        # SO ITS ACCEPTED CHECKPOINT CANNOT BE OFFERED, and the provider says
+        # so in its own words rather than this deployment inventing a reason.
+        accepted = review_cycles.integration_checkpoint(held.control,
+                                                        line["line_id"])
+        self.assertIsNotNone(accepted)
+        with self.assertRaises(Refusal) as caught:
+            deployment.published_proposal(accepted)
+        self.assertIn("a proposal is offered against the revision it was "
+                      "built from", caught.exception.message)
+        self.assertIn(advanced, caught.exception.message)
+

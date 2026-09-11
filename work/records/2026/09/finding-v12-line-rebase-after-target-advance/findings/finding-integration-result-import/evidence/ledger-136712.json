@@ -1,0 +1,677 @@
+{
+ "claim": 136712,
+ "work": "W133120",
+ "ceiling_seconds": 95.0,
+ "runs": [
+  {
+   "step": 1,
+   "label": "baseline-revalidation-accepted-P-candidate-and-Q-paths",
+   "cwd": "/home/sl/src/baton",
+   "argv": [
+    "python3",
+    "/tmp/base120.py"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.011190686000190908,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-01.log",
+   "ok": true
+  },
+  {
+   "step": 2,
+   "label": "ast-parse-and-import-of-the-changed-paths",
+   "cwd": "/home/sl/src/baton",
+   "argv": [
+    "python3",
+    "/tmp/check120.py"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.17193707699971128,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-02.log",
+   "ok": true
+  },
+  {
+   "step": 3,
+   "label": "focused-terminal-custody-group-first-run",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 1.1908002600002874,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-03.log",
+   "ok": false
+  },
+  {
+   "step": 4,
+   "label": "focused-terminal-custody-group-2",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 1.156448444000489,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-04.log",
+   "ok": false
+  },
+  {
+   "step": 5,
+   "label": "focused-terminal-custody-group-3",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 1.1955602669995642,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-05.log",
+   "ok": false
+  },
+  {
+   "step": 6,
+   "label": "focused-terminal-custody-group-4",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 1.2436461150000468,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-06.log",
+   "ok": false
+  },
+  {
+   "step": 7,
+   "label": "focused-terminal-custody-group-5",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 1.3343486650001068,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-07.log",
+   "ok": false
+  },
+  {
+   "step": 8,
+   "label": "focused-terminal-custody-group-6",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 1.344439751000209,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-08.log",
+   "ok": true
+  },
+  {
+   "step": 9,
+   "label": "focused-end-to-end-import-first-run",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 0.9819297430003644,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-09.log",
+   "ok": false
+  },
+  {
+   "step": 10,
+   "label": "focused-end-to-end-import-2",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 1.0676845550005964,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-10.log",
+   "ok": true
+  },
+  {
+   "step": 11,
+   "label": "journal-proof-and-lifecycle-regression",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_coordinator.TheJournalIsTheDurableHistory",
+    "tests.integration.test_coordinator.EveryRecordedActIsProvedWhole",
+    "tests.integration.test_coordinator.EveryRetryIsPROVEDBeforeItIsAnswered",
+    "tests.integration.test_coordinator.TheORDERIsTheWitnessForWhatWasGENERATED",
+    "tests.integration.test_coordinator.RefusedActsAreEvidenceToo",
+    "tests.integration.test_coordinator.OneProofObservesOneSnapshot",
+    "tests.integration.test_coordinator.TheWholeLifecycleIsProved",
+    "tests.integration.test_coordinator.EveryMemberOfTheAccountHasAProducer",
+    "tests.integration.test_coordinator.RankIsAllocatedInTheEnqueueTransaction"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 1.071925289000319,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-11.log",
+   "ok": true
+  },
+  {
+   "step": 12,
+   "label": "execution-driver-and-reconciliation-regression",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_execution.TheSmallestEligibleEntryIsTheONEThatRuns",
+    "tests.integration.test_execution.OneCleanImportChangesExactlyTheDeclaredPath",
+    "tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb",
+    "tests.integration.test_execution.TheGrantIsProvedAgainRIGHTBeforeTheModelWrites",
+    "tests.integration.test_execution.TheModelSCLAIMEarnsExactlyOneVerb",
+    "tests.integration.test_execution.OnlyANOTSTARTEDAttemptIsAskedToRun",
+    "tests.integration.test_execution.AnUnansweredAttemptIsReportedAndLeftAlone",
+    "tests.integration.test_execution.AGrantThatEndedWhileTheModelRanCannotSettle",
+    "tests.integration.test_execution.UnreadableOrForeignMaterialHoldsTheTarget",
+    "tests.integration.test_execution.ThePortIsInjectedAndTyped",
+    "tests.integration.test_driver.DriverCase",
+    "tests.integration.test_driver.ContinuationCase",
+    "tests.integration.test_driver.TerminalReleaseReplayCase"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.790074005999486,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-12.log",
+   "ok": true
+  },
+  {
+   "step": 13,
+   "label": "P-acceptance-groups-regression",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_reconciliation.OriginalSubmissionIsImmutable",
+    "tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners",
+    "tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition",
+    "tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes",
+    "tests.integration.test_reconciliation.PreparedResultReplaysItsIntent",
+    "tests.integration.test_reconciliation.ResultReadersRejectTampering",
+    "tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment",
+    "tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved",
+    "tests.integration.test_reconciliation.TheNominatedStorageIsProved",
+    "tests.integration.test_reconciliation.TheImportedStateIsUnproved",
+    "tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 7.477349105999565,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-13.log",
+   "ok": true
+  },
+  {
+   "step": 14,
+   "label": "recovery-runtime-and-admission-regression",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_recovery.RestartAlwaysHolds",
+    "tests.integration.test_recovery.StatusAndExplicitRecovery",
+    "tests.integration.test_runtime.WritableAccessNeedsTheLiveGrant",
+    "tests.integration.test_runtime.ThePriorRuntimeIsPROVEDUnableToMutate",
+    "tests.integration.test_runtime.TheRuntimeSCLAIMIsNotASettlement",
+    "tests.integration.test_runtime.TheGrantDecidesEveryIdentityInTheAssignment",
+    "tests.integration.test_admission.AcceptedAccount",
+    "tests.integration.test_admission.RefusalBeforeMutation",
+    "tests.integration.test_admission.SourceEligibilityIsNotResultFreshness"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.6228752589995565,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-14.log",
+   "ok": true
+  },
+  {
+   "step": 15,
+   "label": "final-verification-all-focused-class-selectors",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.integration.test_reconciliation.OriginalSubmissionIsImmutable",
+    "tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners",
+    "tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition",
+    "tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes",
+    "tests.integration.test_reconciliation.PreparedResultReplaysItsIntent",
+    "tests.integration.test_reconciliation.ResultReadersRejectTampering",
+    "tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment",
+    "tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved",
+    "tests.integration.test_reconciliation.TheNominatedStorageIsProved",
+    "tests.integration.test_reconciliation.TheImportedStateIsUnproved",
+    "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved",
+    "tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled",
+    "tests.integration.test_execution.TheSmallestEligibleEntryIsTheONEThatRuns",
+    "tests.integration.test_execution.OneCleanImportChangesExactlyTheDeclaredPath",
+    "tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb",
+    "tests.integration.test_execution.TheGrantIsProvedAgainRIGHTBeforeTheModelWrites",
+    "tests.integration.test_execution.TheModelSCLAIMEarnsExactlyOneVerb",
+    "tests.integration.test_execution.OnlyANOTSTARTEDAttemptIsAskedToRun",
+    "tests.integration.test_execution.AnUnansweredAttemptIsReportedAndLeftAlone",
+    "tests.integration.test_execution.AGrantThatEndedWhileTheModelRanCannotSettle",
+    "tests.integration.test_execution.UnreadableOrForeignMaterialHoldsTheTarget",
+    "tests.integration.test_execution.ThePortIsInjectedAndTyped",
+    "tests.integration.test_coordinator.TheJournalIsTheDurableHistory",
+    "tests.integration.test_coordinator.EveryRecordedActIsProvedWhole",
+    "tests.integration.test_coordinator.EveryRetryIsPROVEDBeforeItIsAnswered",
+    "tests.integration.test_coordinator.TheORDERIsTheWitnessForWhatWasGENERATED",
+    "tests.integration.test_coordinator.RefusedActsAreEvidenceToo",
+    "tests.integration.test_coordinator.OneProofObservesOneSnapshot",
+    "tests.integration.test_coordinator.TheWholeLifecycleIsProved",
+    "tests.integration.test_coordinator.EveryMemberOfTheAccountHasAProducer",
+    "tests.integration.test_coordinator.RankIsAllocatedInTheEnqueueTransaction",
+    "tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance",
+    "tests.integration.test_driver.DriverCase",
+    "tests.integration.test_driver.ContinuationCase",
+    "tests.integration.test_driver.TerminalReleaseReplayCase",
+    "tests.integration.test_recovery.RestartAlwaysHolds",
+    "tests.integration.test_recovery.StatusAndExplicitRecovery",
+    "tests.integration.test_runtime.WritableAccessNeedsTheLiveGrant",
+    "tests.integration.test_runtime.ThePriorRuntimeIsPROVEDUnableToMutate",
+    "tests.integration.test_runtime.TheRuntimeSCLAIMIsNotASettlement",
+    "tests.integration.test_runtime.TheGrantDecidesEveryIdentityInTheAssignment",
+    "tests.integration.test_admission.AcceptedAccount",
+    "tests.integration.test_admission.RefusalBeforeMutation",
+    "tests.integration.test_admission.SourceEligibilityIsNotResultFreshness"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 11.599877663999905,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-15.log",
+   "ok": true
+  },
+  {
+   "step": 16,
+   "label": "candidate-manifest-and-ledger",
+   "cwd": "/home/sl/src/baton",
+   "argv": [
+    "python3",
+    "/tmp/manifest120.py"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.011178040999766381,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-16.log",
+   "ok": true
+  },
+  {
+   "step": 17,
+   "label": "ast-and-import-after-R1-R2-corrections",
+   "cwd": "/home/sl/src/baton",
+   "argv": [
+    "python3",
+    "/tmp/check120.py"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.16881869600001664,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-17.log",
+   "ok": true
+  },
+  {
+   "step": 18,
+   "label": "corrected-import-group-first-run",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 1.5545198800000435,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-18.log",
+   "ok": false
+  },
+  {
+   "step": 19,
+   "label": "corrected-import-group-2",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 1.5449529670004267,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-19.log",
+   "ok": true
+  },
+  {
+   "step": 20,
+   "label": "post-correction-regression-reconciliation-and-execution",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved",
+    "tests.integration.test_reconciliation.TheImportedStateIsUnproved",
+    "tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment",
+    "tests.integration.test_execution.TheSmallestEligibleEntryIsTheONEThatRuns",
+    "tests.integration.test_execution.OneCleanImportChangesExactlyTheDeclaredPath",
+    "tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb",
+    "tests.integration.test_execution.TheGrantIsProvedAgainRIGHTBeforeTheModelWrites",
+    "tests.integration.test_execution.OnlyANOTSTARTEDAttemptIsAskedToRun",
+    "tests.integration.test_execution.ThePortIsInjectedAndTyped",
+    "tests.integration.test_driver.DriverCase",
+    "tests.integration.test_driver.ContinuationCase",
+    "tests.integration.test_driver.TerminalReleaseReplayCase",
+    "tests.integration.test_coordinator.TheJournalIsTheDurableHistory",
+    "tests.integration.test_coordinator.EveryRecordedActIsProvedWhole"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 2.9848074840001573,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-20.log",
+   "ok": true
+  },
+  {
+   "step": 21,
+   "label": "final-named-method-verification-of-R1-R2-corrections",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_the_required_post_import_tests_ACTUALLY_RUN",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_FAILED_post_import_test_holds_and_never_advances",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_GRANT_FOR_ANOTHER_PROPOSAL_writes_nothing",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_both_jobs_changes_land_on_the_target_and_it_settles",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_the_tick_replays_after_the_import_completed",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_target_that_moved_AGAIN_takes_no_rank_and_no_byte",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_target_that_moves_UNDER_THE_GRANT_refuses_the_entry",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_an_unapproved_result_imports_nothing",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_blocked_combination_never_reaches_the_target",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_reconciled_entry_is_never_handed_to_a_runtime",
+    "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_a_real_entry_and_a_real_receipt_settle_the_result"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 1.6714946189995317,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-21.log",
+   "ok": true
+  },
+  {
+   "step": 22,
+   "label": "candidate-manifest-and-ledger-after-corrections",
+   "cwd": "/home/sl/src/baton",
+   "argv": [
+    "python3",
+    "/tmp/manifest120.py"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.01116711699978623,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-22.log",
+   "ok": true
+  },
+  {
+   "step": 23,
+   "label": "authoritative-ledger-read-and-manifest-note",
+   "cwd": "/home/sl/src/baton",
+   "argv": [
+    "python3",
+    "/tmp/ledger_final.py"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.009552716000143846,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-23.log",
+   "ok": true
+  },
+  {
+   "step": 24,
+   "label": "R3-correction-focused-group",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 1.6879947050001647,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-24.log",
+   "ok": false
+  },
+  {
+   "step": 25,
+   "label": "R3-diagnose",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_grant_RECOVERED_WHILE_THE_TESTS_RAN_advances_nothing"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 0.3154975300003571,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-25.log",
+   "ok": false
+  },
+  {
+   "step": 26,
+   "label": "R3-diagnostic-probe",
+   "cwd": "/home/sl/src/baton",
+   "argv": [
+    "python3",
+    "/tmp/diag_r3.py"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.31086794499969983,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-26.log",
+   "ok": true
+  },
+  {
+   "step": 27,
+   "label": "R3-correction-run-2",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 1.6930464960005338,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-27.log",
+   "ok": false
+  },
+  {
+   "step": 28,
+   "label": "R3-correction-run-3",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 1.7014192779997757,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-28.log",
+   "ok": false
+  },
+  {
+   "step": 29,
+   "label": "R3-correction-run-4",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 1.7002094299996315,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-29.log",
+   "ok": true
+  },
+  {
+   "step": 30,
+   "label": "final-named-method-verification-of-R3",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_grant_RECOVERED_WHILE_THE_TESTS_RAN_advances_nothing",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_the_required_post_import_tests_ACTUALLY_RUN",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_FAILED_post_import_test_holds_and_never_advances",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_GRANT_FOR_ANOTHER_PROPOSAL_writes_nothing",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_both_jobs_changes_land_on_the_target_and_it_settles",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_the_tick_replays_after_the_import_completed",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_target_that_moves_UNDER_THE_GRANT_refuses_the_entry",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_an_unapproved_result_imports_nothing",
+    "tests.integration.test_execution.AGrantThatEndedWhileTheModelRanCannotSettle.test_a_lease_abandoned_while_the_model_ran_settles_nothing",
+    "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_a_real_entry_and_a_real_receipt_settle_the_result"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 1.448369804000322,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-30.log",
+   "ok": false
+  },
+  {
+   "step": 31,
+   "label": "final-named-method-verification-of-R3-corrected",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src",
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_grant_RECOVERED_WHILE_THE_TESTS_RAN_advances_nothing",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_the_required_post_import_tests_ACTUALLY_RUN",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_FAILED_post_import_test_holds_and_never_advances",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_GRANT_FOR_ANOTHER_PROPOSAL_writes_nothing",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_both_jobs_changes_land_on_the_target_and_it_settles",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_the_tick_replays_after_the_import_completed",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_target_that_moves_UNDER_THE_GRANT_refuses_the_entry",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_an_unapproved_result_imports_nothing",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_blocked_combination_never_reaches_the_target",
+    "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_reconciled_entry_is_never_handed_to_a_runtime",
+    "tests.integration.test_execution.AGrantThatEndedWhileTheModelRanCannotSettle.test_a_grant_ended_between_the_run_and_the_settlement_refuses",
+    "tests.integration.test_execution.AGrantThatEndedWhileTheModelRanCannotSettle.test_the_entry_keeps_the_state_the_third_party_left_it_in",
+    "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_a_real_entry_and_a_real_receipt_settle_the_result"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 1.734435115999986,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-31.log",
+   "ok": true
+  },
+  {
+   "step": 32,
+   "label": "candidate-manifest-after-R3",
+   "cwd": "/home/sl/src/baton",
+   "argv": [
+    "python3",
+    "/tmp/manifest120.py"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.011711950000062643,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-32.log",
+   "ok": true
+  },
+  {
+   "step": 33,
+   "label": "authoritative-ledger-read-after-R3",
+   "cwd": "/home/sl/src/baton",
+   "argv": [
+    "python3",
+    "/tmp/ledger_final.py"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.01997738299996854,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-33.log",
+   "ok": true
+  },
+  {
+   "step": 34,
+   "label": "final-ledger-read",
+   "cwd": "/home/sl/src/baton",
+   "argv": [
+    "python3",
+    "/tmp/ledger_final.py"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.009151930999905744,
+   "log": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-import/evidence/run-136712-step-34.log",
+   "ok": true
+  }
+ ],
+ "spent_seconds": 49.84925997500068,
+ "remaining_seconds": 45.15074002499932
+}

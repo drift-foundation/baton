@@ -1,0 +1,13 @@
+### label: R3-correction-run-4
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"]
+### exit: 0
+### elapsed_seconds: 1.700209
+### STDOUT
+
+### STDERR
+...........
+----------------------------------------------------------------------
+Ran 11 tests in 1.530s
+
+OK

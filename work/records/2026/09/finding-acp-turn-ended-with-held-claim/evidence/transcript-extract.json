@@ -1,0 +1,87 @@
+{
+  "source_path": "/home/sl/.local/state/acp-baton-bridge/baton.claude/claude/projects/-home-sl-src-baton/575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+  "window_start": "2026-09-10T03:41:00Z",
+  "window_end_exclusive": "2026-09-10T04:02:00Z",
+  "records": [
+    {
+      "line": 1407,
+      "timestamp": "2026-09-10T03:41:02.168Z",
+      "type": "prompt",
+      "text": "[BATON READY] v11 Work W133117 (V12: isolated submission and integration-result custody) is ready and unclaimed for baton.claude. Act through the canonical v11 CLI (detail work=W133117). Configured role instructions: You are a Baton implementer. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and the exact Work dossier your assignment binds. Own only the implementation you have claimed and the tests that go with it. Revalidate every pinned decision against the current tree before acting on it, keep implementer progress in the dossier, and preserve independent review by passing your work back rather than closing it. Never perform mutating Git operations. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies the exact Baton binary and explicit config; every invocation names --participant baton.claude. Apply standing v11 Baton policy.\n\nBaton launcher contract (authoritative; do not infer):\nBATON_BIN=\"/home/sl/opt/baton/v11/0650c61/bin/baton\"\nBATON_CONFIG=\"/home/sl/baton-v11.14aecfb/baton.json\"\nBATON_PARTICIPANT=\"baton.claude\"\nBATON_ROLE=\"impl\"\nInvoke BATON_BIN with --config BATON_CONFIG and --participant BATON_PARTICIPANT for every Baton operation."
+    },
+    {
+      "line": 1413,
+      "timestamp": "2026-09-10T03:41:21.784Z",
+      "command": "/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude detail work=W133117 2>&1 | python3 -c \"\nimport json,sys\nd=json.load(sys.stdin)['result']\nfor k in ('local_id','title','classification','phase','status','ready','pickup','priority','route','next','binding','open_blockers','first_open_blocker'):\n    print(k,'=',json.dumps(d.get(k))[:400])\nprint('blocked_by =', json.dumps((d.get('links') or {}).get('blocked_by'))[:400])\n\""
+    },
+    {
+      "line": 1442,
+      "timestamp": "2026-09-10T03:42:21.417Z",
+      "command": "/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude claim work=W133117"
+    },
+    {
+      "line": 1510,
+      "timestamp": "2026-09-10T03:47:46.720Z",
+      "type": "final",
+      "stop_reason": "end_turn",
+      "message_id": "msg_011Ceu5FTsUzjvHZmzYecNW6",
+      "text": "I hold claim 133218 on W133117 and the work is in flight, with state recorded durably in the dossier so it's resumable from the record rather than from this context.\n\n## Baseline and the mandatory gate\n\nAll 43 post-D paths revalidated clean by digest and mode (including the five recorded absences); the three planned-new P files were absent.\n\nThe dispatch required one thing **before** any dependent implementation: prove the existing scoped Authority publication/session API can express a derived integration proposal. **It can.**\n\n- *Static:* `publish` sits in the session's closed transition table with `target` optional, is in `_ASSIGNMENT_FIRST`, and carries no `actor` flag \u2014 so it's authorized by the assignment compare-and-swap, not a capability grant.\n- *Against a real Authority:* the integrator publishes a derived proposal under its **own** live assignment, with a new frozen result identity, the combined candidate, and an explicitly pinned target snapshot. It reads back through the ordinary reader, an exact retry replays it, the producer's original proposal is untouched, and borrowing the producer's result identity **refuses**.\n\nNo amendment needed, no Authority edit proposed. Recorded in FINDING with the probe retained as evidence.\n\n## First product path built and proved\n\n`integration/git_profile.py` \u2014 standalone by construction: only the standard library and its own refusal, so it can be copied into a worker image without carrying a manager, Authority or store capability. It writes in exactly two places: objects and prepared refs under nominated private storage, and the dedicated target at one configured reference via compare-and-swap. `merge-tree --write-tree` means no index, worktree or HEAD is ever an operand, so the producer's line cannot be one.\n\nThe focused real-repository probe confirms Job B's **original, never-rebased** submission reconciles with the snapshot Job A's integration produced, preserving **both** changes; the submission is untouched; replay is identical; the reference advance is a real CAS and a stale swap refuses; and a genuine conflict **holds** with its exact path, retaining nothing.\n\n## Cost and what remains\n\n**0.33s of the 77s author allocation**, every run wall-timed.\n\nRemaining, in dependency order: schema-5 boundary and the typed relation, store reader support, `reconciliation.py`'s five public operations, the admission/driver split of source eligibility from the import account, `__init__.py` exports, and `test_reconciliation.py` with its six required named groups plus the causal base-fail / isolated-pass / combined-pass and combined-fail observations.\n\nThat list is in PROGRESS.md, so a restart resumes from the record."
+    },
+    {
+      "line": 1514,
+      "timestamp": "2026-09-10T03:50:47.069Z",
+      "type": "prompt",
+      "text": "[BATON READY] v11 Work W133117 (V12: isolated submission and integration-result custody) is ready and unclaimed for baton.claude. Act through the canonical v11 CLI (detail work=W133117). Configured role instructions: You are a Baton implementer. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and the exact Work dossier your assignment binds. Own only the implementation you have claimed and the tests that go with it. Revalidate every pinned decision against the current tree before acting on it, keep implementer progress in the dossier, and preserve independent review by passing your work back rather than closing it. Never perform mutating Git operations. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies the exact Baton binary and explicit config; every invocation names --participant baton.claude. Apply standing v11 Baton policy.\n\nBaton launcher contract (authoritative; do not infer):\nBATON_BIN=\"/home/sl/opt/baton/v11/0650c61/bin/baton\"\nBATON_CONFIG=\"/home/sl/baton-v11.14aecfb/baton.json\"\nBATON_PARTICIPANT=\"baton.claude\"\nBATON_ROLE=\"impl\"\nInvoke BATON_BIN with --config BATON_CONFIG and --participant BATON_PARTICIPANT for every Baton operation."
+    },
+    {
+      "line": 1522,
+      "timestamp": "2026-09-10T03:50:56.719Z",
+      "command": "/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude detail work=W133117 2>&1 | python3 -c \"\nimport json,sys\nd=json.load(sys.stdin)['result']\nfor k in ('local_id','phase','status','handler','claimed_at','route','next','ready','pickup','last_changed_at','episode_seq'):\n    print(k,'=',json.dumps(d.get(k)))\n\"; echo '--- actionable ---'; /home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude actionable-work 2>&1 | python3 -c \"\nimport json,sys\nd=json.load(sys.stdin)['result']\nrows=d.get('work') or d.get('rows') or d.get('items') or []\nprint('count',len(rows))\nfor one in rows[:5]: print(' -', one.get('local_id'), one.get('phase'), one.get('pickup'))\n\""
+    },
+    {
+      "line": 1528,
+      "timestamp": "2026-09-10T03:51:05.025Z",
+      "command": "/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude work-events work=W133117 2>&1 | python3 -c \"\nimport json,sys\nd=json.load(sys.stdin)['result']\nrows = d if isinstance(d,list) else d.get('events', d)\nfor e in rows[-5:]:\n    print(e.get('seq'), e.get('kind'), e.get('actor'), e.get('ts'))\n    p = e.get('payload') or {}\n    for k in ('reason','comment','detail'):\n        if p.get(k): print('   ', k, ':', json.dumps(p[k])[:600])\n\""
+    },
+    {
+      "line": 1532,
+      "timestamp": "2026-09-10T03:51:18.844Z",
+      "command": "/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude claim work=W133117"
+    },
+    {
+      "line": 1582,
+      "timestamp": "2026-09-10T03:54:12.162Z",
+      "type": "final",
+      "stop_reason": "end_turn",
+      "message_id": "msg_011Ceu5k1PqURcvW1rGmwhJK",
+      "text": "Progress recorded durably. I hold claim 133275 and the work continues.\n\n## What happened to the last claim\n\nThe owner released claim 133218 at 03:50:43Z as **Incident 47** \u2014 \"ACP turn ended and no execution remains\" \u2014 preserving partial work, evidence and budget. It worked exactly as intended: the baseline revalidated clean at re-claim and `git_profile.py` survived intact. The lesson is a cadence one, and I'm applying it: each increment now ends with a durable record, so an orphaned claim costs a redelivery and nothing more.\n\n## This increment\n\n**Schema 5 and the typed result relation.** Built around the contract's central distinction: the relation *names* the original submission \u2014 line, checkpoint, verdict, proposal, frozen result, base, candidate \u2014 as immutable references it never rewrites, and owns only what belongs to the **result**: prepared content, the pinned target snapshot, its own evidence, its own derived proposal.\n\nThe CHECK constraints make the contract structural rather than advisory:\n\n- a reason belongs to a hold and nothing else\n- prepared content is absent until there is some\n- no result reaches `authorized`/`published`/`imported` without its **own** verification, review and approval\n- a published result must name its **own** derived proposal, never the producer's\n- `UNIQUE (target, source_proposal, target_revision)` \u2014 so a later target advance is a *new* result from the same submission, not a mutation of this one\n\nVerified: the DDL executes, the table set matches `TABLES`, and all 33 columns match the contract with no mismatch either way.\n\n**One existing test corrected.** `test_the_expectation_is_measured_from_the_schema_it_checks` compared against a *retyped* table literal \u2014 the second owner of the shape its own docstring warns about. It now asserts against the module's own `TABLES`. 27 selectors pass.\n\n## Cost and what's next\n\n**1.11s of 77s**, every run wall-timed. Carried forward: the Authority-publication gate (EXPRESSIBLE) and `git_profile.py` proved against real repositories, both with retained probes.\n\nNext is `reconciliation.py`. Notably, this store's `replay(..., witness=)` **requires** a semantic owner to re-prove a materialized act \u2014 precisely the discipline slice A's R3 defect lacked, so I'll build the readers on that seam rather than on journal-row existence."
+    },
+    {
+      "line": 1586,
+      "timestamp": "2026-09-10T03:56:41.024Z",
+      "type": "prompt",
+      "text": "[BATON READY] v11 Work W133117 (V12: isolated submission and integration-result custody) is ready and unclaimed for baton.claude. Act through the canonical v11 CLI (detail work=W133117). Configured role instructions: You are a Baton implementer. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and the exact Work dossier your assignment binds. Own only the implementation you have claimed and the tests that go with it. Revalidate every pinned decision against the current tree before acting on it, keep implementer progress in the dossier, and preserve independent review by passing your work back rather than closing it. Never perform mutating Git operations. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies the exact Baton binary and explicit config; every invocation names --participant baton.claude. Apply standing v11 Baton policy.\n\nBaton launcher contract (authoritative; do not infer):\nBATON_BIN=\"/home/sl/opt/baton/v11/0650c61/bin/baton\"\nBATON_CONFIG=\"/home/sl/baton-v11.14aecfb/baton.json\"\nBATON_PARTICIPANT=\"baton.claude\"\nBATON_ROLE=\"impl\"\nInvoke BATON_BIN with --config BATON_CONFIG and --participant BATON_PARTICIPANT for every Baton operation."
+    },
+    {
+      "line": 1593,
+      "timestamp": "2026-09-10T03:56:58.990Z",
+      "command": "/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude detail work=W133117 2>&1 | python3 -c \"\nimport json,sys\nd=json.load(sys.stdin)['result']\nfor k in ('phase','handler','claimed_at','pickup','ready'): print(k,'=',json.dumps(d.get(k)))\n\""
+    },
+    {
+      "line": 1598,
+      "timestamp": "2026-09-10T03:57:02.765Z",
+      "command": "/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude claim work=W133117"
+    },
+    {
+      "line": 1657,
+      "timestamp": "2026-09-10T04:01:14.172Z",
+      "type": "final",
+      "stop_reason": "end_turn",
+      "message_id": "msg_011Ceu6H89VqfwwpshXZ9JPx",
+      "text": "The custody owner's core is built and proved. I hold claim 133318; state is recorded durably.\n\n## This increment: `reconciliation.py`\n\n`prepare_result`, `result_of` and `result_identity` \u2014 with the three defects the superseded slice's review found built in from the start, not bolted on:\n\n**Intent is not outcome** (R2's correction). A committed intent records that *this* submission is being reconciled onto *this* pinned revision. A retry finding an intent with no outcome **resumes** \u2014 it asks the profile again with the original recorded target, and the profile reuses what it already retained rather than reconciling twice. Only a settled outcome replays. Slice A answered \"already done\" and called the profile zero times.\n\n**Operands are recovered, not recomputed** (R4). The profile is asked with the record's own operands read back from the row. And because the pinned revision is part of the derived identity, a target that *has* moved yields a different record and leaves the earlier one untouched \u2014 the contract's own rule that a later advance is a new result from the same submission.\n\n**Readers bind by re-derivation** (R3). `result_of` re-derives the identity from the fixed operands the row itself carries, and requires the journal operation the row names to be recorded under the signature those operands produce. Row existence proves neither.\n\n## Proved against real components\n\nReal coordinator store, real repositories, real profile: preparation pins the target and carries **both** changes with the submission untouched; exact retry identical; a committed intent whose outcome was removed **resumes** to the same target and content; an edited row is **refused** and reads again once restored; a submission already on the target refuses.\n\nOne honest note I recorded rather than glossed: that edited-row control was caught by the prepared-evidence target check, which fires *before* the identity re-derivation. The required `ResultReadersRejectTampering` group must alter a member **not** in prepared evidence \u2014 a source verdict or proposal identity \u2014 so the identity binding itself is exercised rather than assumed.\n\n## Cost\n\n**2.12s of 77s**, every run wall-timed. Two claims were released as orphaned between turns; the durable records carried the state each time and the baseline revalidated clean on re-claim.\n\nRemaining: `record_result_evidence`, `publish_result`, `resolve_import_account`, the admission/driver split, `__init__` exports, and the new test module with its six named groups and causal observations."
+    }
+  ],
+  "owner_instruction_public_content_matches": [],
+  "system_events": [],
+  "note": "Selected public prompts, final responses and canonical command inputs only; private reasoning and application tool bodies excluded. Source line numbers refer to live append-only transcript."
+}

@@ -1,0 +1,49 @@
+{
+  "cap_seconds": 5,
+  "wall_seconds": 0.03900440305005759,
+  "results": [
+    {
+      "aliases": true,
+      "allocated": [
+        {
+          "stage_id": "capacity-0/implementation",
+          "worker_id": "implementation-worker",
+          "participant": "baton.claude",
+          "canonical_principal": "principal:baton.claude",
+          "allocation_state": "reserved",
+          "lane": "implementation"
+        },
+        {
+          "stage_id": "capacity-3/review",
+          "worker_id": "review-worker",
+          "participant": "baton.reviewer",
+          "canonical_principal": "principal:baton.reviewer",
+          "allocation_state": "reserved",
+          "lane": "review"
+        },
+        {
+          "stage_id": "capacity-4/review",
+          "worker_id": "review-worker-2",
+          "participant": "baton.reviewer-2",
+          "canonical_principal": "principal:baton.reviewer-2",
+          "allocation_state": "reserved",
+          "lane": "review"
+        }
+      ],
+      "refused": [
+        {
+          "i": 1,
+          "category": "refused",
+          "code": "precondition"
+        },
+        {
+          "i": 2,
+          "category": "refused",
+          "code": "precondition"
+        }
+      ],
+      "exact_replay": true
+    }
+  ],
+  "passed": true
+}

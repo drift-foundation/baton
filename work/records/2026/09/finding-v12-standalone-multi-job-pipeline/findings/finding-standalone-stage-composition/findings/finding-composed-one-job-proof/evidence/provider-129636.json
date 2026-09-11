@@ -1,0 +1,135 @@
+{
+  "work": "W119114",
+  "claim": 129636,
+  "claim_order": "claimed at seq129636 before any edit; the accounting correction, the revalidation, the question, the budget and the selectors were declared before the first run",
+  "accounting_correction": {
+    "was": "my claim128468 summary reported 173.7s",
+    "correct": "approximately 353.487s, the reviewer's reconciliation across every listed duration in this record, with recorded timing uncertainty. My figure counted only the runs I listed in that one pass and omitted earlier ones carried here.",
+    "appended_not_rewritten": true
+  },
+  "revalidation": {
+    "baseline": "evidence/base-129617/manifest.json; all five paths match",
+    "blockers": "all six closed satisfying, including the three providers I wrote: W128682 (A), W128692 (B), W128698 (C)",
+    "consumption": "only their public operations; no private helper, no store edit, no synthetic verdict, no engine-state guess"
+  },
+  "paths": {
+    "tools/stage_execution.py": {
+      "baseline": "da339acb16b3a97c8eba9f71aa7c555d0293af50b869cff5a2e869ab8d8fe3ab",
+      "final": "da339acb16b3a97c8eba9f71aa7c555d0293af50b869cff5a2e869ab8d8fe3ab",
+      "mode": "664"
+    },
+    "tools/single_worker.py": {
+      "baseline": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+      "final": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+      "mode": "664"
+    },
+    "tests/tools/test_stage_execution.py": {
+      "baseline": "a1aca8b195dc0effcf9fbd24a4f65998a50bd302e2533893d146d43978cfd381",
+      "final": "fcf415cbac530fabe8562e99a867856c2a6cecff33c015c203799db26942ee4b",
+      "mode": "664"
+    },
+    "tests/tools/test_single_worker.py": {
+      "baseline": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "final": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "mode": "664"
+    },
+    "tools/parallel_test.py": {
+      "baseline": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+      "final": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+      "mode": "644"
+    }
+  },
+  "the_transition_that_was_impossible": {
+    "measured_as_blocked": "review-2026-09-09T14-55-17Z.md",
+    "now": "the same fixture crosses it. A discharges the gate its own fence installed, B puts the checkout back on the retained checkpoint and revokes the excluded writer, C ends exactly the one live episode that could never finish -- and the ORDINARY sweep then opens the successor and an ordinary worker turn corrects it",
+    "converted": "test_no_fresh_assignment_follows_the_declaration_and_why -> test_the_recovered_correction_reaches_a_fresh_assignment, which measures the blocked state FIRST and then drives the recovery through it"
+  },
+  "measured_rather_than_assumed": {
+    "what": "my first cut called C immediately after B and was refused: `episodes._unheld` refuses while the abandoned episode's allocation is still `reserved`",
+    "why_that_is_right": "releasing a worker is the SCHEDULER's act, not this recovery's, and opening a successor over a live reservation would let one Job hold two workers in one lane",
+    "so": "the fixture drives ordinary ticks first and C then proceeds. The helper says so where it happens."
+  },
+  "controls": {
+    "converted": [
+      "the recovered correction reaching a fresh assignment, with A's gate discharge read from the Authority, B's restored checkpoint read from the line, and C's ended episode read as replaceable"
+    ],
+    "added": [
+      "no new writer before the exclusion, stepped through A alone, then B, then C",
+      "the discarded scratch is gone and the retained checkpoint bytes are back, proved by revalidating the pin through the accepted profile rather than reading a row",
+      "all three operations replay, no second episode opens, and the reviewed checkpoint, the route and the first round's publication are byte-identical",
+      "an UNRECOVERED declaration still reaches no assignment -- the negative this case was originally written for, kept so the positive proof is the recovery's doing and not the fixture's",
+      "running, foreign-generation and foreign-attempt selections recover nothing"
+    ]
+  },
+  "repair_reported": {
+    "what": "my splice that converted the gap test cut past the end of its class and removed TheWrongRouteClaimDefersInsteadOfStoppingTheSweep's header and its `wrong_route` helper",
+    "how_found": "the very next run, as a NameError at import",
+    "repaired": "restored byte-for-byte from evidence/base-129617/tests/tools/test_stage_execution.py; the whole module then passes, so the restoration is proved rather than asserted",
+    "reported_because": "it was a self-inflicted cost and the runs it charged are listed below"
+  },
+  "assembled_regression_assessment": {
+    "ran": {
+      "parallel_source": "735 shards, 5336 tests, 31 failures, 0 errors, 4 skipped -> FAILED",
+      "log": "evidence/run-129636-parallel.log"
+    },
+    "failing_shards": 13,
+    "attribution": "every one is a whole-universe SOURCE scan. Eleven are the families already attributed at claim128468 to in-flight candidates. TWO ARE NEW AND ARE THE THREE ACCEPTED PROVIDERS' OWN: tests.manager.test_secrets' surface catalog names abandonment_cleanup_of, abandoned_gate_discharge_of and discharge_abandoned_quiescence_gate as unaccounted public callables, measured directly.",
+    "owners": "the PLAN keeps these diagnostics with W115981/W48697; the provider surfaces they now flag are a coordination item for those owners rather than something this Work may edit",
+    "serial_lane_not_run": {
+      "why": "the harness gates it behind the parallel phase, and run separately it measured ~255s at claim128468. About 142s of the 600s cap remain, so it does not fit.",
+      "what_remains_valid_and_why": "its two stage-driver members, tests.integration.test_driver and tests.job_manager.test_review_driver, were run in this pass inside the 953-test joined run and pass. Its other members are OCI image and container gates; they exercise worker_manager, which providers A and B changed, so their claim128468 green result is NOT claimed as still valid.",
+      "asked_for": "an extension of roughly 300s, or an explicit ruling that the serial lane's engine gates need not be re-run for these provider changes. I am not claiming a green assembled regression without it."
+    }
+  },
+  "budget": {
+    "cap": 600.0,
+    "carried_in": 353.487,
+    "spent_this_pass": 104.1,
+    "cumulative": 457.6,
+    "remaining": 142.4,
+    "within": true,
+    "reset": false
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution.UnfinishedWorkIsFencedBeforeAnythingRepeatsIt",
+      "wall": "0.190s",
+      "result": "import error -- my own splice had removed a later class's header"
+    },
+    {
+      "run": "same, after restoring that class from the retained baseline",
+      "wall": "3.094s",
+      "result": "9 tests, 4 errors -- C refuses while the abandoned episode's allocation is still reserved"
+    },
+    {
+      "run": "same, with ordinary ticks releasing the lane first",
+      "wall": "3.329s",
+      "log": "evidence/run-129636-class.log",
+      "result": "9 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution",
+      "wall": "19.837s",
+      "log": "evidence/run-129636-module.log",
+      "result": "159 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution tests.tools.test_single_worker tests.job_manager.test_review_driver tests.integration.test_driver tests.manager.test_intake tests.manager.test_review_cycles tests.job_manager.test_recovery",
+      "wall": "37.445s",
+      "log": "evidence/run-129636-joined.log",
+      "result": "953 tests, OK -- the consumer and all three providers"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 tools/parallel_test.py --phase parallel",
+      "wall": "not separately timed; it completed inside a 40s observation window and is charged at 40s. The prior measured figure for this phase was 21.627s, so this is conservative rather than precise, and it is stated rather than rounded down.",
+      "log": "evidence/run-129636-parallel.log",
+      "result": "5336 tests, 31 failures across 13 whole-universe source scans"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor",
+      "wall": "0.205s",
+      "log": "evidence/run-129636-attribution.log",
+      "result": "the two new scan failures name provider A's three public callables"
+    }
+  ]
+}

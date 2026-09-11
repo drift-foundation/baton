@@ -1,0 +1,4165 @@
+"""W4 cut D — the runtime attempt, its activation and its observations.
+
+PLAN item 4be, first slice. Every case here is about one question: when this
+manager says an attempt is bound to an assignment, what makes that true?
+
+THE ANSWER IS THREE THINGS AGREEING. The session's binding, this attempt's own
+committed claim, and the authority's live assignment. Any two of them agreeing
+is exactly how a foreign session or a replayed activation gets in, so each case
+below removes one of the three and requires a refusal.
+"""
+
+import os
+import queue
+import sqlite3
+import tempfile
+import threading
+import json
+import unittest
+from unittest import mock
+
+import baton_v12.worker_manager as worker_manager
+from baton_v12.contracts import ContractRefusal
+from baton_v12.worker_manager import (AuthorityPort, ControlStore, TRANSITIONS,
+                                      accept_offer, activate_assignment,
+                                      boundary_identity_of, certify_profile,
+                                      issue_offer, observe,
+                                      pin_boundary_identity,
+                                      reconcile_runtime, record_attempt,
+                                      request_cancellation,
+                                      request_runtime_start, runtime_lane,
+                                      submit_claim)
+from baton_v12.worker_manager import attempts as attempts_module
+from baton_v12.worker_manager.attempts import (OBSERVED_RUNTIME,
+                                               authorize_input_root)
+from baton_v12.worker_manager.schema import ATTEMPT_COLUMNS
+from baton_v12.worker_manager.store import manager_signature
+from baton_v12.worker_manager.workspaces import (assignment_workspace,
+                                                  configure_workspace_storage,
+                                                 compose_input_root)
+
+from . import input_roots
+from .test_offers import (FakeSession, NOW, PRINCIPAL, PROFILE, ROUTE,
+                          SCOPE, UUID, WHO, WORK, decision,
+                          fake_claim_signature)
+
+
+class Adapter:
+    """The narrow runtime adapter, with every answer a test may need to set."""
+
+    def __init__(self, runtime_id="runtime-1"):
+        self.runtime_id = runtime_id
+        self.started = []
+        self.stopped = []
+        self.listing = None
+        self.start_answer = None
+        self.start_failure = None
+        self.stop_failure = None
+        # W26294: reconciliation now ASKS the engine what the exact runtime
+        # is instead of reading `running` off a listing that includes exited
+        # containers. Every case that reconciles needs an answer; `running`
+        # is the one that preserves what each existing case was about, and
+        # the cases that are ABOUT the other states set it.
+        self.observation = {"state": "running", "why": "it is up",
+                            "mounts": None}
+        self.observed = []
+        self.normalized = []
+
+    def start(self, operands):
+        self.started.append(operands)
+        # W6636: a start the adapter REFUSES, which is the post-claim failure
+        # the manager has to settle rather than propagate untouched.
+        if self.start_failure is not None:
+            raise self.start_failure
+        if self.start_answer is not None:
+            return self.start_answer
+        return {"runtime_id": self.runtime_id, "labels": operands["labels"]}
+
+    def list(self, operands):
+        if self.listing is not None:
+            return self.listing
+        if not self.started:
+            return []
+        return [{"runtime_id": self.runtime_id,
+                 "labels": self.started[0]["labels"]}]
+
+    # W43975: THE TYPED DIRECTORY-CUSTODY SEAM every ending now settles on.
+    # A fixture that lacked it would make each ending refuse for want of a
+    # capability rather than for the reason a case is about.
+    custodian_image_digest = "sha256:" + "c" * 64
+
+    def normalize_directory(self, store, *, assignment_id, which):
+        from baton_v12.worker_manager import custody
+
+        self.normalized.append((assignment_id, which))
+        return custody._answered(
+            "normalize", 0,
+            {"custody": "normalize", "entries": 0, "not_ours": 0,
+             "running_as": [0, 0]}, None)
+
+    def observe(self, runtime_id):
+        self.observed.append(runtime_id)
+        if isinstance(self.observation, BaseException):
+            raise self.observation
+        return self.observation
+
+    def stop(self, operands):
+        self.stopped.append(operands)
+        if self.stop_failure is not None:
+            raise self.stop_failure
+        return {"stopped": True}
+
+
+class Agent:
+    def __init__(self):
+        self.cancelled = []
+        self.failure = None
+
+    def cancel(self, operands):
+        self.cancelled.append(operands)
+        if self.failure is not None:
+            raise self.failure
+        return {"acknowledged": True}
+
+ATTEMPT = "attempt-1"
+ADAPTER = "sha256:" + "a" * 64
+
+
+class AttemptCase(unittest.TestCase):
+
+    def setUp(self):
+        self._root = tempfile.TemporaryDirectory(prefix="v12-worker-manager-")
+        self.addCleanup(self._root.cleanup)
+        self.path = os.path.join(self._root.name, "control.sqlite3")
+        self.store = ControlStore.open(self.path, incarnation="manager-1",
+                                       clock=lambda: NOW)
+        self.addCleanup(self.store.close)
+        certify_profile(self.store, "runtime", "reference", PROFILE)
+        # W43975: every ending now settles on a directory-custody receipt, and
+        # a custody act reads the DEPLOYMENT's configured store rather than a
+        # caller's operand. A fixture without one would make each ending
+        # refuse for want of a deployment record rather than for the reason
+        # the case is about.
+        self.storage = os.path.join(self._root.name, "workspace-store")
+        os.makedirs(self.storage, exist_ok=True)
+        configure_workspace_storage(self.store, self.storage)
+        # W33936 review [P1]: the workspace group is the DEPLOYMENT's, read
+        # from this manager's own record. A fixture configures it and then
+        # reads it, which is the sequence a deployment performs.
+        self.group = input_roots.configured_group(self.store)
+        self.session = FakeSession()
+        self.port = AuthorityPort(self.session, fake_claim_signature)
+
+    def recorded(self, attempt_id=ATTEMPT):
+        # THE POLICY DIGEST IS RECORDED, because W6632 review [P1] made a
+        # runtime's labels carry it: reconciliation after a restart proves the
+        # resolved identity from the engine's image and this manager's labels,
+        # and the policy exists in neither unless it is written here.
+        return record_attempt(self.store, attempt_id=attempt_id,
+                              adapter_name="acp", adapter_digest=ADAPTER,
+                              profile_digest=PROFILE,
+                              policy_digest="sha256:" + "2" * 64)
+
+    def claimed(self, offer_id="offer-1", attempt_id=ATTEMPT):
+        """An attempt with THIS attempt's own committed claim behind it."""
+        issue_offer(self.store, self.port, offer_id=offer_id, work_id=WORK,
+                    runtime_attempt_id=attempt_id,
+                    input_digest="sha256:" + "1" * 64,
+                    policy_digest="sha256:" + "2" * 64,
+                    profile_digest=PROFILE, profile_name="reference",
+                    mint_bearer=lambda: "bearer-1")
+        accept_offer(self.store, self.port, offer_id=offer_id,
+                     decision="accept", bearer="bearer-1", now=NOW,
+                     runtime_attempt_id=attempt_id,
+                     work_ref={"authority_uuid": UUID, "work_id": WORK})
+        self.recorded(attempt_id)
+        submit_claim(self.store, self.port, offer_id=offer_id)
+        return attempt_id
+
+    def expect(self, **spoiled):
+        whole = {"work_ref": {"authority_uuid": UUID, "work_id": WORK},
+                 "participant": WHO, "generation": 1}
+        whole.update(spoiled)
+        return whole
+
+    def row(self, attempt_id=ATTEMPT):
+        beside = sqlite3.connect(self.path, isolation_level=None)
+        beside.row_factory = sqlite3.Row
+        try:
+            found = beside.execute(
+                "SELECT * FROM attempts WHERE runtime_attempt_id = ?",
+                (attempt_id,)).fetchone()
+            return None if found is None else {k: found[k]
+                                               for k in found.keys()}
+        finally:
+            beside.close()
+
+
+class TheAttemptIsRecordedOnce(AttemptCase):
+
+    def test_an_exact_retry_replays_the_first_record(self):
+        first = self.recorded()
+        self.assertEqual(first, self.recorded())
+        self.assertEqual(self.row()["adapter_name"], "acp")
+
+    def test_every_durable_operand_rides_the_identity(self):
+        """The frozen host signed three of eight.
+
+        A changed adapter name or input digest then REPLAYED instead of
+        colliding -- an operation identity that ignores operands is not an
+        identity, and the retry's answer would describe the first act.
+        """
+        self.recorded()
+        for what, spoiled in [("the adapter name", dict(adapter_name="other")),
+                              ("the adapter digest",
+                               dict(adapter_digest="sha256:" + "b" * 64)),
+                              ("the profile digest",
+                               dict(profile_digest="sha256:" + "c" * 64)),
+                              ("an input digest that was absent",
+                               dict(input_digest="sha256:" + "d" * 64)),
+                              ("a policy digest that was absent",
+                               dict(policy_digest="sha256:" + "e" * 64)),
+                              ("an image digest that was absent",
+                               dict(image_digest="sha256:" + "f" * 64)),
+                              ("a toolchain digest that was absent",
+                               dict(toolchain_digest="sha256:" + "0" * 64))]:
+            with self.subTest(what=what):
+                operands = dict(adapter_name="acp", adapter_digest=ADAPTER,
+                                profile_digest=PROFILE)
+                operands.update(spoiled)
+                with self.assertRaises(ContractRefusal) as caught:
+                    record_attempt(self.store, attempt_id=ATTEMPT, **operands)
+                self.assertEqual(caught.exception.code, "operation-collision")
+
+    def test_a_fresh_attempt_starts_at_every_axis_default(self):
+        self.recorded()
+        row = self.row()
+        for axis in TRANSITIONS:
+            with self.subTest(axis=axis):
+                self.assertIn(row[axis], TRANSITIONS[axis])
+        self.assertEqual(row["execution_runtime"], "not-started")
+        self.assertEqual(row["cleanup"], "pending")
+        self.assertIsNone(row["assignment_generation"])
+
+
+class ActivationNeedsAllThreeToAgree(AttemptCase):
+
+    def test_activation_fixes_all_four_parts(self):
+        self.claimed()
+        answer = activate_assignment(self.store, self.port,
+                                     attempt_id=ATTEMPT, expect=self.expect())
+        self.assertIs(answer["already_fixed"], False)
+        self.assertEqual(answer["assignment"], self.expect())
+        row = self.row()
+        self.assertEqual(
+            (row["authority_uuid"], row["work_id"],
+             row["assignment_participant"], row["assignment_generation"]),
+            (UUID, WORK, WHO, 1))
+
+    def test_an_attempt_with_no_claim_of_its_own_is_refused(self):
+        """A live assignment elsewhere is not evidence.
+
+        The frozen host accepted any free-standing attempt beside any currently
+        live assignment -- so a foreign session could activate somebody else's
+        attempt onto its own Work.
+        """
+        self.recorded()
+        with self.assertRaises(ContractRefusal) as caught:
+            activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                                expect=self.expect())
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIn("no committed claim", caught.exception.message)
+
+    def test_an_activation_for_another_identity_is_refused(self):
+        for what, spoiled in [
+                ("another participant", dict(participant="baton.someone")),
+                ("another generation", dict(generation=2)),
+                ("another Work", dict(work_ref={"authority_uuid": UUID,
+                                                "work_id": "0000000a-W9"})),
+                ("another authority", dict(work_ref={"authority_uuid": "f" * 32,
+                                                     "work_id": WORK}))]:
+            with self.subTest(what=what):
+                self.setUp()
+                self.claimed()
+                with self.assertRaises(ContractRefusal) as caught:
+                    activate_assignment(self.store, self.port,
+                                        attempt_id=ATTEMPT,
+                                        expect=self.expect(**spoiled))
+                self.assertIn(caught.exception.category,
+                              ("refused", "stale-assignment"))
+                # THE MESSAGE NAMES THE PART THAT DIFFERS. "a dict and a dict"
+                # is a true sentence about two assignments and tells a reader
+                # nothing about which of the four parts disagreed.
+                self.assertRegex(
+                    caught.exception.message,
+                    r"(participant|generation|work_id|authority_uuid"
+                    r"|acts for)")
+                self.assertIsNone(self.row()["assignment_generation"])
+
+    def test_the_session_binding_decides_who_may_activate(self):
+        """Checked BEFORE the claim is looked up, and before anything writable.
+
+        A session for somebody else must not get as far as reading this
+        attempt's claim, let alone fixing an assignment with it.
+        """
+        self.recorded()
+        self.session.participant = "baton.someone"
+        port = AuthorityPort(self.session, fake_claim_signature)
+        with self.assertRaises(ContractRefusal) as caught:
+            activate_assignment(self.store, port, attempt_id=ATTEMPT,
+                                expect=self.expect())
+        self.assertIn("activated by the identity that holds it",
+                      caught.exception.message)
+        self.assertIn(WHO, caught.exception.message)
+        self.assertIn("baton.someone", caught.exception.message)
+
+    def test_the_live_assignment_must_agree_too(self):
+        self.claimed()
+        self.session.live_assignment = {
+            "work_ref": {"authority_uuid": UUID, "work_id": WORK},
+            "participant": WHO, "generation": 2}
+        with self.assertRaises(ContractRefusal) as caught:
+            activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                                expect=self.expect())
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("stale-assignment", "generation"))
+
+    def test_a_row_fixed_without_a_journal_row_answers_as_it_stands(self):
+        """The fallback, and what `already_fixed` now means.
+
+        An exact retry REPLAYS the recorded answer, so it never reaches this
+        branch -- which leaves it for the case it was always about: an attempt
+        this build finds already fixed with no act of its own to reproduce. Then
+        the honest answer is the assignment AS IT STANDS, and saying which of
+        the two happened is the point of the flag.
+        """
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        beside = sqlite3.connect(self.path, isolation_level=None)
+        try:
+            # Somebody else's act: the row is fixed and this journal has no
+            # record of fixing it.
+            beside.execute("DELETE FROM operations WHERE operation_id = ?",
+                           (f"assignment.activate:{ATTEMPT}",))
+        finally:
+            beside.close()
+        again = activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                                    expect=self.expect())
+        self.assertIs(again["already_fixed"], True)
+        self.assertEqual(again["assignment"], self.expect())
+
+    def test_an_exact_reactivation_replays_one_byte_stable_answer(self):
+        """The same act cannot answer according to when its retry arrived.
+
+        A retry that entered before the first commit is replayed by the journal;
+        one that entered afterwards must not bypass that row and synthesize a
+        different `already_fixed` answer from current state.
+        """
+        self.claimed()
+        first = activate_assignment(self.store, self.port,
+                                    attempt_id=ATTEMPT, expect=self.expect())
+        again = activate_assignment(self.store, self.port,
+                                    attempt_id=ATTEMPT, expect=self.expect())
+        self.assertEqual(again, first)
+
+    def test_a_fixed_attempt_refuses_a_different_identity(self):
+        """FIXED ONCE, and compared on ALL FOUR parts.
+
+        Comparing Work and generation alone let a later activation replay under
+        another participant or authority.
+        """
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        beside = sqlite3.connect(self.path, isolation_level=None)
+        try:
+            beside.execute("UPDATE offers SET participant = 'baton.someone', "
+                           "claim_generation = 2")
+        finally:
+            beside.close()
+        self.session.participant = "baton.someone"
+        self.session.live_assignment = {
+            "work_ref": {"authority_uuid": UUID, "work_id": WORK},
+            "participant": "baton.someone", "generation": 2}
+        port = AuthorityPort(self.session, fake_claim_signature)
+        with self.assertRaises(ContractRefusal) as caught:
+            activate_assignment(self.store, port, attempt_id=ATTEMPT,
+                                expect=self.expect(participant="baton.someone",
+                                                   generation=2))
+        self.assertEqual(caught.exception.category, "stale-assignment")
+        self.assertIn("is fixed to", caught.exception.message)
+
+
+class ObservationsMoveAlongTheirOwnAxis(AttemptCase):
+
+    def test_unhashable_axis_and_value_are_contract_refusals(self):
+        """Closed vocabularies type before asking a membership question."""
+        self.recorded()
+        for what, call in [
+                ("axis", {"axis": [], "value": "running"}),
+                ("value", {"axis": "consent_runtime", "value": []})]:
+            with self.subTest(what=what):
+                with self.assertRaises(ContractRefusal) as caught:
+                    observe(self.store, attempt_id=ATTEMPT, **call)
+                self.assertEqual((caught.exception.category,
+                                  caught.exception.code),
+                                 ("integrity", "schema"))
+
+    def test_an_axis_moves_only_where_its_map_allows(self):
+        self.recorded()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+        with self.assertRaises(ContractRefusal) as caught:
+            observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                    value="not-started")
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("runtime-observation", "state-regression"))
+
+    def test_a_terminal_alternative_is_never_overwritten(self):
+        """Every worker disposition is a terminal ANSWER.
+
+        Treating the vocabulary's order as a transition order made `completed`
+        advance to `unable` -- a different answer, not a later stage of the same
+        one.
+        """
+        self.recorded()
+        observe(self.store, attempt_id=ATTEMPT, axis="worker_disposition",
+                value="completed")
+        for other in ("unable", "plan-rejected", "cancelled"):
+            with self.subTest(other=other):
+                with self.assertRaises(ContractRefusal):
+                    observe(self.store, attempt_id=ATTEMPT,
+                            axis="worker_disposition", value=other)
+        self.assertEqual(self.row()["worker_disposition"], "completed")
+
+    def test_uncertainty_never_becomes_destruction(self):
+        """Destruction is a fact about the world.
+
+        Inferring it from a failure to look would report a cleaned-up runtime
+        that is still executing somebody's code.
+        """
+        self.recorded()
+        observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                value="uncertain")
+        with self.assertRaises(ContractRefusal):
+            observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                    value="destroyed")
+        self.assertIn("running", TRANSITIONS["consent_runtime"]["uncertain"])
+
+    def test_an_exact_repeat_from_one_source_replays(self):
+        self.recorded()
+        source = {"incarnation": "worker-7", "seq": 3}
+        first = observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                        value="running", source=source)
+        again = observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                        value="running", source=source)
+        self.assertIs(first.get("replayed", False), False)
+        self.assertIs(again["replayed"], True)
+        self.assertIs(again["changed"], False)
+
+    def test_a_different_observation_under_one_source_identity_refuses(self):
+        self.recorded()
+        source = {"incarnation": "worker-7", "seq": 3}
+        observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                value="running", source=source)
+        with self.assertRaises(ContractRefusal) as caught:
+            observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                    value="quiescent", source=source)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("runtime-observation", "state-regression"))
+        self.assertEqual(self.row()["consent_runtime"], "running")
+
+    def test_an_exact_replay_survives_the_axis_moving_on(self):
+        """What a source identity already said is a fact about THAT IDENTITY.
+
+        The frozen host consulted today's axis first, so an EXACT old
+        observation was refused once the axis had advanced.
+        """
+        self.recorded()
+        source = {"incarnation": "worker-7", "seq": 1}
+        observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                value="running", source=source)
+        observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                value="quiescent", source={"incarnation": "worker-7",
+                                           "seq": 2})
+        again = observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                        value="running", source=source)
+        self.assertIs(again["replayed"], True)
+        self.assertEqual(self.row()["consent_runtime"], "quiescent")
+
+    def test_an_inert_sourced_observation_still_consumes_its_identity(self):
+        """Otherwise the identity's meaning depends on where the axis was.
+
+        An inert sourced observation that wrote no row left its
+        `(attempt, incarnation, seq)` reusable, and a DIFFERENT observation
+        could then commit under it.
+        """
+        self.recorded()
+        observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                value="running")
+        source = {"incarnation": "worker-7", "seq": 1}
+        inert = observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                        value="running", source=source)
+        self.assertIs(inert["changed"], False)
+        with self.assertRaises(ContractRefusal):
+            observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                    value="quiescent", source=source)
+
+    def test_a_manager_repeat_stays_inert_and_mints_nothing(self):
+        """There is no identity for anyone else to reuse, so there is no row."""
+        self.recorded()
+        observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                value="running")
+        answer = observe(self.store, attempt_id=ATTEMPT,
+                         axis="consent_runtime", value="running")
+        self.assertIs(answer["changed"], False)
+        self.assertNotIn("manager_seq", answer)
+        beside = sqlite3.connect(self.path, isolation_level=None)
+        try:
+            rows = beside.execute(
+                "SELECT COUNT(*) FROM observations").fetchone()[0]
+        finally:
+            beside.close()
+        self.assertEqual(rows, 1)
+
+    def test_a_refused_observation_leaves_no_row_behind(self):
+        """The savepoint is the boundary, and it holds at either depth."""
+        self.recorded()
+        observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                value="running")
+        with self.assertRaises(ContractRefusal):
+            observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                    value="not-started", source={"incarnation": "w", "seq": 9})
+        beside = sqlite3.connect(self.path, isolation_level=None)
+        try:
+            found = beside.execute(
+                "SELECT COUNT(*) FROM observations WHERE incarnation = 'w'"
+            ).fetchone()[0]
+        finally:
+            beside.close()
+        self.assertEqual(found, 0)
+        self.assertEqual(self.row()["consent_runtime"], "running")
+
+    def test_the_manager_sequence_orders_what_was_recorded(self):
+        self.recorded()
+        seen = []
+        for axis, value in [("consent_runtime", "running"),
+                            ("execution_runtime", "start-requested"),
+                            ("output", "freeze-requested")]:
+            seen.append(observe(self.store, attempt_id=ATTEMPT, axis=axis,
+                                value=value)["manager_seq"])
+        self.assertEqual(seen, [1, 2, 3])
+        self.assertEqual(self.row()["observation_seq"], 3)
+
+
+class WhatOnlyAnotherWriterCanCause(AttemptCase):
+    """Guards whose condition one process cannot reach on its own.
+
+    Each of these measured zero as a mutation until it was driven the way it
+    actually happens: a store some other build wrote, a table some other build
+    constrained, or a second manager acting between this one's read and its
+    write. A guard that can only be reasoned about is a guard nobody has
+    checked.
+    """
+
+    def beside(self):
+        found = sqlite3.connect(self.path, isolation_level=None)
+        found.execute("PRAGMA busy_timeout = 2000")
+        return found
+
+    def test_two_claimed_offers_for_one_attempt_refuse_rather_than_choose(self):
+        """The unique index makes two impossible GOING FORWARD.
+
+        This fails closed against a store written before it, because "which of
+        these two is this attempt's claim" has no answer a manager may guess at.
+        """
+        self.claimed()
+        beside = self.beside()
+        try:
+            beside.execute("DROP INDEX offers_one_claim_per_attempt")
+            beside.execute(
+                "INSERT INTO offers (offer_id, work_id, authority_uuid, "
+                "participant, runtime_attempt_id, incarnation, input_digest, "
+                "policy_digest, profile_digest, verifier, verifier_spent, "
+                # W16823: the frozen pair, and the context a `claimed` row must
+                # carry all of.
+                "work_scope, work_route, claim_event_seq, claim_principal, "
+                "claim_scope, claim_role, claim_grant, "
+                "claim_policy_generation, "
+                "issued_at, expires_at, state, intent_digest, accepted_at, "
+                "settle_by, claim_operation_id, claim_signature) VALUES "
+                "('offer-2', ?, ?, ?, ?, 'm', 'd', 'd', ?, 'v', 1, "
+                "?, ?, 2, ?, ?, ?, 'direct', 1, ?, ?, "
+                "'claimed', 'i', ?, ?, 'claim:x', 's')",
+                (WORK, UUID, WHO, ATTEMPT, PROFILE, SCOPE, ROUTE,
+                 PRINCIPAL, SCOPE, ROUTE, NOW, NOW, NOW, NOW))
+        finally:
+            beside.close()
+        with self.assertRaises(ContractRefusal) as caught:
+            activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                                expect=self.expect())
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "schema"))
+        self.assertIn("2 claimed offers", caught.exception.message)
+
+    def test_a_refused_insert_takes_the_axis_move_with_it(self):
+        """The savepoint is the boundary, and this is the case that needs it.
+
+        The transition check refuses BEFORE anything is written, so a rollback
+        matters only when the write itself fails -- and then the axis must not
+        keep a move whose observation was never recorded.
+        """
+        self.recorded()
+        beside = self.beside()
+        try:
+            beside.execute(
+                "CREATE TRIGGER no_observations BEFORE INSERT ON observations "
+                "BEGIN SELECT RAISE(ABORT, 'somebody else constrains this'); "
+                "END")
+        finally:
+            beside.close()
+        with self.assertRaises(sqlite3.IntegrityError):
+            observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                    value="running")
+        self.assertEqual(self.row()["consent_runtime"], "not-started")
+        self.assertEqual(self.row()["observation_seq"], 0)
+
+    def test_a_failure_whose_PROSE_says_busy_keeps_its_own_identity(self):
+        """The result code decides, never the message.
+
+        The frozen host matched a substring of the free-form message, so a
+        trigger raising `busy provider invariant` was handed a database lock's
+        portable meaning AND its retry policy. That message is
+        APPLICATION-CONTROLLED prose; a caller told to retry a constraint
+        violation will retry it forever.
+
+        A mutation that went back to matching prose measured zero until this
+        existed -- every failure I had driven differed in code AND in wording.
+        """
+        self.recorded()
+        beside = self.beside()
+        try:
+            beside.execute(
+                "CREATE TRIGGER busy_sounding BEFORE INSERT ON observations "
+                "BEGIN SELECT RAISE(ABORT, 'busy provider invariant: database "
+                "is locked by policy'); END")
+        finally:
+            beside.close()
+        with self.assertRaises(sqlite3.IntegrityError) as caught:
+            observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                    value="running")
+        self.assertIn("busy", str(caught.exception))
+        self.assertEqual(self.row()["consent_runtime"], "not-started")
+
+    def test_a_second_manager_activating_first_replays_rather_than_writes(self):
+        """What the race actually produces, measured rather than assumed.
+
+        I wrote this expecting the activation's compare-and-swap to refuse, and
+        it does not: the two managers derive the SAME operation identity from
+        the same operands, so the journal replays the first manager's committed
+        answer before the second's act runs at all. Effectively-once settles the
+        race one layer above the swap.
+
+        THE SWAP IS THEREFORE NOT DRIVABLE THROUGH THE PUBLIC SURFACE, and I am
+        recording that rather than deleting it: unlike the three unreachable
+        VALIDATIONS this campaign has made me remove, it is the write's own
+        condition -- the thing that makes the UPDATE conditional at all -- and
+        removing it would leave the durable write unguarded against a future
+        caller that reaches it under another identity. Flagged for review as a
+        judgement call, not as a proof.
+        """
+        self.claimed()
+        other = ControlStore.open(self.path, incarnation="manager-2",
+                                  clock=lambda: NOW)
+        self.addCleanup(other.close)
+        racing = AuthorityPort(FakeSession(), fake_claim_signature)
+        original = self.port.assignment_of
+
+        def activate_first(work_id, authority_uuid):
+            # The other manager commits between this call's read and its write.
+            activate_assignment(other, racing, attempt_id=ATTEMPT,
+                                expect=self.expect())
+            return original(work_id, authority_uuid)
+
+        self.port.assignment_of = activate_first
+        answer = activate_assignment(self.store, self.port,
+                                     attempt_id=ATTEMPT, expect=self.expect())
+        self.assertIs(answer["already_fixed"], False)
+        self.assertEqual(answer["assignment"], self.expect())
+        self.assertEqual(self.row()["assignment_generation"], 1)
+        beside = self.beside()
+        try:
+            rows = beside.execute(
+                "SELECT COUNT(*) FROM operations WHERE operation_id = ?",
+                (f"assignment.activate:{ATTEMPT}",)).fetchone()[0]
+        finally:
+            beside.close()
+        self.assertEqual(rows, 1)
+
+    def test_a_stale_observer_translates_only_database_contention(self):
+        """A deferred snapshot must not leak SQLite's lock vocabulary.
+
+        The clock hook pauses the first manager after it has read the old axis
+        and immediately before its conditional update. A second manager commits
+        the same transition, leaving the first snapshot stale. The frozen host
+        classifies this exact storage condition as a state-regression refusal.
+        """
+        reached_update = threading.Event()
+        release_update = threading.Event()
+        outcomes = queue.Queue()
+        calls = 0
+
+        def paused_clock():
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                reached_update.set()
+                release_update.wait(5)
+            return NOW
+
+        self.recorded()
+
+        def stale_writer():
+            other = ControlStore.open(self.path, incarnation="manager-2",
+                                      clock=paused_clock)
+            try:
+                try:
+                    outcomes.put(observe(
+                        other, attempt_id=ATTEMPT, axis="consent_runtime",
+                        value="running"))
+                except BaseException as failure:
+                    outcomes.put(failure)
+            finally:
+                other.close()
+
+        thread = threading.Thread(target=stale_writer)
+        thread.start()
+        self.assertTrue(reached_update.wait(5))
+        observe(self.store, attempt_id=ATTEMPT, axis="consent_runtime",
+                value="running")
+        release_update.set()
+        thread.join(5)
+        self.assertFalse(thread.is_alive())
+        outcome = outcomes.get_nowait()
+        self.assertIsInstance(outcome, ContractRefusal)
+        self.assertEqual((outcome.category, outcome.code),
+                         ("runtime-observation", "state-regression"))
+
+
+class TheBoundaryIdentityIsPinnedOnce(AttemptCase):
+    """W71917: the durable custody evidence, and what makes it evidence.
+
+    The pin records which OBJECTS this attempt's nominated source and its
+    writable workspace were, so a later incarnation can refuse a directory
+    replaced while no manager was watching. That refusal is only as good as
+    the write-once property behind it: an identity a second writer can replace
+    is one a replacement can install and then satisfy the gate with.
+    """
+
+    SOURCE = (11, 111)
+    WORKSPACE = (22, 222)
+
+    def test_the_first_pin_is_recorded_and_read_back(self):
+        self.recorded()
+        answer = pin_boundary_identity(self.store, attempt_id=ATTEMPT,
+                                       source=self.SOURCE,
+                                       workspace=self.WORKSPACE)
+        self.assertEqual(answer, (self.SOURCE, self.WORKSPACE))
+        self.assertEqual(boundary_identity_of(self.store, ATTEMPT),
+                         (self.SOURCE, self.WORKSPACE))
+
+    def test_an_exact_repeat_is_not_a_write(self):
+        """Every later incarnation composes over the same roots and reaches
+        this line again; re-observing the same objects is the ordinary case."""
+        self.recorded()
+        pin_boundary_identity(self.store, attempt_id=ATTEMPT,
+                              source=self.SOURCE, workspace=self.WORKSPACE)
+        again = pin_boundary_identity(self.store, attempt_id=ATTEMPT,
+                                      source=self.SOURCE,
+                                      workspace=self.WORKSPACE)
+        self.assertEqual(again, (self.SOURCE, self.WORKSPACE))
+        self.assertEqual(boundary_identity_of(self.store, ATTEMPT),
+                         (self.SOURCE, self.WORKSPACE))
+
+    def test_a_different_identity_refuses_rather_than_re_pinning(self):
+        self.recorded()
+        pin_boundary_identity(self.store, attempt_id=ATTEMPT,
+                              source=self.SOURCE, workspace=self.WORKSPACE)
+        for source, workspace in ((self.SOURCE, (33, 333)),
+                                  ((33, 333), self.WORKSPACE)):
+            with self.subTest(source=source, workspace=workspace):
+                with self.assertRaises(ContractRefusal) as caught:
+                    pin_boundary_identity(self.store, attempt_id=ATTEMPT,
+                                          source=source, workspace=workspace)
+                self.assertEqual(
+                    (caught.exception.category, caught.exception.code),
+                    ("refused", "operation-collision"))
+        # AND THE EVIDENCE IS UNTOUCHED, which is the whole reason to refuse.
+        self.assertEqual(boundary_identity_of(self.store, ATTEMPT),
+                         (self.SOURCE, self.WORKSPACE))
+
+    def test_two_first_pins_cannot_both_succeed(self):
+        """W71917 fourth review [P1]: the read and the write were two
+        autocommit transactions.
+
+        `ControlStore` opens SQLite with `isolation_level=None`, so a read that
+        answered "nothing pinned yet" and an unconditional `UPDATE` had a
+        window between them. Two manager connections both observed absence,
+        both were told they had pinned, and the later write replaced the
+        earlier evidence -- at exactly the boundary this evidence exists for,
+        two incarnations composing on opposite sides of a replacement.
+
+        THE SCHEDULE IS FORCED RATHER THAN HOPED FOR. Both callers are held at
+        the absence observation by a barrier, which is the interleaving the
+        reviewer drove by hand. Against the corrected code the second caller
+        never reaches that barrier at all -- it is waiting on the write lock
+        the first one took BEFORE reading -- so the barrier breaks on its own
+        timeout and the case still completes; against the superseded code both
+        arrive, both write, and both are told they were first.
+        """
+        self.recorded()
+        rendezvous = threading.Barrier(2, timeout=1)
+        held = attempts_module.boundary_identity_of
+
+        def after_the_absence_read(store, attempt_id):
+            answer = held(store, attempt_id)
+            if answer is None:
+                try:
+                    rendezvous.wait()
+                except threading.BrokenBarrierError:
+                    pass
+            return answer
+
+        outcomes = queue.Queue()
+
+        def pin(incarnation, source, workspace):
+            # OPENED IN THE THREAD THAT USES IT. A SQLite connection belongs to
+            # the thread that made it, and this case is about two REAL manager
+            # connections rather than two callers sharing one.
+            store = ControlStore.open(self.path, incarnation=incarnation,
+                                      clock=lambda: NOW)
+            try:
+                outcomes.put(pin_boundary_identity(
+                    store, attempt_id=ATTEMPT, source=source,
+                    workspace=workspace))
+            except BaseException as failure:
+                outcomes.put(failure)
+            finally:
+                store.close()
+
+        pinning = [("manager-2", (1, 11), (2, 22)),
+                   ("manager-3", (3, 33), (4, 44))]
+        with mock.patch.object(attempts_module, "boundary_identity_of",
+                               side_effect=after_the_absence_read):
+            threads = [threading.Thread(target=pin, args=one)
+                       for one in pinning]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join(20)
+        for thread in threads:
+            self.assertFalse(thread.is_alive())
+        answers = [outcomes.get_nowait(), outcomes.get_nowait()]
+        refused = [one for one in answers if isinstance(one, ContractRefusal)]
+        pinned = [one for one in answers
+                  if not isinstance(one, BaseException)]
+        self.assertEqual(len(pinned), 1, answers)
+        self.assertEqual(len(refused), 1, answers)
+        self.assertEqual((refused[0].category, refused[0].code),
+                         ("refused", "operation-collision"))
+        # THE STORED VALUE IS THE ONE THAT SUCCEEDED, read on a connection
+        # neither writer used: an answer that agreed with itself while the row
+        # held the other identity would be the same defect one layer along.
+        beside = ControlStore.open(self.path, incarnation="manager-4",
+                                   clock=lambda: NOW)
+        self.addCleanup(beside.close)
+        self.assertEqual(held(beside, ATTEMPT), pinned[0])
+
+
+class TheRuntimeIsStartedOnceAndReconciled(AttemptCase):
+    """ZERO WAITS, and starting a second runtime for one assignment is the
+    failure this whole ordering exists to prevent."""
+
+    def activated(self, attempt_id=ATTEMPT):
+        self.claimed(attempt_id=attempt_id)
+        activate_assignment(self.store, self.port, attempt_id=attempt_id,
+                            expect=self.expect())
+        return attempt_id
+
+    # THIS SUITE'S OWN CONSTANTS CANNOT APPEAR IN A MANIFEST, and that is not
+    # a fixture nicety. `UUID` is 31 zeros and an `a`, so its first eight
+    # characters are `00000000` while `WORK` reads `0000000a-W1` -- §12 rule 1
+    # refuses that pair, and this suite never noticed because nothing here
+    # validated a manifest until now. The launch boundary does, so the cases
+    # that drive it use a Work reference the contract accepts.
+    VALID_WORK = {"authority_uuid": "43c55d4b1234567890abcdef12345678",
+                  "work_id": "43c55d4b-W1439"}
+
+    def delivered(self, attempt_id=ATTEMPT, **override):
+        """A composed input root for this attempt, and the attempt recorded
+        against the very input manifest inside it.
+
+        BOTH HALVES, because the launch boundary compares them: an attempt
+        recorded against one digest and a root carrying another is exactly the
+        mis-composition it exists to refuse, and a fixture that produced it by
+        accident would make every case here a test of that one refusal.
+        """
+        work_ref = dict(self.VALID_WORK)
+        live = {"work_ref": dict(work_ref), "participant": WHO,
+                "generation": 1}
+        self.session._work = {"status": "open", "phase": "queued",
+                              "handler": None, "gate": None,
+                              "authority_uuid": work_ref["authority_uuid"],
+                              # W16823: what the offer freezes about the Work.
+                              "scope": SCOPE, "route": ROUTE}
+        self.session.claim_answer = {"assignment": dict(live),
+                                     "claim_event": 1,
+                                     "decision": decision()}
+        self.session.live_assignment = dict(live)
+        given, assignment = input_roots.documents(
+            work_ref=work_ref, participant=WHO, generation=1,
+            runtime_attempt_id=attempt_id, **override)
+        issue_offer(self.store, self.port, offer_id="offer-1",
+                    work_id=work_ref["work_id"],
+                    runtime_attempt_id=attempt_id,
+                    input_digest=given["manifest_digest"],
+                    policy_digest="sha256:" + "2" * 64,
+                    profile_digest=PROFILE, profile_name="reference",
+                    mint_bearer=lambda: "bearer-1")
+        accept_offer(self.store, self.port, offer_id="offer-1",
+                     decision="accept", bearer="bearer-1", now=NOW,
+                     runtime_attempt_id=attempt_id, work_ref=dict(work_ref))
+        record_attempt(self.store, attempt_id=attempt_id, adapter_name="acp",
+                       adapter_digest=ADAPTER, profile_digest=PROFILE,
+                       input_digest=given["manifest_digest"],
+                       policy_digest="sha256:" + "2" * 64)
+        submit_claim(self.store, self.port, offer_id="offer-1")
+        activate_assignment(self.store, self.port, attempt_id=attempt_id,
+                            expect=dict(live))
+        storage = input_roots.storage_under(self)
+        inputs = assignment_workspace(
+            self.group, storage, attempt_id)["inputs"]
+        compose_input_root(inputs, given, assignment,
+                           assignment=dict(assignment["assignment_ref"]),
+                           runtime_attempt_id=attempt_id)
+        self.addCleanup(input_roots._forcibly_remove, storage)
+        return inputs, given, assignment
+
+    def labels(self, attempt_id=ATTEMPT):
+        row = self.row(attempt_id)
+        return {"runtime_attempt_id": row["runtime_attempt_id"],
+                "authority_uuid": row["authority_uuid"],
+                "work_id": row["work_id"],
+                "participant": row["assignment_participant"],
+                "generation": row["assignment_generation"],
+                # W16823: the principal and the scope the claim was authorized
+                # for, BESIDE the fence rather than instead of any of it.
+                "principal": row["assignment_principal"],
+                "effective_scope": row["assignment_scope"],
+                "profile_digest": row["profile_digest"],
+                "policy_digest": row["policy_digest"],
+                "adapter_digest": row["adapter_digest"]}
+
+    def test_a_start_over_an_authorized_root_proceeds(self):
+        """W19784 review [P0]. The positive: an attempt claimed against an
+        input manifest, a root composed for that exact assignment and attempt,
+        and the runtime starts."""
+        inputs, given, _assignment = self.delivered()
+        adapter = Adapter()
+        answer = request_runtime_start(self.store, adapter,
+                                       attempt_id=ATTEMPT, inputs=inputs)
+        self.assertEqual(answer["decision"], "attached")
+        back_input, back_assignment = authorize_input_root(
+            self.store, attempt_id=ATTEMPT, inputs=inputs)
+        self.assertEqual(back_input["manifest_digest"],
+                         given["manifest_digest"])
+        self.assertEqual(back_assignment["assignment_ref"],
+                         {"work_ref": dict(self.VALID_WORK),
+                          "participant": WHO, "generation": 1})
+
+    def test_a_sealed_attempt_cannot_start(self):
+        """W131409: the seal wins, so no adapter start may follow.
+
+        `seal_unstarted` commits a row saying this attempt's Work has been
+        handed back for a target rework, and the launch intent reads it inside
+        the transaction that would commit that intent -- so the refusal
+        arrives before the engine and before any delivery, and the adapter is
+        never called at all.
+        """
+        from baton_v12.worker_manager.target_rework import seal_unstarted
+
+        inputs, _given, _assignment = self.delivered()
+        seal_unstarted(self.store, attempt_id=ATTEMPT)
+        adapter = Adapter()
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIn("is sealed by", caught.exception.message)
+        self.assertEqual(adapter.started, [])
+
+    def test_an_attempt_that_started_cannot_be_sealed(self):
+        """AND THE OTHER ORDER. Launch won, so the seal takes nothing from it:
+        the runtime axis has left `not-started`, which is the same transaction
+        the intent committed in, and sealing holds instead."""
+        from baton_v12.contracts import ContractRefusal as Refusal
+        from baton_v12.worker_manager.target_rework import (seal_of,
+                                                            seal_unstarted)
+
+        inputs, _given, _assignment = self.delivered()
+        request_runtime_start(self.store, Adapter(), attempt_id=ATTEMPT,
+                              inputs=inputs)
+        with self.assertRaises(Refusal) as caught:
+            seal_unstarted(self.store, attempt_id=ATTEMPT)
+        self.assertIn("has not crossed the launch-intent boundary",
+                      caught.exception.message)
+        self.assertIsNone(seal_of(self.store, ATTEMPT))
+
+    def test_authorizing_one_root_cannot_start_an_adapter_mounting_another(self):
+        """The launch authorization and the mount must name ONE root.
+
+        `request_runtime_start` currently validates its `inputs` operand and
+        then calls an adapter whose mount plan is independent of that operand.
+        The production OCI adapter owns such a plan at construction. Without
+        an equality boundary the manager can prove one directory and expose a
+        different one at the worker's fixed `/input` path.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        adapter.mounts = ({"source": os.path.join(os.path.dirname(inputs),
+                                                   "workspace"),
+                           "target": "/input", "writable": False},)
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(adapter.started, [])
+        self.assertEqual(self.row()["execution_runtime"], "not-started")
+
+    def test_a_noncanonical_input_target_refuses_before_start_is_journalled(
+            self):
+        """Normalizing a plan must not erase the spelling being authorized.
+
+        OCI's own boundary refuses `..` before normalization. If the earlier
+        manager check normalizes first, `/else/../input` masquerades as the
+        fixed `/input`; the adapter eventually refuses it, but only after the
+        manager committed a start operation that now needs settlement.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        adapter.mounts = ({"source": inputs, "target": "/else/../input",
+                           "writable": False},)
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(adapter.started, [])
+        self.assertEqual(self.row()["execution_runtime"], "not-started")
+
+    def test_a_noncanonical_input_source_refuses_before_start_is_journalled(
+            self):
+        """The same rule applies to the host source spelling.
+
+        `realpath` equality proves where a spelling resolves; it does not make
+        a traversal spelling canonical. The OCI boundary refuses such a
+        source, so the earlier plan check must not journal it first.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        adapter.mounts = ({"source": os.path.join(inputs, "..", "inputs"),
+                           "target": "/input", "writable": False},)
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(adapter.started, [])
+        self.assertEqual(self.row()["execution_runtime"], "not-started")
+
+    def test_the_authorized_root_crosses_the_adapter_seam(self):
+        """W19784 second review [P0], the half `_plan_agrees` cannot cover.
+
+        The manager's own check reads an adapter's DECLARED plan, and an
+        adapter that declares none -- or one reached by any path other than
+        this function -- still has to fail closed on its own. It can only do
+        that if it is told which root was proved, so what this observes is the
+        value ARRIVING: the adapter's own cases in `test_oci` then decide what
+        it does with it.
+
+        Without this the manager's earlier refusal would mask the seam
+        entirely, and the adapter would be trusting a plan nobody compared.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                              inputs=inputs)
+        self.assertEqual(adapter.started[0]["input_root"], inputs)
+
+    def test_a_start_with_no_root_says_so_across_the_seam(self):
+        """And absence crosses it too, as a value rather than as an omission.
+        An adapter cannot refuse a `/input` bind it was never told was
+        unauthorized."""
+        # `activated()` records the attempt WITHOUT an input digest, which is
+        # the only state in which no root can be required -- and this suite's
+        # ordinary fixture, so the case reads the same path every other start
+        # case here does.
+        self.activated()
+        adapter = Adapter()
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        self.assertIn("input_root", adapter.started[0])
+        self.assertIsNone(adapter.started[0]["input_root"])
+
+    def test_a_claimed_attempt_will_not_start_without_a_root(self):
+        """THE REQUIREMENT IS DERIVED, not optional. `inputs=None` is reachable
+        only when the attempt records no input digest -- and an attempt that
+        was offered and claimed against an input manifest records one, so from
+        that moment there is no way to start without an authorized root.
+
+        An optional operand would have been the hole the review found: a caller
+        that could pass nothing would start a runtime over a directory nothing
+        established.
+        """
+        self.delivered()
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, Adapter(), attempt_id=ATTEMPT)
+        self.assertEqual(caught.exception.code, "precondition")
+        self.assertEqual(self.row()["execution_runtime"], "not-started",
+                         "a refused authorization still journalled a start")
+
+    def test_a_root_composed_for_another_delivery_never_starts_a_runtime(self):
+        """Each root below is internally perfect and composed by the real
+        boundary. What refuses is that it is not THIS attempt's -- and it
+        refuses BEFORE the start operation is journalled, so there is no
+        runtime and nothing to reconcile."""
+        storage = input_roots.storage_under(self)
+        self.delivered()
+        mine = {"work_ref": dict(self.VALID_WORK), "participant": WHO,
+                "generation": 1}
+        for what, spoiled, elsewhere in (
+                ("a superseded generation",
+                 dict(mine, generation=mine["generation"] + 1), "other-1"),
+                ("another participant",
+                 dict(mine, participant="baton.someone"), "other-2"),
+                ("another runtime attempt", dict(mine), "other-3")):
+            with self.subTest(what=what):
+                given, assignment = input_roots.documents(
+                    work_ref=spoiled["work_ref"],
+                    participant=spoiled["participant"],
+                    generation=spoiled["generation"],
+                    runtime_attempt_id=(ATTEMPT if what != "another runtime "
+                                        "attempt" else elsewhere))
+                inputs = assignment_workspace(
+                    self.group, storage, elsewhere)["inputs"]
+                compose_input_root(
+                    inputs, given, assignment,
+                    assignment=dict(assignment["assignment_ref"]),
+                    runtime_attempt_id=assignment["runtime_attempt_id"])
+                with self.assertRaises(ContractRefusal):
+                    request_runtime_start(self.store, Adapter(),
+                                          attempt_id=ATTEMPT, inputs=inputs)
+                self.assertEqual(self.row()["execution_runtime"],
+                                 "not-started")
+        self.addCleanup(input_roots._forcibly_remove, storage)
+
+    def test_a_root_carrying_another_input_manifest_never_starts(self):
+        """The third manager-owned fact: the attempt's own record of what it
+        was claimed against. A root whose assignment names the right identity
+        but whose input manifest is a different document is a delivery this
+        attempt was never offered."""
+        storage = input_roots.storage_under(self)
+        self.delivered()
+        given, assignment = input_roots.documents(
+            work_ref=dict(self.VALID_WORK),
+            participant=WHO, generation=1, runtime_attempt_id=ATTEMPT,
+            policy_digest="sha256:" + "e" * 64)
+        inputs = assignment_workspace(
+            self.group, storage, "other-input")["inputs"]
+        compose_input_root(inputs, given, assignment,
+                           assignment=dict(assignment["assignment_ref"]),
+                           runtime_attempt_id=ATTEMPT)
+        self.addCleanup(input_roots._forcibly_remove, storage)
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, Adapter(), attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(caught.exception.code, "digest")
+
+    def test_an_unactivated_attempt_has_no_assignment_to_authorize_against(
+            self):
+        self.claimed()
+        with self.assertRaises(ContractRefusal) as caught:
+            authorize_input_root(self.store, attempt_id=ATTEMPT,
+                                 inputs=input_roots.storage_under(self))
+        self.assertEqual(caught.exception.code, "precondition")
+
+    def test_the_start_operation_is_journalled_before_the_adapter_is_called(
+            self):
+        """An axis label is not an effectively-once act.
+
+        A journalled operation is what a restart replays and what the adapter
+        can be asked about; a state column records only that somebody once
+        intended to start.
+        """
+        self.activated()
+        adapter = Adapter()
+        answer = request_runtime_start(self.store, adapter,
+                                       attempt_id=ATTEMPT)
+        self.assertEqual(answer["decision"], "attached")
+        self.assertEqual(answer["runtime_id"], "runtime-1")
+        operation_id = adapter.started[0]["operation_id"]
+        self.assertTrue(operation_id.startswith("runtime.start:"))
+        self.assertIsNotNone(self.store.operation_record(operation_id))
+        self.assertEqual(self.row()["execution_runtime"], "running")
+
+    def test_the_labels_carry_all_four_parts_of_the_assignment(self):
+        """The frozen host omitted the participant, so two participants'
+        runtimes on one Work and generation were indistinguishable."""
+        self.activated()
+        adapter = Adapter()
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        labels = adapter.started[0]["labels"]
+        self.assertEqual(labels, self.labels())
+        for part in ("authority_uuid", "work_id", "participant", "generation"):
+            with self.subTest(part=part):
+                self.assertIsNotNone(labels[part])
+
+    def test_a_runtime_cannot_start_without_the_policy_it_is_labelled_with(
+            self):
+        """W6632 review [P1] made the policy digest a reconciliation label.
+
+        `policy_digest` is nullable on the attempt row, so this is a real
+        precondition rather than a shape complaint: a delivery whose policy
+        this manager cannot name is one no restart can describe, and the
+        refusal says that rather than surfacing as a digest fault about
+        `None` from inside the label constructor.
+        """
+        self.claimed()
+        self.store._connection.execute(
+            "UPDATE attempts SET policy_digest = NULL "
+            "WHERE runtime_attempt_id = ?",
+            (ATTEMPT,))
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        adapter = Adapter()
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        self.assertIn("records no policy digest", caught.exception.message)
+        self.assertEqual(adapter.started, [],
+                         "nothing may be started for a delivery whose policy "
+                         "this manager cannot name")
+
+    def test_an_unactivated_attempt_cannot_start_a_runtime(self):
+        self.recorded()
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, Adapter(), attempt_id=ATTEMPT)
+        self.assertIn("is not activated", caught.exception.message)
+
+    def test_a_second_start_is_refused_rather_than_performed(self):
+        self.activated()
+        request_runtime_start(self.store, Adapter(), attempt_id=ATTEMPT)
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, Adapter(), attempt_id=ATTEMPT)
+        self.assertEqual(caught.exception.code, "already-terminal")
+
+    def test_a_runtime_this_call_mislabelled_is_cancelled_not_ignored(self):
+        """It is not absent, it is WRONG, and this call caused it."""
+        self.activated()
+        adapter = Adapter()
+        adapter.start_answer = {"runtime_id": "runtime-1",
+                                "labels": dict(self.labels(),
+                                               participant="baton.someone")}
+        answer = request_runtime_start(self.store, adapter,
+                                       attempt_id=ATTEMPT)
+        self.assertEqual(answer["decision"], "cancel")
+        self.assertIn("different assignment", answer["why"])
+        self.assertEqual(self.row()["execution_runtime"], "cancel-requested")
+
+    def test_two_runtimes_with_these_labels_cancel_rather_than_compound(self):
+        self.activated()
+        adapter = Adapter()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": self.labels()},
+                           {"runtime_id": "runtime-2",
+                            "labels": self.labels()}]
+        answer = reconcile_runtime(self.store, adapter, attempt_id=ATTEMPT)
+        self.assertEqual(answer["decision"], "cancel")
+        self.assertEqual(sorted(answer["runtimes"]),
+                         ["runtime-1", "runtime-2"])
+
+    def test_an_empty_listing_with_no_identity_is_still_uncertainty(self):
+        """"The adapter reports nothing" and "nothing exists" are different
+        facts -- and this is the ONE reconciliation that still cannot tell them
+        apart, because there is no runtime to name.
+
+        Review [P0] narrowed this case rather than removing it. An empty
+        listing used to be uncertainty ALWAYS, including when the attempt held
+        the exact immutable runtime id -- so positive absence was unreachable
+        in the ordinary post-removal shape. It is uncertainty now only when
+        nothing was started by this call and nothing is recorded.
+        """
+        self.activated()
+        adapter = Adapter()
+        adapter.listing = []
+        answer = reconcile_runtime(self.store, adapter, attempt_id=ATTEMPT)
+        self.assertEqual(answer["decision"], "uncertain")
+        self.assertIn("this attempt names none", answer["why"])
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+        # AND NOTHING WAS ASKED, because nothing could be.
+        self.assertEqual(adapter.observed, [])
+
+    def test_an_empty_listing_over_a_known_runtime_observes_that_runtime(self):
+        """Review [P0]: the ordinary post-removal shape.
+
+        The container is gone, so `ps --all` no longer lists it -- and the
+        attempt still holds the exact immutable runtime id. Reconciliation asks
+        the adapter about that identity by name, which is the only way positive
+        absence is reachable at all.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                              inputs=inputs)
+        self.assertEqual(adapter.observed, [adapter.runtime_id])
+        adapter.listing = []
+        adapter.observation = {"state": "absent", "why": "no such runtime",
+                               "mounts": None}
+        answer = reconcile_runtime(self.store, adapter, attempt_id=ATTEMPT)
+        self.assertEqual(adapter.observed,
+                         [adapter.runtime_id, adapter.runtime_id])
+        self.assertEqual(answer["observed"], "destroyed")
+        self.assertEqual(self.row()["execution_runtime"], "destroyed")
+
+    def test_an_empty_listing_over_an_unobservable_runtime_stays_uncertain(
+            self):
+        """AND THE OTHER ANSWER STAYS DISTINCT. Asking is not the same as
+        knowing: an adapter that cannot say what the exact runtime is leaves
+        the attempt uncertain rather than absent, and the identity is not
+        erased."""
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                              inputs=inputs)
+        adapter.listing = []
+        adapter.observation = {"state": "uncertain",
+                               "why": "the daemon did not answer",
+                               "mounts": None}
+        answer = reconcile_runtime(self.store, adapter, attempt_id=ATTEMPT)
+        self.assertEqual(answer["decision"], "uncertain")
+        self.assertIn("the daemon did not answer", answer["why"])
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+        self.assertEqual(self.row()["runtime_id"], adapter.runtime_id,
+                         "an inconclusive observation erased the identity")
+
+    def test_a_started_runtime_the_adapter_cannot_see_is_uncertain(self):
+        """Review [P0]: the exact identity this call minted is ASKED ABOUT.
+
+        It used to be reported uncertain without asking, on the reasoning that
+        a runtime the adapter does not list has an unknown fate. That is true
+        of the LISTING and not of the runtime: `minted` is an exact identity,
+        and an adapter that cannot say what it is answers so. The uncertainty
+        is now the adapter's answer rather than this manager's assumption.
+        """
+        self.activated()
+        adapter = Adapter()
+        adapter.listing = []
+        adapter.observation = {"state": "uncertain",
+                               "why": "the daemon did not answer",
+                               "mounts": None}
+        answer = request_runtime_start(self.store, adapter,
+                                       attempt_id=ATTEMPT)
+        self.assertEqual(answer["decision"], "uncertain")
+        self.assertIn("the daemon did not answer", answer["why"])
+        self.assertEqual(adapter.observed, [adapter.runtime_id])
+
+    def test_the_first_attachment_fixes_the_runtime_identity(self):
+        """A later inspection must not silently replace what is recorded."""
+        self.activated()
+        adapter = Adapter()
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        self.assertEqual(self.row()["runtime_id"], "runtime-1")
+        adapter.listing = [{"runtime_id": "runtime-9",
+                            "labels": self.labels()}]
+        answer = reconcile_runtime(self.store, adapter, attempt_id=ATTEMPT)
+        self.assertEqual(answer["decision"], "cancel")
+        self.assertEqual(self.row()["runtime_id"], "runtime-1")
+
+    def test_reconciling_the_same_runtime_again_is_still_attached(self):
+        self.activated()
+        adapter = Adapter()
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        again = reconcile_runtime(self.store, adapter, attempt_id=ATTEMPT)
+        self.assertEqual(again["decision"], "attached")
+        self.assertEqual(again["runtime_id"], "runtime-1")
+
+    def test_a_failed_attachment_rolls_back_before_a_restart_retry(self):
+        """A fault inside the atomic attachment commits neither half of it."""
+        self.activated()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+        adapter = Adapter()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": self.labels()}]
+        with mock.patch("baton_v12.worker_manager.attempts.observe",
+                        side_effect=RuntimeError("crash after attachment")):
+            with self.assertRaises(RuntimeError):
+                reconcile_runtime(self.store, adapter, attempt_id=ATTEMPT)
+        # The observation is INSIDE the journalled transaction, so a crash there
+        # commits NOTHING. There is no partial attachment for the reopened
+        # manager to repair: its retry performs the attachment and observation
+        # as one act.
+        self.assertIsNone(self.row()["runtime_id"])
+        self.assertEqual(self.row()["execution_runtime"], "start-requested")
+        self.store.close()
+        self.store = ControlStore.open(self.path, incarnation="manager-2",
+                                       clock=lambda: NOW)
+        self.addCleanup(self.store.close)
+
+        answer = reconcile_runtime(self.store, adapter, attempt_id=ATTEMPT)
+
+        self.assertEqual(answer["decision"], "attached")
+        self.assertEqual(self.row()["execution_runtime"], "running")
+
+
+class ARefusedStartIsSettledRatherThanStranded(TheRuntimeIsStartedOnceAndReconciled):
+    """W6636 [P0]: the post-claim start failure the composition owns.
+
+    `request_runtime_start` journals the start operation and moves
+    `execution_runtime` to `start-requested`, and only then calls the adapter.
+    A refusal from that call used to propagate untouched, leaving the attempt
+    claimed, activated and stranded: no runtime identity, an axis that is not
+    terminal, and `authorize_cleanup` refusing exactly that shape -- "no
+    runtime is attached; there is no identity to destroy and no absence to
+    prove". A successful atomic claim could end in an attempt no operation in
+    this manager could move.
+
+    What the ADAPTER does about its own refusal is not what this manager
+    knows: `OciAdapter._refused_start` settles both delivery roots and says so
+    in refusal prose, and prose is not a durable manager fact.
+    """
+
+    def refused(self, failure=None):
+        """An activated attempt with a real input root, and an adapter whose
+        start refuses."""
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        # The pair `OciAdapter` actually raises from a declined engine run.
+        adapter.start_failure = failure or ContractRefusal(
+            "policy", "denied", "the engine refused to start this runtime")
+        return adapter, inputs
+
+    def test_the_attempt_does_not_stay_at_start_requested(self):
+        """THE DEFECT. The axis stopped at an intention nobody could settle."""
+        adapter, inputs = self.refused()
+        adapter.listing = []
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertNotEqual(self.row()["execution_runtime"],
+                            "start-requested")
+
+    def test_a_runtime_the_failed_start_created_is_attached(self):
+        """An engine can create a container and then fail.
+
+        Attaching it is what makes it NAMEABLE by the ordinary destroy
+        crossing, which is the only path that force-removes anything -- so
+        this is the difference between a leaked container and one an operator
+        can clean up.
+        """
+        adapter, inputs = self.refused()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": self.labels()}]
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(self.row()["runtime_id"], "runtime-1")
+        self.assertEqual(self.row()["execution_runtime"], "running")
+        self.assertIn("attached", str(caught.exception))
+        # The reason the start failed is still what an operator reads first.
+        self.assertIn("refused to start", str(caught.exception))
+
+    def test_the_settlement_and_the_record_land_together_or_not_at_all(self):
+        """Re-review 2026-09-03T22:00:26Z [P1]: the sibling's lost ending.
+
+        Reconciling first attaches the runtime, and an attached runtime
+        projects the Job stage `running` -- which the control plane never
+        calls the deployment about again. A death before the record therefore
+        made this ending permanently unreachable, exactly as it did for the
+        preparation sibling. Neither fact may survive alone.
+        """
+        adapter, inputs = self.refused()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": self.labels()}]
+
+        def dying(**members):
+            del members
+            raise KeyboardInterrupt("the process stopped mid-act")
+
+        with mock.patch.object(attempts_module.documents,
+                               "runtime_start_failed", dying):
+            with self.assertRaises(KeyboardInterrupt):
+                request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                      inputs=inputs)
+        self.assertIsNone(
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT))
+        self.assertIsNone(self.row()["runtime_id"],
+                          "the attachment survived the act that was to record "
+                          "the failure it followed")
+        self.assertEqual(self.row()["execution_runtime"], "start-requested",
+                         "an uncertain settlement survived on its own")
+        self.assertEqual(len(adapter.started), 1)
+
+    def test_an_uncertain_settlement_is_part_of_the_record_act_too(self):
+        """The path where this manager knows least is the one that had three
+        separate writes.
+
+        Nothing could be established, so `uncertain` is the honest ending --
+        and leaving it durable without the record is the same lost ending one
+        step further out, because `uncertain` is a state the projection reads
+        as terminal.
+        """
+        adapter, inputs = self.refused()
+        adapter.listing = ContractRefusal(
+            "runtime-observation", "quiescence-unknown",
+            "the engine could not be listed")
+
+        def dying(**members):
+            del members
+            raise KeyboardInterrupt("the process stopped mid-act")
+
+        with mock.patch.object(attempts_module.documents,
+                               "runtime_start_failed", dying):
+            with self.assertRaises(KeyboardInterrupt):
+                request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                      inputs=inputs)
+        self.assertEqual(self.row()["execution_runtime"], "start-requested")
+        self.assertIsNone(
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT))
+        # AND THE NEXT PASS STILL REACHES THE ENDING, from the state the
+        # rollback left, which is what makes the interval resumable.
+        attempts_module._record_and_raise_start_failure(
+            self.store, ATTEMPT,
+            {"kind": "refusal", "category": "policy", "code": "denied",
+             "message": "the engine refused"})
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+        self.assertEqual(
+            attempts_module.attempt_start_failure_of(
+                self.store, ATTEMPT)["execution_runtime"], "uncertain")
+
+    def test_a_start_that_created_nothing_this_manager_can_name_is_uncertain(
+            self):
+        """FAIL CLOSED, and deliberately not "absent".
+
+        No runtime carries these labels and this attempt names none, so the
+        manager cannot say what was created -- and W26294 owns that answer.
+        `uncertain` is the honest record, and it is also the one that keeps
+        the invariant this ordering exists for: nothing starts a replacement.
+        """
+        adapter, inputs = self.refused()
+        adapter.listing = []
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+        self.assertIsNone(self.row()["runtime_id"])
+        self.assertIn("uncertain", str(caught.exception))
+
+    def test_no_replacement_is_started_on_either_path(self):
+        """One start attempt, one engine call. Settling must never become a
+        second launch for one assignment, which is the failure the whole
+        ordering is arranged against."""
+        adapter, inputs = self.refused()
+        adapter.listing = []
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(len(adapter.started), 1)
+
+    def test_the_refusal_keeps_its_own_closed_pair(self):
+        """The settlement is not a different thing going wrong.
+
+        Measured against the boundary inventory: retyping every refusal as
+        `refused/start-failed` broke three probes, because a malformed start
+        ANSWER is `integrity/schema` at `_started` and relabelling it made the
+        manager's account disagree with the boundary that found it.
+        """
+        adapter, inputs = self.refused(ContractRefusal(
+            "integrity", "schema", "the adapter's start answer is malformed"))
+        adapter.listing = []
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(caught.exception.category, "integrity")
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertIn("the adapter's start answer is malformed",
+                      str(caught.exception))
+
+    def test_a_failed_reconciliation_still_leaves_an_ending(self):
+        """RE-REVIEW [P0]: the settlement only settled when it went well.
+
+        A failed reconciliation was caught to EXTEND THE MESSAGE and nothing
+        else, so an adapter whose listing was unavailable left the attempt at
+        `start-requested` with no identity -- the exact stranded state this
+        settlement exists to remove, reached through the one path where the
+        manager knows least. An ending recorded only on the happy path is not
+        an invariant, and the submitted case checked that both messages
+        crossed while never inspecting the durable row.
+        """
+        adapter, inputs = self.refused()
+
+        class Blind(Adapter):
+            def list(self, operands):
+                raise ContractRefusal("unavailable", "transport",
+                                      "the engine could not be reached")
+
+        blind = Blind()
+        blind.start_failure = adapter.start_failure
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, blind, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+        self.assertIsNone(self.row()["runtime_id"])
+        self.assertIn("recorded uncertain", str(caught.exception))
+
+    def test_an_adapter_without_list_still_leaves_an_ending(self):
+        """The capability boundary takes the same path.
+
+        `reconcile_runtime` types `list` and `observe` before asking either,
+        so a narrow adapter refuses there -- and that refusal arrives after
+        the start operation is journalled, which is what makes it this
+        settlement's problem rather than a precondition.
+        """
+        adapter, inputs = self.refused()
+
+        class Narrow(Adapter):
+            list = None
+
+        narrow = Narrow()
+        narrow.start_failure = adapter.start_failure
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, narrow, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+
+    def test_a_start_that_faults_rather_than_refuses_still_settles(self):
+        """A FAULT IS A FAILED START TOO.
+
+        An adapter that raises something other than a refusal says even less
+        about what it created than one that refuses, and it left the same
+        stranded attempt. The fault itself is re-raised UNCHANGED -- this
+        manager has no account of what it was, and inventing one would be
+        worse than the fault.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        adapter.start_failure = RuntimeError("the driver fell over")
+        adapter.listing = []
+        with self.assertRaises(RuntimeError):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertNotEqual(self.row()["execution_runtime"],
+                            "start-requested")
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+
+    def test_a_fault_after_creation_still_attaches_the_exact_runtime(self):
+        """RE-REVIEW [P0]: the fault path settled without reconciling.
+
+        The first correction caught a non-`ContractRefusal` fault and called
+        `_settle_unknown_start` directly, which asks the adapter nothing. So a
+        driver that CREATED a runtime and then raised left that runtime
+        unnamed and outside the ordinary destroy crossing -- even though
+        `list` and exact `observe` would have found and identified it
+        immediately.
+
+        A fault says LESS about the start result than a typed refusal. That
+        does not make exact reconciliation less necessary; it makes it more.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        adapter.start_failure = RuntimeError(
+            "the driver failed after creating the runtime")
+        adapter.listing = [{"runtime_id": adapter.runtime_id,
+                            "labels": self.labels()}]
+        with self.assertRaises(RuntimeError):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(self.row()["runtime_id"], adapter.runtime_id)
+        self.assertEqual(self.row()["execution_runtime"], "running")
+        # THE EXACT IDENTITY WAS ASKED ABOUT, which is what makes the answer
+        # an observation rather than a listing membership.
+        self.assertEqual(adapter.observed, [adapter.runtime_id])
+
+    def test_a_fault_the_reconciliation_cannot_answer_is_still_uncertain(self):
+        """The fallback is RETAINED. Reconciling first does not mean assuming
+        it succeeds: a fault whose adapter can say nothing about what exists
+        still ends `uncertain` rather than `start-requested`."""
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        adapter.start_failure = RuntimeError("the driver fell over")
+        adapter.listing = []
+        with self.assertRaises(RuntimeError):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+        self.assertIsNone(self.row()["runtime_id"])
+
+    def test_both_kinds_of_failed_start_take_one_settlement_boundary(self):
+        """A refusal and a fault differ in what they say about WHY the start
+        did not complete, and not at all in what this manager has to do about
+        it. Splitting them is how the fault path lost its reconciliation, so
+        the two are driven here against the same adapter shape and required to
+        reach the same durable row."""
+        rows = {}
+        for name, failure in (
+                ("refusal", ContractRefusal("policy", "denied", "declined")),
+                ("fault", RuntimeError("the driver fell over"))):
+            case = TheRuntimeStateIsObservedAndNeverInferred(
+                methodName="test_the_four_observations_stay_four_answers")
+            case.setUp()
+            try:
+                inputs, _given, _assignment = case.delivered()
+                adapter = Adapter()
+                adapter.start_failure = failure
+                adapter.listing = [{"runtime_id": adapter.runtime_id,
+                                    "labels": case.labels()}]
+                with case.assertRaises(type(failure)):
+                    request_runtime_start(case.store, adapter,
+                                          attempt_id=ATTEMPT, inputs=inputs)
+                rows[name] = (case.row()["runtime_id"],
+                              case.row()["execution_runtime"])
+            finally:
+                # `doCleanups`, NOT `tearDown`. Review [P2]: this fixture owns
+                # its temporary directory and its `ControlStore` through
+                # `addCleanup`, and no class here defines `tearDown` at all --
+                # so `tearDown()` ran a no-op and released neither. A
+                # regression that leaks the manager and store it opened cannot
+                # be the durable gate for anything.
+                case.doCleanups()
+        self.assertEqual(rows["refusal"], rows["fault"], rows)
+
+    def test_a_settlement_never_overwrites_a_truer_observation(self):
+        """`uncertain` is written ONLY from `start-requested`.
+
+        A reconciliation that recorded something truer before it failed is
+        left alone: this closes a hole, and replacing an observation with
+        `uncertain` would open a different one.
+        """
+        adapter, inputs = self.refused()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": self.labels()}]
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(self.row()["execution_runtime"], "running")
+        self.assertEqual(self.row()["runtime_id"], "runtime-1")
+
+    def test_a_reconciliation_that_also_fails_reports_both(self):
+        """The operator needs the reason the start failed AND the reason the
+        manager could not say what exists; replacing the first with the second
+        loses the question."""
+        adapter, inputs = self.refused()
+
+        class Blind(Adapter):
+            def list(self, operands):
+                raise ContractRefusal("unavailable", "transport",
+                                      "the engine could not be reached")
+
+        blind = Blind()
+        blind.start_failure = adapter.start_failure
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, blind, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertIn("refused to start", str(caught.exception))
+        self.assertIn("could not be reached", str(caught.exception))
+
+
+class CancellationFencesBeforeItStops(AttemptCase):
+
+    def attached(self, attempt_id=ATTEMPT):
+        self.claimed(attempt_id=attempt_id)
+        activate_assignment(self.store, self.port, attempt_id=attempt_id,
+                            expect=self.expect())
+        self.adapter = Adapter()
+        request_runtime_start(self.store, self.adapter,
+                              attempt_id=attempt_id)
+        return attempt_id
+
+    def test_the_agent_is_ordered_before_the_runtime(self):
+        """An agent told to stop after its runtime is already going away never
+        hears the order, and the whole point of asking it is the cooperative
+        shutdown a kill does not give."""
+        order = []
+        self.attached()
+        agent = Agent()
+        agent.cancel = lambda operands: order.append("agent")
+        self.adapter.stop = lambda operands: order.append("runtime")
+        request_cancellation(self.store, self.port, agent, self.adapter,
+                             attempt_id=ATTEMPT)
+        self.assertEqual(order, ["agent", "runtime"])
+
+    def test_both_boundaries_receive_the_managers_own_operation_identity(self):
+        self.attached()
+        agent = Agent()
+        answer = request_cancellation(self.store, self.port, agent,
+                                      self.adapter, attempt_id=ATTEMPT)
+        identity = answer["intent"]["attempt_id"]
+        self.assertEqual(identity, ATTEMPT)
+        self.assertEqual(agent.cancelled[0]["operation_id"],
+                         self.adapter.stopped[0]["operation_id"])
+        self.assertTrue(agent.cancelled[0]["operation_id"].startswith(
+            "attempt.cancel:"))
+        self.assertNotEqual(answer["intent"]["authority_operation_id"],
+                            agent.cancelled[0]["operation_id"])
+
+    def test_an_unreachable_agent_does_not_veto_the_stop(self):
+        """Persistent agent unreachability is a REASON to stop the runtime.
+
+        The authority has ALREADY fenced and ended the assignment by this point,
+        so leaving the runtime alone would leave a fenced runtime running
+        indefinitely.
+        """
+        self.attached()
+        agent = Agent()
+        agent.failure = RuntimeError("the provider is unreachable")
+        with self.assertRaises(RuntimeError):
+            request_cancellation(self.store, self.port, agent, self.adapter,
+                                 attempt_id=ATTEMPT)
+        self.assertEqual(len(self.adapter.stopped), 1)
+
+    def test_neither_failure_hides_the_other(self):
+        self.attached()
+        agent = Agent()
+        agent.failure = RuntimeError("no provider")
+        self.adapter.stop_failure = RuntimeError("no runtime")
+        with self.assertRaises(ExceptionGroup) as caught:
+            request_cancellation(self.store, self.port, agent, self.adapter,
+                                 attempt_id=ATTEMPT)
+        self.assertEqual(len(caught.exception.exceptions), 2)
+
+    def test_an_attempt_with_no_runtime_orders_nothing(self):
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        agent, adapter = Agent(), Adapter()
+        answer = request_cancellation(self.store, self.port, agent, adapter,
+                                      attempt_id=ATTEMPT)
+        self.assertIs(answer["quiescence"]["ordered"], False)
+        self.assertIn("nothing to stop", answer["quiescence"]["why"])
+        self.assertEqual(agent.cancelled, [])
+
+    def test_an_unactivated_attempt_has_no_generation_to_fence(self):
+        self.recorded()
+        with self.assertRaises(ContractRefusal) as caught:
+            request_cancellation(self.store, self.port, Agent(), Adapter(),
+                                 attempt_id=ATTEMPT)
+        self.assertIn("no fixed assignment", caught.exception.message)
+
+    def test_a_session_for_somebody_else_may_not_cancel(self):
+        self.attached()
+        self.session.participant = "baton.someone"
+        port = AuthorityPort(self.session, fake_claim_signature)
+        with self.assertRaises(ContractRefusal) as caught:
+            request_cancellation(self.store, port, Agent(), Adapter(),
+                                 attempt_id=ATTEMPT)
+        self.assertEqual(caught.exception.code, "capability")
+
+    def test_a_fence_for_another_generation_orders_nothing(self):
+        """The authority may report a well-shaped fence for a different live
+        assignment; it is not evidence that this attempt's generation ended."""
+        self.attached()
+        self.session.fence_answer["assignment"] = self.expect(generation=2)
+        agent = Agent()
+
+        with self.assertRaises(ContractRefusal):
+            request_cancellation(self.store, self.port, agent, self.adapter,
+                                 attempt_id=ATTEMPT)
+
+        self.assertEqual(agent.cancelled, [])
+        self.assertEqual(self.adapter.stopped, [])
+
+    def test_a_swapped_pair_of_boundaries_refuses(self):
+        """Two adjacent injected objects are easy to swap, so the shapes are
+        checked -- a swap refuses instead of cancelling the wrong boundary."""
+        self.attached()
+        with self.assertRaises(ContractRefusal) as caught:
+            request_cancellation(self.store, self.port, self.adapter, Agent(),
+                                 attempt_id=ATTEMPT)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "schema"))
+
+    def test_a_cancellation_in_flight_is_not_re_announced(self):
+        """Moving the axis backwards to repeat an intent the runtime is already
+        carrying out changes nothing about where the runtime is."""
+        self.attached()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="cancel-requested")
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="stopping")
+        request_cancellation(self.store, self.port, Agent(), self.adapter,
+                             attempt_id=ATTEMPT)
+        self.assertEqual(self.row()["execution_runtime"], "stopping")
+
+
+class ExplicitAbandonmentFencesBeforeItRemoves(AttemptCase):
+    """W44716 — the minimal receiptless ending for an unanswered worker."""
+
+    class Custodian(Adapter):
+
+        def __init__(self, order):
+            super().__init__()
+            self.order = order
+            self.abandoned = []
+
+        def destroy_abandoned(self, command):
+            self.order.append("remove")
+            self.abandoned.append(dict(command))
+            return {"runtime_id": command["runtime_id"], "state": "absent",
+                    "why": "the exact abandoned runtime is absent",
+                    "credentials": {"lifecycle_state": "not-delivered"},
+                    "launch": {"lifecycle_state": "not-delivered"}}
+
+    def test_the_public_ending_fences_then_removes_and_retains(self):
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        order = []
+        adapter = self.Custodian(order)
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+
+        def fence(operands):
+            order.append("fence")
+            return self.session.fence_answer
+
+        self.session.cancel = fence
+        abandon = getattr(worker_manager, "abandon_attempt", None)
+        self.assertTrue(callable(abandon),
+                        "W44716 requires one public abandon_attempt ending")
+        answered = abandon(
+            self.store, self.port, adapter, attempt_id=ATTEMPT,
+            reason="the supervised worker conversation was lost",
+            retention_policy_digest="sha256:" + "7" * 64)
+
+        self.assertEqual(order, ["fence", "remove"])
+        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
+        self.assertEqual(answered["cleanup"]["state"], "absent")
+        self.assertEqual(self.row()["worker_disposition"], "none")
+        self.assertEqual(self.row()["output"], "open")
+        self.assertEqual(self.row()["execution_runtime"], "destroyed")
+        self.assertEqual(self.row()["cleanup"], "retained")
+        command = adapter.abandoned[0]
+        self.assertEqual(command["runtime_id"], "runtime-1")
+        self.assertIn("abandonment_record_digest", command)
+        self.assertNotIn("intake_receipt_digest", command)
+
+    def test_an_exact_terminal_retry_replays_the_same_composite_answer(self):
+        """The public operation has one answer before and after settlement."""
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        adapter = self.Custodian([])
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        operands = {"attempt_id": ATTEMPT,
+                    "reason": "the supervised worker conversation was lost",
+                    "retention_policy_digest": "sha256:" + "7" * 64}
+
+        first = worker_manager.abandon_attempt(
+            self.store, self.port, adapter, **operands)
+        replay = worker_manager.abandon_attempt(
+            self.store, self.port, adapter, **operands)
+
+        self.assertEqual(replay, first)
+        self.assertEqual(sorted(replay), ["cleanup", "fenced", "intent"])
+
+    def test_a_worker_answer_refuses_before_declaration_fence_or_removal(self):
+        """Abandonment cannot overwrite an answer the worker already gave."""
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        order = []
+        adapter = self.Custodian(order)
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        observe(self.store, attempt_id=ATTEMPT, axis="worker_disposition",
+                value="completed")
+
+        def fence(operands):
+            order.append("fence")
+            return self.session.fence_answer
+
+        self.session.cancel = fence
+        with self.assertRaises(ContractRefusal):
+            worker_manager.abandon_attempt(
+                self.store, self.port, adapter, attempt_id=ATTEMPT,
+                reason="the supervised worker conversation was lost",
+                retention_policy_digest="sha256:" + "7" * 64)
+
+        self.assertEqual(order, [])
+        self.assertEqual(adapter.abandoned, [])
+
+    def test_a_new_policy_after_settlement_refuses_before_fence_or_removal(
+            self):
+        """A distinct cleanup cannot revisit a terminal abandonment."""
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        adapter = self.Custodian([])
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        worker_manager.abandon_attempt(
+            self.store, self.port, adapter, attempt_id=ATTEMPT,
+            reason="the supervised worker conversation was lost",
+            retention_policy_digest="sha256:" + "7" * 64)
+        fences = len([one for one in self.session.calls
+                      if one[0] == "cancel"])
+        removals = len(adapter.abandoned)
+
+        with self.assertRaises(ContractRefusal) as caught:
+            worker_manager.abandon_attempt(
+                self.store, self.port, adapter, attempt_id=ATTEMPT,
+                reason="the supervised worker conversation was lost",
+                retention_policy_digest="sha256:" + "8" * 64)
+
+        self.assertEqual(caught.exception.code, "already-terminal")
+        self.assertEqual(len([one for one in self.session.calls
+                              if one[0] == "cancel"]), fences)
+        self.assertEqual(len(adapter.abandoned), removals)
+
+
+class EveryEndingNormalizesBothRootsAndReplays(AttemptCase):
+    """W43975's matrix at the ENDING level, over the abandonment sibling.
+
+    `test_custody` proves the per-root receipts survive interruption between
+    the two acts. What is left for an ending to show is that it CALLS them,
+    that it binds both into its terminal claim, and that its own terminal
+    commit replays afterwards without acting again. The abandonment ending is
+    driven here because `AttemptCase` already composes it end to end; the
+    other three reach the same two owners, `_normalized` and
+    `_adopted_custody`, which is why this is one case per property rather than
+    one per ending.
+    """
+
+    class Custodian(Adapter):
+
+        def __init__(self, fail_on=None):
+            super().__init__()
+            self.fail_on = fail_on
+            self.abandoned = []
+
+        def normalize_directory(self, store, *, assignment_id, which):
+            from baton_v12.worker_manager import custody
+
+            self.normalized.append((assignment_id, which))
+            if which == self.fail_on:
+                raise RuntimeError(f"the helper died over {which}")
+            return custody._answered(
+                "normalize", 0,
+                {"custody": "normalize", "entries": 1, "not_ours": 0,
+                 "running_as": [0, 0]}, None)
+
+        def destroy_abandoned(self, command):
+            self.abandoned.append(dict(command))
+            return {"runtime_id": command["runtime_id"], "state": "absent",
+                    "why": "the exact abandoned runtime is absent",
+                    "credentials": {"lifecycle_state": "not-delivered"},
+                    "launch": {"lifecycle_state": "not-delivered"}}
+
+    def started(self, adapter):
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        return adapter
+
+    def abandon(self, adapter):
+        return worker_manager.abandon_attempt(
+            self.store, self.port, adapter, attempt_id=ATTEMPT,
+            reason="the supervised worker conversation was lost",
+            retention_policy_digest="sha256:" + "7" * 64)
+
+    def test_the_ending_normalizes_result_then_workspace_and_binds_both(self):
+        """RESULT FIRST, because it is nested below workspace: the outer act
+        never runs over a subject nobody has accounted for yet."""
+        adapter = self.started(self.Custodian())
+
+        answered = self.abandon(adapter)
+
+        self.assertEqual([one for _a, one in adapter.normalized],
+                         ["result", "workspace"])
+        bound = answered["cleanup"]["directory_custody"]
+        self.assertEqual(sorted(bound), ["result", "workspace"])
+        for which in ("result", "workspace"):
+            self.assertEqual(bound[which]["root"], which)
+            self.assertEqual(bound[which]["verb"], "normalize")
+
+    def test_an_interrupted_normalization_leaves_no_ending_and_resumes(self):
+        """Nothing terminal is committed, so the resumed call finishes it."""
+        dying = self.started(self.Custodian(fail_on="workspace"))
+        with self.assertRaises(RuntimeError):
+            self.abandon(dying)
+
+        self.assertEqual(self.row()["cleanup"], "pending",
+                         "an ending was claimed on an unfinished custody")
+        # THE DESTROY PRECEDES NORMALIZATION, and that is the ruled order:
+        # point 4 keeps the fence, the runtime destroy, exact absence and the
+        # provider-ending gates, and only THEN settles the two roots. So the
+        # runtime is gone here and nothing terminal is committed, which is
+        # exactly the state a resumed call has to be able to finish from.
+        self.assertEqual(len(dying.abandoned), 1)
+
+        dying.fail_on = None
+        answered = self.abandon(dying)
+
+        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
+        # THE SETTLED ROOT IS NOT NORMALIZED AGAIN. `result` appears once
+        # from the interrupted run and is replayed from its receipt on the
+        # resumed one, so only `workspace` is performed a second time.
+        self.assertEqual([one for _a, one in dying.normalized],
+                         ["result", "workspace", "workspace"],
+                         "the resumed ending renormalized a settled root")
+
+    def test_an_exact_replay_after_the_ending_normalizes_nothing(self):
+        adapter = self.started(self.Custodian())
+        first = self.abandon(adapter)
+        acts = len(adapter.normalized)
+
+        self.assertEqual(self.abandon(adapter), first)
+        self.assertEqual(len(adapter.normalized), acts,
+                         "a replayed ending performed a directory act again")
+
+    def test_a_deployment_without_the_seam_is_refused_before_anything(self):
+        """The capability is proved at entry, so a missing seam costs
+        nothing rather than costing the runtime and both providers."""
+        class Seamless(Adapter):
+            """Otherwise valid, and carrying no directory-custody act.
+
+            A class rather than a deleted attribute: reaching into the shared
+            fixture's type would leave every later case in the run without a
+            seam, which is a fixture that tests the order it happens to run in.
+            """
+
+            normalize_directory = None
+
+            def __init__(self):
+                super().__init__()
+                self.abandoned = []
+
+            def destroy_abandoned(self, command):
+                self.abandoned.append(dict(command))
+                return {"runtime_id": command["runtime_id"],
+                        "state": "absent", "why": "absent",
+                        "credentials": {"lifecycle_state": "not-delivered"},
+                        "launch": {"lifecycle_state": "not-delivered"}}
+
+        adapter = self.started(Seamless())
+
+        with self.assertRaises(ContractRefusal):
+            self.abandon(adapter)
+
+        self.assertEqual(adapter.abandoned, [],
+                         "the runtime was destroyed before the missing seam "
+                         "was discovered")
+        self.assertEqual(self.row()["cleanup"], "pending")
+
+
+class TheAbandonmentEndingSurvivesInterruptionAndDrift(AttemptCase):
+    """W44716's required matrix: restart, drift, providers and corruption.
+
+    The dossier pins this and three review rounds recorded its absence. Each
+    case here is one row of it. The shape throughout is the same question: an
+    ending composed of a durable declaration, an authority fence and an engine
+    removal is interrupted or arrives on a world that moved, and what it must
+    never do is fence twice, remove what it did not declare, or record an
+    ending nobody observed.
+    """
+
+    class Custodian(Adapter):
+
+        def __init__(self, order=None):
+            super().__init__()
+            self.order = [] if order is None else order
+            self.abandoned = []
+            self.destroy_answer = None
+            self.destroy_failure = None
+
+        def destroy_abandoned(self, command):
+            self.order.append("remove")
+            self.abandoned.append(dict(command))
+            if self.destroy_failure is not None:
+                raise self.destroy_failure
+            if self.destroy_answer is not None:
+                return dict(self.destroy_answer)
+            return {"runtime_id": command["runtime_id"], "state": "absent",
+                    "why": "the exact abandoned runtime is absent",
+                    "credentials": {"lifecycle_state": "not-delivered"},
+                    "launch": {"lifecycle_state": "not-delivered"}}
+
+    REASON = "the supervised worker conversation was lost"
+    POLICY = "sha256:" + "7" * 64
+
+    def started(self, adapter=None):
+        """A claimed, activated attempt with a runtime actually attached."""
+        adapter = self.Custodian() if adapter is None else adapter
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+        return adapter
+
+    def abandon(self, adapter, **spoiled):
+        operands = {"attempt_id": ATTEMPT, "reason": self.REASON,
+                    "retention_policy_digest": self.POLICY}
+        operands.update(spoiled)
+        return worker_manager.abandon_attempt(self.store, self.port, adapter,
+                                              **operands)
+
+    def restarted(self, incarnation="manager-2"):
+        """A NEW manager over the SAME control store -- the restart itself."""
+        self.store.close()
+        self.store = ControlStore.open(self.path, incarnation=incarnation,
+                                       clock=lambda: NOW)
+        self.addCleanup(self.store.close)
+        return self.store
+
+    def fences(self):
+        return [one[1] for one in self.session.calls if one[0] == "cancel"]
+
+    # --- interruption around each step of the ending --------------------
+
+    def test_a_restart_after_the_declaration_reissues_one_authority_fence(
+            self):
+        """Interrupted AT the fence: the resumed call reuses the declaration.
+
+        The declaration is committed before any external call precisely so
+        this is possible. What proves the resumed call is the SAME act and not
+        a second one is the authority operation identity: it is derived from
+        the attempt and its fixed assignment, so the authority sees one
+        operation retried rather than two cancels.
+        """
+        adapter = self.started()
+        self.session.fence_answer = RuntimeError("the authority went away")
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        self.assertEqual(adapter.abandoned, [],
+                         "nothing is removed before the fence answers")
+
+        self.restarted()
+        self.session.fence_answer = {"cause": "cancelled",
+                                     "assignment": dict(
+                                         self.session.live_assignment),
+                                     "phase": "block",
+                                     "gate": "runtime-quiescence:1",
+                                     "fenced": True}
+        answered = self.abandon(adapter)
+
+        tried = self.fences()
+        self.assertEqual(len(tried), 2, "the first attempt did reach cancel")
+        self.assertEqual(tried[0], tried[1],
+                         "a resumed ending reissues ONE authority operation")
+        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
+        self.assertEqual(len(adapter.abandoned), 1)
+
+    def test_a_restart_after_the_fence_removes_under_the_adopted_record(self):
+        """Interrupted AT the removal: the record still authorizes it."""
+        adapter = self.started()
+        adapter.destroy_failure = RuntimeError("the engine went away")
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        fenced_once = list(self.fences())
+        self.assertEqual(len(fenced_once), 1)
+        self.assertEqual(self.row()["cleanup"], "pending",
+                         "an unremoved runtime is not a settled ending")
+
+        self.restarted()
+        adapter.destroy_failure = None
+        answered = self.abandon(adapter)
+
+        self.assertEqual(self.fences()[-1], fenced_once[0],
+                         "the resumed fence is the interrupted one")
+        self.assertEqual(answered["intent"]["reason"], self.REASON)
+        self.assertEqual(answered["intent"]["authority_operation_id"],
+                         fenced_once[0]["operation_id"]
+                         if "operation_id" in fenced_once[0]
+                         else answered["intent"]["authority_operation_id"])
+        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
+        self.assertEqual(self.row()["cleanup"], "retained")
+
+    def test_a_restart_before_the_terminal_commit_removes_again_and_settles(
+            self):
+        """Interrupted between the removal and the journalled result.
+
+        Nothing is committed, so the resumed call runs the removal a second
+        time -- which is safe exactly because force-removal of an absent exact
+        identity answers `absent` rather than failing, and the terminal record
+        is written once.
+        """
+        adapter = self.started()
+        真 = self.store.transact
+
+        def refuse_the_commit(operation_id, kind, signature, action):
+            if kind == "runtime.destroy-abandoned":
+                raise RuntimeError("the manager died before its own commit")
+            return 真(operation_id, kind, signature, action)
+
+        self.store.transact = refuse_the_commit
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        self.assertEqual(len(adapter.abandoned), 1,
+                         "the removal did happen before the commit failed")
+        self.assertEqual(self.row()["cleanup"], "pending")
+
+        self.restarted()
+        answered = self.abandon(adapter)
+
+        self.assertEqual(len(adapter.abandoned), 2,
+                         "an uncommitted removal is redone, not assumed")
+        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
+        self.assertEqual(self.row()["cleanup"], "retained")
+        self.assertEqual(self.abandon(adapter), answered,
+                         "and the terminal result is replayable thereafter")
+
+    def test_a_restart_after_the_terminal_commit_replays_without_touching(
+            self):
+        """Settled, then restarted: replay reads the journal and nothing else.
+
+        This is the case the composite result exists for. After a restart the
+        resumed caller has no memory, so the ONLY thing that can answer is the
+        record -- and it must answer without asking the authority about a
+        fenced generation or the engine about a runtime that is gone.
+        """
+        adapter = self.started()
+        first = self.abandon(adapter)
+        self.restarted()
+        fenced = len(self.fences())
+        removed = len(adapter.abandoned)
+        looked = len(adapter.observed)
+
+        replay = self.abandon(adapter)
+
+        self.assertEqual(replay, first)
+        self.assertEqual(sorted(replay), ["cleanup", "fenced", "intent"])
+        self.assertEqual(len(self.fences()), fenced,
+                         "a replay does not re-fence")
+        self.assertEqual(len(adapter.abandoned), removed,
+                         "a replay does not re-remove")
+        self.assertEqual(len(adapter.observed), looked,
+                         "a replay does not reread a removed runtime")
+
+    # --- the runtime the engine actually reports -------------------------
+
+    def test_an_uncertain_axis_is_fenced_and_deliberately_not_cleaned_up(
+            self):
+        """Fencing is the point; claiming absence would be a lie.
+
+        Stopping further authorized execution is what abandonment is FOR, so
+        the fence stands even though this manager cannot say what exists. But
+        nothing is proved absent, so nothing is settled and the lane is not
+        released.
+        """
+        adapter = self.started()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="uncertain")
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "quiescence-unknown")
+        self.assertEqual(len(self.fences()), 1, "the generation IS fenced")
+        self.assertEqual(adapter.abandoned, [],
+                         "and nothing is destroyed on an unknown runtime")
+        self.assertEqual(self.row()["cleanup"], "pending")
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+
+    def test_reconciliation_to_uncertain_while_fencing_prevents_removal(self):
+        """The pre-fence snapshot cannot authorize post-fence destruction.
+
+        Reconciliation is independent of the authority call. If it loses a
+        positive runtime observation while the fence is in flight, the
+        abandonment may keep that fence but must not send destructive runtime
+        control on the strength of the older `running` row. This is the race
+        row required by the dossier, rather than only its already-uncertain
+        starting state.
+        """
+        adapter = self.started()
+        fence_answer = dict(self.session.fence_answer)
+
+        def reconcile_while_fencing(operands):
+            observe(self.store, attempt_id=ATTEMPT,
+                    axis="execution_runtime", value="uncertain")
+            return fence_answer
+
+        self.session.cancel = reconcile_while_fencing
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "quiescence-unknown")
+        self.assertEqual(adapter.abandoned, [],
+                         "stale positive state authorized a removal")
+        self.assertEqual(self.row()["cleanup"], "pending")
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+
+    def test_an_ending_that_settles_while_fencing_is_not_revisited(self):
+        """The other half of the same window, and the same rule.
+
+        The pre-fence check refuses a cleanup derived after an ending, but it
+        cannot see an ending that lands DURING the authority call. The window
+        is narrow and the consequence is not: an attempt whose cleanup already
+        settled must not acquire a second removal because this call was
+        already past the gate when it happened.
+        """
+        adapter = self.started()
+        fence_answer = dict(self.session.fence_answer)
+
+        def settle_while_fencing(operands):
+            observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                    value="destroyed")
+            observe(self.store, attempt_id=ATTEMPT, axis="cleanup",
+                    value="retained")
+            return fence_answer
+
+        self.session.cancel = settle_while_fencing
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "already-terminal")
+        self.assertEqual(adapter.abandoned, [],
+                         "a settled ending was destroyed a second time")
+
+    def test_a_runtime_reattached_while_fencing_is_not_the_one_declared(self):
+        """The record authorizes destroying ONE container.
+
+        A row that names a different runtime by the time the fence returns is
+        not the world the declaration was written about, and this removal is
+        not the one that was authorized -- whatever moved it.
+        """
+        adapter = self.started()
+        fence_answer = dict(self.session.fence_answer)
+
+        def reattach_while_fencing(operands):
+            beside = sqlite3.connect(self.path, isolation_level=None)
+            try:
+                beside.execute(
+                    "UPDATE attempts SET runtime_id = ? "
+                    "WHERE runtime_attempt_id = ?", ("runtime-2", ATTEMPT))
+            finally:
+                beside.close()
+            return fence_answer
+
+        self.session.cancel = reattach_while_fencing
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertEqual(adapter.abandoned, [],
+                         "a container the declaration never named was removed")
+
+    def test_an_uncertain_removal_answer_is_not_an_ending(self):
+        """The engine could not say, so the axis does not move."""
+        adapter = self.started()
+        adapter.destroy_answer = {
+            "runtime_id": "runtime-1", "state": "uncertain",
+            "why": "the engine would not say what this container is",
+            "credentials": {"lifecycle_state": "not-delivered"},
+            "launch": {"lifecycle_state": "not-delivered"}}
+
+        answered = self.abandon(adapter)
+
+        # A DIFFERENT DOCUMENT, and deliberately: `cleanup.unsettled` has no
+        # `cleanup` member at all, because there is no ending to name.
+        self.assertNotIn("cleanup", answered["cleanup"])
+        self.assertEqual(answered["cleanup"]["state"], "uncertain")
+        self.assertEqual(self.row()["cleanup"], "pending")
+        self.assertNotEqual(self.row()["execution_runtime"], "destroyed",
+                            "an unobserved runtime is not a removed one")
+        self.assertTrue(answered["fenced"]["fenced"],
+                        "the fence still happened and still stands")
+
+    def test_a_surviving_runtime_fails_cleanup_rather_than_retaining_it(self):
+        """`running` after a force-removal is a failed ending, not a kept one.
+
+        `retained` means material was kept on purpose. A container the engine
+        still reports running was not kept on purpose and the lane must not go
+        back into circulation on the strength of it.
+        """
+        adapter = self.started()
+        adapter.destroy_answer = {
+            "runtime_id": "runtime-1", "state": "running",
+            "why": "the container is still up after force removal",
+            "credentials": {"lifecycle_state": "not-delivered"},
+            "launch": {"lifecycle_state": "not-delivered"}}
+
+        answered = self.abandon(adapter)
+
+        self.assertEqual(answered["cleanup"]["cleanup"], "failed")
+        self.assertEqual(answered["cleanup"]["state"], "running")
+        self.assertEqual(self.row()["cleanup"], "failed")
+        self.assertNotEqual(self.row()["execution_runtime"], "destroyed")
+
+    def test_an_answer_about_another_runtime_is_refused(self):
+        """One attempt, one container: an answer about another proves nothing."""
+        adapter = self.started()
+        adapter.destroy_answer = {
+            "runtime_id": "runtime-9", "state": "absent",
+            "why": "some other container is absent",
+            "credentials": {"lifecycle_state": "not-delivered"},
+            "launch": {"lifecycle_state": "not-delivered"}}
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "identity-mismatch")
+        self.assertEqual(self.row()["cleanup"], "pending")
+        self.assertNotEqual(self.row()["execution_runtime"], "destroyed")
+
+    # --- the deliveries this manager made --------------------------------
+
+    def test_an_unsettled_delivery_holds_the_ending_open_until_it_settles(
+            self):
+        """Absence of the container is not absence of the roots it mounted.
+
+        The runtime really is gone and that observation is recorded; cleanup
+        is what has not finished, so the lane stays held and a retry finishes
+        it.
+        """
+        adapter = self.started()
+        adapter.destroy_answer = {
+            "runtime_id": "runtime-1", "state": "absent",
+            "why": "the exact abandoned runtime is absent",
+            "credentials": {"lifecycle_state": "unresolved",
+                            "why": "the credential slots would not release"},
+            "launch": {"lifecycle_state": "torn-down"}}
+
+        answered = self.abandon(adapter)
+
+        self.assertNotIn("cleanup", answered["cleanup"])
+        self.assertIn("credentials", answered["cleanup"]["why"])
+        self.assertEqual(self.row()["execution_runtime"], "destroyed",
+                         "the axis that IS true moves")
+        self.assertEqual(self.row()["cleanup"], "pending",
+                         "and the one that is not stays put")
+
+        adapter.destroy_answer = None
+        finished = self.abandon(adapter)
+
+        self.assertEqual(finished["cleanup"]["cleanup"], "retained")
+        self.assertEqual(self.row()["cleanup"], "retained")
+
+    # --- operands that changed between calls ------------------------------
+
+    def test_a_changed_reason_collides_rather_than_declaring_twice(self):
+        """One attempt is abandoned once, and the reason is part of the act.
+
+        The declaration identity is the attempt and its fixed assignment, and
+        the reason rides the signature -- so a second, differently-worded
+        declaration of the same attempt is a COLLISION rather than a second
+        record, and the operator is told instead of quietly overwriting the
+        account already in the journal.
+        """
+        adapter = self.started()
+        adapter.destroy_failure = RuntimeError("stop before settlement")
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        adapter.destroy_failure = None
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter, reason="a different account entirely")
+
+        self.assertEqual(caught.exception.code, "operation-collision")
+
+    def test_a_changed_policy_before_settlement_still_fences_only_once(self):
+        """A second policy on an UNSETTLED attempt is a retry, not a re-fence.
+
+        The retention policy rides the destroy identity and not the
+        declaration, so this derives a new cleanup operation. That is allowed
+        while the ending is unfinished -- and because the fence is taken from
+        the adopted record, the authority still sees one operation.
+        """
+        adapter = self.started()
+        adapter.destroy_failure = RuntimeError("stop before settlement")
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        adapter.destroy_failure = None
+
+        answered = self.abandon(adapter,
+                                retention_policy_digest="sha256:" + "8" * 64)
+
+        tried = self.fences()
+        self.assertEqual(tried[0], tried[-1],
+                         "one authority operation across both attempts")
+        self.assertEqual(answered["cleanup"]["cleanup"], "retained")
+        self.assertEqual(
+            adapter.abandoned[-1]["retention_policy_digest"],
+            "sha256:" + "8" * 64,
+            "the removal carries the policy it was actually called with")
+
+    def test_a_runtime_reattached_after_the_declaration_is_refused(self):
+        """The record names the container it was written about.
+
+        A declaration written when the attempt was attached to one runtime
+        must not authorize destroying a different one, however the attempt
+        came to be attached to it. The runtime rides the declaration's
+        SIGNATURE while the identity is the attempt and its fixed assignment,
+        so this is caught as a collision on the way in -- the record is never
+        adopted at all, which is a step earlier than the member comparison
+        that catches a record edited underneath the manager.
+        """
+        adapter = self.started()
+        adapter.destroy_failure = RuntimeError("stop before settlement")
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        adapter.destroy_failure = None
+        beside = sqlite3.connect(self.path, isolation_level=None)
+        try:
+            beside.execute(
+                "UPDATE attempts SET runtime_id = ? "
+                "WHERE runtime_attempt_id = ?", ("runtime-2", ATTEMPT))
+        finally:
+            beside.close()
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.assertEqual(len(adapter.abandoned), 1,
+                         "the second call removed nothing")
+
+    # --- the record itself ------------------------------------------------
+
+    def test_a_tampered_declaration_does_not_authorize_the_removal(self):
+        """The record IS the authorization, so a changed record authorizes
+        nothing.
+
+        Every one of its six closed members is compared against the world this
+        ending is actually for. A journal row edited underneath the manager --
+        by corruption, by a restore, by a hand at the sqlite prompt -- fails
+        that comparison rather than being carried out.
+        """
+        adapter = self.started()
+        adapter.destroy_failure = RuntimeError("stop before settlement")
+        with self.assertRaises(RuntimeError):
+            self.abandon(adapter)
+        adapter.destroy_failure = None
+        beside = sqlite3.connect(self.path, isolation_level=None)
+        beside.row_factory = sqlite3.Row
+        try:
+            row = beside.execute(
+                "SELECT operation_id, result FROM operations "
+                "WHERE kind = 'attempt.abandon'").fetchone()
+            document = json.loads(row["result"])
+            document["decision"] = "completed"
+            beside.execute("UPDATE operations SET result = ? "
+                           "WHERE operation_id = ?",
+                           (json.dumps(document), row["operation_id"]))
+        finally:
+            beside.close()
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.abandon(adapter)
+
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertEqual(len(adapter.abandoned), 1,
+                         "a tampered record removes nothing further")
+
+
+class TheLivenessProjectionSaysOnlyWhatWasSeen(AttemptCase):
+    """W61599, approver ruling M61707.
+
+    An operator watching a live worker has today no way to tell a wedged one
+    from a working one without entering its container. The projection answers
+    that with two numbers and no content: how many bytes of the worker's
+    native session stream this manager has OBSERVED, and the manager's own
+    receipt instant for the latest of them.
+
+    Every case here is about the projection telling the truth, because a
+    liveness display that can lie is worse than none: an operator who trusts
+    it stops looking.
+    """
+
+    def setUp(self):
+        super().setUp()
+        # A MOVABLE CLOCK, because half of these cases are about WHEN the
+        # instant moves. `AttemptCase`'s store is pinned to one instant, which
+        # cannot tell "the manager stamped it again" from "it never moved".
+        self.instant = NOW
+        self.ticking = ControlStore.open(self.path, incarnation="manager-1",
+                                         clock=lambda: self.instant)
+        self.addCleanup(self.ticking.close)
+
+    def observed(self, total, store=None):
+        return attempts_module.observe_activity(
+            store or self.ticking, attempt_id=ATTEMPT, bytes_observed=total)
+
+    def test_an_unobserved_attempt_is_not_an_empty_one(self):
+        """Absence is two answers and they are not interchangeable: an id
+        naming no attempt has nothing to be live, and a recorded attempt
+        nobody has observed has shown nothing YET. A zero for the second
+        would read as `observed, and empty`."""
+        self.recorded()
+        self.assertIsNone(
+            attempts_module.attempt_activity_of(self.store, "attempt-nobody"),
+            "an id naming no attempt answered a projection")
+        found = attempts_module.attempt_activity_of(self.store, ATTEMPT)
+        self.assertEqual(found, {"attempt_id": ATTEMPT,
+                                 "bytes_observed": None,
+                                 "observed_at": None})
+
+    def test_the_first_observation_publishes_the_count_and_the_instant(self):
+        self.recorded()
+        self.assertEqual(self.observed(4096),
+                         {"attempt_id": ATTEMPT, "bytes_observed": 4096,
+                          "observed_at": NOW})
+        # AND IT IS DURABLE, read back through a handle that did not write it.
+        self.assertEqual(
+            attempts_module.attempt_activity_of(self.store, ATTEMPT),
+            {"attempt_id": ATTEMPT, "bytes_observed": 4096,
+             "observed_at": NOW})
+
+    def test_a_growing_total_moves_both_numbers(self):
+        self.recorded()
+        self.observed(10)
+        self.instant = "2026-08-24T00:00:05.000Z"
+        found = self.observed(4106)
+        self.assertEqual(found["bytes_observed"], 4106)
+        self.assertEqual(found["observed_at"], "2026-08-24T00:00:05.000Z")
+
+    def test_a_repeated_total_never_freshens_a_quiet_worker(self):
+        """THE CASE THIS PROJECTION EXISTS FOR. An observer polling a stream
+        that has produced nothing is behaving correctly, and the report is
+        accepted -- but the instant is the age of the latest observed
+        ACTIVITY, and moving it would make a wedged worker read as freshly
+        alive to the one operator relying on this to notice."""
+        self.recorded()
+        self.observed(4096)
+        self.instant = "2026-08-24T00:10:00.000Z"
+        found = self.observed(4096)
+        self.assertEqual(found["bytes_observed"], 4096)
+        self.assertEqual(found["observed_at"], NOW,
+                         "a repeated total moved the activity instant, so a "
+                         "stalled worker looks freshly alive")
+
+    def test_a_total_that_went_backwards_refuses(self):
+        """A stale or confused observer must not be able to make a
+        progressing worker look stalled."""
+        self.recorded()
+        self.observed(4096)
+        self.instant = "2026-08-24T00:10:00.000Z"
+        with self.assertRaises(ContractRefusal) as refused:
+            self.observed(4095)
+        self.assertIn("never goes backwards", refused.exception.message)
+        # AND NOTHING MOVED, which is the half a refusal is worth having for.
+        self.assertEqual(
+            attempts_module.attempt_activity_of(self.store, ATTEMPT),
+            {"attempt_id": ATTEMPT, "bytes_observed": 4096,
+             "observed_at": NOW})
+
+    def test_a_negative_total_is_not_an_observation(self):
+        self.recorded()
+        with self.assertRaises(ContractRefusal):
+            self.observed(-1)
+        self.assertIsNone(
+            attempts_module.attempt_activity_of(self.store,
+                                                ATTEMPT)["bytes_observed"])
+
+    def test_an_observation_about_no_attempt_refuses(self):
+        with self.assertRaises(ContractRefusal) as refused:
+            attempts_module.observe_activity(self.ticking,
+                                             attempt_id="attempt-nobody",
+                                             bytes_observed=1)
+        self.assertIn("no runtime attempt", refused.exception.message)
+
+    def test_the_projection_decides_nothing(self):
+        """M61707: it never renews a claim, clears a gate, extends a deadline
+        or authorizes recovery. The proof is structural -- every other column
+        of the row is unchanged by an observation, so nothing downstream can
+        branch differently because of one."""
+        self.recorded()
+        before = self.row()
+        self.observed(8192)
+        after = self.row()
+        moved = sorted(name for name in after
+                       if before[name] != after[name])
+        self.assertEqual(moved, ["activity_at", "activity_bytes"])
+
+
+class TheAxesAgreeWithTheStore(AttemptCase):
+    """The vocabulary is written in two languages, and they have to agree."""
+
+    def test_every_axis_column_admits_exactly_its_own_vocabulary(self):
+        for axis, moves in TRANSITIONS.items():
+            with self.subTest(axis=axis):
+                self.assertEqual(sorted(ATTEMPT_COLUMNS[axis].allowed),
+                                 sorted(moves))
+
+    def test_every_transition_names_a_value_of_its_own_axis(self):
+        for axis, moves in TRANSITIONS.items():
+            for state, after in moves.items():
+                with self.subTest(axis=axis, state=state):
+                    for value in after:
+                        self.assertIn(value, moves)
+
+    def test_the_map_is_frozen_all_the_way_down(self):
+        with self.assertRaises(TypeError):
+            TRANSITIONS["output"] = {}
+        with self.assertRaises(TypeError):
+            TRANSITIONS["output"]["sealed"] = ("open",)
+
+
+class ThePublicFailedStartProjection(
+        ARefusedStartIsSettledRatherThanStranded):
+    """W76207: `attempt_start_failure_of`, held to the owner-record rule.
+
+    The Job Manager projects a stage as `exceptional` from this read, so an
+    identity that merely COLLIDES must not be able to end somebody's stage.
+    Review [P1] found the first version trusting any committed row under the
+    derived id; these cases hold it to the discipline `intake` already applies
+    to the same record -- the kind agrees, the journal's own reader decodes the
+    answer, and the facts it names are this attempt's own.
+    """
+
+    def failed(self, failure=None):
+        """One attempt whose start really did fail, journalled by the manager."""
+        adapter, inputs = self.refused(failure)
+        adapter.listing = []
+        with self.assertRaises(Exception):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        return adapter
+
+    def operation_id(self):
+        return attempts_module.start_failure_operation_id(self.row())
+
+    def test_a_real_failed_start_is_projected_with_its_own_facts(self):
+        """THE POSITIVE REPLAY the earlier cases never drove."""
+        self.failed()
+        record = attempts_module.attempt_start_failure_of(self.store, ATTEMPT)
+        self.assertIsNotNone(record)
+        self.assertEqual(record["attempt_id"], ATTEMPT)
+        self.assertEqual(record["start_operation_id"],
+                         attempts_module._start_operation_id(self.row()))
+        from baton_v12.worker_manager.documents import RUNTIME_START_FAILED
+
+        self.assertEqual(sorted(record), sorted(RUNTIME_START_FAILED))
+        # The default driver refuses, so the recorder preserves a REFUSAL.
+        self.assertEqual(record["failure"]["kind"], "refusal")
+
+    def test_a_driver_fault_is_projected_with_its_typed_fault(self):
+        """The other shape the recorder preserves, and the one the Job
+        Manager's contained-fault path depends on."""
+        self.failed(RuntimeError("the driver fell over"))
+        record = attempts_module.attempt_start_failure_of(self.store, ATTEMPT)
+        self.assertEqual(record["failure"]["kind"], "fault")
+        self.assertEqual(record["failure"]["fault"], "RuntimeError")
+
+    def test_a_row_committed_as_another_kind_refuses(self):
+        """AN IDENTITY IS NOT A WARRANT.
+
+        A row this manager committed as something else, under an id that
+        happens to collide, must not be readable as a failed start -- it would
+        make a Job exceptional on the strength of an unrelated act.
+        """
+        self.failed()
+        self.store._connection.execute(
+            "UPDATE operations SET kind = 'attempt.record' "
+            "WHERE operation_id = ?", (self.operation_id(),))
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "schema"))
+        self.assertIn("rather than a start-failed record",
+                      caught.exception.message)
+
+    def test_a_record_describing_another_act_refuses(self):
+        """AND THE FACTS IT NAMES ARE THIS ATTEMPT'S OWN.
+
+        The three compared members are exactly what the identity is derived
+        from, so this proves the digest's contents rather than trusting that a
+        matching id could only come from matching facts.
+        """
+        self.failed()
+        import json as _json
+
+        held = self.store.operation_record(self.operation_id())
+        spoiled = _json.loads(held["result"])
+        spoiled["attempt_id"] = "attempt-somebody-else"
+        self.store._connection.execute(
+            "UPDATE operations SET result = ? WHERE operation_id = ?",
+            (_json.dumps(spoiled, sort_keys=True), self.operation_id()))
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT)
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertIn("attempt_id", caught.exception.message)
+
+    def test_a_refused_row_under_that_identity_is_not_a_failure(self):
+        """A collision is not evidence, so it answers absence rather than
+        inventing an ending out of a conflict."""
+        self.failed()
+        self.store._connection.execute(
+            "UPDATE operations SET state = 'refused', result = NULL, "
+            "refusal = ? WHERE operation_id = ?",
+            (json.dumps({"category": "refused", "code": "precondition",
+                         "message": "a colliding act", "durable": True},
+                        sort_keys=True), self.operation_id()))
+        self.assertIsNone(
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT))
+
+
+class APreparationThatNeverReachedAStartIsRecordedAsOne(
+        ARefusedStartIsSettledRatherThanStranded):
+    """W76207: the ending a post-claim preparation had no path to.
+
+    A deployment composes an assignment's workspace, input root, manifests,
+    credential and launch delivery AFTER the claim and BEFORE any adapter
+    exists. `request_runtime_start` was the only public way to reach a durable
+    ending, and it authorizes the input root first -- so a preparation that
+    failed before that root existed had no ending at all, and the control
+    plane asked its stage again on every tick.
+
+    ITS OWN KIND, AND RE-REVIEW [P1] IS WHY. The first cut filed it as
+    `runtime.start-failed`, which is `intake`'s authority to remove a
+    container that came from a failed start. One durable row cannot mean both
+    "a start act failed" and "no start act happened", least of all when one
+    meaning is a destruction authorization.
+    """
+
+    def preparation(self):
+        return ContractRefusal("integrity", "path",
+                               "the input root is partial")
+
+    def journalled(self):
+        return attempts_module.attempt_preparation_failure_of(self.store,
+                                                              ATTEMPT)
+
+    def preparation_operation_id(self):
+        return attempts_module._preparation_failure_operation_id(self.row())
+
+    def test_a_prepared_attempt_records_the_refusal_as_its_own_kind(self):
+        self.delivered()
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        # THE CLOSED PAIR IS UNCHANGED and only the message grew, exactly as a
+        # refused start's does.
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "path"))
+        self.assertIn("the input root is partial", caught.exception.message)
+        self.assertIn("journalled as", caught.exception.message)
+        record = self.journalled()
+        self.assertEqual(record["attempt_id"], ATTEMPT)
+        self.assertEqual(record["failure"]["kind"], "refusal")
+        self.assertEqual(record["failure"]["code"], "path")
+        self.assertEqual(record["execution_runtime"], "not-started")
+        self.assertIsNone(record["runtime_id"])
+        from baton_v12.worker_manager.documents import (
+            RUNTIME_PREPARATION_FAILED)
+
+        self.assertEqual(sorted(record), sorted(RUNTIME_PREPARATION_FAILED))
+
+    def test_it_is_not_the_failed_start_record_and_authorizes_no_removal(self):
+        """The correction re-review asked for, asserted rather than described.
+
+        `intake._failed_start_record` reads the failed-start row as this
+        manager's account that a runtime came from a failed start. A
+        preparation must be invisible to it.
+        """
+        self.delivered()
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        self.assertIsNotNone(self.journalled())
+        self.assertIsNone(
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT))
+        self.assertNotEqual(
+            self.preparation_operation_id(),
+            attempts_module.start_failure_operation_id(self.row()))
+        from baton_v12.worker_manager import authorize_failed_start_cleanup
+
+        capable = Adapter()
+        capable.destroy_failed_start = lambda command: None
+        capable.normalize_directory = lambda command: None
+        capable.custodian_image_digest = "sha256:" + "c" * 64
+        with self.assertRaises(ContractRefusal) as caught:
+            authorize_failed_start_cleanup(
+                self.store, self.port, capable, attempt_id=ATTEMPT,
+                retention_policy_digest="sha256:" + "7" * 64)
+        self.assertIn("no committed failed-start record",
+                      caught.exception.message)
+
+    def test_no_start_operation_is_journalled_and_no_lane_is_taken(self):
+        """A record naming a start operation would be this manager writing
+        down an act it did not perform."""
+        self.delivered()
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        self.assertEqual(self.row()["execution_runtime"], "not-started")
+        self.assertNotIn("start_operation_id", self.journalled())
+        self.assertIsNone(self.store.operation_record(
+            attempts_module._start_operation_id(self.row())))
+        self.assertIsNone(runtime_lane(self.store, ATTEMPT)["holder"])
+
+    def test_the_exact_same_preparation_refusal_replays(self):
+        """A restart finds the same material and refuses the same way, so the
+        second call is an exact replay rather than a collision."""
+        self.delivered()
+        for _ in range(2):
+            with self.assertRaises(ContractRefusal):
+                attempts_module.refuse_runtime_preparation(
+                    self.store, attempt_id=ATTEMPT,
+                    refusal=self.preparation())
+        self.assertIsNotNone(self.journalled())
+
+    def test_a_start_that_was_requested_and_never_attached_is_recorded(self):
+        """THE RESTART WINDOW, and re-review [P1] is why it is recorded here.
+
+        A credential recovery that fails closed happens after the start
+        operation committed and before any runtime was attached. The first
+        correction re-raised there, so the stage stayed `claimed` and was
+        asked again forever -- an ordinary refusal is neither an ending nor a
+        safe wait state.
+        """
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        record = self.journalled()
+        self.assertEqual(record["execution_runtime"], "start-requested")
+        self.assertEqual(record["failure"]["code"], "path")
+
+    def test_an_attempt_that_was_never_activated_refuses(self):
+        """The record is held against the assignment activation FIXED, and an
+        attempt with none has nothing to have prepared."""
+        record_attempt(self.store, attempt_id=ATTEMPT, adapter_name="docker",
+                       adapter_digest=ADAPTER, profile_digest=PROFILE)
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "precondition"))
+        self.assertIsNone(self.journalled())
+
+    def test_the_start_acts_own_record_is_never_written_over(self):
+        """THE ONE ENDING THIS DEFERS TO, and re-review [P1] chose it.
+
+        An axis guard was the wrong question twice over: which value the
+        execution axis holds does not say whether an attempt has an account
+        already, and this operation now moves that axis itself when it
+        identifies a runtime. A start act that FAILED has its own record --
+        the one `intake` removes a container on -- and a preparation ending
+        written over it would be a second account of one act.
+        """
+        adapter, inputs = self.refused()
+        adapter.listing = []
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertIsNotNone(
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT))
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("refused", "already-terminal"))
+        self.assertIn("failed-start record", caught.exception.message)
+        self.assertIsNone(self.journalled())
+
+    def test_the_record_names_the_runtime_the_identification_attached(self):
+        """RECONCILE, THEN RECORD -- the order the sibling record fixes.
+
+        Recording first would durably say `None` about a runtime that exists,
+        and it is also what made identification a one-shot act: the record
+        makes the stage exceptional, so a caller that named afterwards had no
+        second chance.
+        """
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+        adapter = Adapter()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": attempts_module._runtime_labels(
+                                self.row())}]
+        adapter.observed = {"runtime_id": "runtime-1", "state": "running",
+                            "why": None}
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation(),
+                adapter=adapter)
+        self.assertIn("the runtime was identified as",
+                      caught.exception.message)
+        record = self.journalled()
+        self.assertEqual(record["runtime_id"], "runtime-1")
+        self.assertEqual(self.row()["runtime_id"], "runtime-1")
+
+    def identifying(self, runtime_id="runtime-1", state="running"):
+        """An adapter that names exactly one runtime for these labels."""
+        adapter = Adapter(runtime_id)
+        adapter.listing = [{"runtime_id": runtime_id,
+                            "labels": attempts_module._runtime_labels(
+                                self.row())}]
+        adapter.observation = {"state": state, "why": "it is up",
+                               "mounts": None}
+        return adapter
+
+    def test_a_start_ending_that_wins_the_race_is_the_only_one_written(self):
+        """Re-review 2026-09-03T22:00:26Z [P1]: the door check goes stale.
+
+        The sibling is asked before the engine is, and the engine is asked
+        before the ending's transaction opens. A start failure committed in
+        that interval passed the first check and was then followed by a
+        preparation record -- both accounts of one attempt, which is exactly
+        what the guard exists to prevent. It is asked again where there is no
+        interval, and refusing there unwinds the attachment too, because they
+        are one act.
+        """
+        start_adapter, inputs = self.refused()
+
+        def interleaved(store, adapter, attempt_id):
+            """The competing ending, committed from the identification."""
+            del adapter
+            with self.assertRaises(ContractRefusal):
+                request_runtime_start(store, start_adapter,
+                                      attempt_id=attempt_id, inputs=inputs)
+            return None, "; a competing start ending committed"
+
+        with mock.patch.object(attempts_module, "_identification",
+                               interleaved):
+            with self.assertRaises(ContractRefusal) as caught:
+                attempts_module.refuse_runtime_preparation(
+                    self.store, attempt_id=ATTEMPT,
+                    refusal=self.preparation(), adapter=object())
+        # THE CALLER STILL READS ITS OWN REFUSAL, not this manager's note
+        # about a race -- the account swap an earlier review already found on
+        # the sequential path.
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "path"))
+        self.assertIn("no preparation ending was written",
+                      caught.exception.message)
+        # EXACTLY ONE ENDING, and it is the start act's own.
+        self.assertIsNotNone(
+            attempts_module.attempt_start_failure_of(self.store, ATTEMPT))
+        self.assertIsNone(self.journalled())
+
+    def test_the_ending_and_the_attachment_land_together_or_not_at_all(self):
+        """Re-review 2026-09-03T21:24:16Z [P1]: the interval that lost this.
+
+        Two separate durable acts lose the ending in EITHER order, because
+        each one alone moves the stage out of `claimed` and the control plane
+        drives claimed stages only. An attachment that survived a death on its
+        own is exactly the half that made the ending unreachable forever, so a
+        death inside this act must leave neither.
+        """
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+
+        def dying(**members):
+            del members
+            raise KeyboardInterrupt("the process stopped mid-act")
+
+        with mock.patch.object(attempts_module.documents,
+                               "runtime_preparation_failed", dying):
+            with self.assertRaises(KeyboardInterrupt):
+                attempts_module.refuse_runtime_preparation(
+                    self.store, attempt_id=ATTEMPT,
+                    refusal=self.preparation(),
+                    adapter=self.identifying())
+        self.assertIsNone(self.journalled())
+        self.assertIsNone(self.row()["runtime_id"],
+                          "the attachment survived the act that was to name "
+                          "it in the record")
+        self.assertEqual(self.row()["execution_runtime"], "start-requested")
+        # AND THE NEXT PASS CONVERGES, which is what the untouched state is
+        # for: this is the level-triggered path a resumed manager re-enters.
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation(),
+                adapter=self.identifying())
+        self.assertEqual(self.journalled()["runtime_id"], "runtime-1")
+        self.assertEqual(self.row()["runtime_id"], "runtime-1")
+
+    def test_an_attachment_that_refuses_is_contained_and_the_ending_stands(self):
+        """The reconciliation still never takes the ending with it.
+
+        The axis is terminal, so the observation the engine's answer implies
+        cannot follow it and the attachment refuses INSIDE the act. What is
+        rolled back is the attachment alone -- and the record is then written
+        over the axes the rollback left standing rather than over the ones
+        this manager meant to establish.
+        """
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="destroyed")
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation(),
+                adapter=self.identifying())
+        self.assertIn("could not be attached", caught.exception.message)
+        self.assertIn("journalled as", caught.exception.message)
+        record = self.journalled()
+        self.assertEqual(record["execution_runtime"], "destroyed")
+        self.assertIsNone(record["runtime_id"])
+        self.assertIsNone(self.row()["runtime_id"],
+                          "a refused attachment was kept")
+        self.assertEqual(self.row()["execution_runtime"], "destroyed")
+
+    def test_an_identified_name_the_registry_holds_live_is_not_said(self):
+        """Naming the runtime puts an ADAPTER-SUPPLIED value in TWO places.
+
+        The account is one: `ContractRefusal` refuses to be constructed around
+        a value the secret registry holds live, so a message quoting one would
+        replace this manager's ending with an assertion at the raising site --
+        `_sayable`'s finding, one level out. The ending's SIGNATURE is the
+        other, and an unsignable ending is no ending at all.
+
+        The durable row is the third place, and it is the store's own rule
+        rather than this one's: the attachment refuses, is contained, and the
+        record is written over the axes that containment leaves standing. All
+        three keep the value off a durable surface and none of them costs the
+        ending.
+        """
+        from baton_v12.contracts import forget_secret, remember_secret
+
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+        remember_secret("runtime-1")
+        try:
+            with self.assertRaises(ContractRefusal) as caught:
+                attempts_module.refuse_runtime_preparation(
+                    self.store, attempt_id=ATTEMPT,
+                    refusal=self.preparation(),
+                    adapter=self.identifying())
+        finally:
+            forget_secret("runtime-1")
+        self.assertIn("the runtime was identified", caught.exception.message)
+        self.assertNotIn("runtime-1", caught.exception.message)
+        self.assertIn("journalled as", caught.exception.message)
+        self.assertIn("could not be attached", caught.exception.message)
+        # THE ENDING IS STILL WRITTEN, which is the property that matters: a
+        # stage with no canonical failure is asked again on every tick.
+        record = self.journalled()
+        self.assertIsNone(record["runtime_id"])
+        self.assertEqual(record["execution_runtime"], "start-requested")
+        self.assertIsNone(self.row()["runtime_id"])
+
+    def test_the_same_identification_replays_and_a_different_one_collides(self):
+        """The plan is an operand of the ending, by IDENTITY.
+
+        Two endings attaching the same runtime are one act however the adapter
+        described it, and two attaching different runtimes are two accounts of
+        one attempt -- which the journal refuses rather than overwrites.
+        """
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+        for state in ("running", "quiescent"):
+            with self.assertRaises(ContractRefusal) as caught:
+                attempts_module.refuse_runtime_preparation(
+                    self.store, attempt_id=ATTEMPT,
+                    refusal=self.preparation(),
+                    adapter=self.identifying(state=state))
+            self.assertIn("journalled as", caught.exception.message)
+        record = self.journalled()
+        self.assertEqual(record["runtime_id"], "runtime-1")
+        self.assertEqual(record["execution_runtime"], "running",
+                         "the first account is not the one that stands")
+
+    def test_an_identification_that_fails_never_takes_the_ending_with_it(self):
+        """It runs while a failure is already on its way out.
+
+        An ending nobody could write because the engine was unreachable is the
+        retry loop this record exists to stop.
+        """
+        self.delivered()
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="start-requested")
+
+        class Unreachable:
+            def list(self, request):
+                raise OSError("the engine socket is gone")
+
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation(),
+                adapter=Unreachable())
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "path"))
+        self.assertIn("could not be identified", caught.exception.message)
+        self.assertIsNotNone(self.journalled())
+
+    def test_an_operand_that_is_not_this_managers_refusal_is_refused(self):
+        self.delivered()
+        for given in (None, "a refusal", OSError("not a refusal")):
+            with self.subTest(given=type(given).__name__):
+                with self.assertRaises(ContractRefusal) as caught:
+                    attempts_module.refuse_runtime_preparation(
+                        self.store, attempt_id=ATTEMPT, refusal=given)
+                self.assertEqual((caught.exception.category,
+                                  caught.exception.code),
+                                 ("integrity", "schema"))
+
+    def test_a_durable_refusal_is_still_durable_when_it_comes_back(self):
+        """Review [P2]: the reconstructed refusal dropped `durable`.
+
+        The Job control plane branches on that flag to tell a condition from
+        an ending, so a durable input silently becoming non-durable is the
+        settlement changing what the failure MEANS.
+        """
+        self.delivered()
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT,
+                refusal=ContractRefusal("policy", "denied",
+                                        "the source provider is closed",
+                                        durable=True))
+        self.assertTrue(caught.exception.durable)
+
+    def test_a_maximum_width_refusal_does_not_overflow_the_bound(self):
+        """Review [P2]: appending to an already-maximal message raised a raw
+        `AssertionError` at the raising site -- the settlement turning a
+        reportable failure into a crash."""
+        from baton_v12.contracts.errors import MESSAGE_LIMIT
+
+        self.delivered()
+        widest = "x" * MESSAGE_LIMIT
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT,
+                refusal=ContractRefusal("integrity", "path", widest))
+        self.assertEqual(len(caught.exception.message), MESSAGE_LIMIT)
+        # THE ACCOUNT IS WHAT SURVIVES: the caller already holds the message
+        # it raised, and which record was written is what it does not.
+        self.assertIn("journalled as", caught.exception.message)
+        self.assertIsNotNone(self.journalled())
+
+    def test_a_row_committed_as_another_kind_refuses(self):
+        """AN IDENTITY IS NOT A WARRANT, held to the sibling reader's rule."""
+        self.delivered()
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        self.store._connection.execute(
+            "UPDATE operations SET kind = 'attempt.record' "
+            "WHERE operation_id = ?", (self.preparation_operation_id(),))
+        with self.assertRaises(ContractRefusal) as caught:
+            self.journalled()
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertIn("rather than a preparation-failed record",
+                      caught.exception.message)
+
+    def test_a_record_describing_another_act_refuses(self):
+        self.delivered()
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        held = self.store.operation_record(self.preparation_operation_id())
+        spoiled = json.loads(held["result"])
+        spoiled["attempt_id"] = "attempt-somebody-else"
+        self.store._connection.execute(
+            "UPDATE operations SET result = ? WHERE operation_id = ?",
+            (json.dumps(spoiled, sort_keys=True),
+             self.preparation_operation_id()))
+        with self.assertRaises(ContractRefusal) as caught:
+            self.journalled()
+        self.assertEqual(caught.exception.code, "schema")
+        self.assertIn("attempt_id", caught.exception.message)
+
+    def test_a_refused_row_under_that_identity_is_not_a_failure(self):
+        """A collision is not evidence, so it answers absence rather than
+        inventing an ending out of a conflict."""
+        self.delivered()
+        with self.assertRaises(ContractRefusal):
+            attempts_module.refuse_runtime_preparation(
+                self.store, attempt_id=ATTEMPT, refusal=self.preparation())
+        self.store._connection.execute(
+            "UPDATE operations SET state = 'refused', result = NULL, "
+            "refusal = ? WHERE operation_id = ?",
+            (json.dumps({"category": "refused", "code": "precondition",
+                         "message": "a colliding act", "durable": True},
+                        sort_keys=True), self.preparation_operation_id()))
+        self.assertIsNone(self.journalled())
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+class TheRuntimeStateIsObservedAndNeverInferred(TheRuntimeIsStartedOnceAndReconciled):
+    """W26294. `list` answers WHICH containers carry an assignment's labels;
+    only `observe` answers what one of them IS.
+
+    W6636's composition found reconciliation reading `running` off membership
+    in `ps --all` -- a listing that includes exited containers -- so an
+    execution attempt recorded a running worker for one that had already
+    finished, and the adapter had `observe` all along with nothing calling it.
+    """
+
+    def reconciled(self, observation, attempt_id=ATTEMPT):
+        inputs, _given, _assignment = self.delivered(attempt_id)
+        adapter = Adapter()
+        adapter.observation = observation
+        request_runtime_start(self.store, adapter, attempt_id=attempt_id,
+                              inputs=inputs)
+        return adapter
+
+    def axis(self, attempt_id=ATTEMPT):
+        return self.row(attempt_id)["execution_runtime"]
+
+    def test_positive_absence_is_recorded_as_destruction(self):
+        """`absent` is POSITIVE evidence about one exact identity.
+
+        The adapter answers it only when the engine says that container does
+        not exist, which is the certified evidence the transition map's own
+        note was waiting for: a reconciliation must be able to record what it
+        finds "including positive destruction". What stays forbidden is
+        inferring it from a failure to LOOK, and that is `uncertain`, which the
+        map still refuses to let become `destroyed`.
+
+        Without this, mapping absence to uncertainty changes no verdict --
+        measured -- and the two answers would be indistinguishable through the
+        seam the acceptance says must keep them distinct.
+        """
+        adapter = self.reconciled({"state": "absent", "why": "no such thing",
+                                   "mounts": None})
+        self.assertEqual(self.axis(), "destroyed")
+        self.assertEqual(adapter.observed, [adapter.runtime_id])
+
+    def test_the_four_observations_stay_four_answers(self):
+        """Running, quiescent, absent and uncertain remain distinguishable.
+
+        The acceptance's own clause. Asserted as the whole mapping rather than
+        one state at a time, so a change that collapsed two of them fails here
+        rather than in whichever case happened to cover the survivor.
+        """
+        self.assertEqual(
+            OBSERVED_RUNTIME,
+            {"running": "running", "quiescent": "quiescent",
+             "absent": "destroyed", "uncertain": "uncertain"})
+        self.assertEqual(len(set(OBSERVED_RUNTIME.values())), 4)
+
+    def test_an_answer_that_is_not_a_document_is_uncertain_and_says_so(self):
+        """Review [P0] INVERTED THIS CASE'S OUTCOME, and the reason it exists
+        survives the inversion.
+
+        It used to require a propagated refusal. That refusal was the defect:
+        it left the durable axis at whatever it said before, including
+        `running`, so an observation that FAILED was indistinguishable from one
+        that answered liveness. Every failed or unrecognised exact observation
+        is now a durable `uncertain`.
+
+        WHAT IT STILL ESTABLISHES is the EXACT reason. Measured once already:
+        removing the document check left the missing-member check answering the
+        same input for a different reason, so a case that only asserted
+        "uncertain" would establish nothing. A string has no `state` member
+        either, and the reason is what tells the two apart.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        adapter.observation = "not a document"
+        answer = request_runtime_start(self.store, adapter,
+                                       attempt_id=ATTEMPT, inputs=inputs)
+        self.assertEqual(answer["observed"], "uncertain")
+        self.assertIn("is a document", answer["why"])
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+        self.assertNotEqual(self.row()["execution_runtime"], "running")
+
+    def test_an_adapter_without_observe_refuses_as_a_capability(self):
+        """Typed rather than discovered by `AttributeError`.
+
+        Reconciliation already types `list`; `observe` is now equally required,
+        and an adapter that has neither is a narrow adapter this seam cannot
+        use. Measured: without the capability check the missing method surfaces
+        as an `AttributeError` outside this contract's taxonomy.
+        """
+        inputs, _given, _assignment = self.delivered()
+
+        class Narrow(Adapter):
+            observe = None
+
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, Narrow(), attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertIn("capability", str(caught.exception))
+
+    # -- re-review [P1]: the answer is rebuilt, never merged ---------------
+    #
+    # `_attach` is effectively-once, so every reconciliation after the first
+    # REPLAYS the first pass's document. Refreshing `observed` on top of that
+    # replay left `why` as old as the attachment, and the two directions fail
+    # in opposite ways -- so they are two cases rather than one, and a third
+    # walks the whole document across four passes because the members that
+    # must NOT move are as much of the contract as the ones that must.
+
+    def attached_twice(self, first, second):
+        """One attachment, then a second reconciliation over it."""
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        adapter.observation = first
+        opening = request_runtime_start(self.store, adapter,
+                                        attempt_id=ATTEMPT, inputs=inputs)
+        adapter.observation = second
+        return opening, reconcile_runtime(self.store, adapter,
+                                          attempt_id=ATTEMPT)
+
+    def test_a_later_inconclusive_observation_carries_its_own_reason(self):
+        """First `running`, then a failed observation.
+
+        The replayed document had no reason, because the observation it was
+        built from was conclusive. Refreshing `observed` alone therefore
+        answered `uncertain` and explained nothing -- and an inconclusive state
+        with no reason is the one answer an operator cannot act on.
+        """
+        opening, answer = self.attached_twice(
+            {"state": "running", "why": "it is up", "mounts": None},
+            ContractRefusal("unavailable", "transport",
+                            "the observer failed"))
+        self.assertEqual(opening["observed"], "running")
+        self.assertNotIn("why", opening)
+        self.assertEqual(answer["observed"], "uncertain")
+        self.assertIn("why", answer)
+        self.assertIn("the observer failed", answer["why"])
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+
+    def test_a_later_conclusive_observation_drops_the_stale_reason(self):
+        """First a failed observation, then `running` -- the more dangerous
+        direction.
+
+        The answer said the runtime is UP while carrying the prose of the
+        failure that could not see it. A reader has no way to tell a reason
+        that describes the current state from one left over from an earlier
+        pass, so a conclusive answer must carry none at all.
+        """
+        opening, answer = self.attached_twice(
+            ContractRefusal("unavailable", "transport",
+                            "the original observer failed"),
+            {"state": "running", "why": "it is up", "mounts": None})
+        self.assertEqual(opening["observed"], "uncertain")
+        self.assertIn("why", opening)
+        self.assertEqual(answer["observed"], "running")
+        self.assertNotIn("why", answer)
+        self.assertEqual(self.row()["execution_runtime"], "running")
+
+    def test_the_fixed_identity_survives_every_later_observation(self):
+        """Four passes over ONE attachment, checking the WHOLE document.
+
+        The two cases above check the member that was wrong. This one checks
+        what must not move while it moves: the attempt, the decision and the
+        fixed runtime identity are what the effectively-once attachment is
+        authoritative about, and a rebuild that composed any of them from this
+        call rather than from the attachment would be a different defect
+        wearing the same shape.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        opening = request_runtime_start(self.store, adapter,
+                                        attempt_id=ATTEMPT, inputs=inputs)
+        fixed = opening["runtime_id"]
+        walked = []
+        for observation, expected in (
+                (ContractRefusal("unavailable", "transport", "no answer"),
+                 "uncertain"),
+                ({"state": "running", "why": "up", "mounts": None},
+                 "running"),
+                ({"state": "quiescent", "why": "exited 0", "mounts": None},
+                 "quiescent"),
+                ("not a document", "uncertain")):
+            adapter.observation = observation
+            answer = reconcile_runtime(self.store, adapter,
+                                       attempt_id=ATTEMPT)
+            walked.append(answer["observed"])
+            self.assertEqual(answer["attempt_id"], ATTEMPT)
+            self.assertEqual(answer["decision"], "attached")
+            self.assertEqual(answer["runtime_id"], fixed)
+            self.assertEqual(answer["observed"], expected)
+            # THE REASON RIDES EXACTLY WHEN THE ANSWER IS INCONCLUSIVE, which
+            # is the rule stated as one predicate over the document rather
+            # than as four separate expectations.
+            self.assertEqual("why" in answer, expected == "uncertain",
+                             answer)
+            # And the durable axis agrees with what was answered on every
+            # pass: the document and the record are one act.
+            self.assertEqual(self.row()["execution_runtime"], expected)
+        self.assertEqual(
+            walked, ["uncertain", "running", "quiescent", "uncertain"])
+
+    def test_the_recorded_attachment_keeps_the_reason_it_was_made_with(self):
+        """The JOURNALLED document, not the returned one.
+
+        Rebuilding the answer made it independent of what the attachment
+        stored, which is right -- and it also meant nothing was left checking
+        the stored document at all. That is a real coverage loss and it showed
+        up as a mutation that stopped being caught: dropping `why` from the
+        `_attach` call changed no answer any case looked at.
+
+        The stored document is what an exact retry replays and what an
+        operator reads out of the operation journal, so an attachment made
+        from an inconclusive observation has to carry its reason there too.
+        """
+        inputs, _given, _assignment = self.delivered()
+        adapter = Adapter()
+        adapter.observation = ContractRefusal(
+            "unavailable", "transport", "the observer failed")
+        answer = request_runtime_start(self.store, adapter,
+                                       attempt_id=ATTEMPT, inputs=inputs)
+        runtime = answer["runtime_id"]
+        found, stored = self.store.replay(
+            f"attempt.attach:{ATTEMPT}:{runtime}",
+            manager_signature("attempt.attach",
+                              {"attempt_id": ATTEMPT,
+                               "runtime_id": runtime}),
+            kind="attempt.attach")
+        self.assertTrue(found)
+        self.assertEqual(stored["observed"], "uncertain")
+        self.assertIn("why", stored)
+        self.assertIn("the observer failed", stored["why"])
+
+
+class TheFailedStartReachesTheRuledEnding(
+        ARefusedStartIsSettledRatherThanStranded):
+    """W32648's second half: the cleanup crossing the record authorizes.
+
+    Approver ruling M33800. A start that created a container and then failed
+    has an exact runtime, NO worker disposition this manager may invent, NO
+    frozen result and NO intake receipt -- so `authorize_cleanup`, whose whole
+    authorization is that receipt, has no way through. The regression this
+    Work replaces got through by observing a disposition and manufacturing a
+    frozen output, which is the fabrication the finding exists to remove.
+
+    THE ORDER IS THE RULING'S and each case drives one part of it: fence at the
+    authority, remove the exact attached runtime, positively observe absence,
+    settle the delivery roots, LEAVE the untrusted result directory where it
+    is, and end at `retained`.
+    """
+
+    def failed(self, failure=None, listing=True):
+        """An attempt whose start created a runtime and then failed."""
+        adapter, inputs = self.refused(failure=failure)
+        if listing:
+            adapter.listing = [{"runtime_id": "runtime-1",
+                                "labels": self.labels()}]
+        else:
+            adapter.listing = []
+        with self.assertRaises(Exception):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        return adapter
+
+    def ended(self):
+        """THE ASSIGNMENT IS OVER, which this ending requires before it runs."""
+        self.session.live_assignment = None
+
+    def custodian(self, **overrides):
+        """W34998's capability, and ONLY it: an adapter carrying `destroy`
+        instead would let this crossing reach the receipt-authorized path."""
+        class Custodian:
+            # W43975: the ending settles on a directory-custody receipt, so
+            # the narrow capability carries the typed act beside its destroy.
+            custodian_image_digest = "sha256:" + "c" * 64
+
+            def __init__(self):
+                self.commands = []
+                self.normalized = []
+
+            def normalize_directory(self, store, *, assignment_id, which):
+                from baton_v12.worker_manager import custody
+
+                self.normalized.append((assignment_id, which))
+                return custody._answered(
+                    "normalize", 0,
+                    {"custody": "normalize", "entries": 0, "not_ours": 0,
+                     "running_as": [0, 0]}, None)
+
+            def destroy_failed_start(self, command):
+                self.commands.append(dict(command))
+                return {"runtime_id": command["runtime_id"],
+                        "state": "absent",
+                        "why": "the engine answered that this exact identity "
+                               "does not exist",
+                        "credentials": {"lifecycle_state": "not-delivered"},
+                        "launch": {"lifecycle_state": "not-delivered"},
+                        **overrides}
+        return Custodian()
+
+    def settled(self, adapter=None, **overrides):
+        from baton_v12.worker_manager import authorize_failed_start_cleanup
+        return authorize_failed_start_cleanup(
+            self.store, self.port, adapter or self.custodian(**overrides),
+            attempt_id=ATTEMPT, retention_policy_digest="sha256:" + "7" * 64)
+
+    def test_the_ending_is_retained_and_nothing_was_fabricated(self):
+        """THE ACCEPTANCE, in one case.
+
+        No caller wrote a worker disposition and no output was frozen, and the
+        cleanup axis still reaches a terminal ending.
+        """
+        self.failed()
+        self.ended()
+        answered = self.settled()
+        self.assertEqual(answered["cleanup"], "retained")
+        self.assertEqual(answered["state"], "absent")
+        self.assertEqual(self.row()["cleanup"], "retained")
+        self.assertEqual(self.row()["execution_runtime"], "destroyed")
+        # THE TWO THINGS THIS ENDING MUST NEVER TOUCH.
+        self.assertEqual(self.row()["worker_disposition"], "none")
+        self.assertEqual(self.row()["output"], "open")
+
+    def test_the_record_is_what_authorizes_it(self):
+        """Not an intake receipt, and the body says which.
+
+        The digest that crosses is the manager's own account of the start that
+        failed -- read back from the journal it was written to, not recomposed
+        -- and it arrives in `failed_start_record_digest`, never in
+        `intake_receipt_digest`.
+        """
+        from baton_v12.worker_manager import attempts as attempts_module
+        from baton_v12.contracts import digest
+        self.failed()
+        self.ended()
+        custodian = self.custodian()
+        self.settled(custodian)
+        body = custodian.commands[0]
+        self.assertNotIn("intake_receipt_digest", body)
+        # THE DIGEST IS OVER THE DECODED RECORD -- the document this manager
+        # composed -- rather than over whatever bytes the journal happens to
+        # store it as.
+        _, committed = self.store.replay(
+            attempts_module.start_failure_operation_id(self.row()),
+            self.store.operation_record(
+                attempts_module.start_failure_operation_id(
+                    self.row()))["signature"],
+            kind="runtime.start-failed")
+        self.assertEqual(body["failed_start_record_digest"], digest(committed))
+        self.assertEqual(body["runtime_id"], "runtime-1")
+
+    def test_the_record_must_name_the_runtime_being_destroyed(self):
+        """A failed-start record for one runtime authorizes no sibling.
+
+        The journal is the independent durable account of what the failed
+        start created.  If the adopted attempt row now names another runtime,
+        cleanup must refuse before crossing the adapter rather than combining
+        the old authorization digest with the new target identity.
+        """
+        worker_manager.configure_workspace_group(self.store, os.getgid())
+        self.failed()
+        self.store._connection.execute(
+            "UPDATE attempts SET runtime_id = ? WHERE runtime_attempt_id = ?",
+            ("runtime-sibling", ATTEMPT))
+        self.ended()
+        custodian = self.custodian()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.settled(custodian)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "schema"))
+        self.assertEqual(custodian.commands, [])
+
+    def test_without_the_record_there_is_no_authorization(self):
+        """A runtime attached by something other than a failed start is not
+        this ending's to remove."""
+        self.claimed()
+        activate_assignment(self.store, self.port, attempt_id=ATTEMPT,
+                            expect=self.expect())
+        observe(self.store, attempt_id=ATTEMPT, axis="execution_runtime",
+                value="running")
+        self.ended()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.settled()
+        self.assertIn("holds no committed failed-start record",
+                      caught.exception.message)
+
+    def test_a_row_of_another_kind_authorizes_nothing(self):
+        """An identity is not a warrant.
+
+        The record is looked up by an identity DERIVED from the attempt, so a
+        committed row sitting at that identity under another kind would have
+        authorized a destroy on the strength of being findable. The kind is
+        checked because a store is data this process did not write on this run.
+        """
+        self.failed()
+        self.ended()
+        from baton_v12.worker_manager import attempts as attempts_module
+        operation_id = attempts_module.start_failure_operation_id(self.row())
+        beside = sqlite3.connect(self.path, isolation_level=None)
+        try:
+            beside.execute(
+                "UPDATE operations SET kind = ? WHERE operation_id = ?",
+                ("runtime.start", operation_id))
+        finally:
+            beside.close()
+        custodian = self.custodian()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.settled(custodian)
+        self.assertEqual((caught.exception.category, caught.exception.code),
+                         ("integrity", "schema"))
+        self.assertIn("rather than a failed-start record",
+                      caught.exception.message)
+        self.assertEqual(custodian.commands, [])
+
+    def test_the_assignment_is_fenced_before_anything_is_destroyed(self):
+        """The ruling's ordering, and the adapter is the witness."""
+        self.failed()
+        custodian = self.custodian()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.settled(custodian)
+        self.assertIn("still the live assignment", caught.exception.message)
+        self.assertEqual(custodian.commands, [],
+                         "a live assignment reached the adapter")
+        self.assertEqual(self.row()["cleanup"], "pending")
+
+    def test_an_uncertain_attempt_has_nothing_to_remove(self):
+        """A failed start reaches `uncertain` exactly when reconciliation
+        could not establish what exists -- so this is the case, not an edge."""
+        self.failed(listing=False)
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+        self.ended()
+        custodian = self.custodian()
+        with self.assertRaises(ContractRefusal) as caught:
+            self.settled(custodian)
+        self.assertEqual(caught.exception.code, "quiescence-unknown")
+        self.assertEqual(custodian.commands, [])
+        self.assertEqual(self.row()["cleanup"], "pending")
+
+    def test_a_surviving_runtime_is_a_failed_cleanup_and_not_an_ending(self):
+        self.failed()
+        self.ended()
+        answered = self.settled(state="running",
+                                why="the engine still reports this identity")
+        self.assertEqual(answered["cleanup"], "failed")
+        self.assertEqual(self.row()["cleanup"], "failed")
+
+    def test_an_unresolved_provider_settles_nothing(self):
+        """Delivery roots are settled on positive absence and on nothing
+        else, which is the owner this crossing REUSES rather than repeats."""
+        self.failed()
+        self.ended()
+        answered = self.settled(
+            launch={"lifecycle_state": "unresolved",
+                    "why": "the launch root could not be proved gone"})
+        self.assertNotIn("cleanup", answered)
+        self.assertEqual(self.row()["cleanup"], "pending")
+
+    def test_an_exact_retry_replays_and_a_changed_policy_collides(self):
+        from baton_v12.worker_manager import authorize_failed_start_cleanup
+        self.failed()
+        self.ended()
+        first = self.settled()
+        again = self.settled()
+        self.assertEqual(again, first)
+        # A DIFFERENT POLICY IS A DIFFERENT ACT, and it arrives after an
+        # ending: the terminal-cleanup refusal is what it meets.
+        with self.assertRaises(ContractRefusal) as caught:
+            authorize_failed_start_cleanup(
+                self.store, self.port, self.custodian(), attempt_id=ATTEMPT,
+                retention_policy_digest="sha256:" + "8" * 64)
+        self.assertEqual(caught.exception.code, "already-terminal")
+
+    def test_a_restart_between_the_removal_and_the_ending_converges(self):
+        """The journal is written after the engine call, so a crash between
+        them leaves cleanup `pending` -- and the next authorization runs the
+        removal again, which is safe because a removal is force-then-inspect
+        and an identity already gone answers absent."""
+        self.failed()
+        self.ended()
+        custodian = self.custodian()
+        restarted = ControlStore.open(self.path, incarnation="manager-2",
+                                      clock=lambda: NOW)
+        self.addCleanup(restarted.close)
+        from baton_v12.worker_manager import authorize_failed_start_cleanup
+        answered = authorize_failed_start_cleanup(
+            restarted, self.port, custodian, attempt_id=ATTEMPT,
+            retention_policy_digest="sha256:" + "7" * 64)
+        self.assertEqual(answered["cleanup"], "retained")
+        self.assertEqual(self.row()["cleanup"], "retained")
+
+    def test_the_untrusted_result_directory_is_left_where_it_is(self):
+        """M33800's custody boundary: the existing unique per-attempt
+        directory begins untrusted and stays untrusted. This ending deletes
+        nothing and creates no second result."""
+        self.failed()
+        # THE ATTEMPT'S OWN WORKSPACE, allocated through the canonical
+        # boundary exactly as a delivery's is -- so what this case proves is
+        # left alone is a real per-attempt directory rather than a temporary
+        # one it invented.
+        roots = assignment_workspace(self.group,
+                                     input_roots.storage_under(self),
+                                     "result-custody")
+        place = os.path.join(roots["workspace"], "result-attempt-1")
+        os.makedirs(place, exist_ok=True)
+        with open(os.path.join(place, "sentinel.txt"), "wb") as handle:
+            handle.write(b"whatever the worker got to")
+        self.ended()
+        self.settled()
+        with open(os.path.join(place, "sentinel.txt"), "rb") as handle:
+            self.assertEqual(handle.read(), b"whatever the worker got to")
+        self.assertEqual(
+            [dict(one) for one in self.store._connection.execute(
+                "SELECT * FROM outputs")], [])
+        self.assertEqual(
+            [dict(one) for one in self.store._connection.execute(
+                "SELECT * FROM intakes")], [])
+
+    def test_a_sibling_attempt_is_untouched(self):
+        self.failed()
+        self.recorded("attempt-sibling")
+        self.ended()
+        self.settled()
+        sibling = self.row("attempt-sibling")
+        self.assertEqual(sibling["cleanup"], "pending")
+        self.assertEqual(sibling["execution_runtime"], "not-started")
+
+
+class TheFailedStartIsDurablyRecorded(ARefusedStartIsSettledRatherThanStranded):
+    """W32648, approver ruling M33800: the manager-owned failure record.
+
+    Attaching the runtime closed the identity leak; it did not leave an
+    authorized ENDING.  Intake requires a frozen result and a receipt, and
+    output freeze requires a terminal `worker_disposition` already proved on
+    the attempt -- so the only way to reach cleanup was to observe a
+    disposition the manager cannot know.  A container created before a fault
+    may also have run code, which is exactly why `unable` would be this
+    manager inventing a worker's account of itself.
+
+    So the failure becomes its own journalled act.  THE JOURNAL IS THE RECORD
+    and no new table is: `store.transact` stores the sealed document as the
+    operation's result, so it is durable, replayable, and collides on any
+    changed fact -- which is the effectively-once guarantee the acceptance
+    asks for rather than a mechanism invented here.
+    """
+
+    def records(self):
+        return [row for row in self.store._connection.execute(
+            "SELECT * FROM operations WHERE kind = 'runtime.start-failed'")]
+
+    def record(self):
+        found = self.records()
+        self.assertEqual(len(found), 1, [dict(one) for one in found])
+        return json.loads(dict(found[0])["result"])
+
+    def test_a_refused_start_is_journalled_with_its_exact_typed_pair(self):
+        adapter, inputs = self.refused()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": self.labels()}]
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        record = self.record()
+        self.assertEqual(record["attempt_id"], ATTEMPT)
+        self.assertEqual(record["failure"], {
+            "kind": "refusal", "category": "policy", "code": "denied",
+            "message": "the engine refused to start this runtime"})
+        # THE RUNTIME THE RECONCILIATION ATTACHED, so the record and the
+        # attempt row agree about what the destroy crossing will name.
+        self.assertEqual(record["runtime_id"], "runtime-1")
+        self.assertEqual(record["runtime_id"], self.row()["runtime_id"])
+        started = [dict(one) for one in self.store._connection.execute(
+            "SELECT * FROM operations WHERE kind = 'runtime.start'")]
+        self.assertEqual(len(started), 1, started)
+        self.assertEqual(record["start_operation_id"],
+                         started[0]["operation_id"])
+
+    def test_a_fault_is_recorded_as_a_fault_and_not_as_a_refusal(self):
+        """The original typed fault, preserved rather than reworded.
+
+        The closed pairing has no `refused/start-failed`, and this module's own
+        history says why -- a wrapper that retyped every failed start as one
+        broke three boundary probes.  So a fault is recorded as a fault, with
+        its own class and text.
+        """
+        adapter, inputs = self.refused(failure=RuntimeError("the socket went"))
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": self.labels()}]
+        with self.assertRaises(RuntimeError):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(self.record()["failure"], {
+            "kind": "fault", "fault": "RuntimeError",
+            "message": "the socket went"})
+
+    def test_the_record_never_writes_a_worker_disposition(self):
+        """The distinction the whole record exists for."""
+        adapter, inputs = self.refused()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": self.labels()}]
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertEqual(self.row()["worker_disposition"], "none")
+        self.assertEqual(self.row()["output"], "open")
+
+    def test_an_exact_retry_replays_the_one_record(self):
+        """Effectively once.  A second identical failure is the same act."""
+        adapter, inputs = self.refused()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": self.labels()}]
+        for _ in range(2):
+            with self.assertRaises(ContractRefusal):
+                request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                      inputs=inputs)
+        self.assertEqual(len(self.records()), 1)
+
+    def test_a_changed_failure_fact_collides_and_the_first_record_stands(self):
+        """The acceptance's rule, and the first spelling of this case asserted
+        its opposite.
+
+        RE-REVIEW [P0]: the operation id hashed the attached runtime and the
+        typed failure, so a changed fact chose a DIFFERENT id and never reached
+        the journal's collision guard -- and this case required the two rows,
+        which made it durable evidence for the wrong contract.
+
+        The id is now stable for the one start act and the changeable facts are
+        in the signature, so a changed fact arrives at the same id with another
+        signature and fails closed. The first account -- written when the
+        manager knew most -- is the one that stands.
+        """
+        adapter, inputs = self.refused()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": self.labels()}]
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        first = self.record()
+
+        # THE SAME START ACT, A DIFFERENT TYPED FAILURE.
+        with self.assertRaises(ContractRefusal) as caught:
+            attempts_module._record_and_raise_start_failure(
+                self.store, ATTEMPT,
+                {"kind": "refusal", "category": "integrity", "code": "schema",
+                 "message": "a different failure entirely"})
+        self.assertEqual(caught.exception.category, "refused")
+        self.assertEqual(caught.exception.code, "operation-collision")
+        # ONE ROW, AND IT IS THE FIRST ONE.
+        self.assertEqual(len(self.records()), 1)
+        self.assertEqual(self.record(), first)
+
+    def test_the_recorder_reports_a_collision_rather_than_raising_it(self):
+        """The recorder runs while another failure is on its way out.
+
+        So the collision is appended to what the caller is already reporting
+        rather than replacing it -- a recorder that threw would substitute its
+        own problem for the one that actually happened.
+        """
+        adapter, inputs = self.refused()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": self.labels()}]
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        said = attempts_module._record_start_failure(
+            self.store, ATTEMPT,
+            {"kind": "refusal", "category": "integrity", "code": "schema",
+             "message": "a different failure entirely"})
+        self.assertIn("already holds a different failure record", said)
+        self.assertEqual(len(self.records()), 1)
+
+    def test_a_start_nothing_could_reconcile_still_records_the_failure(self):
+        """`uncertain` is an ending too, and it is recorded as one.
+
+        The record names `runtime_id: None`, which is the honest statement that
+        nothing was established -- not a claim that nothing was created.
+        """
+        adapter, inputs = self.refused()
+        adapter.listing = ContractRefusal(
+            "runtime-observation", "quiescence-unknown",
+            "the engine could not be listed")
+        with self.assertRaises(ContractRefusal):
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        record = self.record()
+        self.assertIsNone(record["runtime_id"])
+        self.assertEqual(record["execution_runtime"], "uncertain")
+        self.assertEqual(self.row()["execution_runtime"], "uncertain")
+
+    def test_the_refusal_an_operator_reads_names_the_record(self):
+        adapter, inputs = self.refused()
+        adapter.listing = [{"runtime_id": "runtime-1",
+                            "labels": self.labels()}]
+        with self.assertRaises(ContractRefusal) as caught:
+            request_runtime_start(self.store, adapter, attempt_id=ATTEMPT,
+                                  inputs=inputs)
+        self.assertIn("the start failure is journalled as",
+                      caught.exception.message)
+        self.assertIn("runtime.start-failed:", caught.exception.message)
+
+
+class TheFailedStartEndingSurvivesInterruption(TheFailedStartReachesTheRuledEnding):
+    """W43975's public-ending matrix, for the failed-start sibling.
+
+    Inherits the ending's own fixture rather than composing a second one: the
+    question here is what the ENDING does around its directory acts, and a
+    fixture that rebuilt the start failure would be proving its own setup.
+    """
+
+    def interrupted(self, fail_on=None):
+        from baton_v12.worker_manager import custody
+
+        adapter = self.custodian()
+        adapter.normalized = []
+
+        def normalize_directory(store, *, assignment_id, which):
+            adapter.normalized.append((assignment_id, which))
+            if which == fail_on:
+                raise RuntimeError(f"the helper died over {which}")
+            return custody._answered(
+                "normalize", 0,
+                {"custody": "normalize", "entries": 0, "not_ours": 0,
+                 "running_as": [0, 0]}, None)
+
+        adapter.normalize_directory = normalize_directory
+        return adapter
+
+    def test_the_ending_binds_both_receipts_and_replays_them(self):
+        self.failed()
+        self.ended()
+        adapter = self.interrupted()
+
+        answered = self.settled(adapter)
+
+        self.assertEqual([one for _a, one in adapter.normalized],
+                         ["result", "workspace"])
+        self.assertEqual(sorted(answered["directory_custody"]),
+                         ["result", "workspace"])
+        self.assertEqual(self.settled(adapter), answered,
+                         "the settled ending did not replay")
+        self.assertEqual(len(adapter.normalized), 2,
+                         "a replayed ending normalized a root again")
+
+    def test_an_interrupted_normalization_commits_no_ending_and_resumes(self):
+        self.failed()
+        self.ended()
+        dying = self.interrupted(fail_on="workspace")
+
+        with self.assertRaises(RuntimeError):
+            self.settled(dying)
+        self.assertEqual(self.row()["cleanup"], "pending",
+                         "an ending was claimed on an unfinished custody")
+
+        resumed = self.interrupted()
+        answered = self.settled(resumed)
+
+        self.assertEqual(answered["cleanup"], "retained")
+        self.assertEqual([one for _a, one in resumed.normalized],
+                         ["workspace"],
+                         "the resumed ending renormalized a settled root")
+
+    def test_a_changed_custodian_collides_rather_than_settling(self):
+        self.failed()
+        self.ended()
+        dying = self.interrupted(fail_on="workspace")
+        with self.assertRaises(RuntimeError):
+            self.settled(dying)
+
+        other = self.interrupted()
+        other.custodian_image_digest = "sha256:" + "e" * 64
+
+        with self.assertRaises(ContractRefusal) as caught:
+            self.settled(other)
+
+        self.assertEqual(caught.exception.code, "operation-collision")
+        self.assertEqual(self.row()["cleanup"], "pending")
+
+    def test_the_home_is_retained_rather_than_removed(self):
+        """A recordless ending KEEPS what it retained: it commits both
+        receipts and calls no removal at all."""
+        self.failed()
+        self.ended()
+        home = os.path.join(self.storage, ATTEMPT)
+        os.makedirs(os.path.join(home, "workspace"), exist_ok=True)
+
+        self.settled(self.interrupted())
+
+        self.assertTrue(os.path.isdir(os.path.join(home, "workspace")),
+                        "a recordless ending removed the material it retained")

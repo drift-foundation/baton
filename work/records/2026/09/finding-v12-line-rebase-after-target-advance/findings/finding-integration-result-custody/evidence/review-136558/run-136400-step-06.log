@@ -1,0 +1,117 @@
+### label: focused-evidence-and-storage-groups-2
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "-v", "tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes", "tests.integration.test_reconciliation.TheNominatedStorageIsProved"]
+### exit: 1
+### elapsed_seconds: 2.220194
+### STDOUT
+
+### STDERR
+test_a_published_result_with_no_receipts_authorizes_nothing (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_published_result_with_no_receipts_authorizes_nothing)
+PUBLICATION-WITHOUT-IMPORT, the amendment's scheduled replacement ... FAIL
+test_a_receipt_by_another_actor_is_not_this_owners (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_receipt_by_another_actor_is_not_this_owners)
+The record adopts the receipt of the participant it was given, and ... ok
+test_a_receipt_on_the_producers_proposal_is_not_this_results (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_receipt_on_the_producers_proposal_is_not_this_results)
+The submission's own three receipts are real, accepting and on the ... ok
+test_a_refusing_owner_does_not_authorize (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_refusing_owner_does_not_authorize)
+A NONACCEPTING DECISION IS RETAINED BY ITS OWNER and is not an ... ok
+test_an_absent_or_unconfigured_owner_refuses (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_an_absent_or_unconfigured_owner_refuses) ... ok
+test_an_approval_under_a_superseded_policy_is_not_adopted (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_an_approval_under_a_superseded_policy_is_not_adopted) ... ok
+test_evidence_for_one_result_cannot_authorize_another (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_evidence_for_one_result_cannot_authorize_another)
+THE REPRODUCED COUNTEREXAMPLE, now closed twice over. ... ok
+test_one_actor_may_not_give_two_judgements (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_one_actor_may_not_give_two_judgements) ... ok
+test_the_derived_digest_binds_the_bytes_the_runs_and_the_observer (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_derived_digest_binds_the_bytes_the_runs_and_the_observer)
+WHAT A RECEIPT IS ABOUT, given that a receipt has no field for it. ... ok
+test_the_evidence_is_the_authoritys_receipts_and_the_record_writes_none (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_evidence_is_the_authoritys_receipts_and_the_record_writes_none)
+THE AMENDMENT'S CENTRAL CLAIM, asked of a real Authority. ... ok
+test_the_owner_that_ran_the_harness_may_not_judge_it (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_owner_that_ran_the_harness_may_not_judge_it) ... ERROR
+test_the_policy_generation_is_the_approval_receipts_own (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_policy_generation_is_the_approval_receipts_own) ... ok
+test_the_preparer_cannot_review_its_own_composition (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_preparer_cannot_review_its_own_composition) ... ERROR
+test_REPLACED_storage_refuses_at_import_admission (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_REPLACED_storage_refuses_at_import_admission)
+The point of recording an inode: the directory is swapped for a ... ok
+test_a_false_target_source_inode_prepares_nothing (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_a_false_target_source_inode_prepares_nothing) ... ok
+test_a_false_workspace_inode_prepares_nothing (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_a_false_workspace_inode_prepares_nothing) ... ok
+test_a_linked_worktree_shares_the_producers_repository (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_a_linked_worktree_shares_the_producers_repository)
+Its own Git directory, its own path, ONE common directory -- and a ... ok
+test_a_separate_workspace_is_accepted_and_is_where_it_writes (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_a_separate_workspace_is_accepted_and_is_where_it_writes)
+The positive beside the four refusals: an integration-owned ... ok
+test_a_symlink_to_the_producers_line_is_the_same_storage (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_a_symlink_to_the_producers_line_is_the_same_storage)
+A canonical path comparison sees two different paths here. ... ok
+test_isolation_is_proved_again_at_import_admission (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_isolation_is_proved_again_at_import_admission)
+The Manager's answer can move after preparation, so admission asks ... ok
+test_storage_that_is_not_a_directory_refuses (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_storage_that_is_not_a_directory_refuses) ... ok
+test_storage_that_is_not_there_refuses (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_storage_that_is_not_there_refuses) ... ok
+test_the_dedicated_target_may_not_be_the_workspace (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_the_dedicated_target_may_not_be_the_workspace) ... ok
+test_the_producers_own_line_may_not_be_the_workspace (tests.integration.test_reconciliation.TheNominatedStorageIsProved.test_the_producers_own_line_may_not_be_the_workspace) ... ok
+
+======================================================================
+ERROR: test_the_owner_that_ran_the_harness_may_not_judge_it (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_owner_that_ran_the_harness_may_not_judge_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1073, in test_the_owner_that_ran_the_harness_may_not_judge_it
+    self.authorize(published, owners=judging)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 571, in authorize
+    self.receipts(published, dispositions=dispositions, owners=owners,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  generation=generation)
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 528, in receipts
+    self.authority.grant_capability(participant, verb)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/api.py", line 150, in grant_capability
+    return self._core.grant_capability(participant, capability,
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                                       scope=scope)
+                                       ^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 510, in grant_capability
+    check_participant(participant)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/identity.py", line 252, in check_participant
+    raise Refusal(
+        f"{what} is {name_of(value)}; a participant is team.member")
+baton_v12.authority.errors.Refusal: participant is a Owner; a participant is team.member
+
+======================================================================
+ERROR: test_the_preparer_cannot_review_its_own_composition (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_the_preparer_cannot_review_its_own_composition)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1101, in test_the_preparer_cannot_review_its_own_composition
+    self.authorize(published, owners=itself)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 571, in authorize
+    self.receipts(published, dispositions=dispositions, owners=owners,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  generation=generation)
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 528, in receipts
+    self.authority.grant_capability(participant, verb)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/api.py", line 150, in grant_capability
+    return self._core.grant_capability(participant, capability,
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                                       scope=scope)
+                                       ^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 510, in grant_capability
+    check_participant(participant)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/identity.py", line 252, in check_participant
+    raise Refusal(
+        f"{what} is {name_of(value)}; a participant is team.member")
+baton_v12.authority.errors.Refusal: participant is a Owner; a participant is team.member
+
+======================================================================
+FAIL: test_a_published_result_with_no_receipts_authorizes_nothing (tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes.test_a_published_result_with_no_receipts_authorizes_nothing)
+PUBLICATION-WITHOUT-IMPORT, the amendment's scheduled replacement
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1007, in test_a_published_result_with_no_receipts_authorizes_nothing
+    self.assertIn("their owners have not accepted yet",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  caught.exception.message)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'their owners have not accepted yet' not found in "result 'result-cfd75ce82f8f0e34363a6b2b1948653ede8582a9b0195f7b733c… is 'published'; an import account is resolved for an authorized result, and a published one is a candidate its owners have not accepted yet"
+
+----------------------------------------------------------------------
+Ran 24 tests in 2.050s
+
+FAILED (failures=1, errors=2)

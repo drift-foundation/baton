@@ -1,0 +1,71 @@
+{
+  "claim": 133787,
+  "candidate": {
+    "v12/python/src/baton_v12/integration/reconciliation.py": {
+      "sha256": "4e5c9e2185f184d2e718e05309f143c76691767c64845b669ef23300147793f6",
+      "mode": "0o664",
+      "bytes": 35627
+    },
+    "v12/python/src/baton_v12/integration/git_profile.py": {
+      "sha256": "97f90ab9c573da4cd578062320736b0f3bdbe77bbbb4ee64ffc3d4397b027864",
+      "mode": "0o664",
+      "bytes": 23309
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "5316631cbba56ba941040612c692021a8f029cee5ec5f660755b7ab0d4b9e4c9",
+      "mode": "0o664",
+      "bytes": 24484
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "mode": "0o664",
+      "bytes": 36152
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791",
+      "mode": "0o664",
+      "bytes": 19998
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "c5a86008a96f773c0fa884cb7b501197dc29d20eaa638f90957f47e17737bf3e",
+      "mode": "0o664",
+      "bytes": 92978
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "df626826ed4a6348da135229c12fb7e6a0fd01ecbcf5a2508f862a6f3b915e36",
+      "mode": "0o664",
+      "bytes": 3711
+    },
+    "v12/python/tests/integration/test_reconciliation.py": {
+      "sha256": "a103d95a2b537b64745cab32bbfc887f50b70615a6874ee2189243d04a80e058",
+      "mode": "0o664",
+      "bytes": 37910
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce",
+      "mode": "0o664",
+      "bytes": 19242
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "mode": "0o664",
+      "bytes": 136269
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea",
+      "mode": "0o664",
+      "bytes": 183456
+    }
+  },
+  "preflight_errors": [],
+  "argv": [
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/review-133787-probe.py"
+  ],
+  "cwd": "v12/python",
+  "returncode": 0,
+  "stdout": "{\n  \"unproved_sources_and_owner_evidence\": {\n    \"state\": \"published\",\n    \"source_proposal_id\": \"never-published\",\n    \"invented_evidence\": {\n      \"verification\": {\n        \"kind\": \"verification\",\n        \"identity\": \"verification-of-the-result\",\n        \"actor\": \"unconfigured.verifier\",\n        \"disposition\": \"passed\",\n        \"content_digest\": \"sha256:2d56bfd91d6ab750c8fd8a06f0c45ca782cfb49a157f3f6e1cb55707c4b6c573\"\n      },\n      \"review\": {\n        \"kind\": \"review\",\n        \"identity\": \"review-of-the-result\",\n        \"actor\": \"baton.integrator\",\n        \"disposition\": \"accepted\",\n        \"content_digest\": \"sha256:2d56bfd91d6ab750c8fd8a06f0c45ca782cfb49a157f3f6e1cb55707c4b6c573\"\n      },\n      \"approval\": {\n        \"kind\": \"approval\",\n        \"identity\": \"approval-of-the-result\",\n        \"actor\": \"unconfigured.approver\",\n        \"disposition\": \"approved\",\n        \"content_digest\": \"sha256:2d56bfd91d6ab750c8fd8a06f0c45ca782cfb49a157f3f6e1cb55707c4b6c573\"\n      }\n    },\n    \"integration_assignment\": {\n      \"work_ref\": {\n        \"authority_uuid\": \"0123456789abcdef0123456789abcdef\",\n        \"work_id\": \"0123456f-W133117\"\n      },\n      \"participant\": \"baton.integrator\",\n      \"generation\": 2\n    },\n    \"derived_proposal\": {\n      \"proposal_id\": \"proposal-result-93f71f5204cd6fb07e509c0bd7c1d23a3623d5885176dd11dc3737356d2af725\",\n      \"assignment_ref\": {\n        \"work_ref\": {\n          \"authority_uuid\": \"0123456789abcdef0123456789abcdef\",\n          \"work_id\": \"0123456f-W133117\"\n        },\n        \"participant\": \"baton.integrator\",\n        \"generation\": 2\n      },\n      \"decision\": {\n        \"endpoint\": \"baton.integrator\",\n        \"principal\": \"principal:baton.integrator\",\n        \"effective_scope\": \"scope:deployment\",\n        \"role\": \"integ\",\n        \"grant\": \"direct\",\n        \"policy_generation\": 4\n      },\n      \"result_id\": \"derived-result-93f71f5204cd6fb07e509c0bd7c1d23a3623d5885176dd11dc3737356d2af725\",\n      \"result_digest\": \"sha256:c2d51bf50180c1ec22ab3bc3875aed6fd14a087da648e5a3edaaad24c8aa774a\",\n      \"candidate_digest\": \"78048a6617522f5d8f72792c54614b9a12418895\",\n      \"input_digest\": \"sha256:5555555555555555555555555555555555555555555555555555555555555555\",\n      \"policy_digest\": \"sha256:6666666666666666666666666666666666666666666666666666666666666666\",\n      \"target\": \"d96e2cd8073e8799e570bfaaba6e204e997fdc13\",\n      \"published_at\": \"2026-09-10T05:10:20.114Z\"\n    }\n  },\n  \"different_bytes_reuse_passed_evidence\": {\n    \"first_tree\": \"470da0d34c0b0215515516f89440f9f1774625fe\",\n    \"second_tree\": \"e20369ea750459e73d9d8e3bbe61460cb95a5ad2\",\n    \"same_content_digest\": \"sha256:2d56bfd91d6ab750c8fd8a06f0c45ca782cfb49a157f3f6e1cb55707c4b6c573\",\n    \"first_observation\": {\n      \"command\": [\n        \"/usr/bin/python3\",\n        \"harness.py\"\n      ],\n      \"harness_digest\": \"sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c\",\n      \"harness_added\": false,\n      \"returncode\": 0,\n      \"stdout\": \"the regression harness passed\",\n      \"stderr\": []\n    },\n    \"second_observation\": {\n      \"command\": [\n        \"/usr/bin/python3\",\n        \"harness.py\"\n      ],\n      \"harness_digest\": \"sha256:7c3bb835103dea27e28f594e3e455e3265dea3fdea5bfa017c89386556edbc7c\",\n      \"harness_added\": false,\n      \"returncode\": 1,\n      \"stdout\": \"\",\n      \"stderr\": [\n        \"AssertionError: total answered 12\"\n      ]\n    },\n    \"reused_evidence\": {\n      \"verification\": {\n        \"kind\": \"verification\",\n        \"identity\": \"verification-of-the-result\",\n        \"actor\": \"baton.verifier\",\n        \"disposition\": \"passed\",\n        \"content_digest\": \"sha256:2d56bfd91d6ab750c8fd8a06f0c45ca782cfb49a157f3f6e1cb55707c4b6c573\"\n      },\n      \"review\": {\n        \"kind\": \"review\",\n        \"identity\": \"review-of-the-result\",\n        \"actor\": \"baton.reviewer\",\n        \"disposition\": \"accepted\",\n        \"content_digest\": \"sha256:2d56bfd91d6ab750c8fd8a06f0c45ca782cfb49a157f3f6e1cb55707c4b6c573\"\n      },\n      \"approval\": {\n        \"kind\": \"approval\",\n        \"identity\": \"approval-of-the-result\",\n        \"actor\": \"baton.approver\",\n        \"disposition\": \"approved\",\n        \"content_digest\": \"sha256:2d56bfd91d6ab750c8fd8a06f0c45ca782cfb49a157f3f6e1cb55707c4b6c573\"\n      }\n    },\n    \"second_state\": \"authorized\"\n  },\n  \"later_state_journal_binding\": {\n    \"authorized_reader_accepted_head\": \"ffffffffffffffffffffffffffffffffffffffff\",\n    \"published_import_account_evidence\": {},\n    \"invented_terminal_state\": \"imported\",\n    \"invented_terminal_entry_id\": null\n  },\n  \"exact_retries_after_progress\": {\n    \"prepare_after_authorize\": {\n      \"category\": \"refused\",\n      \"code\": \"operation-collision\",\n      \"message\": \"operation 'result.prepared:result-8784e6726fb00f0cd37d884324b6895dd99f\\u2026 is already recorded with a different kind or signature; reusing an id with different operands changes nothing\"\n    },\n    \"same_evidence_retry\": {\n      \"category\": \"refused\",\n      \"code\": \"precondition\",\n      \"message\": \"result 'result-8784e6726fb00f0cd37d884324b6895dd99f6f570ed273fc4f56\\u2026 is 'authorized'; independent evidence is recorded about prepared content and never about content that does not exist yet\"\n    }\n  }\n}\n",
+  "stderr": "",
+  "probe_elapsed_seconds": 0.4022876430535689,
+  "charged_elapsed_seconds": 0.40479588706512004
+}

@@ -1,0 +1,59 @@
+{
+  "tests.manager.test_worker_container": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_failed_start_destroy_engine": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_oci_engine": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_lifecycle_composition": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_negative_race_endings": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_ended_runtime_adoption": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_output_custody_engine": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_credentials_engine": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_refused_session_engine": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_custody_engine": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_input_delivery": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_worker_entry_engine": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_dogfood_image": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_abandoned_attempt_engine": {
+    "new_provider_calls_named": []
+  },
+  "tests.tools.test_dogfood_arc_engine": {
+    "new_provider_calls_named": []
+  },
+  "tests.tools.test_dogfood_retry_engine": {
+    "new_provider_calls_named": []
+  },
+  "tests.manager.test_private_line_access_engine": {
+    "new_provider_calls_named": []
+  },
+  "tests.integration.test_driver": {
+    "new_provider_calls_named": []
+  },
+  "tests.job_manager.test_review_driver": {
+    "new_provider_calls_named": []
+  }
+}

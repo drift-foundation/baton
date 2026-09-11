@@ -1,0 +1,96 @@
+{
+  "work": "W119114",
+  "claim": 129718,
+  "corrects": "review-2026-09-09T17-41-03Z.md",
+  "claim_order": "claimed at seq129718 before reading the review and before any edit",
+  "paths": {
+    "tools/stage_execution.py": {
+      "previous": "da339acb16b3a97c8eba9f71aa7c555d0293af50b869cff5a2e869ab8d8fe3ab",
+      "final": "da339acb16b3a97c8eba9f71aa7c555d0293af50b869cff5a2e869ab8d8fe3ab",
+      "mode": "664"
+    },
+    "tools/single_worker.py": {
+      "previous": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+      "final": "d71f84e8094841b7416e3fe167695faa056198361992ea31404227ad9cca40d0",
+      "mode": "664"
+    },
+    "tests/tools/test_stage_execution.py": {
+      "previous": "fcf415cbac530fabe8562e99a867856c2a6cecff33c015c203799db26942ee4b",
+      "final": "62d8b13e63b73205ee565d7987842d07e0129a4aa14bddef2bf6ec44082ec616",
+      "mode": "664"
+    },
+    "tests/tools/test_single_worker.py": {
+      "previous": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "final": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "mode": "664"
+    },
+    "tools/parallel_test.py": {
+      "previous": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+      "final": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+      "mode": "644"
+    }
+  },
+  "overstatement_withdrawn": "my handoff said an ordinary worker turn corrects the recovered Job and that the same Job finishes. The reviewer is right that neither was established: the case stopped at implementation waiting and never called the fresh worker turn. The claim is withdrawn and the proof is now the thing that makes it true.",
+  "p1_the_recovered_job_finishes": {
+    "added": "OrdinaryTerminalLifecycle.test_the_recovered_job_finishes_and_its_manifest_reopens",
+    "same_fixture": "the recovery helpers are bound onto the terminal class at the foot of the module rather than duplicated, because the class that owns them is defined below it. One fixture, not a second unrelated ordinary run.",
+    "drives": [
+      "the fresh correction worker really runs, over the mounts this deployment gave it",
+      "an independent reviewer container and an ACCEPTED verdict",
+      "actual integration through the accepted port, with the integrated bytes proved to be the recovered correction's",
+      "the terminal handoff, read as the Authority's own committed operation, with the Work left unhandled"
+    ],
+    "then_reopens": [
+      "the corrected attempt's retained artifact at its own recorded custody_locator, with the measured tree digest equal to the intake receipt's",
+      "the retained result manifest, naming that same artifact identity and digest",
+      "the writable mount exclusion, asked of the real roots that round was started over",
+      "the accepted checkpoint's writer being the corrected attempt, and its pin revalidated through the accepted profile against the real repository",
+      "the integrated entry's proposal correlated with the corrected round's own committed publication",
+      "the ORIGINAL handoff publication and reviewed checkpoint, byte-identical after the whole arc"
+    ]
+  },
+  "measured_rather_than_assumed": [
+    {
+      "what": "`connect_integration` composes a FRESH serving object, so the mounts the corrected round was started over are only on the one that started it",
+      "so": "the writable roots are held before that call"
+    },
+    {
+      "what": "`published_proposal` refuses after integration -- it re-derives the proposal against the Authority's CURRENT canonical target, which the integration has just advanced: 'a proposal is offered against the revision it was built from'",
+      "so": "the integrated entry is correlated with the corrected round's own committed publication instead, which is the more direct claim anyway"
+    }
+  ],
+  "serial_lane_reuse_accepted": {
+    "my_reason_was_too_broad": "I said A and B changed worker_manager so every OCI serial gate needed rerunning. The reviewer's audits show every pre-existing function in intake.py, review_cycles.py and checkpoint_profiles.py is AST-identical to its provider baseline, only export lists changed among globals, and none of the new recovery calls is named in the 19 serial modules. Sharing a source file does not invalidate prior engine evidence.",
+    "so": "the retained serial engine evidence is reused for those unchanged scenarios under the PLAN's evidence-reuse rule, and the two stage-driver members were rerun in this Work's 953-test joined result. NO 300s EXTENSION IS ASKED FOR; the request is withdrawn.",
+    "not_waived": "the parallel phase still fails 31 cases across 13 shards. Those are not fixed or waived by reuse and remain with W115981/W48697; the actual log and the newly accepted provider surfaces are forwarded rather than attributed wholesale to one provider."
+  },
+  "budget": {
+    "cap": 600.0,
+    "carried_in": 457.587,
+    "spent_this_pass": 26.486,
+    "cumulative": 484.073,
+    "remaining": 115.927,
+    "within": true,
+    "reset": false
+  },
+  "runs": [
+    {
+      "run": "the new completion case, five iterations",
+      "wall": "0.192 + 1.051 + 1.038 + 1.055 + 1.059 = 4.395s",
+      "result": "a class-body forward reference, a mount read after the serving object was replaced, a failed edit that wrote nothing, the published_proposal refusal above, and a stale name in the evidence dict"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_the_recovered_job_finishes_and_its_manifest_reopens",
+      "wall": "1.062s",
+      "log": "evidence/run-129718-case.log",
+      "result": "1 test, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.tools.test_stage_execution",
+      "wall": "20.729s",
+      "log": "evidence/run-129718-module.log",
+      "result": "160 tests, OK"
+    }
+  ],
+  "not_repeated": "the 953-test joined run and the parallel phase from claim129636, both audited by the review; and the serial lane, on the reviewer's scope-specific reuse assessment"
+}

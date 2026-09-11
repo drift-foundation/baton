@@ -1,0 +1,54 @@
+--- candidate138988
++++ candidate139022
+@@ -2432,7 +2432,15 @@
+              "instructions": "Add focused coverage for the composed line.",
+              "source_root": "source", "source_profile": "git-line",
+              "declared_base": self.base,
+-             "verification": ["python3", "harness.py"]},
++             # W133129: B'S OWN REQUIRED TEST, over B's own data path.
++             # Reviewer 2026-09-10T20:36:08Z P1: a both-changes witness needs
++             # the two Jobs to touch DIFFERENT paths, and a renamed
++             # print-only harness would pass on the base and prove nothing.
++             # `feature_check.py` ASSERTS `feature.py`'s value, so it fails on
++             # the original base -- where `feature.py` does not exist -- with
++             # only itself overlaid, and passes on B's isolated content and on
++             # the combination with A's harness change.
++             "verification": ["python3", "feature_check.py"]},
+             sort_keys=True).encode("utf-8")
+         with open(self.task_document, "wb") as writing:
+             writing.write(self.task_bytes)
+@@ -6850,12 +6858,21 @@
+         held.second = self.one_attempt_of(composed, "implementation-worker-b")
+         return held
+ 
+-    def produced(self, held, job_id, attempt_id, body):
++    # W133129: B'S FEATURE AND ITS OWN ASSERTING CHECK. The check is the
++    # required test the configured task names, and it is written by the same
++    # producer turn that writes the feature -- so the submission carries its
++    # test with it, exactly as A's harness change does.
++    B_FEATURE = "VALUE = 'the second job answered'\n"
++    B_CHECK = ("from feature import VALUE\n\n"
++               "assert VALUE == 'the second job answered', VALUE\n"
++               "print('the second job feature check passed')\n")
++
++    def produced(self, held, job_id, attempt_id, body, edits=None):
+         """One producer's REAL turn over the namespaces this run mounted."""
+         self.assertEqual(
+             self.turn(held.control, "implementation", attempt_id,
+                       self.mounted_at(held.composed, attempt_id),
+-                      edits={"harness.py": body}), 0)
++                      edits=edits or {"harness.py": body}), 0)
+         return self.drive_job(held.job, held.composed, job_id,
+                               "implementation", "completed")
+ 
+@@ -7143,7 +7160,9 @@
+         """
+         held = self.coding()
+         self.produced(held, "job-b", held.second,
+-                      "print('the second job answered')\n")
++                      "print('the second job answered')\n",
++                      edits={"feature.py": self.B_FEATURE,
++                             "feature_check.py": self.B_CHECK})
+         self.drive_job(held.job, held.composed, "job-b", "review", "waiting")
+         self.assertEqual(self.allocated(held.job, "job-b/review"),
+                          "review-worker-b")

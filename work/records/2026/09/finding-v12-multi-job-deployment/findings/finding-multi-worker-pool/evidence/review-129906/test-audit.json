@@ -1,0 +1,26 @@
+{
+  "changed_old": [
+    "TheDeploymentDocumentIsClosed.test_another_generation_of_the_schema_is_refused"
+  ],
+  "added": [
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.deployment_of",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.multi",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.multi_held",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.multi_refused",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.serving_multi",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.setUp",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_a_participant_serving_both_sides_of_a_review_is_refused",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_a_per_job_question_refuses_and_names_the_next_cut",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_a_repeated_worker_identity_is_refused",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_another_authority_and_a_role_mismatch_still_refuse",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_each_producer_gets_its_own_publisher_session",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_every_configured_worker_reaches_the_pool_with_its_own_lane",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_every_pooled_worker_carries_its_configured_profile",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_every_role_is_still_served",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_reconstruction_reattaches_the_same_pool",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_the_eligible_kinds_are_the_roles_each_worker_was_configured_for",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_the_one_job_document_still_refuses_a_repeated_role",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_the_role_seam_answers_every_worker_and_never_a_singleton",
+    "TheMultiWorkerPoolComposesWithoutASecondAllocator.test_the_variant_admits_several_workers_for_one_role"
+  ]
+}

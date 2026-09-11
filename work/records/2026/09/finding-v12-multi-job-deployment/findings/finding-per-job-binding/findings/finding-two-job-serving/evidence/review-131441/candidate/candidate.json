@@ -1,0 +1,12 @@
+{
+  "tools/stage_execution.py": {
+    "sha256": "28ee42a2aaca4e9f596ff5accfebb60f5bc1c6f888e1c9e3c128d7ee93993302",
+    "mode": "0664",
+    "source_mtime_ns": 1788992539865554550
+  },
+  "tests/tools/test_stage_execution.py": {
+    "sha256": "1ebba932945b8f1c93f80aaa61835b3188ef489073fb39887a20806d6b7fe93c",
+    "mode": "0664",
+    "source_mtime_ns": 1788992677757532543
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "approval": 133106,
+  "placement": 133108,
+  "work": "W132712",
+  "slice": "D",
+  "runtime_seconds": 0,
+  "operations": [
+    {
+      "path": "v12/python/src/baton_v12/checkpoint_profiles.py",
+      "before": {
+        "sha256": "134a1d6be95b03d13c87bf85c966ef037970c090b508222796c2e2fbf572a026",
+        "mode": "0o644"
+      },
+      "retained_current": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/replacement-133017/base/v12/python/src/baton_v12/checkpoint_profiles.py",
+      "action": "restore-exact",
+      "after": {
+        "sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+        "mode": "0o644"
+      },
+      "restore_from": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/contract-131466/base/src/baton_v12/checkpoint_profiles.py"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "before": {
+        "sha256": "b7ff509dfa66a979feab5f9c8f38b0e1fdbee5be5b464a299ff45d1c32cba2c0",
+        "mode": "0o644"
+      },
+      "retained_current": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/replacement-133017/base/v12/python/src/baton_v12/worker_manager/attempts.py",
+      "action": "restore-exact",
+      "after": {
+        "sha256": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+        "mode": "0o644"
+      },
+      "restore_from": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/contract-131466/base/src/baton_v12/worker_manager/attempts.py"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "before": {
+        "sha256": "b2b1539c8db2b25e3037db75e4b2684a023de9af7bd168d9355b9ddd29775736",
+        "mode": "0o644"
+      },
+      "retained_current": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/replacement-133017/base/v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "action": "restore-exact",
+      "after": {
+        "sha256": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+        "mode": "0o644"
+      },
+      "restore_from": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/contract-131466/base/src/baton_v12/worker_manager/review_cycles.py"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+      "before": {
+        "sha256": "ba81c082434dee401817af3adc86334f7ac643e698a0db95860d092738cbd3c4",
+        "mode": "0o644"
+      },
+      "retained_current": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/replacement-133017/base/v12/python/src/baton_v12/worker_manager/schema.py",
+      "action": "restore-exact",
+      "after": {
+        "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+        "mode": "0o644"
+      },
+      "restore_from": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/contract-131466/base/src/baton_v12/worker_manager/schema.py"
+    },
+    {
+      "path": "v12/python/tests/manager/test_attempts.py",
+      "before": {
+        "sha256": "d45adc60494e3ebb5f8fa6fa6cd4b67e7fea65b18ef3515d72546cdf5492fbbe",
+        "mode": "0o664"
+      },
+      "retained_current": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/replacement-133017/base/v12/python/tests/manager/test_attempts.py",
+      "action": "restore-exact",
+      "after": {
+        "sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0",
+        "mode": "0o664"
+      },
+      "restore_from": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/contract-131466/base/tests/manager/test_attempts.py"
+    },
+    {
+      "path": "v12/python/tests/manager/test_store.py",
+      "before": {
+        "sha256": "a90d3a212ca112fb3a5f9bd26e12b07a47bf2c47b0a0a587a591aa94adfdc19b",
+        "mode": "0o644"
+      },
+      "retained_current": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/replacement-133017/base/v12/python/tests/manager/test_store.py",
+      "action": "restore-exact",
+      "after": {
+        "sha256": "9a5566355c375c98d2464e802a4d3d599cdd24fabc1b8d2135963830e339c093",
+        "mode": "0o644"
+      },
+      "restore_from": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/contract-131466/base/tests/manager/test_store.py"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/target_rework.py",
+      "before": {
+        "sha256": "ef995f0c0da3d024067825b6fb87ca0bb91b9eb659a95d4ddd73e48f753403a8",
+        "mode": "0o664"
+      },
+      "retained_current": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/replacement-133017/base/v12/python/src/baton_v12/worker_manager/target_rework.py",
+      "action": "remove-unaccepted-new-file",
+      "after": {
+        "state": "absent"
+      }
+    },
+    {
+      "path": "v12/python/tests/manager/test_target_rework.py",
+      "before": {
+        "sha256": "edb9d44c37a5fdd8db4063d407b82b998395e4ebf7ae2e13a389bdd790ecb997",
+        "mode": "0o664"
+      },
+      "retained_current": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/evidence/replacement-133017/base/v12/python/tests/manager/test_target_rework.py",
+      "action": "remove-unaccepted-new-file",
+      "after": {
+        "state": "absent"
+      }
+    }
+  ]
+}

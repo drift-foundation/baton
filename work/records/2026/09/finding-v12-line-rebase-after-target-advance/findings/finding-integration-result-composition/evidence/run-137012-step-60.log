@@ -1,0 +1,53 @@
+### label: finalizer-refusal-controls
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.integration.test_execution.TheDirectFinalizationRefusesBeforeItWritesAnything"]
+### exit: 1
+### elapsed_seconds: 0.189654
+### STDOUT
+
+### STDERR
+EEE
+======================================================================
+ERROR: test_a_grant_that_ended_finalizes_nothing (tests.integration.test_execution.TheDirectFinalizationRefusesBeforeItWritesAnything.test_a_grant_that_ended_finalizes_nothing)
+THE ENDED GRANT. The live grant is re-read immediately before the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_execution.py", line 1485, in test_a_grant_that_ended_finalizes_nothing
+    fence = self.granted()["fence"]
+            ~~~~~~~~~~~~~~^^^^^^^^^
+KeyError: 'fence'
+
+======================================================================
+ERROR: test_a_target_that_moved_is_reconciled_and_never_overwritten (tests.integration.test_execution.TheDirectFinalizationRefusesBeforeItWritesAnything.test_a_target_that_moved_is_reconciled_and_never_overwritten)
+THE STALE TARGET. The reference holds neither the revision this
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_execution.py", line 1454, in test_a_target_that_moved_is_reconciled_and_never_overwritten
+    caught = self.refusal(self.finalizing, profile)
+  File "/home/sl/src/baton/v12/python/tests/integration/fixtures.py", line 133, in refusal
+    action(*operands, **named)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_execution.py", line 1436, in finalizing
+    "lease_id": "lease-1", "fence": self.granted()["fence"],
+                                    ~~~~~~~~~~~~~~^^^^^^^^^
+KeyError: 'fence'
+
+======================================================================
+ERROR: test_an_already_finalized_reference_is_held_and_never_adopted (tests.integration.test_execution.TheDirectFinalizationRefusesBeforeItWritesAnything.test_an_already_finalized_reference_is_held_and_never_adopted)
+ALREADY AT THE CANDIDATE. Nothing in this build records that THIS
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_execution.py", line 1469, in test_an_already_finalized_reference_is_held_and_never_adopted
+    caught = self.refusal(self.finalizing, profile)
+  File "/home/sl/src/baton/v12/python/tests/integration/fixtures.py", line 133, in refusal
+    action(*operands, **named)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_execution.py", line 1436, in finalizing
+    "lease_id": "lease-1", "fence": self.granted()["fence"],
+                                    ~~~~~~~~~~~~~~^^^^^^^^^
+KeyError: 'fence'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.021s
+
+FAILED (errors=3)

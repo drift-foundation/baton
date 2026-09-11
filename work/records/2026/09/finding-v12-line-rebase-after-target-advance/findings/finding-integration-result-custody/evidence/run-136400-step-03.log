@@ -1,0 +1,11 @@
+### label: ast-parse-of-the-four-amendment-paths
+### argv: ["python3", "/tmp/check.py"]
+### exit: 0
+### elapsed_seconds: 0.019662
+### STDOUT
+parsed v12/python/src/baton_v12/integration/reconciliation.py
+parsed v12/python/src/baton_v12/integration/schema.py
+parsed v12/python/src/baton_v12/integration/git_profile.py
+parsed v12/python/tests/integration/test_reconciliation.py
+
+### STDERR

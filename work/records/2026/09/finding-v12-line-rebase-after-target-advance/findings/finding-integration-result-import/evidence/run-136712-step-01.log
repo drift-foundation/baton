@@ -1,0 +1,14 @@
+### label: baseline-revalidation-accepted-P-candidate-and-Q-paths
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/base120.py"]
+### exit: 0
+### elapsed_seconds: 0.011191
+### STDOUT
+accepted P paths checked: 11
+Q baseline paths checked: 23
+MISMATCHES: []
+MISSING: []
+Q source/policy paths declared: 13
+Q test paths declared: 10
+
+### STDERR

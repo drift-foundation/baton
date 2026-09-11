@@ -1,0 +1,96 @@
+{
+  "work": "W128698",
+  "claim": 129529,
+  "corrects": "review-2026-09-09T17-07-35Z.md, three P1 findings and the concurrency criterion",
+  "claim_order": "claimed at seq129529 before reading the review and before any edit",
+  "findings_accepted": "all three; the probes are right and the first one found a relationship I had not bound at all",
+  "paths": {
+    "src/baton_v12/job_manager/documents.py": {
+      "previous": "4bbac912d0bd51cacc15b9cbc36405506e651e78d723a5a18e870f2b44688b4c",
+      "final": "4bbac912d0bd51cacc15b9cbc36405506e651e78d723a5a18e870f2b44688b4c",
+      "mode": "664"
+    },
+    "src/baton_v12/job_manager/episodes.py": {
+      "previous": "066fc036713500baea671ad03ddbda7b3c68a06cd8d9aba3bc9443e064324b05",
+      "final": "7f442002112a49baaaee76ab1f0b1ecb343267bcfc07d3c9db3f46b9c2efb9fe",
+      "mode": "664"
+    },
+    "tests/job_manager/test_documents.py": {
+      "previous": "77883eb9808208c9e59e3d7c197705c92f29c789cec0848ff7063e51ed5ab026",
+      "final": "77883eb9808208c9e59e3d7c197705c92f29c789cec0848ff7063e51ed5ab026",
+      "mode": "664"
+    },
+    "tests/job_manager/test_recovery.py": {
+      "previous": "9d7f8fd01fd27e62602b6430259e13028e21b74e6ae9dd37e8773947d3928fac",
+      "final": "60555f667567fa668b64a5218c145e9e2bbd41eccff30c8932f665a8ad1eb60c",
+      "mode": "664"
+    }
+  },
+  "p1_job_correction_binding": {
+    "was": "the act proved the selected attempt and the WORK'S CURRENT prepared line, and never read the Job's own committed correction. A later custody round recording changes-requested against another checkpoint -- without advancing this Job -- let a recovery restored from THAT checkpoint end an episode whose committed correction named a different one",
+    "now": "`_job_correction` reads this store's own journal: the identity `correction_operation_id(job_id, restored_checkpoint)` must be one this Job COMMITTED, and the implementation episode that correction opened must be the attempt this recovery is about. Either alone is a coincidence. The verdict it resolved is re-read through `review_cycles.verdict_of` and bound to the same line, checkpoint, Authority and Work.",
+    "not_substituted": "same Work, same current line and a valid verdict somewhere in custody are explicitly not accepted"
+  },
+  "p1_commit_boundary": {
+    "was": "the prepared-line and supersession checks ran only in the preflight; a public accepted round landing between that and `JobStore.transact` still ended the episode",
+    "now": "both providers' readers, the prepared line and the Job correction are re-read INSIDE the committing action, and the restored correction is required to be the same one. The refusals are ordinary rather than durable, so a guard that fires unwinds the savepoint and leaves the episode and the journal exactly as they were.",
+    "diagnosed_explicitly": "the Job write lock does not freeze custody -- they are two stores -- so the reads that decide are repeated at the boundary that commits rather than assumed frozen"
+  },
+  "p1_replay_ownership": {
+    "was": "the replay branch returned whatever JobStore.replay decoded; that owner verifies the operation kind and the SELECTOR signature and hands back the stored result, so a row with a foreign schema, a null assignment and somebody else's checkpoint replayed as an ordinary success",
+    "now": "`_adopted_restart` owns the closed shape, the schema, the recorded ending, every identity and the nested assignment, and binds the receipt to the selected operation, attempt and stage. BOTH exits go through it. On replay the historical relationships are re-read from their owners as well, because shape alone does not establish whose checkpoint and assignment are being read.",
+    "ordering_preserved": "the replay still happens ahead of every live state check, so a later legitimate successor is untouched"
+  },
+  "concurrency_criterion": {
+    "was": "the repeated-call cases are sequential and I did not claim otherwise, but the bounded overlap criterion was unmet",
+    "now": "test_two_overlapping_connections_end_the_episode_once -- a second manager, with its own Job and control connections opened in its own thread, calls the replacement WHILE the first is inside its transaction. It blocks on the write lock, then returns the identical committed result without entering the action; one episode ends once."
+  },
+  "controls_added": [
+    "test_a_checkpoint_this_jobs_handoff_never_selected_is_refused -- the reviewer's counterexample, composed from public correction and custody operations with no forged provider rows",
+    "test_the_committed_correction_must_have_opened_this_very_attempt",
+    "test_an_accepted_round_landing_before_the_commit_is_refused, proving the episode and the journal are untouched",
+    "test_a_malformed_committed_replacement_refuses_on_replay",
+    "test_a_well_shaped_but_foreign_replacement_refuses_on_replay",
+    "test_two_overlapping_connections_end_the_episode_once"
+  ],
+  "withdrawn": "my 'reported, not fixed' note about W128692's package export. The reviewer is right: `worker_manager.review_cycles` is that provider's public location exactly as its accepted CONTRACT states, so importing the module is ordinary consumption and not a defect. The note is withdrawn rather than left standing.",
+  "budget": {
+    "cap": 20.0,
+    "carried_in": 7.07,
+    "spent_this_pass": 8.121,
+    "cumulative": 15.191,
+    "remaining": 4.809,
+    "within": true,
+    "reset": false
+  },
+  "runs": [
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.job_manager.test_recovery.OneAbandonedCorrectionEpisodeIsReplaced",
+      "wall": "0.369s",
+      "result": "11 tests, OK after the three source corrections"
+    },
+    {
+      "run": "same, with the six new controls",
+      "wall": "0.697s",
+      "result": "17 tests, 1 error -- my overlap thread named a store attribute that does not exist"
+    },
+    {
+      "run": "same, with the second store opened by path",
+      "wall": "0.705s",
+      "result": "17 tests, 1 failure -- the thread also needed its own control connection; a SQLite connection belongs to the thread that made it"
+    },
+    {
+      "run": "same, with both connections opened in the thread",
+      "wall": "0.700s",
+      "log": "evidence/run-129529-class.log",
+      "result": "17 tests, OK"
+    },
+    {
+      "run": "PYTHONPATH=src:tests:. python3 -m unittest tests.job_manager.test_documents tests.job_manager.test_recovery tests.job_manager.test_review_driver",
+      "wall": "6.019s",
+      "log": "evidence/run-129529-modules.log",
+      "result": "242 tests, OK -- the two declared selectors plus the module whose fixture this reuses"
+    }
+  ],
+  "not_repeated": "the 222-test neighbour result from the previous pass, which the review audited"
+}

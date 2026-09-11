@@ -39,3 +39,19 @@ including how the next cut selects an eligible worker without reducing a role
 to a singleton. That seam is the accepted configuration/pool shape, not an
 implemented global default for every Job. Per-Job source/task/line/target binding
 belongs to the next cut. Pool acceptance alone cannot claim multi-Job execution.
+
+## 2026-09-09T18:17:21.155286+00:00 — bounded pool result accepted
+
+review-2026-09-09T18-17-21Z.md independently accepts the exact two-file candidate under
+claim129906. /2 admits multiple workers, /1 duplicate-role refusal remains,
+and actual factory-to-scheduler capacity, endpoint-alias exclusion and replay
+are verified. All old test methods except the justified foreign-schema selector
+are AST-identical. This supersedes pending pool implementation/review.
+
+Clarification: canonical author claim129810 is mislabeled129811 in provider
+evidence. Role uniqueness never implied worker-id uniqueness; the new check
+exposes the existing pool-owner rule earlier. PLAN wording that all singleton
+consumers now call sole_worker is superseded: required_tests keeps its old
+guard, Integration.account still chooses the first integrator, and global
+Job/source/task/line/target inputs remain for W119405. Those are explicit next-cut
+obligations, not a multi-Job execution or observation acceptance here.

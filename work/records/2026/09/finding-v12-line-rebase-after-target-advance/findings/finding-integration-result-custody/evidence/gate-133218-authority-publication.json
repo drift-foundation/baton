@@ -1,0 +1,105 @@
+{
+  "work": "W133117",
+  "claim": 133218,
+  "gate": "EXPRESSIBLE",
+  "question": "can the EXISTING scoped Authority publication/session API express a DERIVED integration proposal -- new result identity, combined candidate, pinned target snapshot -- under the actual integration-role fixed assignment, with no Authority source edit?",
+  "static_findings": {
+    "session_transition": "`publish` is in session.py's closed transition table with required expect/operation_id/proposal_id/result_id/result_digest/candidate_digest/input_digest/policy_digest and OPTIONAL `target`. It is in `_ASSIGNMENT_FIRST` and carries no `actor` flag, so it is authorized by the assignment compare-and-swap rather than by a capability grant.",
+    "core_publish": "`Authority.publish` calls `_expect`, which requires the supplied assignment to BE the Work's current live assignment. At integration time the Work's live assignment is the integrator's, because the review ending passed the Work to the integration route and the integrator claimed it -- so the integration role publishes under its OWN live assignment and borrows nobody's.",
+    "target_operand": "`target` defaults to `canonical_target()` and is otherwise taken as given, which is exactly what pinning a prepared snapshot needs.",
+    "result_identity": "a `result_id` already bound to another assignment REFUSES, which is why the derived proposal must own a new frozen result identity rather than reuse the producer's."
+  },
+  "focused_real_authority_control": {
+    "script": "retained beside this file as gate-133218-probe.py",
+    "returncode": 0,
+    "answers": {
+      "original_proposal": {
+        "proposal_id": "proposal-original",
+        "assignment_ref": {
+          "work_ref": {
+            "authority_uuid": "0123456789abcdef0123456789abcdef",
+            "work_id": "0123456f-W133117"
+          },
+          "participant": "baton.producer",
+          "generation": 1
+        },
+        "result_id": "result-original",
+        "result_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "candidate_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "input_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "policy_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "target": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "integration_assignment": {
+        "work_ref": {
+          "authority_uuid": "0123456789abcdef0123456789abcdef",
+          "work_id": "0123456f-W133117"
+        },
+        "participant": "baton.integrator",
+        "generation": 2
+      },
+      "derived_proposal": {
+        "proposal_id": "proposal-derived",
+        "assignment_ref": {
+          "work_ref": {
+            "authority_uuid": "0123456789abcdef0123456789abcdef",
+            "work_id": "0123456f-W133117"
+          },
+          "participant": "baton.integrator",
+          "generation": 2
+        },
+        "result_id": "result-combined",
+        "result_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+        "candidate_digest": "dddddddddddddddddddddddddddddddddddddddd",
+        "input_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+        "policy_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+        "target": "cccccccccccccccccccccccccccccccccccccccc"
+      },
+      "derived_names_integration_assignment": true,
+      "derived_target_is_the_pinned_snapshot": true,
+      "readback_matches": true,
+      "retry_replays_identically": true,
+      "original_reader_document": {
+        "proposal_id": "proposal-original",
+        "assignment_ref": {
+          "work_ref": {
+            "authority_uuid": "0123456789abcdef0123456789abcdef",
+            "work_id": "0123456f-W133117"
+          },
+          "participant": "baton.producer",
+          "generation": 1
+        },
+        "decision": {
+          "endpoint": "baton.producer",
+          "principal": "principal:baton.producer",
+          "effective_scope": "scope:deployment",
+          "role": "impl",
+          "grant": "direct",
+          "policy_generation": 4
+        },
+        "result_id": "result-original",
+        "result_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "candidate_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "input_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "policy_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "target": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "published_at": "2026-09-10T03:44:36.389Z"
+      },
+      "original_untouched": true,
+      "original_still_names_its_producer": true,
+      "borrowed_result_identity": "refused: result identity 'result-original' was produced under a different assignment; a frozen result names the one that made it"
+    }
+  },
+  "conclusion": "EXPRESSIBLE. No contract, signature or path amendment is required and no Authority source edit is proposed. CONTRACT-v1 section 5 stands as written: the derived proposal is an ordinary Authority proposal under the current integration-role fixed assignment, with its own frozen result identity and the pinned snapshot as its target.",
+  "runtime_seconds": 0.05,
+  "runs": [
+    {
+      "run": "gate probe, first iteration",
+      "wall": "0.03s"
+    },
+    {
+      "run": "gate probe after correcting this probe's own shape comparison of the reader document against the act's answer",
+      "wall": "0.02s"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "git",
+    "-C",
+    "/home/sl/src/baton/v12/python/v12-w71917-ebhyv30v/source",
+    "merge-base",
+    "--is-ancestor",
+    "a4b5704f7bbf1b53fd90bdd890d1a518a4ddea5a",
+    "2dbc04b499727217f73b5034b14d6a1324863793"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": ""
+}

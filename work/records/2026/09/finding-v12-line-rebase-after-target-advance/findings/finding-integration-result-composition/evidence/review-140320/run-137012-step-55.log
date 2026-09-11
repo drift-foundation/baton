@@ -1,0 +1,82 @@
+### label: AB-prepared-stall-reason-2
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "/tmp/r_ab_reason.py"]
+### exit: 0
+### elapsed_seconds: 2.935289
+### STDOUT
+tick 0 acts {"stage_id": "job-b/integration", "episode": 1, "act": "claim", "outcome": "performed", "operation_id": "offer.settle:offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e"}
+tick 0 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 0 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 0 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 0 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 0 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+tick 1 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 1 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 1 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 1 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 1 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+tick 2 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 2 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 2 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 2 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 2 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+tick 3 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 3 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 3 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 3 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 3 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+tick 4 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 4 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 4 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 4 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 4 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+tick 5 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 5 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 5 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 5 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 5 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+tick 6 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 6 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 6 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 6 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 6 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+tick 7 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 7 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 7 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 7 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 7 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+tick 8 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 8 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 8 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 8 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 8 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+tick 9 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 9 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 9 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 9 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 9 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+tick 10 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 10 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 10 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 10 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 10 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+tick 11 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 11 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 11 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 11 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 11 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+tick 12 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 12 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 12 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 12 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 12 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+tick 13 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 13 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 13 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 13 started {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "deferred", "detail": {"category": "integrity", "code": "schema", "message": "the base causal observation names the command that produced it"}}
+tick 13 RESULT {'result_id': 'result-74342fbbc2b823acf3f62ada5f2c067fa2718ce3de4e2209dc76552ebd36abef', 'state': 'prepared', 'reason': None}
+STATES {'implementation': 'completed', 'review': 'completed', 'integration': 'claimed'}
+ALLOCATED integration-worker
+OBSERVED {"claimed_by": "offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "runtime": null, "activity": null, "output": null, "start_failure": null, "preparation_failure": null, "exchange": null, "integration": null}
+
+### STDERR

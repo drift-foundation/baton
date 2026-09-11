@@ -1,0 +1,278 @@
+--- work/records/2026/09/finding-v12-multi-job-deployment/findings/finding-per-job-binding/findings/finding-all-role-job-admission/evidence/review-130339/candidate/tools/stage_execution.py
++++ v12/python/tools/stage_execution.py
+@@ -2241,15 +2241,65 @@
+             "stderr": answer.stderr.decode("utf-8", "replace")}
+ 
+ 
+-def _disagreements(worker, stage, job, binding):
+-    """Every operand of this worker that disagrees with this Job and stage.
++def _producer_of(given, binding):
++    """The configured worker this Job binds its source and its input to."""
++    for one in given["workers"]:
++        if one["worker_id"] == binding["source_worker_id"]:
++            return one
++    _refuse(f"Job {binding['job_id']!r} binds its source to worker "
++            f"{binding['source_worker_id']!r}, which this deployment does not "
++            f"configure", category="refused", code="precondition")
++
++
++def _served_deployment(given, worker, binding):
++    """The held deployment this worker actually serves THIS Job's stage under.
++
++    W130216 review [P1]. THE INTEGRATION ROLE IS THE ONE THAT CANNOT BE
++    CONFIGURED PER JOB, and that is a fact about the deployment rather than a
++    gap in a fixture: one deployment names one `integrator_participant`, the
++    integration profile, the delivery and all four receipt sessions belong to
++    that actor, and `scheduler.own_pool` gives one participant one pool worker.
++    So a second Job's integration stage can get neither a second configured
++    worker nor a second actor.
++
++    WHAT IS PER JOB IS THE OPERAND SET AND NOT THE CAPACITY. A Job's
++    integration stage carries that Job's Work and that Job's submitted input,
++    and both are already named by the producer the binding names -- the same
++    `source_worker_id` `Integration.required_tests` derives its selection from,
++    and the same manifest `_correspondent` compares the Job's own input digest
++    against. So the integrator's manifest for a Job IS its producer's, derived
++    here, read by `_job_workers` for compatibility and composed by
++    `_integration_operations` into that Job's own operations -- one document,
++    so admission and the provider cannot disagree about it.
++
++    AND NOTHING ELSE IS DERIVED. The participant, the principal, the profile
++    and the policy digest stay the one configured deployment fact: substituting
++    a policy or a profile for a Job would be this assembly quietly choosing a
++    security operand, which is the invisible choice `ManagerOperations.admit`
++    names in as many words. A Job whose policy or profile the configured
++    integrator does not carry is still refused before anything is reserved,
++    naming which operand disagreed.
++
++    THE ONE-JOB DOCUMENT DERIVES NOTHING. It says its Work, its base and its
++    target once, globally, and its integration worker's own deployment is that
++    fact rather than a second copy of it.
++    """
++    held = worker["deployment"]
++    if worker["role"] != "integration" or binding["job_id"] is None:
++        return held
++    producer = _producer_of(given, binding)
++    return dict(held, input_manifest=producer["deployment"]["input_manifest"])
++
++
++def _disagreements(given, stage, job, binding):
++    """Every operand of this deployment that disagrees with this Job and stage.
+ 
+     THESE ARE `single_worker._matches`'S OWN OPERANDS, in its own order, read
+-    from the worker's held deployment rather than restated. That provider still
+-    holds every one of them after allocation and is not weakened; assembly's
+-    part is to stop handing it a worker that must then refuse.
+-    """
+-    given = worker["deployment"]
++    from the held deployment the stage is actually SERVED under rather than
++    restated. That provider still holds every one of them after allocation and
++    is not weakened; assembly's part is to stop handing it a worker that must
++    then refuse.
++    """
+     manifest = given["input_manifest"]
+     named = {"the stage kind": (given["launch_role"], stage.get("kind")),
+              "the Work": (manifest["work_ref"]["work_id"],
+@@ -2288,8 +2338,16 @@
+                 category="refused", code="precondition")
+     lane = [one for one in deployment.given["workers"]
+             if one["role"] == stage.get("kind")]
++    # THE DOCUMENT EACH ONE WOULD ACTUALLY SERVE THIS JOB UNDER, which is its
++    # configured deployment for every role but integration, and that role's
++    # per-Job operand set for integration. `_integration_operations` composes
++    # the provider from the same derivation, so a worker admitted here is one
++    # whose own validator holds the operands this compared.
++    served = {one["worker_id"]: _served_deployment(deployment.given, one,
++                                                   binding) for one in lane}
+     compatible = [one for one in lane
+-                  if not _disagreements(one, stage, job, binding)]
++                  if not _disagreements(served[one["worker_id"]], stage, job,
++                                        binding)]
+     # THE IMPLEMENTATION KIND IS ALSO BOUND BY IDENTITY. A Job names its
+     # producer, and another worker that merely agrees on every digest is still
+     # some other Job's source.
+@@ -2309,7 +2367,8 @@
+                       if one["deployment"]["participant"] == actor]
+     if not compatible:
+         disagreeing = {one["worker_id"]:
+-                       sorted(_disagreements(one, stage, job, binding))
++                       sorted(_disagreements(served[one["worker_id"]], stage,
++                                             job, binding))
+                        for one in lane}
+         _refuse(f"no worker this deployment configures for the "
+                 f"{stage.get('kind')!r} stage can serve Job "
+@@ -2344,6 +2403,138 @@
+             if one["worker_id"] not in keeping)}
+ 
+     return eligibility
++
++
++class _PerJobIntegration:
++    """ONE integration capacity identity, one held operand set per bound Job.
++
++    W130216 review [P1]. The pool holds a single integration worker and this
++    changes none of that: one worker id, one participant, one canonical
++    principal, one reservation at a time, so two Jobs' integration stages
++    serialize over the same capacity exactly as `scheduler.reserve` decides.
++    What this selects among is the OPERANDS -- `single_worker` holds a stage
++    to its deployment's own Work, input, profile and policy, and those are
++    facts about the Job rather than about the actor -- so a stage reaches the
++    operations composed for ITS Job and the provider's own validator is left
++    holding every one of its six checks.
++
++    THE SHARED HALF IS ASKED OF ONE OF THEM RATHER THAN OF ALL. The canonical
++    operation identity, the journal read, the restart settlement, the offer
++    republication and the transport pump are answers about one control store
++    and one participant, and every entry here is that same pair. Asking each
++    would run the manager's restart rules once per Job and pump a queue
++    nothing ever published into, which is why `attach` and `drain` in
++    particular must name the same entry.
++    """
++
++    canonical = True
++
++    def __init__(self, held):
++        self.held = dict(held)
++        self.shared = self.held[sorted(self.held)[0]]
++        self.port = self.shared.port
++
++    @property
++    def _worker(self):
++        """The launch composition these per-Job operations share.
++
++        Every entry is the same participant, principal, profile, launch role
++        and control store; only the Job's own input manifest differs. A reader
++        asking an operations object what it composes wants that shared answer,
++        and one of them IS it rather than a sixth thing beside them.
++        """
++        return self.shared._worker
++
++    def _serving(self, stage):
++        job_id = stage.get("job_id")
++        held = self.held.get(job_id)
++        if held is None:
++            _refuse(f"stage {stage.get('stage_id')!r} names Job {job_id!r} and "
++                    f"this deployment composes integration operands for "
++                    f"{sorted(self.held)}; an integration stage is served "
++                    f"under its own Job's Work and submitted input, so one "
++                    f"this deployment binds nothing for is refused rather "
++                    f"than served under another Job's manifest",
++                    category="refused", code="precondition")
++        return held
++
++    # -- the answers that are about this deployment, not about a stage -------
++
++    def canonical_operation(self, act, offer_id):
++        return self.shared.canonical_operation(act, offer_id)
++
++    def receipt_of(self, operation_id):
++        return self.shared.receipt_of(operation_id)
++
++    def binding_intent(self, stage, job):
++        return self.shared.binding_intent(stage, job)
++
++    def recover(self, *, now):
++        return self.shared.recover(now=now)
++
++    def attach(self, offer_ids):
++        return self.shared.attach(offer_ids)
++
++    def drain(self, handlers, *, quiescent=()):
++        return self.shared.drain(handlers, quiescent=quiescent)
++
++    # -- and the ones that are about one Job's stage -------------------------
++
++    def admit(self, stage, job):
++        return self._serving(stage).admit(stage, job)
++
++    def claim(self, stage):
++        return self._serving(stage).claim(stage)
++
++    def launch(self, stage, job):
++        return self._serving(stage).launch(stage, job)
++
++    def dispatch(self, stage, job):
++        return self._serving(stage).dispatch(stage, job)
++
++    def conclude(self, stage, job):
++        return self._serving(stage).conclude(stage, job)
++
++    def observe(self, stage):
++        return self._serving(stage).observe(stage)
++
++    def refresh_runtime(self, stage):
++        return self._serving(stage).refresh_runtime(stage)
++
++    def close(self):
++        for _job_id, one in sorted(self.held.items()):
++            one.close()
++
++
++def _integration_operations(given, worker, provider, control_store, authority,
++                            *, engine_run, clock, checkpoint):
++    """The integration worker's operations, one held operand set per Job.
++
++    ONE BINDING COMPOSES EXACTLY WHAT IT ALWAYS DID. The one-Job document
++    derives nothing and gets the single operations object it has always had,
++    so every accepted case reaches the same composition byte for byte; a `/2`
++    document binding one Job likewise gets one, because there is nothing to
++    select among.
++
++    A PARTIAL COMPOSITION RELEASES WHAT IT ALREADY BUILT, for
++    `operations_from`'s own reason: a composer that leaked the first Job's
++    operations while refusing the second would leave handles nobody holds a
++    reference to.
++    """
++    composed = []
++    try:
++        for binding in given["job_bindings"]:
++            composed.append((binding["job_id"], single_worker.worker_operations(
++                _served_deployment(given, worker, binding), control_store,
++                authority, provider, engine_run=engine_run, clock=clock,
++                checkpoint=checkpoint, dispose=lambda: None)))
++    except BaseException:
++        for _job_id, one in composed:
++            one.close()
++        raise
++    if len(composed) == 1:
++        return composed[0][1]
++    return _PerJobIntegration(dict(composed))
+ 
+ 
+ def _pool(given, resolved):
+@@ -2473,16 +2664,25 @@
+         composed.integration_profile = deployment.integration_profile
+         composed.integrator = Integration(deployment, integration_port)
+         for one, provider in zip(given["workers"], providers):
+-            stage = (None if one["role"] == "integration"
+-                     else StageComposition(deployment, role=one["role"],
+-                                           worker_id=one["worker_id"]))
+-            operations = single_worker.worker_operations(
+-                one["deployment"], control_store, composed.authority, provider,
+-                engine_run=engine_run, clock=clock, checkpoint=checkpoint,
+-                stage=stage,
+-                # ONE AUTHORITY, RELEASED ONCE. A worker that disposed the
+-                # shared handle would take the other two down with it.
+-                dispose=lambda: None)
++            if one["role"] == "integration":
++                # W130216: THE INTEGRATION ROLE IS COMPOSED PER BOUND JOB.
++                # One worker, one actor and one capacity; the Work and the
++                # submitted input it holds a stage to are the Job's own. See
++                # `_served_deployment`, which `_job_workers` reads for the
++                # same answer so admission and this provider cannot disagree.
++                operations = _integration_operations(
++                    given, one, provider, control_store, composed.authority,
++                    engine_run=engine_run, clock=clock, checkpoint=checkpoint)
++            else:
++                operations = single_worker.worker_operations(
++                    one["deployment"], control_store, composed.authority,
++                    provider, engine_run=engine_run, clock=clock,
++                    checkpoint=checkpoint,
++                    stage=StageComposition(deployment, role=one["role"],
++                                           worker_id=one["worker_id"]),
++                    # ONE AUTHORITY, RELEASED ONCE. A worker that disposed the
++                    # shared handle would take the other two down with it.
++                    dispose=lambda: None)
+             composed.workers.append(dict(one, operations=operations))
+         generation = scheduler.activate_pool(job_store, pool,
+                                              resolved)["generation"]

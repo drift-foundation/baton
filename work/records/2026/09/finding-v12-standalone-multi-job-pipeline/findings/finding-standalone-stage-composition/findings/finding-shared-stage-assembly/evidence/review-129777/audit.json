@@ -1,0 +1,18 @@
+{
+  "never_started_controls": {
+    "TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed": true,
+    "AFreshPortReentersANeverStartedDelivery.setUp": true,
+    "AFreshPortReentersANeverStartedDelivery.deployment": true,
+    "AFreshPortReentersANeverStartedDelivery.recording": true,
+    "AFreshPortReentersANeverStartedDelivery.tick": true,
+    "AFreshPortReentersANeverStartedDelivery.starts": true,
+    "AFreshPortReentersANeverStartedDelivery.witness": true,
+    "AFreshPortReentersANeverStartedDelivery.interrupted": true,
+    "AFreshPortReentersANeverStartedDelivery.test_an_ordinary_first_tick_prepares_and_starts_exactly_once": true,
+    "AFreshPortReentersANeverStartedDelivery.test_a_second_tick_in_the_same_execution_starts_nothing_again": true,
+    "AFreshPortReentersANeverStartedDelivery.test_an_interrupted_first_admission_leaves_a_never_started_delivery": true,
+    "AFreshPortReentersANeverStartedDelivery.test_a_fresh_port_prepares_that_delivery_and_then_starts_it": true,
+    "AFreshPortReentersANeverStartedDelivery.test_a_runtime_this_execution_did_not_start_is_still_held": true
+  },
+  "latest_proof_manifest": "../finding-composed-one-job-proof/evidence/review-129744/manifest.json"
+}

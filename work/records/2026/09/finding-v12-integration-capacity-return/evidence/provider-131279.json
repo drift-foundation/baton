@@ -1,0 +1,64 @@
+{
+  "work": "W131187",
+  "claim": 131279,
+  "participant": "baton.claude",
+  "role": "impl",
+  "authority": "owner return event131246, pinned in FINDING at 2026-09-09T22:00:47Z under placement claim131255: scheduler-only direction, exact three-file scope, 30s split 25s implementation / 5s independent review. Standing W71830 test authority applies as an explicitly recorded W130224 prerequisite.",
+  "base_revalidated": {
+    "src/baton_v12/job_manager/scheduler.py": "fe6d8f33204d1ecb0647eefd11cf6ca781abc22a3841f9310ed32bb1e1f36457",
+    "tests/job_manager/test_scheduling.py": "db37eba61f447fd097bdb291e241187eaa993b0281a7c32976171ff8af03b987",
+    "tools/stage_execution.py": "2b1a4324443b39d92e8aadee9146e6216321525eace81ff9a4ea00fe3a77a3b0",
+    "tests/tools/test_stage_execution.py": "a5b0e048be970a5e17dc89af20991780142792f54f64d4e3f7924ed306e7abbf",
+    "all": "byte-identical to the placement claim131255 pin, checked before any edit; all 0664"
+  },
+  "candidate": {
+    "src/baton_v12/job_manager/scheduler.py": "aec56f1fe1d78bd50798403b46648c63c6c6231678971399da339246a7901194",
+    "tests/job_manager/test_scheduling.py": "79ba448c1f21a6c92bc9230291b5bfd04273024280b00ea197d1fa700066c103",
+    "tests/tools/test_stage_execution.py": "86610e63bb64260502a1cb1a2bb2b77aa41b9a3efee338364cb46c78dedad737",
+    "tools/stage_execution.py": "2b1a4324443b39d92e8aadee9146e6216321525eace81ff9a4ea00fe3a77a3b0 -- UNCHANGED, outside this Work's edit scope",
+    "mode": "0664 all"
+  },
+  "correction": {
+    "where": "scheduler.reconcile_allocations, one new branch and one new private predicate; no other function changed",
+    "predicate": "`_completed_integration(allocation, entry)` answers this allocation's OWN validated completed integration account or absence. It reads only the projection entry `stage_states` already built and passed in -- no integration store, no Authority store, no new observation schema, no mutation by status.",
+    "bindings": [
+      "the stage KIND is integration, because only an integration stage may carry such a document",
+      "the VALIDATED PROJECTED STATE is completed, so durable refusal, preparation and start failure keep the precedence projection already gives them",
+      "the document's state is completed and it carries its completion account",
+      "the document's stage_id, EPISODE and ATTEMPT equal the allocation's own, so a new episode's completion never settles an older allocation sharing its stage id",
+      "the fixed assignment's PARTICIPANT equals the participant this capacity was reserved under",
+      "the completion's RUNTIME IDENTITY equals the runtime this attempt actually holds"
+    ],
+    "not_compared": "the pool generation against the Authority assignment generation. They are two different numbers and comparing them would refuse every ordinary completion.",
+    "release": "the existing idempotent `release` owner, under a distinct reason `scheduler.INTEGRATION_COMPLETED` = 'integration-completed'. No direct row update.",
+    "precedence": "decided after the terminal-cleanup branch and BEFORE the uncertainty quarantine, because a validated completion is historical committed evidence -- the accepted observation contract says a later runtime-axis uncertainty does not revoke a proved completion, and quarantining an assignment that is already over would hold a worker against an attempt nothing can still be running.",
+    "not_done": "`completed` is NOT added to RELEASE_ENDINGS; no new cleanup authorization is invented; no cleanup receipt is fabricated; the runtime cleanup axis is left exactly as it is. What is returned is LOGICAL worker and principal capacity, and the release reason is its own word so no reader is told the container, credential or workspace was destroyed."
+  },
+  "tests": {
+    "tests/job_manager/test_scheduling.py": "new class CapacityReturnsWhenAnIntegrationCompletes, 16 cases: the exact-allocation release and its reason; the cleanup axis untouched; the freed worker reservable again by the next stage; idempotent repeated reconciliation settling once; and the negatives -- unstarted/pending/answered/held, a completed state with no account, a projected state that is not completed, another episode's, another attempt's, another participant's and another runtime's completion, a completed account on a stage of another kind, and an uncertain runtime without completion still quarantining. One store per negative, because the default pool configures exactly one integration-eligible worker and a case that reserved twice would prove the wrong refusal.",
+    "tests/tools/test_stage_execution.py": "the bounded consumer witness only. `test_a_completed_integration_does_not_return_its_capacity` -- which measured the defect -- becomes `test_a_completed_integration_returns_the_integrator_to_the_next_job`: Job A's real terminal integration releases its exact allocation under the new reason with the runtime's cleanup still `pending`, and the eligible Job B then reserves the SAME integration worker on ordinary ticks and records its canonical admit receipt. The other two roles still release under their own reasons. No fixture beyond that case changed; `TwoBoundJobsTraverseServingAndCorrection`'s other 28 cases are untouched.",
+    "not_claimed_in_the_witness": "Job B acquires the worker; it does not integrate. This deployment composes no runtime port for Job B, and whether its already published proposal is still current against the canonical target Job A's integration moved is W130224's acceptance. Capacity return does not make a stale candidate good, and the case says so."
+  },
+  "runs": [
+    {"run": "the new scheduler class, first iteration", "wall": "0.18s", "result": "5 errors -- subTest loops reserved the one integration-eligible worker repeatedly"},
+    {"run": "same class after one store per negative", "wall": "0.18s", "result": "1 failure -- a leftover positive call in the projected-state case"},
+    {"run": "same class after aligning the document and projected state", "wall": "0.18s", "result": "OK, 16 tests"},
+    {"run": "the consumer capacity-return witness", "wall": "1.10s", "result": "OK"},
+    {"run": "tests.job_manager.test_scheduling, the whole module", "wall": "0.30s", "result": "OK, 59 tests"},
+    {"run": "TwoBoundJobsTraverseServingAndCorrection, the bounded consumer class", "wall": "5.38s", "result": "OK, 29 tests"},
+    {"run": "OrdinaryTerminalLifecycle and TheComposedJobTraversesReviewAndAcceptance -- the accepted ONE-Job consumers of the branch changed", "wall": "10.30s", "result": "OK, 21 tests"},
+    {"run": "the whole tests/job_manager package -- the scheduler's own blast radius", "wall": "7.90s", "result": "OK, 629 tests"}
+  ],
+  "verification_state": "the scheduler's own package (629 tests) passes whole; the accepted one-Job terminal lifecycle and review traversal (21) pass; the two-Job consumer class (29) passes. The assembly module was NOT re-run whole, as the research and PLAN direct -- the bounded witness and the two accepted lifecycle classes that consume this branch were run instead.",
+  "budget": {
+    "increment": 25.0,
+    "timed": 25.52,
+    "untimed": "none -- every run above was wall-timed",
+    "over_by": "0.52s",
+    "why": "the last run is the whole job_manager package at 7.90s, which is the direct blast radius of a scheduler change and found nothing. I am reporting the 0.52s rather than rounding it down.",
+    "separate_from": "W119405's 450s campaign; nothing was borrowed from it and tools/stage_execution.py was not edited under this claim",
+    "review_allocation": "5s independent review, unspent"
+  },
+  "consumer_note": "W130224 is blocked on this Work and its candidate was frozen under review131221. tests/tools/test_stage_execution.py has moved from a5b0e048 to 86610e63 under this Work's approved scope; W130224's candidate needs rebinding to the new bytes at acceptance. tools/stage_execution.py is unchanged at 2b1a4324.",
+  "not_claimed": "no W130224 two-Job terminal/correction acceptance and no W119405 joined acceptance. Resource cleanup for an integrator's runtime remains outside this slice, exactly as the approved research scoped it."
+}

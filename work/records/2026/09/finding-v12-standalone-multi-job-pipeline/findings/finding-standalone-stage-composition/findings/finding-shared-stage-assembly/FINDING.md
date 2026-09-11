@@ -438,3 +438,14 @@ final joined acceptance. This supersedes the plan to send another undivided
 correction-plus-proof pass through this Work. No accepted behavior, assertion
 limit, path set or runtime authority is expanded; all original capability gates
 remain mandatory, including custody. Live dependencies are recorded in Baton.
+
+## 2026-09-09T17:57:08.562564+00:00 — joined assembly accepted
+
+review-2026-09-09T17-57-08Z.md accepts the exact final five-file composition under reviewer
+claim129777, joining accepted W119113 and W119114 with W122060 and A/B/C.
+This supersedes the remaining-incomplete disposition from the September8 split.
+The mandatory ordinary-cleanup/retained-result/line-pin proof is delivered and
+cross-linked to W105982 and the parent. CONSUMER-HANDOFF-2026-09-09.md supplies exact
+commands, fixture/profile/locator selectors and evidence limits. No new source
+changes or duplicate suite run;31 parallel scan failures remain separate and
+unwaived. Standing W71830 test authority supersedes old per-test gates.

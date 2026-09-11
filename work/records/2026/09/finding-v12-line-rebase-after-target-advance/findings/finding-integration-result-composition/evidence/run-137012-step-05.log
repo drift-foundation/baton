@@ -1,0 +1,13 @@
+### label: published-proposal-consumers-regression
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"]
+### exit: 0
+### elapsed_seconds: 6.240308
+### STDOUT
+
+### STDERR
+..............................
+----------------------------------------------------------------------
+Ran 30 tests in 6.065s
+
+OK

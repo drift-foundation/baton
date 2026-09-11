@@ -1,0 +1,13 @@
+### label: one-job-integration-and-lifecycle-regression
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle", "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort", "tests.tools.test_stage_execution.TheFactorysOwnOperandsReachTheIntegrationStage", "tests.tools.test_stage_execution.TheAcceptedIntegrationSessionsAreProvedBeforePublication", "tests.tools.test_stage_execution.TheComposedLifecycleRunsOverRealStores", "tests.tools.test_stage_execution.TheFocusedChecksItemFourNames"]
+### exit: 0
+### elapsed_seconds: 8.129682
+### STDOUT
+
+### STDERR
+......................................
+----------------------------------------------------------------------
+Ran 38 tests in 7.954s
+
+OK

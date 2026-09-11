@@ -1,0 +1,470 @@
+[
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:41:46.109Z",
+    "tool_id": "toolu_01Q3e8r827vocMrjqkKJfsJb",
+    "command": "cd /home/sl/src/baton/work/records/2026/09/finding-v12-line-rebase-after-target-advance && python3 - <<'PYEOF'\nimport json, io, os, hashlib\nd = json.load(io.open('findings/finding-integration-result-custody/evidence/dispatch-133198.json'))\nprint(sorted(d))\npaths = d.get('baseline') or d.get('paths') or {}\nprint('baseline entries', len(paths))\nROOT='/home/sl/src/baton'\nbad=[]\nabsent=[]\nfor p, held in sorted(paths.items()):\n    full=os.path.join(ROOT,p) if not p.startswith('/') else p\n    if isinstance(held, dict) and held.get('expected_absent'):\n        (absent if not os.path.exists(full) else bad).append(p); continue\n    if not os.path.isfile(full): bad.append(p+' MISSING'); continue\n    dg=hashlib.sha256(io.open(full,'rb').read()).hexdigest()\n    md=oct(os.stat(full).st_mode & 0o777)\n    if dg!=held.get('sha256') or (held.get('mode') and md!=held['mode']):\n        bad.append(f\"{p} DRIFT {dg[:12]} {md}\")\nprint('absent-as-expected', len(absent))\nprint('drift', bad if bad else 'none')\nPYEOF",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:41:46.174Z",
+        "content": "Exit code 1\n['P_implementation_seconds', 'P_review_seconds', 'baseline', 'checked_at', 'claim', 'errors', 'old_closures', 'paths', 'verification_runtime_seconds']\nbaseline entries 139\nTraceback (most recent call last):\n  File \"<stdin>\", line 9, in <module>\nAttributeError: 'str' object has no attribute 'items'",
+        "is_error": true
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:41:50.875Z",
+    "tool_id": "toolu_016HJbvXyUDmiCRwVT3WMZmq",
+    "command": "cd /home/sl/src/baton/work/records/2026/09/finding-v12-line-rebase-after-target-advance && python3 - <<'PYEOF'\nimport json, io, os, hashlib\nd = json.load(io.open('findings/finding-integration-result-custody/evidence/dispatch-133198.json'))\nprint('baseline:', json.dumps(d['baseline'])[:200])\npaths = d['paths']\nprint('paths type', type(paths), 'len', len(paths))\nfirst = paths[0] if isinstance(paths, list) else list(paths.items())[0]\nprint('first entry:', json.dumps(first)[:300])\nPYEOF",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:41:50.938Z",
+        "content": "Exit code 1\nbaseline: \"work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-target-rework-custody/evidence/review-133171/result.json\"\nTraceback (most recent call last):\n  File \"<stdin>\", line 5, in <module>\nTypeError: object of type 'int' has no len()",
+        "is_error": true
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:42:00.201Z",
+    "tool_id": "toolu_013YchpXiBuRPWzufxvAm212",
+    "command": "cd /home/sl/src/baton && python3 - <<'PYEOF'\nimport json, io, os, hashlib\nplace = (\"work/records/2026/09/finding-v12-line-rebase-after-target-advance/\"\n         \"findings/finding-target-rework-custody/evidence/review-133171/result.json\")\nd = json.load(io.open(place))\nprint('keys', sorted(d)[:12])\nrows = d.get('paths') or d.get('manifest') or d\nprint(json.dumps(rows, indent=2)[:900])\nPYEOF",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:42:00.232Z",
+        "content": "keys ['PYTHONPATH', 'argv', 'candidate', 'captured_at', 'charged_elapsed_seconds', 'claim', 'cwd', 'errors', 'returncode', 'scope_paths', 'stderr', 'stdout']\n{\n  \"claim\": 133171,\n  \"captured_at\": \"2026-09-10T03:36:42.576471+00:00\",\n  \"scope_paths\": 43,\n  \"errors\": [],\n  \"candidate\": {\n    \"AGENTS.md\": {\n      \"sha256\": \"67cc573e143fede608169f62560ab25b8452b80bcc0b9cb4d1196e429ca95857\",\n      \"mode\": \"0o664\"\n    },\n    \"v12/README.md\": {\n      \"sha256\": \"0ee2369c991470bc83306c33dd3e3849a6bf3faa371d4f6031ea0766f80858c5\",\n      \"mode\": \"0o664\"\n    },\n    \"v12/python/src/baton_v12/checkpoint_profiles.py\": {\n      \"sha256\": \"91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b\",\n      \"mode\": \"0o644\"\n    },\n    \"v12/python/src/baton_v12/integration/__init__.py\": {\n      \"sha256\": \"ec3a2e4fd52739c249b5a2dff102fe1be056ae6fabcb83dca52eed80d83ea8eb\",\n      \"mode\": \"0o664\"\n    },\n    \"v12/python/src/baton_v12/integration/admission.py\": {\n      \"sha256\": \"09d8d65a13b8bd97701cf1f698026825116c2a6cffa26fcbf6ce7d08bdb2365f\",\n      \"mode\": \"0o664",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:42:07.381Z",
+    "tool_id": "toolu_01C6g9DJr7zg4pQ3UtTbVW4K",
+    "command": "python3 - <<'PYEOF'\nimport json, io, os, hashlib\nplace = (\"work/records/2026/09/finding-v12-line-rebase-after-target-advance/\"\n         \"findings/finding-target-rework-custody/evidence/review-133171/result.json\")\nd = json.load(io.open(place))\nbad = []\nfor p, held in sorted(d[\"candidate\"].items()):\n    if not os.path.isfile(p) or os.path.islink(p):\n        bad.append(f\"{p}: missing or symlink\"); continue\n    dg = hashlib.sha256(io.open(p, \"rb\").read()).hexdigest()\n    md = oct(os.stat(p).st_mode & 0o777)\n    if dg != held[\"sha256\"] or md != held[\"mode\"]:\n        bad.append(f\"{p}: {dg[:12]} {md}\")\nprint(\"baseline paths\", len(d[\"candidate\"]), \"drift:\", bad if bad else \"none\")\nnew = [\"v12/python/src/baton_v12/integration/reconciliation.py\",\n       \"v12/python/src/baton_v12/integration/git_profile.py\",\n       \"v12/python/tests/integration/test_reconciliation.py\"]\nfor p in new:\n    print(\"planned-new\", p, \"absent\" if not os.path.exists(p) else \"PRESENT!!\")\nPYEOF",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:42:07.414Z",
+        "content": "baseline paths 43 drift: ['v12/python/src/baton_v12/integration/git_profile.py: missing or symlink', 'v12/python/src/baton_v12/integration/reconciliation.py: missing or symlink', 'v12/python/src/baton_v12/worker_manager/target_rework.py: missing or symlink', 'v12/python/tests/integration/test_reconciliation.py: missing or symlink', 'v12/python/tests/manager/test_target_rework.py: missing or symlink']\nplanned-new v12/python/src/baton_v12/integration/reconciliation.py absent\nplanned-new v12/python/src/baton_v12/integration/git_profile.py absent\nplanned-new v12/python/tests/integration/test_reconciliation.py absent",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:42:16.174Z",
+    "tool_id": "toolu_0129xez6JBKQNyMEZ1zkfqXa",
+    "command": "python3 - <<'PYEOF'\nimport json, io, os, hashlib\nplace = (\"work/records/2026/09/finding-v12-line-rebase-after-target-advance/\"\n         \"findings/finding-target-rework-custody/evidence/review-133171/result.json\")\nd = json.load(io.open(place))\nfor p in (\"v12/python/src/baton_v12/integration/git_profile.py\",\n          \"v12/python/src/baton_v12/integration/reconciliation.py\",\n          \"v12/python/src/baton_v12/worker_manager/target_rework.py\",\n          \"v12/python/tests/integration/test_reconciliation.py\",\n          \"v12/python/tests/manager/test_target_rework.py\"):\n    print(p, \"->\", json.dumps(d[\"candidate\"][p]))\nbad = []\nfor p, held in sorted(d[\"candidate\"].items()):\n    if isinstance(held, dict) and held.get(\"state\") == \"absent\":\n        if os.path.lexists(p):\n            bad.append(f\"{p}: expected absent, PRESENT\")\n        continue\n    if not os.path.isfile(p) or os.path.islink(p):\n        bad.append(f\"{p}: missing or symlink\"); continue\n    dg = hashlib.sha256(io.open(p, \"rb\").read()).hexdigest()\n    md = oct(os.stat(p).st_mode & 0o777)\n    if dg != held[\"sha256\"] or md != held[\"mode\"]:\n        bad.append(f\"{p}: {dg[:12]} {md}\")\nprint(\"\\nTOTAL drift:\", bad if bad else \"NONE -- 43 paths agree\")\nPYEOF",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:42:16.207Z",
+        "content": "v12/python/src/baton_v12/integration/git_profile.py -> {\"state\": \"absent\"}\nv12/python/src/baton_v12/integration/reconciliation.py -> {\"state\": \"absent\"}\nv12/python/src/baton_v12/worker_manager/target_rework.py -> {\"state\": \"absent\"}\nv12/python/tests/integration/test_reconciliation.py -> {\"state\": \"absent\"}\nv12/python/tests/manager/test_target_rework.py -> {\"state\": \"absent\"}\n\nTOTAL drift: NONE -- 43 paths agree",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:43:40.841Z",
+    "tool_id": "toolu_01SHLa74Dq7ohCCuzeQrTFEY",
+    "command": "/usr/bin/time -f 'WALL %e' python3 /tmp/w133117_gate.py 2>&1 | tail -40",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:43:40.895Z",
+        "content": "    \"input_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\n    \"policy_digest\": \"sha256:3333333333333333333333333333333333333333333333333333333333333333\",\n    \"target\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"\n  },\n  \"integration_assignment\": {\n    \"work_ref\": {\n      \"authority_uuid\": \"0123456789abcdef0123456789abcdef\",\n      \"work_id\": \"0123456f-W133117\"\n    },\n    \"participant\": \"baton.integrator\",\n    \"generation\": 2\n  },\n  \"derived_proposal\": {\n    \"proposal_id\": \"proposal-derived\",\n    \"assignment_ref\": {\n      \"work_ref\": {\n        \"authority_uuid\": \"0123456789abcdef0123456789abcdef\",\n        \"work_id\": \"0123456f-W133117\"\n      },\n      \"participant\": \"baton.integrator\",\n      \"generation\": 2\n    },\n    \"result_id\": \"result-combined\",\n    \"result_digest\": \"sha256:4444444444444444444444444444444444444444444444444444444444444444\",\n    \"candidate_digest\": \"dddddddddddddddddddddddddddddddddddddddd\",\n    \"input_digest\": \"sha256:5555555555555555555555555555555555555555555555555555555555555555\",\n    \"policy_digest\": \"sha256:6666666666666666666666666666666666666666666666666666666666666666\",\n    \"target\": \"cccccccccccccccccccccccccccccccccccccccc\"\n  },\n  \"derived_names_integration_assignment\": true,\n  \"derived_target_is_the_pinned_snapshot\": true,\n  \"readback_matches\": true,\n  \"retry_replays_identically\": true,\n  \"original_untouched\": false,\n  \"borrowed_result_identity\": \"refused: result identity 'result-original' was produced under a different assignment; a frozen result names the one that made it\"\n}\n\nGATE: NOT EXPRESSIBLE\nCommand exited with non-zero status 1\nWALL 0.03",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:43:52.900Z",
+    "tool_id": "toolu_015qNhRkfZ17Qc1ePk4wZWaf",
+    "command": "python3 - <<'PYEOF'\nimport io\np = \"/tmp/w133117_gate.py\"\nt = io.open(p).read()\nt = t.replace('''    answers[\"original_untouched\"] = (\n        authority.proposal(\"proposal-original\") == original)''',\n'''    # THE ORIGINAL SUBMISSION IS UNTOUCHED, compared member by member: the\n    # reader's document and the act's own answer are two shapes of one fact,\n    # so equality of the whole objects would be a statement about shapes.\n    held = authority.proposal(\"proposal-original\")\n    answers[\"original_reader_document\"] = held\n    answers[\"original_untouched\"] = all(\n        held[name] == original[name] for name in\n        (\"proposal_id\", \"result_id\", \"result_digest\", \"candidate_digest\",\n         \"input_digest\", \"policy_digest\", \"target\"))\n    answers[\"original_still_names_its_producer\"] = (\n        held[\"assignment_ref\"] == original[\"assignment_ref\"]\n        if \"assignment_ref\" in held else held.get(\"participant\") == PRODUCER)''')\nio.open(p, \"w\").write(t)\nprint(\"ok\")\nPYEOF\n/usr/bin/time -f 'WALL %e' python3 /tmp/w133117_gate.py 2>&1 | tail -14",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:43:52.958Z",
+        "content": "ok\n    \"result_digest\": \"sha256:1111111111111111111111111111111111111111111111111111111111111111\",\n    \"candidate_digest\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n    \"input_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\n    \"policy_digest\": \"sha256:3333333333333333333333333333333333333333333333333333333333333333\",\n    \"target\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n    \"published_at\": \"2026-09-10T03:43:52.951Z\"\n  },\n  \"original_untouched\": true,\n  \"original_still_names_its_producer\": true,\n  \"borrowed_result_identity\": \"refused: result identity 'result-original' was produced under a different assignment; a frozen result names the one that made it\"\n}\n\nGATE: EXPRESSIBLE\nWALL 0.02",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:44:36.320Z",
+    "tool_id": "toolu_018uPCtYftXsRa3tip4BAxEz",
+    "command": "/usr/bin/time -f 'WALL %e' python3 /tmp/w133117_gate_record.py 2>&1 | tail -5",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:44:36.400Z",
+        "content": "2026-09-10T03:44:36Z 0\nWALL 0.05",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:46:53.686Z",
+    "tool_id": "toolu_01Bj1r1SKGyCiAud5a4TsEdX",
+    "command": "/usr/bin/time -f 'WALL %e' python3 /tmp/w133117_profile_probe.py 2>&1 | tail -30",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:46:53.949Z",
+        "content": "{\n  \"state\": \"prepared\",\n  \"based_on_the_snapshot\": true,\n  \"content\": {\n    \"harness.py\": \"100644\",\n    \"other.py\": \"100644\"\n  },\n  \"both_changes\": [\n    \"print('the second job answered')\",\n    \"print('the first job answered')\"\n  ],\n  \"submission_untouched\": true,\n  \"replay_identical\": true,\n  \"target_before\": \"d7350cafbf750e8e957995635009849b4363c2e6\",\n  \"advanced_to\": \"55edfef4d813406daeb66ec43b5df07c3215cdc0\",\n  \"stale_swap\": \"refused: Git target revision advance failed: fatal: update_ref failed for ref 'refs/baton/integrati\",\n  \"conflict_state\": \"held\",\n  \"conflict_paths\": [\n    \"harness.py\"\n  ],\n  \"conflict_retained_nothing\": true\n}\n\nPROFILE: OK\nWALL 0.23",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:51:27.497Z",
+    "tool_id": "toolu_01HTiggaLGcigDUDXVwgPyuG",
+    "command": "python3 - <<'PYEOF'\nimport json, io, os, hashlib\nplace = (\"work/records/2026/09/finding-v12-line-rebase-after-target-advance/\"\n         \"findings/finding-target-rework-custody/evidence/review-133171/result.json\")\nd = json.load(io.open(place))\nbad = []\nfor p, held in sorted(d[\"candidate\"].items()):\n    if isinstance(held, dict) and held.get(\"state\") == \"absent\":\n        # git_profile.py is now MINE and legitimately present\n        if p.endswith(\"integration/git_profile.py\"):\n            print(\"git_profile.py present (this claim's own work):\",\n                  hashlib.sha256(io.open(p,'rb').read()).hexdigest()[:16],\n                  oct(os.stat(p).st_mode & 0o777))\n            continue\n        if os.path.lexists(p):\n            bad.append(f\"{p}: expected absent, PRESENT\")\n        continue\n    if not os.path.isfile(p) or os.path.islink(p):\n        bad.append(f\"{p}: missing\"); continue\n    dg = hashlib.sha256(io.open(p, \"rb\").read()).hexdigest()\n    if dg != held[\"sha256\"] or oct(os.stat(p).st_mode & 0o777) != held[\"mode\"]:\n        bad.append(f\"{p}: drift\")\nprint(\"baseline drift:\", bad if bad else \"NONE\")\nPYEOF",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:51:27.529Z",
+        "content": "git_profile.py present (this claim's own work): 97f90ab9c573da4c 0o664\nbaseline drift: NONE",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:52:20.388Z",
+    "tool_id": "toolu_01Sb9exF3EjDBY5TLv7ojeog",
+    "command": "python3 /tmp/w133117_schema5.py && /usr/bin/time -f 'WALL %e' env PYTHONPATH=src python3 -c \"\nimport sqlite3, ast, io\nast.parse(io.open('src/baton_v12/integration/schema.py',encoding='utf-8').read())\nfrom baton_v12.integration import schema\nc = sqlite3.connect(':memory:'); c.executescript(schema.SCHEMA)\nheld = sorted(r[0] for r in c.execute(\\\"SELECT name FROM sqlite_master WHERE type='table'\\\"))\nprint('version', schema.SCHEMA_VERSION)\nprint('extra', sorted(set(held)-set(schema.TABLES)), 'missing', sorted(set(schema.TABLES)-set(held)))\nprint('result columns', len(schema.RESULT_COLUMNS))\ncols = [r[1] for r in c.execute('PRAGMA table_info(integration_results)')]\nprint('ddl vs contract mismatch:', sorted(set(cols) ^ set(schema.RESULT_COLUMNS)))\n\"",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:52:20.566Z",
+        "content": "ok\nversion 5\nextra [] missing []\nresult columns 33\nddl vs contract mismatch: []\nWALL 0.14",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:52:41.169Z",
+    "tool_id": "toolu_014AoapgqDhRfiEatYbUUDvg",
+    "command": "/usr/bin/time -f 'WALL %e' env PYTHONPATH=.:src:tests python3 -m unittest \\\n  tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance \\\n  tests.integration.test_coordinator.ReadOnlyOpening 2>&1 | tail -12",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:52:41.399Z",
+        "content": "        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        {\"meta\", \"operations\", \"targets\", \"entries\", \"leases\"})\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Items in the first set but not the second:\n'integration_results'\n\n----------------------------------------------------------------------\nRan 27 tests in 0.047s\n\nFAILED (failures=1)\nCommand exited with non-zero status 1\nWALL 0.20",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:52:57.929Z",
+    "tool_id": "toolu_01GZM1ovziLYQcvSPtWywj9X",
+    "command": "python3 - <<'PYEOF'\nimport io\np = \"/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py\"\nt = io.open(p, encoding=\"utf-8\").read()\nold = '''    def test_the_expectation_is_measured_from_the_schema_it_checks(self):\n        \"\"\"A hand-written expectation would be a second owner of the shape.\"\"\"\n        from baton_v12.integration.store import expected_shape\n        self.assertEqual(\n            {name for kind, name in expected_shape() if kind == \"table\"},\n            {\"meta\", \"operations\", \"targets\", \"entries\", \"leases\"})'''\nnew = '''    def test_the_expectation_is_measured_from_the_schema_it_checks(self):\n        \"\"\"A hand-written expectation would be a second owner of the shape.\n\n        W131409 slice P: asserted against the module's OWN `TABLES` rather\n        than a retyped literal, for the reason the docstring already gives.\n        A list written twice is a list that agrees in one of the two places,\n        and the schema-5 result relation is exactly the kind of addition the\n        retyped copy would have silently disagreed about.\n        \"\"\"\n        from baton_v12.integration import TABLES\n        from baton_v12.integration.store import expected_shape\n        self.assertEqual(\n            {name for kind, name in expected_shape() if kind == \"table\"},\n            set(TABLES))\n        self.assertIn(\"integration_results\", TABLES)'''\nassert t.count(old) == 1\nio.open(p, \"w\", encoding=\"utf-8\").write(t.replace(old, new))\nprint(\"ok\")\nPYEOF\n/usr/bin/time -f 'WALL %e' env PYTHONPATH=.:src:tests python3 -m unittest tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance tests.integration.test_coordinator.ReadOnlyOpening 2>&1 | tail -8",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:52:58.180Z",
+        "content": "ok\nImportError: cannot import name 'TABLES' from 'baton_v12.integration' (/home/sl/src/baton/v12/python/src/baton_v12/integration/__init__.py)\n\n----------------------------------------------------------------------\nRan 27 tests in 0.047s\n\nFAILED (errors=1)\nCommand exited with non-zero status 1\nWALL 0.22",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:53:05.432Z",
+    "tool_id": "toolu_01WYiKmr1grkpNstSs4SLApk",
+    "command": "python3 - <<'PYEOF'\nimport io\np = \"/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py\"\nt = io.open(p, encoding=\"utf-8\").read()\nt = t.replace(\"        from baton_v12.integration import TABLES\\n\"\n              \"        from baton_v12.integration.store import expected_shape\",\n              \"        from baton_v12.integration.schema import TABLES\\n\"\n              \"        from baton_v12.integration.store import expected_shape\")\nio.open(p, \"w\", encoding=\"utf-8\").write(t)\nprint(\"ok\")\nPYEOF\n/usr/bin/time -f 'WALL %e' env PYTHONPATH=.:src:tests python3 -m unittest tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance tests.integration.test_coordinator.ReadOnlyOpening 2>&1 | tail -8",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:53:05.681Z",
+        "content": "ok\n  return {name: (open(os.path.join(self.root, name), \"rb\").read(),\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n....\n----------------------------------------------------------------------\nRan 27 tests in 0.047s\n\nOK\nWALL 0.22",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:58:52.115Z",
+    "tool_id": "toolu_01FVEP13gF2VtK9i8YxwNyZx",
+    "command": "/usr/bin/time -f 'WALL %e' env PYTHONPATH=src python3 -c \"\nimport ast, io\nast.parse(io.open('src/baton_v12/integration/reconciliation.py',encoding='utf-8').read())\nfrom baton_v12.integration import reconciliation\nprint('imports ok', sorted(reconciliation.__all__))\n\" 2>&1 | tail -6",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:58:52.288Z",
+        "content": "imports ok ['INTENT_KIND', 'OUTCOME_KIND', 'prepare_result', 'result_identity', 'result_of']\nWALL 0.14",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:59:31.967Z",
+    "tool_id": "toolu_018hu9Tae7nPmx8BWxYgCioY",
+    "command": "/usr/bin/time -f 'WALL %e' python3 /tmp/w133117_recon_probe.py 2>&1 | tail -30",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:59:32.202Z",
+        "content": "Traceback (most recent call last):\n  File \"/tmp/w133117_recon_probe.py\", line 86, in <module>\n    held = R.prepare_result(store, profile, **operands)\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py\", line 158, in prepare_result\n    operands = _fixed_operands(dict(\n        submission, workspace=workspace, target_source=target_source,\n    ...<4 lines>...\n        profile_name=getattr(profile, \"name\", None),\n        profile_version=getattr(profile, \"version\", None)))\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py\", line 112, in _fixed_operands\n    held[name] = _object(given[name], f\"a result's {name}\")\n                         ~~~~~^^^^^^\nKeyError: 'target_revision'\nCommand exited with non-zero status 1\nWALL 0.21",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T03:59:57.925Z",
+    "tool_id": "toolu_01Ujwrv75tKQqfYwRUqCTfNE",
+    "command": "python3 - <<'PYEOF'\nimport io\np = \"/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py\"\nt = io.open(p, encoding=\"utf-8\").read()\n\nold = '''def prepare_result(store, profile, *, submission, workspace, target_source,\n                   target_reference, integration_attempt_id,\n                   integration_assignment, canonical_target_id):'''\nnew = '''def prepare_result(store, profile, *, submission, workspace, target_source,\n                   target_reference, integration_attempt_id,\n                   integration_assignment, canonical_target_id,\n                   target_revision=None):'''\nassert t.count(old) == 1\nt = t.replace(old, new)\n\nold = '''    _profile_capabilities(profile)\n    operands = _fixed_operands(dict('''\nnew = '''    _profile_capabilities(profile)\n    # THE TARGET IS PINNED HERE, from the dedicated target's own configured\n    # reference, and then it is an IMMUTABLE operand of this result. A caller\n    # may name one explicitly to resume or re-derive an existing record; it\n    # supplies no default, because a result whose target its caller chose\n    # freely would be one nothing pinned.\n    #\n    # AND A MOVED TARGET IS A NEW RESULT, not a silent continuation of an old\n    # one: the revision is part of the derived identity, so pinning a later\n    # revision yields a different record and leaves the earlier one exactly as\n    # it was. That is the contract's rule rather than an accident of hashing.\n    if target_revision is None:\n        target_revision = profile.revision(target_source[\"path\"],\n                                           target_reference)\n    operands = _fixed_operands(dict('''\nassert t.count(old) == 1\nt = t.replace(old, new)\n\nold = '''        canonical_target_id=canonical_target_id,\n        profile_name=getattr(profile, \"name\", None),'''\nnew = '''        canonical_target_id=canonical_target_id,\n        target_revision=target_revision,\n        profile_name=getattr(profile, \"name\", None),'''\nassert t.count(old) == 1\nt = t.replace(old, new)\n\nold = '''    for name in (\"prepare\", \"validate\", \"content\"):'''\nnew = '''    for name in (\"prepare\", \"validate\", \"content\", \"revision\"):'''\nassert t.count(old) == 1\nt = t.replace(old, new)\nio.open(p, \"w\", encoding=\"utf-8\").write(t)\nprint(\"ok\")\nPYEOF\n/usr/bin/time -f 'WALL %e' python3 /tmp/w133117_recon_probe.py 2>&1 | tail -25",
+    "results": [
+      {
+        "timestamp": "2026-09-10T03:59:58.166Z",
+        "content": "ok\nTraceback (most recent call last):\n  File \"/tmp/w133117_recon_probe.py\", line 86, in <module>\n    held = R.prepare_result(store, profile, **operands)\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py\", line 170, in prepare_result\n    target_revision = profile.revision(target_source[\"path\"],\n                                       target_reference)\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py\", line 441, in revision\n    self._run(read_ref_vector(repository, reference),\n    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n              \"target revision read\").strip(),\n              ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py\", line 266, in _run\n    _refuse(f\"Git {what} failed\" + (f\": {detail}\" if detail else \"\"))\n    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py\", line 66, in _refuse\n    raise IntegrationProfileRefusal(message)\nbaton_v12.integration.git_profile.IntegrationProfileRefusal: Git target revision read failed: fatal: Needed a single revision\nCommand exited with non-zero status 1\nWALL 0.21",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T04:00:07.087Z",
+    "tool_id": "toolu_01KKWqmvo2tt1VS913ZY4VLK",
+    "command": "python3 - <<'PYEOF'\nimport io\np = \"/tmp/w133117_recon_probe.py\"\nt = io.open(p).read()\nt = t.replace('''base = g(target, \"rev-parse\", \"HEAD\")''',\n              '''base = g(target, \"rev-parse\", \"HEAD\")\nREFERENCE = \"refs/baton/integration/target\"\ng(target, \"update-ref\", REFERENCE, base)''')\nt = t.replace('''advanced = g(target, \"rev-parse\", \"HEAD\")''',\n              '''advanced = g(target, \"rev-parse\", \"HEAD\")\ng(target, \"update-ref\", REFERENCE, advanced, base)''')\nt = t.replace('''    target_reference=\"refs/baton/integration/target\",''',\n              '''    target_reference=REFERENCE,''')\nio.open(p, \"w\").write(t)\nprint(\"ok\")\nPYEOF\n/usr/bin/time -f 'WALL %e' python3 /tmp/w133117_recon_probe.py 2>&1 | tail -25",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:00:07.348Z",
+        "content": "ok\n    held = R.prepare_result(store, profile, **operands)\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py\", line 232, in prepare_result\n    return _settle(store, result_id, operands, answer)\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py\", line 280, in _settle\n    return result_of(store, result_id)\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py\", line 318, in result_of\n    recorded = _recorded(store, held[\"operation_id\"])\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py\", line 412, in _recorded\n    return boundaries.row(found, \"a persisted operation record\",\n           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                          schema.OPERATION_COLUMNS)\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py\", line 443, in row\n    _COLUMN_RULE[contract.kind](value, f\"{what}'s {name}\")\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py\", line 325, in _persisted_json\n    _refuse(f\"{what} is persisted text this build cannot decode; a durable \"\n    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n            f\"value round-trips or it is not one\")\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py\", line 83, in _refuse\n    raise ContractRefusal(\"integrity\", \"schema\", message)\nbaton_v12.contracts.errors.ContractRefusal: a persisted operation record's signature is persisted text this build cannot decode; a durable value round-trips or it is not one\nCommand exited with non-zero status 1\nWALL 0.22",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T04:00:29.180Z",
+    "tool_id": "toolu_01CGJSRzaZipyZ7hiVYF1Vnb",
+    "command": "python3 - <<'PYEOF'\nimport io\np = \"/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py\"\nt = io.open(p, encoding=\"utf-8\").read()\nt = t.replace('''from . import schema\nfrom .git_profile import PROFILE_NAME, PROFILE_VERSION''',\n              '''from . import schema\nfrom .git_profile import PROFILE_NAME, PROFILE_VERSION\nfrom .store import integration_signature''')\nt = t.replace('''def _signature(kind, operands):\n    return digest({\"kind\": kind, \"operands\": operands})''',\n              '''def _signature(kind, operands):\n    \"\"\"This store's own signature text, so a journal row round-trips.\n\n    `integration_signature` is the coordinator's constructor: it sweeps for a\n    durable secret and answers CANONICAL TEXT, which is what the operations\n    table's `signature` column is contracted to decode. A digest would compare\n    just as well and would not be a persisted JSON value.\n    \"\"\"\n    return integration_signature(kind, operands)''')\nio.open(p, \"w\", encoding=\"utf-8\").write(t)\nprint(\"ok\")\nPYEOF\n/usr/bin/time -f 'WALL %e' python3 /tmp/w133117_recon_probe.py 2>&1 | tail -25",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:00:29.449Z",
+        "content": "ok\n{\n  \"state\": \"prepared\",\n  \"target_revision_pinned\": true,\n  \"content\": {\n    \"harness.py\": \"100644\",\n    \"other.py\": \"100644\"\n  },\n  \"both_changes\": [\n    \"print('the second job answered')\",\n    \"print('the first job answered')\"\n  ],\n  \"submission_untouched\": true,\n  \"retry_identical\": true,\n  \"resume_finishes\": true,\n  \"resume_same_target\": true,\n  \"resume_same_content\": true,\n  \"tampered_row\": \"refused: prepared evidence names another target snapshot than the record it belongs to\",\n  \"restored_reads\": true,\n  \"already_based\": \"refused: the submission is already based on '97d6b829b9e023ea7271e9002bf37069cd\"\n}\n\nRECONCILIATION: OK\nWALL 0.23",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T04:04:00.772Z",
+    "tool_id": "toolu_01K5jKsAY4XYdCcsHeCyZ4sn",
+    "command": "python3 /tmp/w133117_ops.py && /usr/bin/time -f 'WALL %e' env PYTHONPATH=src python3 -c \"\nimport ast, io\nast.parse(io.open('src/baton_v12/integration/reconciliation.py',encoding='utf-8').read())\nfrom baton_v12.integration import reconciliation as R\nprint('ok', sorted(R.__all__))\n\" 2>&1 | tail -5",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:04:00.850Z",
+        "content": "ok\n    ast.parse(io.open('src/baton_v12/integration/reconciliation.py',encoding='utf-8').read())\n              ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'src/baton_v12/integration/reconciliation.py'\nCommand exited with non-zero status 1\nWALL 0.04",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T04:04:07.033Z",
+    "tool_id": "toolu_01GCSwXzGjyydWJC2wUkDMJj",
+    "command": "cd /home/sl/src/baton/v12/python && /usr/bin/time -f 'WALL %e' env PYTHONPATH=src python3 -c \"\nimport ast, io\nast.parse(io.open('src/baton_v12/integration/reconciliation.py',encoding='utf-8').read())\nfrom baton_v12.integration import reconciliation as R\nprint('ok', sorted(R.__all__))\n\" 2>&1 | tail -5",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:04:07.212Z",
+        "content": "ok ['EVIDENCE_KIND', 'INTENT_KIND', 'OUTCOME_KIND', 'PUBLISH_KIND', 'prepare_result', 'publish_result', 'record_result_evidence', 'resolve_import_account', 'result_identity', 'result_of']\nWALL 0.15",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "575dbde0-cb82-423a-9c06-8d76ab073eee.jsonl",
+    "timestamp": "2026-09-10T04:05:02.447Z",
+    "tool_id": "toolu_015gVGhq4uVTteu3f98eYD82",
+    "command": "/usr/bin/time -f 'WALL %e' python3 /tmp/w133117_ops_probe.py 2>&1 | tail -32",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:05:02.707Z",
+        "content": "{\n  \"prepared\": \"prepared\",\n  \"publish_before_evidence\": \"refused: result 'result-53eeba50e10a5a44001e68d8fde1ff19e94e4f660b5fb61b7d9c\\u2026 i\",\n  \"foreign_evidence\": \"refused: the result's verification was given about content 'sha256:999999\",\n  \"same_actor\": \"refused: one actor gave more than one of this result's three independ\",\n  \"authorized\": \"authorized\",\n  \"published\": \"published\",\n  \"derived_names_integration_assignment\": true,\n  \"derived_target_is_the_snapshot\": true,\n  \"derived_candidate_is_the_combined\": true,\n  \"derived_result_is_its_own\": true,\n  \"publish_retry_identical\": true,\n  \"import_account\": {\n    \"expected_target_revision\": true,\n    \"source_proposal_kept\": true,\n    \"derived_proposal\": true,\n    \"content\": [\n      \"harness.py\",\n      \"other.py\"\n    ]\n  },\n  \"stale_result\": \"refused: this result was prepared onto 'ac253a0b99c65c6075ec0d1c5b95b32e1\"\n}\n\nOPERATIONS: OK\nWALL 0.23",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T04:45:33.839Z",
+    "tool_id": "toolu_01CWwuzZPjRrsqPUTJwRwKbR",
+    "command": "python3 - <<'EOF'\nimport json,os,hashlib\np='work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-target-rework-custody/evidence/review-133171/result.json'\nd=json.load(open(p))\ndef walk(o,path=\"\"):\n    if isinstance(o,dict):\n        for k,v in o.items(): walk(v,path+\"/\"+k)\n    elif isinstance(o,list):\n        print(\"LIST at\",path,\"len\",len(o))\n        if o: print(\"  sample:\",json.dumps(o[0])[:300])\nprint(json.dumps(list(d.keys()) if isinstance(d,dict) else type(d)))\nwalk(d)\nEOF",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:45:33.868Z",
+        "content": "[\"claim\", \"captured_at\", \"scope_paths\", \"errors\", \"candidate\", \"argv\", \"cwd\", \"PYTHONPATH\", \"returncode\", \"stdout\", \"stderr\", \"test_elapsed_seconds\", \"charged_elapsed_seconds\"]\nLIST at /errors len 0\nLIST at /argv len 6\n  sample: \"python3\"",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T04:45:43.948Z",
+    "tool_id": "toolu_014RSFLrJmt96yvWsmTnULfR",
+    "command": "python3 - <<'EOF'\nimport json,os,hashlib\np='work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-target-rework-custody/evidence/review-133171/result.json'\nd=json.load(open(p))\ncand=d['candidate']\nmine={'v12/python/src/baton_v12/integration/git_profile.py','v12/python/src/baton_v12/integration/reconciliation.py','v12/python/src/baton_v12/integration/schema.py','v12/python/tests/integration/test_coordinator.py','v12/python/tests/integration/test_reconciliation.py'}\ndrift=[];ok=0\nfor path,rec in cand.items():\n    exp=rec if isinstance(rec,str) else rec.get('sha256')\n    mode=None if isinstance(rec,str) else rec.get('mode')\n    if not os.path.exists(path):\n        actual='ABSENT'; amode=None\n    else:\n        actual=hashlib.sha256(open(path,'rb').read()).hexdigest(); amode=oct(os.stat(path).st_mode & 0o777)\n    same = (actual==exp) and (mode is None or str(amode)==str(mode))\n    if same: ok+=1\n    else: drift.append((path,exp,mode,actual,amode, path in mine))\nprint('paths',len(cand),'unchanged',ok)\nfor row in drift: print('DRIFT' if not row[5] else 'MINE ',row)\nEOF",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:45:43.978Z",
+        "content": "paths 43 unchanged 35\nDRIFT ('AGENTS.md', '67cc573e143fede608169f62560ab25b8452b80bcc0b9cb4d1196e429ca95857', '0o664', 'a7323bbc227aabe8322f747d5750bc4823cbad2b56dce1f863ddd5921223eb7f', '0o664', False)\nMINE  ('v12/python/src/baton_v12/integration/git_profile.py', None, None, '97f90ab9c573da4cd578062320736b0f3bdbe77bbbb4ee64ffc3d4397b027864', '0o664', True)\nMINE  ('v12/python/src/baton_v12/integration/reconciliation.py', None, None, '4e5c9e2185f184d2e718e05309f143c76691767c64845b669ef23300147793f6', '0o664', True)\nMINE  ('v12/python/src/baton_v12/integration/schema.py', 'd0df79b9674e1a92b7011747c0ddcd42116804a4b6f8e05526150d329557c968', '0o664', '5316631cbba56ba941040612c692021a8f029cee5ec5f660755b7ab0d4b9e4c9', '0o664', True)\nDRIFT ('v12/python/src/baton_v12/worker_manager/target_rework.py', None, None, 'ABSENT', None, False)\nMINE  ('v12/python/tests/integration/test_coordinator.py', 'cda33b582b41fecfca06759fc20fe254a6a683d4b919742386a01b36acb7506e', '0o664', '7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea', '0o664', True)\nMINE  ('v12/python/tests/integration/test_reconciliation.py', None, None, 'ABSENT', None, True)\nDRIFT ('v12/python/tests/manager/test_target_rework.py', None, None, 'ABSENT', None, False)",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T04:52:37.968Z",
+    "tool_id": "toolu_01Qz19VWDU4QRrfDwJ1jc1AS",
+    "command": "cd v12/python && ls && sed -n '1,40p' AGENTS.md 2>/dev/null; cat pytest.ini setup.cfg pyproject.toml 2>/dev/null | head -30",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:52:37.994Z",
+        "content": "/bin/bash: line 1: cd: v12/python: No such file or directory\n# The v12 trusted host, as ONE self-contained Python distribution.\n#\n# W2845 (the assignment authority) and W4 (the Worker Manager) ship together\n# and remain separate modules, Work, SQLite files, connections, schemas and\n# transactions. Packaging them together does not grant the manager authority\n# ownership; the import graph and the store-kind marker are what keep that\n# true, not this file.\n#\n# THIS DISTRIBUTION DOES NOT DEPEND ON THE NODE HOST. `v12/src/authority` is\n# executable-reference EVIDENCE: the Python implementation carries forward its\n# behaviour and its vectors, and no runtime code here imports it, bridges to\n# it, shells out to a Baton executable, opens a v11 store or reads a dossier.\n#\n# THE AUTHORITY SLICE IS STILL STANDARD-LIBRARY ONLY. The dependency below is\n# the Worker Manager's, ruled in PLAN item 4bh: it consumes frozen JSON Schema\n# and a handwritten substitute is forbidden. Two cases keep that split honest --\n# `tests/authority/test_boundary.py` holds the authority to the standard library\n# and `tests/manager/test_dependencies.py` holds the manager to exactly this\n# name, reached from exactly one module.\n\n[build-system]\nrequires = [\"setuptools>=78.1.1\"]\nbuild-backend = \"setuptools.build_meta\"\n\n[project]\nname = \"baton-v12\"\nversion = \"0.1.0\"\ndescription = \"The Baton v12 trusted host: assignment authority and worker manager\"\nrequires-python = \">=3.13\"\ndependencies = [\"jsonschema==4.26.0\"]",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T04:52:41.264Z",
+    "tool_id": "toolu_01XYYKQstsWb9iY4omGz55vX",
+    "command": "/usr/bin/time -f 'ELAPSED %e' python3 -m pytest tests/integration/test_admission.py::AcceptedAccount tests/integration/test_admission.py::RefusalBeforeMutation -q 2>&1 | tail -20",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:52:41.291Z",
+        "content": "/usr/bin/python3: No module named pytest\nCommand exited with non-zero status 1\nELAPSED 0.00",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T04:52:54.972Z",
+    "tool_id": "toolu_0171XDpYCXfbBrwPmy5JgAoo",
+    "command": "/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest tests.integration.test_admission.AcceptedAccount tests.integration.test_admission.RefusalBeforeMutation -v 2>&1 | tail -30",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:52:55.189Z",
+        "content": "test_complete_evidence_enqueues_the_exact_producer_account (tests.integration.test_admission.AcceptedAccount.test_complete_evidence_enqueues_the_exact_producer_account) ... ok\ntest_concurrent_exact_admission_returns_one_entry_and_rank (tests.integration.test_admission.AcceptedAccount.test_concurrent_exact_admission_returns_one_entry_and_rank) ... ok\ntest_exact_replay_returns_the_same_entry_and_rank (tests.integration.test_admission.AcceptedAccount.test_exact_replay_returns_the_same_entry_and_rank) ... ok\ntest_two_authorities_share_one_target_order (tests.integration.test_admission.AcceptedAccount.test_two_authorities_share_one_target_order) ... ok\ntest_ambiguous_job_scope_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_ambiguous_job_scope_refuses) ... ok\ntest_assignment_identity_cross_wiring_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_assignment_identity_cross_wiring_refuses) ... ok\ntest_checkpoint_identity_digest_profile_and_path_cross_wiring_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_checkpoint_identity_digest_profile_and_path_cross_wiring_refuses) ... ok\ntest_each_required_policy_receipt_must_be_present_and_accepted (tests.integration.test_admission.RefusalBeforeMutation.test_each_required_policy_receipt_must_be_present_and_accepted) ... ok\ntest_frozen_result_identity_digest_and_disposition_must_match (tests.integration.test_admission.RefusalBeforeMutation.test_frozen_result_identity_digest_and_disposition_must_match) ... ok\ntest_job_input_policy_scope_and_work_are_not_caller_claims (tests.integration.test_admission.RefusalBeforeMutation.test_job_input_policy_scope_and_work_are_not_caller_claims) ... ok\ntest_malformed_scope_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_malformed_scope_refuses) ... ok\ntest_receipt_candidate_and_target_cross_wiring_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_receipt_candidate_and_target_cross_wiring_refuses) ... ok\ntest_stale_target_refuses (tests.integration.test_admission.RefusalBeforeMutation.test_stale_target_refuses) ... ok\ntest_the_checkpoint_must_be_accepted (tests.integration.test_admission.RefusalBeforeMutation.test_the_checkpoint_must_be_accepted) ... ok\ntest_the_job_store_must_share_the_candidate_authority (tests.integration.test_admission.RefusalBeforeMutation.test_the_job_store_must_share_the_candidate_authority) ... ok\n\n----------------------------------------------------------------------\nRan 15 tests in 0.030s\n\nOK\nELAPSED 0.19",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T04:53:18.752Z",
+    "tool_id": "toolu_01ENEeVcKpqd7z2XGnJhy2gZ",
+    "command": "python3 - <<'PY'\np = \"tests/integration/test_admission.py\"\ns = open(p).read()\n\ns = s.replace(\n    \"from baton_v12.integration.admission import admit_candidate\",\n    \"from baton_v12.integration.admission import (admit_candidate,\\n\"\n    \"                                             resolved_account,\\n\"\n    \"                                             source_account,\\n\"\n    \"                                             source_submission)\")\n\nold = '''if __name__ == \"__main__\":\n    unittest.main()'''\nnew = '''class SourceEligibilityIsNotResultFreshness(AdmissionCase):\n    \"\"\"W133117: the two questions `resolved_account` used to answer as one.\n\n    W131409's defect is a submission that is exactly as accepted as it ever\n    was being refused because ANOTHER Job integrated. Separating the two\n    proofs is what lets that submission be reconciled into a new result\n    instead of being told it is ineligible -- and `RefusalBeforeMutation`'s\n    `test_stale_target_refuses` above is the other half of the same rule: the\n    DIRECT import path keeps its exact-target requirement unchanged.\n    \"\"\"\n\n    def resolved(self):\n        return resolved_account(self.manager, self.jobs, self.authority,\n                                line_id=\"line-1\", proposal_id=\"proposal-1\")\n\n    def source(self):\n        return source_account(self.manager, self.jobs, self.authority,\n                              line_id=\"line-1\", proposal_id=\"proposal-1\")\n\n    def test_a_moved_target_refuses_the_import_account_and_not_eligibility(self):\n        fresh = self.resolved()\n        self.current_target = \"revision-2\"\n        refusal = self.refusal()\n        self.assertIn(\"expected target revision\", refusal.message)\n        # The SAME account, member for member, after the refusal above.\n        self.assertEqual(self.source(), fresh)\n        self.assertEqual(self.source()[\"expected_target_revision\"],\n                         self.proposal[\"target\"])\n\n    def test_eligibility_still_proves_every_producer_it_ever_did(self):\n        \"\"\"The separation is not a weaker proof. Each of these refuses the\n        source account exactly as it refuses the import account.\"\"\"\n        self.current_target = \"revision-2\"\n        cases = (\n            (\"frozen result\", self.frozen, \"result_id\", \"result-other\"),\n            (\"checkpoint\", self.checkpoint, \"checkpoint_digest\", \"sha256:x\"),\n            (\"assignment\", self.proposal[\"assignment_ref\"], \"participant\",\n             \"baton.other\"),\n            (\"job\", self.job, \"input_digest\", \"sha256:different\"),\n        )\n        for what, document, member, value in cases:\n            with self.subTest(what=what):\n                prior = document[member]\n                document[member] = value\n                with self.assertRaises(ContractRefusal):\n                    self.source()\n                document[member] = prior\n        for kind in tuple(self.receipts):\n            with self.subTest(what=f\"{kind} receipt\"):\n                held = self.receipts.pop(kind)\n                with self.assertRaises(ContractRefusal):\n                    self.source()\n                self.receipts[kind] = held\n        # And with nothing broken it answers, so the matrix above is not\n        # passing because everything refuses.\n        self.assertEqual(self.source()[\"proposal_id\"], \"proposal-1\")\n\n    def test_the_submission_operand_carries_the_objects_the_account_cannot(self):\n        \"\"\"`prepare_result` reconciles Git OBJECTS. The account carries\n        content digests, which name the same candidate in another language.\"\"\"\n        self.current_target = \"revision-2\"\n        evidence = self.accepted[\"evidence\"]\n        self.assertEqual(\n            source_submission(self.manager, self.jobs, self.authority,\n                              line_id=\"line-1\", proposal_id=\"proposal-1\"),\n            {\"authority_uuid\": UUID_A, \"work_id\": WORK, \"job_id\": \"job-1\",\n             \"line_id\": \"line-1\",\n             \"source_checkpoint_id\": \"checkpoint-1\",\n             \"source_verdict_id\": \"verdict-1\",\n             \"source_proposal_id\": \"proposal-1\",\n             \"source_result_id\": \"result-1\",\n             \"source_result_digest\": self.frozen[\"manifest_digest\"],\n             \"source_checkpoint_digest\": self.accepted[\"checkpoint_digest\"],\n             \"source_base\": evidence[\"base\"],\n             \"source_candidate\": evidence[\"head\"]})\n\n    def test_neither_source_answer_touches_the_coordinator(self):\n        self.current_target = \"revision-2\"\n        self.source()\n        source_submission(self.manager, self.jobs, self.authority,\n                          line_id=\"line-1\", proposal_id=\"proposal-1\")\n        self.unchanged()\n\n\nif __name__ == \"__main__\":\n    unittest.main()'''\nassert old in s\ns = s.replace(old, new)\nopen(p,\"w\").write(s)\nprint(\"ok\")\nPY\n/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest tests.integration.test_admission.SourceEligibilityIsNotResultFreshness -v 2>&1 | tail -20",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:53:18.949Z",
+        "content": "ok\ntest_a_moved_target_refuses_the_import_account_and_not_eligibility (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_a_moved_target_refuses_the_import_account_and_not_eligibility) ... ok\ntest_eligibility_still_proves_every_producer_it_ever_did (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_eligibility_still_proves_every_producer_it_ever_did)\nThe separation is not a weaker proof. Each of these refuses the ... ok\ntest_neither_source_answer_touches_the_coordinator (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_neither_source_answer_touches_the_coordinator) ... ok\ntest_the_submission_operand_carries_the_objects_the_account_cannot (tests.integration.test_admission.SourceEligibilityIsNotResultFreshness.test_the_submission_operand_carries_the_objects_the_account_cannot)\n`prepare_result` reconciles Git OBJECTS. The account carries ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.008s\n\nOK\nELAPSED 0.16",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T04:53:22.657Z",
+    "tool_id": "toolu_01G7xswJySuGcV6Bwrx8YFZs",
+    "command": "/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance tests.integration.test_coordinator.ReadOnlyOpening -v 2>&1 | tail -15",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:53:24.009Z",
+        "content": "THE PROTECTION THE AMENDMENT DID NOT TOUCH, kept explicit beside ... ok\ntest_reading_changes_no_store_byte (tests.integration.test_coordinator.ReadOnlyOpening.test_reading_changes_no_store_byte) ... /home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-uxyfbv0f/integration.sqlite3'>\n  return {name: (open(os.path.join(self.root, name), \"rb\").read(),\nResourceWarning: Enable tracemalloc to get the object allocation traceback\nok\ntest_the_committed_history_backs_every_read_it_answers (tests.integration.test_coordinator.ReadOnlyOpening.test_the_committed_history_backs_every_read_it_answers)\nTHE JOURNAL IS WHAT THESE READERS PROVE AGAINST. ... ok\ntest_the_public_lease_reader_still_answers (tests.integration.test_coordinator.ReadOnlyOpening.test_the_public_lease_reader_still_answers) ... ok\ntest_the_serving_coordinator_is_undisturbed (tests.integration.test_coordinator.ReadOnlyOpening.test_the_serving_coordinator_is_undisturbed) ... ok\n\n----------------------------------------------------------------------\nRan 34 tests in 1.166s\n\nOK\nELAPSED 1.33",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T04:53:37.340Z",
+    "tool_id": "toolu_01B5V4BiRimjFwwyUwUvsdq5",
+    "command": "/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb 2>&1 | tail -8",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:53:37.606Z",
+        "content": "...........\n----------------------------------------------------------------------\nRan 11 tests in 0.081s\n\nOK\nELAPSED 0.24",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T04:59:33.128Z",
+    "tool_id": "toolu_015U7uUyhRK5zdf62XFCs8md",
+    "command": "/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest tests.integration.test_reconciliation -v 2>&1 | tail -70",
+    "results": [
+      {
+        "timestamp": "2026-09-10T04:59:34.778Z",
+        "content": "test_a_combined_failure_stays_visible_and_erases_no_positive (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_a_combined_failure_stays_visible_and_erases_no_positive)\nA clean textual merge establishes only prepared CONTENT. ... ok\ntest_a_failed_composition_is_not_authorized_by_clean_git (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_a_failed_composition_is_not_authorized_by_clean_git)\nNo pass word from a model and no clean Git exit replaces test ... ok\ntest_an_unrelated_setup_failure_is_not_the_defects_baseline (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_an_unrelated_setup_failure_is_not_the_defects_baseline)\nSection 4 rules that these are not the same observation, so the ... ok\ntest_it_fails_on_the_base_passes_isolated_and_passes_combined (tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition.test_it_fails_on_the_base_passes_isolated_and_passes_combined) ... ok\ntest_a_foreign_object_this_workspace_cannot_reach_refuses (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_a_foreign_object_this_workspace_cannot_reach_refuses) ... ok\ntest_a_held_result_neither_authorizes_nor_publishes (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_a_held_result_neither_authorizes_nor_publishes) ... ok\ntest_a_held_result_replays_as_the_same_hold (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_a_held_result_replays_as_the_same_hold) ... ok\ntest_a_real_conflict_holds_with_its_reason_and_retains_no_result (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_a_real_conflict_holds_with_its_reason_and_retains_no_result) ... ok\ntest_a_submission_already_based_on_the_target_refuses (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_a_submission_already_based_on_the_target_refuses) ... ok\ntest_an_assignment_naming_another_Work_refuses (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_an_assignment_naming_another_Work_refuses) ... ok\ntest_an_uncertified_profile_composes_nothing (tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold.test_an_uncertified_profile_composes_nothing) ... ok\ntest_a_session_that_is_not_this_results_assignment_refuses (tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment.test_a_session_that_is_not_this_results_assignment_refuses) ... ok\ntest_an_unauthorized_result_does_not_publish (tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment.test_an_unauthorized_result_does_not_publish) ... ok\ntest_evidence_is_about_THESE_bytes_and_is_independent (tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment.test_evidence_is_about_THESE_bytes_and_is_independent) ... ok\ntest_the_derived_proposal_names_this_role_this_snapshot_these_bytes (tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment.test_the_derived_proposal_names_this_role_this_snapshot_these_bytes) ... ok\ntest_the_import_account_keeps_both_identities_and_refuses_a_stale_one (tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment.test_the_import_account_keeps_both_identities_and_refuses_a_stale_one) ... ok\ntest_the_publish_retry_replays_and_borrowing_the_producer_refuses (tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment.test_the_publish_retry_replays_and_borrowing_the_producer_refuses) ... ok\ntest_preparing_publishing_and_admitting_touch_no_producer_byte (tests.integration.test_reconciliation.OriginalSubmissionIsImmutable.test_preparing_publishing_and_admitting_touch_no_producer_byte) ... ok\ntest_the_old_base_is_the_point_and_is_not_relaxed_away (tests.integration.test_reconciliation.OriginalSubmissionIsImmutable.test_the_old_base_is_the_point_and_is_not_relaxed_away)\nAn old submission base is ALLOWED at this boundary. What stays ... ok\ntest_the_prepared_result_carries_both_jobs_changes (tests.integration.test_reconciliation.OriginalSubmissionIsImmutable.test_the_prepared_result_carries_both_jobs_changes) ... ok\ntest_the_producers_line_is_never_an_operand_of_the_merge (tests.integration.test_reconciliation.OriginalSubmissionIsImmutable.test_the_producers_line_is_never_an_operand_of_the_merge)\nThe profile writes in the nominated workspace and in the dedicated ... ok\ntest_a_committed_intent_with_no_outcome_RESUMES_on_its_own_target (tests.integration.test_reconciliation.PreparedResultReplaysItsIntent.test_a_committed_intent_with_no_outcome_RESUMES_on_its_own_target)\nThe superseded slice answered \"already done\" and asked the profile ... ok\ntest_a_moved_target_is_a_NEW_result_and_the_old_one_is_untouched (tests.integration.test_reconciliation.PreparedResultReplaysItsIntent.test_a_moved_target_is_a_NEW_result_and_the_old_one_is_untouched) ... ok\ntest_an_exact_retry_is_the_same_record_and_merges_once (tests.integration.test_reconciliation.PreparedResultReplaysItsIntent.test_an_exact_retry_is_the_same_record_and_merges_once) ... ok\ntest_the_identity_is_derived_from_the_operands_and_only_from_those (tests.integration.test_reconciliation.PreparedResultReplaysItsIntent.test_the_identity_is_derived_from_the_operands_and_only_from_those) ... ok\ntest_a_row_pointed_at_another_committed_act_is_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_a_row_pointed_at_another_committed_act_is_caught) ... ok\ntest_a_row_whose_act_is_not_in_the_journal_at_all_is_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_a_row_whose_act_is_not_in_the_journal_at_all_is_caught) ... ok\ntest_a_source_identity_the_prepared_evidence_never_saw_is_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_a_source_identity_the_prepared_evidence_never_saw_is_caught) ... ok\ntest_a_state_its_own_operation_did_not_reach_is_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_a_state_its_own_operation_did_not_reach_is_caught) ... ok\ntest_evidence_edited_under_an_authorized_result_is_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_evidence_edited_under_an_authorized_result_is_caught) ... ok\ntest_prepared_content_that_no_longer_digests_to_its_set_is_caught (tests.integration.test_reconciliation.ResultReadersRejectTampering.test_prepared_content_that_no_longer_digests_to_its_set_is_caught) ... ok\n\n----------------------------------------------------------------------\nRan 31 tests in 1.470s\n\nOK\nELAPSED 1.62",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T05:00:05.931Z",
+    "tool_id": "toolu_01Cp4QGXRpeekaJ9Hk7tDtKk",
+    "command": "D=/home/sl/src/baton/work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody; /usr/bin/time -f 'ELAPSED %e' python3 $D/evidence/causal-133645-observations.py > $D/evidence/causal-133645-observations.json 2> /tmp/causal.err; echo \"rc=$?\"; cat /tmp/causal.err; tail -5 $D/evidence/causal-133645-observations.json",
+    "results": [
+      {
+        "timestamp": "2026-09-10T05:00:06.280Z",
+        "content": "rc=0\nELAPSED 0.32\n    }\n  }\n}\n\nCAUSAL: OK",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T05:00:42.224Z",
+    "tool_id": "toolu_01Pyc1i926GL1ri1Njtaai1u",
+    "command": "/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest -v \\\n  tests.integration.test_reconciliation \\\n  tests.integration.test_admission.AcceptedAccount \\\n  tests.integration.test_admission.RefusalBeforeMutation \\\n  tests.integration.test_admission.SourceEligibilityIsNotResultFreshness \\\n  tests.integration.test_driver.DriverCase \\\n  tests.integration.test_driver.ContinuationCase \\\n  tests.integration.test_driver.TerminalReleaseReplayCase \\\n  tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything \\\n  tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission \\\n  tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance \\\n  tests.integration.test_coordinator.ReadOnlyOpening \\\n  tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree \\\n  tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb \\\n  > /tmp/final-133645.log 2>&1; echo \"rc=$?\"; tail -6 /tmp/final-133645.log; grep -c ' \\.\\.\\. ok' /tmp/final-133645.log",
+    "results": [
+      {
+        "timestamp": "2026-09-10T05:00:45.342Z",
+        "content": "rc=0\n\n----------------------------------------------------------------------\nRan 125 tests in 2.919s\n\nOK\nELAPSED 3.09\n117",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T05:01:25.356Z",
+    "tool_id": "toolu_01TxYB9bmzJoS1gWuqtKNU8P",
+    "command": "python3 - <<'PY'\nimport hashlib, json, os\nD = \"work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody\"\npaths = [\n \"v12/python/src/baton_v12/integration/reconciliation.py\",\n \"v12/python/src/baton_v12/integration/git_profile.py\",\n \"v12/python/src/baton_v12/integration/schema.py\",\n \"v12/python/src/baton_v12/integration/store.py\",\n \"v12/python/src/baton_v12/integration/admission.py\",\n \"v12/python/src/baton_v12/integration/driver.py\",\n \"v12/python/src/baton_v12/integration/__init__.py\",\n \"v12/python/tests/integration/test_reconciliation.py\",\n \"v12/python/tests/integration/test_admission.py\",\n \"v12/python/tests/integration/test_driver.py\",\n \"v12/python/tests/integration/test_coordinator.py\",\n]\nchanged = {\n \"v12/python/src/baton_v12/integration/reconciliation.py\",\n \"v12/python/src/baton_v12/integration/git_profile.py\",\n \"v12/python/src/baton_v12/integration/schema.py\",\n \"v12/python/src/baton_v12/integration/admission.py\",\n \"v12/python/src/baton_v12/integration/driver.py\",\n \"v12/python/src/baton_v12/integration/__init__.py\",\n \"v12/python/tests/integration/test_reconciliation.py\",\n \"v12/python/tests/integration/test_admission.py\",\n \"v12/python/tests/integration/test_coordinator.py\",\n}\ncandidate = {}\nfor p in paths:\n    body = open(p, \"rb\").read()\n    candidate[p] = {\"sha256\": hashlib.sha256(body).hexdigest(),\n                    \"mode\": oct(os.stat(p).st_mode & 0o777),\n                    \"bytes\": len(body),\n                    \"changed_by_W133117\": p in changed}\nmanifest = {\n  \"claim\": 133645,\n  \"work\": \"2b077949-W133117\",\n  \"participant\": \"baton.claude\",\n  \"captured_at\": \"2026-09-10T05:00:00Z\",\n  \"candidate\": candidate,\n  \"verification\": {\n    \"runner\": \"PYTHONPATH=src python3 -m unittest -v\",\n    \"cwd\": \"v12/python\",\n    \"selectors\": [\n      \"tests.integration.test_reconciliation\",\n      \"tests.integration.test_admission.AcceptedAccount\",\n      \"tests.integration.test_admission.RefusalBeforeMutation\",\n      \"tests.integration.test_admission.SourceEligibilityIsNotResultFreshness\",\n      \"tests.integration.test_driver.DriverCase\",\n      \"tests.integration.test_driver.ContinuationCase\",\n      \"tests.integration.test_driver.TerminalReleaseReplayCase\",\n      \"tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything\",\n      \"tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission\",\n      \"tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance\",\n      \"tests.integration.test_coordinator.ReadOnlyOpening\",\n      \"tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree\",\n      \"tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb\"\n    ],\n    \"tests\": 125, \"outcome\": \"OK\", \"log\": \"evidence/run-133645-final.log\"\n  },\n  \"runs\": [\n    {\"what\": \"test_admission AcceptedAccount + RefusalBeforeMutation, before the new control\", \"elapsed_seconds\": 0.19, \"outcome\": \"OK\", \"tests\": 15},\n    {\"what\": \"test_admission SourceEligibilityIsNotResultFreshness\", \"elapsed_seconds\": 0.16, \"outcome\": \"OK\", \"tests\": 4},\n    {\"what\": \"test_driver TheOrdinaryCommandTraversesPublicAdmission + test_coordinator selectors\", \"elapsed_seconds\": 1.33, \"outcome\": \"OK\", \"tests\": 34},\n    {\"what\": \"Q-scope binding controls: bundle eligibility members, execution stale-evidence verb\", \"elapsed_seconds\": 0.24, \"outcome\": \"OK\", \"tests\": 11},\n    {\"what\": \"test_reconciliation, whole new module\", \"elapsed_seconds\": 1.62, \"outcome\": \"OK\", \"tests\": 31},\n    {\"what\": \"causal observation dump, evidence/causal-133645-observations.py\", \"elapsed_seconds\": 0.32, \"outcome\": \"CAUSAL OK\"},\n    {\"what\": \"consolidated focused selectors\", \"elapsed_seconds\": 3.09, \"outcome\": \"OK\", \"tests\": 125}\n  ],\n  \"elapsed_seconds_this_claim\": 6.95,\n  \"carried_from_earlier_claims\": 2.54,\n  \"author_cumulative_seconds\": 9.49,\n  \"author_allocation_seconds\": 77,\n  \"review_allocation_seconds\": 8,\n  \"review_used_seconds\": 0\n}\nopen(os.path.join(D, \"evidence\", \"result-133645.json\"), \"w\").write(\n    json.dumps(manifest, indent=2) + \"\\n\")\nprint(json.dumps({k: v[\"sha256\"][:16] for k, v in candidate.items()}, indent=1))\nPY\ncp /tmp/final-133645.log work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-133645-final.log\nls -la work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/",
+    "results": [
+      {
+        "timestamp": "2026-09-10T05:01:25.392Z",
+        "content": "{\n \"v12/python/src/baton_v12/integration/reconciliation.py\": \"4e5c9e2185f184d2\",\n \"v12/python/src/baton_v12/integration/git_profile.py\": \"97f90ab9c573da4c\",\n \"v12/python/src/baton_v12/integration/schema.py\": \"5316631cbba56ba9\",\n \"v12/python/src/baton_v12/integration/store.py\": \"8117df2b43ed702d\",\n \"v12/python/src/baton_v12/integration/admission.py\": \"93b803004608b289\",\n \"v12/python/src/baton_v12/integration/driver.py\": \"c5a86008a96f773c\",\n \"v12/python/src/baton_v12/integration/__init__.py\": \"df626826ed4a6348\",\n \"v12/python/tests/integration/test_reconciliation.py\": \"a103d95a2b537b64\",\n \"v12/python/tests/integration/test_admission.py\": \"c33ddf9f4aabcc8f\",\n \"v12/python/tests/integration/test_driver.py\": \"ff06426518854b96\",\n \"v12/python/tests/integration/test_coordinator.py\": \"7fb6ec2c3af86b1e\"\n}\ntotal 104\ndrwxrwxr-x 2 sl sl  4096 Sep  9 23:01 .\ndrwxrwxr-x 3 sl sl  4096 Sep  9 21:40 ..\n-rw-rw-r-- 1 sl sl  2536 Sep  9 23:00 causal-133645-observations.json\n-rw-rw-r-- 1 sl sl  2802 Sep  9 23:00 causal-133645-observations.py\n-rw-rw-r-- 1 sl sl   432 Sep  9 21:40 dispatch-133198.json\n-rw-rw-r-- 1 sl sl  5674 Sep  9 21:44 gate-133218-authority-publication.json\n-rw-rw-r-- 1 sl sl  5772 Sep  9 21:44 gate-133218-probe.py\n-rw-rw-r-- 1 sl sl  9055 Sep  9 22:05 operations-133353-probe.py\n-rw-rw-r-- 1 sl sl  5366 Sep  9 21:47 profile-133218-probe.py\n-rw-rw-r-- 1 sl sl  7048 Sep  9 22:01 reconciliation-133318-probe.py\n-rw-rw-r-- 1 sl sl  5117 Sep  9 23:01 result-133645.json\n-rw-rw-r-- 1 sl sl 29350 Sep  9 23:01 run-133645-final.log",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T05:02:10.969Z",
+    "tool_id": "toolu_01PnAcD62e4XZY4VSPNdvtUB",
+    "command": "D=work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody\npython3 - <<'PY'\nimport hashlib\npaths = {\n \"v12/python/src/baton_v12/integration/admission.py\": None,\n \"v12/python/src/baton_v12/integration/driver.py\": None,\n \"v12/python/src/baton_v12/integration/__init__.py\": None,\n \"v12/python/tests/integration/test_reconciliation.py\": None,\n \"v12/python/tests/integration/test_admission.py\": None,\n}\nfor p in paths:\n    paths[p] = hashlib.sha256(open(p, \"rb\").read()).hexdigest()\nD = \"work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody\"\ntext = open(\"/tmp/progress-append.md\").read()\n# the placeholder digests written from memory are replaced by the real ones\nfor p, real in paths.items():\n    name = p.rsplit(\"/\", 1)[1]\n    import re\n    text = re.sub(r\"`[0-9a-f]{64}`(?=[^\\n]*\\(0o664\\))|(?<=sha256 `)[0-9a-f]{64}(?=`)\",\n                  lambda m: m.group(0), text)\nopen(\"/tmp/progress-append.md\", \"w\").write(text)\nprint({p.rsplit('/',1)[1]: h for p, h in paths.items()})\nPY",
+    "results": [
+      {
+        "timestamp": "2026-09-10T05:02:10.999Z",
+        "content": "{'admission.py': '93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791', 'driver.py': 'c5a86008a96f773c0fa884cb7b501197dc29d20eaa638f90957f47e17737bf3e', '__init__.py': 'df626826ed4a6348da135229c12fb7e6a0fd01ecbcf5a2508f862a6f3b915e36', 'test_reconciliation.py': 'a103d95a2b537b64745cab32bbfc887f50b70615a6874ee2189243d04a80e058', 'test_admission.py': 'c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce'}",
+        "is_error": false
+      }
+    ]
+  },
+  {
+    "source": "3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+    "timestamp": "2026-09-10T05:02:20.076Z",
+    "tool_id": "toolu_01RUJWdCQo4PSJ6V6GkiPMLQ",
+    "command": "python3 - <<'PY'\nimport hashlib, re\nreal = {}\nfor p in (\"v12/python/src/baton_v12/integration/admission.py\",\n          \"v12/python/src/baton_v12/integration/driver.py\",\n          \"v12/python/src/baton_v12/integration/__init__.py\",\n          \"v12/python/tests/integration/test_reconciliation.py\",\n          \"v12/python/tests/integration/test_admission.py\"):\n    real[hashlib.sha256(open(p, \"rb\").read()).hexdigest()[:16]] = \\\n        hashlib.sha256(open(p, \"rb\").read()).hexdigest()\ntext = open(\"/tmp/progress-append.md\").read()\ndef fix(m):\n    return real.get(m.group(0)[:16], m.group(0))\ntext, n = re.subn(r\"\\b[0-9a-f]{64}\\b\", fix, text)\nopen(\"/tmp/progress-append.md\", \"w\").write(text)\n# prove every 64-hex in the note is now a real digest of a real file\nfound = re.findall(r\"\\b[0-9a-f]{64}\\b\", text)\nprint(\"64-hex occurrences:\", len(found))\nprint(\"all real:\", all(one in real.values() for one in found))\nPY",
+    "results": [
+      {
+        "timestamp": "2026-09-10T05:02:20.104Z",
+        "content": "64-hex occurrences: 5\nall real: True",
+        "is_error": false
+      }
+    ]
+  }
+]

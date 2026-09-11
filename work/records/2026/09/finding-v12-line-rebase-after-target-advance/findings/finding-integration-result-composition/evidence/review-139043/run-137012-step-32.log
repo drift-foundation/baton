@@ -1,0 +1,12 @@
+### label: amended-path-hashes
+### cwd: /home/sl/src/baton
+### argv: ["python3", "-c", "\nimport hashlib, os\nfor p in ('v12/python/src/baton_v12/integration/driver.py',\n          'v12/python/src/baton_v12/integration/execution.py',\n          'v12/python/tests/integration/test_driver.py',\n          'v12/python/tests/integration/test_execution.py'):\n    st = os.stat(p)\n    print(hashlib.sha256(open(p,'rb').read()).hexdigest(), oct(st.st_mode & 0o777), st.st_size, p)\n"]
+### exit: 0
+### elapsed_seconds: 0.007030
+### STDOUT
+8482c4558ab1ef61415bcb4984ad5fc1bde080df1136b4c51dcab18c76c467f8 0o664 101528 v12/python/src/baton_v12/integration/driver.py
+f748b046d28a8a9c1d07d12ffe78cc86871ce46f1cac1212c7f5fbb40c540289 0o664 57967 v12/python/src/baton_v12/integration/execution.py
+ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7 0o664 136269 v12/python/tests/integration/test_driver.py
+3210cc2569b0c6edcda77db6b63ef7b9ed3e982f3a726bb531d58bfb53b3d9c8 0o664 71377 v12/python/tests/integration/test_execution.py
+
+### STDERR

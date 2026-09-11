@@ -1,0 +1,23 @@
+### label: AB-witness-run-3
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET"]
+### exit: 1
+### elapsed_seconds: 1.675912
+### STDOUT
+
+### STDERR
+F
+======================================================================
+FAIL: test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET)
+W131409'S WHOLE POINT, driven through the ordinary configured tick.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7524, in test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET
+    self.assertIsNotNone(found, "no reconciled result was composed")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None : no reconciled result was composed
+
+----------------------------------------------------------------------
+Ran 1 test in 1.492s
+
+FAILED (failures=1)

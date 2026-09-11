@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-composed-one-job-proof/evidence/review-129681/probe.py", line 4, in <module>
+    from tests.tools.test_stage_execution import UnfinishedWorkIsFencedBeforeAnythingRepeatsIt as Case
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 31, in <module>
+    from tools import integration_worker, single_worker, stage_execution
+ImportError: cannot import name 'integration_worker' from 'tools' (/home/sl/src/baton/v12/python/tests/tools/__init__.py)

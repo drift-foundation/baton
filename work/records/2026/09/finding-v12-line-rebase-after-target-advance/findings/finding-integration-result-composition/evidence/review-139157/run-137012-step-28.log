@@ -1,0 +1,13 @@
+### label: finalizer-import-and-direct-regression
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.integration.test_driver.DriverCase", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"]
+### exit: 0
+### elapsed_seconds: 1.697599
+### STDOUT
+
+### STDERR
+.................
+----------------------------------------------------------------------
+Ran 17 tests in 1.529s
+
+OK

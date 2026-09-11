@@ -1,0 +1,13 @@
+### label: delegation-controls-2
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.job_manager.test_delegation"]
+### exit: 0
+### elapsed_seconds: 0.209620
+### STDOUT
+
+### STDERR
+.........................................
+----------------------------------------------------------------------
+Ran 41 tests in 0.057s
+
+OK

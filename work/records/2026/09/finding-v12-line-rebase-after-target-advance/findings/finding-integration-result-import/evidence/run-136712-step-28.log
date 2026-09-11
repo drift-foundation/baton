@@ -1,0 +1,32 @@
+### label: R3-correction-run-3
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"]
+### exit: 1
+### elapsed_seconds: 1.701419
+### STDOUT
+
+### STDERR
+...F.......
+======================================================================
+FAIL: test_a_grant_RECOVERED_WHILE_THE_TESTS_RAN_advances_nothing (tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled.test_a_grant_RECOVERED_WHILE_THE_TESTS_RAN_advances_nothing)
+REVIEW 2026-09-10T14:33:43Z [R3], at the boundary the verification
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_execution.py", line 1363, in test_a_grant_RECOVERED_WHILE_THE_TESTS_RAN_advances_nothing
+    self.assertEqual([one["state"] for one in
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                      entries_of(self.store, TARGET)], ["leased"])
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['held'] != ['leased']
+
+First differing element 0:
+'held'
+'leased'
+
+- ['held']
++ ['leased']
+
+----------------------------------------------------------------------
+Ran 11 tests in 1.532s
+
+FAILED (failures=1)

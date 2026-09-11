@@ -1,0 +1,13 @@
+### label: focused-end-to-end-import-2
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_execution.TheAuthorizedResultIsImportedAndSettled"]
+### exit: 0
+### elapsed_seconds: 1.067685
+### STDOUT
+
+### STDERR
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.899s
+
+OK

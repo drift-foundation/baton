@@ -1,0 +1,1123 @@
+"""The seam onto the v12 operations this control plane composes.
+
+W71875. THE POINT OF THIS FILE IS THAT THERE IS NO SECOND STATE MACHINE. Every
+act the scheduler performs is one already-public Worker Manager operation, and
+every fact it projects is one already-public Worker Manager read. What this
+leaf adds is *when* to call them and a durable receipt saying it did -- not a
+parallel account of offers, claims, attempts, runtimes or outputs.
+
+TWO ACTS, AND WHY ONLY TWO. `admit` issues the offer that authorizes one stage
+and `claim` takes the claim the accepted offer froze. Both are control-plane
+acts that need nothing this leaf was told not to own. Starting a runtime needs
+a delivered workspace and a runtime adapter (W71917); freezing an
+output, deciding a verdict and importing a proposal need review and
+integration policy (W71918, W71878). Those operations exist and are not called
+from here, because calling them would mean inventing the operands their owners
+have not specified yet.
+
+THE CANONICAL OPERATION IDENTITY IS HOW A RESTART DECIDES. `issue_offer` and
+the claim recording journal themselves in the MANAGER's store under identities
+derived from the offer id, and `ControlStore.operation_record` is the public
+reader for them. So a next incarnation that finds no receipt of its own can
+ask the manager whether the act already committed, adopt that answer, and
+neither repeat a committed act nor skip an owed one. The two templates below
+are this build's copy of a spelling the manager owns -- `test_delegation`
+drives the real operations and asserts the manager journals exactly these
+identities, so a change to that spelling fails here loudly instead of turning
+every restart into a repeated offer.
+
+AND A DERIVED IDENTITY IS NOT BY ITSELF A BINDING. Review [P1]: the identity
+above is derived from the Job id and the stage kind alone, and the CLI takes
+the Job store and the control store as two independent paths -- so a second Job
+store over one control store could submit the same `job-a/implementation` with
+another input digest, find the first store's committed offer under the derived
+name, adopt it, and project its own digest beside a canonical offer whose
+signature contains only the first one's. The same operation id had become two
+accounts of intent, which is the shadow state this leaf exists not to have.
+`check_binding` below closes that: an existing canonical operation is proved to
+be the act for THIS persisted Job/stage intent before anything is adopted from
+it or read beside it, and one that is not refuses instead.
+
+AND PROVING THE OFFER IS NOT BY ITSELF A BOUND OBSERVATION. Re-review [P1,
+2026-09-03]: `check_binding` proves the record under this stage's derived OFFER
+id, while the canonical observation was read under its derived ATTEMPT id --
+two identities, and only the first was proved. A distinct canonical offer
+issued for another Work can name this stage's attempt, win the manager's unique
+claimed-attempt slot, and be projected as this Job's claim; the check still
+passed, because this Job's own offer really was its own. Nothing recorded it
+and no act stayed owed, so the false projection was durable and did not
+self-correct. `observation_of` below is the answer: the observation is acquired
+and bound to the proved offer identity in ONE operation, and an attempt whose
+claim belongs to somebody else refuses instead of being read.
+"""
+
+import json
+
+from ..contracts import ContractRefusal
+from ..contracts.errors import name_value
+from ..eventing import EventQueue, pump
+from ..worker_manager import (attempt_activity_of, attempt_runtime_of,
+                              attempt_preparation_failure_of,
+                              attempt_start_failure_of, boundaries,
+                              claimed_offers_for, frozen_output_of,
+                              issue_offer, recover_on_restart, submit_claim)
+from ..worker_manager.events import publish_offer_states
+
+__all__ = ["CANONICAL_OPERATIONS", "INTENT_OPERANDS", "OBSERVATION_MEMBERS",
+           "OPERATIONS", "REFRESH_STATES", "ManagerOperations",
+           "RefreshUnavailable", "Unobserved",
+           "canonical_operation", "check_binding", "observation_of",
+           "stage_intent", "unobserved"]
+
+# act -> the identity the MANAGER journals that act under, keyed by offer id.
+CANONICAL_OPERATIONS = {"admit": "offer.issue:{offer_id}",
+                        "claim": "offer.settle:{offer_id}"}
+
+# The offer operands this leaf OWNS, and can therefore recognise its own act
+# by. Every one is a member `issue_offer` puts in the signature it journals and
+# every one comes from a persisted row here, so comparing them answers exactly
+# "was this offer issued for the intent this store is holding".
+#
+# THE OTHER OPERANDS ARE DELIBERATELY NOT COMPARED. The participant, the
+# authority, the Work's frozen scope and route and the offer's expiry are the
+# manager's and the authority's facts about the same act; this leaf neither
+# supplies nor persists them, so a build that recomputed them would be
+# inventing a second opinion about somebody else's state in order to check it.
+INTENT_OPERANDS = ("offer_id", "work_id", "runtime_attempt_id",
+                   "input_digest", "policy_digest", "profile_digest")
+
+# The closed surface a Job manager calls. A deployment may substitute its own
+# object here, and a fake in a test may too -- so it is written down rather
+# than discovered from whatever the caller happened to pass.
+OPERATIONS = ("canonical", "canonical_operation", "receipt_of", "recover",
+              "attach", "drain", "admit", "claim", "launch", "dispatch",
+              "conclude", "observe", "refresh_runtime")
+
+# W85500: `refresh_runtime` IS A SERVING ACT AND NOT A READ, which is why it
+# is here rather than folded into `observe`.
+#
+# `observe` answers what the control store RECORDS. Once a start attaches a
+# runtime, nothing asked the engine about that runtime again: the ordinary
+# sweep read the persisted row, and on the fault path the successful ending --
+# the only other caller of `reconcile_runtime` -- is correctly never reached,
+# because an exceptional stage owes no act. So a container that exited stayed
+# projected as `running` indefinitely.
+#
+# IT RECORDS, so a status surface must not hold it. `reconcile_runtime` writes
+# the observed runtime state to the control store; a read-only status that
+# called it would be a read that mutates. Runtime freshness in a standalone
+# status comes from the serving loop that preceded it, and a store nobody is
+# advancing is exactly as stale as "nobody looked" -- which is the honest
+# answer rather than a write.
+
+# W76207: `launch` is the THIRD act, and it is deliberately not a fourth
+# receipt. `admit` and `claim` are the two acts this control plane journals in
+# its own store; a runtime start is journalled by the Worker Manager under an
+# identity it derives, so replaying it is that manager's question and not a
+# second state machine here. What this leaf owns is WHEN to ask -- level-
+# triggered, from canonical state, on every tick including the first one after
+# a restart.
+#
+# IT IS NOT HIDDEN INSIDE `claim`, and that is the whole correction. A crash
+# after the Authority commits the claim makes the next manager adopt the
+# canonical `offer.settle` receipt WITHOUT calling `claim` again -- so a launch
+# folded into that call would be skipped forever, exactly once, on the path
+# nobody watches.
+
+# What one stage's canonical observation carries. Every member is another
+# package's public read; none of them is this leaf's opinion.
+#
+# `claimed_by` IS AN IDENTITY AND NOT A FLAG, and re-review [P1, 2026-09-03] is
+# why it stopped being one. It used to be `claimed`, a boolean meaning "some
+# offer holds this attempt's claim" -- and "somebody claimed it" and "this
+# stage claimed it" are not the same fact. The attempt id is derived from the
+# Job id and the stage kind, so another Job store can name it; a boolean threw
+# away the only member that says whose claim was found, and `status` reported
+# the other store's claim as this Job's. The reader answers WHICH offer holds
+# it and this leaf decides whether that offer is the one it proved.
+OBSERVATION_MEMBERS = ("claimed_by", "runtime", "activity", "output",
+                       "start_failure", "preparation_failure", "exchange")
+
+# W126558: AND THE ONE AN INTEGRATION STAGE HAS INSTEAD OF AN EXCHANGE.
+#
+# OPTIONAL, WHICH IS THE COMPATIBILITY RULE ITSELF. An integration attempt
+# writes no worker exchange and freezes no output, so every required member
+# above is honestly absent for it and the projection read that absence as a
+# container that had started and never spoken. But an observation composed
+# before this member existed is still a complete one: it is normalized to
+# `None` here, which means nobody looked, and every such deployment keeps its
+# exact previous behaviour.
+OBSERVATION_OPTIONAL = ("integration",)
+
+# W126558, `work/records/2026/09/finding-v12-composed-ending-consumer/findings/
+# finding-integration-stage-observation/OBSERVATION.md` revision 1.
+#
+# THE CLOSED SHAPE A DEPLOYMENT MAY SUPPLY, and it is closed in both
+# directions: a member this build does not know is a reader it was not written
+# against, and a missing one is a document that cannot answer what it claims
+# to.
+INTEGRATION_OBSERVATION_SCHEMA = "baton.v12.integration-stage-observation/1"
+INTEGRATION_OBSERVATION_MEMBERS = ("schema", "stage_id", "episode",
+                                   "attempt_id", "offer_id", "assignment",
+                                   "state", "completion")
+INTEGRATION_STATES = ("unstarted", "pending", "answered", "completed", "held")
+
+# WHICH STAGE KIND MAY SUPPLY ONE. Spelled here rather than imported from the
+# projection, because this is the receiving boundary's own rule about what it
+# accepts and the projection's is about what it reports.
+INTEGRATION_KIND = "integration"
+
+# WHAT A COMPLETED ACCOUNT NAMES. Every one of these is a REFERENCE to evidence
+# the consumer read and cross-bound through accepted public readers; their
+# presence is not the proof and this module does not pretend otherwise. What is
+# owned here is the shape and the binding.
+# W133129: AND WHICH SUBMISSION IT WAS, BESIDE WHICH CANDIDATE INTEGRATED.
+# A direct import's source and derived proposal are one proposal and it has no
+# reconciliation result. A RECONCILED one integrated a candidate this
+# deployment composed -- its own derived proposal, carrying its own frozen
+# result identity -- out of a submission whose proposal is a different, older
+# one that was never rewritten. Recording only the integrated proposal would
+# lose the provenance the whole replacement exists to preserve, so both are
+# named and `result_id` is what says which branch produced this completion.
+INTEGRATION_COMPLETION_MEMBERS = ("proposal_id", "source_proposal_id",
+                                  "result_id", "integration_receipt_id",
+                                  "entry_id", "lease_id", "fence",
+                                  "handoff_operation_id", "to_route",
+                                  "runtime_id", "execution_runtime")
+# `absent` IS A STATEMENT AND NOT A GAP. A reconciled import composes no model
+# and starts no runtime: the bytes were already composed, observed and
+# independently approved, and what excluded every other writer is the
+# coordinator's own fence rather than a container. So its completion says that
+# no runtime existed instead of borrowing a word for one that did -- and it may
+# say it ONLY when a reconciliation result is named, which is checked below.
+INTEGRATION_COMPLETION_RUNTIMES = ("quiescent", "destroyed", "absent")
+
+# W76207: `start_failure` is the manager's OWN journalled record that this
+# attempt's start failed, and it is a fifth member rather than something
+# derived from `runtime` because it cannot be derived from it. The manager
+# journals the failure as its own act and reconciliation may still ATTACH a
+# runtime id afterwards, so an attached identity is not evidence that anything
+# is running -- which is exactly how this projection used to report a stage as
+# `running` after its start had durably failed.
+
+# W81857: `exchange` is a SEVENTH member and it is the one that answers
+# whether this stage is DOING anything. Every other member says something about
+# the container -- whether a claim froze the attempt, whether an identity is
+# attached, how many bytes were seen -- and none of them can distinguish a
+# runtime that is executing an assignment from a runtime that started, found
+# nothing to do, and is idling. That distinction is what W81857 exists for, so
+# it is asked as its own member and derived from nothing.
+#
+# IT IS THE DEPLOYMENT'S READ AND NOT THIS MANAGER'S. The exchange lives beside
+# the launch delivery, on a host path only the deployment that composed the
+# mounts knows; asking the Worker Manager for it would mean this leaf inventing
+# where a deployment keeps its state. So it arrives through an injected
+# capability exactly as the runtime start does, and a deployment that supplies
+# none answers `None` -- which the projection reports as "nobody looked" rather
+# than as "nothing is happening".
+
+# W76207 re-review [P1]: `preparation_failure` is a SIXTH member and not a
+# spelling of the fifth. The manager keeps two records because they mean two
+# things -- a start act that failed, which is also its authority to remove the
+# container that start created, and a post-claim preparation that never
+# reached a start and authorizes nothing. Filing one under the other's kind so
+# this projection would not have to distinguish them was the defect; asking
+# for both and treating either as an ending is what unifies them HERE, where
+# unification is a stage state rather than a durable act.
+
+
+def unobserved():
+    """The observation of a stage nothing canonical is currently answering for.
+
+    A FRESH DOCUMENT EACH TIME. It is handed to a projection that keeps it
+    beside a stage, and one shared dict would make two stages' observations the
+    same object -- which is fine until the day something writes to one.
+    """
+    return {"claimed_by": None, "runtime": None, "activity": None,
+            "output": None, "start_failure": None,
+            "preparation_failure": None, "exchange": None,
+            "integration": None}
+
+
+def canonical_operation(act, offer_id):
+    """The manager journal identity for one act on one offer."""
+    if act not in CANONICAL_OPERATIONS:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"this control plane delegates {', '.join(CANONICAL_OPERATIONS)}; "
+            f"this is {name_value(act)}")
+    return CANONICAL_OPERATIONS[act].format(offer_id=offer_id)
+
+
+def stage_intent(stage, job):
+    """The offer operands one persisted stage's submitted intent asks for.
+
+    Assembled from the two rows and nothing else, so it is the store's account
+    of the act rather than a re-derivation of what the manager probably did.
+    """
+    return {"offer_id": stage["offer_id"], "work_id": stage["work_id"],
+            "runtime_attempt_id": stage["attempt_id"],
+            "input_digest": job["input_digest"],
+            "policy_digest": job["policy_digest"],
+            "profile_digest": stage["profile_digest"]}
+
+
+def check_binding(operations, stage, job):
+    """Prove the canonical offer under this stage's derived id is THIS stage's.
+
+    THE OFFER IS THE BINDING, WHICH IS WHY ONE CHECK COVERS EVERY ACT. Both
+    identities this leaf derives are keyed by the offer id, the settlement can
+    only be journalled by settling that one offer row, and the observation the
+    projection reads is keyed by the attempt id the offer froze. So proving the
+    `offer.issue` record carries this stage's intent proves the claim and the
+    observation are this stage's too, and there is one place to get it right.
+
+    Answers the record when there is one, and `None` when the offer has not
+    been issued yet -- absence is not evidence of a foreign act, it is the
+    ordinary state of a stage nothing has admitted.
+
+    A caller holding NO control store is answered `None` without a read. Its
+    journal is not open, `Unobserved` refuses the question, and a read-only
+    status surface that could not be assembled without one would be a surface
+    that only exists when the thing it exists without is present.
+    """
+    if not operations.canonical:
+        return None
+    operation_id = operations.canonical_operation("admit", stage["offer_id"])
+    record = operations.receipt_of(operation_id)
+    if record is None:
+        return None
+    binding_intent = getattr(operations, "binding_intent", None)
+    wanted = (stage_intent(stage, job) if binding_intent is None
+              else binding_intent(stage, job))
+    held = _operands(record, operation_id)
+    differing = ["{0} {1} rather than {2}".format(
+        name, name_value(held.get(name)), name_value(wanted[name]))
+        for name in tuple(INTENT_OPERANDS) + (("participant",)
+                                              if "participant" in wanted else ())
+        if held.get(name) != wanted[name]]
+    if differing:
+        raise ContractRefusal(
+            "refused", "operation-collision",
+            f"the Worker Manager journalled {name_value(operation_id)} for "
+            f"another intent -- it names {'; '.join(differing)} -- and stage "
+            f"{name_value(stage['stage_id'])} of this store cannot adopt it. "
+            f"One derived operation id naming two intents is a shadow account "
+            f"of an act rather than a restart to reconcile, and adopting it "
+            f"would project this store's Job beside somebody else's offer")
+    return record
+
+
+def _operands(record, operation_id):
+    """The signed operands of one journalled operation, owned on the way in.
+
+    The signature is durable text this process did not write, so it is decoded
+    across a trust boundary like any other received document: a row whose
+    signature is not an operation signature at all cannot answer whether the
+    act was ours, and answering "it matches" for one would be the fail-open
+    this check exists to close.
+    """
+    signature = record["signature"]
+    try:
+        held = json.loads(signature) if type(signature) is str else None
+    except ValueError:
+        held = None
+    if type(held) is not dict or type(held.get("operands")) is not dict:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the Worker Manager's record of {name_value(operation_id)} "
+            f"carries no operation signature this build can read, so nothing "
+            f"can say whether it is this store's act")
+    return held["operands"]
+
+
+def observation_of(operations, stage, job):
+    """This stage's canonical observation, ACQUIRED AND BOUND IN ONE OPERATION.
+
+    Re-review [P1, 2026-09-03], and the approved correction: proving this Job's
+    offer and then looking the attempt up by id alone is two operations, and
+    the second one is unqualified. `check_binding` proves the record under this
+    stage's derived OFFER id; the observation is read under its derived ATTEMPT
+    id, which nothing had shown belonged to that offer. The measured defect is
+    a distinct canonical offer for another Work naming this attempt, taking the
+    manager's unique claimed-attempt slot, and being projected as this Job's
+    claim while this Job store holds only its `admit` receipt. A claimed stage
+    owes nothing, so the next sweep asked for nothing and the false projection
+    stood.
+
+    So the two are one act here. What the reader returns is compared against
+    the offer identity just proved, at the instant it is returned, and a
+    foreign holder refuses `refused/operation-collision` rather than being
+    projected, recorded, or allowed to answer an act this Job still owes.
+
+    THE ORDER IS SAFE IN BOTH DIRECTIONS, which is what makes one pass enough.
+    A canonical operation row is immutable once written, so a foreign row
+    arriving under this stage's OFFER id after the proof is what `_proved`'s
+    own read refuses at the next read rather than something this pass can
+    miss; and a foreign CLAIM arriving after the proof is compared below at the
+    moment it is read, never trusted from an earlier look.
+    """
+    check_binding(operations, stage, job)
+    return _bound(operations.observe(stage), stage)
+
+
+def _bound(observed, stage):
+    """One acquired observation, owned, and bound to this stage's own offer.
+
+    THE CLAIM IS THE ONLY THING THAT BINDS AN ATTEMPT TO AN OFFER. The manager
+    persists the attempt id on the offer and holds at most one claimed offer
+    per attempt; the runtime, the activity and the frozen result carry the
+    attempt id and no offer at all, and it is the manager's own activation that
+    refuses to run an attempt for anything but that attempt's committed claim.
+    So an unclaimed attempt has nothing to say about this stage, and reporting
+    its facts would be projecting attempt-keyed observations that nothing has
+    bound to this Job.
+    """
+    held = boundaries.document(observed, "a canonical observation",
+                               required=OBSERVATION_MEMBERS,
+                               optional=OBSERVATION_OPTIONAL)
+    held.setdefault("integration", None)
+    holder = held["claimed_by"]
+    if holder is None:
+        return unobserved()
+    boundaries.identity(holder, "the offer holding an attempt's claim")
+    if holder != stage["offer_id"]:
+        raise ContractRefusal(
+            "refused", "operation-collision",
+            f"the Worker Manager's claim on attempt "
+            f"{name_value(stage['attempt_id'])} is held by "
+            f"{name_value(holder)}, and stage "
+            f"{name_value(stage['stage_id'])} of this store was issued "
+            f"{name_value(stage['offer_id'])}. An attempt id derived from the "
+            f"Job id and the stage kind is a name another Job store can also "
+            f"reach, so projecting that claim as this Job's would report a "
+            f"runtime this store never obtained and leave this stage's own "
+            f"claim owed to nobody")
+    held["integration"] = _integration_observation(held, stage)
+    return held
+
+
+def _integration_observation(held, stage):
+    """One supplied integration observation, owned and bound to THIS stage.
+
+    W126558, `OBSERVATION.md` revision 1. `None` is the ordinary answer and the
+    compatible one: a deployment that composes no integration read, and every
+    stage of every other kind, answer it.
+
+    WHY IT IS BOUND HERE RATHER THAN WHERE IT IS PROJECTED. `_bound` is the one
+    place that has already proved WHOSE claim this attempt is under, and that
+    proof is exactly what a supplied document must be held against -- an
+    observation naming another attempt, another episode or another offer is a
+    statement about somebody else's stage, and projecting it would be this
+    control plane reporting a Job it has no claim on.
+
+    THE ASSIGNMENT IS COMPARED AGAINST THE RUNTIME'S OWN, not against today's
+    live Work assignment. A completed integration is historical: the account it
+    names was fixed when the act happened, and requiring it to match whatever
+    is live now would refuse the very evidence a restart has to read.
+
+    NOTHING HERE IS AN ACT. This validates a shape and its bindings; whether
+    the references it carries are true is the consumer's proof, made through
+    accepted public readers, and no member of this document authorizes
+    anything.
+    """
+    found = held.get("integration")
+    if found is None:
+        return None
+    what = f"stage {name_value(stage.get('stage_id'))}'s integration observation"
+    # THE KIND IS THE FIRST BINDING, and review 2026-09-09T09:13Z [1] is why:
+    # the ids and the assignment bound the document to an ATTEMPT, and an
+    # implementation stage's attempt is just as bindable. The same completed
+    # account therefore projected an implementation stage `completed` with no
+    # worker output at all. OBSERVATION.md permits a supplied document only
+    # for an integration stage, so a stage of any other kind -- or one that
+    # names none -- refuses before anything reads its state.
+    if stage.get("kind") != INTEGRATION_KIND:
+        raise ContractRefusal(
+            "refused", "operation-collision",
+            f"{what} was supplied for a {name_value(stage.get('kind'))} "
+            f"stage; an integration observation is evidence about an "
+            f"integration stage and nothing else")
+    document = boundaries.document(
+        found, what, required=INTEGRATION_OBSERVATION_MEMBERS)
+    if document["schema"] != INTEGRATION_OBSERVATION_SCHEMA:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what} says {name_value(document['schema'])} and this build "
+            f"reads {name_value(INTEGRATION_OBSERVATION_SCHEMA)}")
+    if document["state"] not in INTEGRATION_STATES:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what} names state {name_value(document['state'])}; this build "
+            f"reads {', '.join(INTEGRATION_STATES)}")
+    boundaries.identity(document["stage_id"], f"{what}'s stage id")
+    boundaries.identity(document["attempt_id"], f"{what}'s attempt id")
+    boundaries.identity(document["offer_id"], f"{what}'s offer id")
+    # A POSITIVE EPISODE AND NOT A FLAG, for the reason every other count in
+    # this distribution excludes `bool`: `True == 1` and a first episode is 1.
+    if type(document["episode"]) is not int             or type(document["episode"]) is bool or document["episode"] < 1:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what}'s episode is a whole number from 1; this is "
+            f"{name_value(document['episode'])}")
+    # THE FOUR OPERANDS THIS STAGE WAS ASKED ABOUT, and the offer is compared
+    # against the CLAIM this function has already proved rather than against
+    # the stage's own operand a second time.
+    for member, expected in (("stage_id", stage.get("stage_id")),
+                             ("episode", stage.get("episode")),
+                             ("attempt_id", stage.get("attempt_id")),
+                             ("offer_id", held["claimed_by"])):
+        if document[member] != expected:
+            raise ContractRefusal(
+                "refused", "operation-collision",
+                f"{what} names {member} {name_value(document[member])} and "
+                f"this stage's claimed episode names "
+                f"{name_value(expected)}; an observation of another attempt "
+                f"is not evidence about this one")
+    _integration_assignment(document, held, what)
+    _integration_completion(document, what)
+    return document
+
+
+def _integration_assignment(document, held, what):
+    """The fixed assignment this observation is about, from the runtime's own.
+
+    THE RUNTIME CARRIES IT ALREADY, which is why no second storage read is
+    needed and why this comparison is possible at all: `attempt_runtime_of`
+    answers the assignment activation fixed to the attempt, and an observation
+    naming another one is about another activation.
+    """
+    fixed = _fixed_assignment_document(document["assignment"],
+                                       f"{what}'s fixed assignment")
+    runtime = held.get("runtime")
+    known = (runtime or {}).get("assignment") if type(runtime) is dict else None
+    if known is None:
+        raise ContractRefusal(
+            "refused", "precondition",
+            f"{what} names a fixed assignment and this attempt's runtime "
+            f"record holds none; an observation before activation is not one "
+            f"this control plane can bind")
+    if known != fixed:
+        raise ContractRefusal(
+            "refused", "operation-collision",
+            f"{what} names a different fixed assignment than the one this "
+            f"attempt was activated under")
+    return fixed
+
+
+def _fixed_assignment_document(value, what):
+    """The four-part assignment, with its member TYPES proved.
+
+    THE SAME SHAPE `attempt_runtime_of` ANSWERS, so the comparison above is
+    between two documents of one contract rather than between a document and
+    whatever arrived. `generation` excludes `bool` for this distribution's
+    standing reason: `True == 1`, and a generation of `True` would compare
+    equal to the first one ever minted.
+    """
+    held = boundaries.document(value, what,
+                               required=("work_ref", "participant",
+                                         "generation"))
+    ref = boundaries.document(held["work_ref"], f"{what}'s Work reference",
+                              required=("authority_uuid", "work_id"))
+    boundaries.text(ref["authority_uuid"], f"{what}'s Authority")
+    boundaries.text(ref["work_id"], f"{what}'s Work id")
+    boundaries.text(held["participant"], f"{what}'s participant")
+    if type(held["generation"]) is not int \
+            or type(held["generation"]) is bool or held["generation"] < 0:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what}'s generation is a whole number from zero; this is "
+            f"{name_value(held['generation'])}")
+    return held
+
+
+def _integration_completion(document, what):
+    """The completed account's closed shape, and its absence everywhere else.
+
+    `completion` IS NULL FOR EVERY STATE BUT `completed`. A pending document
+    carrying one would be an account of something that has not happened, and a
+    completed one without is a claim with nothing behind it.
+    """
+    found = document["completion"]
+    if document["state"] != "completed":
+        if found is not None:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"{what} is {name_value(document['state'])} and carries a "
+                f"completion account; only a completed integration has one")
+        return None
+    if found is None:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what} reports completion and names no account of it")
+    held = boundaries.document(found, f"{what}'s completion account",
+                               required=INTEGRATION_COMPLETION_MEMBERS)
+    for member in ("proposal_id", "source_proposal_id",
+                   "integration_receipt_id", "entry_id", "lease_id",
+                   "handoff_operation_id"):
+        boundaries.identity(held[member], f"{what}'s {member}")
+    # W133129: THE TWO MEMBERS WHOSE ABSENCE IS ITSELF AN ANSWER, and each is
+    # bound to the other. A completion naming no reconciliation result is a
+    # direct import, which necessarily ran a runtime and must name it; one that
+    # names a result composed no runtime at all, so it must name none. Either
+    # crossed pair would be a completion describing a branch it did not take.
+    reconciled = held["result_id"] is not None
+    if reconciled:
+        boundaries.identity(held["result_id"], f"{what}'s result_id")
+    if held["execution_runtime"] == "absent":
+        if not reconciled:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"{what} reports no runtime and names no reconciliation "
+                f"result; only a reconciled import composes none")
+        if held["runtime_id"] is not None:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"{what} reports no runtime and names runtime "
+                f"{name_value(held['runtime_id'])}")
+    else:
+        if reconciled:
+            raise ContractRefusal(
+                "integrity", "schema",
+                f"{what} names reconciliation result "
+                f"{name_value(held['result_id'])} and reports execution "
+                f"runtime {name_value(held['execution_runtime'])}; a "
+                f"reconciled import starts no runtime")
+        boundaries.identity(held["runtime_id"], f"{what}'s runtime_id")
+    boundaries.text(held["to_route"], f"{what}'s outgoing route")
+    if type(held["fence"]) is not int or type(held["fence"]) is bool \
+            or held["fence"] < 1:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what}'s fence is a whole number from 1; this is "
+            f"{name_value(held['fence'])}")
+    # THE EXCLUSION ACCOUNT, and it is a report of what was PROVED rather than
+    # an inference from a worker result. `running` is not among the two: an
+    # integration that completed while its runtime still ran would be a
+    # completion nobody had excluded the worker from.
+    if held["execution_runtime"] not in INTEGRATION_COMPLETION_RUNTIMES:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{what}'s execution runtime is "
+            f"{name_value(held['execution_runtime'])}; a proved exclusion "
+            f"reports {', '.join(INTEGRATION_COMPLETION_RUNTIMES)}")
+    return held
+
+
+def _one_claim(control, attempt_id):
+    """WHICH offer holds this attempt's claim, or absence.
+
+    EXACTLY ONE, ASKED FOR RATHER THAN ASSUMED -- the manager reads the same
+    question the same way. A unique partial index makes two impossible going
+    forward, and a store written before it must fail closed here, because
+    "whose claim is this stage looking at" has no answer row order may invent.
+    """
+    held = claimed_offers_for(control, attempt_id)
+    if len(held) > 1:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the Worker Manager holds {len(held)} claimed offers for attempt "
+            f"{name_value(attempt_id)}; one attempt belongs to one offer, and "
+            f"choosing between them by row order would be inventing the "
+            f"answer to whose claim this is")
+    return held[0]["offer_id"] if held else None
+
+
+class ManagerOperations:
+    """The default binding: exactly the public v12 operations, and nothing else.
+
+    Constructed from capabilities trusted deployment supplies -- the manager's
+    control store, the authority-bound port, the bearer mint and the bearer
+    delivery. This class opens no store, mints no session and reaches for no
+    private attribute of either package.
+    """
+
+    __slots__ = ("control", "port", "events", "_mint_bearer",
+                 "_deliver_bearer", "_start_runtime", "_observe_exchange",
+                 "_observe_integration",
+                 "_dispatch_exchange", "_conclude_attempt",
+                 "_refresh_runtime")
+
+    # THE CANONICAL STORE IS OPEN. A status document says so, because a
+    # projection assembled without the manager can only report what was
+    # submitted and what this store received receipts for -- and "nothing is
+    # running" and "nobody looked" are not the same answer.
+    canonical = True
+
+    def __init__(self, control, port, *, mint_bearer, deliver_bearer,
+                 events=None, start_runtime=None, observe_exchange=None,
+                 observe_integration=None,
+                 dispatch_exchange=None, conclude_attempt=None,
+                 refresh_runtime=None):
+        self.control = control
+        self.port = port
+        # THE TRANSPORT IS OURS BY DEFAULT AND SUPPLIABLE ON PURPOSE. One
+        # process holding both products needs exactly one queue between them;
+        # a deployment that later puts a socket or a broker in the middle
+        # supplies its own object here and changes nothing else, because what
+        # travels is a regenerable assertion rather than an authority.
+        self.events = EventQueue() if events is None else events
+        # Typed before anything is spent. A capability that cannot be called
+        # would otherwise fault in the middle of a delegated authority act.
+        self._mint_bearer = boundaries.capability(mint_bearer,
+                                                  "the bearer mint")
+        self._deliver_bearer = boundaries.capability(
+            deliver_bearer, "the deployment's bearer delivery")
+        # THE RUNTIME COMPOSITION IS THE DEPLOYMENT'S, and it is optional here
+        # because a control plane with no way to start a worker is a real and
+        # useful deployment: it still admits, claims, observes and reports. A
+        # deployment that supplies none says so by omission and `launch`
+        # refuses rather than pretending it started something.
+        self._start_runtime = (None if start_runtime is None
+                               else boundaries.capability(
+                                   start_runtime,
+                                   "the deployment's runtime start"))
+        # W81857: THE THREE HALVES OF THE FILE EXCHANGE, and all three are
+        # optional for the same reason the runtime start is. A control plane
+        # that admits, claims and observes without them is a real deployment;
+        # what it must not do is report a started container as work in
+        # progress, and the projection is what keeps that honest rather than a
+        # required capability here.
+        #
+        # THEY ARE THREE RATHER THAN ONE because they are three different
+        # authorities. Reading the exchange is a pure observation any tick may
+        # perform; publishing the command is the one act that commits this
+        # attempt to a provider turn; ending it is the composition that
+        # freezes, takes custody of and hands on somebody's work. A single
+        # capability holding all three would let a read reach the ending.
+        self._observe_exchange = (None if observe_exchange is None
+                                  else boundaries.capability(
+                                      observe_exchange,
+                                      "the deployment's exchange read"))
+        # W126558: TYPED THE SAME WAY AND SEPARATELY. It is a second READ and
+        # not a widening of the first: a deployment may compose either, both or
+        # neither, and one capability answering both questions would let a
+        # surface holding only the integration read reach the exchange.
+        self._observe_integration = (
+            None if observe_integration is None
+            else boundaries.capability(
+                observe_integration,
+                "the deployment's integration observation read"))
+        self._dispatch_exchange = (None if dispatch_exchange is None
+                                   else boundaries.capability(
+                                       dispatch_exchange,
+                                       "the deployment's exchange dispatch"))
+        self._conclude_attempt = (None if conclude_attempt is None
+                                  else boundaries.capability(
+                                      conclude_attempt,
+                                      "the deployment's attempt ending"))
+        # W85500: OPTIONAL FOR THE SAME REASON THE RUNTIME START IS. A control
+        # plane that never starts a container has no runtime to refresh, and
+        # one that supplies no refresh says so by omission -- the sweep then
+        # reports `not-asked` rather than pretending it looked.
+        self._refresh_runtime = (None if refresh_runtime is None
+                                 else boundaries.capability(
+                                     refresh_runtime,
+                                     "the deployment's runtime refresh"))
+
+    def canonical_operation(self, act, offer_id):
+        return canonical_operation(act, offer_id)
+
+    def binding_intent(self, stage, job):
+        return stage_intent(stage, job)
+
+    def receipt_of(self, operation_id):
+        """The manager's own journal row for one operation, or absence.
+
+        THIS IS THE RECONCILIATION READ. It is the manager's public projection
+        of its journal, so what a restart adopts is the operation's committed
+        record rather than a re-derivation of what it probably did.
+        """
+        return self.control.operation_record(operation_id)
+
+    def recover(self, *, now):
+        """The manager's own restart rules, run before anything is derived.
+
+        An offer this manager issued and never delivered a bearer for is
+        abandoned by `recover_on_restart`; an accepted one stays recoverable.
+        Deciding that here would be a second opinion about the manager's
+        durable state.
+
+        NOTHING IS PUBLISHED FROM IN HERE, and that is deliberate rather than
+        an omission. `recover_on_restart` commits as it settles, so a publish
+        placed inside it would emit under its own write; and an assertion that
+        exists only because somebody was on this code path is exactly the
+        one-shot notice the level-triggered design rejects. The caller attaches
+        after this returns, which republishes the same facts from the rows
+        recovery has just committed.
+        """
+        return recover_on_restart(self.control, now=now)
+
+    def attach(self, offer_ids):
+        """Ask the manager to republish the current state of these offers.
+
+        WHAT A CONSUMER DOES INSTEAD OF READING SOMEBODY ELSE'S TABLES. The
+        consumer names the offers it is holding episodes for; the manager
+        answers about its own rows, into the transport. Called after every
+        recovery and on every resume, so a lost delivery costs latency rather
+        than a wedged stage.
+        """
+        return publish_offer_states(self.control, self.events, offer_ids)
+
+    def drain(self, handlers, *, quiescent=()):
+        """Dispatch what is queued, at the top level, one handler at a time.
+
+        The manager's own connection is probed alongside whatever the caller
+        supplies, because both stores must be out of transaction before any
+        handler runs: a consumer writing its store inside this manager's write
+        would be one transaction with two owners.
+        """
+        return pump(self.events, handlers,
+                    quiescent=tuple(quiescent)
+                    + (lambda: self.control._connection.in_transaction,))
+
+    def admit(self, stage, job):
+        """Issue the offer that authorizes one stage.
+
+        The offer's operands are the SUBMITTED intent: the Work the stage
+        names, the Job's immutable input and policy identities, and the
+        runtime profile the stage requested. Nothing is chosen here -- picking
+        a worker out of a pool is W71877's, and a scheduler that quietly
+        substituted a profile would be making that choice invisibly.
+        """
+        issued = issue_offer(
+            self.control, self.port,
+            offer_id=stage["offer_id"], work_id=stage["work_id"],
+            runtime_attempt_id=stage["attempt_id"],
+            input_digest=job["input_digest"],
+            policy_digest=job["policy_digest"],
+            profile_digest=stage["profile_digest"],
+            profile_name=stage["profile_name"],
+            mint_bearer=self._mint_bearer)
+        # ONE CALL, AND THEN IT IS GONE. The issued document carries the
+        # bearer; the delivery capability is the only thing that sees it, and
+        # what this method answers is the manager's own journalled record read
+        # back through `receipt_of` rather than anything derived from here.
+        self._deliver_bearer(issued)
+        return None
+
+    def claim(self, stage):
+        """Take the claim the accepted offer froze.
+
+        An offer that has not been accepted yet refuses with an ORDINARY
+        precondition, which is the honest answer: the worker has not decided.
+        The sweep leaves the act owed and asks again, rather than recording a
+        receipt for something that did not happen.
+        """
+        return submit_claim(self.control, self.port, offer_id=stage["offer_id"])
+
+    def launch(self, stage, job):
+        """Drive ONE claimed stage into a live worker, through the deployment.
+
+        WHAT THIS METHOD IS NOT. It is not a composition. The attempt record,
+        the activation, the workspace and input delivery, the retained
+        manifest, the credential materialization, the launch delivery, the
+        adapter and `request_runtime_start` are all the Worker Manager's own
+        public operations, ordered by the deployment that holds the homes and
+        capabilities they need. This leaf holds none of those and is not going
+        to grow them: what it contributes is the canonical operands and the
+        decision that NOW is when to ask.
+
+        IDEMPOTENCE IS THE MANAGER'S, NOT A RECEIPT HERE. Every act in that
+        composition is journalled by its owner under an identity that owner
+        derives, so a second call after a crash replays rather than repeats.
+        Writing a Job-store receipt for the launch would be a second account
+        of a fact somebody else already owns -- and the one this leaf could
+        not keep true, because the crash window it exists for is between the
+        act and the receipt.
+
+        A deployment that supplied no runtime start refuses here rather than
+        answering: a control plane cannot report that a worker is coming up
+        when nothing in it can start one.
+        """
+        if self._start_runtime is None:
+            raise ContractRefusal(
+                "refused", "capability",
+                f"this Job manager was given no runtime start, so it cannot "
+                f"launch stage {name_value(stage['stage_id'])}; a deployment "
+                f"that admits and claims without one is a control plane that "
+                f"reports work it can never begin")
+        return self._start_runtime(stage, job)
+
+    def refresh_runtime(self, stage):
+        """Ask the ENGINE what this attempt's attached runtime is now.
+
+        W85500. The whole defect this answers is that nothing did. A start
+        attaches a runtime and records it; every ordinary sweep afterwards
+        reads that recorded row, and the only other caller of the Worker
+        Manager's reconciliation is the successful ending -- which an
+        exceptional stage never reaches, correctly, because it owes no act. So
+        a worker that wrote a faulted terminal and exited stayed projected
+        `running` for as long as anybody looked.
+
+        TWO AXES, TWO CALLS, AND THAT IS THE RULING. Runtime truth and
+        exchange truth are separate: this must not manufacture quiescence for
+        a stage whose worker faulted, and a malformed exchange must not stop
+        the engine being asked. The sweep calls both and lets neither suppress
+        the other.
+
+        A DEPLOYMENT THAT SUPPLIED NONE ANSWERS `None`, which the sweep reports
+        as `not-asked`. That is the same shape the exchange read uses for
+        "nobody looked", and for the same reason: a control plane with no
+        engine is a real deployment, and silence about a runtime is not the
+        same claim as a runtime that is gone.
+        """
+        if self._refresh_runtime is None:
+            return None
+        return _refreshed(self._refresh_runtime(stage), stage)
+
+    def dispatch(self, stage, job):
+        """Publish THE ONE command sequence for a started, idle runtime.
+
+        THE ACT THIS WHOLE WORK EXISTS FOR. Until it happens the container is
+        up and has been asked for nothing; after it, the durable command is on
+        disk where a restarted manager and the container itself both find it.
+
+        LEVEL-TRIGGERED AND IDEMPOTENT BY IDENTITY, so the crash window this
+        control plane cannot avoid costs nothing. The command's filename is
+        derived from the attempt, so a second manager publishing the same
+        sequence composes the same bytes under the same name and adopts the
+        first one's document; a DIFFERENT document under that name refuses
+        rather than replacing a command the worker may already have receipted.
+        There is no Job-store receipt for this and there is deliberately not
+        going to be one: the durable file IS the record, and a second account
+        of it here is the one this leaf could not keep true.
+
+        A deployment that supplied no dispatch refuses here rather than
+        answering: a control plane that starts containers it can never speak
+        to is the defect, not a posture.
+        """
+        if self._dispatch_exchange is None:
+            raise ContractRefusal(
+                "refused", "capability",
+                f"this Job manager was given no exchange dispatch, so it "
+                f"cannot ask stage {name_value(stage['stage_id'])} to do "
+                f"anything; a control plane that starts a runtime and never "
+                f"commands it reports work that will never begin")
+        return self._dispatch_exchange(stage, job)
+
+    def conclude(self, stage, job):
+        """Drive ONE answered attempt through the already-ruled ending.
+
+        WHAT THIS METHOD IS NOT. It is not the ending. Quiescence, the recorded
+        worker disposition, the output freeze, intake, the retention decision,
+        the exact-generation Authority pass and the runtime cleanup are all the
+        Worker Manager's own public operations in an order their owners fixed,
+        composed by the deployment that holds the homes and capabilities they
+        need. This leaf contributes the decision that NOW is when to ask.
+
+        IDEMPOTENCE IS EACH SUBSTEP'S OWNER'S. Every act in that composition is
+        journalled under an identity its owner derives, so a second call after
+        a crash replays rather than repeats -- which is why there is no receipt
+        here either.
+        """
+        if self._conclude_attempt is None:
+            raise ContractRefusal(
+                "refused", "capability",
+                f"this Job manager was given no attempt ending, so it cannot "
+                f"conclude stage {name_value(stage['stage_id'])}; an answered "
+                f"worker whose result nobody freezes is a stage that will "
+                f"never complete")
+        return self._conclude_attempt(stage, job)
+
+    def observe(self, stage):
+        """Every canonical fact the projection needs, from public readers.
+
+        FIVE READS AND NO OPINION. WHICH offer holds this attempt's claim,
+        whether the attempt has a runtime, how much of that runtime this
+        manager has observed, what result was frozen, and whether this
+        manager recorded that the start FAILED. `observation_of` binds them to
+        the stage; this method decides nothing and is not the place a caller
+        should reach for one.
+
+        THE FIFTH IS NOT REDUNDANT WITH THE SECOND. A failed start is its own
+        journalled act and reconciliation may attach a runtime id after it, so
+        reading only the runtime would report a stage as running on the
+        strength of an identity its start never earned.
+
+        WHOSE CLAIM IT IS, BECAUSE THE MANAGER KNOWS. This answered a boolean
+        until re-review [P1, 2026-09-03], and the offer id it discarded was the
+        only fact distinguishing this stage's claim from another Job store's
+        claim on the same derived attempt id. A reader that throws away the
+        answer leaves nobody able to check it.
+
+        Custody, retention and cleanup receipts are deliberately absent. They
+        are the manager's own endings and they belong to whoever ends the
+        attempt, so reporting them as a stage state here would be this leaf
+        answering a question it does not own.
+        """
+        attempt_id = stage["attempt_id"]
+        return {"claimed_by": _one_claim(self.control, attempt_id),
+                "runtime": attempt_runtime_of(self.control, attempt_id),
+                "activity": attempt_activity_of(self.control, attempt_id),
+                "output": frozen_output_of(self.control, attempt_id),
+                "start_failure": attempt_start_failure_of(self.control,
+                                                          attempt_id),
+                "preparation_failure": attempt_preparation_failure_of(
+                    self.control, attempt_id),
+                # W81857: AND THE ONE FACT THE CANONICAL STORE DOES NOT HOLD.
+                # `None` is "nobody looked", which the projection reports as a
+                # started container this control plane cannot see a turn in --
+                # deliberately not as an idle one and deliberately not as a
+                # working one.
+                "exchange": (self._observe_exchange(stage)
+                             if self._observe_exchange is not None else None),
+                # W126558: AND THE SAME RULE FOR THE ONE AN INTEGRATION STAGE
+                # HAS. Optional, because a deployment that composes no
+                # integration observation has nothing to look at, and `None`
+                # is that answer rather than a state.
+                "integration": (self._observe_integration(stage)
+                                if self._observe_integration is not None
+                                else None)}
+
+
+# WHAT A REFRESH MAY ANSWER, closed. Review 2026-09-04T14-27-54Z [P1]: the
+# manager took whatever came back and called `.get` on it, so a deployment
+# answering a scalar aborted the whole sweep with `AttributeError` before the
+# first projection -- suppressing an independently readable exchange terminal
+# and stopping every other stage.
+#
+# THE VALUES ARE THE WORKER MANAGER'S OWN AXIS, spelled here rather than
+# imported, for the reason every other closed set in this leaf is spelled: this
+# is the set THIS build will accept from a deployment, and a value that appears
+# in the axis later is a value somebody decided to accept here too.
+REFRESH_STATES = ("not-started", "running", "quiescent", "uncertain",
+                  "destroyed")
+
+
+class RefreshUnavailable(Exception):
+    """The engine could not be ASKED about this attempt's runtime.
+
+    W85500 review 2026-09-04T19:08:40Z [P1]. The manager used to catch
+    `Exception` around the refresh and turn everything it caught into a
+    per-tick report detail. `serve` keeps only the LAST tick's report, so an
+    implementation defect caught on an earlier tick was neither raised nor
+    recorded anywhere and vanished on the next successful tick -- a blanket
+    catch that loses defects, which is what the previous review prohibited in
+    as many words.
+
+    SO THE DEPLOYMENT NAMES ITS OWN EXPECTED FAILURE instead. A deployment
+    knows which of its failures mean "the engine could not be reached": a
+    missing binary, a dead socket, a broken pipe, a runner that timed out. It
+    translates those -- and only those -- into this condition, and the manager
+    contains exactly this condition and `ContractRefusal`. Anything else is a
+    defect in somebody's code and escapes to whoever is running the loop.
+
+    IT CARRIES A TYPE NAME AND NOT A MESSAGE. The type is this process's read
+    of an in-process object; an engine's message is composed from bytes a
+    worker or a daemon wrote, and a sweep report is read by whoever watches the
+    service.
+    """
+
+    def __init__(self, cause):
+        super().__init__(f"the engine could not be asked about this runtime: "
+                         f"{type(cause).__name__}")
+        self.engine_error = type(cause).__name__
+
+
+def _refreshed(answer, stage):
+    """One deployment's refresh answer, OWNED before anything reads it.
+
+    `None` is "nothing to ask about", which is the ordinary answer for an
+    attempt that never attached a runtime. Anything else is an EXACT built-in
+    document carrying exactly the one member this leaf reads, whose value is in
+    the closed axis above. Everything else is malformed evidence and says so.
+
+    THE OWNER IS `boundaries.document` RATHER THAN A HAND-WRITTEN CHECK, and
+    review 2026-09-04T19:08:40Z [P1] is why. `isinstance(answer, dict)` plus
+    `.get` is not a closed contract: it accepted `{"execution_runtime":
+    "quiescent", "unexpected": 1}` and silently discarded the member nobody
+    recognised, and it accepted a `dict` SUBCLASS -- so a `.get` override ran
+    caller code inside the validation boundary and propagated its own
+    exception out of it. The repository already owns this property in one
+    place, which takes a fresh built-in copy (no subclass, no live reference,
+    no behaviour) and requires exactly the named members.
+    """
+    if answer is None:
+        return None
+    taken = boundaries.document(
+        answer,
+        f"the deployment's runtime refresh for stage "
+        f"{name_value(stage['stage_id'])}",
+        required=("execution_runtime",))
+    state = taken["execution_runtime"]
+    if state not in REFRESH_STATES:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"the deployment's runtime refresh for stage "
+            f"{name_value(stage['stage_id'])} answered execution_runtime "
+            f"{name_value(state)}; this control plane reads one of "
+            f"{', '.join(REFRESH_STATES)} and projects nothing it cannot name")
+    return taken
+
+
+class Unobserved:
+    """The read-only surface for a caller holding no manager control store.
+
+    A status command run without one is a legitimate and useful thing -- it
+    answers what was submitted, what this control plane delegated, and what it
+    recorded -- and it must not pretend to have looked at the manager. So the
+    observation is EMPTY rather than absent, `canonical` is false, and every
+    ACT is refused: an object that could derive an act it cannot perform would
+    be a scheduler with no scheduler.
+    """
+
+    canonical = False
+
+    def canonical_operation(self, act, offer_id):
+        return canonical_operation(act, offer_id)
+
+    def receipt_of(self, operation_id):
+        return self._refuse("read the manager's journal")
+
+    def recover(self, *, now):
+        return self._refuse("run the manager's restart recovery")
+
+    def attach(self, offer_ids):
+        # NOT A REFUSAL, because attaching is how a reader says what it holds
+        # and a reader with no manager holds no conversation with one. It
+        # asserts nothing, which is the honest answer, and `canonical: false`
+        # is what tells the operator why.
+        return []
+
+    def drain(self, handlers, *, quiescent=()):
+        return 0
+
+    def admit(self, stage, job):
+        return self._refuse("issue an offer")
+
+    def claim(self, stage):
+        return self._refuse("submit a claim")
+
+    def launch(self, stage, job):
+        return self._refuse("start a worker runtime")
+
+    def dispatch(self, stage, job):
+        return self._refuse("publish a worker command")
+
+    def conclude(self, stage, job):
+        return self._refuse("end an answered attempt")
+
+    def observe(self, stage):
+        return unobserved()
+
+    def refresh_runtime(self, stage):
+        """Nobody looked, and this surface is not going to.
+
+        W85500: `None` rather than a refusal, because this is the one member
+        whose absence is an ordinary posture rather than a missing capability
+        -- and because a status surface asking an engine would be a read that
+        WRITES the answer to the control store. The serving loop is what keeps
+        the runtime axis fresh; a store nobody is advancing is exactly as stale
+        as this says it is.
+        """
+        return None
+
+    @staticmethod
+    def _refuse(what):
+        raise ContractRefusal(
+            "refused", "capability",
+            f"this Job manager was given no Worker Manager control store, so "
+            f"it cannot {what}; a read-only status surface reports what was "
+            f"submitted and what this control plane recorded, and it does not "
+            f"guess at the rest")

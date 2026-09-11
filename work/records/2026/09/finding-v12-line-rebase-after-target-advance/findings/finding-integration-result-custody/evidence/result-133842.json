@@ -1,0 +1,214 @@
+{
+  "claim": 133842,
+  "work": "2b077949-W133117",
+  "participant": "baton.claude",
+  "answers": "review-2026-09-10T05-14-36Z.md blockers 1-4 and the ledger",
+  "candidate": {
+    "v12/python/src/baton_v12/integration/reconciliation.py": {
+      "sha256": "83ea3fef7f9e273ba378a5592570224d37bb7783d60fafe1d605bb83764ca214",
+      "mode": "0o664",
+      "bytes": 52659,
+      "changed_under_claim_133842": true
+    },
+    "v12/python/src/baton_v12/integration/git_profile.py": {
+      "sha256": "cba3f391405249f6df83985ff6c5d715ef3cec05efa85ce345cce929f90db1fb",
+      "mode": "0o664",
+      "bytes": 24064,
+      "changed_under_claim_133842": true
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "8a6fa58b2be16f61d049179225784da9e4be6f9511198963b2bf5f1b2fe66c09",
+      "mode": "0o664",
+      "bytes": 25312,
+      "changed_under_claim_133842": true
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "mode": "0o664",
+      "bytes": 36152,
+      "changed_under_claim_133842": false
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791",
+      "mode": "0o664",
+      "bytes": 19998,
+      "changed_under_claim_133842": false
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "c5a86008a96f773c0fa884cb7b501197dc29d20eaa638f90957f47e17737bf3e",
+      "mode": "0o664",
+      "bytes": 92978,
+      "changed_under_claim_133842": false
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "df626826ed4a6348da135229c12fb7e6a0fd01ecbcf5a2508f862a6f3b915e36",
+      "mode": "0o664",
+      "bytes": 3711,
+      "changed_under_claim_133842": false
+    },
+    "v12/python/tests/integration/test_reconciliation.py": {
+      "sha256": "9db74835bc9344d16626bcb00cd71eaccd823398cb29bca6f84a1a62267373d6",
+      "mode": "0o664",
+      "bytes": 58636,
+      "changed_under_claim_133842": true
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce",
+      "mode": "0o664",
+      "bytes": 19242,
+      "changed_under_claim_133842": false
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "mode": "0o664",
+      "bytes": 136269,
+      "changed_under_claim_133842": false
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea",
+      "mode": "0o664",
+      "bytes": 183456,
+      "changed_under_claim_133842": false
+    }
+  },
+  "blockers": {
+    "1_evidence_does_not_bind_result_bytes": {
+      "fix": [
+        "git_profile.content now keeps each blob object name",
+        "reconciliation._prepared adopts the closed {mode, object} entry",
+        "evidence names result_id, content_digest, candidate and target"
+      ],
+      "reviewer_trees": {
+        "470da0d34c0b0215515516f89440f9f1774625fe": "sha256:853979c70d0e19809f5ed17e4e310ba572946debc030edc53a8f19c0812d0c4f",
+        "e20369ea750459e73d9d8e3bbe61460cb95a5ad2": "sha256:c22a68f6d434f572ed3de6cf6cda63ab5c569e2fe3d41c646a15268b54739df0"
+      },
+      "collision": "resolved; the two digests differ",
+      "controls": [
+        "TheEvidenceIsItsOwnersAndBindsTheseBytes.test_evidence_for_one_result_cannot_authorize_another",
+        "CausalEvidenceSurvivesComposition.test_a_combined_failure_blocks_and_erases_no_positive"
+      ]
+    },
+    "2_unproved_provenance_and_caller_written_owner_evidence": {
+      "fix": [
+        "prepare_result takes line_id/proposal_id selectors and resolves the submission through admission.source_submission",
+        "record_result_evidence takes three INJECTED owners; the actor is the owner's own participant",
+        "the preparer is excluded from its own judgements",
+        "the three causal observations are recorded in the row",
+        "resolve_import_account re-reads the producers"
+      ],
+      "controls": [
+        "TheSubmissionIsResolvedFromItsOwners (5 cases)",
+        "TheEvidenceIsItsOwnersAndBindsTheseBytes (7 cases)",
+        "CausalEvidenceSurvivesComposition (6 cases)"
+      ]
+    },
+    "3_later_readers_discard_earlier_custody": {
+      "fix": [
+        "result_of walks _CHAIN_FOR_STATE and re-derives EVERY act's signature from the row as it stands now",
+        "schema: evidence and causal observations commit together; derived proposal members are null unless published; imported requires an entry"
+      ],
+      "controls": [
+        "ResultReadersRejectTampering (9 cases)"
+      ]
+    },
+    "4_exact_retries_refuse_after_progression": {
+      "fix": [
+        "_settled_state recovers the state the OUTCOME act settled",
+        "record_result_evidence re-derives from the owners it just asked and replays only an identical act"
+      ],
+      "controls": [
+        "PreparedResultReplaysItsIntent.test_exact_retries_replay_AFTER_the_record_has_moved_on",
+        "PreparedResultReplaysItsIntent.test_a_changed_operand_still_refuses_rather_than_replaying"
+      ]
+    }
+  },
+  "verification": {
+    "runner": "PYTHONPATH=src python3 -m unittest -v",
+    "cwd": "v12/python",
+    "selectors_are_classes_not_modules": true,
+    "tests": 143,
+    "outcome": "OK",
+    "log": "evidence/run-133842-final.log"
+  },
+  "runs_this_claim": [
+    {
+      "what": "TheSubmissionIsResolvedFromItsOwners",
+      "elapsed_seconds": 0.39,
+      "outcome": "FAILED - observation carried harness_added, which the closed shape did not name"
+    },
+    {
+      "what": "TheSubmissionIsResolvedFromItsOwners",
+      "elapsed_seconds": 0.39,
+      "outcome": "FAILED - causal observations were not parsed in _row, so the evidence signature could not round-trip"
+    },
+    {
+      "what": "TheSubmissionIsResolvedFromItsOwners",
+      "elapsed_seconds": 0.39,
+      "outcome": "OK",
+      "tests": 5
+    },
+    {
+      "what": "OriginalSubmissionIsImmutable + CausalEvidence... + TheEvidence...",
+      "elapsed_seconds": 2.12,
+      "outcome": "OK",
+      "tests": 17
+    },
+    {
+      "what": "PreparedResultReplays... + ResultReaders... + DerivedPublication... + ConflictsAndForeignSourcesHold",
+      "elapsed_seconds": 2.12,
+      "outcome": "FAILED - 1 failure, 1 error",
+      "tests": 27
+    },
+    {
+      "what": "the same four groups after the two corrections",
+      "elapsed_seconds": 2.13,
+      "outcome": "OK",
+      "tests": 27
+    },
+    {
+      "what": "test_admission/test_coordinator/bundle/execution controls",
+      "elapsed_seconds": 0.32,
+      "outcome": "OK",
+      "tests": 57
+    },
+    {
+      "what": "evidence/causal-133842-observations.py",
+      "elapsed_seconds": 0.39,
+      "outcome": "CAUSAL OK"
+    },
+    {
+      "what": "evidence/correction-133842-probe.py",
+      "elapsed_seconds": 0.99,
+      "outcome": "CORRECTIONS OK"
+    },
+    {
+      "what": "consolidated per-class run",
+      "elapsed_seconds": 5.72,
+      "outcome": "OK",
+      "tests": 143
+    }
+  ],
+  "ledger": {
+    "measured_this_claim_seconds": 14.96,
+    "measured_earlier_claims_seconds": 9.49,
+    "measured_subtotal_seconds": 24.45,
+    "allocation_seconds": 77,
+    "IS_THIS_AN_EXACT_TOTAL": false,
+    "unmeasured_this_claim": [
+      "greps, seds and file reads used to locate code",
+      "python -c ast.parse syntax checks",
+      "the in-place python edit scripts that applied the corrections",
+      "sha256sum/stat manifest commands",
+      "this manifest's own composition"
+    ],
+    "unmeasured_earlier_claims": [
+      "the eleven hash/preflight/manifest commands the reviewer indexed",
+      "the failed pytest launch at 2026-09-10T04:52:41.264Z, whose displayed ELAPSED was 0.00 and which was omitted from result-133645.json; it is counted here as a real failure with an unrecoverable duration",
+      "original full outputs of several commands that were piped to tail and cannot be recovered"
+    ],
+    "statement": "24.45s is a rounded MEASURED SUBTOTAL plus unmeasured spending. It is not a certified exact cumulative total and it grants no exact remainder. No run was repeated to manufacture missing history, no measurement was inferred, nothing was reset, and no reserve, other-slice or W119405 time was borrowed.",
+    "scope_violation_prior": "author 04:59:33 and 05:00:42 selected the whole tests.integration.test_reconciliation module, which INTEGRATION-SCOPE-v1 prohibits. It is acknowledged, not cured by having passed, and not repeated: every selector under claim133842 names a class.",
+    "reviewer_cumulative_seconds": 0.40479588706512004,
+    "reviewer_allocation_seconds": 8
+  }
+}

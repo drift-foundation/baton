@@ -1,0 +1,26 @@
+### label: AB-witness-corrected-fixture-2
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET"]
+### exit: 1
+### elapsed_seconds: 2.994403
+### STDOUT
+
+### STDERR
+F
+======================================================================
+FAIL: test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET)
+W131409'S WHOLE POINT, driven through the ordinary configured tick.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7570, in test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET
+    self.assertEqual(found["state"], "published")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'prepared' != 'published'
+- prepared
++ published
+
+
+----------------------------------------------------------------------
+Ran 1 test in 2.795s
+
+FAILED (failures=1)

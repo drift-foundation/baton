@@ -1,0 +1,92 @@
+{
+  "unproved_sources_and_owner_evidence": {
+    "forged_proposal": {
+      "refused": true,
+      "category": "refused",
+      "code": "precondition",
+      "message": "the Authority refused the proposal read: no such proposal"
+    },
+    "preparer_reviews_itself": {
+      "refused": true,
+      "category": "policy",
+      "code": "denied",
+      "message": "'baton.integrator' prepared this result and cannot also give its review; the integration owner does not review its own composition"
+    },
+    "unconfigured_owner": {
+      "refused": true,
+      "category": "integrity",
+      "code": "schema",
+      "message": "the configured verification owner's verify capability is a capability this manager calls; this is none"
+    },
+    "honest_owners_authorize": "authorized",
+    "recorded_actors": {
+      "approval": "baton.result-approve",
+      "review": "baton.result-review",
+      "verification": "baton.result-verify"
+    }
+  },
+  "different_bytes_reuse_passed_evidence": {
+    "first_tree": "470da0d34c0b0215515516f89440f9f1774625fe",
+    "second_tree": "e20369ea750459e73d9d8e3bbe61460cb95a5ad2",
+    "first_content_digest": "sha256:853979c70d0e19809f5ed17e4e310ba572946debc030edc53a8f19c0812d0c4f",
+    "second_content_digest": "sha256:c22a68f6d434f572ed3de6cf6cda63ab5c569e2fe3d41c646a15268b54739df0",
+    "digests_differ": true,
+    "first_observation_status": 0,
+    "second_observation_status": 1,
+    "reusing_the_first_results_evidence": {
+      "refused": true,
+      "category": "integrity",
+      "code": "digest",
+      "message": "the result's verification was given about content_digest 'sha256:853979c70d0e19809f5ed17e4e310ba572946debc030edc53a8f\u2026 and this result's is 'sha256:c22a68f6d434f572ed3de6cf6cda63ab5c569e2fe3d41c646a15\u2026; evidence about anything else is not this result's"
+    },
+    "honest_owners_on_a_failing_combination": {
+      "refused": true,
+      "category": "policy",
+      "code": "denied",
+      "message": "the combined result FAILED its own causal observation with status 1; a combined failure blocks integration and is not verified away. The isolated positive is retained and unaffected"
+    },
+    "second_state": "prepared"
+  },
+  "later_state_journal_binding": {
+    "prepared_edited_under_authorized": {
+      "refused": true,
+      "category": "integrity",
+      "code": "digest",
+      "message": "result 'result-fdf6c0cee35c6f02f3ffdfcf2610bb4224e7df76d57e223cfa67\u2026 does not match the operands its own result.prepared was signed under"
+    },
+    "evidence_emptied_under_published": {
+      "refused": true,
+      "category": "integrity",
+      "code": "digest",
+      "message": "result 'result-fdf6c0cee35c6f02f3ffdfcf2610bb4224e7df76d57e223cfa67\u2026 does not match the operands its own result.evidence was signed under"
+    },
+    "import_account_on_emptied_evidence": {
+      "refused": true,
+      "category": "integrity",
+      "code": "digest",
+      "message": "result 'result-fdf6c0cee35c6f02f3ffdfcf2610bb4224e7df76d57e223cfa67\u2026 does not match the operands its own result.evidence was signed under"
+    },
+    "restored_row_reads_again": true,
+    "invented_imported_state": {
+      "refused": true,
+      "category": "IntegrityError",
+      "code": "store",
+      "message": "CHECK constraint failed: (state = 'imported' AND entry_id IS NOT NULL)\n      OR (state != 'imported')"
+    },
+    "state_after_the_attempt": "published"
+  },
+  "exact_retries_after_progress": {
+    "prepare_after_authorize": "replayed",
+    "same_evidence_retry": "replayed",
+    "prepare_after_publish": "replayed",
+    "evidence_retry_after_publish": "replayed",
+    "a_CHANGED_retry_still_collides": {
+      "refused": true,
+      "category": "refused",
+      "code": "operation-collision",
+      "message": "result 'result-d9b21c7448a4e9e915ad1598687569bc884645901c463d9b3397\u2026 is already 'published' under other evidence; an authorized result is not re-judged in place"
+    }
+  }
+}
+
+CORRECTIONS: OK

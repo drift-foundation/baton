@@ -1,0 +1,145 @@
+{
+  "claim": 133645,
+  "work": "2b077949-W133117",
+  "participant": "baton.claude",
+  "captured_at": "2026-09-10T05:00:00Z",
+  "candidate": {
+    "v12/python/src/baton_v12/integration/reconciliation.py": {
+      "sha256": "4e5c9e2185f184d2e718e05309f143c76691767c64845b669ef23300147793f6",
+      "mode": "0o664",
+      "bytes": 35627,
+      "changed_by_W133117": true
+    },
+    "v12/python/src/baton_v12/integration/git_profile.py": {
+      "sha256": "97f90ab9c573da4cd578062320736b0f3bdbe77bbbb4ee64ffc3d4397b027864",
+      "mode": "0o664",
+      "bytes": 23309,
+      "changed_by_W133117": true
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "5316631cbba56ba941040612c692021a8f029cee5ec5f660755b7ab0d4b9e4c9",
+      "mode": "0o664",
+      "bytes": 24484,
+      "changed_by_W133117": true
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "mode": "0o664",
+      "bytes": 36152,
+      "changed_by_W133117": false
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791",
+      "mode": "0o664",
+      "bytes": 19998,
+      "changed_by_W133117": true
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "c5a86008a96f773c0fa884cb7b501197dc29d20eaa638f90957f47e17737bf3e",
+      "mode": "0o664",
+      "bytes": 92978,
+      "changed_by_W133117": true
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "df626826ed4a6348da135229c12fb7e6a0fd01ecbcf5a2508f862a6f3b915e36",
+      "mode": "0o664",
+      "bytes": 3711,
+      "changed_by_W133117": true
+    },
+    "v12/python/tests/integration/test_reconciliation.py": {
+      "sha256": "a103d95a2b537b64745cab32bbfc887f50b70615a6874ee2189243d04a80e058",
+      "mode": "0o664",
+      "bytes": 37910,
+      "changed_by_W133117": true
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce",
+      "mode": "0o664",
+      "bytes": 19242,
+      "changed_by_W133117": true
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "mode": "0o664",
+      "bytes": 136269,
+      "changed_by_W133117": false
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea",
+      "mode": "0o664",
+      "bytes": 183456,
+      "changed_by_W133117": true
+    }
+  },
+  "verification": {
+    "runner": "PYTHONPATH=src python3 -m unittest -v",
+    "cwd": "v12/python",
+    "selectors": [
+      "tests.integration.test_reconciliation",
+      "tests.integration.test_admission.AcceptedAccount",
+      "tests.integration.test_admission.RefusalBeforeMutation",
+      "tests.integration.test_admission.SourceEligibilityIsNotResultFreshness",
+      "tests.integration.test_driver.DriverCase",
+      "tests.integration.test_driver.ContinuationCase",
+      "tests.integration.test_driver.TerminalReleaseReplayCase",
+      "tests.integration.test_driver.TheReceiptBoundaryRefusesBeforeItWritesAnything",
+      "tests.integration.test_driver.TheOrdinaryCommandTraversesPublicAdmission",
+      "tests.integration.test_coordinator.TheStoreIsAdoptedByOwnershipRatherThanResemblance",
+      "tests.integration.test_coordinator.ReadOnlyOpening",
+      "tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree",
+      "tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb"
+    ],
+    "tests": 125,
+    "outcome": "OK",
+    "log": "evidence/run-133645-final.log"
+  },
+  "runs": [
+    {
+      "what": "test_admission AcceptedAccount + RefusalBeforeMutation, before the new control",
+      "elapsed_seconds": 0.19,
+      "outcome": "OK",
+      "tests": 15
+    },
+    {
+      "what": "test_admission SourceEligibilityIsNotResultFreshness",
+      "elapsed_seconds": 0.16,
+      "outcome": "OK",
+      "tests": 4
+    },
+    {
+      "what": "test_driver TheOrdinaryCommandTraversesPublicAdmission + test_coordinator selectors",
+      "elapsed_seconds": 1.33,
+      "outcome": "OK",
+      "tests": 34
+    },
+    {
+      "what": "Q-scope binding controls: bundle eligibility members, execution stale-evidence verb",
+      "elapsed_seconds": 0.24,
+      "outcome": "OK",
+      "tests": 11
+    },
+    {
+      "what": "test_reconciliation, whole new module",
+      "elapsed_seconds": 1.62,
+      "outcome": "OK",
+      "tests": 31
+    },
+    {
+      "what": "causal observation dump, evidence/causal-133645-observations.py",
+      "elapsed_seconds": 0.32,
+      "outcome": "CAUSAL OK"
+    },
+    {
+      "what": "consolidated focused selectors",
+      "elapsed_seconds": 3.09,
+      "outcome": "OK",
+      "tests": 125
+    }
+  ],
+  "elapsed_seconds_this_claim": 6.95,
+  "carried_from_earlier_claims": 2.54,
+  "author_cumulative_seconds": 9.49,
+  "author_allocation_seconds": 77,
+  "review_allocation_seconds": 8,
+  "review_used_seconds": 0
+}

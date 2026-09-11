@@ -200,8 +200,14 @@ complete Work on the agent's behalf.
   the time it reaches the agent the Work may have been claimed, passed, or
   closed — so re-read canonical state before acting, and expect the atomic
   claim to be the final arbiter.
-- Never end a turn holding work you have claimed and neither progressed nor
-  handed back.
+- After a successful standalone claim and before Work execution, read the
+  complete current handoff through `work-events` and all associated discussion
+  through the `thread` locators in `detail`, following pagination. Preserve
+  comments, messages and continuation instructions in those reads, and revalidate
+  the bound dossier under the [repository policy](../AGENTS.md#non-interactive-managed-turns).
+- Never end a turn holding a Work claim, even after recording progress. Pass
+  completed Work or return incomplete Work through its authorized route, then
+  confirm canonically that the claim is released.
 
 *If ignored:* the teeth are on `claim`, not on `wait`. Terminal output does
 not itself wake an idle agent, so work claimed by a process whose turn has

@@ -1,0 +1,13 @@
+### label: delegation-binding-and-direct-finalizer-regression
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.job_manager.test_delegation.TheIntegrationObservationIsBoundBeforeItIsRead", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_direct_integration_finalizes_the_dedicated_target", "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle"]
+### exit: 0
+### elapsed_seconds: 8.755005
+### STDOUT
+
+### STDERR
+......................................
+----------------------------------------------------------------------
+Ran 38 tests in 8.575s
+
+OK

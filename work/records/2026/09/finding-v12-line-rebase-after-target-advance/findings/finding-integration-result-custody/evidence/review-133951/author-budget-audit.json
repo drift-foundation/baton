@@ -1,0 +1,140 @@
+{
+  "measured": [
+    {
+      "timestamp": "2026-09-10T05:28:19.483Z",
+      "tool_id": "toolu_01KESU3NtkddcjxM6cobVTK5",
+      "displayed_seconds": [
+        "0.39"
+      ],
+      "tailed": true,
+      "command_excerpt": "/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners 2>&1 | tail -35"
+    },
+    {
+      "timestamp": "2026-09-10T05:28:33.208Z",
+      "tool_id": "toolu_01UCAZ1Yk3PnF1a4XssmxcZU",
+      "displayed_seconds": [
+        "0.39"
+      ],
+      "tailed": true,
+      "command_excerpt": "se\"][\"status\"] == 0:'''\nassert old in s\ns = s.replace(old, new)\nopen(p, \"w\").write(s)\nprint(\"ok\")\nPY\n/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners 2>&1 | tail -20"
+    },
+    {
+      "timestamp": "2026-09-10T05:28:44.927Z",
+      "tool_id": "toolu_01Uuw6uu8nZanEgsZbfhtYQM",
+      "displayed_seconds": [
+        "0.39"
+      ],
+      "tailed": true,
+      "command_excerpt": "s\"])\n    return held'''\nassert old in s\ns = s.replace(old, new)\nopen(p, \"w\").write(s)\nprint(\"ok\")\nPY\n/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners 2>&1 | tail -20"
+    },
+    {
+      "timestamp": "2026-09-10T05:28:48.964Z",
+      "tool_id": "toolu_01GWx4zhpKrJAqbGTRaeaDZt",
+      "displayed_seconds": [
+        "2.12"
+      ],
+      "tailed": true,
+      "command_excerpt": "m unittest -v \\\n  tests.integration.test_reconciliation.OriginalSubmissionIsImmutable \\\n  tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition \\\n  tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes 2>&1 | tail -40"
+    },
+    {
+      "timestamp": "2026-09-10T05:28:55.431Z",
+      "tool_id": "toolu_01TPfwM9e12gFGtvYy2LgRVL",
+      "displayed_seconds": [
+        "2.12"
+      ],
+      "tailed": true,
+      "command_excerpt": "ultReplaysItsIntent \\\n  tests.integration.test_reconciliation.ResultReadersRejectTampering \\\n  tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment \\\n  tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold 2>&1 | tail -35"
+    },
+    {
+      "timestamp": "2026-09-10T05:29:52.252Z",
+      "tool_id": "toolu_01SWCxnRHYU6LQAh41o7vGLM",
+      "displayed_seconds": [
+        "2.13"
+      ],
+      "tailed": true,
+      "command_excerpt": "ultReplaysItsIntent \\\n  tests.integration.test_reconciliation.ResultReadersRejectTampering \\\n  tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment \\\n  tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold 2>&1 | tail -30"
+    },
+    {
+      "timestamp": "2026-09-10T05:30:05.708Z",
+      "tool_id": "toolu_012zgNTPZx2WTSeWRjgVGTPB",
+      "displayed_seconds": [
+        "0.32"
+      ],
+      "tailed": true,
+      "command_excerpt": "toreIsAdoptedByOwnershipRatherThanResemblance \\\n  tests.integration.test_coordinator.ReadOnlyOpening \\\n  tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree \\\n  tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb 2>&1 | tail -20"
+    },
+    {
+      "timestamp": "2026-09-10T05:30:32.224Z",
+      "tool_id": "toolu_01DWDHEfhctDJigtmcuuQzTh",
+      "displayed_seconds": [
+        "0.39"
+      ],
+      "tailed": false,
+      "command_excerpt": "ntegration-result-custody; /usr/bin/time -f 'ELAPSED %e' python3 $D/evidence/causal-133842-observations.py > $D/evidence/causal-133842-observations.json 2>/tmp/causal2.err; echo \"rc=$?\"; cat /tmp/causal2.err; tail -3 $D/evidence/causal-133842-observations.json"
+    },
+    {
+      "timestamp": "2026-09-10T05:31:25.931Z",
+      "tool_id": "toolu_01FScpN7awkHYSTu3HuvVaaQ",
+      "displayed_seconds": [
+        "0.99"
+      ],
+      "tailed": true,
+      "command_excerpt": "ng-integration-result-custody; /usr/bin/time -f 'ELAPSED %e' python3 $D/evidence/correction-133842-probe.py > $D/evidence/correction-133842-probe.json 2>/tmp/corr.err; echo \"rc=$?\"; cat /tmp/corr.err | tail -25; tail -3 $D/evidence/correction-133842-probe.json"
+    },
+    {
+      "timestamp": "2026-09-10T05:31:48.080Z",
+      "tool_id": "toolu_016iDVMbSBGoZXBM5Bcxjazr",
+      "displayed_seconds": [
+        "5.72"
+      ],
+      "tailed": false,
+      "command_excerpt": "ation.test_coordinator.ReadOnlyOpening \\\n  tests.tools.test_integration_bundle.TheThreeSpellingsOfOneProtocolAgree \\\n  tests.integration.test_execution.StaleEvidenceEarnsTheRULEDVerb \\\n  > /tmp/final-133842.log 2>&1; echo \"rc=$?\"; tail -5 /tmp/final-133842.log"
+    }
+  ],
+  "untimed": [
+    {
+      "timestamp": "2026-09-10T05:23:46.328Z",
+      "tool_id": "toolu_01QTy9QdG7arbFHYCauLVfUJ",
+      "displayed_seconds": [],
+      "tailed": false,
+      "command_excerpt": "python3 -c \"import ast; ast.parse(open('src/baton_v12/integration/reconciliation.py').read())\" && echo parses; grep -n 'current = profile.revision' -A 10 src/baton_v12/integration/reconciliation.py | head -14"
+    },
+    {
+      "timestamp": "2026-09-10T05:23:54.372Z",
+      "tool_id": "toolu_01WxYmC39t2crjjBfZBMiUYH",
+      "displayed_seconds": [],
+      "tailed": false,
+      "command_excerpt": "\n            \"integration_assignment\": held[\"integration_assignment\"]}'''\nassert old in s\ns = s.replace(old, new)\nopen(p, \"w\").write(s)\nprint(\"ok\")\nPY\npython3 -c \"import ast; ast.parse(open('src/baton_v12/integration/reconciliation.py').read())\" && echo parses"
+    },
+    {
+      "timestamp": "2026-09-10T05:31:59.576Z",
+      "tool_id": "toolu_01D6M4u3XvAkJguoEuRwfjvy",
+      "displayed_seconds": [],
+      "tailed": false,
+      "command_excerpt": "tion.py v12/python/tests/integration/test_admission.py v12/python/tests/integration/test_driver.py v12/python/tests/integration/test_coordinator.py; do cd /home/sl/src/baton && printf '%s %s %s\\n' \"$(sha256sum $f | cut -d' ' -f1)\" \"$(stat -c %a $f)\" \"$f\"; done"
+    },
+    {
+      "timestamp": "2026-09-10T05:32:41.441Z",
+      "tool_id": "toolu_01HSy54ANLgcT3o5ZmayDzma",
+      "displayed_seconds": [],
+      "tailed": false,
+      "command_excerpt": "rk/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/run-133842-final.log\nls work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/"
+    },
+    {
+      "timestamp": "2026-09-10T05:33:32.040Z",
+      "tool_id": "toolu_01T8MnnDrrmb4hsDmo9EDtYf",
+      "displayed_seconds": [],
+      "tailed": false,
+      "command_excerpt": "st()\n    real[h[:16]] = h\ntext = open(D + \"/PROGRESS.md\").read()\nfound = re.findall(r\"\\b[0-9a-f]{64}\\b\", text)\nunknown = [one for one in found if one[:16] in real and one not in real.values()]\nprint(\"64-hex in PROGRESS:\", len(found), \"wrong-tail:\", unknown)\nPY"
+    },
+    {
+      "timestamp": "2026-09-10T05:34:55.984Z",
+      "tool_id": "toolu_01RhmVrpSLxCt8NHWK9T4J9Z",
+      "displayed_seconds": [],
+      "tailed": true,
+      "command_excerpt": " an unrecoverable duration. Outputs discarded by tail are marked unavailable rather than re-run. No reset, no inferred measurement, no rerun to manufacture history, no reserve/other-slice/W119405 borrowing. Q W133120 and R W133129 remain gated.\" 2>&1 | tail -8"
+    }
+  ],
+  "rounded_subtotal": "14.96",
+  "scope": "Selected public author commands under claim133842; original tool output only; no private reasoning. Untimed overhead and tail-discarded output remain unavailable."
+}

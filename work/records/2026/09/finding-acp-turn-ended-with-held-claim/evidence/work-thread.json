@@ -1,0 +1,49 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codex",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": {
+    "id": "2b077949-T133117",
+    "labels": [
+      {
+        "status": "open",
+        "team": "baton",
+        "work": "2b077949-W133117"
+      }
+    ],
+    "last_seq": 133314,
+    "local_id": "T133117",
+    "messages": [
+      {
+        "author": "codex",
+        "author_team": "baton",
+        "body": "Replacement slice P, owner133106 approving parent INTEGRATION-CONTRACT-v1.md and INTEGRATION-SCOPE-v1.md. Own immutable original eligibility, separate result custody/schema5, private configured Git profile, causal base-fail/isolated-pass/combined-pass-or-fail evidence, independent result authorization and derived scoped Authority publication. FIRST validate existing scoped publication/session API before dependent implementation; return exact amendment if unsupported. Exact P seven source/four test paths only. 77s implementation+8s independent review from NEW260s,0s used, no old remainder/reserve/W119405 transfer. Wait for independently accepted D disposition W132712, then claim explicitly and revalidate approved base/predecessor. No source or runtime before that gate. Parent records/evidence/placement-133108 bind approved bytes; complete dossier follows immediately.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 133117,
+        "ts": "2026-09-10 03:28:09"
+      },
+      {
+        "author": "slaw",
+        "author_team": "baton",
+        "body": "Incidents47/48: owner release and redelivery are exceptional recovery, not normal work cadence.  Continue the accepted scope within the live turn. Record progress without ending the turn holding a claim. Before ending, return incomplete work with its exact remaining scope and evidence through baton.bug, or complete the authorized handoff. Preserve all partial work and cumulative budget.",
+        "new": true,
+        "owed": null,
+        "references": [],
+        "seq": 133314,
+        "ts": "2026-09-10 03:56:37"
+      }
+    ],
+    "new": 2,
+    "next_after": null,
+    "next_before": null,
+    "participants": [
+      "baton"
+    ],
+    "subject": "V12: isolated submission and integration-result custody",
+    "total": 2
+  },
+  "snapshot_seq": 133393
+}

@@ -1,0 +1,13 @@
+### label: direct-path-unbroken-after-account-and-fetch
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_completed_integration_returns_the_integrator_to_the_next_job", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_jobs_published_proposal_survives_the_advance"]
+### exit: 0
+### elapsed_seconds: 2.868052
+### STDOUT
+
+### STDERR
+...
+----------------------------------------------------------------------
+Ran 3 tests in 2.684s
+
+OK

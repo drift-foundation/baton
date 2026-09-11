@@ -1,0 +1,383 @@
+### label: focused-terminal-custody-group-2
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved"]
+### exit: 1
+### elapsed_seconds: 1.156448
+### STDOUT
+
+### STDERR
+EEEEEE.EE
+======================================================================
+ERROR: test_a_real_entry_and_a_real_receipt_settle_the_result (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_a_real_entry_and_a_real_receipt_settle_the_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1796, in test_a_real_entry_and_a_real_receipt_settle_the_result
+    entry_id = self.integrated_entry(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 620, in queued_entry
+    enqueue(self.store, canonical_target_id=TARGET, entry_id=entry_id,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            eligibility=eligibility)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1552, in enqueue
+    return _transact(store, operation_id, "entry.enqueue", signature, perform)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 845, in _transact
+    return store.transact(operation_id, kind, signature, action,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_proved)
+                          ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 573, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1504, in perform
+    target = target_of(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 242, in target_of
+    whole = _relationship(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 333, in _relationship
+    return _whole(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 344, in _whole
+    history = _history(store)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 745, in _history
+    act = _recorded_act(record)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 777, in _recorded_act
+    return _act(record["operation_id"], record["kind"],
+                json.loads(record["signature"]),
+                json.loads(record["result"]))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 695, in _act
+    _refuse(f"operation {name_value(operation_id)} records kind "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(kind)}, which this build does not own")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 204, in _refuse
+    raise ContractRefusal(category, code, message, durable=durable)
+baton_v12.contracts.errors.ContractRefusal: operation 'result.prepare:result-791ed069fa9c08d249a36064975f2f7555782… records kind 'result.prepare', which this build does not own
+
+======================================================================
+ERROR: test_a_receipt_on_the_producers_proposal_is_not_this_results (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_a_receipt_on_the_producers_proposal_is_not_this_results)
+The SUBMISSION's proposal is a real proposal with real receipts.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1848, in test_a_receipt_on_the_producers_proposal_is_not_this_results
+    entry_id = self.integrated_entry(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 620, in queued_entry
+    enqueue(self.store, canonical_target_id=TARGET, entry_id=entry_id,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            eligibility=eligibility)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1552, in enqueue
+    return _transact(store, operation_id, "entry.enqueue", signature, perform)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 845, in _transact
+    return store.transact(operation_id, kind, signature, action,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_proved)
+                          ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 573, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1504, in perform
+    target = target_of(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 242, in target_of
+    whole = _relationship(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 333, in _relationship
+    return _whole(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 344, in _whole
+    history = _history(store)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 745, in _history
+    act = _recorded_act(record)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 777, in _recorded_act
+    return _act(record["operation_id"], record["kind"],
+                json.loads(record["signature"]),
+                json.loads(record["result"]))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 695, in _act
+    _refuse(f"operation {name_value(operation_id)} records kind "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(kind)}, which this build does not own")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 204, in _refuse
+    raise ContractRefusal(category, code, message, durable=durable)
+baton_v12.contracts.errors.ContractRefusal: operation 'result.prepare:result-c76157d48e57232953096c1ff6c4aaeb92b7e… records kind 'result.prepare', which this build does not own
+
+======================================================================
+ERROR: test_a_result_imported_through_ANOTHER_entry_collides (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_a_result_imported_through_ANOTHER_entry_collides)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1825, in test_a_result_imported_through_ANOTHER_entry_collides
+    entry_id = self.integrated_entry(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 620, in queued_entry
+    enqueue(self.store, canonical_target_id=TARGET, entry_id=entry_id,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            eligibility=eligibility)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1552, in enqueue
+    return _transact(store, operation_id, "entry.enqueue", signature, perform)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 845, in _transact
+    return store.transact(operation_id, kind, signature, action,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_proved)
+                          ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 573, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1504, in perform
+    target = target_of(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 242, in target_of
+    whole = _relationship(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 333, in _relationship
+    return _whole(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 344, in _whole
+    history = _history(store)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 745, in _history
+    act = _recorded_act(record)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 777, in _recorded_act
+    return _act(record["operation_id"], record["kind"],
+                json.loads(record["signature"]),
+                json.loads(record["result"]))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 695, in _act
+    _refuse(f"operation {name_value(operation_id)} records kind "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(kind)}, which this build does not own")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 204, in _refuse
+    raise ContractRefusal(category, code, message, durable=durable)
+baton_v12.contracts.errors.ContractRefusal: operation 'result.prepare:result-0093427ef234f073fc23af8e47c62a9f0f124… records kind 'result.prepare', which this build does not own
+
+======================================================================
+ERROR: test_an_entry_admitted_for_another_candidate_refuses (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_an_entry_admitted_for_another_candidate_refuses)
+A real integrated entry on this target, for a DIFFERENT result.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1869, in test_an_entry_admitted_for_another_candidate_refuses
+    entry_id = self.integrated_entry(first)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 620, in queued_entry
+    enqueue(self.store, canonical_target_id=TARGET, entry_id=entry_id,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            eligibility=eligibility)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1552, in enqueue
+    return _transact(store, operation_id, "entry.enqueue", signature, perform)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 845, in _transact
+    return store.transact(operation_id, kind, signature, action,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_proved)
+                          ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 573, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1504, in perform
+    target = target_of(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 242, in target_of
+    whole = _relationship(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 333, in _relationship
+    return _whole(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 344, in _whole
+    history = _history(store)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 745, in _history
+    act = _recorded_act(record)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 777, in _recorded_act
+    return _act(record["operation_id"], record["kind"],
+                json.loads(record["signature"]),
+                json.loads(record["result"]))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 695, in _act
+    _refuse(f"operation {name_value(operation_id)} records kind "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(kind)}, which this build does not own")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 204, in _refuse
+    raise ContractRefusal(category, code, message, durable=durable)
+baton_v12.contracts.errors.ContractRefusal: operation 'result.prepare:result-5696cb462f89b565a8634b78e5206938e34aa… records kind 'result.prepare', which this build does not own
+
+======================================================================
+ERROR: test_an_entry_that_is_not_integrated_supplies_no_authority (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_an_entry_that_is_not_integrated_supplies_no_authority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1859, in test_an_entry_that_is_not_integrated_supplies_no_authority
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 620, in queued_entry
+    enqueue(self.store, canonical_target_id=TARGET, entry_id=entry_id,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            eligibility=eligibility)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1552, in enqueue
+    return _transact(store, operation_id, "entry.enqueue", signature, perform)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 845, in _transact
+    return store.transact(operation_id, kind, signature, action,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_proved)
+                          ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 573, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1504, in perform
+    target = target_of(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 242, in target_of
+    whole = _relationship(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 333, in _relationship
+    return _whole(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 344, in _whole
+    history = _history(store)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 745, in _history
+    act = _recorded_act(record)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 777, in _recorded_act
+    return _act(record["operation_id"], record["kind"],
+                json.loads(record["signature"]),
+                json.loads(record["result"]))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 695, in _act
+    _refuse(f"operation {name_value(operation_id)} records kind "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(kind)}, which this build does not own")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 204, in _refuse
+    raise ContractRefusal(category, code, message, durable=durable)
+baton_v12.contracts.errors.ContractRefusal: operation 'result.prepare:result-8e988f6c3fb71077993700df3ad1ba4139aa5… records kind 'result.prepare', which this build does not own
+
+======================================================================
+ERROR: test_an_exact_retry_replays_the_terminal_act (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_an_exact_retry_replays_the_terminal_act)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1816, in test_an_exact_retry_replays_the_terminal_act
+    entry_id = self.integrated_entry(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 620, in queued_entry
+    enqueue(self.store, canonical_target_id=TARGET, entry_id=entry_id,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            eligibility=eligibility)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1552, in enqueue
+    return _transact(store, operation_id, "entry.enqueue", signature, perform)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 845, in _transact
+    return store.transact(operation_id, kind, signature, action,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_proved)
+                          ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 573, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1504, in perform
+    target = target_of(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 242, in target_of
+    whole = _relationship(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 333, in _relationship
+    return _whole(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 344, in _whole
+    history = _history(store)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 745, in _history
+    act = _recorded_act(record)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 777, in _recorded_act
+    return _act(record["operation_id"], record["kind"],
+                json.loads(record["signature"]),
+                json.loads(record["result"]))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 695, in _act
+    _refuse(f"operation {name_value(operation_id)} records kind "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(kind)}, which this build does not own")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 204, in _refuse
+    raise ContractRefusal(category, code, message, durable=durable)
+baton_v12.contracts.errors.ContractRefusal: operation 'result.prepare:result-9d4fee5ac1bbb8b5672b77c639e0a7536676b… records kind 'result.prepare', which this build does not own
+
+======================================================================
+ERROR: test_no_receipt_means_no_terminal_import (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_no_receipt_means_no_terminal_import)
+The coordinator settled it; the Authority never said so.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1835, in test_no_receipt_means_no_terminal_import
+    entry_id = self.integrated_entry(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 620, in queued_entry
+    enqueue(self.store, canonical_target_id=TARGET, entry_id=entry_id,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            eligibility=eligibility)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1552, in enqueue
+    return _transact(store, operation_id, "entry.enqueue", signature, perform)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 845, in _transact
+    return store.transact(operation_id, kind, signature, action,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_proved)
+                          ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 573, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1504, in perform
+    target = target_of(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 242, in target_of
+    whole = _relationship(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 333, in _relationship
+    return _whole(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 344, in _whole
+    history = _history(store)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 745, in _history
+    act = _recorded_act(record)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 777, in _recorded_act
+    return _act(record["operation_id"], record["kind"],
+                json.loads(record["signature"]),
+                json.loads(record["result"]))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 695, in _act
+    _refuse(f"operation {name_value(operation_id)} records kind "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(kind)}, which this build does not own")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 204, in _refuse
+    raise ContractRefusal(category, code, message, durable=durable)
+baton_v12.contracts.errors.ContractRefusal: operation 'result.prepare:result-52913abfe7feed80cf7bd1deb3f1835ad4e89… records kind 'result.prepare', which this build does not own
+
+======================================================================
+ERROR: test_the_terminal_act_is_bound_to_the_entry_it_named (tests.integration.test_reconciliation.TheTerminalImportIsRecordedAndProved.test_the_terminal_act_is_bound_to_the_entry_it_named)
+Relabelling which entry a settled import went through breaks the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 1893, in test_the_terminal_act_is_bound_to_the_entry_it_named
+    entry_id = self.integrated_entry(held)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 626, in integrated_entry
+    entry_id, _eligibility = self.queued_entry(held)
+                             ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_reconciliation.py", line 620, in queued_entry
+    enqueue(self.store, canonical_target_id=TARGET, entry_id=entry_id,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            eligibility=eligibility)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1552, in enqueue
+    return _transact(store, operation_id, "entry.enqueue", signature, perform)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 845, in _transact
+    return store.transact(operation_id, kind, signature, action,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_proved)
+                          ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 573, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1504, in perform
+    target = target_of(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 242, in target_of
+    whole = _relationship(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 333, in _relationship
+    return _whole(store, canonical_target_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 344, in _whole
+    history = _history(store)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 745, in _history
+    act = _recorded_act(record)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 777, in _recorded_act
+    return _act(record["operation_id"], record["kind"],
+                json.loads(record["signature"]),
+                json.loads(record["result"]))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 695, in _act
+    _refuse(f"operation {name_value(operation_id)} records kind "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(kind)}, which this build does not own")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 204, in _refuse
+    raise ContractRefusal(category, code, message, durable=durable)
+baton_v12.contracts.errors.ContractRefusal: operation 'result.prepare:result-c0ec7b62a086193188077d78a4dd1861ee3f1… records kind 'result.prepare', which this build does not own
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.987s
+
+FAILED (errors=8)

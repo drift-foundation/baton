@@ -1,0 +1,1015 @@
+{
+  "observed_at": "2026-09-10T04:53:14.230407+00:00",
+  "source_path": "/home/sl/.local/state/acp-baton-bridge/baton.claude/claude/projects/-home-sl-src-baton/3138d003-8de2-41a6-b35c-057fba0191d7.jsonl",
+  "source_prefix_bytes": 841474,
+  "source_prefix_sha256": "e69cbbed9604bf93710aaed0103af8fc1b375ea8737da83fb5c3b67325bfc781",
+  "source_lines": 208,
+  "last_timestamp": "2026-09-10T04:52:55.189Z",
+  "exact_instruction_in_actual_prompt": true,
+  "config_sha256": "45d3b7ab7259d763a6df856206b475bec10e495fa6582fbf19233ebbc211a73e",
+  "config_matches_reviewed_candidate": true,
+  "config_mode": "0o600",
+  "runtime_top_level_keys": [
+    "//",
+    "agent",
+    "baton",
+    "permissionMode",
+    "policyResources",
+    "retryMs",
+    "runtime",
+    "session",
+    "setupTimeoutMs",
+    "stateDir",
+    "turnTimeoutMs"
+  ],
+  "selected_public_records": [
+    {
+      "line": 3,
+      "timestamp": "2026-09-10T04:44:28.748Z",
+      "role": "user",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "[BATON READY] v11 Work W133117 (V12: isolated submission and integration-result custody) is ready and unclaimed for baton.claude. Act through the canonical v11 CLI (detail work=W133117). Configured role instructions: You are a Baton implementer. Before your first assignment read baton:AGENTS.md for repository policy, baton:docs/EFFECTIVE-BATON.md for the current operating guide, and the exact Work dossier your assignment binds. Own only the implementation you have claimed and the tests that go with it. Revalidate every pinned decision against the current tree before acting on it, keep implementer progress in the dossier, and preserve independent review by passing your work back rather than closing it. Never perform mutating Git operations. Report a file you cannot read as an operational finding rather than proceeding without it. This deployment supplies the exact Baton binary and explicit config; every invocation names --participant baton.claude. On EVERY readiness turn, first read current canonical Work state and succeed at the standalone claim before Work execution. Then read the complete current handoff through work-events and all associated Work discussion through thread, following pagination; do not filter away comments, thread locators, messages or continuation instructions. Read the bound dossier and revalidate its current scope before editing. Continue authorized work within the live turn; durable progress notes do not release a claim. Before any final response, successfully pass completed work for independent review or return incomplete work through baton.bug with exact remaining scope, evidence and cumulative verification spending. Confirm through canonical state that you no longer hold the claim. If a handoff fails, resolve or report the exact operational blocker within the live turn; do not report success or treat owner release and redelivery as normal cadence. Never end a turn holding a Work claim, even after recording progress. Preserve partial work and cumulative budgets across every handoff or recovery. Apply standing v11 Baton policy.\n\nBaton launcher contract (authoritative; do not infer):\nBATON_BIN=\"/home/sl/opt/baton/v11/0650c61/bin/baton\"\nBATON_CONFIG=\"/home/sl/baton-v11.14aecfb/baton.json\"\nBATON_PARTICIPANT=\"baton.claude\"\nBATON_ROLE=\"impl\"\nInvoke BATON_BIN with --config BATON_CONFIG and --participant BATON_PARTICIPANT for every Baton operation."
+        }
+      ]
+    },
+    {
+      "line": 19,
+      "timestamp": "2026-09-10T04:44:40.436Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_01Aca8rLTtBh63aVYmctPnKM",
+          "name": "Bash",
+          "input": {
+            "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B detail work=W133117 2>&1 | head -200",
+            "description": "Read Work detail"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 20,
+      "timestamp": "2026-09-10T04:44:40.558Z",
+      "role": "user",
+      "blocks": [
+        {
+          "tool_use_id": "toolu_01Aca8rLTtBh63aVYmctPnKM",
+          "type": "tool_result",
+          "content": "{\n  \"authority_uuid\": \"2b077949c86e8bef24304f59c28ec398\",\n  \"participant\": \"baton.claude\",\n  \"projection_version\": \"12.8\",\n  \"protocol_version\": 11,\n  \"result\": {\n    \"agent\": null,\n    \"available_transitions\": [\n      \"add_dependency\",\n      \"claim\",\n      \"classify\",\n      \"close\",\n      \"create_child\",\n      \"create_trial\",\n      \"pass\",\n      \"prioritize\",\n      \"request\",\n      \"reroute\",\n      \"set_phase\"\n    ],\n    \"binding\": {\n      \"actor\": \"baton.codex\",\n      \"created_ts\": \"2026-09-10T03:28:09Z\",\n      \"git_provenance\": null,\n      \"path\": \"work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody\",\n      \"prior\": 0,\n      \"rationale\": null,\n      \"revision\": 1,\n      \"root\": \"baton\",\n      \"seq\": 133117\n    },\n    \"binding_count\": 1,\n    \"bindings\": [\n      {\n        \"actor\": \"baton.codex\",\n        \"created_ts\": \"2026-09-10T03:28:09Z\",\n        \"git_provenance\": null,\n        \"path\": \"work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody\",\n        \"prior\": 0,\n        \"rationale\": null,\n        \"revision\": 1,\n        \"root\": \"baton\",\n        \"seq\": 133117\n      }\n    ],\n    \"bindings_next_after\": null,\n    \"bindings_truncated\": false,\n    \"blocking\": true,\n    \"breadcrumb\": [\n      {\n        \"id\": \"2b077949-W131409\",\n        \"title\": \"V12: a second Job cannot integrate once the canonical target moves past its line\"\n      },\n      {\n        \"id\": \"2b077949-W133117\",\n        \"title\": \"V12: isolated submission and integration-result custody\"\n      }\n    ],\n    \"claimed_at\": null,\n    \"classification\": \"confirmed-defect\",\n    \"duplicate_of\": null,\n    \"episode_seq\": 133596,\n    \"first_open_blocker\": null,\n    \"follow_up_of\": null,\n    \"gate\": null,\n    \"handler\": null,\n    \"handoff_at\": \"2026-09-10T03:40:59Z\",\n    \"heartbeat_at\": null,\n    \"id\": \"2b077949-W133117\",\n    \"last_change_seq\": 133596,\n    \"last_changed_at\": \"2026-09-10T04:40:02.318Z\",\n    \"links\": {\n      \"blocked_by\": [\n        {\n          \"handler\": null,\n          \"id\": \"2b077949-W132712\",\n          \"outcome\": \"cancelled\",\n          \"route\": null,\n          \"status\": \"closed\",\n          \"team\": \"baton\",\n          \"title\": \"V12: target rework custody and sealed prelaunch handoff\",\n          \"via_obligation\": null\n        }\n      ],\n      \"blocks\": [\n        {\n          \"handler\": null,\n          \"id\": \"2b077949-W133120\",\n          \"outcome\": null,\n          \"route\": {\n            \"endpoint\": \"baton.bug\",\n            \"handlers\": [\n              \"codex\"\n            ],\n            \"role\": \"rview\",\n            \"route\": \"rview\"\n          },\n          \"status\": \"open\",\n          \"team\": \"baton\",\n          \"title\": \"V12: verified integration result import and target settlement\",\n          \"via_obligation\": null\n        }\n      ],\n      \"contains\": [],\n      \"duplicate_of\": null,\n      \"duplicates\": [],\n      \"follow_up_of\": null,\n      \"follow_ups\": [],\n      \"id\": \"2b077949-W133117\",\n      \"parent\": {\n        \"handler\": null,\n        \"id\": \"2b077949-W131409\",\n        \"outcome\": null,\n        \"route\": {\n          \"endpoint\": \"baton.bug\",\n          \"handlers\": [\n            \"codex\"\n          ],\n          \"role\": \"rview\",\n          \"route\": \"rview\"\n        },\n        \"status\": \"open\",\n        \"team\": \"baton\",\n        \"title\": \"V12: a second Job cannot integrate once the canonical target moves past its line\"\n      }\n    },\n    \"local_id\": \"W133117\",\n    \"message_count\": 2,\n    \"my_pending_obligations\": 0,\n    \"new\": 2,\n    \"new_breakdown\": {\n      \"children\": [],\n      \"id\": \"2b077949-W133117\",\n      \"overlap\": 0,\n      \"own\": 2,\n      \"snapshot_seq\": 133644,\n      \"subtree_total\": 2\n    },\n    \"next\": {\n      \"endpoint\": \"baton.bug\",\n      \"handlers\": [\n        \"codex\"\n      ],\n      \"role\": \"rview\",\n      \"route\": \"rview\"\n    },\n    \"obligations\": [],\n    \"open_blockers\": 0,\n    \"open_dependents\": 1,\n    \"origin\": \"decomposition\",\n    \"outcome\": null,\n    \"phase\": \"queued\",\n    \"pickup\": \"overdue\",\n    \"priority\": \"high\",\n    \"progress\": {\n      \"children\": 0,\n      \"closed\": 0\n    },\n    \"rationale\": null,\n    \"ready\": true,\n    \"revision\": null,\n    \"revision_count\": 0,\n    \"revisions\": [],\n    \"revisions_next_after\": null,\n    \"revisions_truncated\": false,\n    \"route\": {\n      \"endpoint\": \"baton.impl\",\n      \"handlers\": [\n        \"claude\"\n      ],\n      \"role\": \"impl\",\n      \"route\": \"impl\"\n    },\n    \"status\": \"open\",\n    \"team\": \"baton\",\n    \"thread_count\": 1,\n    \"threads\": [\n      {\n        \"added_seq\": 133117,\n        \"id\": \"2b077949-T133117\",\n        \"last_seq\": 133314,\n        \"new\": 2,\n        \"subject\": \"V12: isolated submission and integration-result custody\"\n      }\n    ],\n    \"threads_next_after\": null,\n    \"threads_truncated\": false,\n    \"title\": \"V12: isolated submission and integration-result custody\",\n    \"trials\": []\n  },\n  \"snapshot_seq\": 133644\n}",
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "line": 22,
+      "timestamp": "2026-09-10T04:44:43.583Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_01X2jQBqFkZKhbcFDnrkYk8S",
+          "name": "Bash",
+          "input": {
+            "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B claim work=W133117 2>&1 | head -60",
+            "description": "Claim the Work"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 23,
+      "timestamp": "2026-09-10T04:44:43.732Z",
+      "role": "user",
+      "blocks": [
+        {
+          "tool_use_id": "toolu_01X2jQBqFkZKhbcFDnrkYk8S",
+          "type": "tool_result",
+          "content": "{\n  \"authority_uuid\": \"2b077949c86e8bef24304f59c28ec398\",\n  \"participant\": \"baton.claude\",\n  \"projection_version\": \"12.8\",\n  \"protocol_version\": 11,\n  \"result\": {\n    \"claimant\": \"baton.claude\",\n    \"kind\": \"claim\",\n    \"operation\": null,\n    \"phase\": \"active\",\n    \"seq\": 133645\n  },\n  \"snapshot_seq\": 133645\n}",
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "line": 27,
+      "timestamp": "2026-09-10T04:44:46.283Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_012fVyEwWwHyVcWbfSzzF4oC",
+          "name": "Bash",
+          "input": {
+            "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B work-events work=W133117 limit=200 2>&1 | head -400",
+            "description": "Read Work event journal"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 28,
+      "timestamp": "2026-09-10T04:44:46.890Z",
+      "role": "user",
+      "blocks": [
+        {
+          "tool_use_id": "toolu_012fVyEwWwHyVcWbfSzzF4oC",
+          "type": "tool_result",
+          "content": "{\n  \"authority_uuid\": \"2b077949c86e8bef24304f59c28ec398\",\n  \"participant\": \"baton.claude\",\n  \"projection_version\": \"12.8\",\n  \"protocol_version\": 11,\n  \"result\": {\n    \"events\": [\n      {\n        \"actor\": \"baton.codex\",\n        \"kind\": \"create_work\",\n        \"payload\": {\n          \"authorization\": {\n            \"endpoint\": \"baton.bug\",\n            \"generation\": 8,\n            \"handlers\": [\n              \"codex\"\n            ],\n            \"role\": \"rview\",\n            \"route\": \"rview\"\n          },\n          \"binding\": {\n            \"path\": \"work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody\",\n            \"revision\": 1,\n            \"root\": \"baton\"\n          },\n          \"classification\": \"confirmed-defect\",\n          \"follow_up_of\": null,\n          \"kind\": \"bug\",\n          \"origin\": \"decomposition\",\n          \"parent\": \"2b077949-W131409\",\n          \"phase\": \"queued\",\n          \"phase_now\": [\n            {\n              \"phase\": \"queued\",\n              \"work\": \"2b077949-W133117\"\n            }\n          ],\n          \"priority\": \"high\",\n          \"resolution\": {\n            \"endpoint\": \"baton.bug\",\n            \"generation\": 8,\n            \"handlers\": [\n              \"codex\"\n            ],\n            \"role\": \"rview\",\n            \"route\": \"rview\"\n          },\n          \"team\": \"baton\",\n          \"title\": \"V12: isolated submission and integration-result custody\"\n        },\n        \"phase_interval\": {\n          \"elapsed_seconds\": 36,\n          \"end_kind\": \"add_dependency\",\n          \"end_seq\": 133119,\n          \"ended_at\": \"2026-09-10T03:28:45Z\",\n          \"open\": false,\n          \"phase\": \"queued\",\n          \"start_seq\": 133117,\n          \"started_at\": \"2026-09-10T03:28:09Z\"\n        },\n        \"references\": [],\n        \"related\": [\n          {\n            \"role\": \"parent\",\n            \"work\": \"2b077949-W131409\"\n          }\n        ],\n        \"roles\": [\n          \"subject\"\n        ],\n        \"seq\": 133117,\n        \"ts\": \"2026-09-10T03:28:09Z\"\n      },\n      {\n        \"actor\": \"baton.codex\",\n        \"kind\": \"add_dependency\",\n        \"payload\": {\n          \"authorization\": {\n            \"endpoint\": \"baton.bug\",\n            \"generation\": 8,\n            \"handlers\": [\n              \"codex\"\n            ],\n            \"role\": \"rview\",\n            \"route\": \"rview\"\n          },\n          \"blocker\": \"2b077949-W132712\",\n          \"blocker_status\": \"open\",\n          \"gate_now\": [\n            {\n              \"gate_work\": \"2b077949-W132712\",\n              \"kind\": \"work\",\n              \"obligation\": null,\n              \"work\": \"2b077949-W133117\"\n            }\n          ],\n          \"phase_now\": [\n            {\n              \"phase\": \"block\",\n              \"work\": \"2b077949-W133117\"\n            }\n          ],\n          \"rationale\": \"Owner133106 serial replacement: P custody/profile/publication waits for independently accepted exact D rejected-byte disposition through W132712. No P source/runtime before predecessor acceptance and own claim.\",\n          \"work\": \"2b077949-W133117\"\n        },\n        \"phase_interval\": {\n          \"elapsed_seconds\": 553,\n          \"end_kind\": \"wake\",\n          \"end_seq\": 133186,\n          \"ended_at\": \"2026-09-10T03:37:58Z\",\n          \"open\": false,\n          \"phase\": \"block\",\n          \"start_seq\": 133119,\n          \"started_at\": \"2026-09-10T03:28:45Z\"\n        },\n        \"references\": [],\n        \"related\": [\n          {\n            \"role\": \"blocker\",\n            \"work\": \"2b077949-W132712\"\n          }\n        ],\n        \"roles\": [\n          \"consumer\"\n        ],\n        \"seq\": 133119,\n        \"ts\": \"2026-09-10T03:28:45Z\"\n      },\n      {\n        \"actor\": \"baton.codex\",\n        \"kind\": \"add_dependency\",\n        \"payload\": {\n          \"authorization\": {\n            \"endpoint\": \"baton.bug\",\n            \"generation\": 8,\n            \"handlers\": [\n              \"codex\"\n            ],\n            \"role\": \"rview\",\n            \"route\": \"rview\"\n          },\n          \"blocker\": \"2b077949-W133117\",\n          \"blocker_status\": \"open\",\n          \"gate_now\": [\n            {\n              \"gate_work\": \"2b077949-W133117\",\n              \"kind\": \"work\",\n              \"obligation\": null,\n              \"work\": \"2b077949-W133120\"\n            }\n          ],\n          \"phase_now\": [\n            {\n              \"phase\": \"block\",\n              \"work\": \"2b077949-W133120\"\n            }\n          ],\n          \"rationale\": \"Owner133106 serial replacement: Q import/target settlement consumes independently accepted P custody/profile/publication and exact candidate. No Q implementation/runtime before predecessor acceptance and own claim.\",\n          \"work\": \"2b077949-W133120\"\n        },\n        \"references\": [],\n        \"related\": [\n          {\n            \"role\": \"consumer\",\n            \"work\": \"2b077949-W133120\"\n          }\n        ],\n        \"roles\": [\n          \"blocker\"\n        ],\n        \"seq\": 133123,\n        \"ts\": \"2026-09-10T03:29:25Z\"\n      },\n      {\n        \"actor\": \"baton.codex\",\n        \"kind\": \"wake\",\n        \"payload\": {\n          \"cleared_gate\": {\n            \"kind\": \"work\",\n            \"obligation\": null,\n            \"work\": \"2b077949-W132712\"\n          },\n          \"from\": \"block\",\n          \"gate_now\": [\n            {\n              \"gate_work\": null,\n              \"kind\": null,\n              \"obligation\": null,\n              \"work\": \"2b077949-W133117\"\n            }\n          ],\n          \"phase_now\": [\n            {\n              \"phase\": \"queued\",\n              \"work\": \"2b077949-W133117\"\n            }\n          ],\n          \"to\": \"queued\",\n          \"work\": \"2b077949-W133117\"\n        },\n        \"phase_interval\": {\n          \"elapsed_seconds\": 93,\n          \"end_kind\": \"claim\",\n          \"end_seq\": 133198,\n          \"ended_at\": \"2026-09-10T03:39:31Z\",\n          \"open\": false,\n          \"phase\": \"queued\",\n          \"start_seq\": 133186,\n          \"started_at\": \"2026-09-10T03:37:58Z\"\n        },\n        \"references\": [],\n        \"related\": [],\n        \"roles\": [\n          \"subject\"\n        ],\n        \"seq\": 133186,\n        \"ts\": \"2026-09-10T03:37:58Z\"\n      },\n      {\n        \"actor\": \"baton.codex\",\n        \"claim_interval\": {\n          \"claim_seq\": 133198,\n          \"claimant\": \"baton.codex\",\n          \"elapsed_seconds\": 88,\n          \"end_kind\": \"pass\",\n          \"end_seq\": 133208,\n          \"ended_at\": \"2026-09-10T03:40:59Z\",\n          \"started_at\": \"2026-09-10T03:39:31Z\"\n        },\n        \"kind\": \"claim\",\n        \"payload\": {\n          \"claimant\": \"baton.codex\",\n          \"from_phase\": \"queued\",\n          \"phase\": \"active\",\n          \"phase_now\": [\n            {\n              \"phase\": \"active\",\n              \"work\": \"2b077949-W133117\"\n            }\n          ],\n          \"resolution\": {\n            \"endpoint\": \"baton.bug\",\n            \"generation\": 8,\n            \"handlers\": [\n              \"codex\"\n            ],\n            \"role\": \"rview\",\n            \"route\": \"rview\"\n          },\n          \"work\": \"2b077949-W133117\"\n        },\n        \"phase_interval\": {\n          \"elapsed_seconds\": 88,\n          \"end_kind\": \"pass\",\n          \"end_seq\": 133208,\n          \"ended_at\": \"2026-09-10T03:40:59Z\",\n          \"open\": false,\n          \"phase\": \"active\",\n          \"start_seq\": 133198,\n          \"started_at\": \"2026-09-10T03:39:31Z\"\n        },\n        \"references\": [],\n        \"related\": [],\n        \"roles\": [\n          \"subject\"\n        ],\n        \"seq\": 133198,\n        \"ts\": \"2026-09-10T03:39:31Z\"\n      },\n      {\n        \"actor\": \"baton.codex\",\n        \"claim_interval\": {\n          \"claim_seq\": 133198,\n          \"claimant\": \"baton.codex\",\n          \"elapsed_seconds\": 88,\n          \"end_kind\": \"pass\",\n          \"end_seq\": 133208,\n          \"ended_at\": \"2026-09-10T03:40:59Z\",\n          \"started_at\": \"2026-09-10T03:39:31Z\"\n        },\n        \"kind\": \"pass\",\n        \"payload\": {\n          \"authorization\": {\n            \"endpoint\": \"baton.bug\",\n            \"generation\": 8,\n            \"handlers\": [\n              \"codex\"\n            ],\n            \"role\": \"rview\",\n            \"route\": \"rview\"\n          },\n          \"comment\": \"Execute replacement P only, owner133106. Read entire baton:work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/ dossier, parent INTEGRATION-CONTRACT-v1.md/INTEGRATION-SCOPE-v1.md and D independent review findings/finding-target-rework-custody/review-2026-09-10T03-36-42Z.md. D exact disposition accepted; old A/B/C superseded closures133184/133191/133197 complete. Post-D43-path union revalidated with no drift and three P new paths absent, evidence/dispatch-133198.json; revalidate at your claim start. FIRST validate existing scoped Authority publication/session API under actual integration fixed assignment using static checks plus a focused real-Authority control INSIDE P77s; pin result before dependent implementation, return exact amendment if unsupported. Then only P seven source/four test paths: separate source eligibility/result custody/schema5, private standalone Git profile, immutable causal base-fail/isolated-pass/combined-pass-or-fail evidence, actual independent combined-result authorization, derived ordinary Authority publication. Preserve original line/episodes, final target freshness and human Git ownership; no Authority source or Q/R changes. Pin design and test paths/reasons before edits. NEW P77s cumulative author+8s independent review,0 used; every setup/failure/rerun subprocess timed with full output retained. Focused selectors only, no whole module/package/broad/live/OCI runs; no unused D/old/reserve/W119405 transfer. Stop before insufficiency, never waive acceptance. Return exact candidate hashes/modes, typed public fixtures, assertion inventory and cumulative logs to bug. Q/R remain gated until independent exact P acceptance.\",\n          \"consumed_next\": false,\n          \"destination_phase\": \"queued\",\n          \"next_resolution\": {\n            \"endpoint\": \"baton.bug\",\n            \"generation\": 8,\n            \"handlers\": [\n              \"codex\"\n            ],\n            \"role\": \"rview\",\n            \"route\": \"rview\"\n          },\n          \"pass_resolution\": {\n            \"endpoint\": \"baton.impl\",\n            \"generation\": 8,\n            \"handlers\": [\n              \"claude\"\n            ],\n            \"role\": \"impl\",\n            \"route\": \"impl\"\n          },\n          \"phase_now\": [\n            {\n              \"phase\": \"queued\",\n              \"work\": \"2b077949-W133117\"\n            }\n          ],\n          \"route_selected\": null,\n          \"set_next\": \"baton.bug\",\n          \"work\": \"2b077949-W133117\"\n        },\n        \"phase_interval\": {\n          \"elapsed_seconds\": 82,\n          \"end_kind\": \"claim\",\n          \"end_seq\": 133218,\n          \"ended_at\": \"2026-09-10T03:42:21Z\",\n          \"open\": false,\n          \"phase\": \"queued\",\n          \"start_seq\": 133208,\n          \"started_at\": \"2026-09-10T03:40:59Z\"\n        },\n        \"references\": [],\n        \"related\": [],\n        \"roles\": [\n          \"subject\"\n        ],\n        \"seq\": 133208,\n        \"ts\": \"2026-09-10T03:40:59Z\"\n      },\n      {\n        \"actor\": \"baton.claude\",\n        \"claim_interval\": {\n          \"claim_seq\": 133218,\n          \"claimant\": \"baton.claude\",\n          \"elapsed_seconds\": 502,\n          \"end_kind\": \"release\",\n          \"end_seq\": 133270,\n          \"ended_at\": \"2026-09-10T03:50:43Z\",\n          \"started_at\": \"2026-09-10T03:42:21Z\"\n        },\n        \"kind\": \"claim\",\n        \"payload\": {\n          \"claimant\": \"baton.claude\",\n          \"from_phase\": \"queued\",\n          \"phase\": \"active\",\n          \"phase_now\": [\n            {\n              \"phase\": \"active\",\n              \"work\": \"2b077949-W133117\"\n            }\n          ],\n          \"resolution\": {\n            \"endpoint\": \"baton.impl\",\n            \"generation\": 8,\n            \"handlers\": [\n              \"claude\"\n            ],\n            \"role\": \"impl\",\n            \"route\": \"impl\"\n          },\n          \"work\": \"2b077949-W133117\"\n        },\n        \"phase_interval\": {\n          \"elapsed_seconds\": 502,\n          \"end_kind\": \"release\",\n          \"end_seq\": 133270,\n          \"ended_at\": \"2026-09-10T03:50:43Z\",\n          \"open\": false,\n          \"phase\": \"active\",\n          \"start_seq\": 133218,\n          \"started_at\": \"2026-09-10T03:42:21Z\"\n        },\n        \"references\": [],\n        \"related\": [],\n        \"roles\": [\n          \"subject\"\n        ],\n        \"seq\": 133218,\n        \"ts\": \"2026-09-10T03:42:21Z\"\n      },\n      {\n        \"actor\": \"baton.slaw\",\n        \"claim_interval\": {\n          \"claim_seq\": 133218,\n          \"claimant\": \"baton.claude\",\n          \"elapsed_seconds\": 502,\n          \"end_kind\": \"release\",\n          \"end_seq\": 133270,\n          \"ended_at\": \"2026-09-10T03:50:43Z\",",
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "line": 29,
+      "timestamp": "2026-09-10T04:44:51.123Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_0188qJ6UBymXz9NMXH47remH",
+          "name": "Bash",
+          "input": {
+            "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B work-events work=W133117 limit=200 2>&1 | python3 -c \"\nimport json,sys\nd=json.load(sys.stdin)\nevs=d['result']['events']\nprint('EVENT COUNT', len(evs))\nprint('next_after', d['result'].get('next_after'), 'truncated', d['result'].get('truncated'))\nfor e in evs:\n    print('---', e['seq'], e['ts'], e['actor'], e['kind'])\n\"",
+            "description": "Summarize event list"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 30,
+      "timestamp": null,
+      "role": null,
+      "blocks": []
+    },
+    {
+      "line": 34,
+      "timestamp": "2026-09-10T04:44:55.983Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_01ErAtg4H1byJhyJovcFJ1Zx",
+          "name": "Bash",
+          "input": {
+            "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B work-events work=W133117 limit=200 2>&1 | python3 -c \"\nimport json,sys\nd=json.load(sys.stdin)\nfor e in d['result']['events']:\n    if e['kind']=='release':\n        print('===',e['seq'],e['ts'],e['actor'])\n        print(json.dumps(e['payload'],indent=1)[:2000])\n\"",
+            "description": "Read release rationales"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 35,
+      "timestamp": "2026-09-10T04:44:56.583Z",
+      "role": "user",
+      "blocks": [
+        {
+          "tool_use_id": "toolu_01ErAtg4H1byJhyJovcFJ1Zx",
+          "type": "tool_result",
+          "content": "=== 133270 2026-09-10T03:50:43Z baton.slaw\n{\n \"authorization\": \"recover\",\n \"episode\": 133208,\n \"expect\": \"baton.claude\",\n \"phase_now\": [\n  {\n   \"phase\": \"queued\",\n   \"work\": \"2b077949-W133117\"\n  }\n ],\n \"reason\": \"Incident47: ACP turn ended and no execution remains; release orphaned claim for redelivery, preserving partial work, evidence and budget history.\",\n \"released_claimant\": \"baton.claude\",\n \"resolution\": {\n  \"endpoint\": \"baton.impl\",\n  \"generation\": 8,\n  \"handlers\": [\n   \"claude\"\n  ],\n  \"role\": \"impl\",\n  \"route\": \"impl\"\n },\n \"work\": \"2b077949-W133117\"\n}\n=== 133315 2026-09-10T03:56:37Z baton.slaw\n{\n \"authorization\": \"recover\",\n \"episode\": 133270,\n \"expect\": \"baton.claude\",\n \"phase_now\": [\n  {\n   \"phase\": \"queued\",\n   \"work\": \"2b077949-W133117\"\n  }\n ],\n \"reason\": \"Incident48: turn ended and no execution remains; recover exact orphaned claim for redelivery. Continuation discipline recorded in T133117; preserve partial work and budget.\",\n \"released_claimant\": \"baton.claude\",\n \"resolution\": {\n  \"endpoint\": \"baton.impl\",\n  \"generation\": 8,\n  \"handlers\": [\n   \"claude\"\n  ],\n  \"role\": \"impl\",\n  \"route\": \"impl\"\n },\n \"work\": \"2b077949-W133117\"\n}\n=== 133349 2026-09-10T04:02:46Z baton.slaw\n{\n \"authorization\": \"recover\",\n \"episode\": 133315,\n \"expect\": \"baton.claude\",\n \"phase_now\": [\n  {\n   \"phase\": \"queued\",\n   \"work\": \"2b077949-W133117\"\n  }\n ],\n \"reason\": \"Incident49: no execution remains; recover orphaned claim, preserving partial work and cumulative budget. Repeated turn termination remains unresolved.\",\n \"released_claimant\": \"baton.claude\",\n \"resolution\": {\n  \"endpoint\": \"baton.impl\",\n  \"generation\": 8,\n  \"handlers\": [\n   \"claude\"\n  ],\n  \"role\": \"impl\",\n  \"route\": \"impl\"\n },\n \"work\": \"2b077949-W133117\"\n}\n=== 133596 2026-09-10T04:40:02Z baton.slaw\n{\n \"authorization\": \"recover\",\n \"episode\": 133349,\n \"expect\": \"baton.claude\",\n \"phase_now\": [\n  {\n   \"phase\": \"queued\",\n   \"work\": \"2b077949-W133117\"\n  }\n ],\n \"reason\": \"W133361 owner133489: independently reviewed correction and external recovery ready; domain settled; preserve P bytes, evidence and all cumulative spending under the reviewed preservation manifest. Release exact orphan for corrected delivery under drained dispatch.\",\n \"released_claimant\": \"baton.claude\",\n \"resolution\": {\n  \"endpoint\": \"baton.impl\",\n  \"generation\": 8,\n  \"handlers\": [\n   \"claude\"\n  ],\n  \"role\": \"impl\",\n  \"route\": \"impl\"\n },\n \"work\": \"2b077949-W133117\"\n}",
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "line": 38,
+      "timestamp": "2026-09-10T04:44:59.964Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_01M1B3NgUMMhohAdzKFdD51F",
+          "name": "Bash",
+          "input": {
+            "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B thread thread=T133117 limit=100 2>&1 | head -300",
+            "description": "Read thread T133117"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 39,
+      "timestamp": "2026-09-10T04:45:00.076Z",
+      "role": "user",
+      "blocks": [
+        {
+          "tool_use_id": "toolu_01M1B3NgUMMhohAdzKFdD51F",
+          "type": "tool_result",
+          "content": "{\n  \"authority_uuid\": \"2b077949c86e8bef24304f59c28ec398\",\n  \"participant\": \"baton.claude\",\n  \"projection_version\": \"12.8\",\n  \"protocol_version\": 11,\n  \"result\": {\n    \"id\": \"2b077949-T133117\",\n    \"labels\": [\n      {\n        \"status\": \"open\",\n        \"team\": \"baton\",\n        \"work\": \"2b077949-W133117\"\n      }\n    ],\n    \"last_seq\": 133314,\n    \"local_id\": \"T133117\",\n    \"messages\": [\n      {\n        \"author\": \"codex\",\n        \"author_team\": \"baton\",\n        \"body\": \"Replacement slice P, owner133106 approving parent INTEGRATION-CONTRACT-v1.md and INTEGRATION-SCOPE-v1.md. Own immutable original eligibility, separate result custody/schema5, private configured Git profile, causal base-fail/isolated-pass/combined-pass-or-fail evidence, independent result authorization and derived scoped Authority publication. FIRST validate existing scoped publication/session API before dependent implementation; return exact amendment if unsupported. Exact P seven source/four test paths only. 77s implementation+8s independent review from NEW260s,0s used, no old remainder/reserve/W119405 transfer. Wait for independently accepted D disposition W132712, then claim explicitly and revalidate approved base/predecessor. No source or runtime before that gate. Parent records/evidence/placement-133108 bind approved bytes; complete dossier follows immediately.\",\n        \"new\": true,\n        \"owed\": null,\n        \"references\": [],\n        \"seq\": 133117,\n        \"ts\": \"2026-09-10 03:28:09\"\n      },\n      {\n        \"author\": \"slaw\",\n        \"author_team\": \"baton\",\n        \"body\": \"Incidents47/48: owner release and redelivery are exceptional recovery, not normal work cadence.  Continue the accepted scope within the live turn. Record progress without ending the turn holding a claim. Before ending, return incomplete work with its exact remaining scope and evidence through baton.bug, or complete the authorized handoff. Preserve all partial work and cumulative budget.\",\n        \"new\": true,\n        \"owed\": null,\n        \"references\": [],\n        \"seq\": 133314,\n        \"ts\": \"2026-09-10 03:56:37\"\n      }\n    ],\n    \"new\": 2,\n    \"next_after\": null,\n    \"next_before\": null,\n    \"participants\": [\n      \"baton\"\n    ],\n    \"subject\": \"V12: isolated submission and integration-result custody\",\n    \"total\": 2\n  },\n  \"snapshot_seq\": 133645\n}",
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "line": 48,
+      "timestamp": "2026-09-10T04:45:10.696Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_014ox5mfGkJnu4inFjxxyY1X",
+          "name": "Bash",
+          "input": {
+            "command": "D=work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody && cat $D/FINDING.md",
+            "description": "Read FINDING.md"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 49,
+      "timestamp": "2026-09-10T04:45:10.715Z",
+      "role": "user",
+      "blocks": [
+        {
+          "tool_use_id": "toolu_014ox5mfGkJnu4inFjxxyY1X",
+          "type": "tool_result",
+          "content": "# Integration-result custody \u2014 W133117\n\nParent W131409, replacement slice P. Owner133106 approves parent\nINTEGRATION-CONTRACT-v1.md and INTEGRATION-SCOPE-v1.md. Ruling pinned in parent\nFINDING; exact proposal/base retained in evidence/placement-133108 and\nevidence/replacement-133017. Created atomically with binding133117 by reviewer133108.\n\n## Accepted exact scope\n\n## P \u2014 original eligibility, separate result and causal evidence\n\nProduct source allowlist:\n\n- v12/python/src/baton_v12/integration/reconciliation.py (new)\n- v12/python/src/baton_v12/integration/git_profile.py (new; standalone profile\n  primitives, no manager/Authority store capability in worker copy)\n- v12/python/src/baton_v12/integration/schema.py\n- v12/python/src/baton_v12/integration/store.py\n- v12/python/src/baton_v12/integration/admission.py\n- v12/python/src/baton_v12/integration/driver.py\n- v12/python/src/baton_v12/integration/__init__.py\n\nTests:\n\n- v12/python/tests/integration/test_reconciliation.py (new)\n- v12/python/tests/integration/test_admission.py\n- v12/python/tests/integration/test_driver.py\n- v12/python/tests/integration/test_coordinator.py\n\nOwn schema5 typed custody/journal, source eligibility distinct from result\nfreshness, real private Git reconciliation, immutable causal observations,\nindependent combined-result evidence and scoped derived Authority publication.\nProve readers/cutpoints and result preparation with real repositories and a real\nAuthority/session in at least one focused path. The profile's target revision\nmechanics are explicit typed capabilities, not ambient human-repository Git.\n\nRequired new named test groups in test_reconciliation: OriginalSubmissionIsImmutable,\nCausalEvidenceSurvivesComposition, PreparedResultReplaysItsIntent,\nResultReadersRejectTampering, DerivedPublicationUsesItsOwnAssignment,\nand ConflictsAndForeignSourcesHold. Include actual base-fail/isolated-pass/\ncombined-pass and combined-fail outputs, not canned owner answers. Existing\ntest_admission AcceptedAccount/RefusalBeforeMutation and test_driver\nTheOrdinaryCommandTraversesPublicAdmission supply focused compatibility controls.\nThe implementation handoff lists exact selected test methods and measured logs.\n\n\n## Execution boundaries\n\nRead the entire parent and own dossier, both integration-v1 files and D newest\nindependent review before execution. All listed paths are repository-relative.\nWait for independently accepted D disposition W132712, then claim explicitly.\nRevalidate original untouched paths and D reviewed union before edits.\n\nFIRST prove that the existing scoped Authority publication/session API can\nexpress the derived proposal under the actual integration assignment. Use static\nAPI checks then a focused real-Authority control inside the77s allocation; no\ndependent implementation until proved. If unsupported, return an exact contract/\nsignature/path amendment. Authority source edits are not in this scope.\n\nOnly this claimed author owns the seven source/four test paths enumerated above.\nPin design and changed test paths/reasons before edits. Standalone profile code\nnever imports manager/Authority/store capability into the worker. Preserve\noriginal lines/episodes, causal evidence, independent result authorization,\ntarget freshness at import, typed tamper refusal and replay cutpoints.\n\nNEW77s cumulative author +8s independent review,0s used. Every setup/failing/\nrerun subprocess counts; focused selectors only, no whole module/package/broad/\nlive/OCI runs. No old allocation, reserve, other-slice or W119405 borrowing.\nStop before insufficiency and return evidence rather than waive acceptance.\nStanding W71830 test authority applies within this bounded scope.\n\nRetain full source/test hashes/modes, public owner fixtures, exact selectors/\noutputs, changed assertion inventory and cumulative times. Return baton.bug\nfor exact candidate review before Q may start. PROGRESS belongs to the author.\n\n## 2026-09-10T03:40:03Z \u2014 D accepted and P dispatched, reviewer133198\n\nRead the entire bound dossier under claim133198. D's independent acceptance\nis ../finding-target-rework-custody/review-2026-09-10T03-36-42Z.md, with full\npost-disposition manifest in that dossier's evidence/review-133171/result.json.\nOld A/B/C closed as superseded at133184/133191/133197; none of their abandoned\ncapabilities is accepted. All43 post-D baseline paths revalidated without drift;\nthree P planned new files remain absent. See evidence/dispatch-133198.json.\n\nDispatch only P to impl, next bug. First perform static and focused real scoped\nAuthority-publication validation under P's77s cap before dependent source edits;\nrecord the result in this FINDING and return a concrete amendment if unsupported.\nThen execute only accepted P scope with immutable source/causal evidence,\nseparate combined candidate/tests/independent review, journal-bound typed readers\nand complete replay cutpoints. Q/R remain blocked. No transfer of D's unused time.\n\nP author0/77s and review0/8s at dispatch. Replacement usage so far is D\n0.39817034490872175/260s; historical old-direction costs/uncertainty unchanged.\n\n## 2026-09-10T03:44:36Z \u2014 the Authority publication gate is EXPRESSIBLE\n\nclaim133218, baton.claude. The dispatch requires this proof BEFORE any\ndependent implementation, and requires the result recorded here. Baseline\nrevalidated first: all 43 post-D paths agree by digest and mode, and the three\nplanned-new P files are absent.\n\n**Static.** `publish` is in `session.py`'s closed transition table with\n`target` OPTIONAL, sits in `_ASSIGNMENT_FIRST`, and carries no `actor` flag --\nso it is authorized by the assignment compare-and-swap rather than by a\ncapability grant. `Authority.publish` calls `_expect`, which requires the\nsupplied assignment to BE the Work's current live assignment; at integration\ntime that assignment is the integrator's, because the review ending passed the\nWork to the integration route and the integrator claimed it. So the integration\nrole publishes under its OWN live assignment and borrows nobody's. `target`\ndefaults to `canonical_target()` and is otherwise taken as given, which is what\npinning a prepared snapshot needs. A `result_id` already bound to another\nassignment refuses -- which is why the derived proposal must own a NEW frozen\nresult identity rather than reuse the producer's.\n\n**Focused real-Authority control**, retained at\n`evidence/gate-133218-probe.py` with its full answers in\n`evidence/gate-133218-authority-publication.json`. Over a real Authority: the\nproducer publishes its original submission on its own assignment; the Work is\npassed to the integration route and claimed; and the integrator then publishes\na DERIVED proposal with a new result identity, the combined candidate and an\nexplicitly pinned target snapshot. Confirmed: the derived proposal names the\nINTEGRATION assignment (participant and generation), its target is the pinned\nsnapshot rather than the current canonical target, it reads back through the\nordinary `authority.proposal` reader, an exact retry replays it identically,\nthe original producer proposal is untouched and still names its producer, and\nborrowing the producer's result identity under the integration assignment\nREFUSES with the Authority's own sentence.\n\n**Conclusion: EXPRESSIBLE.** No contract, signature or path amendment is\nrequired and no Authority source edit is proposed; CONTRACT-v1 section 5 stands\nas written. Dependent implementation is unblocked.\n\nGate cost 0.05s of the 77s author allocation, both runs wall-timed.",
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "line": 50,
+      "timestamp": "2026-09-10T04:45:13.255Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_012Z7J8fXsdjhpN16NrgPHKk",
+          "name": "Bash",
+          "input": {
+            "command": "D=work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody && cat $D/PLAN.md && echo \"=========== PROGRESS ===========\" && cat $D/PROGRESS.md",
+            "description": "Read PLAN.md and PROGRESS.md"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 51,
+      "timestamp": "2026-09-10T04:45:13.277Z",
+      "role": "user",
+      "blocks": [
+        {
+          "tool_use_id": "toolu_012Z7J8fXsdjhpN16NrgPHKk",
+          "type": "tool_result",
+          "content": "# Current action \u2014 P ready for implementation, reviewer133198\n\nD independently accepted and old A/B/C superseded closures completed133184/\n133191/133197. All43 baseline paths revalidated in evidence/dispatch-133198.json.\nP passes to impl, next bug, under owner133106. Execute the plan below starting\nwith scoped real Authority-publication proof before dependent implementation.\nP0/77s author,0/8s review; no unused D/old-budget transfer. Q/R remain gated.\n\n# Accepted replacement P plan \u2014 owner133106, W133117\n\n1. Wait for independently accepted W132712 D disposition; claim explicitly.\n2. Read whole parent/own/predecessor dossier, approved contract/scope and exact\n   byte evidence; revalidate P baseline plus accepted D union.\n3. Validate real scoped Authority publication BEFORE dependent implementation.\n   Return a concrete amendment if unsupported; no Authority path expansion.\n4. Pin design; implement only P custody/profile/evidence/publication scope.\n5. Prove causal content, immutable original provenance, independent authorization,\n   typed refusals and replay cutpoints with bounded focused controls.\n6. Return exact candidate/evidence/test changes/timing to baton.bug within77s.\n   Reviewer8s; Q stays gated until exact acceptance.\n\nNEW260s tranche only; no old remainder or automatic reserve transfer.\n=========== PROGRESS ===========\n# Progress\n\nNo implementation started. Reviewer133108 created this dossier with Work133117.\nActual change authors append attributable entries under their claims.\n\n## claim133218 \u2014 the gate is proved and the standalone profile is real\n\nIN FLIGHT. This entry exists so the state is resumable from the record rather\nthan from a context: the claim is held and the remaining P scope is listed at\nthe end.\n\n**Baseline revalidated first.** All 43 post-D paths in\n`../finding-target-rework-custody/evidence/review-133171/result.json` agree by\ndigest and mode, including the five recorded absences, and the three planned-new\nP files were absent.\n\n**1. The mandatory Authority-publication gate: EXPRESSIBLE.** Recorded in\nFINDING at 2026-09-10T03:44:36Z with the probe retained at\n`evidence/gate-133218-probe.py` and its answers at\n`evidence/gate-133218-authority-publication.json`. Static: `publish` is in the\nsession's closed transition table with `target` OPTIONAL, sits in\n`_ASSIGNMENT_FIRST`, and carries no `actor` flag, so it is authorized by the\nassignment compare-and-swap rather than a capability grant. Against a REAL\nAuthority: the integrator publishes a derived proposal under its OWN live\nassignment, with a new frozen result identity, the combined candidate and an\nexplicitly pinned target snapshot; it reads back through the ordinary reader,\nan exact retry replays it, the producer's original proposal is untouched, and\nborrowing the producer's result identity refuses. No amendment is needed and no\nAuthority edit is proposed. **0.05s.**\n\n**2. `src/baton_v12/integration/git_profile.py` (new, 0o664),**\nsha256 `97f90ab9c573da4cd578062320736b0f3bdbe77bbbb4ee64ffc3d4397b027864`.\n\nStandalone by construction: it imports only the standard library and its own\nrefusal, so the same primitives can be copied into an integration worker image\nwithout carrying a manager, Authority, store or coordinator capability across\nthat boundary. It writes in exactly two places \u2014 objects and prepared\nreferences under the nominated private storage, and the dedicated target at one\nexplicitly configured reference through a compare-and-swap. `merge-tree\n--write-tree` reads three commits and writes one tree, so no index, worktree or\nHEAD is an operand and the producer's line cannot be one. Symlinks and\nsubmodules refuse at the content reader rather than at the import.\n\nProved by a focused real-repository probe, retained at\n`evidence/profile-133218-probe.py`: Job B's ORIGINAL submission \u2014 never rebased\n\u2014 reconciles with the snapshot Job A's integration produced; the prepared\nresult carries BOTH changes; the submission is untouched; an exact replay\nanswers the identical evidence rather than merging twice; the configured\nreference advances by compare-and-swap and a STALE swap refuses with Git's own\nwords; and a real conflict HOLDS with its exact path while retaining nothing.\n**0.23s.**\n\n**Cost so far: 0.33s of the 77s author allocation**, every run wall-timed.\n\n**Remaining P scope, in dependency order:** integration `schema.py` schema-5\nfresh-store boundary and the typed reconciliation relation; `store.py` reader\nsupport; `reconciliation.py` with `prepare_result`, `result_of`,\n`record_result_evidence`, `publish_result` and `resolve_import_account`;\n`admission.py`/`driver.py` separation of source eligibility from the import\naccount; `__init__.py` exports; and `tests/integration/test_reconciliation.py`\nwith the six required named groups plus the causal base-fail / isolated-pass /\ncombined-pass and combined-fail observations, with `test_admission`,\n`test_driver` and `test_coordinator` compatibility selectors.\n\n## claim133275 \u2014 schema 5 and the typed result relation\n\nSTILL IN FLIGHT. The previous claim133218 was released by the owner at\n2026-09-10T03:50:43Z as Incident47, \"ACP turn ended and no execution remains\",\npreserving partial work, evidence and budget history. It did: the baseline\nrevalidated clean at this claim's start and `git_profile.py` survived intact.\nThe lesson is a cadence one and I am applying it -- each increment ends with a\ndurable record here, so an orphaned claim costs a redelivery and nothing else.\n\n**Baseline revalidated at claim start.** All 43 post-D paths agree by digest and\nmode. `git_profile.py` is present as this Work's own new file; the other two\nplanned-new P paths remain absent.\n\n**3. `src/baton_v12/integration/schema.py` -> `5316631cbba56ba941040612c692021a8f029cee5ec5f660755b7ab0d4b9e4c9` (0o664).**\n\nSchema 5 with the `integration_results` relation. It reaches the fresh-store\nboundary the same way version 4 already does -- a database at another version\nis refused rather than guessed across, and no migration is invented -- because\na schema-4 store has no relation these facts could live in and no way to tell a\ndirect import from a reconciled one after the fact.\n\nThe relation is built around the contract's central distinction. It NAMES the\noriginal submission -- line, checkpoint, verdict, proposal, frozen result,\nbase and candidate -- as immutable references it never rewrites, and owns only\nwhat belongs to the RESULT: the prepared content, the pinned target snapshot,\nits own verification/review/approval evidence and its own derived Authority\nproposal. Its CHECK constraints make the contract structural rather than\nadvisory: a reason belongs to a hold and nothing else; prepared content is\nabsent until there is some; a result cannot be `authorized`, `published` or\n`imported` without its OWN evidence recorded; a published result must name its\nown derived proposal, never the producer's; and `UNIQUE (canonical_target_id,\nsource_proposal_id, target_revision)` is what makes a later target advance a\nNEW result from the same submission rather than a mutation of this one.\n\nVerified: the DDL executes, the table set matches `TABLES` exactly, and the 33\npersisted columns match the `RESULT_COLUMNS` contract with no mismatch either\nway. **0.14s.**\n\n**4. `tests/integration/test_coordinator.py` -> `7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea` (0o664).**\n\nOne test changed:\n`test_the_expectation_is_measured_from_the_schema_it_checks` compared\n`expected_shape()` against a RETYPED table literal, which is the second owner\nof the shape its own docstring warns about. It now asserts against the module's\nown `TABLES`, plus that the new relation is in it. The\n`TheStoreIsAdoptedByOwnershipRatherThanResemblance` and `ReadOnlyOpening`\nselectors pass at 27 tests. **0.22s** (plus 0.22s and 0.20s for the two\niterations that found the retyped literal and then the wrong import path).\n\n**Cost so far: 1.11s of the 77s author allocation**, every run wall-timed.\nCarried forward from claim133218: the Authority-publication gate (EXPRESSIBLE,\n0.05s) and `git_profile.py` proved by real repositories (0.23s), both recorded\nabove with retained probes at `evidence/gate-133218-probe.py` and\n`evidence/profile-133218-probe.py`.\n\n**Remaining P scope, unchanged in order:** `store.py` reader support;\n`reconciliation.py` with `prepare_result`, `result_of`,\n`record_result_evidence`, `publish_result` and `resolve_import_account` --\nbuilt on this store's `replay(..., witness=)` seam, which already REQUIRES a\nsemantic owner to re-prove a materialized act and is exactly the discipline\nslice A's R3 lacked; `admission.py`/`driver.py` separation of source\neligibility from the import account; `__init__.py` exports; and\n`tests/integration/test_reconciliation.py` with the six required named groups\nplus the causal base-fail / isolated-pass / combined-pass and combined-fail\nobservations.\n\n## claim133318 \u2014 the custody owner's intent, outcome and reader binding\n\nSTILL IN FLIGHT. claim133275 was released as orphaned the same way claim133218\nwas; the durable record carried the state and the baseline revalidated clean\nagain at this claim's start.\n\n**5. `src/baton_v12/integration/reconciliation.py` -> `544b220c30e8422b7ac60dfbc3817837a66d37f2745c9e69212c443dcaf46d72` (0o664).**\n\n`prepare_result`, `result_of` and `result_identity`, with the three defects the\nsuperseded slice's review found built in from the start rather than bolted on.\n\n**Intent is not outcome (R2's correction).** A committed INTENT records that\nthis exact submission is being reconciled onto this exact pinned revision in\nthis exact workspace under this exact assignment. A retry finding an intent\nwith no outcome RESUMES -- it asks the profile again, with the ORIGINAL\nrecorded target, and the profile validates and reuses whatever it already\nretained instead of reconciling twice. Only a settled OUTCOME replays. The\nsuperseded slice answered \"already done\" and called the profile zero times.\n\n**Operands are recovered, not recomputed (R4's correction).** The profile is\nasked with the record's own operands read back from the row, so a resume cannot\nselect a later target; and because the pinned revision is part of the derived\nidentity, a target that HAS moved yields a different record and leaves the\nearlier one exactly as it was -- which is the contract's own rule that a later\nadvance is a new result from the same submission.\n\n**Readers bind by re-derivation (R3's correction).** `result_of` adopts the row\nagainst its closed column contract, adopts each nested document against its\nown, RE-DERIVES the result identity from the fixed operands the row itself\ncarries, and requires the journal operation the row names to be recorded under\nthe signature those same operands produce. Row existence proves neither.\n\n**Proved by a focused real control**, retained at\n`evidence/reconciliation-133318-probe.py`, over a real coordinator store, real\nrepositories and the real profile: an ordinary preparation pins the target and\ncarries BOTH changes with the submission untouched; an exact retry is\nidentical; a committed intent whose outcome was removed RESUMES to the same\ntarget and the same content; an edited row is REFUSED and reads again once\nrestored; and a submission already based on the target refuses. **0.23s.**\n\nOne honest note for the test module rather than a claim here: the edited-row\ncontrol above was caught by the prepared-evidence target check, which fires\nbefore the identity re-derivation. The required `ResultReadersRejectTampering`\ngroup must alter a member that is NOT in prepared evidence -- a source verdict\nor proposal identity -- so the identity binding itself is exercised rather than\nassumed.\n\n**Cost so far: 2.12s of the 77s author allocation**, every run wall-timed.\n\n**Remaining P scope:** `record_result_evidence`, `publish_result` and\n`resolve_import_account` in this module; `store.py` reader support if the\nreaders above need it; `admission.py`/`driver.py` separation of source\neligibility from the import account; `__init__.py` exports; and\n`tests/integration/test_reconciliation.py` with its six required named groups\nplus the causal base-fail / isolated-pass / combined-pass and combined-fail\nobservations.\n\n## claim133353 \u2014 the custody owner's five public operations are complete\n\nSTILL IN FLIGHT. Same orphaned-claim cycle as before; the durable record\ncarried the state and the baseline revalidated clean at this claim's start.\n\n**`src/baton_v12/integration/reconciliation.py` -> `4e5c9e2185f184d2e718e05309f143c76691767c64845b669ef23300147793f6` (0o664).**\n`record_result_evidence`, `publish_result` and `resolve_import_account` join\n`prepare_result`, `result_of` and `result_identity`. All five of\nCONTRACT-v1 section 3's operations now exist.\n\n**Evidence is about THESE bytes or it is not this result's.** Each of the three\ndocuments names its own kind, identity, actor, disposition and the CONTENT\nDIGEST it was given about, and that digest must be this result's prepared\ncontent. No caller supplies an approval as a boolean and no producer receipt is\ncopied: the producer's verification, review and approval prove the SUBMISSION\nand say nothing about bytes that did not exist when they were recorded. One\nactor may not give two of the three, because independence is what they are for.\n\n**The derived proposal is the result's own.** Published under the INTEGRATION\nrole's live assignment, with a frozen result identity this record derives, the\ncombined candidate and the pinned snapshot as its target -- exactly what the\ngate proved expressible. Only an authorized result publishes.\n\n**The import account re-proves rather than remembers.** Content is revalidated\nagainst the workspace, evidence re-read, and the dedicated target's CURRENT\nrevision compared with the snapshot the result was prepared onto. The account\ncarries BOTH identities: the original submission's proposal and the derived\none.\n\n**Proved against a REAL Authority**, which is the focused real-Authority path\nthe dossier requires, retained at `evidence/operations-133353-probe.py`.\nThirteen facts hold: publishing before evidence refuses; evidence about other\nbytes refuses; one actor giving two judgements refuses; the authorized result\npublishes; the derived proposal names the integration assignment, the pinned\nsnapshot, the combined candidate and its OWN result identity rather than the\nproducer's; the publish retry is identical; the import account keeps the source\nproposal and names the derived one; and a target that moved AGAIN refuses the\nimport with the stale-result guard the contract keeps rather than removes.\n**0.23s.**\n\n**Cost so far: 2.54s of the 77s author allocation**, every run wall-timed.\n\n**Remaining P scope:** `admission.py`/`driver.py` separation of source\neligibility from the import account; `__init__.py` exports; `store.py` reader\nsupport if needed; and `tests/integration/test_reconciliation.py` with the six\nrequired named groups -- OriginalSubmissionIsImmutable,\nCausalEvidenceSurvivesComposition, PreparedResultReplaysItsIntent,\nResultReadersRejectTampering, DerivedPublicationUsesItsOwnAssignment and\nConflictsAndForeignSourcesHold -- plus the causal base-fail / isolated-pass /\ncombined-pass and combined-fail observations, with the named\n`test_admission`/`test_driver` compatibility selectors.",
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "line": 55,
+      "timestamp": "2026-09-10T04:45:20.681Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_01KtwrZF4KLpU3tnf1B8naD4",
+          "name": "Bash",
+          "input": {
+            "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B thread thread=T133361 limit=50 2>&1 | python3 -c \"\nimport json,sys\nd=json.load(sys.stdin)\nfor m in d['result']['messages']:\n    print('---',m['seq'],m['ts'],m['author'])\n    print(m['body'])\n\"",
+            "description": "Read T133361 thread"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 56,
+      "timestamp": "2026-09-10T04:45:20.793Z",
+      "role": "user",
+      "blocks": [
+        {
+          "tool_use_id": "toolu_01KtwrZF4KLpU3tnf1B8naD4",
+          "type": "tool_result",
+          "content": "--- 133361 2026-09-10 04:03:34 codex\nOwner poke133350 requests independent investigation of incidents47/48/49 on W133117, including whether owner instruction M133314 reached Claude turn and whether termination is agent behavior or a runtime limit. Read-only investigation, durable evidence and explanation; no implementation/runtime interruption, claim takeover, P verification spending or protocol changes. W133117 active implementation remains with baton.claude. Record separately because runner lifecycle issue can outlive the integration task. Full dossier follows immediately.\n--- 133407 2026-09-10 04:10:44 codex\nOwner poke133350 investigation complete; finding bound to W133361 at baton:work/records/2026/09/finding-acp-turn-ended-with-held-claim/FINDING.md. Incidents47/48/49 align with actual assistant finals at03:47:46.720,03:54:12.162,04:01:14.172Z, all stop_reason=end_turn and explicitly still holding claims133218/133275/133318. The second final treats orphaned-claim redelivery as normal cadence. This is agent completion behavior, not evidenced runtime limiting: configured deadline7200000ms, turns approximately405/205/273s. M133314 existed before turn3 but did NOT reach its recorded inputs: compact readiness prompt omits discussion; Claude filtered detail down to five fields and never read T133117. Thus no evidence of knowingly rejecting that instruction. Exact public transcript excerpts, canonical incidents/thread/events, installed source digests and limits are retained in evidence/. Bridge currently discards returned ACP response; raw terminal packet/log unavailable, so no unsupported claim about trailing SDK events. Proposed correction: explicit per-turn current handoff/thread read and mandatory pass/return before final, delivered through an actual managed-turn input; optionally retain correlated ACP stopReason. No implementation, restart, runtime interruption, P tests or budget change performed. Please select any correction scope; current W133117 implementation remains intact.\n--- 133477 2026-09-10 04:22:05 codex\nReturn133444 fulfilled under claim133448. Selected decision pinned in FINDING.md; bounded proposal is baton:work/records/2026/09/finding-acp-turn-ended-with-held-claim/CORRECTION-RECOVERY-v1.md. Exact role append MANAGED-TURN-INSTRUCTION-v1.txt and digest-bound config delta evidence/config-change-proposal.json are prepared. Proposed changes: AGENTS.md, docs/AGENTS-MAILBOX-PROTO.md, and only impl instructions plus required generation bump in the deployed baton.json. No bridge source/test changes; stopReason telemetry deferred. Existing ACP carrier caches accepted instructions at startup: correction needs canonical regen and supported operator external-terminal full stop/start under drained dispatch, then actual prompt/thread-read and canonical handoff-before-final proof. Plan supplies ordered recovery CAS, drift refusals and separate proposed120s budget (15 author/15 review/90 operations), no P/campaign borrowing. Snapshot133450 shows W133117 failed, still claim133353 episode133349; latest author spend2.54s/77s, review8s unchanged and historical discrepancies retained for reconciliation. evidence/recovery-preservation-133448.json binds20 P source/test/dossier entries, all rechecked unchanged. Live config also unchanged. No release, restart, implementation, product tests or budget reset occurred. Owner can now accept bounded scope/budget and assign tuner plus operations without asking Claude to take a second Work.\n--- 133513 2026-09-10 04:26:37 codex\nOwner133489 acceptance pinned in FINDING.md and CORRECTION-RECOVERY-v1.md; PLAN assigns baton.tuner authorship then independent baton.codex review. OPERATIONS-CHECKLIST-v1.md now contains exact external-terminal commands and bounded config import for later reviewed operator execution. Tuner scope: claim W133361, revalidate accepted docs/decision, edit only AGENTS.md and docs/AGENTS-MAILBOX-PROTO.md as specified; prepare evidence/author/baton.next.json from exact live config baseline with only approved impl append and generation bump, plus manifest.json binding base/candidate hashes, before bytes/diff and measured checks. Append your PROGRESS.15s total author verification, no borrowing;15s independent review and90s operations reserved separately. No test/source/runtime/config-acceptance changes. Live baton.json write/regen, W133117 release and lifecycle replacement remain operator actions AFTER independent review and preconditions. Preserve W13311720-path snapshot, evidence and all cumulative P spending. On completion or blocker return W133361 to baton.bug with exact artifacts and remaining budget, then confirm claim released before final. Do not end holding the claim. Reviewer will bind actual candidate bytes and checklist before operations.\n--- 133565 2026-09-10 04:35:03 codex\nIndependent static review passed under claim133540: baton:work/records/2026/09/finding-acp-turn-ended-with-held-claim/review-2026-09-10T04-32-48Z.md binds exact two policy files, config candidate45d3b7ab7259d763a6df856206b475bec10e495fa6582fbf19233ebbc211a73e (49709 bytes), author manifest3493a28d374cfa499308261d9f1b984d21133c8ef168a02c1829bdec0953aa54 and operations checklistdf87d83ea645154183518885d36b37aa6f7ea30ff3ad0b175bfda63892b2a07e. Machine evidence/review-133540.json independently confirms exact append, only generation+impl instruction changes, preserved modes and20 unchanged P entries. Live config base remains b03b92c28f334bd786df3d87ecc660978c1b1a9d13541c0d146d7e15e964e998 at0600; evidence0664 mode must not be imported. Charges author1/15s review1/15s ops0/90s, shares separate. Owner133489 already conditionally authorizes recovery; operations now owns current orphan/domain/digest/drain preflight, canonical acceptance and supported external-terminal lifecycle sequence. Do not execute stale release operands or restart from managed backend. Actual corrected prompt, current handoff/T133117-M133314 reads and canonical P handoff-before-final remain pending; return receipt for confirmation. No product verification, P custody change or runtime mutation by reviewer. Tuner can record this signed-off disposition in its next own progress entry; no additional tuning requested.",
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "line": 61,
+      "timestamp": "2026-09-10T04:45:33.839Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_01CWwuzZPjRrsqPUTJwRwKbR",
+          "name": "Bash",
+          "input": {
+            "command": "python3 - <<'EOF'\nimport json,os,hashlib\np='work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-target-rework-custody/evidence/review-133171/result.json'\nd=json.load(open(p))\ndef walk(o,path=\"\"):\n    if isinstance(o,dict):\n        for k,v in o.items(): walk(v,path+\"/\"+k)\n    elif isinstance(o,list):\n        print(\"LIST at\",path,\"len\",len(o))\n        if o: print(\"  sample:\",json.dumps(o[0])[:300])\nprint(json.dumps(list(d.keys()) if isinstance(d,dict) else type(d)))\nwalk(d)\nEOF",
+            "description": "Inspect D baseline manifest"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 62,
+      "timestamp": "2026-09-10T04:45:33.868Z",
+      "role": "user",
+      "blocks": [
+        {
+          "tool_use_id": "toolu_01CWwuzZPjRrsqPUTJwRwKbR",
+          "type": "tool_result",
+          "content": "[\"claim\", \"captured_at\", \"scope_paths\", \"errors\", \"candidate\", \"argv\", \"cwd\", \"PYTHONPATH\", \"returncode\", \"stdout\", \"stderr\", \"test_elapsed_seconds\", \"charged_elapsed_seconds\"]\nLIST at /errors len 0\nLIST at /argv len 6\n  sample: \"python3\"",
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "line": 63,
+      "timestamp": "2026-09-10T04:45:36.721Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_01UbffDRFhUn3ERP8EUMRiyu",
+          "name": "Bash",
+          "input": {
+            "command": "python3 - <<'EOF'\nimport json\np='work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-target-rework-custody/evidence/review-133171/result.json'\nd=json.load(open(p))\nprint(json.dumps(d['scope_paths'],indent=1)[:1500])\nprint('CANDIDATE keys', list(d['candidate'].keys()) if isinstance(d['candidate'],dict) else type(d['candidate']))\nEOF",
+            "description": "Inspect scope_paths and candidate"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 64,
+      "timestamp": "2026-09-10T04:45:36.751Z",
+      "role": "user",
+      "blocks": [
+        {
+          "tool_use_id": "toolu_01UbffDRFhUn3ERP8EUMRiyu",
+          "type": "tool_result",
+          "content": "43\nCANDIDATE keys ['AGENTS.md', 'v12/README.md', 'v12/python/src/baton_v12/checkpoint_profiles.py', 'v12/python/src/baton_v12/integration/__init__.py', 'v12/python/src/baton_v12/integration/admission.py', 'v12/python/src/baton_v12/integration/driver.py', 'v12/python/src/baton_v12/integration/execution.py', 'v12/python/src/baton_v12/integration/git_profile.py', 'v12/python/src/baton_v12/integration/queue.py', 'v12/python/src/baton_v12/integration/reconciliation.py', 'v12/python/src/baton_v12/integration/recovery.py', 'v12/python/src/baton_v12/integration/runtime.py', 'v12/python/src/baton_v12/integration/schema.py', 'v12/python/src/baton_v12/integration/store.py', 'v12/python/src/baton_v12/job_manager/delegation.py', 'v12/python/src/baton_v12/worker_manager/attempts.py', 'v12/python/src/baton_v12/worker_manager/review_cycles.py', 'v12/python/src/baton_v12/worker_manager/schema.py', 'v12/python/src/baton_v12/worker_manager/target_rework.py', 'v12/python/tests/integration/test_admission.py', 'v12/python/tests/integration/test_coordinator.py', 'v12/python/tests/integration/test_driver.py', 'v12/python/tests/integration/test_execution.py', 'v12/python/tests/integration/test_reconciliation.py', 'v12/python/tests/integration/test_recovery.py', 'v12/python/tests/integration/test_runtime.py', 'v12/python/tests/job_manager/test_delegation.py', 'v12/python/tests/job_manager/test_scheduling.py', 'v12/python/tests/manager/test_attempts.py', 'v12/python/tests/manager/test_integration_image.py', 'v12/python/tests/manager/test_integration_worker.py', 'v12/python/tests/manager/test_store.py', 'v12/python/tests/manager/test_target_rework.py', 'v12/python/tests/tools/test_integration_bundle.py', 'v12/python/tests/tools/test_integration_worker.py', 'v12/python/tests/tools/test_stage_execution.py', 'v12/python/tools/integration_bundle.py', 'v12/python/tools/integration_worker.py', 'v12/python/tools/stage_execution.py', 'v12/worker/Dockerfile.integration', 'v12/worker/integration_contract.py', 'v12/worker/integration_entry.py', 'v12/worker/integration_workload.py']",
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "line": 68,
+      "timestamp": "2026-09-10T04:45:43.948Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_014RSFLrJmt96yvWsmTnULfR",
+          "name": "Bash",
+          "input": {
+            "command": "python3 - <<'EOF'\nimport json,os,hashlib\np='work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-target-rework-custody/evidence/review-133171/result.json'\nd=json.load(open(p))\ncand=d['candidate']\nmine={'v12/python/src/baton_v12/integration/git_profile.py','v12/python/src/baton_v12/integration/reconciliation.py','v12/python/src/baton_v12/integration/schema.py','v12/python/tests/integration/test_coordinator.py','v12/python/tests/integration/test_reconciliation.py'}\ndrift=[];ok=0\nfor path,rec in cand.items():\n    exp=rec if isinstance(rec,str) else rec.get('sha256')\n    mode=None if isinstance(rec,str) else rec.get('mode')\n    if not os.path.exists(path):\n        actual='ABSENT'; amode=None\n    else:\n        actual=hashlib.sha256(open(path,'rb').read()).hexdigest(); amode=oct(os.stat(path).st_mode & 0o777)\n    same = (actual==exp) and (mode is None or str(amode)==str(mode))\n    if same: ok+=1\n    else: drift.append((path,exp,mode,actual,amode, path in mine))\nprint('paths',len(cand),'unchanged',ok)\nfor row in drift: print('DRIFT' if not row[5] else 'MINE ',row)\nEOF",
+            "description": "Revalidate 43-path baseline"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 69,
+      "timestamp": "2026-09-10T04:45:43.978Z",
+      "role": "user",
+      "blocks": [
+        {
+          "tool_use_id": "toolu_014RSFLrJmt96yvWsmTnULfR",
+          "type": "tool_result",
+          "content": "paths 43 unchanged 35\nDRIFT ('AGENTS.md', '67cc573e143fede608169f62560ab25b8452b80bcc0b9cb4d1196e429ca95857', '0o664', 'a7323bbc227aabe8322f747d5750bc4823cbad2b56dce1f863ddd5921223eb7f', '0o664', False)\nMINE  ('v12/python/src/baton_v12/integration/git_profile.py', None, None, '97f90ab9c573da4cd578062320736b0f3bdbe77bbbb4ee64ffc3d4397b027864', '0o664', True)\nMINE  ('v12/python/src/baton_v12/integration/reconciliation.py', None, None, '4e5c9e2185f184d2e718e05309f143c76691767c64845b669ef23300147793f6', '0o664', True)\nMINE  ('v12/python/src/baton_v12/integration/schema.py', 'd0df79b9674e1a92b7011747c0ddcd42116804a4b6f8e05526150d329557c968', '0o664', '5316631cbba56ba941040612c692021a8f029cee5ec5f660755b7ab0d4b9e4c9', '0o664', True)\nDRIFT ('v12/python/src/baton_v12/worker_manager/target_rework.py', None, None, 'ABSENT', None, False)\nMINE  ('v12/python/tests/integration/test_coordinator.py', 'cda33b582b41fecfca06759fc20fe254a6a683d4b919742386a01b36acb7506e', '0o664', '7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea', '0o664', True)\nMINE  ('v12/python/tests/integration/test_reconciliation.py', None, None, 'ABSENT', None, True)\nDRIFT ('v12/python/tests/manager/test_target_rework.py', None, None, 'ABSENT', None, False)",
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "line": 71,
+      "timestamp": "2026-09-10T04:45:52.721Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_01Xp4yrFq1oZ4iVQhGSd2Y9k",
+          "name": "Bash",
+          "input": {
+            "command": "wc -l AGENTS.md docs/EFFECTIVE-BATON.md v12/python/src/baton_v12/integration/*.py v12/python/tests/integration/*.py",
+            "description": "Line counts"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 72,
+      "timestamp": "2026-09-10T04:45:52.742Z",
+      "role": "user",
+      "blocks": [
+        {
+          "tool_use_id": "toolu_01Xp4yrFq1oZ4iVQhGSd2Y9k",
+          "type": "tool_result",
+          "content": "   298 AGENTS.md\n   521 docs/EFFECTIVE-BATON.md\n   292 v12/python/src/baton_v12/integration/admission.py\n  1688 v12/python/src/baton_v12/integration/driver.py\n   454 v12/python/src/baton_v12/integration/execution.py\n   479 v12/python/src/baton_v12/integration/git_profile.py\n    39 v12/python/src/baton_v12/integration/__init__.py\n   838 v12/python/src/baton_v12/integration/oci_delivery.py\n  2139 v12/python/src/baton_v12/integration/queue.py\n   705 v12/python/src/baton_v12/integration/reconciliation.py\n   252 v12/python/src/baton_v12/integration/recovery.py\n   983 v12/python/src/baton_v12/integration/runtime.py\n   504 v12/python/src/baton_v12/integration/schema.py\n   708 v12/python/src/baton_v12/integration/store.py\n   134 v12/python/tests/integration/fixtures.py\n     0 v12/python/tests/integration/__init__.py\n   333 v12/python/tests/integration/test_admission.py\n  3643 v12/python/tests/integration/test_coordinator.py\n  2665 v12/python/tests/integration/test_driver.py\n   997 v12/python/tests/integration/test_execution.py\n   208 v12/python/tests/integration/test_recovery.py\n  1245 v12/python/tests/integration/test_runtime.py\n 19125 total",
+          "is_error": false
+        }
+      ]
+    },
+    {
+      "line": 160,
+      "timestamp": "2026-09-10T04:50:49.584Z",
+      "role": "assistant",
+      "blocks": [
+        {
+          "type": "tool_use",
+          "id": "toolu_01A2AmCo33CKiF9zJzRYbfLr",
+          "name": "Bash",
+          "input": {
+            "command": "cat >> work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/PROGRESS.md <<'EOF'\n\n## claim133645 \u2014 the separation, the exports and the required test module\n\nSTILL IN FLIGHT. claim133353 was released at 2026-09-10T04:40:02Z under\nW133361/owner133489's reviewed preservation manifest, which binds 20 P\nsource/test/dossier entries. All of them survived.\n\n**Baseline revalidated at claim start.** Every one of the 43 post-D paths in\n`../finding-target-rework-custody/evidence/review-133171/result.json` agrees by\ndigest and mode EXCEPT two, and neither is drift into this scope:\n\n- `AGENTS.md` moved `67cc573e\u2026` -> `a7323bbc\u2026` (0o664 both). That is\n  W133361's independently reviewed policy correction, reviewed at\n  `review-2026-09-10T04-32-48Z.md`, and it is not a P path.\n- the four P paths this Work owns are exactly the recorded bytes:\n  `git_profile.py` `97f90ab9\u2026`, `schema.py` `5316631c\u2026`,\n  `reconciliation.py` `4e5c9e21\u2026`, `test_coordinator.py` `7fb6ec2c\u2026`.\n\nThe recorded absences (`worker_manager/target_rework.py`,\n`tests/manager/test_target_rework.py`) are still absent; the one planned-new P\npath still absent is `tests/integration/test_reconciliation.py`.\n\n### DESIGN PINNED BEFORE EDITS \u2014 how the separation can and cannot be made\n\nCONTRACT-v1 section 6 asks admission/driver to separate source eligibility\nfrom the import account while \"existing direct imports retain their old\nexact-target path\". Two facts in the tree decide the shape, and both were\nchecked rather than assumed:\n\n1. `tests/tools/test_integration_bundle.py`'s\n   `test_the_eligibility_members_are_the_admission_owners_own` reads\n   `inspect.getsource(admission.resolved_account)` and requires all fifteen\n   `ELIGIBILITY_MEMBERS` to appear there. The account's dict LITERAL must\n   therefore stay lexically inside `resolved_account`.\n2. `tests/integration/test_execution.py`'s\n   `test_the_refusal_records_what_the_producers_said` moves the canonical\n   target and asserts the settled detail says \"expected target revision\" --\n   which is `resolved_account`'s own refusal. `resolved_account` must\n   therefore KEEP proving freshness.\n\nBoth files are Q scope and neither may be edited here. So the separation is\nADDITIVE, and removing the guard from `resolved_account` -- the \"one-line\nguard removal\" INTEGRATION-SCOPE-v1 warns about -- is exactly the thing the\ntree already refuses.\n\n- `_proved(...)` (new, private): the single resolver. Every producer read and\n  every cross-binding, with the current-target comparison under a `freshness`\n  flag. One reading of the sources, not two.\n- `resolved_account(..., freshness=True)`: unchanged public name, unchanged\n  default behaviour, unchanged fifteen-member literal. Documented for what it\n  has always been -- the DIRECT IMPORT account, eligibility plus the exact\n  current target.\n- `source_account(...)` (new public): the same fifteen members with freshness\n  NOT proved. This is the account a result branch consumes, and its\n  `expected_target_revision` is the submission's own declared base rather\n  than a claim about the present.\n- `source_submission(...)` (new public): the twelve-member operand\n  `reconciliation.prepare_result` takes, composed from `_proved`'s own\n  documents -- `job_id` from the accepted Job and `source_base`/\n  `source_candidate` from the accepted checkpoint evidence's `base`/`head`,\n  which are the two objects the fifteen-member account does not carry and\n  which cannot be added to it here (that closed account and its worker\n  contract are versioned in Q).\n- `driver._import_account(...)` (new private): the one seam where driver\n  decides which account an import acts on -- the admitted one when the entry\n  has already settled, otherwise `resolved_account`. Four call sites collapse\n  onto it. No behaviour changes; Q's serial extension gets one place to add\n  the result branch instead of four.\n- `__init__.py`: export the new owners -- `reconciliation`'s five operations\n  plus `result_identity` and its four operation kinds, `git_profile`'s\n  profile/refusal/name/version, and admission's `admit_candidate`,\n  `resolved_account`, `source_account`, `source_submission`.\n\n### Test paths and reasons, pinned before edits\n\n- `tests/integration/test_reconciliation.py` (new): the six required named\n  groups, over a REAL coordinator store, REAL repositories, the REAL profile\n  and a REAL Authority, plus the causal base-fail / isolated-pass /\n  combined-pass and a separate combined-fail observation produced by actually\n  running a harness against the three content states.\n- `tests/integration/test_admission.py`: the named `AcceptedAccount` and\n  `RefusalBeforeMutation` compatibility controls stay as they are --\n  `test_stale_target_refuses` is the proof that the direct path kept its\n  exact-target rule -- and gain the control that `source_account` answers the\n  SAME account when the target has moved, which is the separation itself.\n- `tests/integration/test_driver.py`: `TheOrdinaryCommandTraversesPublicAdmission`\n  is the compatibility control and is not edited.\n- `tests/integration/test_coordinator.py`: already changed at claim133275.\nEOF\necho pinned",
+            "description": "Pin design in PROGRESS.md"
+          },
+          "caller": {
+            "type": "direct"
+          }
+        }
+      ]
+    },
+    {
+      "line": 161,
+      "timestamp": "2026-09-10T04:50:49.610Z",
+      "role": "user",
+      "blocks": [
+        {
+          "tool_use_id": "toolu_01A2AmCo33CKiF9zJzRYbfLr",
+          "type": "tool_result",
+          "content": "pinned",
+          "is_error": false
+        }
+      ]
+    }
+  ],
+  "public_tool_invocations": [
+    {
+      "line": 10,
+      "timestamp": "2026-09-10T04:44:32.155Z",
+      "name": "Bash",
+      "input": {
+        "command": "/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude work detail work=W133117 2>&1 | head -200",
+        "description": "Read canonical Work state"
+      }
+    },
+    {
+      "line": 13,
+      "timestamp": "2026-09-10T04:44:34.347Z",
+      "name": "Bash",
+      "input": {
+        "command": "/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude --help 2>&1 | head -80",
+        "description": "List baton verbs"
+      }
+    },
+    {
+      "line": 17,
+      "timestamp": "2026-09-10T04:44:37.431Z",
+      "name": "Bash",
+      "input": {
+        "command": "/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude --help 2>&1 | grep -E '^[a-z-]+ \u2014'",
+        "description": "List verb names only"
+      }
+    },
+    {
+      "line": 19,
+      "timestamp": "2026-09-10T04:44:40.436Z",
+      "name": "Bash",
+      "input": {
+        "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B detail work=W133117 2>&1 | head -200",
+        "description": "Read Work detail"
+      }
+    },
+    {
+      "line": 22,
+      "timestamp": "2026-09-10T04:44:43.583Z",
+      "name": "Bash",
+      "input": {
+        "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B claim work=W133117 2>&1 | head -60",
+        "description": "Claim the Work"
+      }
+    },
+    {
+      "line": 27,
+      "timestamp": "2026-09-10T04:44:46.283Z",
+      "name": "Bash",
+      "input": {
+        "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B work-events work=W133117 limit=200 2>&1 | head -400",
+        "description": "Read Work event journal"
+      }
+    },
+    {
+      "line": 29,
+      "timestamp": "2026-09-10T04:44:51.123Z",
+      "name": "Bash",
+      "input": {
+        "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B work-events work=W133117 limit=200 2>&1 | python3 -c \"\nimport json,sys\nd=json.load(sys.stdin)\nevs=d['result']['events']\nprint('EVENT COUNT', len(evs))\nprint('next_after', d['result'].get('next_after'), 'truncated', d['result'].get('truncated'))\nfor e in evs:\n    print('---', e['seq'], e['ts'], e['actor'], e['kind'])\n\"",
+        "description": "Summarize event list"
+      }
+    },
+    {
+      "line": 34,
+      "timestamp": "2026-09-10T04:44:55.983Z",
+      "name": "Bash",
+      "input": {
+        "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B work-events work=W133117 limit=200 2>&1 | python3 -c \"\nimport json,sys\nd=json.load(sys.stdin)\nfor e in d['result']['events']:\n    if e['kind']=='release':\n        print('===',e['seq'],e['ts'],e['actor'])\n        print(json.dumps(e['payload'],indent=1)[:2000])\n\"",
+        "description": "Read release rationales"
+      }
+    },
+    {
+      "line": 38,
+      "timestamp": "2026-09-10T04:44:59.964Z",
+      "name": "Bash",
+      "input": {
+        "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B thread thread=T133117 limit=100 2>&1 | head -300",
+        "description": "Read thread T133117"
+      }
+    },
+    {
+      "line": 41,
+      "timestamp": "2026-09-10T04:45:05.328Z",
+      "name": "Bash",
+      "input": {
+        "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B dispatch 2>&1 | head -40; echo \"=== W133361 ===\"; $B detail work=W133361 2>&1 | python3 -c \"\nimport json,sys\nd=json.load(sys.stdin)\nr=d['result']\nfor k in ['id','title','status','phase','outcome','handler','classification','binding']:\n    print(k,':',json.dumps(r.get(k)))\nprint('threads:',json.dumps(r.get('threads'),indent=1))\n\"",
+        "description": "Check dispatch state and W133361"
+      }
+    },
+    {
+      "line": 44,
+      "timestamp": "2026-09-10T04:45:08.665Z",
+      "name": "Bash",
+      "input": {
+        "command": "D=work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody && ls -la $D && echo \"=== parent dir ===\" && ls -la work/records/2026/09/finding-v12-line-rebase-after-target-advance/",
+        "description": "List dossier contents"
+      }
+    },
+    {
+      "line": 48,
+      "timestamp": "2026-09-10T04:45:10.696Z",
+      "name": "Bash",
+      "input": {
+        "command": "D=work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody && cat $D/FINDING.md",
+        "description": "Read FINDING.md"
+      }
+    },
+    {
+      "line": 50,
+      "timestamp": "2026-09-10T04:45:13.255Z",
+      "name": "Bash",
+      "input": {
+        "command": "D=work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody && cat $D/PLAN.md && echo \"=========== PROGRESS ===========\" && cat $D/PROGRESS.md",
+        "description": "Read PLAN.md and PROGRESS.md"
+      }
+    },
+    {
+      "line": 55,
+      "timestamp": "2026-09-10T04:45:20.681Z",
+      "name": "Bash",
+      "input": {
+        "command": "B=\"/home/sl/opt/baton/v11/0650c61/bin/baton --config /home/sl/baton-v11.14aecfb/baton.json --participant baton.claude\"; $B thread thread=T133361 limit=50 2>&1 | python3 -c \"\nimport json,sys\nd=json.load(sys.stdin)\nfor m in d['result']['messages']:\n    print('---',m['seq'],m['ts'],m['author'])\n    print(m['body'])\n\"",
+        "description": "Read T133361 thread"
+      }
+    },
+    {
+      "line": 58,
+      "timestamp": "2026-09-10T04:45:27.395Z",
+      "name": "Bash",
+      "input": {
+        "command": "D=work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody && ls -la $D/evidence/ && echo \"=== P paths ===\" && for f in v12/python/src/baton_v12/integration/reconciliation.py v12/python/src/baton_v12/integration/git_profile.py v12/python/src/baton_v12/integration/schema.py v12/python/src/baton_v12/integration/store.py v12/python/src/baton_v12/integration/admission.py v12/python/src/baton_v12/integration/driver.py v12/python/src/baton_v12/integration/__init__.py v12/python/tests/integration/test_reconciliation.py v12/python/tests/integration/test_admission.py v12/python/tests/integration/test_driver.py v12/python/tests/integration/test_coordinator.py; do if [ -e \"$f\" ]; then printf '%s  %s  %s\\n' \"$(sha256sum \"$f\" | cut -d' ' -f1)\" \"$(stat -c %a \"$f\")\" \"$f\"; else printf 'ABSENT  ----  %s\\n' \"$f\"; fi; done",
+        "description": "List evidence and hash P paths"
+      }
+    },
+    {
+      "line": 61,
+      "timestamp": "2026-09-10T04:45:33.839Z",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'EOF'\nimport json,os,hashlib\np='work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-target-rework-custody/evidence/review-133171/result.json'\nd=json.load(open(p))\ndef walk(o,path=\"\"):\n    if isinstance(o,dict):\n        for k,v in o.items(): walk(v,path+\"/\"+k)\n    elif isinstance(o,list):\n        print(\"LIST at\",path,\"len\",len(o))\n        if o: print(\"  sample:\",json.dumps(o[0])[:300])\nprint(json.dumps(list(d.keys()) if isinstance(d,dict) else type(d)))\nwalk(d)\nEOF",
+        "description": "Inspect D baseline manifest"
+      }
+    },
+    {
+      "line": 63,
+      "timestamp": "2026-09-10T04:45:36.721Z",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'EOF'\nimport json\np='work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-target-rework-custody/evidence/review-133171/result.json'\nd=json.load(open(p))\nprint(json.dumps(d['scope_paths'],indent=1)[:1500])\nprint('CANDIDATE keys', list(d['candidate'].keys()) if isinstance(d['candidate'],dict) else type(d['candidate']))\nEOF",
+        "description": "Inspect scope_paths and candidate"
+      }
+    },
+    {
+      "line": 68,
+      "timestamp": "2026-09-10T04:45:43.948Z",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'EOF'\nimport json,os,hashlib\np='work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-target-rework-custody/evidence/review-133171/result.json'\nd=json.load(open(p))\ncand=d['candidate']\nmine={'v12/python/src/baton_v12/integration/git_profile.py','v12/python/src/baton_v12/integration/reconciliation.py','v12/python/src/baton_v12/integration/schema.py','v12/python/tests/integration/test_coordinator.py','v12/python/tests/integration/test_reconciliation.py'}\ndrift=[];ok=0\nfor path,rec in cand.items():\n    exp=rec if isinstance(rec,str) else rec.get('sha256')\n    mode=None if isinstance(rec,str) else rec.get('mode')\n    if not os.path.exists(path):\n        actual='ABSENT'; amode=None\n    else:\n        actual=hashlib.sha256(open(path,'rb').read()).hexdigest(); amode=oct(os.stat(path).st_mode & 0o777)\n    same = (actual==exp) and (mode is None or str(amode)==str(mode))\n    if same: ok+=1\n    else: drift.append((path,exp,mode,actual,amode, path in mine))\nprint('paths',len(cand),'unchanged',ok)\nfor row in drift: print('DRIFT' if not row[5] else 'MINE ',row)\nEOF",
+        "description": "Revalidate 43-path baseline"
+      }
+    },
+    {
+      "line": 71,
+      "timestamp": "2026-09-10T04:45:52.721Z",
+      "name": "Bash",
+      "input": {
+        "command": "wc -l AGENTS.md docs/EFFECTIVE-BATON.md v12/python/src/baton_v12/integration/*.py v12/python/tests/integration/*.py",
+        "description": "Line counts"
+      }
+    },
+    {
+      "line": 73,
+      "timestamp": "2026-09-10T04:45:54.567Z",
+      "name": "Bash",
+      "input": {
+        "command": "cat v12/python/src/baton_v12/integration/reconciliation.py",
+        "description": "Read reconciliation.py"
+      }
+    },
+    {
+      "line": 77,
+      "timestamp": "2026-09-10T04:45:56.947Z",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n '^def \\|^class \\|^_[A-Z_]* =\\|^[A-Z_]* =' v12/python/src/baton_v12/integration/reconciliation.py",
+        "description": "Outline reconciliation.py"
+      }
+    },
+    {
+      "line": 79,
+      "timestamp": "2026-09-10T04:45:58.908Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '1,120p' v12/python/src/baton_v12/integration/admission.py",
+        "description": "Read admission.py head"
+      }
+    },
+    {
+      "line": 81,
+      "timestamp": "2026-09-10T04:46:00.853Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '120,292p' v12/python/src/baton_v12/integration/admission.py",
+        "description": "Read admission.py rest"
+      }
+    },
+    {
+      "line": 86,
+      "timestamp": "2026-09-10T04:46:07.137Z",
+      "name": "Bash",
+      "input": {
+        "command": "cat work/records/2026/09/finding-v12-line-rebase-after-target-advance/INTEGRATION-CONTRACT-v1.md",
+        "description": "Read INTEGRATION-CONTRACT-v1.md"
+      }
+    },
+    {
+      "line": 89,
+      "timestamp": "2026-09-10T04:46:10.960Z",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n -A40 'admission\\|driver' work/records/2026/09/finding-v12-line-rebase-after-target-advance/INTEGRATION-SCOPE-v1.md | head -120",
+        "description": "Scope v1 admission/driver sections"
+      }
+    },
+    {
+      "line": 94,
+      "timestamp": "2026-09-10T04:46:16.393Z",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n '^def \\|^class \\|^__all__\\|^_[A-Z]' v12/python/src/baton_v12/integration/driver.py",
+        "description": "Outline driver.py"
+      }
+    },
+    {
+      "line": 96,
+      "timestamp": "2026-09-10T04:46:18.293Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '1327,1520p' v12/python/src/baton_v12/integration/driver.py",
+        "description": "Read admit_accepted"
+      }
+    },
+    {
+      "line": 102,
+      "timestamp": "2026-09-10T04:46:36.199Z",
+      "name": "Bash",
+      "input": {
+        "command": "cd v12 && grep -rn 'resolved_account\\|admit_candidate' --include='*.py' . | grep -v '/tests/' ; echo \"=== tests ===\"; grep -rn 'resolved_account\\|admit_candidate' --include='*.py' python/tests | head -40",
+        "description": "Find callers of resolved_account/admit_candidate"
+      }
+    },
+    {
+      "line": 105,
+      "timestamp": "2026-09-10T04:46:51.444Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '100,260p' v12/python/src/baton_v12/integration/reconciliation.py",
+        "description": "Read reconciliation operands/prepare_result"
+      }
+    },
+    {
+      "line": 107,
+      "timestamp": "2026-09-10T04:46:53.689Z",
+      "name": "Bash",
+      "input": {
+        "command": "cd /home/sl/src/baton && sed -n '100,255p' v12/python/src/baton_v12/integration/reconciliation.py",
+        "description": "Read reconciliation operands/prepare_result"
+      }
+    },
+    {
+      "line": 112,
+      "timestamp": "2026-09-10T04:46:57.265Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '380,575p' v12/python/src/baton_v12/integration/reconciliation.py",
+        "description": "Read publish_result/resolve_import_account/result_of"
+      }
+    },
+    {
+      "line": 115,
+      "timestamp": "2026-09-10T04:47:03.017Z",
+      "name": "Bash",
+      "input": {
+        "command": "cat v12/python/src/baton_v12/integration/__init__.py && echo \"=== store exports ===\" && grep -n '^__all__\\|^def \\|^class ' v12/python/src/baton_v12/integration/store.py",
+        "description": "Read __init__.py and store.py outline"
+      }
+    },
+    {
+      "line": 120,
+      "timestamp": "2026-09-10T04:47:07.585Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '243,420p' v12/python/src/baton_v12/integration/store.py",
+        "description": "Read IntegrationStore class"
+      }
+    },
+    {
+      "line": 123,
+      "timestamp": "2026-09-10T04:47:12.164Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '596,705p' v12/python/src/baton_v12/integration/reconciliation.py",
+        "description": "Read _row/_witness helpers"
+      }
+    },
+    {
+      "line": 128,
+      "timestamp": "2026-09-10T04:47:17.433Z",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n '^def \\|^class \\|^PROFILE\\|^__all__\\|    def ' v12/python/src/baton_v12/integration/git_profile.py",
+        "description": "Outline git_profile.py"
+      }
+    },
+    {
+      "line": 130,
+      "timestamp": "2026-09-10T04:47:20.620Z",
+      "name": "Bash",
+      "input": {
+        "command": "cat work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/evidence/operations-133353-probe.py",
+        "description": "Read operations probe for fixture patterns"
+      }
+    },
+    {
+      "line": 133,
+      "timestamp": "2026-09-10T04:47:23.927Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '1,140p' v12/python/tests/integration/test_admission.py",
+        "description": "Read test_admission.py head"
+      }
+    },
+    {
+      "line": 138,
+      "timestamp": "2026-09-10T04:47:26.619Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '140,333p' v12/python/tests/integration/test_admission.py; echo \"=== fixtures ===\"; cat v12/python/tests/integration/fixtures.py",
+        "description": "Read rest of test_admission and fixtures"
+      }
+    },
+    {
+      "line": 141,
+      "timestamp": "2026-09-10T04:48:01.364Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '515,570p' v12/python/tests/tools/test_integration_bundle.py; echo ...; sed -n '1240,1275p' v12/python/tests/tools/test_integration_bundle.py; echo \"=== contract 90-140 ===\"; sed -n '90,140p' v12/worker/integration_contract.py",
+        "description": "Check bundle test source inspection"
+      }
+    },
+    {
+      "line": 146,
+      "timestamp": "2026-09-10T04:48:52.552Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '140,215p' v12/python/src/baton_v12/integration/execution.py; echo \"=== test_execution 580-640 ===\"; sed -n '585,650p' v12/python/tests/integration/test_execution.py",
+        "description": "Inspect execution revalidation"
+      }
+    },
+    {
+      "line": 151,
+      "timestamp": "2026-09-10T04:49:09.636Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '1155,1230p' v12/python/src/baton_v12/integration/driver.py; echo \"=== 1084-1160 ===\"; sed -n '1084,1162p' v12/python/src/baton_v12/integration/driver.py",
+        "description": "Read driver settled entry and accepted receipts"
+      }
+    },
+    {
+      "line": 154,
+      "timestamp": "2026-09-10T04:50:18.765Z",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n '__all__\\|import baton_v12.integration\\b\\|from baton_v12.integration import' v12/python/tests/integration/test_coordinator.py | head -20; echo \"=== driver test compat ===\"; grep -n 'class TheOrdinaryCommandTraversesPublicAdmission' -A 30 v12/python/tests/integration/test_driver.py | head -50",
+        "description": "Check coordinator __all__ tests and driver compat class"
+      }
+    },
+    {
+      "line": 160,
+      "timestamp": "2026-09-10T04:50:49.584Z",
+      "name": "Bash",
+      "input": {
+        "command": "cat >> work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/PROGRESS.md <<'EOF'\n\n## claim133645 \u2014 the separation, the exports and the required test module\n\nSTILL IN FLIGHT. claim133353 was released at 2026-09-10T04:40:02Z under\nW133361/owner133489's reviewed preservation manifest, which binds 20 P\nsource/test/dossier entries. All of them survived.\n\n**Baseline revalidated at claim start.** Every one of the 43 post-D paths in\n`../finding-target-rework-custody/evidence/review-133171/result.json` agrees by\ndigest and mode EXCEPT two, and neither is drift into this scope:\n\n- `AGENTS.md` moved `67cc573e\u2026` -> `a7323bbc\u2026` (0o664 both). That is\n  W133361's independently reviewed policy correction, reviewed at\n  `review-2026-09-10T04-32-48Z.md`, and it is not a P path.\n- the four P paths this Work owns are exactly the recorded bytes:\n  `git_profile.py` `97f90ab9\u2026`, `schema.py` `5316631c\u2026`,\n  `reconciliation.py` `4e5c9e21\u2026`, `test_coordinator.py` `7fb6ec2c\u2026`.\n\nThe recorded absences (`worker_manager/target_rework.py`,\n`tests/manager/test_target_rework.py`) are still absent; the one planned-new P\npath still absent is `tests/integration/test_reconciliation.py`.\n\n### DESIGN PINNED BEFORE EDITS \u2014 how the separation can and cannot be made\n\nCONTRACT-v1 section 6 asks admission/driver to separate source eligibility\nfrom the import account while \"existing direct imports retain their old\nexact-target path\". Two facts in the tree decide the shape, and both were\nchecked rather than assumed:\n\n1. `tests/tools/test_integration_bundle.py`'s\n   `test_the_eligibility_members_are_the_admission_owners_own` reads\n   `inspect.getsource(admission.resolved_account)` and requires all fifteen\n   `ELIGIBILITY_MEMBERS` to appear there. The account's dict LITERAL must\n   therefore stay lexically inside `resolved_account`.\n2. `tests/integration/test_execution.py`'s\n   `test_the_refusal_records_what_the_producers_said` moves the canonical\n   target and asserts the settled detail says \"expected target revision\" --\n   which is `resolved_account`'s own refusal. `resolved_account` must\n   therefore KEEP proving freshness.\n\nBoth files are Q scope and neither may be edited here. So the separation is\nADDITIVE, and removing the guard from `resolved_account` -- the \"one-line\nguard removal\" INTEGRATION-SCOPE-v1 warns about -- is exactly the thing the\ntree already refuses.\n\n- `_proved(...)` (new, private): the single resolver. Every producer read and\n  every cross-binding, with the current-target comparison under a `freshness`\n  flag. One reading of the sources, not two.\n- `resolved_account(..., freshness=True)`: unchanged public name, unchanged\n  default behaviour, unchanged fifteen-member literal. Documented for what it\n  has always been -- the DIRECT IMPORT account, eligibility plus the exact\n  current target.\n- `source_account(...)` (new public): the same fifteen members with freshness\n  NOT proved. This is the account a result branch consumes, and its\n  `expected_target_revision` is the submission's own declared base rather\n  than a claim about the present.\n- `source_submission(...)` (new public): the twelve-member operand\n  `reconciliation.prepare_result` takes, composed from `_proved`'s own\n  documents -- `job_id` from the accepted Job and `source_base`/\n  `source_candidate` from the accepted checkpoint evidence's `base`/`head`,\n  which are the two objects the fifteen-member account does not carry and\n  which cannot be added to it here (that closed account and its worker\n  contract are versioned in Q).\n- `driver._import_account(...)` (new private): the one seam where driver\n  decides which account an import acts on -- the admitted one when the entry\n  has already settled, otherwise `resolved_account`. Four call sites collapse\n  onto it. No behaviour changes; Q's serial extension gets one place to add\n  the result branch instead of four.\n- `__init__.py`: export the new owners -- `reconciliation`'s five operations\n  plus `result_identity` and its four operation kinds, `git_profile`'s\n  profile/refusal/name/version, and admission's `admit_candidate`,\n  `resolved_account`, `source_account`, `source_submission`.\n\n### Test paths and reasons, pinned before edits\n\n- `tests/integration/test_reconciliation.py` (new): the six required named\n  groups, over a REAL coordinator store, REAL repositories, the REAL profile\n  and a REAL Authority, plus the causal base-fail / isolated-pass /\n  combined-pass and a separate combined-fail observation produced by actually\n  running a harness against the three content states.\n- `tests/integration/test_admission.py`: the named `AcceptedAccount` and\n  `RefusalBeforeMutation` compatibility controls stay as they are --\n  `test_stale_target_refuses` is the proof that the direct path kept its\n  exact-target rule -- and gain the control that `source_account` answers the\n  SAME account when the target has moved, which is the separation itself.\n- `tests/integration/test_driver.py`: `TheOrdinaryCommandTraversesPublicAdmission`\n  is the compatibility control and is not edited.\n- `tests/integration/test_coordinator.py`: already changed at claim133275.\nEOF\necho pinned",
+        "description": "Pin design in PROGRESS.md"
+      }
+    },
+    {
+      "line": 163,
+      "timestamp": "2026-09-10T04:50:52.613Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '160,200p' v12/python/src/baton_v12/integration/admission.py",
+        "description": "Re-read resolved_account head"
+      }
+    },
+    {
+      "line": 165,
+      "timestamp": "2026-09-10T04:51:06.053Z",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'PY'\nimport re\np = \"v12/python/src/baton_v12/integration/admission.py\"\ns = open(p).read()\n\n# 1. __all__\ns = s.replace(\n    '__all__ = [\"admit_candidate\", \"resolved_account\"]',\n    '__all__ = [\"admit_candidate\", \"resolved_account\", \"source_account\",\\n'\n    '           \"source_submission\"]')\n\n# 2. split resolved_account into _proved + the literal-owning public\nold_head = '''def resolved_account(manager, jobs, authority, *, line_id, proposal_id):\n    \"\"\"The fifteen-member account, RE-RESOLVED from its accepted producers.\n\n    THE PROOF WITHOUT THE ENQUEUE, and W101492's review is why it is separate.\n    Admission is valid when an entry receives its rank and can be stale by the\n    time that entry reaches the head of the queue: Authority may advance the\n    canonical target, or the accepted evidence may cease to agree. So the same\n    resolution has to run a second time, under the live grant and before any\n    model is asked to write -- and it has to be the SAME resolution rather than\n    a second reading of the same sources, or the two would drift exactly where\n    it matters.\n\n    `admit_candidate` is now this plus `enqueue`, which is what it always was;\n    nothing about what it proves has changed.\n    \"\"\"\n'''\nnew_head = '''def _proved(manager, jobs, authority, *, line_id, proposal_id, freshness):\n    \"\"\"Every accepted producer this admission reads, proved once.\n\n    W133117 SEPARATES TWO QUESTIONS THIS ONE FUNCTION USED TO ANSWER TOGETHER.\n    Whether a submission is an ELIGIBLE candidate is a statement about the\n    producer: its accepted checkpoint, its writer's assignment and frozen\n    output, its Authority proposal and three policy receipts, and the Job that\n    owns its input, policy and test scope. Whether it may be imported RIGHT\n    NOW is a different statement, about the target -- and the second Job in\n    W131409 fails only the second one, because the first Job's integration\n    moved the canonical target out from under a submission that is otherwise\n    exactly as accepted as it ever was.\n\n    `freshness` is which of the two this caller is asking for, and it gates\n    nothing else. Everything above it runs either way, so a source account is\n    never a weaker proof of eligibility -- it is the same proof with the\n    target question left to whoever owns the import.\n\n    ONE READING OF THE SOURCES. The public answers below are composed from\n    what this returns rather than from their own reads, because two readings\n    of one surface drift exactly where it matters.\n    \"\"\"\n'''\nassert old_head in s\ns = s.replace(old_head, new_head)\nopen(p,\"w\").write(s)\nprint(\"head replaced\")\nPY",
+        "description": "Rename resolved_account to _proved"
+      }
+    },
+    {
+      "line": 168,
+      "timestamp": "2026-09-10T04:51:30.476Z",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'PY'\np = \"v12/python/src/baton_v12/integration/admission.py\"\ns = open(p).read()\n\nold = '''    current_target = _authority_call(authority.canonical_target,\n                                     \"the canonical target read\")\n    boundaries.text(current_target, \"the Authority's canonical target\")\n\n    proposal_assignment'''\nnew = '''    proposal_assignment'''\nassert old in s\ns = s.replace(old, new)\n\nold = '''    _same(\"the expected target revision\", proposal[\"target\"], current_target)\n\n    job, scope = _job_for(jobs, proposal_work[\"work_id\"])'''\nnew = '''    if freshness:\n        # THE ONE QUESTION THAT IS ABOUT THE TARGET AND NOT ABOUT THE\n        # SUBMISSION. `resolved_account` asks it, `source_account` does not,\n        # and the direct import path is the caller that still needs it here.\n        current_target = _authority_call(authority.canonical_target,\n                                         \"the canonical target read\")\n        boundaries.text(current_target, \"the Authority's canonical target\")\n        _same(\"the expected target revision\", proposal[\"target\"],\n              current_target)\n\n    job, scope = _job_for(jobs, proposal_work[\"work_id\"])'''\nassert old in s\ns = s.replace(old, new)\n\nold = '''    account = {\n        \"authority_uuid\": assignment[\"authority_uuid\"],\n        \"work_id\": assignment[\"work_id\"],\n        \"assignment_generation\": generation,\n        \"line_id\": accepted[\"line_id\"],\n        \"checkpoint_id\": accepted[\"checkpoint_id\"],\n        \"verdict_id\": accepted[\"verdict_id\"],\n        \"checkpoint_digest\": accepted[\"checkpoint_digest\"],\n        \"proposal_id\": proposal[\"proposal_id\"],\n        \"candidate_digest\": proposal[\"candidate_digest\"],\n        \"result_id\": proposal[\"result_id\"],\n        \"result_digest\": proposal[\"result_digest\"],\n        \"profile_kind\": accepted[\"evidence\"][\"profile\"],\n        \"expected_target_revision\": proposal[\"target\"],\n        \"path_set_digest\": accepted[\"evidence\"][\"path_set_digest\"],\n        \"scope_digest\": digest(scope),\n    }\n    return account\n'''\nnew = '''    return {\"accepted\": accepted, \"assignment\": assignment,\n            \"generation\": generation, \"proposal\": proposal, \"job\": job,\n            \"scope\": scope}\n\n\ndef resolved_account(manager, jobs, authority, *, line_id, proposal_id):\n    \"\"\"The fifteen-member account of one candidate that may be imported NOW.\n\n    THE PROOF WITHOUT THE ENQUEUE, and W101492's review is why it is separate.\n    Admission is valid when an entry receives its rank and can be stale by the\n    time that entry reaches the head of the queue: Authority may advance the\n    canonical target, or the accepted evidence may cease to agree. So the same\n    resolution has to run a second time, under the live grant and before any\n    model is asked to write -- and it has to be the SAME resolution rather than\n    a second reading of the same sources, or the two would drift exactly where\n    it matters.\n\n    W133117 NAMES WHAT THIS ALWAYS WAS: the DIRECT IMPORT account. It is\n    source eligibility plus the rule that the submission's own declared target\n    is still the Authority's canonical one, and INTEGRATION-CONTRACT-v1\n    section 6 keeps that rule exactly where it is -- existing direct imports\n    retain their old exact-target path. A candidate whose target moved is\n    answered by `reconciliation`, which prepares a NEW result from the same\n    untouched submission; it is not answered by relaxing this.\n\n    `admit_candidate` is now this plus `enqueue`, which is what it always was;\n    nothing about what it proves has changed.\n    \"\"\"\n    proved = _proved(manager, jobs, authority, line_id=line_id,\n                     proposal_id=proposal_id, freshness=True)\n    accepted, proposal = proved[\"accepted\"], proved[\"proposal\"]\n    assignment = proved[\"assignment\"]\n    account = {\n        \"authority_uuid\": assignment[\"authority_uuid\"],\n        \"work_id\": assignment[\"work_id\"],\n        \"assignment_generation\": proved[\"generation\"],\n        \"line_id\": accepted[\"line_id\"],\n        \"checkpoint_id\": accepted[\"checkpoint_id\"],\n        \"verdict_id\": accepted[\"verdict_id\"],\n        \"checkpoint_digest\": accepted[\"checkpoint_digest\"],\n        \"proposal_id\": proposal[\"proposal_id\"],\n        \"candidate_digest\": proposal[\"candidate_digest\"],\n        \"result_id\": proposal[\"result_id\"],\n        \"result_digest\": proposal[\"result_digest\"],\n        \"profile_kind\": accepted[\"evidence\"][\"profile\"],\n        \"expected_target_revision\": proposal[\"target\"],\n        \"path_set_digest\": accepted[\"evidence\"][\"path_set_digest\"],\n        \"scope_digest\": digest(proved[\"scope\"]),\n    }\n    return account\n\n\ndef source_account(manager, jobs, authority, *, line_id, proposal_id):\n    \"\"\"The same fifteen members, proved as ELIGIBILITY and nothing more.\n\n    W131409: a second Job cannot integrate once the canonical target moves\n    past its line. This is the account that says why it still should -- every\n    member is the accepted producer's own answer, and `resolved_account`'s\n    literal is where all fifteen are spelled, so there is one owner of the\n    shape rather than two that can disagree.\n\n    ITS `expected_target_revision` IS THE SUBMISSION'S OWN DECLARED BASE. That\n    is what the producer's proposal names and what the submission was actually\n    written against; read as a claim about the present it would be false the\n    moment another Job integrates, which is precisely why nothing here reads\n    it that way. Result freshness belongs to the result: the reconciliation\n    record pins its own target snapshot and `resolve_import_account` compares\n    the dedicated target's CURRENT revision against it before any import.\n\n    No caller may use this to import. It admits nothing and enqueues nothing.\n    \"\"\"\n    return _proved(manager, jobs, authority, line_id=line_id,\n                   proposal_id=proposal_id,\n                   freshness=False) and resolved_account_of(\n        _proved(manager, jobs, authority, line_id=line_id,\n                proposal_id=proposal_id, freshness=False))\n'''\nassert old in s\ns = s.replace(old, new)\nopen(p,\"w\").write(s)\nprint(\"ok\")\nPY",
+        "description": "Split resolver and add public accounts"
+      }
+    },
+    {
+      "line": 171,
+      "timestamp": "2026-09-10T04:51:50.268Z",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'PY'\np = \"v12/python/src/baton_v12/integration/admission.py\"\ns = open(p).read()\n\nold = '''def resolved_account(manager, jobs, authority, *, line_id, proposal_id):\n    \"\"\"The fifteen-member account of one candidate that may be imported NOW.'''\nnew = '''def resolved_account(manager, jobs, authority, *, line_id, proposal_id,\n                     freshness=True):\n    \"\"\"The fifteen-member account of one candidate that may be imported NOW.'''\nassert old in s\ns = s.replace(old, new)\n\nold = '''    proved = _proved(manager, jobs, authority, line_id=line_id,\n                     proposal_id=proposal_id, freshness=True)'''\nnew = '''    proved = _proved(manager, jobs, authority, line_id=line_id,\n                     proposal_id=proposal_id, freshness=freshness)'''\nassert old in s\ns = s.replace(old, new)\n\nold = '''    return _proved(manager, jobs, authority, line_id=line_id,\n                   proposal_id=proposal_id,\n                   freshness=False) and resolved_account_of(\n        _proved(manager, jobs, authority, line_id=line_id,\n                proposal_id=proposal_id, freshness=False))\n'''\nnew = '''    return resolved_account(manager, jobs, authority, line_id=line_id,\n                            proposal_id=proposal_id, freshness=False)\n\n\ndef source_submission(manager, jobs, authority, *, line_id, proposal_id):\n    \"\"\"What `reconciliation.prepare_result` reconciles: one eligible\n    submission, named by the producers that accepted it.\n\n    TWO OF ITS TWELVE MEMBERS ARE NOT IN THE ACCOUNT, and that is why this\n    exists rather than a caller re-spelling one. `source_base` and\n    `source_candidate` are Git objects -- the accepted checkpoint evidence's\n    own `base` and `head` -- while the account carries content DIGESTS, which\n    name the same candidate in a different language and cannot be substituted\n    for each other. `job_id` is the accepted Job's, which admission resolves\n    to prove the input, policy and scope and which the closed fifteen-member\n    account has no member for. Adding members to that account would version it\n    and the worker contract that re-spells it, and that versioning belongs to\n    the queue and bundle slice rather than here.\n\n    SOURCE ELIGIBILITY, NOT FRESHNESS. This is the operand of a reconciliation\n    that exists BECAUSE the target moved, so requiring the submission's base\n    to still be canonical would refuse every candidate it is for.\n    \"\"\"\n    proved = _proved(manager, jobs, authority, line_id=line_id,\n                     proposal_id=proposal_id, freshness=False)\n    accepted, proposal = proved[\"accepted\"], proved[\"proposal\"]\n    assignment, evidence = proved[\"assignment\"], accepted[\"evidence\"]\n    return {\n        \"authority_uuid\": assignment[\"authority_uuid\"],\n        \"work_id\": assignment[\"work_id\"],\n        \"job_id\": proved[\"job\"][\"job_id\"],\n        \"line_id\": accepted[\"line_id\"],\n        \"source_checkpoint_id\": accepted[\"checkpoint_id\"],\n        \"source_verdict_id\": accepted[\"verdict_id\"],\n        \"source_proposal_id\": proposal[\"proposal_id\"],\n        \"source_result_id\": proposal[\"result_id\"],\n        \"source_result_digest\": proposal[\"result_digest\"],\n        \"source_checkpoint_digest\": accepted[\"checkpoint_digest\"],\n        \"source_base\": evidence[\"base\"],\n        \"source_candidate\": evidence[\"head\"],\n    }\n'''\nassert old in s\ns = s.replace(old, new)\nopen(p,\"w\").write(s)\nprint(\"ok\")\nPY\npython3 -c \"import ast,sys; ast.parse(open('v12/python/src/baton_v12/integration/admission.py').read())\" && echo \"parses\"",
+        "description": "Fix source_account and add source_submission"
+      }
+    },
+    {
+      "line": 175,
+      "timestamp": "2026-09-10T04:51:53.103Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '169,205p' v12/python/src/baton_v12/integration/admission.py; echo '...'; sed -n '286,330p' v12/python/src/baton_v12/integration/admission.py",
+        "description": "Review edited admission regions"
+      }
+    },
+    {
+      "line": 178,
+      "timestamp": "2026-09-10T04:51:58.201Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '1565,1585p' v12/python/src/baton_v12/integration/driver.py; echo \"=== 1640-1660 ===\"; sed -n '1640,1660p' v12/python/src/baton_v12/integration/driver.py",
+        "description": "Read continue_accepted call sites"
+      }
+    },
+    {
+      "line": 180,
+      "timestamp": "2026-09-10T04:52:15.970Z",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'PY'\np = \"v12/python/src/baton_v12/integration/driver.py\"\ns = open(p).read()\n\ns = s.replace(\n    \"from .admission import admit_candidate, resolved_account\",\n    \"from .admission import admit_candidate, resolved_account, source_account\")\nassert \"source_account\" in s\n\nanchor = '''def _same_account(entry, current):'''\nhelper = '''def _import_account(manager, jobs, authority, settled, *, line_id,\n                    proposal_id):\n    \"\"\"WHICH account this import acts on, decided in one place.\n\n    W133117 separated source eligibility from the import account, and this is\n    where driver says which one it is asking for. An import is the direct\n    path: `resolved_account` is source eligibility PLUS the rule that the\n    submission's declared target is still the Authority's canonical one, and\n    INTEGRATION-CONTRACT-v1 section 6 keeps that rule exactly here. A\n    submission whose target moved is not admitted by weakening this; it is\n    reconciled into a NEW result that carries its own pinned snapshot,\n    evidence and derived proposal, and `reconciliation.resolve_import_account`\n    is that branch's answer to the same question.\n\n    AND A SETTLED ENTRY IS NOT RE-RESOLVED. Once an integration completes the\n    canonical target has MOVED, so re-resolving would refuse -- correctly --\n    and a replay could never reach the entry it is draining. The entry carries\n    the account that derived its identity in the first place; reading it back\n    is the only account that entry ever had. `_settled_entry` documents why\n    that is conservative rather than a relaxation.\n    \"\"\"\n    if settled is not None:\n        return settled[\"eligibility\"]\n    return resolved_account(manager, jobs, authority, line_id=line_id,\n                            proposal_id=proposal_id)\n\n\ndef _same_account(entry, current):'''\nassert anchor in s\ns = s.replace(anchor, helper, 1)\n\nold = '''    account = (settled[\"eligibility\"] if settled is not None\n               else resolved_account(manager, jobs, authority,\n                                     line_id=line_id,\n                                     proposal_id=proposal_id))\n    identity_basis = {\"canonical_target_id\": canonical_target_id,\n                      \"eligibility\": account}\n    entry_id = _identity(\"entry\", identity_basis)\n    lease_basis = dict(identity_basis, entry_id=entry_id,\n                       attempt_id=attempt_id)'''\nnew = '''    account = _import_account(manager, jobs, authority, settled,\n                              line_id=line_id, proposal_id=proposal_id)\n    identity_basis = {\"canonical_target_id\": canonical_target_id,\n                      \"eligibility\": account}\n    entry_id = _identity(\"entry\", identity_basis)\n    lease_basis = dict(identity_basis, entry_id=entry_id,\n                       attempt_id=attempt_id)'''\nassert old in s\ns = s.replace(old, new)\n\nold = '''    account = (settled[\"eligibility\"] if settled is not None\n               else resolved_account(manager, jobs, authority,\n                                     line_id=line_id,\n                                     proposal_id=proposal_id))\n    identity_basis = {\"canonical_target_id\": canonical_target_id,\n                      \"eligibility\": account}\n    entry_id = _identity(\"entry\", identity_basis)\n    lease_id = _identity(\"lease\", dict(identity_basis, entry_id=entry_id,\n                                       attempt_id=attempt_id))'''\nnew = '''    account = _import_account(manager, jobs, authority, settled,\n                              line_id=line_id, proposal_id=proposal_id)\n    identity_basis = {\"canonical_target_id\": canonical_target_id,\n                      \"eligibility\": account}\n    entry_id = _identity(\"entry\", identity_basis)\n    lease_id = _identity(\"lease\", dict(identity_basis, entry_id=entry_id,\n                                       attempt_id=attempt_id))'''\nassert old in s\ns = s.replace(old, new)\n\nold = '''                current = resolved_account(manager, jobs, authority,\n                                           line_id=line_id,\n                                           proposal_id=proposal_id)\n                _same_account(entry, current)'''\nnew = '''                current = _import_account(manager, jobs, authority, None,\n                                          line_id=line_id,\n                                          proposal_id=proposal_id)\n                _same_account(entry, current)'''\nassert old in s\ns = s.replace(old, new)\n\nold = '''    _same_account(entry, resolved_account(manager, jobs, authority,\n                                          line_id=line_id,\n                                          proposal_id=proposal_id))'''\nnew = '''    _same_account(entry, _import_account(manager, jobs, authority, None,\n                                         line_id=line_id,\n                                         proposal_id=proposal_id))'''\nassert old in s\ns = s.replace(old, new)\nopen(p,\"w\").write(s)\nprint(\"ok\")\nPY\npython3 -c \"import ast; ast.parse(open('v12/python/src/baton_v12/integration/driver.py').read())\" && echo parses",
+        "description": "Add driver _import_account seam"
+      }
+    },
+    {
+      "line": 183,
+      "timestamp": "2026-09-10T04:52:23.544Z",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'PY'\np = \"v12/python/src/baton_v12/integration/driver.py\"\ns = open(p).read()\ns = s.replace(\"from .admission import admit_candidate, resolved_account, source_account\",\n              \"from .admission import admit_candidate, resolved_account\")\nopen(p,\"w\").write(s)\nPY\ngrep -n 'from .admission import' v12/python/src/baton_v12/integration/driver.py",
+        "description": "Remove unused import"
+      }
+    },
+    {
+      "line": 188,
+      "timestamp": "2026-09-10T04:52:33.036Z",
+      "name": "Bash",
+      "input": {
+        "command": "python3 - <<'PY'\np = \"v12/python/src/baton_v12/integration/__init__.py\"\ns = open(p).read()\n\nold = '''from .store import IntegrationStore, integration_signature\n'''\nnew = '''from .store import IntegrationStore, integration_signature\nfrom .admission import (admit_candidate, resolved_account, source_account,\n                        source_submission)\nfrom .git_profile import (PROFILE_NAME, PROFILE_VERSION, GitIntegrationProfile,\n                          IntegrationProfileRefusal)\nfrom .reconciliation import (EVIDENCE_KIND, INTENT_KIND, OUTCOME_KIND,\n                             PUBLISH_KIND, prepare_result,\n                             publish_result, record_result_evidence,\n                             resolve_import_account, result_identity,\n                             result_of)\n'''\nassert old in s\ns = s.replace(old, new)\n\nold = '''           \"retain_proposal\"]'''\nnew = '''           \"retain_proposal\",\n           # W133117: source eligibility, the integration RESULT it is\n           # reconciled into, and the standalone profile that prepares one.\n           # `resolved_account` is the DIRECT IMPORT account and keeps the\n           # exact-target rule; `source_account` is the same fifteen members\n           # proved as eligibility alone, and `source_submission` is what\n           # `prepare_result` reconciles.\n           \"admit_candidate\", \"resolved_account\", \"source_account\",\n           \"source_submission\",\n           \"PROFILE_NAME\", \"PROFILE_VERSION\", \"GitIntegrationProfile\",\n           \"IntegrationProfileRefusal\",\n           \"EVIDENCE_KIND\", \"INTENT_KIND\", \"OUTCOME_KIND\", \"PUBLISH_KIND\",\n           \"prepare_result\", \"publish_result\", \"record_result_evidence\",\n           \"resolve_import_account\", \"result_identity\", \"result_of\"]'''\nassert old in s\ns = s.replace(old, new)\nopen(p,\"w\").write(s)\nprint(\"ok\")\nPY\ncd v12/python && PYTHONPATH=src python3 -c \"\nimport baton_v12.integration as I\nmissing = [n for n in I.__all__ if not hasattr(I, n)]\nprint('missing:', missing)\nprint('count:', len(I.__all__), 'unique:', len(set(I.__all__)))\n\"",
+        "description": "Add __init__ exports and smoke check"
+      }
+    },
+    {
+      "line": 191,
+      "timestamp": "2026-09-10T04:52:37.968Z",
+      "name": "Bash",
+      "input": {
+        "command": "cd v12/python && ls && sed -n '1,40p' AGENTS.md 2>/dev/null; cat pytest.ini setup.cfg pyproject.toml 2>/dev/null | head -30",
+        "description": "Check test runner config"
+      }
+    },
+    {
+      "line": 193,
+      "timestamp": "2026-09-10T04:52:41.264Z",
+      "name": "Bash",
+      "input": {
+        "command": "/usr/bin/time -f 'ELAPSED %e' python3 -m pytest tests/integration/test_admission.py::AcceptedAccount tests/integration/test_admission.py::RefusalBeforeMutation -q 2>&1 | tail -20",
+        "description": "Run admission compatibility selectors"
+      }
+    },
+    {
+      "line": 196,
+      "timestamp": "2026-09-10T04:52:44.028Z",
+      "name": "Bash",
+      "input": {
+        "command": "pwd; ls /home/sl/src/baton/v12/python; ls /home/sl/src/baton/v12/python/.venv 2>/dev/null | head",
+        "description": "Locate python dir"
+      }
+    },
+    {
+      "line": 198,
+      "timestamp": "2026-09-10T04:52:46.170Z",
+      "name": "Bash",
+      "input": {
+        "command": "cat justfile | head -40",
+        "description": "Read justfile"
+      }
+    },
+    {
+      "line": 200,
+      "timestamp": "2026-09-10T04:52:48.492Z",
+      "name": "Bash",
+      "input": {
+        "command": "grep -n -A15 '^test:' justfile",
+        "description": "Read test recipe"
+      }
+    },
+    {
+      "line": 202,
+      "timestamp": "2026-09-10T04:52:50.604Z",
+      "name": "Bash",
+      "input": {
+        "command": "sed -n '56,80p' justfile",
+        "description": "Rest of test recipe"
+      }
+    },
+    {
+      "line": 207,
+      "timestamp": "2026-09-10T04:52:54.972Z",
+      "name": "Bash",
+      "input": {
+        "command": "/usr/bin/time -f 'ELAPSED %e' env PYTHONPATH=src python3 -m unittest tests.integration.test_admission.AcceptedAccount tests.integration.test_admission.RefusalBeforeMutation -v 2>&1 | tail -30",
+        "description": "Run admission compatibility selectors"
+      }
+    }
+  ],
+  "finals": [],
+  "progress_observed": "# Progress\n\nNo implementation started. Reviewer133108 created this dossier with Work133117.\nActual change authors append attributable entries under their claims.\n\n## claim133218 \u2014 the gate is proved and the standalone profile is real\n\nIN FLIGHT. This entry exists so the state is resumable from the record rather\nthan from a context: the claim is held and the remaining P scope is listed at\nthe end.\n\n**Baseline revalidated first.** All 43 post-D paths in\n`../finding-target-rework-custody/evidence/review-133171/result.json` agree by\ndigest and mode, including the five recorded absences, and the three planned-new\nP files were absent.\n\n**1. The mandatory Authority-publication gate: EXPRESSIBLE.** Recorded in\nFINDING at 2026-09-10T03:44:36Z with the probe retained at\n`evidence/gate-133218-probe.py` and its answers at\n`evidence/gate-133218-authority-publication.json`. Static: `publish` is in the\nsession's closed transition table with `target` OPTIONAL, sits in\n`_ASSIGNMENT_FIRST`, and carries no `actor` flag, so it is authorized by the\nassignment compare-and-swap rather than a capability grant. Against a REAL\nAuthority: the integrator publishes a derived proposal under its OWN live\nassignment, with a new frozen result identity, the combined candidate and an\nexplicitly pinned target snapshot; it reads back through the ordinary reader,\nan exact retry replays it, the producer's original proposal is untouched, and\nborrowing the producer's result identity refuses. No amendment is needed and no\nAuthority edit is proposed. **0.05s.**\n\n**2. `src/baton_v12/integration/git_profile.py` (new, 0o664),**\nsha256 `97f90ab9c573da4cd578062320736b0f3bdbe77bbbb4ee64ffc3d4397b027864`.\n\nStandalone by construction: it imports only the standard library and its own\nrefusal, so the same primitives can be copied into an integration worker image\nwithout carrying a manager, Authority, store or coordinator capability across\nthat boundary. It writes in exactly two places \u2014 objects and prepared\nreferences under the nominated private storage, and the dedicated target at one\nexplicitly configured reference through a compare-and-swap. `merge-tree\n--write-tree` reads three commits and writes one tree, so no index, worktree or\nHEAD is an operand and the producer's line cannot be one. Symlinks and\nsubmodules refuse at the content reader rather than at the import.\n\nProved by a focused real-repository probe, retained at\n`evidence/profile-133218-probe.py`: Job B's ORIGINAL submission \u2014 never rebased\n\u2014 reconciles with the snapshot Job A's integration produced; the prepared\nresult carries BOTH changes; the submission is untouched; an exact replay\nanswers the identical evidence rather than merging twice; the configured\nreference advances by compare-and-swap and a STALE swap refuses with Git's own\nwords; and a real conflict HOLDS with its exact path while retaining nothing.\n**0.23s.**\n\n**Cost so far: 0.33s of the 77s author allocation**, every run wall-timed.\n\n**Remaining P scope, in dependency order:** integration `schema.py` schema-5\nfresh-store boundary and the typed reconciliation relation; `store.py` reader\nsupport; `reconciliation.py` with `prepare_result`, `result_of`,\n`record_result_evidence`, `publish_result` and `resolve_import_account`;\n`admission.py`/`driver.py` separation of source eligibility from the import\naccount; `__init__.py` exports; and `tests/integration/test_reconciliation.py`\nwith the six required named groups plus the causal base-fail / isolated-pass /\ncombined-pass and combined-fail observations, with `test_admission`,\n`test_driver` and `test_coordinator` compatibility selectors.\n\n## claim133275 \u2014 schema 5 and the typed result relation\n\nSTILL IN FLIGHT. The previous claim133218 was released by the owner at\n2026-09-10T03:50:43Z as Incident47, \"ACP turn ended and no execution remains\",\npreserving partial work, evidence and budget history. It did: the baseline\nrevalidated clean at this claim's start and `git_profile.py` survived intact.\nThe lesson is a cadence one and I am applying it -- each increment ends with a\ndurable record here, so an orphaned claim costs a redelivery and nothing else.\n\n**Baseline revalidated at claim start.** All 43 post-D paths agree by digest and\nmode. `git_profile.py` is present as this Work's own new file; the other two\nplanned-new P paths remain absent.\n\n**3. `src/baton_v12/integration/schema.py` -> `5316631cbba56ba941040612c692021a8f029cee5ec5f660755b7ab0d4b9e4c9` (0o664).**\n\nSchema 5 with the `integration_results` relation. It reaches the fresh-store\nboundary the same way version 4 already does -- a database at another version\nis refused rather than guessed across, and no migration is invented -- because\na schema-4 store has no relation these facts could live in and no way to tell a\ndirect import from a reconciled one after the fact.\n\nThe relation is built around the contract's central distinction. It NAMES the\noriginal submission -- line, checkpoint, verdict, proposal, frozen result,\nbase and candidate -- as immutable references it never rewrites, and owns only\nwhat belongs to the RESULT: the prepared content, the pinned target snapshot,\nits own verification/review/approval evidence and its own derived Authority\nproposal. Its CHECK constraints make the contract structural rather than\nadvisory: a reason belongs to a hold and nothing else; prepared content is\nabsent until there is some; a result cannot be `authorized`, `published` or\n`imported` without its OWN evidence recorded; a published result must name its\nown derived proposal, never the producer's; and `UNIQUE (canonical_target_id,\nsource_proposal_id, target_revision)` is what makes a later target advance a\nNEW result from the same submission rather than a mutation of this one.\n\nVerified: the DDL executes, the table set matches `TABLES` exactly, and the 33\npersisted columns match the `RESULT_COLUMNS` contract with no mismatch either\nway. **0.14s.**\n\n**4. `tests/integration/test_coordinator.py` -> `7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea` (0o664).**\n\nOne test changed:\n`test_the_expectation_is_measured_from_the_schema_it_checks` compared\n`expected_shape()` against a RETYPED table literal, which is the second owner\nof the shape its own docstring warns about. It now asserts against the module's\nown `TABLES`, plus that the new relation is in it. The\n`TheStoreIsAdoptedByOwnershipRatherThanResemblance` and `ReadOnlyOpening`\nselectors pass at 27 tests. **0.22s** (plus 0.22s and 0.20s for the two\niterations that found the retyped literal and then the wrong import path).\n\n**Cost so far: 1.11s of the 77s author allocation**, every run wall-timed.\nCarried forward from claim133218: the Authority-publication gate (EXPRESSIBLE,\n0.05s) and `git_profile.py` proved by real repositories (0.23s), both recorded\nabove with retained probes at `evidence/gate-133218-probe.py` and\n`evidence/profile-133218-probe.py`.\n\n**Remaining P scope, unchanged in order:** `store.py` reader support;\n`reconciliation.py` with `prepare_result`, `result_of`,\n`record_result_evidence`, `publish_result` and `resolve_import_account` --\nbuilt on this store's `replay(..., witness=)` seam, which already REQUIRES a\nsemantic owner to re-prove a materialized act and is exactly the discipline\nslice A's R3 lacked; `admission.py`/`driver.py` separation of source\neligibility from the import account; `__init__.py` exports; and\n`tests/integration/test_reconciliation.py` with the six required named groups\nplus the causal base-fail / isolated-pass / combined-pass and combined-fail\nobservations.\n\n## claim133318 \u2014 the custody owner's intent, outcome and reader binding\n\nSTILL IN FLIGHT. claim133275 was released as orphaned the same way claim133218\nwas; the durable record carried the state and the baseline revalidated clean\nagain at this claim's start.\n\n**5. `src/baton_v12/integration/reconciliation.py` -> `544b220c30e8422b7ac60dfbc3817837a66d37f2745c9e69212c443dcaf46d72` (0o664).**\n\n`prepare_result`, `result_of` and `result_identity`, with the three defects the\nsuperseded slice's review found built in from the start rather than bolted on.\n\n**Intent is not outcome (R2's correction).** A committed INTENT records that\nthis exact submission is being reconciled onto this exact pinned revision in\nthis exact workspace under this exact assignment. A retry finding an intent\nwith no outcome RESUMES -- it asks the profile again, with the ORIGINAL\nrecorded target, and the profile validates and reuses whatever it already\nretained instead of reconciling twice. Only a settled OUTCOME replays. The\nsuperseded slice answered \"already done\" and called the profile zero times.\n\n**Operands are recovered, not recomputed (R4's correction).** The profile is\nasked with the record's own operands read back from the row, so a resume cannot\nselect a later target; and because the pinned revision is part of the derived\nidentity, a target that HAS moved yields a different record and leaves the\nearlier one exactly as it was -- which is the contract's own rule that a later\nadvance is a new result from the same submission.\n\n**Readers bind by re-derivation (R3's correction).** `result_of` adopts the row\nagainst its closed column contract, adopts each nested document against its\nown, RE-DERIVES the result identity from the fixed operands the row itself\ncarries, and requires the journal operation the row names to be recorded under\nthe signature those same operands produce. Row existence proves neither.\n\n**Proved by a focused real control**, retained at\n`evidence/reconciliation-133318-probe.py`, over a real coordinator store, real\nrepositories and the real profile: an ordinary preparation pins the target and\ncarries BOTH changes with the submission untouched; an exact retry is\nidentical; a committed intent whose outcome was removed RESUMES to the same\ntarget and the same content; an edited row is REFUSED and reads again once\nrestored; and a submission already based on the target refuses. **0.23s.**\n\nOne honest note for the test module rather than a claim here: the edited-row\ncontrol above was caught by the prepared-evidence target check, which fires\nbefore the identity re-derivation. The required `ResultReadersRejectTampering`\ngroup must alter a member that is NOT in prepared evidence -- a source verdict\nor proposal identity -- so the identity binding itself is exercised rather than\nassumed.\n\n**Cost so far: 2.12s of the 77s author allocation**, every run wall-timed.\n\n**Remaining P scope:** `record_result_evidence`, `publish_result` and\n`resolve_import_account` in this module; `store.py` reader support if the\nreaders above need it; `admission.py`/`driver.py` separation of source\neligibility from the import account; `__init__.py` exports; and\n`tests/integration/test_reconciliation.py` with its six required named groups\nplus the causal base-fail / isolated-pass / combined-pass and combined-fail\nobservations.\n\n## claim133353 \u2014 the custody owner's five public operations are complete\n\nSTILL IN FLIGHT. Same orphaned-claim cycle as before; the durable record\ncarried the state and the baseline revalidated clean at this claim's start.\n\n**`src/baton_v12/integration/reconciliation.py` -> `4e5c9e2185f184d2e718e05309f143c76691767c64845b669ef23300147793f6` (0o664).**\n`record_result_evidence`, `publish_result` and `resolve_import_account` join\n`prepare_result`, `result_of` and `result_identity`. All five of\nCONTRACT-v1 section 3's operations now exist.\n\n**Evidence is about THESE bytes or it is not this result's.** Each of the three\ndocuments names its own kind, identity, actor, disposition and the CONTENT\nDIGEST it was given about, and that digest must be this result's prepared\ncontent. No caller supplies an approval as a boolean and no producer receipt is\ncopied: the producer's verification, review and approval prove the SUBMISSION\nand say nothing about bytes that did not exist when they were recorded. One\nactor may not give two of the three, because independence is what they are for.\n\n**The derived proposal is the result's own.** Published under the INTEGRATION\nrole's live assignment, with a frozen result identity this record derives, the\ncombined candidate and the pinned snapshot as its target -- exactly what the\ngate proved expressible. Only an authorized result publishes.\n\n**The import account re-proves rather than remembers.** Content is revalidated\nagainst the workspace, evidence re-read, and the dedicated target's CURRENT\nrevision compared with the snapshot the result was prepared onto. The account\ncarries BOTH identities: the original submission's proposal and the derived\none.\n\n**Proved against a REAL Authority**, which is the focused real-Authority path\nthe dossier requires, retained at `evidence/operations-133353-probe.py`.\nThirteen facts hold: publishing before evidence refuses; evidence about other\nbytes refuses; one actor giving two judgements refuses; the authorized result\npublishes; the derived proposal names the integration assignment, the pinned\nsnapshot, the combined candidate and its OWN result identity rather than the\nproducer's; the publish retry is identical; the import account keeps the source\nproposal and names the derived one; and a target that moved AGAIN refuses the\nimport with the stale-result guard the contract keeps rather than removes.\n**0.23s.**\n\n**Cost so far: 2.54s of the 77s author allocation**, every run wall-timed.\n\n**Remaining P scope:** `admission.py`/`driver.py` separation of source\neligibility from the import account; `__init__.py` exports; `store.py` reader\nsupport if needed; and `tests/integration/test_reconciliation.py` with the six\nrequired named groups -- OriginalSubmissionIsImmutable,\nCausalEvidenceSurvivesComposition, PreparedResultReplaysItsIntent,\nResultReadersRejectTampering, DerivedPublicationUsesItsOwnAssignment and\nConflictsAndForeignSourcesHold -- plus the causal base-fail / isolated-pass /\ncombined-pass and combined-fail observations, with the named\n`test_admission`/`test_driver` compatibility selectors.\n\n## claim133645 \u2014 the separation, the exports and the required test module\n\nSTILL IN FLIGHT. claim133353 was released at 2026-09-10T04:40:02Z under\nW133361/owner133489's reviewed preservation manifest, which binds 20 P\nsource/test/dossier entries. All of them survived.\n\n**Baseline revalidated at claim start.** Every one of the 43 post-D paths in\n`../finding-target-rework-custody/evidence/review-133171/result.json` agrees by\ndigest and mode EXCEPT two, and neither is drift into this scope:\n\n- `AGENTS.md` moved `67cc573e\u2026` -> `a7323bbc\u2026` (0o664 both). That is\n  W133361's independently reviewed policy correction, reviewed at\n  `review-2026-09-10T04-32-48Z.md`, and it is not a P path.\n- the four P paths this Work owns are exactly the recorded bytes:\n  `git_profile.py` `97f90ab9\u2026`, `schema.py` `5316631c\u2026`,\n  `reconciliation.py` `4e5c9e21\u2026`, `test_coordinator.py` `7fb6ec2c\u2026`.\n\nThe recorded absences (`worker_manager/target_rework.py`,\n`tests/manager/test_target_rework.py`) are still absent; the one planned-new P\npath still absent is `tests/integration/test_reconciliation.py`.\n\n### DESIGN PINNED BEFORE EDITS \u2014 how the separation can and cannot be made\n\nCONTRACT-v1 section 6 asks admission/driver to separate source eligibility\nfrom the import account while \"existing direct imports retain their old\nexact-target path\". Two facts in the tree decide the shape, and both were\nchecked rather than assumed:\n\n1. `tests/tools/test_integration_bundle.py`'s\n   `test_the_eligibility_members_are_the_admission_owners_own` reads\n   `inspect.getsource(admission.resolved_account)` and requires all fifteen\n   `ELIGIBILITY_MEMBERS` to appear there. The account's dict LITERAL must\n   therefore stay lexically inside `resolved_account`.\n2. `tests/integration/test_execution.py`'s\n   `test_the_refusal_records_what_the_producers_said` moves the canonical\n   target and asserts the settled detail says \"expected target revision\" --\n   which is `resolved_account`'s own refusal. `resolved_account` must\n   therefore KEEP proving freshness.\n\nBoth files are Q scope and neither may be edited here. So the separation is\nADDITIVE, and removing the guard from `resolved_account` -- the \"one-line\nguard removal\" INTEGRATION-SCOPE-v1 warns about -- is exactly the thing the\ntree already refuses.\n\n- `_proved(...)` (new, private): the single resolver. Every producer read and\n  every cross-binding, with the current-target comparison under a `freshness`\n  flag. One reading of the sources, not two.\n- `resolved_account(..., freshness=True)`: unchanged public name, unchanged\n  default behaviour, unchanged fifteen-member literal. Documented for what it\n  has always been -- the DIRECT IMPORT account, eligibility plus the exact\n  current target.\n- `source_account(...)` (new public): the same fifteen members with freshness\n  NOT proved. This is the account a result branch consumes, and its\n  `expected_target_revision` is the submission's own declared base rather\n  than a claim about the present.\n- `source_submission(...)` (new public): the twelve-member operand\n  `reconciliation.prepare_result` takes, composed from `_proved`'s own\n  documents -- `job_id` from the accepted Job and `source_base`/\n  `source_candidate` from the accepted checkpoint evidence's `base`/`head`,\n  which are the two objects the fifteen-member account does not carry and\n  which cannot be added to it here (that closed account and its worker\n  contract are versioned in Q).\n- `driver._import_account(...)` (new private): the one seam where driver\n  decides which account an import acts on -- the admitted one when the entry\n  has already settled, otherwise `resolved_account`. Four call sites collapse\n  onto it. No behaviour changes; Q's serial extension gets one place to add\n  the result branch instead of four.\n- `__init__.py`: export the new owners -- `reconciliation`'s five operations\n  plus `result_identity` and its four operation kinds, `git_profile`'s\n  profile/refusal/name/version, and admission's `admit_candidate`,\n  `resolved_account`, `source_account`, `source_submission`.\n\n### Test paths and reasons, pinned before edits\n\n- `tests/integration/test_reconciliation.py` (new): the six required named\n  groups, over a REAL coordinator store, REAL repositories, the REAL profile\n  and a REAL Authority, plus the causal base-fail / isolated-pass /\n  combined-pass and a separate combined-fail observation produced by actually\n  running a harness against the three content states.\n- `tests/integration/test_admission.py`: the named `AcceptedAccount` and\n  `RefusalBeforeMutation` compatibility controls stay as they are --\n  `test_stale_target_refuses` is the proof that the direct path kept its\n  exact-target rule -- and gain the control that `source_account` answers the\n  SAME account when the target has moved, which is the separation itself.\n- `tests/integration/test_driver.py`: `TheOrdinaryCommandTraversesPublicAdmission`\n  is the compatibility control and is not edited.\n- `tests/integration/test_coordinator.py`: already changed at claim133275.\n",
+  "elapsed_seconds": 0.002683670027181506
+}

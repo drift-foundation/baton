@@ -1,0 +1,416 @@
+{
+  "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+  "participant": "baton.codex",
+  "projection_version": "12.8",
+  "protocol_version": 11,
+  "result": [
+    {
+      "actor": "baton.tuner",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:44:33Z",
+        "from_state": "idle",
+        "incarnation": "e9dbd34f-4138-442c-8a44-4af08a873c7f",
+        "participant": "baton.tuner",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133590,
+      "ts": "2026-09-10T04:39:33Z"
+    },
+    {
+      "actor": "pc.prompt",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:44:42Z",
+        "from_state": "idle",
+        "incarnation": "9a1cfb59-21c0-4e1b-845e-6b11b08e5519",
+        "participant": "pc.prompt",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133591,
+      "ts": "2026-09-10T04:39:42Z"
+    },
+    {
+      "actor": "baton.merge",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:44:42Z",
+        "from_state": "idle",
+        "incarnation": "56471c2a-8a30-43d3-b963-54043d33f9d8",
+        "participant": "baton.merge",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133592,
+      "ts": "2026-09-10T04:39:42Z"
+    },
+    {
+      "actor": "pc.plan",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:44:42Z",
+        "from_state": "idle",
+        "incarnation": "ccef3cfa-134f-470b-8ff1-3b73357d8cb1",
+        "participant": "pc.plan",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133593,
+      "ts": "2026-09-10T04:39:42Z"
+    },
+    {
+      "actor": "pc.tuner",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:44:42Z",
+        "from_state": "idle",
+        "incarnation": "43bde7e9-c797-4178-a7d3-ec88cedbde8e",
+        "participant": "pc.tuner",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133594,
+      "ts": "2026-09-10T04:39:42Z"
+    },
+    {
+      "actor": "pc.code",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:44:48Z",
+        "from_state": "idle",
+        "incarnation": "d64d4f62-271a-4266-b8e1-7c6a4c812703",
+        "participant": "pc.code",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133595,
+      "ts": "2026-09-10T04:39:48Z"
+    },
+    {
+      "actor": "baton.slaw",
+      "kind": "release",
+      "payload": {
+        "authorization": "recover",
+        "episode": 133349,
+        "expect": "baton.claude",
+        "phase_now": [
+          {
+            "phase": "queued",
+            "work": "2b077949-W133117"
+          }
+        ],
+        "reason": "W133361 owner133489: independently reviewed correction and external recovery ready; domain settled; preserve P bytes, evidence and all cumulative spending under the reviewed preservation manifest. Release exact orphan for corrected delivery under drained dispatch.",
+        "released_claimant": "baton.claude",
+        "resolution": {
+          "endpoint": "baton.impl",
+          "generation": 8,
+          "handlers": [
+            "claude"
+          ],
+          "role": "impl",
+          "route": "impl"
+        },
+        "work": "2b077949-W133117"
+      },
+      "references": [],
+      "seq": 133596,
+      "ts": "2026-09-10T04:40:02Z"
+    },
+    {
+      "actor": "baton.codex",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:45:23Z",
+        "from_state": "idle",
+        "incarnation": "f3737ad0-fe36-48c9-9a7f-d9c46d27dd94",
+        "participant": "baton.codex",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133597,
+      "ts": "2026-09-10T04:40:23Z"
+    },
+    {
+      "actor": "baton.claude",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": "internal",
+        "detail": "an ACP turn ended while this participant still holds an active claim; the Work is still claimed and nothing is executing it",
+        "episode": 133349,
+        "expires_at": "2026-09-10T04:45:43Z",
+        "from_state": "failed",
+        "incarnation": "5e452a23-257a-4501-af34-1da08ab42149",
+        "participant": "baton.claude",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "failed",
+        "work": "2b077949-W133117"
+      },
+      "references": [],
+      "seq": 133598,
+      "ts": "2026-09-10T04:40:43Z"
+    },
+    {
+      "actor": "baton.prompt",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:45:59Z",
+        "from_state": "idle",
+        "incarnation": "fb9a3a4d-3d74-4365-b6a6-5aa56a678d77",
+        "participant": "baton.prompt",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133599,
+      "ts": "2026-09-10T04:40:59Z"
+    },
+    {
+      "actor": "baton.slaw",
+      "kind": "accept_config",
+      "payload": {
+        "changes": {
+          "added": [],
+          "removed": [],
+          "rerouted": []
+        },
+        "digest": "45d3b7ab7259d763a6df856206b475bec10e495fa6582fbf19233ebbc211a73e",
+        "generation_from": 8,
+        "generation_to": 9
+      },
+      "references": [],
+      "seq": 133600,
+      "ts": "2026-09-10T04:41:04Z"
+    },
+    {
+      "actor": "baton.tuner",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:46:13Z",
+        "from_state": "idle",
+        "incarnation": "e9dbd34f-4138-442c-8a44-4af08a873c7f",
+        "participant": "baton.tuner",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133601,
+      "ts": "2026-09-10T04:41:13Z"
+    },
+    {
+      "actor": "pc.prompt",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:46:22Z",
+        "from_state": "idle",
+        "incarnation": "9a1cfb59-21c0-4e1b-845e-6b11b08e5519",
+        "participant": "pc.prompt",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133602,
+      "ts": "2026-09-10T04:41:22Z"
+    },
+    {
+      "actor": "pc.tuner",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:46:22Z",
+        "from_state": "idle",
+        "incarnation": "43bde7e9-c797-4178-a7d3-ec88cedbde8e",
+        "participant": "pc.tuner",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133603,
+      "ts": "2026-09-10T04:41:22Z"
+    },
+    {
+      "actor": "baton.merge",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:46:22Z",
+        "from_state": "idle",
+        "incarnation": "56471c2a-8a30-43d3-b963-54043d33f9d8",
+        "participant": "baton.merge",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133604,
+      "ts": "2026-09-10T04:41:22Z"
+    },
+    {
+      "actor": "pc.plan",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:46:22Z",
+        "from_state": "idle",
+        "incarnation": "ccef3cfa-134f-470b-8ff1-3b73357d8cb1",
+        "participant": "pc.plan",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133605,
+      "ts": "2026-09-10T04:41:22Z"
+    },
+    {
+      "actor": "pc.code",
+      "kind": "runtime_state",
+      "payload": {
+        "cause": null,
+        "detail": null,
+        "episode": null,
+        "expires_at": "2026-09-10T04:46:28Z",
+        "from_state": "idle",
+        "incarnation": "d64d4f62-271a-4266-b8e1-7c6a4c812703",
+        "participant": "pc.code",
+        "renewal": true,
+        "renewed_after_expiry": false,
+        "session": null,
+        "state": "idle",
+        "work": null
+      },
+      "references": [],
+      "seq": 133606,
+      "ts": "2026-09-10T04:41:28Z"
+    },
+    {
+      "actor": "pc.prompt",
+      "kind": "runtime_end",
+      "payload": {
+        "cause": null,
+        "detail": "codex dispatcher stopped",
+        "from_state": "idle",
+        "incarnation": "9a1cfb59-21c0-4e1b-845e-6b11b08e5519",
+        "participant": "pc.prompt",
+        "state": "offline"
+      },
+      "references": [],
+      "seq": 133607,
+      "ts": "2026-09-10T04:41:40Z"
+    },
+    {
+      "actor": "baton.tuner",
+      "kind": "runtime_end",
+      "payload": {
+        "cause": null,
+        "detail": "codex dispatcher stopped",
+        "from_state": "idle",
+        "incarnation": "e9dbd34f-4138-442c-8a44-4af08a873c7f",
+        "participant": "baton.tuner",
+        "state": "offline"
+      },
+      "references": [],
+      "seq": 133608,
+      "ts": "2026-09-10T04:41:40Z"
+    },
+    {
+      "actor": "baton.merge",
+      "kind": "runtime_end",
+      "payload": {
+        "cause": null,
+        "detail": "codex dispatcher stopped",
+        "from_state": "idle",
+        "incarnation": "56471c2a-8a30-43d3-b963-54043d33f9d8",
+        "participant": "baton.merge",
+        "state": "offline"
+      },
+      "references": [],
+      "seq": 133609,
+      "ts": "2026-09-10T04:41:40Z"
+    }
+  ],
+  "snapshot_seq": 133691
+}

@@ -1,0 +1,59 @@
+{
+  "work": "W130224",
+  "claim": 131378,
+  "participant": "baton.claude",
+  "role": "impl",
+  "parent": "W119405",
+  "authority": "owner M131257 20s serving correction within the 450s campaign; placement claim131359 pinning the accepted W131187 prerequisite; review-2026-09-09T21-58-10Z.md's static corrections; standing W71830 test authority",
+  "base_revalidated": {
+    "tools/stage_execution.py": "2b1a4324443b39d92e8aadee9146e6216321525eace81ff9a4ea00fe3a77a3b0",
+    "tests/tools/test_stage_execution.py": "86610e63bb64260502a1cb1a2bb2b77aa41b9a3efee338364cb46c78dedad737",
+    "both": "byte-identical to the FINDING's 2026-09-09T22:19Z pinned baseline, checked before any edit; both 0664"
+  },
+  "candidate": {
+    "tools/stage_execution.py": "28ee42a2aaca4e9f596ff5accfebb60f5bc1c6f888e1c9e3c128d7ee93993302",
+    "tests/tools/test_stage_execution.py": "1ebba932945b8f1c93f80aaa61835b3188ef489073fb39887a20806d6b7fe93c",
+    "mode": "0664 both"
+  },
+  "review_corrections_delivered": {
+    "port_shape_before_durable_setup": "`_integration_ports` is now resolved in `operations_from`'s pure prologue, beside `held_configuration`, the Job store's Authority comparison and `_profile_of` -- before `worker_preflight` configures the control store's workspace group and storage and before the integration store is opened. The reviewer's point stands on this function's own opening paragraph: a refusal that has already changed durable state is not a refusal, and the shape of an injected capability is a fault this module can know for free.",
+    "duplicate_branch_removed": "`Integration.port_for` carried the `/1` fallback block twice -- an accidental double application of the same edit in the previous claim. One copy remains; no other reformatting.",
+    "no_other_source_change": "nothing else in tools/stage_execution.py moved."
+  },
+  "new_controls": {
+    "tests/tools/test_stage_execution.py::NothingIsOpenedBeforeTheConfigurationIsProved": "three cases. `two_bound` builds the cheapest valid /2 document without composing anything; `refused_port` composes it over store DOUBLES -- a Job store answering only the Authority binding this document names, and a BARE OBJECT for the control store, so a clean ContractRefusal is itself evidence that `worker_preflight` never reached it, since it would have faulted with an attribute error instead. Proved: one bare port for two bound Jobs refuses before any write and leaves no integration store on disk; a mapping naming an unbound Job refuses the same way and names it. The POSITIVE control asserts the three shapes this deployment does accept -- a bare port for one binding under its own absent key, absence, and one port per bound Job -- and that a mapping covering only some bound Jobs is not a fault, because a Job with no port refuses at its own integration stage with the capability sentence that has always said what this build lacks.",
+    "tests/tools/test_stage_execution.py::TwoBoundJobsTraverseServingAndCorrection": "one case added, `test_the_second_jobs_candidate_is_stale_once_the_first_integrates`. Every other case in the class is unchanged."
+  },
+  "the_acceptance_item_not_delivered": {
+    "item": "both Jobs terminal through ordinary owners, including legitimate target correction if needed",
+    "state": "NOT delivered. Job A reaches terminal integration; Job B does not.",
+    "measured": "after Job A's terminal handoff, authority.canonical_target() has advanced to Job A's candidate digest; Job B RESERVES the integration worker, so capacity is not the blocker and W131187's release works; Job B's line still reports its original declared_base through review_cycles.line_of; and StageDeployment.published_proposal on Job B's accepted checkpoint refuses with the provider's own 'a proposal is offered against the revision it was built from'.",
+    "mechanism": "an Authority holds ONE canonical target revision and authority/core.py advances it to the integrated candidate when it writes the integration receipt. review_cycles.create_line is create-or-recover by (authority, work) and refuses operands disagreeing with the ones it recorded, so a line's declared base is immutable and no operation in review_cycles advances one. A correction round re-grants a writer on the line's CURRENT checkpoint, which carries the same superseded base, so it would produce another candidate the target refuses for the same reason.",
+    "why_not_corrected_here": "all three candidate directions live outside this Work's two authorized paths -- a line-advance operation in worker_manager/review_cycles.py with checkpoint_profiles, a moved-target correction trigger in job_manager/review_driver.py, or an explicit deployment-generation answer. The PLAN directs returning an unsupported seam before exhausting the allocation, and that is what this is.",
+    "filed": "W131409, bound to work/records/2026/09/finding-v12-line-rebase-after-target-advance",
+    "not_done": "no stale-target bypass, no fabricated completion, no manual transition, no widening of the target policy, no scheduler/provider/driver edit."
+  },
+  "runs": [
+    {"run": "NothingIsOpenedBeforeTheConfigurationIsProved after the port preflight and its three new cases", "wall": "0.24s", "result": "OK, 5 tests"},
+    {"run": "focused diagnostic, the second Job's integration after the target advanced", "wall": "1.16s"},
+    {"run": "the new stale-candidate boundary case", "wall": "1.10s", "result": "OK"},
+    {"run": "the traversal class, the preflight class and the accepted port class", "wall": "6.47s", "result": "OK, 44 tests"},
+    {"run": "eleven composition, observation and two-Job classes", "wall": "3.65s", "result": "OK, 69 tests"},
+    {"run": "TheComposedJobTraversesReviewAndAcceptance -- the /1 composition that supplies a port through operations_from", "wall": "2.75s", "result": "OK, 10 tests"}
+  ],
+  "verification_state": {
+    "passed": "128 selected executions across the classes that reach the changed code: the two-Job traversal class whole, the preflight class, the accepted integration port class, every composition and observation class, both /2 fixture classes, and the /1 composition that supplies a runtime port through operations_from.",
+    "not_re_run": "OrdinaryTerminalLifecycle. Alone it is about 7.5s and would have taken this correction past its 20s increment. What it would exercise is the reorder of a PURE binding check ahead of durable setup and a comment-only de-duplication; the /1-with-port composition path it shares is covered by TheComposedJobTraversesReviewAndAcceptance and TheIntegrationStageConsumesTheAcceptedPort, both re-run and passing. This is the one open verification gap and it is stated rather than implied.",
+    "not_run_by_direction": "no whole assembly module or package run, as the placement ruling directs."
+  },
+  "budget": {
+    "increment": 20.0,
+    "timed": 15.37,
+    "untimed": "none -- every run above was wall-timed",
+    "remaining": "4.63s unspent, deliberately: OrdinaryTerminalLifecycle would have cost about 7.5s and the ruling says report insufficiency before spending past 20s",
+    "campaign": "about 383.25s of the approved 450s, carrying 367.88s and all prior uncertainty",
+    "reserved_untouched": "observation 20s, joined 40s and the 2.12s margin; nothing borrowed",
+    "prior_overrun": "the previous claim's 17.14s overrun is recorded in this record and is not transferred or re-argued here"
+  },
+  "not_claimed": "no read-only observation result, no W119405 joined acceptance, and no claim that both Jobs reach terminal integration."
+}

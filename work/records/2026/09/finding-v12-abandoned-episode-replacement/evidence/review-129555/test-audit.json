@@ -1,0 +1,11 @@
+{
+  "changed_existing": [],
+  "added": [
+    "OneAbandonedCorrectionEpisodeIsReplaced.test_a_checkpoint_this_jobs_handoff_never_selected_is_refused",
+    "OneAbandonedCorrectionEpisodeIsReplaced.test_a_malformed_committed_replacement_refuses_on_replay",
+    "OneAbandonedCorrectionEpisodeIsReplaced.test_a_well_shaped_but_foreign_replacement_refuses_on_replay",
+    "OneAbandonedCorrectionEpisodeIsReplaced.test_an_accepted_round_landing_before_the_commit_is_refused",
+    "OneAbandonedCorrectionEpisodeIsReplaced.test_the_committed_correction_must_have_opened_this_very_attempt",
+    "OneAbandonedCorrectionEpisodeIsReplaced.test_two_overlapping_connections_end_the_episode_once"
+  ]
+}

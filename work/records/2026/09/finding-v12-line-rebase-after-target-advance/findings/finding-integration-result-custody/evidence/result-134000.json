@@ -1,0 +1,236 @@
+{
+  "claim": 134000,
+  "work": "2b077949-W133117",
+  "participant": "baton.claude",
+  "answers": "review-2026-09-10T05-41-11Z.md R1(a), R2, R3, R4 corrected; R1(b) returned as an amendment",
+  "candidate": {
+    "v12/python/src/baton_v12/integration/reconciliation.py": {
+      "sha256": "e99ee5e17bd7dc1b8c7d256ca6fadfa09b920ca689622392bad81ac47ee678e8",
+      "mode": "0o664",
+      "bytes": 72853,
+      "changed_under_claim_134000": true
+    },
+    "v12/python/src/baton_v12/integration/git_profile.py": {
+      "sha256": "cba3f391405249f6df83985ff6c5d715ef3cec05efa85ce345cce929f90db1fb",
+      "mode": "0o664",
+      "bytes": 24064,
+      "changed_under_claim_134000": false
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "e5aa57a47667528143cb8c2507e7e6523aa6fd5a37b0140184ce4a7f015661d9",
+      "mode": "0o664",
+      "bytes": 26764,
+      "changed_under_claim_134000": true
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "mode": "0o664",
+      "bytes": 36152,
+      "changed_under_claim_134000": false
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791",
+      "mode": "0o664",
+      "bytes": 19998,
+      "changed_under_claim_134000": false
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "c5a86008a96f773c0fa884cb7b501197dc29d20eaa638f90957f47e17737bf3e",
+      "mode": "0o664",
+      "bytes": 92978,
+      "changed_under_claim_134000": false
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4",
+      "mode": "0o664",
+      "bytes": 3875,
+      "changed_under_claim_134000": true
+    },
+    "v12/python/tests/integration/test_reconciliation.py": {
+      "sha256": "1696fe7f5cb5a76dc3fd875442cb91115295f18c87586cd2995b7c0b81dea819",
+      "mode": "0o664",
+      "bytes": 77775,
+      "changed_under_claim_134000": true
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce",
+      "mode": "0o664",
+      "bytes": 19242,
+      "changed_under_claim_134000": false
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "ff06426518854b960712c6d5705751b15a839f6531bd459ee03fcacd20196ab7",
+      "mode": "0o664",
+      "bytes": 136269,
+      "changed_under_claim_134000": false
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea",
+      "mode": "0o664",
+      "bytes": 183456,
+      "changed_under_claim_134000": false
+    }
+  },
+  "blockers": {
+    "R1a_failed_observations_discarded": {
+      "fix": [
+        "record_causal_observations is a new act: the OWNER runs the harness and attests, the caller supplies nothing",
+        "observations commit by their own act, pass or fail",
+        "a failing combination settles the new `blocked` state with its reason and its retained runs, and can never be authorized",
+        "judgements bind the observations digest and the observing owner",
+        "the observer may not also be one of the three judges"
+      ],
+      "controls": [
+        "CausalEvidenceSurvivesComposition (14 cases)",
+        "TheEvidenceIsItsOwnersAndBindsTheseBytes (11 cases)"
+      ]
+    },
+    "R1b_real_result_owner_path": {
+      "status": "AMENDMENT RETURNED, not implemented",
+      "measurement": "evidence/amendment-134000-probe.json",
+      "finding": "every attributable Authority evidence verb is keyed by proposal_id; verify on a not-yet-published proposal refuses 'no such proposal', and the verbs refuse result-shaped operands outright. In CONTRACT-v1 section 3's order the derived proposal does not exist when evidence is recorded, so no real owner can judge a RESULT there. Publishing first and having the same real sessions write receipts on the DERIVED proposal works and reads back."
+    },
+    "R2_live_assignment_and_policy": {
+      "fix": [
+        "prepare_result proves authority.assignment_of before any effect",
+        "the evidence act binds the policy generation it was given under",
+        "resolve_import_account revalidates the live assignment, the derived proposal readback and the current policy generation"
+      ],
+      "controls": [
+        "TheLiveAssignmentAndPolicyAreProved (5 cases)"
+      ]
+    },
+    "R3_unproved_imported_state": {
+      "fix": [
+        "IMPORT_KIND is named and nothing in P writes it, so every imported row refuses until Q supplies the terminal act",
+        "the reader also requires the entry to exist, to be on this target and to be integrated"
+      ],
+      "controls": [
+        "TheImportedStateIsUnproved (4 cases)"
+      ]
+    },
+    "R4_storage_identity": {
+      "fix": [
+        "_prove_storage stats the nominated path and compares device and inode, at preparation and again at import admission"
+      ],
+      "controls": [
+        "TheNominatedStorageIsProved (5 cases)"
+      ]
+    }
+  },
+  "verification": {
+    "runner": "PYTHONPATH=src python3 -m unittest -v",
+    "cwd": "v12/python",
+    "selectors_are_classes_not_modules": true,
+    "tests": 167,
+    "outcome": "OK",
+    "log": "evidence/run-134000-final.log",
+    "every_run_retained_in_full": true,
+    "step_logs": "evidence/run-134000-step-*.log"
+  },
+  "runs_this_claim": [
+    {
+      "n": "step-01",
+      "what": "OriginalSubmissionIsImmutable",
+      "elapsed_seconds": 0.52,
+      "outcome": "FAILED - the derived proposal readback reused publish's shape and the Authority reader carries decision/published_at too"
+    },
+    {
+      "n": "step-02",
+      "what": "OriginalSubmissionIsImmutable",
+      "elapsed_seconds": 0.52,
+      "outcome": "OK",
+      "tests": 4
+    },
+    {
+      "n": "step-03",
+      "what": "seven groups",
+      "elapsed_seconds": 3.84,
+      "outcome": "FAILED - 4 failures, 12 errors; the cases still passed observations= to the old interface",
+      "tests": 45
+    },
+    {
+      "n": "step-04",
+      "what": "seven groups",
+      "elapsed_seconds": 5.08,
+      "outcome": "FAILED - 5 errors; the outcome signature read the blocked reason, and the Authority raises its own Refusal for an unknown Work",
+      "tests": 55
+    },
+    {
+      "n": "step-05",
+      "what": "seven groups",
+      "elapsed_seconds": 5.34,
+      "outcome": "FAILED - 1 failure, 1 error; the witness did not know the observation act and the third-result case was itself blocked",
+      "tests": 55
+    },
+    {
+      "n": "step-06",
+      "what": "seven groups",
+      "elapsed_seconds": 5.3,
+      "outcome": "OK",
+      "tests": 55
+    },
+    {
+      "n": "step-07",
+      "what": "R2/R3/R4 controls",
+      "elapsed_seconds": 1.07,
+      "outcome": "FAILED - 2 errors; the corruption fixture updated columns one at a time and the schema refused the intermediate row",
+      "tests": 13
+    },
+    {
+      "n": "step-08",
+      "what": "R2/R3/R4 controls",
+      "elapsed_seconds": 1.05,
+      "outcome": "FAILED - 1 failure; the refusal arrives at the act-for-state check before the journal check",
+      "tests": 13
+    },
+    {
+      "n": "step-09",
+      "what": "R2/R3/R4 controls",
+      "elapsed_seconds": 1.18,
+      "outcome": "OK",
+      "tests": 14
+    },
+    {
+      "n": "amendment",
+      "what": "evidence/amendment-134000-probe.py, first run",
+      "elapsed_seconds": 0.01,
+      "outcome": "ran; its first question refused for the wrong reason (actor supplied), so the probe was corrected"
+    },
+    {
+      "n": "amendment",
+      "what": "evidence/amendment-134000-probe.py",
+      "elapsed_seconds": 0.02,
+      "outcome": "EVIDENCE-BEFORE-PUBLICATION: NO / PUBLICATION-BEFORE-EVIDENCE: YES"
+    },
+    {
+      "n": "hashes",
+      "what": "sha256sum/stat over the eleven manifest paths",
+      "elapsed_seconds": 0.02,
+      "outcome": "OK"
+    },
+    {
+      "n": "final",
+      "what": "consolidated per-class run",
+      "elapsed_seconds": 8.06,
+      "outcome": "OK",
+      "tests": 167
+    }
+  ],
+  "ledger": {
+    "measured_this_claim_seconds": 32.01,
+    "measured_earlier_claims_seconds": 24.45,
+    "measured_subtotal_seconds": 56.46,
+    "allocation_seconds": 77,
+    "IS_THIS_AN_EXACT_TOTAL": false,
+    "unmeasured_this_claim": [
+      "greps and file reads used to locate code",
+      "ast.parse syntax checks and the in-place python edit scripts",
+      "the composition of this manifest"
+    ],
+    "output_discipline": "every verification run this claim wrote its FULL stdout and stderr to a retained log; none was piped to tail. The reviewer's finding that claim133842 piped new runs to tail is accepted and not repeated.",
+    "statement": "a rounded MEASURED SUBTOTAL plus unmeasured spending. Not a certified exact total and no exact remainder. Nothing reset, inferred, re-run to manufacture history, or borrowed.",
+    "reviewer_cumulative_seconds": 1.2420617970637977,
+    "reviewer_allocation_seconds": 8
+  }
+}

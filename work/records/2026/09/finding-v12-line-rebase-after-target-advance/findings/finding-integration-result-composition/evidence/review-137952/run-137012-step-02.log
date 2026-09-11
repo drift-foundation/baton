@@ -1,0 +1,20 @@
+### label: baseline-revalidation-corrected-absence-handling
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/base129.py"]
+### exit: 0
+### elapsed_seconds: 0.013128
+### STDOUT
+union entries checked: 43
+  digest/size/mode compared: 41
+  recorded absences confirmed absent: 2
+MISMATCHES: []
+PRESENT UNEXPECTEDLY: []
+R base paths:
+   28ee42a2aaca4e9f596ff5accfebb60f5bc1c6f888e1c9e3c128d7ee93993302 0o664 162393 v12/python/tools/stage_execution.py
+   fd83e32d0ab52b1f611c21adc3cb07b094dee9c2dd7ca904f923b82bb1e42705 0o664 56996 v12/python/src/baton_v12/job_manager/delegation.py
+   0ee2369c991470bc83306c33dd3e3849a6bf3faa371d4f6031ea0766f80858c5 0o664 19314 v12/README.md
+   1ebba932945b8f1c93f80aaa61835b3188ef489073fb39887a20806d6b7fe93c 0o664 378682 v12/python/tests/tools/test_stage_execution.py
+   ce18e8dbf6d05a73dcba217b227f7c9e4d430e4aa0bc44c56fda897028d91a4a 0o664 26438 v12/python/tests/job_manager/test_delegation.py
+   79ba448c1f21a6c92bc9230291b5bfd04273024280b00ea197d1fa700066c103 0o664 71619 v12/python/tests/job_manager/test_scheduling.py
+
+### STDERR

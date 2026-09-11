@@ -1,5 +1,12 @@
 # Current disposition — approved by owner128669
 
+Current clarification2026-09-09: all three providers are independently accepted
+at the exact reviews listed in FINDING.md's17:27Z entry. Standing W71830 test
+authority supersedes older additive-only/per-method permission limits below;
+record test paths/reasons without per-test gates. B's cap was extended to25s
+by owner129177; A/C caps remain20s. W119114's600s carry is unchanged. Earlier
+allocation text below remains decision history; PLAN.md is the current sequence.
+
 Owner128669 in T119114 explicitly approves the exact eleven-path A/B/C split
 and named gap-test conversion below. The earlier proposed/pending language is
 superseded; preserved below as decision history. Implementation is serial through

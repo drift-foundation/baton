@@ -1,0 +1,953 @@
+{
+  "owners_before": {
+    "entry": {
+      "entry_id": "integration-driver.entry:8fc40a6d4710302accb2361efdc74722e139e8b7c621b7aa6923d235df96c6a4",
+      "canonical_target_id": "target-1",
+      "rank": 1,
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "assignment_generation": 3,
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+      "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+      "checkpoint_digest": "sha256:2804a1976c8ef5d391785f5913f42b0c45fe57bf0e602265754f6fc8bd30153c",
+      "proposal_id": "integration-driver.proposal:0e162f812dd55cddc76e4cba6ff5f8ee6e4375b26519fe8d73beb3ca79ce075e",
+      "candidate_digest": "a687cb0949890f3c917910cc2a3f303508818035",
+      "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "result_digest": "sha256:db57caa08d3639531a4cf9a81aeee66814adec68992765b0491c60a207f4e408",
+      "profile_kind": "git",
+      "expected_target_revision": "5aa5c046c0d5b866982c1724d2d3701e9c5e04aa",
+      "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+      "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28",
+      "state": "held",
+      "enqueued_at": "2026-09-02T00:00:00.000Z",
+      "settled_at": "2026-09-02T00:00:00.000Z",
+      "settlement": {
+        "detail": {
+          "observed": "the target's version-control metadata moved during this turn, and no candidate imports it"
+        },
+        "reason": "repository-mutated"
+      },
+      "eligibility": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1",
+        "assignment_generation": 3,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+        "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+        "checkpoint_digest": "sha256:2804a1976c8ef5d391785f5913f42b0c45fe57bf0e602265754f6fc8bd30153c",
+        "proposal_id": "integration-driver.proposal:0e162f812dd55cddc76e4cba6ff5f8ee6e4375b26519fe8d73beb3ca79ce075e",
+        "candidate_digest": "a687cb0949890f3c917910cc2a3f303508818035",
+        "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "result_digest": "sha256:db57caa08d3639531a4cf9a81aeee66814adec68992765b0491c60a207f4e408",
+        "profile_kind": "git",
+        "expected_target_revision": "5aa5c046c0d5b866982c1724d2d3701e9c5e04aa",
+        "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+        "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28"
+      }
+    },
+    "target": {
+      "canonical_target_id": "target-1",
+      "document": {
+        "canonical_target_id": "target-1",
+        "description": "the disposable composed lifecycle target",
+        "schema": "baton.v12.integration-target/2"
+      },
+      "digest": "sha256:fcbfed4f2593f9c569b4ee438f1d0733eec9df2a2019e0accaa0ff6595c079b0",
+      "state": "blocked",
+      "fence": 1,
+      "blocked_reason": "repository-mutated",
+      "blocked_account": {
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "detail": {
+          "observed": "the target's version-control metadata moved during this turn, and no candidate imports it"
+        },
+        "entry_id": "integration-driver.entry:8fc40a6d4710302accb2361efdc74722e139e8b7c621b7aa6923d235df96c6a4",
+        "fence": 1,
+        "integrator_participant": "baton.integrator",
+        "lease_id": "integration-driver.lease:00a349953e5cd99765fd251aca2694afe77ab0bfca06473a2810f87502a83b1b",
+        "reason": "repository-mutated"
+      },
+      "activated_at": "2026-09-02T00:00:00.000Z"
+    },
+    "runtime": {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "runtime_id": "runtime-single-5",
+      "execution_runtime": "quiescent",
+      "cleanup": "pending",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.integrator",
+        "generation": 5
+      }
+    },
+    "activity": {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "bytes_observed": null,
+      "observed_at": null
+    },
+    "output": null,
+    "allocation": {
+      "assignment_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "stage_id": "job-a/integration",
+      "episode": 1,
+      "generation": 1,
+      "worker_id": "integration-worker",
+      "lane": "implementation",
+      "participant": "baton.integrator",
+      "canonical_principal": "principal:baton.integrator",
+      "preferred_worker_id": "implementation-worker",
+      "selection_outcome": "fallback",
+      "allocation_state": "reserved",
+      "reserved_at": "2026-09-02T00:00:00.000Z",
+      "recovery_required_at": null,
+      "released_at": null,
+      "release_reason": null,
+      "variant": "baton.v12.stage-execution-deployment/1",
+      "separation_class": "provider-diverse",
+      "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+      "worker_profile_name": "reference",
+      "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "work": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "route": "integration",
+      "status": "open",
+      "phase": "active",
+      "outcome": null,
+      "rationale": null,
+      "handler": "baton.integrator",
+      "contract": "v12-assignment-1",
+      "scope": "scope:deployment",
+      "labels": [],
+      "creation": {
+        "work_id": "0000000a-W1",
+        "operation_id": "create-single-worker",
+        "kind": "trusted-bootstrap",
+        "scope": "scope:deployment",
+        "at": "2026-09-02T00:00:00.000Z"
+      },
+      "close_decision": null,
+      "generation_counter": 5,
+      "live_generation": 5,
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.integrator",
+        "generation": 5
+      },
+      "gate": null,
+      "fenced_generations": [
+        {
+          "generation": 1,
+          "cause": "cancelled",
+          "reason": "review checkpoint writer completed"
+        },
+        {
+          "generation": 2,
+          "cause": "cancelled",
+          "reason": "independent checkpoint review completed"
+        },
+        {
+          "generation": 3,
+          "cause": "cancelled",
+          "reason": "review checkpoint writer completed"
+        },
+        {
+          "generation": 4,
+          "cause": "cancelled",
+          "reason": "independent checkpoint review completed"
+        }
+      ],
+      "ready": false
+    },
+    "handoff": null
+  },
+  "stdout": "{\n  \"schema\": \"baton.v12.job-status/4\",\n  \"observed_at\": \"2026-09-02T00:00:00.000Z\",\n  \"incarnation\": \"held-status-reader\",\n  \"canonical\": true,\n  \"jobs\": [\n    {\n      \"job_id\": \"job-a\",\n      \"submission_id\": \"sub-1\",\n      \"input_digest\": \"sha256:b3e19e0557168530c47e7728fc998ef5cae637bd4fa4590797094602a4c1b542\",\n      \"policy_digest\": \"sha256:2222222222222222222222222222222222222222222222222222222222222222\",\n      \"test_scope\": [\n        \"v12/python/tests/job_manager\"\n      ],\n      \"terminal_policy\": \"report-and-hold\",\n      \"stages\": [\n        {\n          \"stage_id\": \"job-a/implementation\",\n          \"job_id\": \"job-a\",\n          \"kind\": \"implementation\",\n          \"state\": \"completed\",\n          \"work_id\": \"0000000a-W1\",\n          \"profile_name\": \"reference\",\n          \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n          \"episode\": 2,\n          \"offer_id\": \"offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa\",\n          \"attempt_id\": \"attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa\",\n          \"episodes\": [\n            {\n              \"stage_id\": \"job-a/implementation\",\n              \"episode\": 1,\n              \"offer_id\": \"offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571\",\n              \"attempt_id\": \"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571\",\n              \"opened_at\": \"2026-09-02T00:00:00.000Z\",\n              \"incarnation\": \"stage-composed\",\n              \"ended_state\": \"superseded-by-correction\",\n              \"ended_revision\": 2,\n              \"ended_at\": \"2026-09-02T00:00:00.000Z\"\n            },\n            {\n              \"stage_id\": \"job-a/implementation\",\n              \"episode\": 2,\n              \"offer_id\": \"offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa\",\n              \"attempt_id\": \"attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa\",\n              \"opened_at\": \"2026-09-02T00:00:00.000Z\",\n              \"incarnation\": \"stage-composed\",\n              \"ended_state\": null,\n              \"ended_revision\": null,\n              \"ended_at\": null\n            }\n          ],\n          \"corrections\": 1,\n          \"allocation\": {\n            \"assignment_id\": \"attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa\",\n            \"stage_id\": \"job-a/implementation\",\n            \"episode\": 2,\n            \"generation\": 1,\n            \"worker_id\": \"implementation-worker\",\n            \"lane\": \"implementation\",\n            \"participant\": \"baton.claude\",\n            \"canonical_principal\": \"principal:baton.claude\",\n            \"preferred_worker_id\": \"implementation-worker\",\n            \"selection_outcome\": \"preferred\",\n            \"allocation_state\": \"released\",\n            \"reserved_at\": \"2026-09-02T00:00:00.000Z\",\n            \"recovery_required_at\": null,\n            \"released_at\": \"2026-09-02T00:00:00.000Z\",\n            \"release_reason\": \"cleanup-retained\",\n            \"variant\": \"baton.v12.stage-execution-deployment/1\",\n            \"separation_class\": \"provider-diverse\",\n            \"generation_digest\": \"sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d\",\n            \"worker_profile_name\": \"reference\",\n            \"worker_profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n          },\n          \"allocations\": [\n            {\n              \"assignment_id\": \"attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571\",\n              \"stage_id\": \"job-a/implementation\",\n              \"episode\": 1,\n              \"generation\": 1,\n              \"worker_id\": \"implementation-worker\",\n              \"lane\": \"implementation\",\n              \"participant\": \"baton.claude\",\n              \"canonical_principal\": \"principal:baton.claude\",\n              \"preferred_worker_id\": null,\n              \"selection_outcome\": \"initial\",\n              \"allocation_state\": \"released\",\n              \"reserved_at\": \"2026-09-02T00:00:00.000Z\",\n              \"recovery_required_at\": null,\n              \"released_at\": \"2026-09-02T00:00:00.000Z\",\n              \"release_reason\": \"cleanup-retained\",\n              \"variant\": \"baton.v12.stage-execution-deployment/1\",\n              \"separation_class\": \"provider-diverse\",\n              \"generation_digest\": \"sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d\",\n              \"worker_profile_name\": \"reference\",\n              \"worker_profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n            },\n            {\n              \"assignment_id\": \"attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa\",\n              \"stage_id\": \"job-a/implementation\",\n              \"episode\": 2,\n              \"generation\": 1,\n              \"worker_id\": \"implementation-worker\",\n              \"lane\": \"implementation\",\n              \"participant\": \"baton.claude\",\n              \"canonical_principal\": \"principal:baton.claude\",\n              \"preferred_worker_id\": \"implementation-worker\",\n              \"selection_outcome\": \"preferred\",\n              \"allocation_state\": \"released\",\n              \"reserved_at\": \"2026-09-02T00:00:00.000Z\",\n              \"recovery_required_at\": null,\n              \"released_at\": \"2026-09-02T00:00:00.000Z\",\n              \"release_reason\": \"cleanup-retained\",\n              \"variant\": \"baton.v12.stage-execution-deployment/1\",\n              \"separation_class\": \"provider-diverse\",\n              \"generation_digest\": \"sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d\",\n              \"worker_profile_name\": \"reference\",\n              \"worker_profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n            }\n          ],\n          \"gates\": [],\n          \"receipts\": [\n            {\n              \"stage_id\": \"job-a/implementation\",\n              \"episode\": 2,\n              \"act\": \"admit\",\n              \"operation_id\": \"offer.issue:offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa\",\n              \"state\": \"performed\",\n              \"recorded_at\": \"2026-09-02T00:00:00.000Z\",\n              \"detail\": {\n                \"canonical_state\": \"committed\",\n                \"refusal\": null,\n                \"result\": {\n                  \"expires_at\": \"2026-09-02T00:02:00.000Z\",\n                  \"issued_at\": \"2026-09-02T00:00:00.000Z\",\n                  \"offer_id\": \"offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa\",\n                  \"participant\": \"baton.claude\",\n                  \"runtime_attempt_id\": \"attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa\",\n                  \"verifier\": \"sha256:2f82cdf9e92c1443b23d9d66cd8480c2b05a759b71a0fa09861be815738acf8e\",\n                  \"work_id\": \"0000000a-W1\"\n                },\n                \"settled_at\": \"2026-09-02T00:00:00.000Z\"\n              }\n            },\n            {\n              \"stage_id\": \"job-a/implementation\",\n              \"episode\": 2,\n              \"act\": \"claim\",\n              \"operation_id\": \"offer.settle:offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa\",\n              \"state\": \"performed\",\n              \"recorded_at\": \"2026-09-02T00:00:00.000Z\",\n              \"detail\": {\n                \"canonical_state\": \"committed\",\n                \"refusal\": null,\n                \"result\": {\n                  \"assignment\": {\n                    \"generation\": 3,\n                    \"participant\": \"baton.claude\",\n                    \"work_ref\": {\n                      \"authority_uuid\": \"0000000a000000000000000000000000\",\n                      \"work_id\": \"0000000a-W1\"\n                    }\n                  },\n                  \"claim_event\": 5,\n                  \"decision\": {\n                    \"effective_scope\": \"scope:deployment\",\n                    \"endpoint\": \"baton.claude\",\n                    \"grant\": \"direct\",\n                    \"policy_generation\": 9,\n                    \"principal\": \"principal:baton.claude\",\n                    \"role\": \"baton.impl\"\n                  },\n                  \"offer_id\": \"offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa\",\n                  \"state\": \"claimed\"\n                },\n                \"settled_at\": \"2026-09-02T00:00:00.000Z\"\n              }\n            }\n          ],\n          \"runtime\": {\n            \"runtime_id\": \"runtime-single-3\",\n            \"execution_runtime\": \"destroyed\",\n            \"assignment\": {\n              \"work_ref\": {\n                \"authority_uuid\": \"0000000a000000000000000000000000\",\n                \"work_id\": \"0000000a-W1\"\n              },\n              \"participant\": \"baton.claude\",\n              \"generation\": 3\n            },\n            \"activity\": {\n              \"attempt_id\": \"attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa\",\n              \"bytes_observed\": null,\n              \"observed_at\": null\n            }\n          },\n          \"exchange\": null,\n          \"artifacts\": [\n            {\n              \"output_name\": \"proposal\",\n              \"artifact_id\": \"attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa:proposal\",\n              \"media_type\": \"application/octet-stream\",\n              \"bytes\": 2050,\n              \"content_digest\": \"sha256:924cd4f6c195e5cb7595913a651d575e872d398af8336e3f92b1901a05e3ac62\",\n              \"locator\": \"file:///home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa/proposal\"\n            }\n          ]\n        },\n        {\n          \"stage_id\": \"job-a/review\",\n          \"job_id\": \"job-a\",\n          \"kind\": \"review\",\n          \"state\": \"completed\",\n          \"work_id\": \"0000000a-W1\",\n          \"profile_name\": \"reference\",\n          \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n          \"episode\": 2,\n          \"offer_id\": \"offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605\",\n          \"attempt_id\": \"attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605\",\n          \"episodes\": [\n            {\n              \"stage_id\": \"job-a/review\",\n              \"episode\": 1,\n              \"offer_id\": \"offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c\",\n              \"attempt_id\": \"attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c\",\n              \"opened_at\": \"2026-09-02T00:00:00.000Z\",\n              \"incarnation\": \"stage-composed\",\n              \"ended_state\": \"superseded-by-correction\",\n              \"ended_revision\": 2,\n              \"ended_at\": \"2026-09-02T00:00:00.000Z\"\n            },\n            {\n              \"stage_id\": \"job-a/review\",\n              \"episode\": 2,\n              \"offer_id\": \"offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605\",\n              \"attempt_id\": \"attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605\",\n              \"opened_at\": \"2026-09-02T00:00:00.000Z\",\n              \"incarnation\": \"stage-composed\",\n              \"ended_state\": null,\n              \"ended_revision\": null,\n              \"ended_at\": null\n            }\n          ],\n          \"corrections\": 1,\n          \"allocation\": {\n            \"assignment_id\": \"attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605\",\n            \"stage_id\": \"job-a/review\",\n            \"episode\": 2,\n            \"generation\": 1,\n            \"worker_id\": \"review-worker\",\n            \"lane\": \"review\",\n            \"participant\": \"baton.reviewer\",\n            \"canonical_principal\": \"principal:baton.reviewer\",\n            \"preferred_worker_id\": \"review-worker\",\n            \"selection_outcome\": \"preferred\",\n            \"allocation_state\": \"released\",\n            \"reserved_at\": \"2026-09-02T00:00:00.000Z\",\n            \"recovery_required_at\": null,\n            \"released_at\": \"2026-09-02T00:00:00.000Z\",\n            \"release_reason\": \"cleanup-retained\",\n            \"variant\": \"baton.v12.stage-execution-deployment/1\",\n            \"separation_class\": \"provider-diverse\",\n            \"generation_digest\": \"sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d\",\n            \"worker_profile_name\": \"reference\",\n            \"worker_profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n          },\n          \"allocations\": [\n            {\n              \"assignment_id\": \"attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605\",\n              \"stage_id\": \"job-a/review\",\n              \"episode\": 2,\n              \"generation\": 1,\n              \"worker_id\": \"review-worker\",\n              \"lane\": \"review\",\n              \"participant\": \"baton.reviewer\",\n              \"canonical_principal\": \"principal:baton.reviewer\",\n              \"preferred_worker_id\": \"review-worker\",\n              \"selection_outcome\": \"preferred\",\n              \"allocation_state\": \"released\",\n              \"reserved_at\": \"2026-09-02T00:00:00.000Z\",\n              \"recovery_required_at\": null,\n              \"released_at\": \"2026-09-02T00:00:00.000Z\",\n              \"release_reason\": \"cleanup-retained\",\n              \"variant\": \"baton.v12.stage-execution-deployment/1\",\n              \"separation_class\": \"provider-diverse\",\n              \"generation_digest\": \"sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d\",\n              \"worker_profile_name\": \"reference\",\n              \"worker_profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n            },\n            {\n              \"assignment_id\": \"attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c\",\n              \"stage_id\": \"job-a/review\",\n              \"episode\": 1,\n              \"generation\": 1,\n              \"worker_id\": \"review-worker\",\n              \"lane\": \"review\",\n              \"participant\": \"baton.reviewer\",\n              \"canonical_principal\": \"principal:baton.reviewer\",\n              \"preferred_worker_id\": null,\n              \"selection_outcome\": \"initial\",\n              \"allocation_state\": \"released\",\n              \"reserved_at\": \"2026-09-02T00:00:00.000Z\",\n              \"recovery_required_at\": null,\n              \"released_at\": \"2026-09-02T00:00:00.000Z\",\n              \"release_reason\": \"cleanup-retained\",\n              \"variant\": \"baton.v12.stage-execution-deployment/1\",\n              \"separation_class\": \"provider-diverse\",\n              \"generation_digest\": \"sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d\",\n              \"worker_profile_name\": \"reference\",\n              \"worker_profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n            }\n          ],\n          \"gates\": [\n            {\n              \"stage_id\": \"job-a/implementation\",\n              \"state\": \"completed\",\n              \"open\": true\n            }\n          ],\n          \"receipts\": [\n            {\n              \"stage_id\": \"job-a/review\",\n              \"episode\": 2,\n              \"act\": \"admit\",\n              \"operation_id\": \"offer.issue:offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605\",\n              \"state\": \"performed\",\n              \"recorded_at\": \"2026-09-02T00:00:00.000Z\",\n              \"detail\": {\n                \"canonical_state\": \"committed\",\n                \"refusal\": null,\n                \"result\": {\n                  \"expires_at\": \"2026-09-02T00:02:00.000Z\",\n                  \"issued_at\": \"2026-09-02T00:00:00.000Z\",\n                  \"offer_id\": \"offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605\",\n                  \"participant\": \"baton.reviewer\",\n                  \"runtime_attempt_id\": \"attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605\",\n                  \"verifier\": \"sha256:449013e285aa9951ac8a0fb8e2ee2ce06c0722c2379474a43028c255144eabaa\",\n                  \"work_id\": \"0000000a-W1\"\n                },\n                \"settled_at\": \"2026-09-02T00:00:00.000Z\"\n              }\n            },\n            {\n              \"stage_id\": \"job-a/review\",\n              \"episode\": 2,\n              \"act\": \"claim\",\n              \"operation_id\": \"offer.settle:offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605\",\n              \"state\": \"performed\",\n              \"recorded_at\": \"2026-09-02T00:00:00.000Z\",\n              \"detail\": {\n                \"canonical_state\": \"committed\",\n                \"refusal\": null,\n                \"result\": {\n                  \"assignment\": {\n                    \"generation\": 4,\n                    \"participant\": \"baton.reviewer\",\n                    \"work_ref\": {\n                      \"authority_uuid\": \"0000000a000000000000000000000000\",\n                      \"work_id\": \"0000000a-W1\"\n                    }\n                  },\n                  \"claim_event\": 7,\n                  \"decision\": {\n                    \"effective_scope\": \"scope:deployment\",\n                    \"endpoint\": \"baton.reviewer\",\n                    \"grant\": \"direct\",\n                    \"policy_generation\": 9,\n                    \"principal\": \"principal:baton.reviewer\",\n                    \"role\": \"rview\"\n                  },\n                  \"offer_id\": \"offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605\",\n                  \"state\": \"claimed\"\n                },\n                \"settled_at\": \"2026-09-02T00:00:00.000Z\"\n              }\n            }\n          ],\n          \"runtime\": {\n            \"runtime_id\": \"runtime-single-4\",\n            \"execution_runtime\": \"destroyed\",\n            \"assignment\": {\n              \"work_ref\": {\n                \"authority_uuid\": \"0000000a000000000000000000000000\",\n                \"work_id\": \"0000000a-W1\"\n              },\n              \"participant\": \"baton.reviewer\",\n              \"generation\": 4\n            },\n            \"activity\": {\n              \"attempt_id\": \"attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605\",\n              \"bytes_observed\": null,\n              \"observed_at\": null\n            }\n          },\n          \"exchange\": null,\n          \"artifacts\": [\n            {\n              \"output_name\": \"findings\",\n              \"artifact_id\": \"attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605:findings\",\n              \"media_type\": \"application/octet-stream\",\n              \"bytes\": 147,\n              \"content_digest\": \"sha256:68f5c2d1488948333af26a9d67ac5699597abb25146cbb4e09106164df25afa8\",\n              \"locator\": \"file:///home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/storage/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/custody/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/findings\"\n            },\n            {\n              \"output_name\": \"logs\",\n              \"artifact_id\": \"attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605:logs\",\n              \"media_type\": \"application/octet-stream\",\n              \"bytes\": 410,\n              \"content_digest\": \"sha256:92eab3731e1a8aed4b3ad89f45977f706363c455d1048de0fab2e7782488fa72\",\n              \"locator\": \"file:///home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/storage/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/custody/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/logs\"\n            }\n          ]\n        },\n        {\n          \"stage_id\": \"job-a/integration\",\n          \"job_id\": \"job-a\",\n          \"kind\": \"integration\",\n          \"state\": \"exceptional\",\n          \"work_id\": \"0000000a-W1\",\n          \"profile_name\": \"reference\",\n          \"profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\n          \"episode\": 1,\n          \"offer_id\": \"offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\",\n          \"attempt_id\": \"attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\",\n          \"episodes\": [\n            {\n              \"stage_id\": \"job-a/integration\",\n              \"episode\": 1,\n              \"offer_id\": \"offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\",\n              \"attempt_id\": \"attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\",\n              \"opened_at\": \"2026-09-02T00:00:00.000Z\",\n              \"incarnation\": \"stage-composed\",\n              \"ended_state\": null,\n              \"ended_revision\": null,\n              \"ended_at\": null\n            }\n          ],\n          \"corrections\": 0,\n          \"allocation\": {\n            \"assignment_id\": \"attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\",\n            \"stage_id\": \"job-a/integration\",\n            \"episode\": 1,\n            \"generation\": 1,\n            \"worker_id\": \"integration-worker\",\n            \"lane\": \"implementation\",\n            \"participant\": \"baton.integrator\",\n            \"canonical_principal\": \"principal:baton.integrator\",\n            \"preferred_worker_id\": \"implementation-worker\",\n            \"selection_outcome\": \"fallback\",\n            \"allocation_state\": \"reserved\",\n            \"reserved_at\": \"2026-09-02T00:00:00.000Z\",\n            \"recovery_required_at\": null,\n            \"released_at\": null,\n            \"release_reason\": null,\n            \"variant\": \"baton.v12.stage-execution-deployment/1\",\n            \"separation_class\": \"provider-diverse\",\n            \"generation_digest\": \"sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d\",\n            \"worker_profile_name\": \"reference\",\n            \"worker_profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n          },\n          \"allocations\": [\n            {\n              \"assignment_id\": \"attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\",\n              \"stage_id\": \"job-a/integration\",\n              \"episode\": 1,\n              \"generation\": 1,\n              \"worker_id\": \"integration-worker\",\n              \"lane\": \"implementation\",\n              \"participant\": \"baton.integrator\",\n              \"canonical_principal\": \"principal:baton.integrator\",\n              \"preferred_worker_id\": \"implementation-worker\",\n              \"selection_outcome\": \"fallback\",\n              \"allocation_state\": \"reserved\",\n              \"reserved_at\": \"2026-09-02T00:00:00.000Z\",\n              \"recovery_required_at\": null,\n              \"released_at\": null,\n              \"release_reason\": null,\n              \"variant\": \"baton.v12.stage-execution-deployment/1\",\n              \"separation_class\": \"provider-diverse\",\n              \"generation_digest\": \"sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d\",\n              \"worker_profile_name\": \"reference\",\n              \"worker_profile_digest\": \"sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n            }\n          ],\n          \"gates\": [\n            {\n              \"stage_id\": \"job-a/review\",\n              \"state\": \"completed\",\n              \"open\": true\n            }\n          ],\n          \"receipts\": [\n            {\n              \"stage_id\": \"job-a/integration\",\n              \"episode\": 1,\n              \"act\": \"admit\",\n              \"operation_id\": \"offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\",\n              \"state\": \"performed\",\n              \"recorded_at\": \"2026-09-02T00:00:00.000Z\",\n              \"detail\": {\n                \"canonical_state\": \"committed\",\n                \"refusal\": null,\n                \"result\": {\n                  \"expires_at\": \"2026-09-02T00:02:00.000Z\",\n                  \"issued_at\": \"2026-09-02T00:00:00.000Z\",\n                  \"offer_id\": \"offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\",\n                  \"participant\": \"baton.integrator\",\n                  \"runtime_attempt_id\": \"attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\",\n                  \"verifier\": \"sha256:e74861884da4ea1b9544c56f6be6b4069e819bc855e24d38e82a0aeed15d19c3\",\n                  \"work_id\": \"0000000a-W1\"\n                },\n                \"settled_at\": \"2026-09-02T00:00:00.000Z\"\n              }\n            },\n            {\n              \"stage_id\": \"job-a/integration\",\n              \"episode\": 1,\n              \"act\": \"claim\",\n              \"operation_id\": \"offer.settle:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\",\n              \"state\": \"performed\",\n              \"recorded_at\": \"2026-09-02T00:00:00.000Z\",\n              \"detail\": {\n                \"canonical_state\": \"committed\",\n                \"refusal\": null,\n                \"result\": {\n                  \"assignment\": {\n                    \"generation\": 5,\n                    \"participant\": \"baton.integrator\",\n                    \"work_ref\": {\n                      \"authority_uuid\": \"0000000a000000000000000000000000\",\n                      \"work_id\": \"0000000a-W1\"\n                    }\n                  },\n                  \"claim_event\": 9,\n                  \"decision\": {\n                    \"effective_scope\": \"scope:deployment\",\n                    \"endpoint\": \"baton.integrator\",\n                    \"grant\": \"direct\",\n                    \"policy_generation\": 9,\n                    \"principal\": \"principal:baton.integrator\",\n                    \"role\": \"integration\"\n                  },\n                  \"offer_id\": \"offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\",\n                  \"state\": \"claimed\"\n                },\n                \"settled_at\": \"2026-09-02T00:00:00.000Z\"\n              }\n            }\n          ],\n          \"runtime\": {\n            \"runtime_id\": \"runtime-single-5\",\n            \"execution_runtime\": \"quiescent\",\n            \"assignment\": {\n              \"work_ref\": {\n                \"authority_uuid\": \"0000000a000000000000000000000000\",\n                \"work_id\": \"0000000a-W1\"\n              },\n              \"participant\": \"baton.integrator\",\n              \"generation\": 5\n            },\n            \"activity\": {\n              \"attempt_id\": \"attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0\",\n              \"bytes_observed\": null,\n              \"observed_at\": null\n            }\n          },\n          \"exchange\": null,\n          \"artifacts\": null\n        }\n      ]\n    }\n  ]\n}\n",
+  "status": {
+    "schema": "baton.v12.job-status/4",
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "incarnation": "held-status-reader",
+    "canonical": true,
+    "jobs": [
+      {
+        "job_id": "job-a",
+        "submission_id": "sub-1",
+        "input_digest": "sha256:b3e19e0557168530c47e7728fc998ef5cae637bd4fa4590797094602a4c1b542",
+        "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "test_scope": [
+          "v12/python/tests/job_manager"
+        ],
+        "terminal_policy": "report-and-hold",
+        "stages": [
+          {
+            "stage_id": "job-a/implementation",
+            "job_id": "job-a",
+            "kind": "implementation",
+            "state": "completed",
+            "work_id": "0000000a-W1",
+            "profile_name": "reference",
+            "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "episode": 2,
+            "offer_id": "offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+            "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+            "episodes": [
+              {
+                "stage_id": "job-a/implementation",
+                "episode": 1,
+                "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "opened_at": "2026-09-02T00:00:00.000Z",
+                "incarnation": "stage-composed",
+                "ended_state": "superseded-by-correction",
+                "ended_revision": 2,
+                "ended_at": "2026-09-02T00:00:00.000Z"
+              },
+              {
+                "stage_id": "job-a/implementation",
+                "episode": 2,
+                "offer_id": "offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+                "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+                "opened_at": "2026-09-02T00:00:00.000Z",
+                "incarnation": "stage-composed",
+                "ended_state": null,
+                "ended_revision": null,
+                "ended_at": null
+              }
+            ],
+            "corrections": 1,
+            "allocation": {
+              "assignment_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+              "stage_id": "job-a/implementation",
+              "episode": 2,
+              "generation": 1,
+              "worker_id": "implementation-worker",
+              "lane": "implementation",
+              "participant": "baton.claude",
+              "canonical_principal": "principal:baton.claude",
+              "preferred_worker_id": "implementation-worker",
+              "selection_outcome": "preferred",
+              "allocation_state": "released",
+              "reserved_at": "2026-09-02T00:00:00.000Z",
+              "recovery_required_at": null,
+              "released_at": "2026-09-02T00:00:00.000Z",
+              "release_reason": "cleanup-retained",
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+              "worker_profile_name": "reference",
+              "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "allocations": [
+              {
+                "assignment_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+                "stage_id": "job-a/implementation",
+                "episode": 1,
+                "generation": 1,
+                "worker_id": "implementation-worker",
+                "lane": "implementation",
+                "participant": "baton.claude",
+                "canonical_principal": "principal:baton.claude",
+                "preferred_worker_id": null,
+                "selection_outcome": "initial",
+                "allocation_state": "released",
+                "reserved_at": "2026-09-02T00:00:00.000Z",
+                "recovery_required_at": null,
+                "released_at": "2026-09-02T00:00:00.000Z",
+                "release_reason": "cleanup-retained",
+                "variant": "baton.v12.stage-execution-deployment/1",
+                "separation_class": "provider-diverse",
+                "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+                "worker_profile_name": "reference",
+                "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              },
+              {
+                "assignment_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+                "stage_id": "job-a/implementation",
+                "episode": 2,
+                "generation": 1,
+                "worker_id": "implementation-worker",
+                "lane": "implementation",
+                "participant": "baton.claude",
+                "canonical_principal": "principal:baton.claude",
+                "preferred_worker_id": "implementation-worker",
+                "selection_outcome": "preferred",
+                "allocation_state": "released",
+                "reserved_at": "2026-09-02T00:00:00.000Z",
+                "recovery_required_at": null,
+                "released_at": "2026-09-02T00:00:00.000Z",
+                "release_reason": "cleanup-retained",
+                "variant": "baton.v12.stage-execution-deployment/1",
+                "separation_class": "provider-diverse",
+                "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+                "worker_profile_name": "reference",
+                "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              }
+            ],
+            "gates": [],
+            "receipts": [
+              {
+                "stage_id": "job-a/implementation",
+                "episode": 2,
+                "act": "admit",
+                "operation_id": "offer.issue:offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+                "state": "performed",
+                "recorded_at": "2026-09-02T00:00:00.000Z",
+                "detail": {
+                  "canonical_state": "committed",
+                  "refusal": null,
+                  "result": {
+                    "expires_at": "2026-09-02T00:02:00.000Z",
+                    "issued_at": "2026-09-02T00:00:00.000Z",
+                    "offer_id": "offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+                    "participant": "baton.claude",
+                    "runtime_attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+                    "verifier": "sha256:2f82cdf9e92c1443b23d9d66cd8480c2b05a759b71a0fa09861be815738acf8e",
+                    "work_id": "0000000a-W1"
+                  },
+                  "settled_at": "2026-09-02T00:00:00.000Z"
+                }
+              },
+              {
+                "stage_id": "job-a/implementation",
+                "episode": 2,
+                "act": "claim",
+                "operation_id": "offer.settle:offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+                "state": "performed",
+                "recorded_at": "2026-09-02T00:00:00.000Z",
+                "detail": {
+                  "canonical_state": "committed",
+                  "refusal": null,
+                  "result": {
+                    "assignment": {
+                      "generation": 3,
+                      "participant": "baton.claude",
+                      "work_ref": {
+                        "authority_uuid": "0000000a000000000000000000000000",
+                        "work_id": "0000000a-W1"
+                      }
+                    },
+                    "claim_event": 5,
+                    "decision": {
+                      "effective_scope": "scope:deployment",
+                      "endpoint": "baton.claude",
+                      "grant": "direct",
+                      "policy_generation": 9,
+                      "principal": "principal:baton.claude",
+                      "role": "baton.impl"
+                    },
+                    "offer_id": "offer-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+                    "state": "claimed"
+                  },
+                  "settled_at": "2026-09-02T00:00:00.000Z"
+                }
+              }
+            ],
+            "runtime": {
+              "runtime_id": "runtime-single-3",
+              "execution_runtime": "destroyed",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.claude",
+                "generation": 3
+              },
+              "activity": {
+                "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+                "bytes_observed": null,
+                "observed_at": null
+              }
+            },
+            "exchange": null,
+            "artifacts": [
+              {
+                "output_name": "proposal",
+                "artifact_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa:proposal",
+                "media_type": "application/octet-stream",
+                "bytes": 2050,
+                "content_digest": "sha256:924cd4f6c195e5cb7595913a651d575e872d398af8336e3f92b1901a05e3ac62",
+                "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/custody/attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa/proposal"
+              }
+            ]
+          },
+          {
+            "stage_id": "job-a/review",
+            "job_id": "job-a",
+            "kind": "review",
+            "state": "completed",
+            "work_id": "0000000a-W1",
+            "profile_name": "reference",
+            "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "episode": 2,
+            "offer_id": "offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+            "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+            "episodes": [
+              {
+                "stage_id": "job-a/review",
+                "episode": 1,
+                "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                "opened_at": "2026-09-02T00:00:00.000Z",
+                "incarnation": "stage-composed",
+                "ended_state": "superseded-by-correction",
+                "ended_revision": 2,
+                "ended_at": "2026-09-02T00:00:00.000Z"
+              },
+              {
+                "stage_id": "job-a/review",
+                "episode": 2,
+                "offer_id": "offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+                "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+                "opened_at": "2026-09-02T00:00:00.000Z",
+                "incarnation": "stage-composed",
+                "ended_state": null,
+                "ended_revision": null,
+                "ended_at": null
+              }
+            ],
+            "corrections": 1,
+            "allocation": {
+              "assignment_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+              "stage_id": "job-a/review",
+              "episode": 2,
+              "generation": 1,
+              "worker_id": "review-worker",
+              "lane": "review",
+              "participant": "baton.reviewer",
+              "canonical_principal": "principal:baton.reviewer",
+              "preferred_worker_id": "review-worker",
+              "selection_outcome": "preferred",
+              "allocation_state": "released",
+              "reserved_at": "2026-09-02T00:00:00.000Z",
+              "recovery_required_at": null,
+              "released_at": "2026-09-02T00:00:00.000Z",
+              "release_reason": "cleanup-retained",
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+              "worker_profile_name": "reference",
+              "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "allocations": [
+              {
+                "assignment_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+                "stage_id": "job-a/review",
+                "episode": 2,
+                "generation": 1,
+                "worker_id": "review-worker",
+                "lane": "review",
+                "participant": "baton.reviewer",
+                "canonical_principal": "principal:baton.reviewer",
+                "preferred_worker_id": "review-worker",
+                "selection_outcome": "preferred",
+                "allocation_state": "released",
+                "reserved_at": "2026-09-02T00:00:00.000Z",
+                "recovery_required_at": null,
+                "released_at": "2026-09-02T00:00:00.000Z",
+                "release_reason": "cleanup-retained",
+                "variant": "baton.v12.stage-execution-deployment/1",
+                "separation_class": "provider-diverse",
+                "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+                "worker_profile_name": "reference",
+                "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              },
+              {
+                "assignment_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+                "stage_id": "job-a/review",
+                "episode": 1,
+                "generation": 1,
+                "worker_id": "review-worker",
+                "lane": "review",
+                "participant": "baton.reviewer",
+                "canonical_principal": "principal:baton.reviewer",
+                "preferred_worker_id": null,
+                "selection_outcome": "initial",
+                "allocation_state": "released",
+                "reserved_at": "2026-09-02T00:00:00.000Z",
+                "recovery_required_at": null,
+                "released_at": "2026-09-02T00:00:00.000Z",
+                "release_reason": "cleanup-retained",
+                "variant": "baton.v12.stage-execution-deployment/1",
+                "separation_class": "provider-diverse",
+                "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+                "worker_profile_name": "reference",
+                "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              }
+            ],
+            "gates": [
+              {
+                "stage_id": "job-a/implementation",
+                "state": "completed",
+                "open": true
+              }
+            ],
+            "receipts": [
+              {
+                "stage_id": "job-a/review",
+                "episode": 2,
+                "act": "admit",
+                "operation_id": "offer.issue:offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+                "state": "performed",
+                "recorded_at": "2026-09-02T00:00:00.000Z",
+                "detail": {
+                  "canonical_state": "committed",
+                  "refusal": null,
+                  "result": {
+                    "expires_at": "2026-09-02T00:02:00.000Z",
+                    "issued_at": "2026-09-02T00:00:00.000Z",
+                    "offer_id": "offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+                    "participant": "baton.reviewer",
+                    "runtime_attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+                    "verifier": "sha256:449013e285aa9951ac8a0fb8e2ee2ce06c0722c2379474a43028c255144eabaa",
+                    "work_id": "0000000a-W1"
+                  },
+                  "settled_at": "2026-09-02T00:00:00.000Z"
+                }
+              },
+              {
+                "stage_id": "job-a/review",
+                "episode": 2,
+                "act": "claim",
+                "operation_id": "offer.settle:offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+                "state": "performed",
+                "recorded_at": "2026-09-02T00:00:00.000Z",
+                "detail": {
+                  "canonical_state": "committed",
+                  "refusal": null,
+                  "result": {
+                    "assignment": {
+                      "generation": 4,
+                      "participant": "baton.reviewer",
+                      "work_ref": {
+                        "authority_uuid": "0000000a000000000000000000000000",
+                        "work_id": "0000000a-W1"
+                      }
+                    },
+                    "claim_event": 7,
+                    "decision": {
+                      "effective_scope": "scope:deployment",
+                      "endpoint": "baton.reviewer",
+                      "grant": "direct",
+                      "policy_generation": 9,
+                      "principal": "principal:baton.reviewer",
+                      "role": "rview"
+                    },
+                    "offer_id": "offer-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+                    "state": "claimed"
+                  },
+                  "settled_at": "2026-09-02T00:00:00.000Z"
+                }
+              }
+            ],
+            "runtime": {
+              "runtime_id": "runtime-single-4",
+              "execution_runtime": "destroyed",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.reviewer",
+                "generation": 4
+              },
+              "activity": {
+                "attempt_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605",
+                "bytes_observed": null,
+                "observed_at": null
+              }
+            },
+            "exchange": null,
+            "artifacts": [
+              {
+                "output_name": "findings",
+                "artifact_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605:findings",
+                "media_type": "application/octet-stream",
+                "bytes": 147,
+                "content_digest": "sha256:68f5c2d1488948333af26a9d67ac5699597abb25146cbb4e09106164df25afa8",
+                "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/storage/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/custody/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/findings"
+              },
+              {
+                "output_name": "logs",
+                "artifact_id": "attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605:logs",
+                "media_type": "application/octet-stream",
+                "bytes": 410,
+                "content_digest": "sha256:92eab3731e1a8aed4b3ad89f45977f706363c455d1048de0fab2e7782488fa72",
+                "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/storage/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/custody/attempt-8e00f40b5b4a0afbcdf88da34c6f8169a1ae6997e38f1a35b55905aa790da605/logs"
+              }
+            ]
+          },
+          {
+            "stage_id": "job-a/integration",
+            "job_id": "job-a",
+            "kind": "integration",
+            "state": "exceptional",
+            "work_id": "0000000a-W1",
+            "profile_name": "reference",
+            "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "episode": 1,
+            "offer_id": "offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+            "episodes": [
+              {
+                "stage_id": "job-a/integration",
+                "episode": 1,
+                "offer_id": "offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+                "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+                "opened_at": "2026-09-02T00:00:00.000Z",
+                "incarnation": "stage-composed",
+                "ended_state": null,
+                "ended_revision": null,
+                "ended_at": null
+              }
+            ],
+            "corrections": 0,
+            "allocation": {
+              "assignment_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+              "stage_id": "job-a/integration",
+              "episode": 1,
+              "generation": 1,
+              "worker_id": "integration-worker",
+              "lane": "implementation",
+              "participant": "baton.integrator",
+              "canonical_principal": "principal:baton.integrator",
+              "preferred_worker_id": "implementation-worker",
+              "selection_outcome": "fallback",
+              "allocation_state": "reserved",
+              "reserved_at": "2026-09-02T00:00:00.000Z",
+              "recovery_required_at": null,
+              "released_at": null,
+              "release_reason": null,
+              "variant": "baton.v12.stage-execution-deployment/1",
+              "separation_class": "provider-diverse",
+              "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+              "worker_profile_name": "reference",
+              "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+            },
+            "allocations": [
+              {
+                "assignment_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+                "stage_id": "job-a/integration",
+                "episode": 1,
+                "generation": 1,
+                "worker_id": "integration-worker",
+                "lane": "implementation",
+                "participant": "baton.integrator",
+                "canonical_principal": "principal:baton.integrator",
+                "preferred_worker_id": "implementation-worker",
+                "selection_outcome": "fallback",
+                "allocation_state": "reserved",
+                "reserved_at": "2026-09-02T00:00:00.000Z",
+                "recovery_required_at": null,
+                "released_at": null,
+                "release_reason": null,
+                "variant": "baton.v12.stage-execution-deployment/1",
+                "separation_class": "provider-diverse",
+                "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+                "worker_profile_name": "reference",
+                "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              }
+            ],
+            "gates": [
+              {
+                "stage_id": "job-a/review",
+                "state": "completed",
+                "open": true
+              }
+            ],
+            "receipts": [
+              {
+                "stage_id": "job-a/integration",
+                "episode": 1,
+                "act": "admit",
+                "operation_id": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+                "state": "performed",
+                "recorded_at": "2026-09-02T00:00:00.000Z",
+                "detail": {
+                  "canonical_state": "committed",
+                  "refusal": null,
+                  "result": {
+                    "expires_at": "2026-09-02T00:02:00.000Z",
+                    "issued_at": "2026-09-02T00:00:00.000Z",
+                    "offer_id": "offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+                    "participant": "baton.integrator",
+                    "runtime_attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+                    "verifier": "sha256:e74861884da4ea1b9544c56f6be6b4069e819bc855e24d38e82a0aeed15d19c3",
+                    "work_id": "0000000a-W1"
+                  },
+                  "settled_at": "2026-09-02T00:00:00.000Z"
+                }
+              },
+              {
+                "stage_id": "job-a/integration",
+                "episode": 1,
+                "act": "claim",
+                "operation_id": "offer.settle:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+                "state": "performed",
+                "recorded_at": "2026-09-02T00:00:00.000Z",
+                "detail": {
+                  "canonical_state": "committed",
+                  "refusal": null,
+                  "result": {
+                    "assignment": {
+                      "generation": 5,
+                      "participant": "baton.integrator",
+                      "work_ref": {
+                        "authority_uuid": "0000000a000000000000000000000000",
+                        "work_id": "0000000a-W1"
+                      }
+                    },
+                    "claim_event": 9,
+                    "decision": {
+                      "effective_scope": "scope:deployment",
+                      "endpoint": "baton.integrator",
+                      "grant": "direct",
+                      "policy_generation": 9,
+                      "principal": "principal:baton.integrator",
+                      "role": "integration"
+                    },
+                    "offer_id": "offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+                    "state": "claimed"
+                  },
+                  "settled_at": "2026-09-02T00:00:00.000Z"
+                }
+              }
+            ],
+            "runtime": {
+              "runtime_id": "runtime-single-5",
+              "execution_runtime": "quiescent",
+              "assignment": {
+                "work_ref": {
+                  "authority_uuid": "0000000a000000000000000000000000",
+                  "work_id": "0000000a-W1"
+                },
+                "participant": "baton.integrator",
+                "generation": 5
+              },
+              "activity": {
+                "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+                "bytes_observed": null,
+                "observed_at": null
+              }
+            },
+            "exchange": null,
+            "artifacts": null
+          }
+        ]
+      }
+    ]
+  },
+  "owners_after": {
+    "entry": {
+      "entry_id": "integration-driver.entry:8fc40a6d4710302accb2361efdc74722e139e8b7c621b7aa6923d235df96c6a4",
+      "canonical_target_id": "target-1",
+      "rank": 1,
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "assignment_generation": 3,
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+      "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+      "checkpoint_digest": "sha256:2804a1976c8ef5d391785f5913f42b0c45fe57bf0e602265754f6fc8bd30153c",
+      "proposal_id": "integration-driver.proposal:0e162f812dd55cddc76e4cba6ff5f8ee6e4375b26519fe8d73beb3ca79ce075e",
+      "candidate_digest": "a687cb0949890f3c917910cc2a3f303508818035",
+      "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "result_digest": "sha256:db57caa08d3639531a4cf9a81aeee66814adec68992765b0491c60a207f4e408",
+      "profile_kind": "git",
+      "expected_target_revision": "5aa5c046c0d5b866982c1724d2d3701e9c5e04aa",
+      "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+      "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28",
+      "state": "held",
+      "enqueued_at": "2026-09-02T00:00:00.000Z",
+      "settled_at": "2026-09-02T00:00:00.000Z",
+      "settlement": {
+        "detail": {
+          "observed": "the target's version-control metadata moved during this turn, and no candidate imports it"
+        },
+        "reason": "repository-mutated"
+      },
+      "eligibility": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1",
+        "assignment_generation": 3,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "checkpoint_id": "checkpoint-2349b77804cdc13bda2a1c0e8d4b3a5af0ae165cdf615610b5b5a46a1dd8eb1c",
+        "verdict_id": "verdict-ea0c5b82fa980fb3c112aa5a234dc4d17f42306ee0da35680d538bd5cbc01348",
+        "checkpoint_digest": "sha256:2804a1976c8ef5d391785f5913f42b0c45fe57bf0e602265754f6fc8bd30153c",
+        "proposal_id": "integration-driver.proposal:0e162f812dd55cddc76e4cba6ff5f8ee6e4375b26519fe8d73beb3ca79ce075e",
+        "candidate_digest": "a687cb0949890f3c917910cc2a3f303508818035",
+        "result_id": "result-attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+        "result_digest": "sha256:db57caa08d3639531a4cf9a81aeee66814adec68992765b0491c60a207f4e408",
+        "profile_kind": "git",
+        "expected_target_revision": "5aa5c046c0d5b866982c1724d2d3701e9c5e04aa",
+        "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+        "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28"
+      }
+    },
+    "target": {
+      "canonical_target_id": "target-1",
+      "document": {
+        "canonical_target_id": "target-1",
+        "description": "the disposable composed lifecycle target",
+        "schema": "baton.v12.integration-target/2"
+      },
+      "digest": "sha256:fcbfed4f2593f9c569b4ee438f1d0733eec9df2a2019e0accaa0ff6595c079b0",
+      "state": "blocked",
+      "fence": 1,
+      "blocked_reason": "repository-mutated",
+      "blocked_account": {
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "detail": {
+          "observed": "the target's version-control metadata moved during this turn, and no candidate imports it"
+        },
+        "entry_id": "integration-driver.entry:8fc40a6d4710302accb2361efdc74722e139e8b7c621b7aa6923d235df96c6a4",
+        "fence": 1,
+        "integrator_participant": "baton.integrator",
+        "lease_id": "integration-driver.lease:00a349953e5cd99765fd251aca2694afe77ab0bfca06473a2810f87502a83b1b",
+        "reason": "repository-mutated"
+      },
+      "activated_at": "2026-09-02T00:00:00.000Z"
+    },
+    "runtime": {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "runtime_id": "runtime-single-5",
+      "execution_runtime": "quiescent",
+      "cleanup": "pending",
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.integrator",
+        "generation": 5
+      }
+    },
+    "activity": {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "bytes_observed": null,
+      "observed_at": null
+    },
+    "output": null,
+    "allocation": {
+      "assignment_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "stage_id": "job-a/integration",
+      "episode": 1,
+      "generation": 1,
+      "worker_id": "integration-worker",
+      "lane": "implementation",
+      "participant": "baton.integrator",
+      "canonical_principal": "principal:baton.integrator",
+      "preferred_worker_id": "implementation-worker",
+      "selection_outcome": "fallback",
+      "allocation_state": "reserved",
+      "reserved_at": "2026-09-02T00:00:00.000Z",
+      "recovery_required_at": null,
+      "released_at": null,
+      "release_reason": null,
+      "variant": "baton.v12.stage-execution-deployment/1",
+      "separation_class": "provider-diverse",
+      "generation_digest": "sha256:faaa7f1f3260a8dfc0bd123ce95247ad92ac334da641ff4f6d14e9a20f73245d",
+      "worker_profile_name": "reference",
+      "worker_profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "work": {
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "route": "integration",
+      "status": "open",
+      "phase": "active",
+      "outcome": null,
+      "rationale": null,
+      "handler": "baton.integrator",
+      "contract": "v12-assignment-1",
+      "scope": "scope:deployment",
+      "labels": [],
+      "creation": {
+        "work_id": "0000000a-W1",
+        "operation_id": "create-single-worker",
+        "kind": "trusted-bootstrap",
+        "scope": "scope:deployment",
+        "at": "2026-09-02T00:00:00.000Z"
+      },
+      "close_decision": null,
+      "generation_counter": 5,
+      "live_generation": 5,
+      "assignment": {
+        "work_ref": {
+          "authority_uuid": "0000000a000000000000000000000000",
+          "work_id": "0000000a-W1"
+        },
+        "participant": "baton.integrator",
+        "generation": 5
+      },
+      "gate": null,
+      "fenced_generations": [
+        {
+          "generation": 1,
+          "cause": "cancelled",
+          "reason": "review checkpoint writer completed"
+        },
+        {
+          "generation": 2,
+          "cause": "cancelled",
+          "reason": "independent checkpoint review completed"
+        },
+        {
+          "generation": 3,
+          "cause": "cancelled",
+          "reason": "review checkpoint writer completed"
+        },
+        {
+          "generation": 4,
+          "cause": "cancelled",
+          "reason": "independent checkpoint review completed"
+        }
+      ],
+      "ready": false
+    },
+    "handoff": null
+  },
+  "databases_before": {
+    "/home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/authority.sqlite3": {
+      "sha256": "28c9c27874f4259f90d6a1e33693a9dd68b1cb9ac1a21a02d5c864d7c4a64cf1",
+      "mode": "0o600"
+    },
+    "/home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/integration.sqlite3": {
+      "sha256": "b13c4e1e0495eefa37a95b07d796c44e048fa116651b4b78bcacf81c8bb735d7",
+      "mode": "0o644"
+    },
+    "/home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/jobs.sqlite3": {
+      "sha256": "aea9ad9eca53857f0204f273a1af045f263103b41f986da34a542aa6037dcb6e",
+      "mode": "0o644"
+    },
+    "/home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/control.sqlite3": {
+      "sha256": "25f77e15318a1b4b502c93a586d561fc405abf2bb044a378dab41960722b9ecc",
+      "mode": "0o644"
+    }
+  },
+  "databases_after": {
+    "/home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/authority.sqlite3": {
+      "sha256": "28c9c27874f4259f90d6a1e33693a9dd68b1cb9ac1a21a02d5c864d7c4a64cf1",
+      "mode": "0o600"
+    },
+    "/home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/integration.sqlite3": {
+      "sha256": "b13c4e1e0495eefa37a95b07d796c44e048fa116651b4b78bcacf81c8bb735d7",
+      "mode": "0o644"
+    },
+    "/home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/jobs.sqlite3": {
+      "sha256": "aea9ad9eca53857f0204f273a1af045f263103b41f986da34a542aa6037dcb6e",
+      "mode": "0o644"
+    },
+    "/home/sl/src/baton/v12/python/v12-w71917-qauyd9rf/control.sqlite3": {
+      "sha256": "25f77e15318a1b4b502c93a586d561fc405abf2bb044a378dab41960722b9ecc",
+      "mode": "0o644"
+    }
+  }
+}

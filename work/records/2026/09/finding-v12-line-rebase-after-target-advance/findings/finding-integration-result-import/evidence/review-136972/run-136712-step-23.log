@@ -1,0 +1,19 @@
+### label: authoritative-ledger-read-and-manifest-note
+### cwd: /home/sl/src/baton
+### argv: ["python3", "/tmp/ledger_final.py"]
+### exit: 0
+### elapsed_seconds: 0.009553
+### STDOUT
+runs 22
+spent through step 22: 39.207025691000126
+remaining 55.792974308999874
+failures [3, 4, 5, 6, 7, 9, 18]
+  step 3 focused-terminal-custody-group-first-run exit=1 1.190800s
+  step 4 focused-terminal-custody-group-2 exit=1 1.156448s
+  step 5 focused-terminal-custody-group-3 exit=1 1.195560s
+  step 6 focused-terminal-custody-group-4 exit=1 1.243646s
+  step 7 focused-terminal-custody-group-5 exit=1 1.334349s
+  step 9 focused-end-to-end-import-first-run exit=1 0.981930s
+  step 18 corrected-import-group-first-run exit=1 1.554520s
+
+### STDERR

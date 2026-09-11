@@ -1,0 +1,14 @@
+### label: AB-prepared-stall-reason
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "/tmp/r_ab_reason.py"]
+### exit: 1
+### elapsed_seconds: 1.299941
+### STDOUT
+tick 0 acts {"stage_id": "job-b/integration", "episode": 1, "act": "claim", "outcome": "performed", "operation_id": "offer.settle:offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e"}
+
+### STDERR
+Traceback (most recent call last):
+  File "/tmp/r_ab_reason.py", line 26, in <module>
+    rows = [one for one in report[key]
+                           ~~~~~~^^^^^
+TypeError: 'int' object is not iterable

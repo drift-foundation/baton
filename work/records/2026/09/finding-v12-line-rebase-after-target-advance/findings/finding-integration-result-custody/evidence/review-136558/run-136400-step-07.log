@@ -1,0 +1,13 @@
+### label: focused-evidence-and-storage-groups-3
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes", "tests.integration.test_reconciliation.TheNominatedStorageIsProved"]
+### exit: 0
+### elapsed_seconds: 2.220868
+### STDOUT
+
+### STDERR
+........................
+----------------------------------------------------------------------
+Ran 24 tests in 2.050s
+
+OK

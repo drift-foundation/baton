@@ -1,0 +1,6 @@
+{
+  "returncode": 0,
+  "stdout": "{\"probe\": \"writer_replay\", \"error\": \"ContractRefusal\", \"message\": \"operation 'review-line.grant-writer:writer-56007d336113738e33902fdab5c\\u2026 is already recorded with a different kind or signature; reusing an id with different operands changes nothing (\\u00a74.2)\"}\n{\"probe\": \"freeze_without_unowned_checkout_reset\", \"base\": \"9864375cb8076a0db2ca7b65df86d49e89d55885\", \"expected_base\": \"9864375cb8076a0db2ca7b65df86d49e89d55885\", \"head\": \"dac0e33610df914af07f4ef58851d574b33d21ba\", \"old_head\": \"dac0e33610df914af07f4ef58851d574b33d21ba\", \"prepared_head\": \"b24116500947eff3bed604926242923d63cf2590\", \"job_a_content\": \"print('base')\\n\"}\n{\"probe\": \"tampered_row\", \"read_target\": \"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\", \"effective_base\": \"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\", \"original_target\": \"9864375cb8076a0db2ca7b65df86d49e89d55885\"}\n{\"probe\": \"intent_cutpoint_recovery\", \"state\": \"preparing\", \"prepared\": null, \"profile_calls\": 0, \"line_state\": \"reworking\"}\n",
+  "stderr": "",
+  "elapsed_seconds": 0.2861513599054888
+}

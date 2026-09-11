@@ -1,0 +1,13 @@
+### label: P-acceptance-groups-regression
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src", "python3", "-m", "unittest", "tests.integration.test_reconciliation.OriginalSubmissionIsImmutable", "tests.integration.test_reconciliation.TheSubmissionIsResolvedFromItsOwners", "tests.integration.test_reconciliation.CausalEvidenceSurvivesComposition", "tests.integration.test_reconciliation.TheEvidenceIsItsOwnersAndBindsTheseBytes", "tests.integration.test_reconciliation.PreparedResultReplaysItsIntent", "tests.integration.test_reconciliation.ResultReadersRejectTampering", "tests.integration.test_reconciliation.DerivedPublicationUsesItsOwnAssignment", "tests.integration.test_reconciliation.TheLiveAssignmentAndPolicyAreProved", "tests.integration.test_reconciliation.TheNominatedStorageIsProved", "tests.integration.test_reconciliation.TheImportedStateIsUnproved", "tests.integration.test_reconciliation.ConflictsAndForeignSourcesHold"]
+### exit: 0
+### elapsed_seconds: 7.477349
+### STDOUT
+
+### STDERR
+..................................................................................
+----------------------------------------------------------------------
+Ran 82 tests in 7.313s
+
+OK
