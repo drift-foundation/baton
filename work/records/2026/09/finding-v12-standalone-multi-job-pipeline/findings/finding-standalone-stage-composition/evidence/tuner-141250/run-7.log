@@ -1,0 +1,20 @@
+test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs) ... ERROR
+
+======================================================================
+ERROR: test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7108, in test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs
+    execution.result()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 2588, in result
+    _refuse("the retained judgment report and its frozen claim disagree")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the retained judgment report and its frozen claim disagree
+
+----------------------------------------------------------------------
+Ran 1 test in 1.280s
+
+FAILED (errors=1)

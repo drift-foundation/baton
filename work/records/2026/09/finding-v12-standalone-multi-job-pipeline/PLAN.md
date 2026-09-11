@@ -1,3 +1,13 @@
+# Current finish sequence — 2026-09-11T01:47:13Z
+
+Owner reiterates completion through W71879; see the matching FINDING entry.
+The prior intermediate R/per-Job sequence below is completed for its accepted
+component scope. Current action is W103068's approved production correction and
+independent acceptance, then W71879's actual configured A/B run and independent
+assessment, then W71830 reconciliation. This supersedes treating the earlier
+intermediate sequence as pending. Reuse accepted evidence; keep hardening
+deferred. Existing claims, source scopes, budgets and run authority apply.
+
 # Current acceptance — demonstrate feasibility, 2026-09-11T00:30:54Z
 
 The owner's current goal is to establish what is possible through one ordinary

@@ -1,0 +1,1 @@
+First retention script copied four files then KeyError: v12/python/tools/single_worker.py while indexing R43 union. The union does not include that assembly path. No source mutation. Exact elapsed was not retained; conservatively charge1.0s, preserving this reviewer mistake. Second check explicitly reads the two newly assigned assembly paths.

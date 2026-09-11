@@ -1,0 +1,33 @@
+--- placement140907/v12/python/tools/stage_execution.py
++++ candidate140937/v12/python/tools/stage_execution.py
+@@ -3994,12 +3994,28 @@
+             given["integration_store"],
+             incarnation=_incarnation(control_store),
+             clock=clock or getattr(control_store, "_now", None) or _now)
++        # W103068 review 2026-09-11T02-06-10Z [P1]: THE EFFECTIVE CAPABILITIES,
++        # NOT THE RAW KEYWORDS. `factory` calls this with neither, so passing
++        # the keywords straight through handed the deployment `None` twice and
++        # the constructed port refused for want of an engine -- on the exact
++        # entry point that must work by default. The engine runner is resolved
++        # through `single_worker`'s own public boundary, so an injected override
++        # and the ordinary default converge on one value; the credential
++        # provider is the INTEGRATION WORKER'S OWN already-resolved provider,
++        # which `worker_preflight` answered above and which is the same object
++        # that worker serves its stages with. Neither reaches into private
++        # state and neither builds a differently configured source.
++        integrator_provider = None
++        for one, provider in zip(given["workers"], providers):
++            if one["role"] == "integration":
++                integrator_provider = provider
+         deployment = StageDeployment(
+             given, control=control_store, jobs=job_store,
+             authority=composed.authority, integration=composed.integration,
+             profile=profile, sessions=composed.sessions,
+-            verdict=review_verdict, engine_run=engine_run,
+-            credential_provider=credential_provider)
++            verdict=review_verdict,
++            engine_run=single_worker.effective_engine_run(engine_run),
++            credential_provider=integrator_provider)
+         composed.deployment = deployment
+         # W103068: AND THE CONFIGURED TARGETS ARE ADOPTED. This is the first
+         # act after the coordinator is open, and it is here rather than in the

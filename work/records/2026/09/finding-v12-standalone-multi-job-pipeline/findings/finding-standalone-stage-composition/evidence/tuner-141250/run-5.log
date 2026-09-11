@@ -1,0 +1,6 @@
+test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.471s
+
+OK

@@ -1,0 +1,451 @@
+--- placement140665/v12/python/tools/stage_execution.py
++++ candidate140686/v12/python/tools/stage_execution.py
+@@ -133,9 +133,25 @@
+ # a result whose causal observations were produced by one of its three judges
+ # or by the integrator, so the owner that RUNS the harness is configured
+ # separately from the three that judge what it produced.
++# W103068: THE INTEGRATOR'S OWN TWO HOMES AND ITS LAUNCH SESSION, named here
++# for the reason `INTEGRATION_HOME` already is: where the integration role's
++# durable material lives under this deployment's `state_root` is this assembly's
++# wiring, and deriving them beside the delivery home keeps one deployment's
++# integration state in one place instead of asking the operator for three paths
++# that may not agree. `IntegrationRuntimePort` requires a bundle home and a
++# launch home as CONFIGURATION, so a composition that could not name them could
++# not construct the port at all.
++INTEGRATION_BUNDLE_HOME = "integration-bundles"
++INTEGRATION_LAUNCH_HOME = "integration-launch"
++# AND THE SESSION LABEL the launch contract is recorded under. It is one word
++# about this assembly's own integration launches, not a per-Job or per-attempt
++# fact, so it is named rather than configured.
++INTEGRATION_LAUNCH_SESSION = "integration-session"
++
+ _OPTIONAL_MEMBERS = ("job_bindings", "integration_target",
+                      "integration_workspace", "integration_observer",
+-                     "integration_target_reference")
++                     "integration_target_reference",
++                     "integration_instructions")
+ _MEMBERS = ("schema", "authority_store", "authority_uuid", "integration_store",
+             "state_root", "pool_generation", "workers", "checkpoint_profile",
+             "canonical_target_id", "integration_profile", "job_work_id",
+@@ -1830,6 +1846,27 @@
+                     category="refused", code="precondition")
+         return self.ports[job_id]
+ 
++    def _constructed(self, stage, job, *, line_id, proposal_id,
++                     canonical_target_id):
++        """This Job's own constructed port, built once and kept.
++
++        THE MEMO IS PER JOB AND IT IS THE CAPACITY RULE, not a cache for speed.
++        `IntegrationRuntimePort` resolves a bundle home, a launch home and a
++        credential home, and one Job's integration is one capacity; a second
++        port for the same Job would be a second set of those homes for one
++        serialized integration. A port already SUPPLIED for a Job is never
++        replaced -- an operator's injected capability stays the one in use.
++        """
++        job_id = _bound_id(self.deployment, stage, job)
++        held = self.ports.get(job_id)
++        if held is not None:
++            return held
++        built = self.deployment.integration_port_for(
++            job_id, line_id=line_id, proposal_id=proposal_id,
++            canonical_target_id=canonical_target_id)
++        self.ports[job_id] = built
++        return built
++
+     def required_tests(self, job_id=None):
+         """The required-test selection, DERIVED from configured material.
+ 
+@@ -1947,21 +1984,12 @@
+         # deployment with no runtime port refused the one path that does not
+         # need one. The direct path still refuses exactly as it always did,
+         # a few lines below, once the branch decision has chosen it.
++        # W103068: AND AN ABSENT ONE IS NOT A REFUSAL ANY MORE. The direct
++        # branch below CONSTRUCTS the port it needs once its operands are
++        # resolved, so absence here means "not supplied by an operator" rather
++        # than "this deployment cannot integrate". The dead refusal this
++        # deferral left behind is removed with the capability gap it described.
+         _direct_port = port
+-        if False:
+-            # W103083: THE ONE CAPABILITY THIS BUILD DOES NOT HAVE. Every
+-            # other operand below is composed from an accepted operation. A
+-            # runtime port that starts an integration container over
+-            # `runtime.materialize_delivery`'s namespaces exists nowhere in
+-            # this tree -- `integrate_next` types the port and calls it, and
+-            # the only implementations are focused-test fixtures. Reported as
+-            # itself rather than stubbed, and contained to this stage: the
+-            # implementation and review stages of every Job go on running.
+-            _refuse("this deployment holds no integration runtime port; "
+-                    "`integrate_next` starts the integrator through one and "
+-                    "no accepted composition in this build builds one over "
+-                    "the integration delivery's namespaces",
+-                    category="refused", code="capability")
+         control = deployment.control
+         # W119405 review [P1]: THIS JOB'S LINE. `line()` is the one-Job
+         # spelling and refuses a deployment binding several, so an integration
+@@ -2029,15 +2057,31 @@
+         # write itself belongs to `execution` under the live grant, and no
+         # private runtime-port field is read to get any of it.
+         if _direct_port is None:
+-            # W103083, and now reached only for the DIRECT branch: no accepted
+-            # composition in this build starts an integration container over
+-            # `runtime.materialize_delivery`'s namespaces. Reported as itself
+-            # rather than stubbed, and contained to this stage.
+-            _refuse("this deployment holds no integration runtime port; "
+-                    "`integrate_next` starts the integrator through one and "
+-                    "no accepted composition in this build builds one over "
+-                    "the integration delivery's namespaces",
+-                    category="refused", code="capability")
++            # W103068 review 2026-09-11T01-22-35Z [P1]: THIS IS WHERE THE
++            # PRODUCTION PORT IS CONSTRUCTED, and this branch used to refuse
++            # `capability` here instead. The refusal was accurate about the
++            # accepted composition of the time and it was also the whole reason
++            # the public `factory` could not perform an ordinary direct
++            # integration: it supplied no port, so every direct candidate
++            # stopped one call before preparation.
++            #
++            # AND IT IS CONSTRUCTED HERE RATHER THAN ANYWHERE EARLIER because
++            # here is the first place all three of its dynamic operands exist
++            # and are read from their own owners: `line` came from the Job's own
++            # binding through `line_for`, `accepted` is that line's integration
++            # checkpoint, `operands["proposal_id"]` is the proposal the
++            # producer actually published for it, and the target is the Job's
++            # own. Two of the three do not exist until a review is accepted,
++            # which is why no configuration document could carry them and why
++            # the component fixture had to recompose the deployment after the
++            # fact. Nothing is recomposed here and no serving object is rebuilt.
++            #
++            # ONE PORT PER JOB, MEMOIZED, so a stage re-entered on a later tick
++            # is started through the same capacity rather than a second one.
++            port = self._constructed(
++                stage, job, line_id=line["line_id"],
++                proposal_id=operands["proposal_id"],
++                canonical_target_id=operands["canonical_target_id"])
+         finalize = None
+         if deployment.reconciles():
+             finalize = {
+@@ -2691,8 +2735,19 @@
+     """
+ 
+     def __init__(self, given, *, control, jobs, authority, integration,
+-                 profile, sessions, verdict=None):
++                 profile, sessions, verdict=None, engine_run=None,
++                 credential_provider=None):
+         self.given = given
++        # W103068: THE TWO CAPABILITIES AN INTEGRATION RUNTIME PORT IS
++        # CONSTRUCTED WITH, retained because the port cannot be constructed
++        # until a review has been accepted and this composition is the only
++        # thing that will still be holding them then. They are the SAME objects
++        # this composition was handed; nothing is defaulted or rebuilt.
++        self._engine_run = engine_run
++        self._credential_provider = credential_provider
++        # AND THE COMPOSED INTEGRATION CAPACITY, attached after the workers are
++        # built because the operations object does not exist yet here.
++        self._integration_operations = None
+         self.control = control
+         self.jobs = jobs
+         self.authority = authority
+@@ -2921,6 +2976,273 @@
+                     category="refused", code="capability")
+         return {"path": configured, "device": held.st_dev,
+                 "inode": held.st_ino}
++
++    @property
++    def integration_object_runner(self):
++        """The read-only Git object runner `integration_bundle` requires.
++
++        THAT MODULE NAMES THE CONTRACT AND SAYS WHOSE IT IS: `runner(argv, *,
++        directory) -> {"returncode", "stdout", "stderr"}` over BYTES, with the
++        descriptor valid for the call only, and "what this module cannot do is
++        audit an injected runner: the contract above is what a deployment
++        supplies". This assembly is that deployment, so it supplies one -- the
++        same production shape it already owns for the checkpoint profile, in the
++        second closed shape the bundle reader requires.
++
++        THE DIRECTORY IS A DESCRIPTOR AND NOT A PATH, which is the whole reason
++        the contract is separate: the caller has already opened the repository
++        and hands this the open handle, so nothing here re-resolves a path that
++        could have been replaced between the open and the read. It is passed
++        through to the child rather than retained.
++        """
++        import subprocess as _subprocess
++
++        def runner(argv, *, directory):
++            answer = _subprocess.run(
++                list(argv), cwd=f"/proc/self/fd/{directory}",
++                pass_fds=(directory,), capture_output=True,
++                timeout=GIT_SECONDS)
++            return {"returncode": answer.returncode,
++                    "stdout": answer.stdout, "stderr": answer.stderr}
++
++        return runner
++
++    def integration_instructions(self):
++        """The integrator's configured instruction bytes, read and PROVED.
++
++        W103068: `IntegrationRuntimePort` seals these into the bundle it
++        composes, and until now no accepted configuration said where they are.
++        The integration profile has always pinned their DIGEST -- that is what
++        `integration_bundle` and the coordinator's own profile compare against
++        -- so this member names the file and the pin is what makes reading it
++        safe: bytes that do not digest to the configured pin are refused before
++        any container is started, rather than producing a bundle that could
++        never match the profile it was sealed under.
++
++        IT IS NOT THE WORKER'S TASK DOCUMENT. The integration worker's task
++        document is the JOB's task -- the same document its producer and
++        reviewer are configured with -- and its digest is the input manifest's
++        business. The integrator's instructions are a different artifact about a
++        different act, so they are configured separately instead of being
++        recovered from a member that means something else.
++        """
++        configured = self.given.get("integration_instructions")
++        if configured is None:
++            _refuse("this deployment configures no integration_instructions; "
++                    "the integrator's instruction bytes are sealed into the "
++                    "bundle it runs and where they live is deployment wiring",
++                    category="refused", code="capability")
++        _text(configured, "the configured integration instructions")
++        _path(configured, "the configured integration instructions")
++        try:
++            with open(configured, "rb") as reading:
++                held = reading.read(MAX_CONFIG_BYTES + 1)
++        except OSError as failure:
++            _refuse(f"the configured integration instructions {configured!r} "
++                    f"cannot be read ({type(failure).__name__})",
++                    category="refused", code="capability")
++        if len(held) > MAX_CONFIG_BYTES:
++            _refuse(f"the integrator's instructions are at most "
++                    f"{MAX_CONFIG_BYTES} bytes", code="limit")
++        if not held:
++            _refuse("the integrator's instruction bytes are a non-empty byte "
++                    "string this deployment configured",
++                    category="refused", code="capability")
++        return held
++
++    def integration_home(self, name):
++        """One of this deployment's integration homes, made once."""
++        import os as _os
++
++        place = _os.path.join(self.given["state_root"], name)
++        _os.makedirs(place, exist_ok=True)
++        return place
++
++    def integration_operations_for(self, job_id):
++        """The composed integration worker's operations for one Job.
++
++        ONE CAPACITY, ONE OPERAND SET PER JOB. `_integration_operations`
++        answers a single object under one binding and a `_PerJobIntegration`
++        under several; both are the same worker, and what differs is the held
++        operands. This selects among them exactly as the provider does, so the
++        port a Job's integration is started by is composed over that Job's own
++        configured Work, input, profile and policy.
++        """
++        held = self._integration_operations
++        if held is None:
++            _refuse("this deployment has composed no integration worker "
++                    "operations; an integration runtime port is constructed "
++                    "over the capacity that serves the stage",
++                    category="refused", code="precondition")
++        selected = getattr(held, "held", None)
++        if type(selected) is dict:
++            if job_id not in selected:
++                _refuse(f"this deployment composes integration operands for "
++                        f"{sorted(selected)} and this stage names Job "
++                        f"{job_id!r}", category="refused", code="precondition")
++            return selected[job_id]
++        return held
++
++    def activate_targets(self):
++        """Adopt every canonical target this deployment configures.
++
++        W103068: THE SECOND OPERATOR STEP THE PRODUCTION COMPOSITION DID NOT
++        PERFORM. `enqueue` refuses an entry whose target "is not activated; an
++        entry belongs to a configured target", and nothing in the public factory
++        ever activated one -- the accepted component fixture called
++        `activate_target` by hand before every integration. A deployment that
++        configures a target and cannot adopt it is a deployment whose ordinary
++        integration refuses `policy/denied` on its first entry.
++
++        IT IS THE DOCUMENT'S OWN KEY AND A DERIVED DESCRIPTION. `activate_target`
++        makes an exact repeat one act -- the operation identity carries the
++        document's digest -- so this composes the same document from the same
++        configuration on every restart and replays instead of colliding. The key
++        is the configured `canonical_target_id` and is never derived from a
++        line, a proposal or a revision, which is that function's own rule.
++        """
++        from baton_v12.integration import TARGET_SCHEMA, activate_target
++
++        for target_id in sorted({one["canonical_target_id"] for one in
++                                 self.given["job_bindings"]}):
++            activate_target(self.integration, {
++                "schema": TARGET_SCHEMA, "canonical_target_id": target_id,
++                "description": f"configured by stage-execution deployment "
++                               f"{self.given['authority_uuid']} at pool "
++                               f"generation {self.given['pool_generation']}"})
++
++    def integration_served(self, job_id):
++        """The held document this deployment's integrator serves a Job under.
++
++        THIS MODULE'S OWN ANSWER, not another module's private state.
++        `_served_deployment` is the same derivation `_integration_operations`
++        composed the capacity with and `_job_workers` reads for compatibility,
++        so the operands a constructed port is given are the ones the provider
++        itself holds the stage to -- one derivation, asked again, rather than a
++        second opinion about the same Job.
++        """
++        named = [one for one in self.given["workers"]
++                 if one["role"] == "integration"]
++        if len(named) != 1:
++            _refuse(f"this deployment names {len(named)} integration workers; "
++                    f"one deployment names one integrator",
++                    category="refused", code="precondition")
++        binding = self.binding_for(job_id)
++        return _served_deployment(self.given, named[0], binding)
++
++    def integration_port_for(self, job_id, *, line_id, proposal_id,
++                             canonical_target_id):
++        """CONSTRUCT this Job's real integration runtime port, here, now.
++
++        W103068 review 2026-09-11T01-22-35Z [P1]. `factory` composed a
++        deployment that supplied no port at all, `_integration_ports` mapped
++        every bound Job to `None`, and the direct branch therefore refused
++        `capability` before it ever reached preparation or admission -- so the
++        advertised production entry point could not perform an ordinary
++        integration. The concrete port class existed and every constructor call
++        was in a test.
++
++        WHY IT IS CONSTRUCTED HERE RATHER THAN AT CONFIGURATION. Two of its
++        three dynamic operands do not exist when a deployment is composed: the
++        accepted line's integration checkpoint and the proposal its producer
++        published come into being when a review is ACCEPTED, which is after
++        serving started. The component fixture answered that by recomposing the
++        whole deployment with ports after the fact; a production provider cannot
++        restart itself, so the fixed half is resolved at composition and the
++        dynamic half is read from its own public owners at the moment the stage
++        that needs it runs.
++
++        EVERY OPERAND IS ALREADY CONFIGURED OR DURABLY DERIVED, and none is
++        invented. The identity digests, adapter, engine, network, launch
++        contract, credential resolution, workspace storage, capacity and
++        retained input manifest are the integration worker's OWN held document;
++        the toolchain digest is that manifest's own member, exactly as
++        `single_worker` records it for every other role; the instruction bytes
++        are the integrator's own configured task document, whose digest the
++        integration profile already pins; the target directory, the delivery
++        home and the two sibling homes are this deployment's wiring; and the
++        engine and credential capabilities are the ones this composition was
++        handed. Nothing reads another module's private attributes.
++        """
++        from baton_v12.contracts import digest_of_bytes
++
++        from . import integration_worker
++
++        from baton_v12.worker_manager import credentials
++
++        operations = self.integration_operations_for(job_id)
++        given = self.integration_served(job_id)
++        instructions = self.integration_instructions()
++        # AND THE PROFILE'S PINNED DIGEST IS WHAT PROVES THEY ARE THE RIGHT
++        # BYTES. `integration_bundle` seals the instructions into the bundle and
++        # the coordinator's profile carries their digest, so a deployment whose
++        # configured instructions and integration profile disagree is one whose
++        # bundle could never match the profile it was sealed under -- and
++        # finding that out at the engine is finding it out too late.
++        pinned = self.integration_profile["instructions_digest"]
++        if digest_of_bytes(instructions) != pinned:
++            _refuse(f"the configured integration instructions digest to "
++                    f"{digest_of_bytes(instructions)!r} and this deployment's "
++                    f"integration profile pins "
++                    f"{pinned!r}", category="refused", code="capability")
++        if self._engine_run is None:
++            _refuse("this deployment was composed with no engine run "
++                    "capability; an integration runtime port starts a real "
++                    "container through one", category="refused",
++                    code="capability")
++        if self._credential_provider is None:
++            _refuse("this deployment was composed with no credential "
++                    "provider; the integrator's bearer is materialized through "
++                    "one", category="refused", code="capability")
++        manifest = given["input_manifest"]
++        return integration_worker.IntegrationRuntimePort(
++            coordinator=self.integration, manager=self.control, jobs=self.jobs,
++            # THE ASSIGNMENT PORT IS `ManagerOperations.port` -- the public
++            # restricted port this deployment's own composition was handed, and
++            # the one that actually holds this attempt's claim. A port composed
++            # here would be a second Authority view of the same participant.
++            authority=self.authority, assignment_port=operations.port,
++            profile=self.integration_profile, checkpoint_profile=self.profile,
++            object_runner=self.integration_object_runner,
++            line_id=line_id, proposal_id=proposal_id,
++            canonical_target_id=canonical_target_id,
++            canonical_target=self._place("integration_target")["path"],
++            # AND THE DELIVERY HOME IS PROVISIONED LIKE ITS TWO SIBLINGS. The
++            # port requires a directory that already exists, and where this
++            # deployment's integration material lives is its own wiring -- the
++            # accepted fixture made this one by hand, which is exactly the
++            # operator step a production composition may not depend on.
++            delivery_home=self.integration_home(INTEGRATION_HOME),
++            instructions=instructions,
++            identity={one: given[one] for one in
++                      ("image_digest", "profile_digest", "policy_digest",
++                       "adapter_digest")},
++            adapter_name=given["adapter_name"],
++            toolchain_digest=manifest["toolchain_digest"],
++            input_manifest=manifest, engine=given["engine"],
++            engine_run=self._engine_run,
++            workspace_storage=given["workspace_storage"],
++            workspace_group=self.workspace_group,
++            # THE CAPACITY IS ALREADY THE HELD OBJECT. `single_worker._held`
++            # replaces the configured integer with the capacity its own owner
++            # composed, so wrapping it again would be this module composing a
++            # second one over a number it did not configure.
++            capacity=given["workspace_capacity"],
++            bundle_home=self.integration_home(INTEGRATION_BUNDLE_HOME),
++            launch_home=self.integration_home(INTEGRATION_LAUNCH_HOME),
++            launch_session=INTEGRATION_LAUNCH_SESSION,
++            launch_contract=given["launch_contract"],
++            network=given["network"],
++            credential_resolution=given["credential_resolution"],
++            # THE CREDENTIAL HOME IS COMPOSED OVER THE CONFIGURED ROOT, which is
++            # what that class is: "assignment-scoped, fixed, and proved when the
++            # thing that holds it is built". The worker's own view is private to
++            # `single_worker` and reading it from here would be this module
++            # reaching into another's state; the ROOT is configuration, so the
++            # view over it is composed rather than borrowed.
++            credential_home=credentials.CredentialHome(
++                given["credential_home"]),
++            credential_provider=self._credential_provider)
+ 
+     @property
+     def reconciliation_profile(self):
+@@ -3676,8 +3998,16 @@
+             given, control=control_store, jobs=job_store,
+             authority=composed.authority, integration=composed.integration,
+             profile=profile, sessions=composed.sessions,
+-            verdict=review_verdict)
++            verdict=review_verdict, engine_run=engine_run,
++            credential_provider=credential_provider)
+         composed.deployment = deployment
++        # W103068: AND THE CONFIGURED TARGETS ARE ADOPTED. This is the first
++        # act after the coordinator is open, and it is here rather than in the
++        # integration branch because a target is deployment configuration: a
++        # composition that only adopted a target when some Job reached
++        # integration would leave the operator's own `status` unable to name
++        # what this deployment was configured to write to.
++        deployment.activate_targets()
+         composed.publication = deployment.publication
+         composed.integration_profile = deployment.integration_profile
+         composed.integrator = Integration(deployment, ports)
+@@ -3691,6 +4021,12 @@
+                 operations = _integration_operations(
+                     given, one, provider, control_store, composed.authority,
+                     engine_run=engine_run, clock=clock, checkpoint=checkpoint)
++                # W103068: AND THE DEPLOYMENT LEARNS ITS INTEGRATION CAPACITY.
++                # An integration runtime port is composed over this worker's own
++                # held operands, and it cannot be composed until an accepted
++                # review exists -- so what the composition keeps is the capacity
++                # itself rather than a port built too early.
++                deployment._integration_operations = operations
+             else:
+                 operations = single_worker.worker_operations(
+                     one["deployment"], control_store, composed.authority,

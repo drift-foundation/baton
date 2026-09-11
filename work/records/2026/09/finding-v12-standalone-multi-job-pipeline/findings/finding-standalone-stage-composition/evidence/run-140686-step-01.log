@@ -1,0 +1,61 @@
+### label: production-port-construction-witness
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT"]
+### exit: 1
+### elapsed_seconds: 0.689773
+### STDOUT
+
+### STDERR
+E
+======================================================================
+ERROR: test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT)
+W103068's P1: the production composition supplies its own port.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6950, in test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT
+    held = self.both_accepted()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7324, in both_accepted
+    held.second_review = self.accepted(
+                         ~~~~~~~~~~~~~^
+        held, "job-b", "implementation-worker-b", "review-worker-b",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        held.second, "print('the second job answered')\n",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        edits={"feature.py": self.B_FEATURE,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "feature_check.py": self.B_CHECK})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6902, in accepted
+    self.drive_job(held.job, held.composed, job_id, "review", "waiting")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6787, in drive_job
+    tick(job, composed, now=fixtures.NOW)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 160, in sweep
+    started = _launch(store, operations, projection.stage_states(store,
+                                                                 operations))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 340, in _launch
+    answer = operations.launch(attempt, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 3353, in launch
+    return self.integrator.run(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 1973, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2081, in _run
+    port = self._constructed(
+        stage, job, line_id=line["line_id"],
+        proposal_id=operands["proposal_id"],
+        canonical_target_id=operands["canonical_target_id"])
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 1864, in _constructed
+    built = self.deployment.integration_port_for(
+        job_id, line_id=line_id, proposal_id=proposal_id,
+        canonical_target_id=canonical_target_id)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 3126, in integration_port_for
+    given = operations.given
+            ^^^^^^^^^^^^^^^^
+AttributeError: '_Operations' object has no attribute 'given'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.485s
+
+FAILED (errors=1)

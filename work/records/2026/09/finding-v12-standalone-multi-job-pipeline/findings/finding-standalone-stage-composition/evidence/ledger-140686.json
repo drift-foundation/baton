@@ -1,0 +1,312 @@
+{
+ "claim": 140686,
+ "work": "W103068",
+ "ceiling_seconds": 570.0,
+ "ceiling_authority": "owner140663: cumulative per-Job author 450->570s, reviewer 5->25s; all spending and uncertainty retained, joined 40s unchanged, no reset or transfer",
+ "carried_seconds": 383.35242021799934,
+ "carried_note": "campaign author carry at claim start, per review-2026-09-11T01-22-35Z.md and PLAN",
+ "runs": [
+  {
+   "step": 1,
+   "label": "production-port-construction-witness",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 0.689772705998621,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-01.log",
+   "ok": false
+  },
+  {
+   "step": 2,
+   "label": "production-port-construction-witness-2",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 0.8739980869941064,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-02.log",
+   "ok": false
+  },
+  {
+   "step": 3,
+   "label": "production-port-construction-witness-3",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 0.9033398709943867,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-03.log",
+   "ok": false
+  },
+  {
+   "step": 4,
+   "label": "production-port-construction-witness-4",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 1.0337337529999786,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-04.log",
+   "ok": false
+  },
+  {
+   "step": 5,
+   "label": "production-port-construction-witness-5",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 1.3127698300013435,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-05.log",
+   "ok": false
+  },
+  {
+   "step": 6,
+   "label": "production-port-construction-witness-6",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 0.9791727080009878,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-06.log",
+   "ok": false
+  },
+  {
+   "step": 7,
+   "label": "production-port-construction-witness-7",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 1.00152204400365,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-07.log",
+   "ok": true
+  },
+  {
+   "step": 8,
+   "label": "port-controls-and-accepted-paths",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 15.601679824998428,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-08.log",
+   "ok": false
+  },
+  {
+   "step": 9,
+   "label": "two-job-class-after-migration",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 12.396116558003996,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-09.log",
+   "ok": false
+  },
+  {
+   "step": 10,
+   "label": "two-job-class-after-home-migration",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 14.265135472996917,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-10.log",
+   "ok": false
+  },
+  {
+   "step": 11,
+   "label": "two-job-class-green",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 14.282836928003235,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-11.log",
+   "ok": true
+  },
+  {
+   "step": 12,
+   "label": "owned-test-module-regression",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 34.54920409000624,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-12.log",
+   "ok": false
+  },
+  {
+   "step": 13,
+   "label": "attribute-errors-single-class",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery",
+    "tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 1.2383900740023819,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-13.log",
+   "ok": false
+  },
+  {
+   "step": 14,
+   "label": "BASELINE-pinned-input-same-classes",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery",
+    "tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle",
+    "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 9.065428228997916,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-14.log",
+   "ok": false
+  },
+  {
+   "step": 15,
+   "label": "MINE-same-four-classes",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery",
+    "tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle",
+    "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 6.9674381430013455,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-15.log",
+   "ok": false
+  },
+  {
+   "step": 16,
+   "label": "MINE-four-classes-after-adoption-fix",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery",
+    "tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle",
+    "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 9.080615992003004,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-16.log",
+   "ok": false
+  },
+  {
+   "step": 17,
+   "label": "owned-module-regression-after-corrections",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 36.69102123299672,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140686-step-17.log",
+   "ok": false
+  }
+ ],
+ "claim_spent_seconds": 160.93217554400326,
+ "cumulative_seconds": 544.2845957620026,
+ "remaining_seconds": 25.715404237997404
+}

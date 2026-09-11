@@ -1,0 +1,354 @@
+{
+  "work": "W71879",
+  "claim": 141676,
+  "files": {
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/baseline-observation.json": {
+      "sha256": "sha256:69ab273f4d04a3dea3fd68ca9ec9e27b7dd43230ea809ff9c37348d5bbf4de5c",
+      "bytes": 399,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/build_images.py": {
+      "sha256": "sha256:301b57432a231bf57d127d77a18e862e69aa697cf07121df8b2cad193de0cd24",
+      "bytes": 5578,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/commands-and-grants.json": {
+      "sha256": "sha256:b858024a5ef6c94ee6cd8b12bc6e38c086384128abf45d952112fbcfe837cd4a",
+      "bytes": 4530,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/deployment.py": {
+      "sha256": "sha256:4e4a68ddae43d05cf363ce3c0bf13a24562e1b579dd70f9ee712685e671f912d",
+      "bytes": 25495,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/Dockerfile.provider": {
+      "sha256": "sha256:3550be4ff6040337bf3ae9bd1d3ab47dbcd40009655b02f29b9f0bac5056ee10",
+      "bytes": 469,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/python/src/baton_v12/source_profiles/__init__.py": {
+      "sha256": "sha256:c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "bytes": 3367,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/python/src/baton_v12/source_profiles/checkout.py": {
+      "sha256": "sha256:037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "bytes": 16345,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/worker/Dockerfile.integration": {
+      "sha256": "sha256:afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "bytes": 5790,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/worker/baton_worker.py": {
+      "sha256": "sha256:da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923",
+      "bytes": 98926,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/worker/claude_agent.py": {
+      "sha256": "sha256:9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+      "bytes": 166051,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/worker/dogfood_entry.py": {
+      "sha256": "sha256:bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3",
+      "bytes": 810,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/worker/integration_contract.py": {
+      "sha256": "sha256:74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "bytes": 57431,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/worker/integration_entry.py": {
+      "sha256": "sha256:0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "bytes": 5287,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/worker/integration_workload.py": {
+      "sha256": "sha256:b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "bytes": 70815,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/worker/worker-control-1.0.schema.json": {
+      "sha256": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "bytes": 51419,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context-manifest.json": {
+      "sha256": "sha256:b11e9ca0d17ffd44b0be7911abb86d6c69fb38a31dc338014032f89bc51d5dd0",
+      "bytes": 1525,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/policies/credential_policy.json": {
+      "sha256": "sha256:5367e2ae17e31ebb65e3617ef3fd2535030f7ff12d81e7a671408d2dc9ffbe1b",
+      "bytes": 239,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/policies/mount_policy.json": {
+      "sha256": "sha256:25714f9bde23f6ad735ca4887b00f5b3fa7f74d3de7c2d4f3c7fbf1d52a752b4",
+      "bytes": 288,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/policies/network_policy.json": {
+      "sha256": "sha256:a14940241891a84e976d38f16fa111807cb9c5581e5229ccc91e746f61c14071",
+      "bytes": 108,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/policies/policy.json": {
+      "sha256": "sha256:93bb4a14dabe397e3814f81e1935cf32eeecbdc5e0b7fd77447b12805e61e750",
+      "bytes": 294,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/policies/resource_policy.json": {
+      "sha256": "sha256:8eeb3db84370b6882c214af5767c8f1dc6584d1b1d3f130f634cbdfd14fdc01f",
+      "bytes": 576,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/policies/retention_policy.json": {
+      "sha256": "sha256:ba75619f392a4310b9038d8e58abc8d763164670fc83b35f103dce5e1e560425",
+      "bytes": 118,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/policies/tool_policy.json": {
+      "sha256": "sha256:f7bc4929a448b26fa9916dfa898e97d5b96644023ee12ee5d629f233b6726134",
+      "bytes": 444,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/record-snapshot/FINDING.md": {
+      "sha256": "sha256:5f6d86a181246dc131aadd22f45efdff7aa1684c309696b544a907cf032a3fa1",
+      "bytes": 30622,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/record-snapshot/PLAN.md": {
+      "sha256": "sha256:c9ebef06e95f855e38776c89ee4a631b1bff51056f374b514a2405e5bf636798",
+      "bytes": 16953,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/run.py": {
+      "sha256": "sha256:649d554230fd4431b52d7684e073e6661aaf4032dc62c5d4f23bc9d127e9c009",
+      "bytes": 12262,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/spending.json": {
+      "sha256": "sha256:cae4bba8d494112f9b689484eca93af0cf1ca479c93e9ebbaf28acff81a34782",
+      "bytes": 2061,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/tasks/a.json": {
+      "sha256": "sha256:0a7da58a3ac50700eee383a9b6e6482174dec60e7fd12ce4e627af3e3aa2c2de",
+      "bytes": 1252,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/tasks/approval.json": {
+      "sha256": "sha256:1028214f6e971fa94c5438849fe92406bd91efa2dc1b7bed39a3be68417ab640",
+      "bytes": 3280,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/tasks/b.json": {
+      "sha256": "sha256:341d06101c22295daaa2866432df40b5616b6bde6192700e71207e373a7aeeeb",
+      "bytes": 1543,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/tasks/review.json": {
+      "sha256": "sha256:9b42fc834f5d58581db183a853d9a315ba5d21aae5f2fcd7effc22407c0c0b60",
+      "bytes": 3123,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/tasks/verification.json": {
+      "sha256": "sha256:f3202bf3c45024b1eda2d195f81f8a1b70befd28e123d62a3e8813fba7e49355",
+      "bytes": 3189,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/validation.json": {
+      "sha256": "sha256:bfa7d9b38968533e9e7597078a79af938bb844e50dd2019f7ac48e8de0c447a0",
+      "bytes": 6035,
+      "mode": "0o664"
+    }
+  },
+  "provider_chain": {
+    "AGENTS.md": {
+      "sha256": "a7323bbc227aabe8322f747d5750bc4823cbad2b56dce1f863ddd5921223eb7f",
+      "accepted_matches": true
+    },
+    "v12/README.md": {
+      "sha256": "0ee2369c991470bc83306c33dd3e3849a6bf3faa371d4f6031ea0766f80858c5",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/checkpoint_profiles.py": {
+      "sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "837483eb9fb8031dae2f8c73472a63a155efbee0b46bd1b5151c70ae35372db8",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/execution.py": {
+      "sha256": "af356a985d6a746a59cc26049b7acd3d5f33551c1ee8752ce931434e5f7a1a04",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/git_profile.py": {
+      "sha256": "ccd0b048ae039df779cbb2ae468c63b8c5f43f73346b4643dd9cefdde89b7902",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/queue.py": {
+      "sha256": "18ced502ebcff18946c1c72914223166c995484ce2baccd6423bb3f7ca0b23a0",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/reconciliation.py": {
+      "sha256": "c575077386c81c135b337b5e5a940aeabfe2d142c15edcbade6e905bbc36af6d",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/recovery.py": {
+      "sha256": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/runtime.py": {
+      "sha256": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "164de55dd44ab31f0e4a761dfa96eb1dddc893f0954d9697306f4306e0d4523d",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/delegation.py": {
+      "sha256": "3019d7ea94db2fdd3b0e9c3933f0d2b10241fdaf64c2550129c7bbb81ecfadf6",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/attempts.py": {
+      "sha256": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/schema.py": {
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/target_rework.py": {
+      "expected_absence_matches": true
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce",
+      "accepted_matches": true
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea",
+      "accepted_matches": true
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "aba50ff33f19a137271318ff440bb125d43211cec12de1a07e10d33b2e74e834",
+      "accepted_matches": true
+    },
+    "v12/python/tests/integration/test_execution.py": {
+      "sha256": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "accepted_matches": true
+    },
+    "v12/python/tests/integration/test_reconciliation.py": {
+      "sha256": "213520989b628f414d3f0ad27fce2d1f4131cf48435f2ed6af1c5f4c29b77a72",
+      "accepted_matches": true
+    },
+    "v12/python/tests/integration/test_recovery.py": {
+      "sha256": "c33cfa13818177afc882dd896d842036010c44656886a73c133687001e08b8fa",
+      "accepted_matches": true
+    },
+    "v12/python/tests/integration/test_runtime.py": {
+      "sha256": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+      "accepted_matches": true
+    },
+    "v12/python/tests/job_manager/test_delegation.py": {
+      "sha256": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "accepted_matches": true
+    },
+    "v12/python/tests/job_manager/test_scheduling.py": {
+      "sha256": "79ba448c1f21a6c92bc9230291b5bfd04273024280b00ea197d1fa700066c103",
+      "accepted_matches": true
+    },
+    "v12/python/tests/manager/test_attempts.py": {
+      "sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0",
+      "accepted_matches": true
+    },
+    "v12/python/tests/manager/test_integration_image.py": {
+      "sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "accepted_matches": true
+    },
+    "v12/python/tests/manager/test_integration_worker.py": {
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "accepted_matches": true
+    },
+    "v12/python/tests/manager/test_store.py": {
+      "sha256": "9a5566355c375c98d2464e802a4d3d599cdd24fabc1b8d2135963830e339c093",
+      "accepted_matches": true
+    },
+    "v12/python/tests/manager/test_target_rework.py": {
+      "expected_absence_matches": true
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "accepted_matches": true
+    },
+    "v12/python/tests/tools/test_integration_worker.py": {
+      "sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "accepted_matches": true
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "f48e5077377e2e4fc2e571268d737a984a86633abd8eab5a19ba9faa5608a3d5",
+      "accepted_matches": true
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+      "accepted_matches": true
+    },
+    "v12/python/tools/integration_worker.py": {
+      "sha256": "2c3156da8c4f9bf4430b325ca0e32fc9c8bfbb59f5caa7ccccdd71b4fca65796",
+      "accepted_matches": true
+    },
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "89d048c9ef0684f4e10859ffa5faf3d698e61b5e6d073689667e06e28aedd2e0",
+      "accepted_matches": true
+    },
+    "v12/worker/Dockerfile.integration": {
+      "sha256": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "accepted_matches": true
+    },
+    "v12/worker/integration_contract.py": {
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "accepted_matches": true
+    },
+    "v12/worker/integration_entry.py": {
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "accepted_matches": true
+    },
+    "v12/worker/integration_workload.py": {
+      "sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "accepted_matches": true
+    },
+    "v12/python/tools/single_worker.py": {
+      "sha256": "e2995d62dd37ca11b460451734e861b03b2dd9346d8dd577b0e921fa32554ed2",
+      "accepted_matches": true
+    },
+    "v12/python/tests/tools/test_single_worker.py": {
+      "sha256": "e61576c9b968bd4547c044320bc255faa715a4675d37974f69e57a6d998d7f5c",
+      "accepted_matches": true
+    }
+  },
+  "prepared141510_unchanged": true,
+  "actual_build_or_run": false,
+  "final_hash_validation_seconds": 0.005245332002232317
+}

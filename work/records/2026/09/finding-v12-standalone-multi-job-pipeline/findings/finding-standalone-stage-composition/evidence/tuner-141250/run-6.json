@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs"
+  ],
+  "elapsed_seconds": 2.5559542089977185,
+  "returncode": 1
+}

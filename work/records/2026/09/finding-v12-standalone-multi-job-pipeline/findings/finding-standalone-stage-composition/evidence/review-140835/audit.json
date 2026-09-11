@@ -1,0 +1,39 @@
+{
+  "union_entries": 43,
+  "expected_changed_pair": [
+    "v12/python/tools/stage_execution.py",
+    "v12/python/tests/tools/test_stage_execution.py"
+  ],
+  "unexpected_drift": [],
+  "baseline_error_sets_equal": true,
+  "error_counts": {
+    "14": 13,
+    "16": 13,
+    "17": 13
+  },
+  "author_nonzero_steps": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    9,
+    10,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "author_claim_seconds": 160.93217554400326,
+  "author_cumulative_seconds": 544.2845957620026,
+  "correction_allocation_seconds": 120,
+  "excess_over_correction_seconds": 40.93217554400326,
+  "elapsed_seconds": 0.0023536860026069917,
+  "outer_reserve_seconds": 0.05,
+  "reviewer_cumulative_seconds": 6.64732907199965,
+  "reviewer_ceiling_seconds": 25
+}

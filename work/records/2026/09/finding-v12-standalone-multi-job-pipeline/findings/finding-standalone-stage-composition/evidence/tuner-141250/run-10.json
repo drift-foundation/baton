@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_configured_judgment_executions_are_held_per_job",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_deployment_without_a_consumer_is_unchanged",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_execution_for_another_participant_is_refused",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_two_of_three_judgments_are_refused",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_consumer_for_an_unbound_job_is_refused",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_identity_that_collides_with_a_stage_worker_refuses",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_configured_consumer_composes_and_resolves_its_judges",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_work_this_authority_does_not_project_is_refused",
+    "tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_the_published_document_is_the_held_bytes_at_a_real_file",
+    "tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_a_restart_neither_rewrites_the_task_nor_starts_a_second_runtime"
+  ],
+  "elapsed_seconds": 2.1831521569984034,
+  "returncode": 0
+}

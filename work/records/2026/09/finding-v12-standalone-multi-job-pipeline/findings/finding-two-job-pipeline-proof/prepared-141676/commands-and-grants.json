@@ -1,0 +1,111 @@
+{
+  "commands": {
+    "build_candidates": {
+      "argv": [
+        "/usr/bin/env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONPATH=src:.",
+        "/usr/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/build_images.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "returncode": 0,
+      "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n",
+      "stdout": "{\"matchedRules\":[]}\n"
+    },
+    "configured_serve": {
+      "argv": [
+        "/usr/bin/env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONPATH=src:.",
+        "BATON_V12_STAGE_EXECUTION_CONFIG=/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/frozen-config/stage-execution.json",
+        "/usr/bin/python3",
+        "-m",
+        "tools.job_manager",
+        "--store",
+        "/home/sl/.local/state/baton/v12/w71879-run1/jobs.sqlite3",
+        "--incarnation",
+        "w71879-run1",
+        "--authority-uuid",
+        "c71879ab000000000000000000000001",
+        "serve",
+        "--control",
+        "/home/sl/.local/state/baton/v12/w71879-run1/control.sqlite3",
+        "--operations",
+        "tools.stage_execution:factory",
+        "--interval",
+        "1"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "returncode": 0,
+      "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n",
+      "stdout": "{\"matchedRules\":[]}\n"
+    },
+    "existing_unconfigured_status": {
+      "argv": [
+        "/usr/bin/env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONPATH=src:.",
+        "/usr/bin/python3",
+        "-m",
+        "tools.job_manager",
+        "--store",
+        "/home/sl/.local/state/baton/v12/w71879-run1/jobs.sqlite3",
+        "--incarnation",
+        "w71879-run1",
+        "--authority-uuid",
+        "c71879ab000000000000000000000001",
+        "status",
+        "--control",
+        "/home/sl/.local/state/baton/v12/w71879-run1/control.sqlite3"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "returncode": 0,
+      "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n",
+      "stdout": "{\"matchedRules\":[{\"prefixRuleMatch\":{\"matchedPrefix\":[\"/usr/bin/env\",\"PYTHONDONTWRITEBYTECODE=1\",\"PYTHONPATH=src:.\",\"/usr/bin/python3\",\"-m\",\"tools.job_manager\"],\"decision\":\"allow\"}}],\"decision\":\"allow\"}\n"
+    },
+    "provision_fresh_authority": {
+      "argv": [
+        "/usr/bin/env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONPATH=src:.",
+        "/usr/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/deployment.py",
+        "provision"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "returncode": 0,
+      "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n",
+      "stdout": "{\"matchedRules\":[]}\n"
+    },
+    "render_exact_inputs": {
+      "argv": [
+        "/usr/bin/env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONPATH=src:.",
+        "/usr/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/deployment.py",
+        "render"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "returncode": 0,
+      "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n",
+      "stdout": "{\"matchedRules\":[]}\n"
+    },
+    "run_once_after_review": {
+      "argv": [
+        "/usr/bin/env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONPATH=src:.",
+        "/usr/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/run.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "returncode": 0,
+      "stderr": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n",
+      "stdout": "{\"matchedRules\":[]}\n"
+    }
+  },
+  "policy_and_syntax_wall_seconds": 0.1259436949985684,
+  "target_operations_executed": false
+}

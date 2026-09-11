@@ -1,0 +1,32 @@
+### label: two-job-class-after-home-migration
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"]
+### exit: 1
+### elapsed_seconds: 14.265135
+### STDOUT
+
+### STDERR
+.....................F................
+======================================================================
+FAIL: test_each_jobs_integration_binds_its_own_producer_task_and_port (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_each_jobs_integration_binds_its_own_producer_task_and_port)
+NO GLOBAL FALLBACK LEFT IN THE INTEGRATION OPERANDS.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7429, in test_each_jobs_integration_binds_its_own_producer_task_and_port
+    self.assertEqual((caught.exception.category, caught.exception.code),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ("refused", "precondition"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('policy', 'denied') != ('refused', 'precondition')
+
+First differing element 0:
+'policy'
+'refused'
+
+- ('policy', 'denied')
++ ('refused', 'precondition')
+
+----------------------------------------------------------------------
+Ran 38 tests in 14.061s
+
+FAILED (failures=1)

@@ -1,0 +1,7 @@
+test_actual_factory_keeps_required_capabilities_absent (__main__.FactoryDefaults.test_actual_factory_keeps_required_capabilities_absent) ... ACTUAL FACTORY REFUSAL: this deployment was composed with no engine run capability; an integration runtime port starts a real container through one
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.059s
+
+OK

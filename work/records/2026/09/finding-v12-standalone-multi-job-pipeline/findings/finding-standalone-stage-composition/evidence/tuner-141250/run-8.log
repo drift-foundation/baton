@@ -1,0 +1,19 @@
+test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs) ... ok
+test_rejected_derived_judgment_cannot_authorize_import (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_rejected_derived_judgment_cannot_authorize_import) ... ok
+test_policy_drift_cannot_reuse_or_redispatch_derived_judgments (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_policy_drift_cannot_reuse_or_redispatch_derived_judgments) ... ok
+test_foreign_frozen_candidate_cannot_authorize_derived_receipts (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_foreign_frozen_candidate_cannot_authorize_derived_receipts) ... ok
+test_derived_judges_reconstruct_after_dispatch_without_second_launch (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_derived_judges_reconstruct_after_dispatch_without_second_launch) ... FAIL
+
+======================================================================
+FAIL: test_derived_judges_reconstruct_after_dispatch_without_second_launch (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_derived_judges_reconstruct_after_dispatch_without_second_launch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7198, in test_derived_judges_reconstruct_after_dispatch_without_second_launch
+    self.assertEqual(len(self.engine.starts), starts)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 22 != 16
+
+----------------------------------------------------------------------
+Ran 5 tests in 6.773s
+
+FAILED (failures=1)

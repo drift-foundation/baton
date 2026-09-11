@@ -1,0 +1,54 @@
+--- review141074/v12/python/tools/stage_execution.py
++++ candidate141103/v12/python/tools/stage_execution.py
+@@ -4313,6 +4313,51 @@
+                     f"{deployment['principal']!r}", category="refused",
+                     code="capability")
+         resolved[who] = principal
++    # W103068 review 2026-09-11T02-41-03Z: AND EVERY CONFIGURED JUDGMENT
++    # EXECUTION, for the same reason and at the same moment. This iterated the
++    # stage workers only, so a judgment execution configured for a participant
++    # this Authority resolves to another principal -- or for a Work it does not
++    # hold -- would have been discovered by `worker_operations` at dispatch,
++    # with a control store already configured and a container about to start.
++    # Every question answerable from the document and the Authority alone is
++    # answered here, while nothing has been written.
++    for job_id, kinds in (given.get("result_judgment_workers") or {}).items():
++        for kind, one in sorted(kinds.items()):
++            deployment = one["deployment"]
++            who = deployment["participant"]
++            what = f"Job {job_id!r}'s {kind} judgment execution"
++            principal = _authority_read(
++                f"{what}'s participant {who!r} is not one this Authority "
++                f"resolves",
++                lambda who=who: authority.principal_of(who))
++            if principal != deployment["principal"]:
++                _refuse(f"{what}'s participant {who!r} resolves to "
++                        f"{principal!r} and its deployment is configured for "
++                        f"{deployment['principal']!r}", category="refused",
++                        code="capability")
++            # AND THE WORK IT EXECUTES UNDER IS THIS AUTHORITY'S OWN. A
++            # judgment acquires its authorized assignment through that Work, so
++            # a manifest naming a Work this Authority does not project could
++            # never obtain one -- and `worker_operations` makes exactly this
++            # refusal later, when the message is about a launch instead of a
++            # configuration.
++            work_id = deployment["input_manifest"]["work_ref"]["work_id"]
++            projected = _authority_read(
++                f"{what}'s configured Work {work_id!r} is not one this "
++                f"Authority projects",
++                lambda work_id=work_id: authority.project_work(work_id))
++            if projected is None \
++                    or projected["authority_uuid"] != given["authority_uuid"]:
++                _refuse(f"{what} names Work {work_id!r}, which is absent from "
++                        f"this Authority", category="refused",
++                        code="precondition")
++            # AND THE ANSWER STAYS THE POOL'S. `scheduler.activate_pool` takes
++            # this map and requires its keys to be EXACTLY the configured pool
++            # participants, so a judgment participant added here would refuse
++            # every activation -- which is the right rule, because a judge is
++            # not a pool worker and holds no stage capacity. What this loop
++            # contributes is the PROOF, made while nothing has been written,
++            # not a member of the pool's identity map.
+     return resolved
+ 
+ 

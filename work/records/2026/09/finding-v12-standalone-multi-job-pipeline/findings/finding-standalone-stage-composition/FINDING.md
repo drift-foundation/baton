@@ -306,3 +306,236 @@ Return W103068 through baton.ops for the bounded production correction and
 verification assignment described in the review, keeping W71879 gated. No new
 planning Work, implicit source expansion or budget transfer; existing same-scope
 component evidence is reused. Static review adds no runtime verification charge.
+
+## 2026-09-11T01:30:06Z — owner approves production correction and ceilings
+
+Owner baton.slaw return140663 approves review-2026-09-11T01-22-35Z.md and
+directs pinning and serial baton.claude ownership of exactly
+v12/python/tools/stage_execution.py and v12/python/tests/tools/test_stage_execution.py.
+Whitespace introduced inside the returned path spellings is interpreted as
+the exact existing pair named by that review; no new path or broader authority.
+
+Wire production integration-port construction and establish the actual
+independent derived-result judgment consumer. Verify the public configured
+factory without injected ports or reconnect steps. No fabricated judgments or
+manual repair. Additional required source scope must return with concrete
+evidence. Independently review the correction, then prepare actual W71879
+standalone execution. Existing component evidence is reused; hardening remains
+deferred. This supersedes pending source-owner/allocation status above.
+
+The cumulative per-Job author ceiling increases450s to570s and reviewer5s to25s,
+retaining all spending and uncertainty. Author carry383.35242021799934s and
+reviewer4.750571445997288s precede this placement check; joined40s is unchanged.
+The120s author increase funds this correction; old reserved balances are not
+transferred. The20s reviewer increase is cumulative, not a fresh25s allowance.
+Earlier untimed runs, mistaken probes and overruns stay recorded without
+retroactive authorization. No reset or use of separate prerequisite budgets.
+
+Placement claim140665 pins the ruling before author dispatch. This existing
+Work carries the authorized correction and returns to baton.feat for independent
+review; no new planning Work or additional approval round. W71879 remains gated
+until the actual missing production path is independently accepted.
+
+Placement evidence: evidence/placement-140665/result.json confirms all43 accepted
+R140229 entries unchanged with zero drift; the two author paths are retained in
+its candidate/ directory. No product/test changes or runtime tests. Continuity
+elapsed0.0023577829997520894s plus0.05s outer reserve charges0.05235778299975209s,
+giving reviewer cumulative4.80292922899704/25s. Author carry remains
+383.35242021799934/570s plus all uncertainty; added120s correction and unchanged
+joined40s remain distinct. Static reading/dossier work is disclosed unmeasured
+activity on the inherited basis. Dispatch the approved two-path correction now.
+
+## 2026-09-11T02:06:10Z — correction review: factory defaults still refuse
+
+Confirmed reviewer140835, review-2026-09-11T02-06-10Z.md: author140686's
+new dynamic construction works with injected capabilities, but literal factory
+retains engine_run=None and credential_provider=None and its new constructor
+refuses. This explicitly supersedes the P1-resolved claim in PROGRESS/M140813;
+partial two-file construction work remains retained. Independent evidence:
+evidence/review-140835/ (actual factory-default refusal plus passing injected
+control, exact candidate copies/diffs,43-entry continuity, no unexpected drift).
+B's authentic derived-result judgment consumer is still missing. Literal-call
+search is not exhaustive: driver._receipt invokes session verbs dynamically.
+Do not infer that holding sessions alone grants judgment or that a new worker
+role is necessarily required. The actual consumer must bind genuine independent
+judgments to the derived candidate under the existing public acceptance contract.
+
+Audit corrects the author handoff:15 nonzero runs,160.93217554400326s this claim,
+cumulative544.2845957620026/570s plus uncertainty. The120s correction allocation
+was exceeded by40.93217554400326s; nominal25.715404237997404s remaining cannot
+also preserve unchanged joined40s. No reserve transfer or retroactive approval.
+Reviewer cumulative6.64732907199965/25s includes all three probe attempts and
+outer reserves; two setup refusals are preserved, not reported as product proof.
+Return the existing Work through baton.bug for owner allocation/scope disposition,
+then serial correction and independent review. No new planning Work or robustness
+gate; W71879 still requires the actual runnable provider before ordinary A/B proof.
+
+## 2026-09-11T02:11:47Z — owner140905 approves four-file correction
+
+Owner accepts review-2026-09-11T02-06-10Z.md and the prior correction overrun
+40.93217554400326s, retaining cumulative author544.2845957620026s plus
+uncertainty and every failed run. Author ceiling becomes800s with a new180s
+correction allocation; joined40s and other reserves remain. Reviewer25s carries
+6.64732907199965s before this placement. This explicitly supersedes the pending
+owner-disposition status and prior570s ceiling; it does not erase the overrun.
+
+Serial baton.claude owns exactly tools/stage_execution.py, tools/single_worker.py,
+tests/tools/test_stage_execution.py and tests/tools/test_single_worker.py under
+v12/python. Retain the partial candidate. Concrete design is pinned in
+DESIGN-2026-09-11T02-11-47Z.md: share the effective production engine/provider
+capabilities; dispatch the exact published derived subject to authentic independent
+judgment through supported worker/review/custody interfaces; adopt correlated
+real reports as scoped receipts; preserve distinct owners and current policy.
+Session possession alone neither proves judgment nor forbids evidence-backed
+receipt recording. Additional required source paths return with exact evidence.
+First literal factory defaults reach A prepare/start/continuation, then B genuine
+judgment and authorized terminal completion. Correct inaccurate test claims,
+reuse baseline evidence, no broad reruns, no fabricated judgment/manual repair.
+Independent review precedes W71879 actual A/B; hardening remains deferred.
+
+Placement140907 retains all four candidate inputs and checks43 R entries plus
+the newly owned single_worker pair without unexpected drift. Exact hashes/modes
+and copies: evidence/placement-140907/result.json and candidate/. Its initial
+script wrongly indexed the single_worker path in R's43-entry union; that reviewer
+mistake and a conservative1s charge remain recorded. Total placement charge
+1.0555699340009597s; reviewer cumulative7.702899006000609/25s. Author spending
+unchanged; no product/test changes or runtime tests. Dispatch the authorized
+correction on this Work now; no new planning prerequisite or approval round.
+
+## 2026-09-11T02:27:46Z — P1 accepted; authorized P2 configuration clarified
+
+Reviewer140987 accepts the default-capability correction in author140937:
+literal factory now supplies effective engine and the actual resolved integration
+credential provider. Independent factory-to-direct-A-completion join passes;
+evidence/review-140987/ retains the exact four inputs/diffs and45-entry continuity
+with no unexpected drift. review-2026-09-11T02-27-46Z.md explicitly supersedes
+P1-factory-default-blocked status, while W103068 still requires P2.
+
+Author says P2's execution configuration and read-only derived-subject boundary
+fit the approved four files and has150.46587770600308s remaining. Owner140905's
+instruction to implement that authentic consumer already authorizes its necessary
+bounded configuration; there is no separate approval rule for that implementation
+detail. The earlier design only required return for an actual additional-path
+or unsupported-interface gap. This explicitly supersedes the pending-new-owner-
+configuration-approval inference in M140983/PROGRESS. No approval is fabricated
+and no new product source scope is granted by this clarification.
+
+DESIGN-2026-09-11T02-27-46Z.md pins a separate optional result_judgment_workers
+configuration per bound Job, with verification/review/approval each naming a
+complete supported worker deployment and worker identity. Match configured
+receipt actors and scopes; preserve the original three-stage pool. Compose
+actual authorized worker dispatch over exact retained derived custody and consume
+correlated frozen reports before evidence-backed scoped receipts. No original
+review substitution, fake assignments/runtime or manual demo repair. Additional
+required paths/interfaces return concrete evidence; configuring this already
+approved consumer alone is not another owner gate. Pass existing Work serially
+to baton.impl, next baton.feat, with P1 retained and no new planning Work.
+
+Audit: author573.8187180559995/800s plus uncertainty,29.534122293996916s consumed
+of existing180s correction,150.46587770600308s left. Nonzero steps are1 and5;
+step2 diagnostic exited0.13 focused errors match retained baseline identities.
+No full-suite success or waiver is inferred. Reviewer8.952968286004273/25s after
+1.2500692800036632s charged retention/audit/independent join. No product/test edits
+by reviewer; static reads/dossier work disclosed unmeasured. Joined40s and other
+reserves remain. W71879 actual A/B follows P2 independent acceptance; hardening
+remains deferred.
+
+## 2026-09-11T02:41:03Z — configuration retained; execution still required
+
+Reviewer141074 retains author141024 configuration/derived-subject additions.
+review-2026-09-11T02-41-03Z.md and evidence/review-141074/ bind the partial
+candidate:45 entries without unexpected drift, eight added tests, no changed
+existing test AST. No runtime rerun. This does not accept a judgment consumer:
+dispatch, frozen-report correlation and scoped receipts remain unimplemented.
+P1 remains independently accepted; W71879 remains gated on complete P2.
+
+Continue under owner140905 in the same four files. Resolve judgment deployment
+principals/Works/scopes through Authority before effectful use; _resolved still
+only visits stage workers. New judgment_execution fixture copies the original
+Work reference, so its claimed own-Work execution is not established. Configure
+legitimate judge Works/manifests and obtain actual assignments normally, then
+mount exact derived custody read-only, dispatch and adopt authentic frozen
+reports before authorization/import/terminal completion. No fabricated assignment,
+receipt/runtime, original-review substitution or manual repair. No new approval,
+planning Work or additional path is currently reported or required.
+
+Author652.9370181620048/800s plus uncertainty; correction108.65242240000225/180s,
+71.34757759999775s remains. Nonzero correction runs1/5/7/8/10 retained; step2 is
+an exit-zero diagnostic and13 baseline errors belong to regression5/10. Prior
+accepted overrun and joined40s/other reserves remain. Reviewer9.083004062006024/25s
+after0.13003577600175048s static retention/AST/audit; static reads unmeasured.
+Pass serially to baton.impl next baton.feat. Continue through context compaction;
+working context alone is not an additional approval gate or completion milestone.
+Use focused execution verification, not repeated47/152-case baseline runs solely
+because a new claim began. Hardening stays deferred.
+
+## 2026-09-11T02:53:00Z — repeated execution-delivery limit; owner disposition
+
+Reviewer141138 retains author141103 principal/Work preflight and distinct judge
+Work/task/manifest fixes. Exact review-2026-09-11T02-53-00Z.md and
+ evidence/review-141138/ bind all four inputs and45-entry continuity without drift.
+No judge execution, dispatch or authentic report return exists yet. P1 remains
+accepted; W71879 remains gated. Two new controls and strengthened own-Work
+assertions match scope; retained201-test/13-error result is not aggregate green.
+
+Observed operational issue: M141132 reports a third context-limited author return;
+prior review141074 already directed continuation across compaction. This explicitly
+supersedes automatic unchanged redispatch as the current action. The core task
+is fully specified within the four files, not an additional design prerequisite.
+Return through baton.bug then route to baton.ops for explicit execution reassignment
+or concrete repair of the existing author continuation. Recommend another existing
+implementer, e.g. baton.tuner, with baton.codex retained as independent reviewer;
+this recommendation grants no source ownership by itself. One live context per
+participant, serial four-file custody, no hidden second context or new planning Work.
+
+Concrete remainder is bounded real judge assignment/runtime/read-only derived
+input/separate frozen report custody plus composed dispatch/poll/correlation and
+scoped receipts, followed by existing authorized B import/terminal completion.
+Do not repeat broad baseline runs before that code exists. No fabricated evidence,
+manual claims/repair or original-review substitution. Hardened failure proof stays
+deferred, not a reason for this return.
+
+Author700.5897750580131/800s plus uncertainty, correction156.30517929601046/180s,
+remaining23.694820703989535s. All failures and accepted prior overrun preserved;
+joined40s/other reserves unchanged. No new budget inferred. Reviewer
+9.146181310000488/25s after0.06317724799446296s static retention/audit. No runtime
+rerun or product/test edits; source/dossier reads disclosed unmeasured.
+
+## 2026-09-11T03:09:21Z — owner141241 reassigns completion to baton.tuner
+
+Owner pass141241 explicitly reassigns remaining implementation to baton.tuner
+serially in the existing four files; baton.codex retains independent review.
+This supersedes the pending execution-disposition and baton.claude ownership
+statements above. Successful tuner claim141250 owns this episode. The exact
+review141138 four-file input has been revalidated byte-identical, all0664, and
+remains retained in evidence/review-141138/candidate/.
+
+Complete actual judge assignments/runtime over read-only derived input with
+separate frozen report output, dispatch/poll/correlation and evidence-backed
+current-policy receipts, then normal B import/terminal completion. Reuse accepted
+A and baseline evidence; first focused witness exercises B's actual consumer.
+No preliminary broad rerun, fabricated receipts, manual repair, new planning
+Work or hidden context. Continue across compaction from these records.
+
+Owner adds120s: correction ceiling300s and cumulative author ceiling920s. Carry
+author700.5897750580131s plus uncertainty, correction156.30517929601046s, all
+failures and accepted prior40.93217554400326s overrun. Remaining correction
+143.69482070398954s. Joined40s and all other reserves remain untransferred.
+Reviewer9.146181310000488/25s unchanged. Completed candidate returns through
+baton.feat for independent review, then W71879 actual A/B execution.
+
+### 2026-09-11 — claim141250 execution design and preflight correction
+
+Confirmed against current owners: one control store owns one workspace storage root; the earlier configuration fixture gave each judge a different root, which cannot launch. Judges use the configured manager storage with independent assignment directories, launch homes and credential homes. This supersedes the fixture-specific separate-storage assumption; no manager ownership rule changes.
+
+Implementation within the four assigned paths reuses ordinary single-worker admission, claim, runtime, command exchange and full freeze/intake/retention/pass/cleanup. Each judge gets a deterministic execution identity over the coordinator-derived subject, judgment kind, actor, input and current policy generation. An auxiliary read-only judgment.json carries that subject and causal observations beside the existing task; its exact bytes are proved on recovery. The configured review workload already emits a frozen findings report with observed base/head/tree; that accepted contract is reused and cross-bound to the exact assignment, completed result, accepted intake and derived candidate before issuing an evidence-derived receipt. No worker protocol extension or fabricated positive report is introduced.
+
+A private copy-safe Git snapshot is materialized from integration-owned storage and detached at the prepared derived candidate before read-only delivery. Judges have separate writable report output. Only all three completed accepted judgments authorize receipts; policy drift refuses reuse. Absence of configured consumers keeps the accepted pending behavior. Additive consumer tests exercise the real B branch first, genuine worker exchange/freeze/custody and negative correlation/replay; no preliminary broad runtime test.
+
+### 2026-09-11T03:33:40Z — claim141250 observed consumer completion, awaiting independent review
+
+Observed: final focused witness executes all three configured judges under their own real assignments and review runtimes, collects separate frozen reports and completes ordinary A/B integration. It explicitly proves read-only source/input and writable independent report output. Correlated report evidence and receipt decisions are retained in evidence/tuner-141250/consumer-witness.json. The source snapshot uses a copy-safe clone followed by explicit prepared-candidate fetch before detach; a bare integration store does not advertise that candidate as an ordinary branch. The ordinary review report has a text findings member; the consumer now reads that accepted contract directly from frozen custody. These observations supersede earlier statements that the executor is absent; they do not claim independent acceptance or real standalone/model proof. Exact final candidate and limitations are in HANDOFF-141250.md.
+
+## 2026-09-11T03:42:24Z — independent final composition acceptance, reviewer141384
+
+review-2026-09-11T03-42-24Z.md accepts tuner141250 exact four-file candidate. Independent literal-factory B success and rejected-report refusal both pass;45-entry continuity has no unexpected drift. This explicitly supersedes earlier missing-executor/factory blockers and awaiting-independent-review status, preserving their evidence. Author731.3390351440088/920s plus uncertainty, correction187.05443938200625/300s; reviewer13.312307043996647/25s including conservative1s failed-audit charge. No baseline waiver, budget transfer or live-model claim. W103068 can close; CONSUMER-HANDOFF-2026-09-11T03-42-24Z.md advances existing W71879 to the actual ordinary A/B run. Stronger resilience/fault-C/detached-observer/cleanup guarantees stay deferred.

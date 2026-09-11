@@ -1,0 +1,252 @@
+--- review141138/tools/single_worker.py
++++ v12/python/tools/single_worker.py
+@@ -56,7 +56,7 @@
+ from tools.user_credentials import SourceRefusal, UserCredentialSources
+ 
+ __all__ = ["CONFIG_ENV", "CONFIG_SCHEMA", "factory", "operations_from",
+-           "worker_operations", "worker_preflight"]
++           "worker_operations", "worker_preflight", "JudgmentExecution"]
+ 
+ CONFIG_ENV = "BATON_V12_SINGLE_WORKER_CONFIG"
+ # W81115 MOVED THIS TO `/2`, and its reason is kept because the rule is the
+@@ -903,7 +903,7 @@
+ 
+     def __init__(self, given, control, port, *, credential_provider,
+                  engine_run, session=None, clock=None, checkpoint=None,
+-                 stage=None):
++                 stage=None, judgment_document=None):
+         self.given = given
+         # W103083: THE TWO PLACES A STAGE DIFFERS, AND THERE ARE ONLY TWO.
+         # What a worker MOUNTS and how its attempt ENDS are the whole of the
+@@ -920,6 +920,7 @@
+         # composes its own roots and boundary and ends through the v11 pass
+         # below.
+         self.stage = stage
++        self.judgment_document = judgment_document
+         self.control = control
+         self.port = port
+         # W81857: THE SESSION, FOR THE ONE ACT THE PORT DOES NOT CARRY. It is
+@@ -1046,6 +1047,9 @@
+             # between leaves a partial root the next process refuses above
+             # rather than repairs.
+             self._published_task(roots["inputs"])
++            if self.judgment_document is not None:
++                self._published_task(roots["inputs"], name="judgment.json",
++                                     content=self.judgment_document)
+             # W71917: THE MOUNTPOINT, NOT A COPY. What stood here walked the
+             # nominated tree a second time and wrote every file into the input
+             # root -- the ordinary copied bootstrap this Work retires. The
+@@ -1080,9 +1084,12 @@
+         # this deployment concluding something the reader it called never
+         # looked at.
+         self._proved_task(roots["inputs"])
++        if self.judgment_document is not None:
++            self._proved_task(roots["inputs"], name="judgment.json",
++                              content=self.judgment_document)
+         return held_input
+ 
+-    def _published_task(self, inputs):
++    def _published_task(self, inputs, *, name=TASK_DOCUMENT, content=None):
+         """Install the held task bytes as the read-only workload document.
+ 
+         NEVER FROM THE CONFIGURED PATH. The bytes were read once, at
+@@ -1134,8 +1141,8 @@
+         observe the incomplete name, and removing the second pathname is worth
+         more here than atomic appearance is.
+         """
+-        held = self.given["task_bytes"]
+-        place = os.path.join(inputs, TASK_DOCUMENT)
++        held = self.given["task_bytes"] if content is None else content
++        place = os.path.join(inputs, name)
+         try:
+             handle = os.open(place, os.O_RDWR | os.O_CREAT | os.O_EXCL
+                              | os.O_NOFOLLOW | os.O_CLOEXEC, 0o000)
+@@ -1173,7 +1180,7 @@
+         os.close(handle)
+         return place
+ 
+-    def _proved_task(self, inputs):
++    def _proved_task(self, inputs, *, name=TASK_DOCUMENT, content=None):
+         """The installed workload document, re-proved against the held bytes.
+ 
+         The same three questions the configuration asked, asked again of what
+@@ -1182,8 +1189,8 @@
+         delivery says in prose. A root whose protocol pair matches while its
+         task has moved is a root the worker would read something else out of.
+         """
+-        held = self.given["task_bytes"]
+-        place = os.path.join(inputs, TASK_DOCUMENT)
++        held = self.given["task_bytes"] if content is None else content
++        place = os.path.join(inputs, name)
+         try:
+             handle = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC
+                              | os.O_NONBLOCK)
+@@ -2383,7 +2390,7 @@
+ 
+ def worker_operations(given, control_store, authority, provider, *,
+                       engine_run=None, clock=None, checkpoint=None,
+-                      dispose=None, stage=None):
++                      dispose=None, stage=None, judgment_document=None):
+     """The half that needs an Authority, over one the CALLER owns.
+ 
+     `dispose` is what makes this reusable by a pool. A single-worker
+@@ -2424,7 +2431,7 @@
+         runtime, control_store, port, credential_provider=provider,
+         engine_run=effective_engine_run(engine_run), session=session,
+         clock=clock,
+-        checkpoint=checkpoint, stage=stage)
++        checkpoint=checkpoint, stage=stage, judgment_document=judgment_document)
+     return _Operations(
+         control_store, port, mint_bearer=_bearer,
+         deliver_bearer=worker.delivered, start_runtime=worker.start,
+@@ -2443,6 +2450,150 @@
+         refresh_runtime=worker.refresh_runtime,
+         worker=worker,
+         dispose=dispose if dispose is not None else authority.dispose)
++
++
++class JudgmentExecution:
++    """One configured judge, using the ordinary worker lifecycle end to end.
++
++    The intent identifies a separate Authority Work and execution, not a Job
++    stage or pool allocation. Only frozen, collected output can answer it.
++    """
++
++    def __init__(self, given, control, authority, provider, *, worker_id,
++                 subject, source, engine_run=None, clock=None):
++        self.control = control
++        self.subject = dict(subject)
++        self.given = dict(given, source_nomination=source_boundary.nominate_source(source))
++        self.document = json.dumps(subject, sort_keys=True, separators=(",", ":")).encode()
++        identity = digest({"subject": subject, "worker_id": worker_id,
++                           "participant": given["participant"],
++                           "input": given["input_manifest"]["manifest_digest"],
++                           "policy": given["policy_digest"],
++                           "profile": given["profile_digest"]})[7:]
++        self.intent = {"stage_id": "judgment-" + identity,
++                       "attempt_id": "judgment-" + identity,
++                       "offer_id": "judgment-offer-" + identity,
++                       "kind": "review", "work_id": given["input_manifest"]["work_ref"]["work_id"],
++                       "profile_name": given["profile_name"],
++                       "profile_digest": given["profile_digest"]}
++        self.input = {"input_digest": given["input_manifest"]["manifest_digest"],
++                      "policy_digest": given["policy_digest"]}
++        self.operations = worker_operations(
++            self.given, control, authority, provider, engine_run=engine_run,
++            dispose=lambda: None, judgment_document=self.document, clock=clock)
++
++    def poll(self):
++        operations, intent = self.operations, self.intent
++        for act in ("admit", "claim"):
++            if operations.receipt_of(operations.canonical_operation(act, intent["offer_id"])) is None:
++                if act == "admit":
++                    operations.admit(intent, self.input)
++                else:
++                    operations.claim(intent)
++        view = operations.observe(intent)
++        state = view["runtime"]
++        if state is not None and state["cleanup"] in ("complete", "retained"):
++            return self.result()
++        if view["start_failure"] is not None or view["preparation_failure"] is not None:
++            _refuse("the derived-result judge failed preparation or start",
++                    category="refused", code="precondition")
++        if state is None or state["runtime_id"] is None:
++            operations.launch(intent, self.input)
++        operations.dispatch(intent, self.input)
++        operations.refresh_runtime(intent)
++        view = operations.observe(intent)
++        terminal = (view["exchange"] or {}).get("terminal")
++        if terminal is None:
++            return None
++        if terminal["ending"] != "answered":
++            _refuse("the derived-result judge did not answer its command",
++                    category="refused", code="precondition")
++        operations.conclude(intent, self.input)
++        return self.result()
++
++    def result(self):
++        from baton_v12.worker_manager import assignment_of, frozen_output_of
++        from baton_v12.worker_manager.intake import intake_receipt_of
++
++        attempt_id = self.intent["attempt_id"]
++        # Bind even on recovery, when the runtime and writable output are gone.
++        row = self.operations._worker._claim(self.intent)
++        fixed = assignment_of(self.control, attempt_id)
++        frozen = frozen_output_of(self.control, attempt_id)
++        receipt = intake_receipt_of(self.control, attempt_id)
++        if frozen is None or frozen["disposition"] != "completed" or receipt is None or receipt["custody"] != "accepted":
++            _refuse("a judgment needs a completed frozen result in accepted custody",
++                    category="refused", code="precondition")
++        result = load_manifest(self.control, frozen["manifest_digest"], "resultManifest")
++        expected = {"work_ref": self.given["input_manifest"]["work_ref"],
++                    "participant": self.given["participant"],
++                    "generation": row["claim_generation"]}
++        fixed_ref = {"work_ref": {"authority_uuid": fixed["authority_uuid"], "work_id": fixed["work_id"]},
++                     "participant": fixed["participant"], "generation": fixed["generation"]}
++        if (result is None or result["assignment_ref"] != expected
++                or fixed_ref != _assignment(row)
++                or result["result_id"] != frozen["result_id"]
++                or receipt["assignment"] != fixed_ref
++                or receipt["result_id"] != frozen["result_id"]
++                or receipt["manifest_digest"] != frozen["manifest_digest"]):
++            _refuse("the judgment result, custody and assignment disagree", code="digest")
++        outputs = {one["name"]: one for one in result["outputs"]}
++        namespace = "baton.checkpoint-review/1"
++        for name in ("findings", "logs"):
++            if (name not in outputs or outputs[name].get("status") != "present"
++                    or outputs[name].get("artifact") is None or outputs[name].get("content_manifest") is None):
++                _refuse("the judgment did not freeze both findings and logs")
++            output = outputs[name]
++            artifacts = [one for one in receipt["artifacts"] if one["artifact_id"] == output["artifact"]["artifact_id"]]
++            if len(artifacts) != 1 or artifacts[0]["content_digest"] != output["content_manifest"]["tree_digest"]:
++                _refuse("the judgment output and accepted custody disagree", code="digest")
++        if any(namespace in (one.get("result_metadata") or {}) for name, one in outputs.items() if name != "findings"):
++            _refuse("a judgment carries competing report claims")
++        claim = (outputs["findings"].get("result_metadata") or {}).get(namespace)
++        if type(claim) is not dict or set(claim) != {"verdict", "base", "head", "tree"}:
++            _refuse("the frozen judgment report carries no closed review claim")
++        if (claim["base"] != self.subject["source_base"]
++                or claim["head"] != self.subject["candidate"]
++                or claim["tree"] != self.subject["tree"]):
++            _refuse("the frozen judgment describes another candidate", code="digest")
++        if claim["verdict"] not in ("accepted", "rejected", "changes-requested"):
++            _refuse("the frozen judgment carries an unknown verdict")
++        # Read the report from accepted custody, never from the former writer
++        # directory. Its bytes must still match the frozen content manifest.
++        from urllib.parse import unquote, urlsplit
++        artifact_id = outputs["findings"]["artifact"]["artifact_id"]
++        artifact = next(one for one in receipt["artifacts"] if one["artifact_id"] == artifact_id)
++        locator = urlsplit(artifact["custody_locator"])
++        if locator.scheme != "file" or locator.netloc or locator.query or locator.fragment:
++            _refuse("this judgment consumer reads local accepted report custody")
++        entries = [one for one in outputs["findings"]["content_manifest"]["entries"] if one["path"] == "report.json"]
++        if len(entries) != 1 or entries[0]["bytes"] > MAX_CONFIG_BYTES:
++            _refuse("the frozen judgment has no bounded report.json")
++        try:
++            descriptor = os.open(os.path.join(unquote(locator.path), "report.json"), os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
++        except OSError:
++            _refuse("the accepted judgment report is unavailable", code="path")
++        try:
++            if not stat.S_ISREG(os.fstat(descriptor).st_mode):
++                _refuse("the retained judgment report is not a regular file")
++            raw = os.read(descriptor, entries[0]["bytes"] + 1)
++        finally:
++            os.close(descriptor)
++        if len(raw) != entries[0]["bytes"] or digest_of_bytes(raw) != entries[0]["content_digest"]:
++            _refuse("the retained judgment report differs from frozen custody", code="digest")
++        try:
++            report = json.loads(raw)
++        except (ValueError, UnicodeError):
++            _refuse("the retained judgment report is not JSON")
++        if (type(report) is not dict or set(report) != {"schema", "verdict", "findings"}
++                or report["schema"] != "baton.review-report/1"
++                or report["verdict"] != claim["verdict"] or type(report["findings"]) is not str):
++            _refuse("the retained judgment report and its frozen claim disagree")
++        return {"subject": self.subject, "attempt_id": attempt_id,
++                "assignment": fixed, "verdict": claim["verdict"],
++                "result_id": frozen["result_id"],
++                "result_digest": frozen["manifest_digest"],
++                "receipt_digest": receipt["receipt_digest"]}
+ 
+ 
+ class _Observation:

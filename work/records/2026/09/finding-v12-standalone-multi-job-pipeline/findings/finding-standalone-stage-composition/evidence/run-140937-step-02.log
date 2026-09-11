@@ -1,0 +1,62 @@
+### label: literal-factory-offered-diagnostic
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "/tmp/w68b_diag.py"]
+### exit: 0
+### elapsed_seconds: 0.273320
+### STDOUT
+tick 0 acts {"stage_id": "job-a/implementation", "episode": 1, "act": "admit", "outcome": "performed", "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"}
+tick 0 acts {"stage_id": "job-b/implementation", "episode": 1, "act": "admit", "outcome": "performed", "operation_id": "offer.issue:offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e"}
+tick 0 refreshed {"stage_id": "job-a/implementation", "episode": 1, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "state": "not-asked"}
+tick 0 refreshed {"stage_id": "job-a/review", "episode": 1, "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c", "state": "not-asked"}
+tick 0 refreshed {"stage_id": "job-a/integration", "episode": 1, "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "state": "not-asked"}
+tick 0 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 0 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 0 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 0 states-a {'implementation': 'offered', 'review': 'blocked', 'integration': 'blocked'} states-b {'implementation': 'offered', 'review': 'blocked', 'integration': 'blocked'}
+tick 1 acts {"stage_id": "job-a/implementation", "episode": 1, "act": "claim", "outcome": "deferred", "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "detail": {"category": "refused", "code": "precondition", "message": "offer 'offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12e\u2026 is 'expired', not accepted"}}
+tick 1 acts {"stage_id": "job-b/implementation", "episode": 1, "act": "claim", "outcome": "deferred", "operation_id": "offer.settle:offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "detail": {"category": "refused", "code": "precondition", "message": "offer 'offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1\u2026 is 'expired', not accepted"}}
+tick 1 refreshed {"stage_id": "job-a/implementation", "episode": 1, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "state": "not-asked"}
+tick 1 refreshed {"stage_id": "job-a/review", "episode": 1, "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c", "state": "not-asked"}
+tick 1 refreshed {"stage_id": "job-a/integration", "episode": 1, "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "state": "not-asked"}
+tick 1 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 1 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 1 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 1 states-a {'implementation': 'offered', 'review': 'blocked', 'integration': 'blocked'} states-b {'implementation': 'offered', 'review': 'blocked', 'integration': 'blocked'}
+tick 2 acts {"stage_id": "job-a/implementation", "episode": 1, "act": "claim", "outcome": "deferred", "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "detail": {"category": "refused", "code": "precondition", "message": "offer 'offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12e\u2026 is 'expired', not accepted"}}
+tick 2 acts {"stage_id": "job-b/implementation", "episode": 1, "act": "claim", "outcome": "deferred", "operation_id": "offer.settle:offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "detail": {"category": "refused", "code": "precondition", "message": "offer 'offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1\u2026 is 'expired', not accepted"}}
+tick 2 refreshed {"stage_id": "job-a/implementation", "episode": 1, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "state": "not-asked"}
+tick 2 refreshed {"stage_id": "job-a/review", "episode": 1, "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c", "state": "not-asked"}
+tick 2 refreshed {"stage_id": "job-a/integration", "episode": 1, "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "state": "not-asked"}
+tick 2 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 2 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 2 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 2 states-a {'implementation': 'offered', 'review': 'blocked', 'integration': 'blocked'} states-b {'implementation': 'offered', 'review': 'blocked', 'integration': 'blocked'}
+tick 3 acts {"stage_id": "job-a/implementation", "episode": 1, "act": "claim", "outcome": "deferred", "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "detail": {"category": "refused", "code": "precondition", "message": "offer 'offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12e\u2026 is 'expired', not accepted"}}
+tick 3 acts {"stage_id": "job-b/implementation", "episode": 1, "act": "claim", "outcome": "deferred", "operation_id": "offer.settle:offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "detail": {"category": "refused", "code": "precondition", "message": "offer 'offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1\u2026 is 'expired', not accepted"}}
+tick 3 refreshed {"stage_id": "job-a/implementation", "episode": 1, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "state": "not-asked"}
+tick 3 refreshed {"stage_id": "job-a/review", "episode": 1, "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c", "state": "not-asked"}
+tick 3 refreshed {"stage_id": "job-a/integration", "episode": 1, "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "state": "not-asked"}
+tick 3 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 3 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 3 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 3 states-a {'implementation': 'offered', 'review': 'blocked', 'integration': 'blocked'} states-b {'implementation': 'offered', 'review': 'blocked', 'integration': 'blocked'}
+tick 4 acts {"stage_id": "job-a/implementation", "episode": 1, "act": "claim", "outcome": "deferred", "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "detail": {"category": "refused", "code": "precondition", "message": "offer 'offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12e\u2026 is 'expired', not accepted"}}
+tick 4 acts {"stage_id": "job-b/implementation", "episode": 1, "act": "claim", "outcome": "deferred", "operation_id": "offer.settle:offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "detail": {"category": "refused", "code": "precondition", "message": "offer 'offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1\u2026 is 'expired', not accepted"}}
+tick 4 refreshed {"stage_id": "job-a/implementation", "episode": 1, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "state": "not-asked"}
+tick 4 refreshed {"stage_id": "job-a/review", "episode": 1, "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c", "state": "not-asked"}
+tick 4 refreshed {"stage_id": "job-a/integration", "episode": 1, "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "state": "not-asked"}
+tick 4 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 4 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 4 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 4 states-a {'implementation': 'offered', 'review': 'blocked', 'integration': 'blocked'} states-b {'implementation': 'offered', 'review': 'blocked', 'integration': 'blocked'}
+tick 5 acts {"stage_id": "job-a/implementation", "episode": 1, "act": "claim", "outcome": "deferred", "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "detail": {"category": "refused", "code": "precondition", "message": "offer 'offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12e\u2026 is 'expired', not accepted"}}
+tick 5 acts {"stage_id": "job-b/implementation", "episode": 1, "act": "claim", "outcome": "deferred", "operation_id": "offer.settle:offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "detail": {"category": "refused", "code": "precondition", "message": "offer 'offer-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1\u2026 is 'expired', not accepted"}}
+tick 5 refreshed {"stage_id": "job-a/implementation", "episode": 1, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "state": "not-asked"}
+tick 5 refreshed {"stage_id": "job-a/review", "episode": 1, "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c", "state": "not-asked"}
+tick 5 refreshed {"stage_id": "job-a/integration", "episode": 1, "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "state": "not-asked"}
+tick 5 refreshed {"stage_id": "job-b/implementation", "episode": 1, "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e", "state": "not-asked"}
+tick 5 refreshed {"stage_id": "job-b/review", "episode": 1, "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c", "state": "not-asked"}
+tick 5 refreshed {"stage_id": "job-b/integration", "episode": 1, "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "state": "not-asked"}
+tick 5 states-a {'implementation': 'offered', 'review': 'blocked', 'integration': 'blocked'} states-b {'implementation': 'offered', 'review': 'blocked', 'integration': 'blocked'}
+
+### STDERR

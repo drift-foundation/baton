@@ -1,0 +1,21 @@
+{
+  "work": "W71879",
+  "claim": 141577,
+  "prepared_entries": 13,
+  "unexpected_drift": [],
+  "workspace_group": {
+    "name": "baton-workspace",
+    "gid": 1001,
+    "process_primary_gid": 1000,
+    "process_group_ids": [
+      1000,
+      65534
+    ],
+    "held": false
+  },
+  "nominated_run_root": "/home/sl/.local/state/baton/v12/w71879-run1",
+  "nominated_run_root_exists": false,
+  "no_test_model_container_or_submission": true,
+  "validation_seconds": 0.00040272800106322393,
+  "unmeasured": "canonical reads, source/document investigation and record edits; prior tuner preparation0.004338626000389922s and prior uncertainty retained; no provider budget transfer"
+}

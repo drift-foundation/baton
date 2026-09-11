@@ -1,0 +1,270 @@
+{
+ "claim": 140937,
+ "work": "W103068",
+ "ceiling_seconds": 800.0,
+ "correction_allocation_seconds": 180.0,
+ "ceiling_authority": "owner140905: cumulative per-Job author 450->570s, reviewer 5->25s; all spending and uncertainty retained, joined 40s unchanged, no reset or transfer",
+ "carried_seconds": 544.2845957620026,
+ "carried_note": "campaign author carry at claim start, per review-2026-09-11T01-22-35Z.md and PLAN",
+ "runs": [
+  {
+   "step": 1,
+   "label": "literal-factory-port-construction",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 0.33411182700365316,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-01.log",
+   "ok": false
+  },
+  {
+   "step": 2,
+   "label": "literal-factory-offered-diagnostic",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/tmp/w68b_diag.py"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.2733196670014877,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-02.log",
+   "ok": true
+  },
+  {
+   "step": 3,
+   "label": "literal-factory-port-construction-2",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 1.0054950829944573,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-03.log",
+   "ok": true
+  },
+  {
+   "step": 4,
+   "label": "two-job-class-after-P1-correction",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 15.124256030998367,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-04.log",
+   "ok": true
+  },
+  {
+   "step": 5,
+   "label": "single-worker-and-baseline-classes",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_single_worker",
+    "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery",
+    "tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle",
+    "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort",
+    "tests.tools.test_stage_execution.ThePublicFactoryComposesThroughItsOwnEntryPoint"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 12.79693968599895,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-05.log",
+   "ok": false
+  },
+  {
+   "step": 6,
+   "label": "judgment-configuration-regression",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection",
+    "tests.tools.test_stage_execution.ThePublicFactoryComposesThroughItsOwnEntryPoint"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 15.039908981998451,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-06.log",
+   "ok": true
+  },
+  {
+   "step": 7,
+   "label": "judgment-configuration-controls",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 17.11174953199952,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-07.log",
+   "ok": false
+  },
+  {
+   "step": 8,
+   "label": "judgment-configuration-controls-2",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 17.061927141003252,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-08.log",
+   "ok": false
+  },
+  {
+   "step": 9,
+   "label": "judgment-configuration-controls-3",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 17.021105134001118,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-09.log",
+   "ok": true
+  },
+  {
+   "step": 10,
+   "label": "baseline-identity-and-single-worker",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_single_worker",
+    "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery",
+    "tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle",
+    "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort",
+    "tests.tools.test_stage_execution.ThePublicFactoryComposesThroughItsOwnEntryPoint"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 12.883609317002993,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-10.log",
+   "ok": false
+  },
+  {
+   "step": 11,
+   "label": "judgment-own-works-and-resolution",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 17.184453257003042,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-11.log",
+   "ok": true
+  },
+  {
+   "step": 12,
+   "label": "judgment-resolution-controls",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_configured_consumer_composes_and_resolves_its_judges",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_work_this_authority_does_not_project_is_refused"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 0.31534776800253894,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-12.log",
+   "ok": false
+  },
+  {
+   "step": 13,
+   "label": "judgment-resolution-controls-2",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_configured_consumer_composes_and_resolves_its_judges",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_work_this_authority_does_not_project_is_refused"
+   ],
+   "exit": 0,
+   "elapsed_seconds": 0.3315235059999395,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-13.log",
+   "ok": true
+  },
+  {
+   "step": 14,
+   "label": "FINAL-candidate-regression",
+   "cwd": "/home/sl/src/baton/v12/python",
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection",
+    "tests.tools.test_single_worker",
+    "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery",
+    "tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle",
+    "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort",
+    "tests.tools.test_stage_execution.ThePublicFactoryComposesThroughItsOwnEntryPoint"
+   ],
+   "exit": 1,
+   "elapsed_seconds": 29.821432365002693,
+   "log": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/run-140937-step-14.log",
+   "ok": false
+  }
+ ],
+ "claim_spent_seconds": 156.30517929601046,
+ "cumulative_seconds": 700.5897750580131,
+ "remaining_seconds": 99.41022494198694,
+ "correction_remaining_seconds": 23.694820703989535
+}

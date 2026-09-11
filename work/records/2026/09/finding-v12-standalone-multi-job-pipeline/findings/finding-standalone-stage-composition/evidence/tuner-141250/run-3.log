@@ -1,0 +1,29 @@
+test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs) ... ERROR
+
+======================================================================
+ERROR: test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7089, in test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs
+    deployment.judge_result(next(iter(deployment.judges))[0])
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 3307, in judge_result
+    answers[kind] = self.judges[key].poll()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 2492, in poll
+    operations.claim(intent)
+    ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 839, in claim
+    return submit_claim(self.control, self.port, offer_id=stage["offer_id"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/offers.py", line 877, in submit_claim
+    offer = _require_accepted(store, offer_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/offers.py", line 773, in _require_accepted
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{name_value(offer['state']) if offer else 'absent'}, not accepted")
+baton_v12.contracts.errors.ContractRefusal: offer 'judgment-offer-75822006041fcf5365003d37da1dd9b1063577e2fbdb… is 'expired', not accepted
+
+----------------------------------------------------------------------
+Ran 1 test in 2.067s
+
+FAILED (errors=1)

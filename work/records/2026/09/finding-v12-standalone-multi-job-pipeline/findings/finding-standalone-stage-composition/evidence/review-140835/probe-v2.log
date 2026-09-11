@@ -1,0 +1,36 @@
+test_actual_factory_keeps_required_capabilities_absent (__main__.FactoryDefaults.test_actual_factory_keeps_required_capabilities_absent) ... ERROR
+
+======================================================================
+ERROR: test_actual_factory_keeps_required_capabilities_absent (__main__.FactoryDefaults.test_actual_factory_keeps_required_capabilities_absent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/review-140835/probe-v2.py", line 48, in test_actual_factory_keeps_required_capabilities_absent
+    job, control, composed = self.serving_two(**self.traversing())
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 5961, in serving_two
+    return self.serving(**self.two_jobs(**members))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/review-140835/probe-v2.py", line 40, in serving
+    composed = stage_execution.factory(job, control)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4172, in factory
+    return operations_from(_configuration(), job_store, control_store)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 3946, in operations_from
+    given = held_configuration(document, checkout=checkout)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 411, in held_configuration
+    _outside(given[name], here, f"the configured {name}")
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 331, in _outside
+    _refuse(f"{what} at {place!r} is inside the checkout at {checkout!r}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"mutable deployment state belongs outside the working tree",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="policy", code="denied")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 256, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the configured integration_store at '/home/sl/src/baton/v12/python/v12-w71917-nvit5oyf/integration.sqlite3' is inside the checkout at '/home/sl/src/baton'; mutable deployment state belongs outside the working tree
+
+----------------------------------------------------------------------
+Ran 1 test in 0.042s
+
+FAILED (errors=1)

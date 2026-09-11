@@ -1,0 +1,46 @@
+--- review141138/tests/tools/test_single_worker.py
++++ v12/python/tests/tools/test_single_worker.py
+@@ -917,6 +917,43 @@
+         inputs = os.path.join(self.storage, stage["attempt_id"], "inputs")
+         return engine, job, control, operations, stage, inputs
+ 
++    def judgment_root(self):
++        engine = Engine()
++        job, control = self.stores("judgment-input")
++        submit(job, self.submission)
++        operations = self.operations(job, control, engine)
++        worker = operations._worker
++        worker.judgment_document = b'{"result_id":"derived-result","kind":"review"}'
++        projected = self.commanded(job, operations)
++        stage = projected["jobs"][0]["stages"][0]
++        inputs = os.path.join(self.storage, stage["attempt_id"], "inputs")
++        self.addCleanup(operations.close)
++        return worker, inputs
++
++    def test_judgment_subject_is_delivered_read_only_beside_unchanged_task(self):
++        worker, inputs = self.judgment_root()
++        place = os.path.join(inputs, "judgment.json")
++        self.assertEqual(stat.S_IMODE(os.stat(place).st_mode), 0o444)
++        with open(place, "rb") as reading:
++            self.assertEqual(reading.read(), worker.judgment_document)
++        with open(os.path.join(inputs, "task.json"), "rb") as reading:
++            self.assertEqual(reading.read(), self.task_bytes)
++        manifest, assignment = single_worker.workspaces.read_input_root(inputs)
++        self.assertEqual(worker._input({"inputs": inputs}, assignment, None), manifest)
++
++    def test_changed_judgment_subject_refuses_recovery_without_repair(self):
++        worker, inputs = self.judgment_root()
++        place = os.path.join(inputs, "judgment.json")
++        os.chmod(place, 0o644)
++        with open(place, "wb") as writing:
++            writing.write(b'{"result_id":"foreign"}')
++        os.chmod(place, 0o444)
++        _, assignment = single_worker.workspaces.read_input_root(inputs)
++        with self.assertRaises(ContractRefusal):
++            worker._input({"inputs": inputs}, assignment, None)
++        with open(place, "rb") as reading:
++            self.assertEqual(reading.read(), b'{"result_id":"foreign"}')
++
+     def test_the_root_carries_both_manifests_the_task_and_the_source(self):
+         engine, _job, _control, operations, _stage, inputs = self.composed()
+         self.assertEqual(

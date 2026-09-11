@@ -1,0 +1,13 @@
+### label: two-job-class-after-P1-correction
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"]
+### exit: 0
+### elapsed_seconds: 15.124256
+### STDOUT
+
+### STDERR
+.......................................
+----------------------------------------------------------------------
+Ran 39 tests in 14.923s
+
+OK

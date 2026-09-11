@@ -1,0 +1,25 @@
+{
+  "claim": 140835,
+  "candidate": {
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "3f3ec30b80b58e225eafcba4547bf8101d15c685027dcc0c5d09f44e544a19ea",
+      "bytes": 233218,
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "c2ae05bc6fd2b7c25eac5bf212f3e608c2f29851ec79688b9a37a741d9e646a8",
+      "bytes": 415246,
+      "mode": "0o664"
+    }
+  },
+  "argv": [
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/review-140835/probe.py"
+  ],
+  "exit": 1,
+  "elapsed_seconds": 1.0380112460043165,
+  "outer_reserve_seconds": 0.1,
+  "charged_seconds": 1.1380112460043166,
+  "reviewer_cumulative_seconds": 5.940940475001356,
+  "reviewer_ceiling_seconds": 25
+}

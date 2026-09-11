@@ -1,0 +1,65 @@
+### label: judgment-resolution-controls
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_configured_consumer_composes_and_resolves_its_judges", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_work_this_authority_does_not_project_is_refused"]
+### exit: 1
+### elapsed_seconds: 0.315348
+### STDOUT
+
+### STDERR
+EF
+======================================================================
+ERROR: test_a_configured_consumer_composes_and_resolves_its_judges (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_configured_consumer_composes_and_resolves_its_judges)
+W103068: the consumer's configuration survives a REAL composition.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7220, in test_a_configured_consumer_composes_and_resolves_its_judges
+    _job, _control, composed = self.serving_two(**self.judging())
+                               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 5961, in serving_two
+    return self.serving(**self.two_jobs(**members))
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2592, in serving
+    composed = stage_execution.operations_from(
+        self.composed_document(line_declared_base=self.base, **members),
+        job, control, engine_run=self.engine,
+        credential_provider=lambda provider, reference: self.secret,
+        clock=lambda: fixtures.NOW, checkout=self.checkout)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4222, in operations_from
+    generation = scheduler.activate_pool(job_store, pool,
+                 ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+                                         resolved)["generation"]
+                                         ^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py", line 181, in activate_pool
+    principals = _principals(resolved_principals, pool["workers"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py", line 112, in _principals
+    _refuse("pool activation's resolved-principal keys must exactly match "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "the configured participants")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py", line 37, in _refuse
+    raise ContractRefusal("integrity", "schema", message, durable=durable)
+baton_v12.contracts.errors.ContractRefusal: pool activation's resolved-principal keys must exactly match the configured participants
+
+======================================================================
+FAIL: test_a_judgment_work_this_authority_does_not_project_is_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_work_this_authority_does_not_project_is_refused)
+A judgment acquires its authorized assignment through the Work its
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7243, in test_a_judgment_work_this_authority_does_not_project_is_refused
+    self.assertEqual((caught.exception.category, caught.exception.code),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ("refused", "precondition"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('refused', 'capability') != ('refused', 'precondition')
+
+First differing element 1:
+'capability'
+'precondition'
+
+- ('refused', 'capability')
++ ('refused', 'precondition')
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.119s
+
+FAILED (failures=1, errors=1)

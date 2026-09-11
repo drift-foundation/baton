@@ -1,0 +1,346 @@
+--- placement140665/v12/python/tests/tools/test_stage_execution.py
++++ candidate140686/v12/python/tests/tools/test_stage_execution.py
+@@ -2628,6 +2628,11 @@
+         self.fail(f"the {kind} stage never reached {want!r}: "
+                   f"{self.states(job, composed)}")
+ 
++    def operations_of(self, composed, role):
++        """One role's composed operations, through the public list."""
++        return {one["role"]: one["operations"]
++                for one in composed.workers}[role]
++
+     def worker_of(self, composed, role):
+         return {one["role"]: one["operations"]._worker
+                 for one in composed.workers}[role]
+@@ -3635,18 +3640,27 @@
+ 
+     # -- and exactly where it stops ------------------------------------------
+ 
+-    def test_the_integration_stage_is_held_for_want_of_a_runtime_port(self):
+-        """THE EXACT NEXT BLOCKER, and it is this build's own statement.
+-
+-        `stage_execution` refuses here rather than stubbing: no accepted
+-        composition in this build starts an integrator over the integration
+-        delivery's namespaces, and the only implementations of that port are
+-        focused-test doubles. Supplying one here would be helper-only success
+-        dressed as a lifecycle, so the stage stays claimed and this records
+-        why.
+-
+-        IT IS CONTAINED. The refusal is reported as itself and the other
+-        stages of this Job keep their finished state.
++    def test_the_integration_stage_stops_on_unconfigured_integrator_wiring(
++            self):
++        """W103068 EXPECTATION CHANGE, and it is the point of the correction.
++
++        WHAT THIS USED TO RECORD was "the exact next blocker": no accepted
++        composition in this build started an integrator, so the deployment held
++        no runtime port and the stage stopped with `capability` --
++        `no integration runtime port`. Review 2026-09-11T01-22-35Z named exactly
++        that sentence as the reason the public factory could not perform an
++        ordinary direct integration, and the deployment CONSTRUCTS its own port
++        now. So the old refusal cannot happen and this records the real
++        remaining stop for a deployment that has not configured the integrator's
++        own material.
++
++        WHAT IS STILL TRUE AND STILL MEASURED. The stop is reported as itself
++        rather than stubbed, it names the missing CONFIGURATION rather than a
++        missing capability, and it is contained: the other stages of this Job
++        keep their finished state. This class configures no
++        `integration_instructions`, which is the one operand a constructed port
++        cannot derive -- the bytes sealed into the bundle it runs -- so this is
++        an honest unconfigured-deployment control rather than a port gap.
+         """
+         held = self.reviewed()
+         self.drive(held.job, held.composed, "integration", "claimed")
+@@ -3655,8 +3669,10 @@
+                      if one["stage_id"] == "job-a/integration"]
+         self.assertEqual(started["outcome"], "deferred")
+         self.assertEqual(started["detail"]["code"], "capability")
+-        self.assertIn("no integration runtime port",
++        self.assertIn("configures no integration_instructions",
+                       started["detail"]["message"])
++        self.assertNotIn("no integration runtime port",
++                         started["detail"]["message"])
+         states = self.states(held.job, held.composed)
+         self.assertEqual(states["implementation"], "completed")
+         self.assertEqual(states["review"], "completed")
+@@ -3703,12 +3719,19 @@
+         return given
+ 
+     def integration_port(self, held):
+-        from baton_v12.integration import TARGET_SCHEMA, activate_target
++        # W103068: THE COMPOSITION ADOPTS ITS OWN CONFIGURED TARGET NOW, so this
++        # PROVES the adoption rather than performing a second one.
++        # `activate_target` makes an exact repeat one act and refuses a CHANGED
++        # configuration for the same key by name, so a fixture activating this
++        # deployment's target under its own description would be a second
++        # configuration of one target.
++        from baton_v12.integration import target_of
+ 
+         deployment = self.deployment_of(held)
+-        activate_target(deployment.integration, {"schema": TARGET_SCHEMA,
+-                        "canonical_target_id": deployment.given["canonical_target_id"],
+-                        "description": "the disposable composed lifecycle target"})
++        self.assertIsNotNone(
++            target_of(deployment.integration,
++                      deployment.given["canonical_target_id"]),
++            "the composition adopted no configured canonical target")
+         port = TheComposedJobTraversesReviewAndAcceptance.integration_port(self, held)
+         port.object_runner = self.object_runner
+         return port
+@@ -6687,6 +6710,14 @@
+         given["integration_target_reference"] = "refs/heads/main"
+         given["integration_workspace"] = workspace
+         given["integration_observer"] = "baton.result-observer"
++        # W103068: AND WHERE THE INTEGRATOR'S OWN INSTRUCTION BYTES LIVE. The
++        # digest `composed_document` pins into the integration profile is the
++        # digest of exactly these bytes, which is what lets the production
++        # composition read them and prove them before it starts anything.
++        instructions = os.path.join(self.root, "integration-instructions")
++        with open(instructions, "wb") as writing:
++            writing.write(self.INSTRUCTIONS)
++        given["integration_instructions"] = instructions
+         held = {one["worker_id"]: one for one in given["workers"]}
+         for worker_id in ("implementation-worker-b", "review-worker-b"):
+             deployment = held[worker_id]["deployment"]
+@@ -6901,16 +6932,165 @@
+     # -- the integration half, one port per bound Job ------------------------
+ 
+     def activated(self, deployment, target_id):
+-        """The disposable canonical target, activated once by its own owner."""
+-        from baton_v12.integration import TARGET_SCHEMA, activate_target
+-
+-        held = self.__dict__.setdefault("_activated", set())
+-        if target_id in held:
+-            return
+-        held.add(target_id)
+-        activate_target(deployment.integration, {
+-            "schema": TARGET_SCHEMA, "canonical_target_id": target_id,
+-            "description": "the disposable two-Job lifecycle target"})
++        """W103068: THE DEPLOYMENT ADOPTS ITS OWN CONFIGURED TARGETS, so this
++        PROVES the adoption instead of performing it.
++
++        `activate_target` makes an exact repeat one act and refuses a CHANGED
++        configuration for the same key by name -- so a fixture that activated
++        this deployment's own target under its own description would be a second
++        configuration of one target, which is the conflict the key exists to
++        catch. What a fixture may honestly do here is check that the composition
++        really adopted what it configured.
++        """
++        from baton_v12.integration import target_of
++
++        self.assertIsNotNone(target_of(deployment.integration, target_id),
++                             f"the composition adopted no target {target_id!r}")
++
++    def test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT(self):
++        """W103068's P1: the production composition supplies its own port.
++
++        WHAT THIS DOES NOT DO IS THE POINT. There is no `integration_port`
++        keyword anywhere in this case and no `connect()` step: the deployment is
++        the ordinary one `serving_two` composes through the public
++        `operations_from` entry that `factory` itself calls, with no capability
++        the operator did not already configure. Review 2026-09-11T01-22-35Z [P1]
++        measured that such a deployment mapped every Job's port to `None` and
++        refused `capability` before preparation, so the advertised production
++        entry point could not perform an ordinary direct integration at all.
++
++        AND THE PORT IS CONSTRUCTED, NOT INJECTED. Job A's own accepted line,
++        the proposal its producer published for that line and its canonical
++        target are read from their own public owners at the moment its
++        integration stage runs -- two of those three do not exist until the
++        review is accepted, which is why no configuration document could carry
++        them. The constructed port's own operands are compared against those
++        owners' answers here.
++
++        THE ENGINE BOUNDARY IS THE FIXTURE'S, as this record's other composed
++        cases drive it, and that is a controlled boundary rather than a claim
++        about a real container: this proves production CONSTRUCTION and
++        preparation, and W71879's actual run remains the model proof.
++        """
++        from baton_v12.worker_manager import review_cycles
++
++        held = self.coding()
++        deployment = self.deployment_of(held.composed)
++        # AT COMPOSITION THIS DEPLOYMENT SUPPLIES NO PORT AT ALL, which is the
++        # exact state review 2026-09-11T01-22-35Z traced: `_integration_ports`
++        # maps every bound Job to None and nothing constructs one. No port can
++        # exist yet either -- neither Job has an accepted review, so two of the
++        # three operands a port is composed over do not exist.
++        self.assertEqual(held.composed.integrator.ports,
++                         {"job-a": None, "job-b": None})
++
++        # AND THEN BOTH JOBS ARE ACCEPTED, exactly as `both_accepted` does it.
++        held.first_review = self.accepted(
++            held, "job-a", "implementation-worker", "review-worker",
++            held.first, "print('the first job answered')\n")
++        held.second_review = self.accepted(
++            held, "job-b", "implementation-worker-b", "review-worker-b",
++            held.second, "print('the second job answered')\n",
++            edits={"feature.py": self.B_FEATURE,
++                   "feature_check.py": self.B_CHECK})
++
++        # AND JOB A'S INTEGRATION REALLY STARTS. `integrating` is the state a
++        # stage reaches only once its delivery was published and its runtime
++        # started through the port -- which is exactly what the accepted
++        # composition could not do, because it had no port to publish through.
++        self.drive_job(held.job, held.composed, "job-a", "integration",
++                       "integrating")
++
++        # THE PORT THIS DEPLOYMENT BUILT, and it is the real class.
++        port = held.composed.integrator.ports["job-a"]
++        self.assertIsInstance(port, integration_worker.IntegrationRuntimePort)
++        # JOB B WAS NOT GIVEN ONE: a port is one Job's, and B has not reached
++        # its own integration.
++        self.assertIsNone(held.composed.integrator.ports["job-b"])
++
++        # ITS THREE DYNAMIC OPERANDS ARE THE OWNERS' OWN ANSWERS.
++        line_id = deployment.line_for("job-a")["line_id"]
++        self.assertEqual(port.line_id, line_id)
++        self.assertEqual(
++            port.proposal_id,
++            deployment.published_proposal(
++                review_cycles.integration_checkpoint(held.control, line_id)))
++        self.assertEqual(port._target_id, deployment.target_for("job-a"))
++        # AND ITS FIXED HALF IS THE CONFIGURATION'S, not a default: the
++        # integrator's own identity digests, its adapter, the retained input
++        # manifest's own toolchain digest, and the instruction bytes this
++        # deployment configured -- whose digest the integration profile pins.
++        integrator = self.worker_of(held.composed, "integration")
++        given = integrator.given
++        self.assertEqual(port.identity,
++                         {one: given[one] for one in
++                          ("image_digest", "profile_digest", "policy_digest",
++                           "adapter_digest")})
++        self.assertEqual(port.adapter_name, given["adapter_name"])
++        self.assertEqual(port.toolchain_digest,
++                         given["input_manifest"]["toolchain_digest"])
++        from baton_v12.contracts import digest_of_bytes
++
++        self.assertEqual(port.instructions, self.INSTRUCTIONS)
++        self.assertEqual(digest_of_bytes(port.instructions),
++                         deployment.integration_profile["instructions_digest"])
++        # THE ASSIGNMENT PORT IS THE COMPOSITION'S OWN PUBLIC ONE -- the port
++        # that actually holds this attempt's claim, not a second Authority view.
++        self.assertIs(port.assignment_port,
++                      self.operations_of(held.composed, "integration").port)
++        # AND THE CREDENTIAL HOME IS A VIEW OVER THE CONFIGURED ROOT rather
++        # than the worker's private object: the root is configuration, so the
++        # view over it is composed, and what must agree is the place.
++        self.assertEqual(port.credential_home.place,
++                         integrator.credential_home.place)
++        self.assertEqual(port.credential_home.place,
++                         deployment.integration_served("job-a")[
++                             "credential_home"])
++
++        # RE-ENTERING THE STAGE USES THE SAME CAPACITY rather than building a
++        # second set of the homes one serialized integration owns.
++        self.tick(held)
++        self.assertIs(held.composed.integrator.ports["job-a"], port)
++
++    def test_a_supplied_port_is_never_replaced_by_a_constructed_one(self):
++        """An operator's injected capability stays the one in use. The accepted
++        component fixture supplies ports, and this deployment must not decide
++        that its own construction is better than what it was handed."""
++        held = self.integrating()
++        supplied = held.composed.integrator.ports["job-a"]
++        self.assertIsNotNone(supplied)
++        self.drive_job(held.job, held.composed, "job-a", "integration",
++                       "completed", ticks=4)
++        self.assertIs(held.composed.integrator.ports["job-a"], supplied)
++
++    def test_instructions_that_do_not_match_the_pinned_digest_are_refused(self):
++        """The pin is what makes reading a configured file safe: bytes that
++        could never produce a bundle matching this deployment's own integration
++        profile are refused before any container is started."""
++        held = self.both_accepted()
++        deployment = self.deployment_of(held.composed)
++        other = os.path.join(self.root, "other-instructions")
++        self.write(other, "instructions this profile never pinned\n")
++        deployment.given["integration_instructions"] = other
++        with self.assertRaises(ContractRefusal) as caught:
++            deployment.integration_port_for(
++                "job-a", line_id=deployment.line_for("job-a")["line_id"],
++                proposal_id="proposal-whatever",
++                canonical_target_id=deployment.target_for("job-a"))
++        self.assertEqual(caught.exception.category, "refused")
++        self.assertEqual(caught.exception.code, "capability")
++        self.assertIn("integration profile pins", caught.exception.message)
++
++    def test_a_deployment_that_configures_no_instructions_is_refused(self):
++        """And an unconfigured one says which member is missing rather than
++        recovering the bytes from a document that means something else."""
++        held = self.both_accepted()
++        deployment = self.deployment_of(held.composed)
++        deployment.given.pop("integration_instructions", None)
++        with self.assertRaises(ContractRefusal) as caught:
++            deployment.integration_instructions()
++        self.assertEqual(caught.exception.code, "capability")
++        self.assertIn("integration_instructions", caught.exception.message)
+ 
+     def integration_port(self, held, job_id):
+         """THIS JOB'S accepted runtime port, over THIS JOB'S own operands.
+@@ -7017,9 +7197,17 @@
+                 stdout=options.get("stdout"), stderr=options.get("stderr"),
+                 timeout=10)
+ 
++        # W103068: THE HOMES ARE THE DEPLOYMENT'S OWN, ASKED RATHER THAN
++        # GUESSED. This turn used to name `<root>/integration-launch` and
++        # `<root>/integration-bundles` because the fixture itself had created
++        # them for a port it constructed by hand. The production composition
++        # provisions them under its configured `state_root`, so a turn that
++        # kept guessing would be reading a directory nothing writes.
+         launched = launch.adopt(
+-            os.path.join(self.root, "integration-launch"),
+-            attempt_id=attempt_id, session="integration-session",
++            deployment.integration_home(
++                stage_execution.INTEGRATION_LAUNCH_HOME),
++            attempt_id=attempt_id,
++            session=stage_execution.INTEGRATION_LAUNCH_SESSION,
+             contract=self.config["launch_contract"],
+             role=integration_worker.LAUNCH_ROLE)
+         places = {}
+@@ -7037,8 +7225,10 @@
+                 launch_place=launched.place,
+                 assignment_root=delivery.assignment_root,
+                 result_root=delivery.result_root,
+-                bundle_root=os.path.join(self.root, "integration-bundles",
+-                                         attempt_id),
++                bundle_root=os.path.join(
++                    deployment.integration_home(
++                        stage_execution.INTEGRATION_BUNDLE_HOME),
++                    attempt_id),
+                 target_root=self.source, scratch=places["scratch"])
+ 
+     def tick(self, held):
+@@ -7215,7 +7405,7 @@
+                 self.states_for(held.job, held.composed, job_id)["review"],
+                 "completed")
+         self.drive_job(held.job, held.composed, "job-a", "integration",
+-                       "claimed")
++                       "integrating")
+         allocated = {job_id: self.allocated(held.job, f"{job_id}/integration")
+                      for job_id in ("job-a", "job-b")}
+         self.assertEqual(allocated["job-a"], "integration-worker")
+@@ -7879,15 +8069,14 @@
+         held = self.both_accepted()
+         if before is not None:
+             before(held)
++        # AND ITS INTEGRATION STARTS THROUGH THE PORT THIS DEPLOYMENT BUILT.
++        # No `integration_port`, no `connect`, no second composition: the
++        # accepted line and the published proposal this port is composed over
++        # are read from their own owners on the tick that needs them.
+         self.drive_job(held.job, held.composed, "job-a", "integration",
+-                       "claimed")
+-        self.connect(held, {"job-a": self.integration_port(held, "job-a"),
+-                            "job-b": None})
+-        report = self.tick(held)
+-        [started] = [one for one in report["started"]
+-                     if one["stage_id"] == "job-a/integration"]
+-        self.assertEqual(started["outcome"], "started", started)
+-        held.integrated = started["attempt_id"]
++                       "integrating")
++        held.integrated = self.attempted(held.job,
++                                         "job-a/integration")["attempt_id"]
+         self.assertEqual(self.integration_turn(held, held.integrated), 0)
+         self.engine.stopped = True
+         report = self.tick(held)

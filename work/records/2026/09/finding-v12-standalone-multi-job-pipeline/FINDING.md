@@ -840,3 +840,19 @@ The deferrals above postpone stronger failure-mode guarantees and exhaustive
 verification; they do not waive correctness or required authorization in the
 actual successful path. A temporary workaround is not the milestone deliverable.
 Fix the underlying ordinary-path defect rather than patching around the run.
+
+## 2026-09-11T01:47:13Z — owner reiterates completion through W71879
+
+Slawomir: "we are closer to W71879, I want this wrapped up". This reinforces
+the feasibility and legitimate-coordination ruling above. Finish the approved
+W103068 production correction and independent acceptance, then carry its exact
+configured handoff into W71879's actual ordinary A/B execution and independent
+assessment, followed by W71830 reconciliation. Component closure alone does
+not satisfy the requested outcome. Reuse accepted evidence and keep hardening
+deferred; report any new blocker as the concrete ordinary transition it prevents.
+
+At snapshot140759 W103068 is the only open provider dependency of W71879 and
+baton.claude holds its implementation claim. This is an observed snapshot, not
+a replacement for live Baton state. Existing source ownership, approved budgets,
+run authority and human Git ownership remain. This reiteration adds no planning
+Work or approval gate and does not interrupt the active correction.

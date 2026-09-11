@@ -1,0 +1,185 @@
+--- placement140907/v12/python/tests/tools/test_stage_execution.py
++++ candidate140937/v12/python/tests/tools/test_stage_execution.py
+@@ -6947,6 +6947,97 @@
+         self.assertIsNotNone(target_of(deployment.integration, target_id),
+                              f"the composition adopted no target {target_id!r}")
+ 
++    def credential_registry(self):
++        """A real user-credential registry, so the DEFAULT provider is used.
++
++        W103068: `worker_preflight` builds its production provider from
++        `credential_sources` when a composer injects none, and the literal
++        `factory` injects none. Configuring the registry exercises that default
++        path instead of substituting a provider, which is the difference between
++        controlling an external boundary and injecting a capability.
++        """
++        source = os.path.join(self.root, "factory-provider.token")
++        with open(source, "w", encoding="utf-8") as writing:
++            writing.write(self.secret)
++        os.chmod(source, 0o600)
++        place = os.path.join(self.root, "factory-credential-sources.json")
++        with open(place, "w", encoding="utf-8") as writing:
++            json.dump({"schema": "baton.user-credential-sources/1",
++                       "sources": [{"provider": "fixture",
++                                    "reference": "fixture/one",
++                                    "path": source}]}, writing)
++        os.chmod(place, 0o600)
++        return place
++
++    def factory_serving(self, **members):
++        """This deployment composed by the LITERAL public factory.
++
++        `tools.stage_execution:factory` takes exactly two operands, so nothing
++        can be injected through it: no `engine_run`, no `credential_provider`,
++        no `clock`, no `checkout` and no `integration_port`. That is the whole
++        point -- review 2026-09-11T02-06-10Z [P1] established that a witness
++        passing capabilities through `operations_from` proves construction but
++        not that the DEFAULTS work, and the defaults were in fact broken.
++
++        THE THREE SUBSTITUTIONS ARE EXTERNAL BOUNDARIES, named as the accepted
++        `ThePublicFactoryComposesThroughItsOwnEntryPoint` names its two: the
++        engine is this suite's own, because no case here starts real containers;
++        `_checkout` is the fixture's, because this suite's disk-backed root lives
++        inside the distribution and the real answer would refuse it for the
++        fixture's reason rather than the one under test; and the CLOCK is the
++        fixture's, because this suite pins its stores to `fixtures.NOW` and
++        `factory` takes no clock -- so a real-time worker reads the offers its
++        pinned store issued as `expired` and claims nothing. In production both
++        clocks are the same real one; that mismatch is this fixture's, not the
++        composition's.
++
++        THE CREDENTIAL PROVIDER IS NOT SUBSTITUTED. It is CONFIGURED, so
++        `worker_preflight`'s production default builds it from the registry --
++        which is the operand review 2026-09-11T02-06-10Z required be effective
++        rather than injected.
++        """
++        from unittest.mock import patch
++
++        self.engine = self.quiescing()
++        registry = self.credential_registry()
++        document = self.composed_document(line_declared_base=self.base,
++                                          **members)
++        document["workers"] = [
++            dict(one, deployment=dict(one["deployment"],
++                                      credential_sources=registry))
++            for one in document["workers"]]
++        place = os.path.join(self.root, "factory-stage-config.json")
++        with open(place, "w", encoding="utf-8") as writing:
++            json.dump(document, writing)
++        job, control = self.stores("stage-factory")
++        for one in (patch.dict(os.environ,
++                               {stage_execution.CONFIG_ENV: place}),
++                    patch.object(stage_execution, "_checkout",
++                                 lambda: self.checkout),
++                    patch.object(stage_execution.single_worker, "_engine_run",
++                                 self.engine),
++                    patch.object(stage_execution.single_worker, "_now",
++                                 lambda: NOW)):
++            one.start()
++            self.addCleanup(one.stop)
++        composed = stage_execution.factory(job, control)
++        self.addCleanup(composed.close)
++        self._composed = composed
++        return job, control, composed
++
++    def factory_coding(self, **members):
++        """`coding`, over the literal-factory composition."""
++        from baton_v12.job_manager import submit
++
++        job, control, composed = self.factory_serving(
++            **self.two_jobs(**self.traversing(**members)))
++        submit(job, self.both_jobs())
++        self.drive_job(job, composed, "job-b", "implementation", "waiting")
++        held = SimpleNamespace(job=job, control=control, composed=composed)
++        held.first = self.one_attempt_of(composed, "implementation-worker")
++        held.second = self.one_attempt_of(composed, "implementation-worker-b")
++        return held
++
+     def test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT(self):
+         """W103068's P1: the production composition supplies its own port.
+ 
+@@ -6967,6 +7058,17 @@
+         them. The constructed port's own operands are compared against those
+         owners' answers here.
+ 
++        AND IT IS THE LITERAL `factory` THAT COMPOSES IT. Review
++        2026-09-11T02-06-10Z [P1]: an earlier form of this case passed
++        `engine_run` and `credential_provider` through `operations_from`, which
++        proves construction but NOT that the production defaults work -- and
++        they did not: `factory` supplies neither, so the deployment held `None`
++        for both and the constructed port refused for want of an engine. This
++        composes through `factory_serving`, which injects nothing through the
++        entry point; the engine and `_checkout` are external boundaries this
++        suite already substitutes, and the credential provider is CONFIGURED so
++        the production default builds it.
++
+         THE ENGINE BOUNDARY IS THE FIXTURE'S, as this record's other composed
+         cases drive it, and that is a controlled boundary rather than a claim
+         about a real container: this proves production CONSTRUCTION and
+@@ -6974,7 +7076,7 @@
+         """
+         from baton_v12.worker_manager import review_cycles
+ 
+-        held = self.coding()
++        held = self.factory_coding()
+         deployment = self.deployment_of(held.composed)
+         # AT COMPOSITION THIS DEPLOYMENT SUPPLIES NO PORT AT ALL, which is the
+         # exact state review 2026-09-11T01-22-35Z traced: `_integration_ports`
+@@ -7052,16 +7154,50 @@
+         self.tick(held)
+         self.assertIs(held.composed.integrator.ports["job-a"], port)
+ 
+-    def test_a_supplied_port_is_never_replaced_by_a_constructed_one(self):
+-        """An operator's injected capability stays the one in use. The accepted
+-        component fixture supplies ports, and this deployment must not decide
+-        that its own construction is better than what it was handed."""
++    def test_the_constructed_port_is_the_same_one_through_completion(self):
++        """W103068: ONE CAPACITY FOR ONE JOB'S INTEGRATION, end to end.
++
++        THE CLAIM THIS CASE USED TO MAKE WAS WRONG and review
++        2026-09-11T02-06-10Z said so. It was named for supplied-port precedence
++        and asserted `assertIsNotNone`, but `integrating()` supplies no port at
++        all any more -- so what it actually measured was the CONSTRUCTED port
++        surviving to completion. That is worth measuring; it is just not what
++        the name said, and a control whose name misdescribes it is a control
++        nobody can rely on. The precedence claim is measured for real below.
++        """
+         held = self.integrating()
+-        supplied = held.composed.integrator.ports["job-a"]
+-        self.assertIsNotNone(supplied)
++        built = held.composed.integrator.ports["job-a"]
++        self.assertIsInstance(built, integration_worker.IntegrationRuntimePort)
+         self.drive_job(held.job, held.composed, "job-a", "integration",
+                        "completed", ticks=4)
+-        self.assertIs(held.composed.integrator.ports["job-a"], supplied)
++        self.assertIs(held.composed.integrator.ports["job-a"], built)
++
++    def test_a_supplied_port_takes_precedence_over_construction(self):
++        """AN OPERATOR'S INJECTED CAPABILITY STAYS THE ONE IN USE, measured by
++        actually supplying one.
++
++        This composes a second deployment over the same durable stores WITH a
++        per-Job port -- the operator-supplied shape `_integration_ports` has
++        always accepted -- and drives that Job's integration. The deployment
++        must not decide its own construction is better than what it was handed,
++        and the object identity is what proves it did not.
++        """
++        held = self.both_accepted()
++        supplied = self.integration_port(held, "job-a")
++        composed = stage_execution.operations_from(
++            self.composed_document(line_declared_base=self.base,
++                                   **self.traversing()),
++            held.job, held.control, engine_run=self.engine,
++            credential_provider=lambda provider, reference: self.secret,
++            clock=lambda: NOW, checkout=self.checkout,
++            integration_port={"job-a": supplied, "job-b": None})
++        self.addCleanup(composed.close)
++        held.composed = composed
++        self.assertIs(composed.integrator.ports["job-a"], supplied)
++        self.drive_job(held.job, composed, "job-a", "integration",
++                       "integrating")
++        # AND IT IS STILL THE OPERATOR'S OBJECT, not one built beside it.
++        self.assertIs(composed.integrator.ports["job-a"], supplied)
+ 
+     def test_instructions_that_do_not_match_the_pinned_digest_are_refused(self):
+         """The pin is what makes reading a configured file safe: bytes that

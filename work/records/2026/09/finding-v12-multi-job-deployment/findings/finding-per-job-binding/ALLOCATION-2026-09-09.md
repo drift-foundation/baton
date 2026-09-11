@@ -1,4 +1,73 @@
-# Current carry — joined acceptance, reviewer140519, 2026-09-11T01:10:44Z
+# Current carry — final W103068 review141384 — 2026-09-11T03:42:24Z
+
+Owner141241 adds120s and reassigns serial completion to tuner: author ceiling920s and correction300s supersede800/180 below. Tuner claim30.749260085995775s yields author731.3390351440088/920s plus uncertainty; correction187.05443938200625/300s, remaining112.94556061799376s. Reviewer audit/factory join charges3.1661257339961595s plus conservative1s failed-audit charge; cumulative13.312307043996647/25s. All failed runs and accepted40.93217554400326s overrun retained. Joined40s/other reserves unchanged and untransferred. Exact evidence: W103068 evidence/review-141384/result.json and tuner-141250/handoff-manifest.json. Provider accepted; W71879 real run keeps its own existing allocation.
+
+# Prior carry history
+
+# Current carry — reviewer141138, 2026-09-11T02:53:00Z
+
+Author141103 spent47.65275689600821s, cumulative700.5897750580131/800s plus
+uncertainty. Correction156.30517929601046/180s, remaining23.694820703989535s.
+Nonzero correction steps1/5/7/8/10/12/14 and prior accepted overrun retained.
+Joined40s and other reserves unchanged. Reviewer static audit charges
+0.06317724799446296s, cumulative9.146181310000488/25s; no runtime tests.
+W103068 evidence/review-141138/ retains candidate and audit. Owner execution
+reassignment/continuation disposition is requested; no new allocation or transfer.
+
+# Current carry — reviewer141074, 2026-09-11T02:41:03Z
+
+Author141024 spent79.11830010600534s. Cumulative652.9370181620048/800s plus
+uncertainty; existing180s correction spent108.65242240000225s, remaining
+71.34757759999775s. Nonzero correction runs1/5/7/8/10 retained; prior owner-
+accepted overrun remains. Joined40s and other reserves unchanged. Reviewer
+static retention/AST/audit charges0.13003577600175048s, cumulative
+9.083004062006024/25s. Exact W103068 evidence/review-141074/. No runtime tests,
+new allocation, reset or transfer. P2 execution continues in the same four files.
+
+# Current carry — reviewer140987, 2026-09-11T02:27:46Z
+
+Author140937 spent29.534122293996916s, cumulative573.8187180559995/800s plus
+uncertainty. The existing180s correction has150.46587770600308s left; no new
+allocation. Nonzero steps1/5, diagnostic2 exited0. Retain prior failures and
+accepted40.93217554400326s overrun. Joined40s and other reserves unchanged.
+Reviewer independent factory-to-A-completion join plus retention/audit charges
+1.2500692800036632s, giving8.952968286004273/25s cumulative. Exact evidence in
+W103068 evidence/review-140987/. P1 accepted, P2 continues under owner140905;
+no broad rerun, budget reset, reserve transfer or extra approval prerequisite.
+
+# Current ceiling — owner140905, 2026-09-11T02:11:47Z
+
+W103068 correction now owns the four stage_execution/single_worker source/test
+paths. Owner accepts prior correction overrun40.93217554400326s and retains
+cumulative author544.2845957620026s plus uncertainty and all failed runs.
+Author ceiling800s replaces570s; new correction allocation180s. Joined40s and
+other existing reserves remain, no silent transfer or reset. Prior15 nonzero
+runs remain recorded. Reviewer25s carries6.64732907199965s before placement140907;
+placement charges1.0555699340009597s including its failed indexing attempt,
+so current reviewer7.702899006000609/25s. No runtime tests or author spending
+in this placement. Exact design/continuity/candidate:
+baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/DESIGN-2026-09-11T02-11-47Z.md
+and evidence/placement-140907/ in that record. This supersedes prior ceiling
+and pending-overrun-disposition statements, preserving their history.
+
+# Current ceiling — owner140663, 2026-09-11T01:30:06Z
+
+Placement140665 revalidates43 entries and retains two author-path copies;
+charge0.05235778299975209s gives current reviewer4.80292922899704/25s.
+Author carry unchanged. Exact evidence in W103068 evidence/placement-140665/result.json.
+
+W103068 production correction approved: author ceiling570s replaces450s;
+reviewer25s replaces5s, preserving cumulative carry and uncertainty. Author
+383.35242021799934s and reviewer4.750571445997288s before placement140665.
+The added120s author time funds production port/judgment wiring in the same
+two paths, serial baton.claude ownership; added20s reviewer time remains
+cumulative. Joined40s is explicitly unchanged. Old unused serving4.63s,
+observation remainder and margin2.12s are not transferred. No reset, erased
+failed run or retrospective overrun authority; separate prerequisite budgets
+remain separate. Exact current correction FINDING/PLAN:
+baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/.
+
+# Prior carry — joined acceptance, reviewer140519, 2026-09-11T01:10:44Z
 
 Static continuity/AST0.07673107599839568s plus0.05s outer reserve charges
 0.12673107599839567s; separate reviewer cumulative4.750571445997288/5s.

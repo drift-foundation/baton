@@ -1,0 +1,191 @@
+--- review140987/v12/python/tools/stage_execution.py
++++ candidate141024/v12/python/tools/stage_execution.py
+@@ -151,7 +151,39 @@
+ _OPTIONAL_MEMBERS = ("job_bindings", "integration_target",
+                      "integration_workspace", "integration_observer",
+                      "integration_target_reference",
+-                     "integration_instructions")
++                     "integration_instructions",
++                     "result_judgment_workers")
++
++# W103068, DESIGN-2026-09-11T02-27-46Z: THE EXECUTION CONFIGURATION OF THE THREE
++# OWNERS THAT JUDGE A DERIVED RESULT, and it is deliberately SEPARATE from the
++# three-stage pool.
++#
++# WHY IT IS NOT A FOURTH ROLE. `ROLES` names the three stages a Job HAS, the pool
++# gives one worker per role and `scheduler.own_pool` counts capacity over them; a
++# judge of a merged candidate is none of those -- it serves no Job stage and takes
++# no stage allocation. Adding it to `ROLES` would have made every accepted
++# deployment refuse for want of a fourth worker and would have put these actors
++# in the pool that serializes integration capacity.
++#
++# WHY EACH ENTRY IS A COMPLETE DEPLOYMENT. The alternative was to borrow the
++# review worker's image, credentials, storage and Work -- which would make the
++# judgment attributable to THAT participant, and independence is the whole reason
++# a judgment exists. `receipt_participants` already names WHO must judge; this
++# names what each of them EXECUTES with, and the two are matched here so a
++# deployment cannot configure an execution for somebody who is not a judge.
++#
++# KEYED BY BOUND JOB, because a derived result belongs to one Job's line and
++# target. A Job with no entry has no consumer: its derived branch stays pending
++# honestly rather than inventing one.
++# Spelled here rather than aliased: `_RECEIPT_MEMBERS` is defined below this
++# point, and one tuple read before it exists is a module that cannot import.
++# `_held_judgments` compares the two sets so they cannot drift apart.
++_JUDGMENT_KINDS = ("verification", "review", "approval")
++_JUDGMENT_MEMBERS = ("worker_id", "deployment")
++# AND THE LAUNCH CONTRACT THEY REUSE. A judgment IS a review -- of a different
++# subject -- so these executions are configured under the accepted `review`
++# launch role rather than a new protocol word nothing else reads.
++JUDGMENT_LAUNCH_ROLE = "review"
+ _MEMBERS = ("schema", "authority_store", "authority_uuid", "integration_store",
+             "state_root", "pool_generation", "workers", "checkpoint_profile",
+             "canonical_target_id", "integration_profile", "job_work_id",
+@@ -427,7 +459,89 @@
+         given["workers"], here, given["authority_uuid"],
+         many=given["schema"] == MULTI_CONFIG_SCHEMA)
+     given["job_bindings"] = _held_bindings(given)
++    given["result_judgment_workers"] = _held_judgments(given, here)
+     return given
++
++
++def _held_judgments(given, checkout):
++    """Every configured derived-result judgment execution, held before use.
++
++    W103068. WHAT THIS PROVES, and each one is a fault a later moment would
++    describe from the wrong place: the member is a mapping keyed by a Job this
++    deployment actually binds; each Job names EXACTLY the three judgment kinds,
++    because two of three judgments is not an authorization; each value carries a
++    worker id and a complete deployment, held by `single_worker`'s own validator
++    rather than by a second copy of its rules here; each deployment launches the
++    accepted review role; each participant IS the `receipt_participants` member
++    of its own kind, so an execution cannot be configured for somebody who is not
++    that judgment's owner; no judgment identity collides with a stage worker or
++    with another judgment; and every judgment path lies outside the checkout,
++    exactly as a stage worker's must.
++
++    ABSENT IS AN ANSWER. A deployment that never reconciles needs no consumer,
++    and every accepted document in this tree predates this member.
++    """
++    configured = given.get("result_judgment_workers")
++    if configured is None:
++        return None
++    if type(configured) is not dict or not configured:
++        _refuse("result_judgment_workers is a non-empty mapping from a bound "
++                "Job id to that Job's three configured judgment executions")
++    bound = {one["job_id"] for one in given["job_bindings"]}
++    unknown = sorted(one for one in configured if one not in bound)
++    if unknown:
++        _refuse(f"result_judgment_workers names Jobs {unknown} that this "
++                f"deployment binds nothing for; a derived result belongs to one "
++                f"Job's line and target", category="refused",
++                code="precondition")
++    identities = {one["worker_id"] for one in given["workers"]}
++    judges = dict(given["receipt_participants"])
++    if sorted(_JUDGMENT_KINDS) != sorted(_RECEIPT_MEMBERS):
++        _refuse(f"this build reads judgment kinds {_JUDGMENT_KINDS} and receipt "
++                f"participants {_RECEIPT_MEMBERS}; an execution configured for "
++                f"a kind nobody records is one nothing can adopt")
++    held = {}
++    for job_id in sorted(configured, key=lambda one: str(one)):
++        entry = _document(configured[job_id],
++                          f"Job {job_id!r}'s judgment executions",
++                          _JUDGMENT_KINDS)
++        held[job_id] = {}
++        for kind in _JUDGMENT_KINDS:
++            what = f"Job {job_id!r}'s {kind} judgment execution"
++            one = _document(entry[kind], what, _JUDGMENT_MEMBERS)
++            worker_id = _text(one["worker_id"], f"{what}'s worker id")
++            if worker_id in identities:
++                _refuse(f"{what} names worker {worker_id!r}, which this "
++                        f"deployment already configures; a judgment execution "
++                        f"is its own identity and not a stage worker's",
++                        category="refused", code="precondition")
++            identities.add(worker_id)
++            deployment = single_worker._held(one["deployment"],
++                                             roles=(JUDGMENT_LAUNCH_ROLE,))
++            if deployment["authority_uuid"] != given["authority_uuid"]:
++                _refuse(f"{what} names Authority "
++                        f"{deployment['authority_uuid']!r} and this deployment "
++                        f"is configured for {given['authority_uuid']!r}",
++                        category="refused", code="capability")
++            if deployment["launch_role"] != JUDGMENT_LAUNCH_ROLE:
++                _refuse(f"{what} launches the "
++                        f"{deployment['launch_role']!r} role; a judgment reuses "
++                        f"the accepted {JUDGMENT_LAUNCH_ROLE!r} launch contract",
++                        category="refused", code="precondition")
++            # THE EXECUTION AND THE JUDGE ARE ONE FACT. `receipt_participants`
++            # already says who records this kind of judgment; an execution
++            # configured for anybody else would produce a report this
++            # deployment could never turn into that owner's receipt.
++            if deployment["participant"] != judges[kind]:
++                _refuse(f"{what} executes as {deployment['participant']!r} and "
++                        f"this deployment's {kind} judgment belongs to "
++                        f"{judges[kind]!r}", category="policy", code="denied")
++            for name in ("workspace_storage", "launch_home",
++                         "credential_home"):
++                _outside(deployment[name], checkout, f"{what}'s {name}")
++            held[job_id][kind] = {"worker_id": worker_id,
++                                  "deployment": deployment}
++    return held
+ 
+ 
+ def _held_bindings(given):
+@@ -3111,6 +3225,57 @@
+                                f"{self.given['authority_uuid']} at pool "
+                                f"generation {self.given['pool_generation']}"})
+ 
++    def judgment_executions(self, job_id):
++        """This Job's three configured derived-result judgment executions.
++
++        W103068. ABSENCE IS AN ANSWER AND IT IS NOT A POSITIVE ONE: a Job whose
++        derived branch has no configured consumer has no way to obtain
++        independent judgments of the merged candidate, so this says so and the
++        caller leaves the result PUBLISHED. It never invents an execution, and
++        it never lets a successful merge stand in for a judgment.
++        """
++        configured = self.given.get("result_judgment_workers")
++        if configured is None or job_id not in configured:
++            return None
++        return configured[job_id]
++
++    def judgment_subject(self, result_id):
++        """The exact immutable subject a judgment is dispatched about.
++
++        EVERY MEMBER IS READ FROM THE COORDINATOR'S OWN CUSTODY RECORD, through
++        the public reader that re-derives that record's identity and re-proves
++        every act it passed through. Nothing here is composed from a caller
++        value, and nothing names the producer's ORIGINAL candidate: the subject
++        of this judgment is the DERIVED one -- its own proposal, its own content
++        and head, and the target revision it was reconciled onto.
++
++        THE CAUSAL EVIDENCE TRAVELS WITH IT, retained and unmodified, because a
++        judge must be able to read what the harness actually observed rather
++        than be told it passed. It is evidence for a judgment and never a
++        substitute for one: `record_result_evidence` still requires three real
++        receipts, and W133117 keeps a failing combined observation `blocked`.
++        """
++        held = reconciliation.result_of(self.integration, result_id)
++        if held["state"] != "published":
++            _refuse(f"result {result_id!r} is {held['state']!r}; a judgment is "
++                    f"dispatched about a published derived candidate",
++                    category="refused", code="precondition")
++        return {"result_id": held["result_id"],
++                "job_id": held["job_id"],
++                "canonical_target_id": held["canonical_target_id"],
++                "derived_proposal_id": held["derived_proposal_id"],
++                "derived_result_id": held["derived_result_id"],
++                "derived_result_digest": held["derived_result_digest"],
++                "content_digest": held["content_digest"],
++                "candidate": held["prepared"]["head"],
++                "tree": held["prepared"]["tree"],
++                "target_revision": held["target_revision"],
++                "source_proposal_id": held["source_proposal_id"],
++                "source_base": held["source_base"],
++                "source_candidate": held["source_candidate"],
++                "causal_observations": held["causal_observations"],
++                "observed_by": held["observed_by"]}
++
+     def integration_served(self, job_id):
+         """The held document this deployment's integrator serves a Job under.
+ 

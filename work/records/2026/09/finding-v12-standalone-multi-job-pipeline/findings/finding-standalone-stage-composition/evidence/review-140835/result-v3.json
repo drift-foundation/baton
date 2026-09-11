@@ -1,0 +1,14 @@
+{
+  "claim": 140835,
+  "argv": [
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/review-140835/probe-v3.py"
+  ],
+  "exit": 0,
+  "elapsed_seconds": 0.23451502299576532,
+  "outer_reserve_seconds": 0.1,
+  "charged_seconds": 0.3345150229957653,
+  "reviewer_cumulative_seconds": 6.594975385997043,
+  "reviewer_ceiling_seconds": 25,
+  "correction": "Disk fixture explicitly selects repository storage because /tmp is memory-backed; changing cwd in v2 did not change that. v3 controls checkout location selector only, in addition to lower engine and credential boundaries. Actual factory/default capability path unchanged. No successful production run claimed."
+}

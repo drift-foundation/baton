@@ -1,0 +1,13 @@
+### label: two-job-class-green
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"]
+### exit: 0
+### elapsed_seconds: 14.282837
+### STDOUT
+
+### STDERR
+......................................
+----------------------------------------------------------------------
+Ran 38 tests in 14.083s
+
+OK

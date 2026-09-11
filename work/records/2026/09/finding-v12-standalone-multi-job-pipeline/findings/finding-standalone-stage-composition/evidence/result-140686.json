@@ -1,0 +1,31 @@
+{
+ "claim": 140686,
+ "work": "W103068",
+ "participant": "baton.claude",
+ "status": "P1 RESOLVED and verified; P2 returned as an evidence-backed scope gap",
+ "owned_paths": "owner140663 serial pair",
+ "paths": {
+  "v12/python/tools/stage_execution.py": {
+   "sha256": "3f3ec30b80b58e225eafcba4547bf8101d15c685027dcc0c5d09f44e544a19ea",
+   "bytes": 233218,
+   "mode": "0o664",
+   "pinned_input_sha256": "9cf2927f4057a68beec61cfd56abeca709509d7770cd577412f750bce4ae1223",
+   "changed_under_claim_140686": true
+  },
+  "v12/python/tests/tools/test_stage_execution.py": {
+   "sha256": "c2ae05bc6fd2b7c25eac5bf212f3e608c2f29851ec79688b9a37a741d9e646a8",
+   "bytes": 415246,
+   "mode": "0o664",
+   "pinned_input_sha256": "2b234a605028d08952a11e2610753ab116a0ea969957399fecac8d55dbd1bffd",
+   "changed_under_claim_140686": true
+  }
+ },
+ "baseline_attribution": {
+  "method": "the pinned two-file candidate from evidence/placement-140665/candidate was installed, the four erroring classes run (step 14), then this candidate restored and the same classes rerun (steps 15,16)",
+  "pinned_input_errors": 13,
+  "candidate_errors": 13,
+  "error_set_identical": true,
+  "full_module": "247 tests, 13 errors, ZERO failures (step 17); error set identical to the pinned baseline's",
+  "note": "step 15 showed 21 errors before the one-Job target-adoption correction; 8 were mine and are resolved"
+ }
+}

@@ -1,0 +1,13 @@
+### label: judgment-own-works-and-resolution
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"]
+### exit: 0
+### elapsed_seconds: 17.184453
+### STDOUT
+
+### STDERR
+...............................................
+----------------------------------------------------------------------
+Ran 47 tests in 16.979s
+
+OK

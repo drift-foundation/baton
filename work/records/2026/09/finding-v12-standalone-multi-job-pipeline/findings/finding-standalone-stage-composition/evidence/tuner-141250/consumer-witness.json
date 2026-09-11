@@ -1,0 +1,340 @@
+{
+  "derived_proposal": "proposal-result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+  "derived_result": "result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+  "jobs": {
+    "job-a": {
+      "implementation": "completed",
+      "integration": "completed",
+      "review": "completed"
+    },
+    "job-b": {
+      "implementation": "completed",
+      "integration": "completed",
+      "review": "completed"
+    }
+  },
+  "judgments": [
+    {
+      "assignment": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "effective_scope": "scope:deployment",
+        "generation": 1,
+        "participant": "baton.verifier",
+        "principal": "principal:baton.verifier",
+        "runtime_attempt_id": "judgment-933a78fdf374cbb3681fc3f42b24c2a190aea1c0fe6d5b80f6e96ac63a8727d3",
+        "work_id": "0000000a-W3"
+      },
+      "attempt_id": "judgment-933a78fdf374cbb3681fc3f42b24c2a190aea1c0fe6d5b80f6e96ac63a8727d3",
+      "receipt_digest": "sha256:a3f371f2e76563340adebb10ffbcacc8fad6b673592d5d95154ae47ec56a17eb",
+      "result_digest": "sha256:8fef4e48d2dcc393f5eb5bbe28978b6dff210360df2646f77c2562d96b4170b3",
+      "result_id": "result-judgment-933a78fdf374cbb3681fc3f42b24c2a190aea1c0fe6d5b80f6e96ac63a8727d3",
+      "subject": {
+        "candidate": "db0d34c02458e500e57eddb11ae9642b1f36e507",
+        "canonical_target_id": "target-a",
+        "causal_observations": {
+          "base": {
+            "command": [
+              "python3",
+              "feature_check.py"
+            ],
+            "environment": "configured-required-test",
+            "execution": "baton.result-observer",
+            "harness_added": true,
+            "input_commit": "da8aa78206056581c8d4543f90ed72914c346195",
+            "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb",
+            "output": "ModuleNotFoundError: No module named 'feature'",
+            "status": 1,
+            "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+            "test_identity": "w130224-second-line-of-one-target"
+          },
+          "combined": {
+            "command": [
+              "python3",
+              "feature_check.py"
+            ],
+            "environment": "configured-required-test",
+            "execution": "baton.result-observer",
+            "harness_added": false,
+            "input_commit": "db0d34c02458e500e57eddb11ae9642b1f36e507",
+            "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+            "output": "the second job feature check passed",
+            "status": 0,
+            "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+            "test_identity": "w130224-second-line-of-one-target"
+          },
+          "isolated": {
+            "command": [
+              "python3",
+              "feature_check.py"
+            ],
+            "environment": "configured-required-test",
+            "execution": "baton.result-observer",
+            "harness_added": false,
+            "input_commit": "27b1ccca0c40d1744308c8ff52689b603e59a73f",
+            "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384",
+            "output": "the second job feature check passed",
+            "status": 0,
+            "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+            "test_identity": "w130224-second-line-of-one-target"
+          }
+        },
+        "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457",
+        "derived_proposal_id": "proposal-result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+        "derived_result_digest": "sha256:0d37e6fd0445e454ed92dcbe64dddcf4bc92cf71b2fc8036196825b93fab8b95",
+        "derived_result_id": "derived-result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+        "job_id": "job-b",
+        "kind": "verification",
+        "observed_by": "baton.result-observer",
+        "policy_generation": 15,
+        "result_id": "result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+        "source_base": "da8aa78206056581c8d4543f90ed72914c346195",
+        "source_candidate": "27b1ccca0c40d1744308c8ff52689b603e59a73f",
+        "source_proposal_id": "integration-driver.proposal:369144dfef40ad90838fab4c7dace3bd6f30e6ce42a74a125dd55361abdd4f3c",
+        "target_revision": "26ed66576ec7139bf648bd1998c9bce52ab44c8b",
+        "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"
+      },
+      "verdict": "accepted"
+    },
+    {
+      "assignment": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "effective_scope": "scope:deployment",
+        "generation": 1,
+        "participant": "baton.approver-review",
+        "principal": "principal:baton.approver-review",
+        "runtime_attempt_id": "judgment-a41ae626b1891625c563bbef3ca8ea9d0ac9da366250532a4531c08db9a5b1b5",
+        "work_id": "0000000a-W4"
+      },
+      "attempt_id": "judgment-a41ae626b1891625c563bbef3ca8ea9d0ac9da366250532a4531c08db9a5b1b5",
+      "receipt_digest": "sha256:e826d0316877aa1aa384317e5c9c459d94dbb0018d062613a5f2e9f8889f78e8",
+      "result_digest": "sha256:eab8627e16d6df38df882a073e1c812c47fd0e8c93fce40c0d3d512f792a0a88",
+      "result_id": "result-judgment-a41ae626b1891625c563bbef3ca8ea9d0ac9da366250532a4531c08db9a5b1b5",
+      "subject": {
+        "candidate": "db0d34c02458e500e57eddb11ae9642b1f36e507",
+        "canonical_target_id": "target-a",
+        "causal_observations": {
+          "base": {
+            "command": [
+              "python3",
+              "feature_check.py"
+            ],
+            "environment": "configured-required-test",
+            "execution": "baton.result-observer",
+            "harness_added": true,
+            "input_commit": "da8aa78206056581c8d4543f90ed72914c346195",
+            "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb",
+            "output": "ModuleNotFoundError: No module named 'feature'",
+            "status": 1,
+            "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+            "test_identity": "w130224-second-line-of-one-target"
+          },
+          "combined": {
+            "command": [
+              "python3",
+              "feature_check.py"
+            ],
+            "environment": "configured-required-test",
+            "execution": "baton.result-observer",
+            "harness_added": false,
+            "input_commit": "db0d34c02458e500e57eddb11ae9642b1f36e507",
+            "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+            "output": "the second job feature check passed",
+            "status": 0,
+            "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+            "test_identity": "w130224-second-line-of-one-target"
+          },
+          "isolated": {
+            "command": [
+              "python3",
+              "feature_check.py"
+            ],
+            "environment": "configured-required-test",
+            "execution": "baton.result-observer",
+            "harness_added": false,
+            "input_commit": "27b1ccca0c40d1744308c8ff52689b603e59a73f",
+            "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384",
+            "output": "the second job feature check passed",
+            "status": 0,
+            "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+            "test_identity": "w130224-second-line-of-one-target"
+          }
+        },
+        "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457",
+        "derived_proposal_id": "proposal-result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+        "derived_result_digest": "sha256:0d37e6fd0445e454ed92dcbe64dddcf4bc92cf71b2fc8036196825b93fab8b95",
+        "derived_result_id": "derived-result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+        "job_id": "job-b",
+        "kind": "review",
+        "observed_by": "baton.result-observer",
+        "policy_generation": 15,
+        "result_id": "result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+        "source_base": "da8aa78206056581c8d4543f90ed72914c346195",
+        "source_candidate": "27b1ccca0c40d1744308c8ff52689b603e59a73f",
+        "source_proposal_id": "integration-driver.proposal:369144dfef40ad90838fab4c7dace3bd6f30e6ce42a74a125dd55361abdd4f3c",
+        "target_revision": "26ed66576ec7139bf648bd1998c9bce52ab44c8b",
+        "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"
+      },
+      "verdict": "accepted"
+    },
+    {
+      "assignment": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "effective_scope": "scope:deployment",
+        "generation": 1,
+        "participant": "baton.approver",
+        "principal": "principal:baton.approver",
+        "runtime_attempt_id": "judgment-3abccd341205f588c8727514d793a3c7e7d43b710d40beb729a714fefe0c7f7a",
+        "work_id": "0000000a-W5"
+      },
+      "attempt_id": "judgment-3abccd341205f588c8727514d793a3c7e7d43b710d40beb729a714fefe0c7f7a",
+      "receipt_digest": "sha256:a8fa13d05e1bd3bb94889eb1895d064d660ee0e8ef914448eab8b396091e52b7",
+      "result_digest": "sha256:9453e6e826d8b16df5748b80aeaa783717b4397f7b5c8070ce1a4b05444a4f89",
+      "result_id": "result-judgment-3abccd341205f588c8727514d793a3c7e7d43b710d40beb729a714fefe0c7f7a",
+      "subject": {
+        "candidate": "db0d34c02458e500e57eddb11ae9642b1f36e507",
+        "canonical_target_id": "target-a",
+        "causal_observations": {
+          "base": {
+            "command": [
+              "python3",
+              "feature_check.py"
+            ],
+            "environment": "configured-required-test",
+            "execution": "baton.result-observer",
+            "harness_added": true,
+            "input_commit": "da8aa78206056581c8d4543f90ed72914c346195",
+            "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb",
+            "output": "ModuleNotFoundError: No module named 'feature'",
+            "status": 1,
+            "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+            "test_identity": "w130224-second-line-of-one-target"
+          },
+          "combined": {
+            "command": [
+              "python3",
+              "feature_check.py"
+            ],
+            "environment": "configured-required-test",
+            "execution": "baton.result-observer",
+            "harness_added": false,
+            "input_commit": "db0d34c02458e500e57eddb11ae9642b1f36e507",
+            "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+            "output": "the second job feature check passed",
+            "status": 0,
+            "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+            "test_identity": "w130224-second-line-of-one-target"
+          },
+          "isolated": {
+            "command": [
+              "python3",
+              "feature_check.py"
+            ],
+            "environment": "configured-required-test",
+            "execution": "baton.result-observer",
+            "harness_added": false,
+            "input_commit": "27b1ccca0c40d1744308c8ff52689b603e59a73f",
+            "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384",
+            "output": "the second job feature check passed",
+            "status": 0,
+            "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+            "test_identity": "w130224-second-line-of-one-target"
+          }
+        },
+        "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457",
+        "derived_proposal_id": "proposal-result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+        "derived_result_digest": "sha256:0d37e6fd0445e454ed92dcbe64dddcf4bc92cf71b2fc8036196825b93fab8b95",
+        "derived_result_id": "derived-result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+        "job_id": "job-b",
+        "kind": "approval",
+        "observed_by": "baton.result-observer",
+        "policy_generation": 15,
+        "result_id": "result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+        "source_base": "da8aa78206056581c8d4543f90ed72914c346195",
+        "source_candidate": "27b1ccca0c40d1744308c8ff52689b603e59a73f",
+        "source_proposal_id": "integration-driver.proposal:369144dfef40ad90838fab4c7dace3bd6f30e6ce42a74a125dd55361abdd4f3c",
+        "target_revision": "26ed66576ec7139bf648bd1998c9bce52ab44c8b",
+        "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"
+      },
+      "verdict": "accepted"
+    }
+  ],
+  "receipts": [
+    {
+      "actor": "baton.verifier",
+      "candidate_digest": "db0d34c02458e500e57eddb11ae9642b1f36e507",
+      "decision": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.verifier",
+        "grant": "direct",
+        "policy_generation": 15,
+        "principal": "principal:baton.verifier",
+        "role": "verify"
+      },
+      "disposition": "passed",
+      "kind": "verification",
+      "policy_generation": null,
+      "proposal_id": "proposal-result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+      "receipt_id": "judgment-60c8db6bb28729114edfc444ca4a6c521be2724884928ae5fc6ecff00dfc5d8a",
+      "recorded_at": "2026-09-11T03:30:47.167Z",
+      "target": "26ed66576ec7139bf648bd1998c9bce52ab44c8b"
+    },
+    {
+      "actor": "baton.approver",
+      "candidate_digest": "db0d34c02458e500e57eddb11ae9642b1f36e507",
+      "decision": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.approver",
+        "grant": "direct",
+        "policy_generation": 15,
+        "principal": "principal:baton.approver",
+        "role": "approve"
+      },
+      "disposition": "approved",
+      "kind": "approval",
+      "policy_generation": 15,
+      "proposal_id": "proposal-result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+      "receipt_id": "judgment-833e7d7895524ee93d9e6af89ee457e892c54b3dc1f1b55f93e84f600a579acb",
+      "recorded_at": "2026-09-11T03:30:47.168Z",
+      "target": "26ed66576ec7139bf648bd1998c9bce52ab44c8b"
+    },
+    {
+      "actor": "baton.approver-review",
+      "candidate_digest": "db0d34c02458e500e57eddb11ae9642b1f36e507",
+      "decision": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.approver-review",
+        "grant": "direct",
+        "policy_generation": 15,
+        "principal": "principal:baton.approver-review",
+        "role": "review"
+      },
+      "disposition": "accepted",
+      "kind": "review",
+      "policy_generation": null,
+      "proposal_id": "proposal-result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+      "receipt_id": "judgment-fe8e9a8e487f91073e8320a6414e077e9b723759a05c09f880fb1a5bd30ab8f9",
+      "recorded_at": "2026-09-11T03:30:47.168Z",
+      "target": "26ed66576ec7139bf648bd1998c9bce52ab44c8b"
+    },
+    {
+      "actor": "baton.integrator",
+      "candidate_digest": "db0d34c02458e500e57eddb11ae9642b1f36e507",
+      "decision": {
+        "effective_scope": "scope:deployment",
+        "endpoint": "baton.integrator",
+        "grant": "direct",
+        "policy_generation": 15,
+        "principal": "principal:baton.integrator",
+        "role": "integrate"
+      },
+      "disposition": "integrated",
+      "kind": "integration",
+      "policy_generation": null,
+      "proposal_id": "proposal-result-5ccf2b615ad16fcd25f02613a849867ea644c89cec621317782d15c2a5dc76cf",
+      "receipt_id": "integration-driver.integration-receipt:d5afc7da7c5668d888d06b9e683172f739571e8e256ecb0a6053a0984f80d257",
+      "recorded_at": "2026-09-11T03:30:47.241Z",
+      "target": "26ed66576ec7139bf648bd1998c9bce52ab44c8b"
+    }
+  ],
+  "target": "db0d34c02458e500e57eddb11ae9642b1f36e507"
+}

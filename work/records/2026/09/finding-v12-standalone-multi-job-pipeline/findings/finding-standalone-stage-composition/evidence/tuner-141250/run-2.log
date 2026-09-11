@@ -1,0 +1,15 @@
+test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs) ... FAIL
+
+======================================================================
+FAIL: test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7088, in test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs
+    self.assertEqual(len(deployment.judges), 3, reports[-1])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 3 : {'observed_at': '2026-09-02T00:00:00.000Z', 'recovered': None, 'observed': 0, 'replaced': [], 'acts': [], 'started': [{'stage_id': 'job-b/integration', 'episode': 1, 'attempt_id': 'attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e', 'outcome': 'started', 'runtime_id': None}], 'spoken': [], 'refreshed': [{'stage_id': 'job-a/implementation', 'episode': 1, 'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'state': 'not-asked'}, {'stage_id': 'job-a/review', 'episode': 1, 'attempt_id': 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'state': 'not-asked'}, {'stage_id': 'job-a/integration', 'episode': 1, 'attempt_id': 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0', 'state': 'quiescent'}, {'stage_id': 'job-b/implementation', 'episode': 1, 'attempt_id': 'attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e', 'state': 'not-asked'}, {'stage_id': 'job-b/review', 'episode': 1, 'attempt_id': 'attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c', 'state': 'not-asked'}, {'stage_id': 'job-b/integration', 'episode': 1, 'attempt_id': 'attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e', 'state': 'not-asked'}]}
+
+----------------------------------------------------------------------
+Ran 1 test in 2.055s
+
+FAILED (failures=1)

@@ -1,0 +1,157 @@
+--- review141074/v12/python/tests/tools/test_stage_execution.py
++++ candidate141103/v12/python/tests/tools/test_stage_execution.py
+@@ -6947,14 +6947,49 @@
+         self.assertIsNotNone(target_of(deployment.integration, target_id),
+                              f"the composition adopted no target {target_id!r}")
+ 
++    JUDGMENT_WORKS = {"verification": "0000000a-W3",
++                      "review": "0000000a-W4",
++                      "approval": "0000000a-W5"}
++
++    def judgment_work(self, kind):
++        """This judgment's OWN Work, created for real.
++
++        W103068 review 2026-09-11T02-41-03Z: the first form of this helper
++        copied `self.config` wholesale, so every judgment carried the ORIGINAL
++        producer's `input_manifest.work_ref` and its own-Work claim was not
++        proved at all -- three executions would have run under one Job's Work.
++        A judgment acquires its authorized assignment through the Work its own
++        manifest names, so that Work has to exist and be its own.
++        """
++        from baton_v12.authority import Authority
++        from tests.job_manager import fixtures
++
++        held = self.__dict__.setdefault("_judgment_works", set())
++        work_id = self.JUDGMENT_WORKS[kind]
++        if work_id in held:
++            return work_id
++        authority = Authority.open(
++            self.authority_path,
++            expected_authority_uuid=self.config["authority_uuid"])
++        try:
++            authority.create_work(work_id, fixtures.ROUTE,
++                                  contract="v12-assignment-1",
++                                  operation_id=f"create-{kind}-judgment-work")
++        finally:
++            authority.dispose()
++        held.add(work_id)
++        return work_id
++
+     def judgment_execution(self, kind, job_id="job-b"):
+         """One configured derived-result judgment execution.
+ 
+         W103068: a COMPLETE `single_worker` deployment for the participant that
+         owns this kind of judgment, launched under the accepted `review` role.
+-        Its identity, homes and Work are its own -- nothing is borrowed from the
+-        original reviewer, because a judgment executed under that participant
+-        would be attributable to the wrong actor.
++        Its identity, homes, Work and input manifest are its OWN -- nothing is
++        borrowed from the original reviewer or the producer's Job, because a
++        judgment executed under another participant or another Work would be
++        attributable to the wrong actor and could never acquire its own
++        authorized assignment.
+         """
+         from baton_v12.authority import Authority
+ 
+@@ -6974,12 +7009,36 @@
+         deployment["launch_role"] = stage_execution.JUDGMENT_LAUNCH_ROLE
+         deployment["participant"] = who
+         deployment["principal"] = principal
++        # ITS OWN WORK AND ITS OWN MANIFEST OVER ITS OWN TASK.
++        work_id = self.judgment_work(kind)
++        deployment["input_manifest"] = self.manifest_over(
++            work_id, self.judgment_task_bytes(kind))
++        deployment["task_document"] = self.judgment_task_document(kind)
+         for name in ("workspace_storage", "launch_home", "credential_home"):
+             place = os.path.join(self.root, f"judgment-{kind}-{name}")
+             os.makedirs(place, exist_ok=True)
+             deployment[name] = place
+         return {"worker_id": f"{job_id}-{kind}-judge",
+                 "deployment": deployment}
++
++    def judgment_task_bytes(self, kind):
++        """The instructions this judgment executes under -- its own, and not
++        the producer's task, which is about writing the change rather than
++        judging the merged candidate."""
++        return json.dumps(
++            {"schema": "baton.dogfood-task/2",
++             "task_id": f"w103068-derived-{kind}",
++             "instructions": f"Judge the derived candidate: {kind}.",
++             "source_root": "source", "source_profile": "git-line",
++             "declared_base": self.base,
++             "verification": ["python3", "harness.py"]},
++            sort_keys=True).encode("utf-8")
++
++    def judgment_task_document(self, kind):
++        place = os.path.join(self.root, f"judgment-task-{kind}.json")
++        with open(place, "wb") as writing:
++            writing.write(self.judgment_task_bytes(kind))
++        return place
+ 
+     def judgment_workers(self, job_id="job-b", **changed):
+         held = {kind: self.judgment_execution(kind, job_id)
+@@ -7030,6 +7089,18 @@
+                 # `single_worker._held` derives members the raw document has no
+                 # business carrying.
+                 self.assertIn("credential_resolution", one["deployment"])
++                # ITS OWN WORK, which is what it will acquire its authorized
++                # assignment through -- not the producer Job's.
++                self.assertEqual(
++                    one["deployment"]["input_manifest"]["work_ref"]["work_id"],
++                    self.JUDGMENT_WORKS[kind])
++        self.assertEqual(
++            len({one["deployment"]["input_manifest"]["work_ref"]["work_id"]
++                 for one in held["job-b"].values()}), 3)
++        for one in held["job-b"].values():
++            self.assertNotEqual(
++                one["deployment"]["input_manifest"]["work_ref"]["work_id"],
++                self.work)
+         # THE ORIGINAL STAGE-WORKER CONTRACT IS UNTOUCHED: this two-Job
+         # deployment still names exactly its own five stage workers in exactly
+         # the three stage roles, and no judgment execution leaked into them.
+@@ -7137,6 +7208,45 @@
+                          ["base", "combined", "isolated"])
+         self.assertEqual(subject["observed_by"],
+                          deployment.observer_participant())
++
++    def test_a_configured_consumer_composes_and_resolves_its_judges(self):
++        """W103068: the consumer's configuration survives a REAL composition.
++
++        `_resolved` now asks the Authority about every judgment participant and
++        its configured Work as well as the stage workers, so this proves the
++        whole document composes with the consumer present -- and that the
++        deployment selects the three executions afterwards.
++        """
++        _job, _control, composed = self.serving_two(**self.judging())
++        deployment = self.deployment_of(composed)
++        held = deployment.judgment_executions("job-b")
++        self.assertEqual(sorted(held), sorted(stage_execution._JUDGMENT_KINDS))
++        judges = deployment.given["receipt_participants"]
++        for kind, one in held.items():
++            with self.subTest(kind=kind):
++                self.assertEqual(one["deployment"]["participant"],
++                                 judges[kind])
++                self.assertEqual(
++                    one["deployment"]["input_manifest"]["work_ref"]["work_id"],
++                    self.JUDGMENT_WORKS[kind])
++
++    def test_a_judgment_work_this_authority_does_not_project_is_refused(self):
++        """A judgment acquires its authorized assignment through the Work its
++        own manifest names, so a Work this Authority does not hold is one it
++        could never obtain an assignment for -- and that is answered while
++        nothing has been written, not at the launch."""
++        other = self.judgment_execution("verification")
++        other["deployment"]["input_manifest"] = self.manifest_over(
++            "0000000a-W9999", self.judgment_task_bytes("verification"))
++        with self.assertRaises(ContractRefusal) as caught:
++            self.serving_two(**self.judging(verification=other))
++        # The Authority refuses the projection read for a Work it does not
++        # hold, so the refusal is its own capability answer rather than this
++        # module's absent-projection one; either way it names the Work and it
++        # happens before anything durable is configured.
++        self.assertEqual(caught.exception.category, "refused")
++        self.assertIn("0000000a-W9999", caught.exception.message)
++        self.assertIn("judgment execution", caught.exception.message)
+ 
+     def test_a_job_with_no_configured_consumer_selects_none(self):
+         """A Job whose derived branch has no consumer has no way to obtain

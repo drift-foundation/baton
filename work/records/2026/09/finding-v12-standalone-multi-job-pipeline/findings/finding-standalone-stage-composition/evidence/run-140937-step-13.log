@@ -1,0 +1,13 @@
+### label: judgment-resolution-controls-2
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_configured_consumer_composes_and_resolves_its_judges", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_work_this_authority_does_not_project_is_refused"]
+### exit: 0
+### elapsed_seconds: 0.331524
+### STDOUT
+
+### STDERR
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.115s
+
+OK

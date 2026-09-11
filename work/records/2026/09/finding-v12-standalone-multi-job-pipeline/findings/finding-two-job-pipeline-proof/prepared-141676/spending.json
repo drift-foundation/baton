@@ -1,0 +1,58 @@
+{
+  "work": "W71879",
+  "claim": 141676,
+  "measured_commands": [
+    {
+      "operation": "prepare1",
+      "command_wall_seconds": 0.023935212,
+      "result": "passed"
+    },
+    {
+      "operation": "validate1",
+      "command_wall_seconds": 0.028457511,
+      "result": "failed UUID length; corrected"
+    },
+    {
+      "operation": "validate2",
+      "command_wall_seconds": 0.031470843,
+      "result": "failed tuple in canonical JSON; corrected"
+    },
+    {
+      "operation": "validate3",
+      "command_wall_seconds": 0.042391417,
+      "result": "passed",
+      "inner_seconds_already_included": 0.024556187003327068
+    },
+    {
+      "operation": "prepare2",
+      "command_wall_seconds": 0.03103326,
+      "result": "passed"
+    },
+    {
+      "operation": "validate4",
+      "command_wall_seconds": 0.041029766,
+      "result": "passed",
+      "inner_seconds_already_included": 0.025321730005089194
+    },
+    {
+      "operation": "command-policy-checks-and-syntax",
+      "command_wall_seconds": 0.14640074,
+      "result": "completed; target commands not run",
+      "inner_seconds_already_included": 0.1259436949985684
+    }
+  ],
+  "measured_command_wall_seconds": 0.344718749,
+  "final_ast_validation_seconds": 0.003242869002860971,
+  "unmeasured": "Exploratory reads/edits/metadata and canonical calls, including one AST indentation failure/correction, not comprehensively timed. Preserve historical uncertainty.",
+  "prior_tuner_validation_seconds": 0.004338626000389922,
+  "prior_reviewer_validation_seconds": 0.00040272800106322393,
+  "temporary_validation_paths_retained": [
+    "/tmp/w71879-141676-validation-5rd0riff",
+    "/tmp/w71879-141676-validation-cqp4n2e3",
+    "/tmp/w71879-141676-validation-gxxtbryn",
+    "/tmp/w71879-141676-validation-svxt9hl8"
+  ],
+  "actual_models_containers_builds_submissions": 0,
+  "provider_reserve_transfers": 0,
+  "run_limits_source": "M141636, explicit correction of prior unidentified allocation premise;1200s wall from submission,240 implementation,180 original review/judge,120 integration"
+}

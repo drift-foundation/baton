@@ -1,0 +1,1 @@
+First audit exited1 before tests: attempted read_bytes on target_rework.py despite expected state=absent. Reviewer script error, not file loss. Both target_rework paths are deliberately absent in placement140907. Conservatively charge1s; static guessed workload glob also absent, recovered by repository rg; no required policy/dossier unavailable.

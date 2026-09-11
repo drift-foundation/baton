@@ -1,0 +1,152 @@
+### label: two-job-class-after-migration
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"]
+### exit: 1
+### elapsed_seconds: 12.396117
+### STDOUT
+
+### STDERR
+E..E........EEEE.....F....E......E....
+======================================================================
+ERROR: test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET)
+W131409'S WHOLE POINT, driven through the ordinary configured tick.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7705, in test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET
+    held = self.integrating(before=capture)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8048, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7195, in integration_turn
+    launch_place=launched.place,
+                 ^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'place'
+
+======================================================================
+ERROR: test_a_completed_integration_returns_the_integrator_to_the_next_job (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_completed_integration_returns_the_integrator_to_the_next_job)
+W131187, driven end to end: the capacity comes back.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7507, in test_a_completed_integration_returns_the_integrator_to_the_next_job
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8048, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7195, in integration_turn
+    launch_place=launched.place,
+                 ^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'place'
+
+======================================================================
+ERROR: test_a_supplied_port_is_never_replaced_by_a_constructed_one (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_supplied_port_is_never_replaced_by_a_constructed_one)
+An operator's injected capability stays the one in use. The accepted
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7037, in test_a_supplied_port_is_never_replaced_by_a_constructed_one
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8048, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7195, in integration_turn
+    launch_place=launched.place,
+                 ^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'place'
+
+======================================================================
+ERROR: test_a_workspace_aliasing_the_target_fetches_and_writes_nothing (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_workspace_aliasing_the_target_fetches_and_writes_nothing)
+W133129: THE BRANCH-LEVEL no-fetch/no-write CONTROL.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7969, in test_a_workspace_aliasing_the_target_fetches_and_writes_nothing
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8048, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7195, in integration_turn
+    launch_place=launched.place,
+                 ^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'place'
+
+======================================================================
+ERROR: test_a_workspace_that_is_the_target_is_the_same_repository (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_workspace_that_is_the_target_is_the_same_repository)
+The alias no-write control for the pre-write isolation guard: the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8006, in test_a_workspace_that_is_the_target_is_the_same_repository
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8048, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7195, in integration_turn
+    launch_place=launched.place,
+                 ^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'place'
+
+======================================================================
+ERROR: test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool)
+THE TERMINAL HALF, driven inside a deployment serving two Jobs.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7438, in test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8048, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7195, in integration_turn
+    launch_place=launched.place,
+                 ^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'place'
+
+======================================================================
+ERROR: test_the_direct_integration_finalizes_the_dedicated_target (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_direct_integration_finalizes_the_dedicated_target)
+W133129, owner return137905: the transition the witness FOUND
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7644, in test_the_direct_integration_finalizes_the_dedicated_target
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8048, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7195, in integration_turn
+    launch_place=launched.place,
+                 ^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'place'
+
+======================================================================
+ERROR: test_the_second_jobs_published_proposal_survives_the_advance (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_jobs_published_proposal_survives_the_advance)
+W133129: THE FIRST HALF OF THE BOUNDARY THIS TRAVERSAL FOUND.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7570, in test_the_second_jobs_published_proposal_survives_the_advance
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8048, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7195, in integration_turn
+    launch_place=launched.place,
+                 ^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'place'
+
+======================================================================
+FAIL: test_each_jobs_integration_binds_its_own_producer_task_and_port (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_each_jobs_integration_binds_its_own_producer_task_and_port)
+NO GLOBAL FALLBACK LEFT IN THE INTEGRATION OPERANDS.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7419, in test_each_jobs_integration_binds_its_own_producer_task_and_port
+    self.assertEqual((caught.exception.category, caught.exception.code),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ("refused", "precondition"))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ('policy', 'denied') != ('refused', 'precondition')
+
+First differing element 0:
+'policy'
+'refused'
+
+- ('policy', 'denied')
++ ('refused', 'precondition')
+
+----------------------------------------------------------------------
+Ran 38 tests in 12.196s
+
+FAILED (failures=1, errors=8)

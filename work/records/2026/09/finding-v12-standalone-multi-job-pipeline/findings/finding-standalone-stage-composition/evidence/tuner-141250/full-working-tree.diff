@@ -1,0 +1,2151 @@
+diff --git a/v12/python/tests/tools/test_single_worker.py b/v12/python/tests/tools/test_single_worker.py
+index a532b3b..0f070e8 100644
+--- a/v12/python/tests/tools/test_single_worker.py
++++ b/v12/python/tests/tools/test_single_worker.py
+@@ -917,6 +917,43 @@ class TheWorkloadDocumentIsDeliveredWithTheProtocolPair(SingleWorkerCase):
+         inputs = os.path.join(self.storage, stage["attempt_id"], "inputs")
+         return engine, job, control, operations, stage, inputs
+ 
++    def judgment_root(self):
++        engine = Engine()
++        job, control = self.stores("judgment-input")
++        submit(job, self.submission)
++        operations = self.operations(job, control, engine)
++        worker = operations._worker
++        worker.judgment_document = b'{"result_id":"derived-result","kind":"review"}'
++        projected = self.commanded(job, operations)
++        stage = projected["jobs"][0]["stages"][0]
++        inputs = os.path.join(self.storage, stage["attempt_id"], "inputs")
++        self.addCleanup(operations.close)
++        return worker, inputs
++
++    def test_judgment_subject_is_delivered_read_only_beside_unchanged_task(self):
++        worker, inputs = self.judgment_root()
++        place = os.path.join(inputs, "judgment.json")
++        self.assertEqual(stat.S_IMODE(os.stat(place).st_mode), 0o444)
++        with open(place, "rb") as reading:
++            self.assertEqual(reading.read(), worker.judgment_document)
++        with open(os.path.join(inputs, "task.json"), "rb") as reading:
++            self.assertEqual(reading.read(), self.task_bytes)
++        manifest, assignment = single_worker.workspaces.read_input_root(inputs)
++        self.assertEqual(worker._input({"inputs": inputs}, assignment, None), manifest)
++
++    def test_changed_judgment_subject_refuses_recovery_without_repair(self):
++        worker, inputs = self.judgment_root()
++        place = os.path.join(inputs, "judgment.json")
++        os.chmod(place, 0o644)
++        with open(place, "wb") as writing:
++            writing.write(b'{"result_id":"foreign"}')
++        os.chmod(place, 0o444)
++        _, assignment = single_worker.workspaces.read_input_root(inputs)
++        with self.assertRaises(ContractRefusal):
++            worker._input({"inputs": inputs}, assignment, None)
++        with open(place, "rb") as reading:
++            self.assertEqual(reading.read(), b'{"result_id":"foreign"}')
++
+     def test_the_root_carries_both_manifests_the_task_and_the_source(self):
+         engine, _job, _control, operations, _stage, inputs = self.composed()
+         self.assertEqual(
+diff --git a/v12/python/tests/tools/test_stage_execution.py b/v12/python/tests/tools/test_stage_execution.py
+index 4a93725..b8b22ce 100644
+--- a/v12/python/tests/tools/test_stage_execution.py
++++ b/v12/python/tests/tools/test_stage_execution.py
+@@ -2628,6 +2628,11 @@ class ComposedOneJobCase(ServingCase):
+         self.fail(f"the {kind} stage never reached {want!r}: "
+                   f"{self.states(job, composed)}")
+ 
++    def operations_of(self, composed, role):
++        """One role's composed operations, through the public list."""
++        return {one["role"]: one["operations"]
++                for one in composed.workers}[role]
++
+     def worker_of(self, composed, role):
+         return {one["role"]: one["operations"]._worker
+                 for one in composed.workers}[role]
+@@ -3635,18 +3640,27 @@ class TheComposedJobTraversesReviewAndAcceptance(ComposedOneJobCase):
+ 
+     # -- and exactly where it stops ------------------------------------------
+ 
+-    def test_the_integration_stage_is_held_for_want_of_a_runtime_port(self):
+-        """THE EXACT NEXT BLOCKER, and it is this build's own statement.
+-
+-        `stage_execution` refuses here rather than stubbing: no accepted
+-        composition in this build starts an integrator over the integration
+-        delivery's namespaces, and the only implementations of that port are
+-        focused-test doubles. Supplying one here would be helper-only success
+-        dressed as a lifecycle, so the stage stays claimed and this records
+-        why.
+-
+-        IT IS CONTAINED. The refusal is reported as itself and the other
+-        stages of this Job keep their finished state.
++    def test_the_integration_stage_stops_on_unconfigured_integrator_wiring(
++            self):
++        """W103068 EXPECTATION CHANGE, and it is the point of the correction.
++
++        WHAT THIS USED TO RECORD was "the exact next blocker": no accepted
++        composition in this build started an integrator, so the deployment held
++        no runtime port and the stage stopped with `capability` --
++        `no integration runtime port`. Review 2026-09-11T01-22-35Z named exactly
++        that sentence as the reason the public factory could not perform an
++        ordinary direct integration, and the deployment CONSTRUCTS its own port
++        now. So the old refusal cannot happen and this records the real
++        remaining stop for a deployment that has not configured the integrator's
++        own material.
++
++        WHAT IS STILL TRUE AND STILL MEASURED. The stop is reported as itself
++        rather than stubbed, it names the missing CONFIGURATION rather than a
++        missing capability, and it is contained: the other stages of this Job
++        keep their finished state. This class configures no
++        `integration_instructions`, which is the one operand a constructed port
++        cannot derive -- the bytes sealed into the bundle it runs -- so this is
++        an honest unconfigured-deployment control rather than a port gap.
+         """
+         held = self.reviewed()
+         self.drive(held.job, held.composed, "integration", "claimed")
+@@ -3655,8 +3669,10 @@ class TheComposedJobTraversesReviewAndAcceptance(ComposedOneJobCase):
+                      if one["stage_id"] == "job-a/integration"]
+         self.assertEqual(started["outcome"], "deferred")
+         self.assertEqual(started["detail"]["code"], "capability")
+-        self.assertIn("no integration runtime port",
++        self.assertIn("configures no integration_instructions",
+                       started["detail"]["message"])
++        self.assertNotIn("no integration runtime port",
++                         started["detail"]["message"])
+         states = self.states(held.job, held.composed)
+         self.assertEqual(states["implementation"], "completed")
+         self.assertEqual(states["review"], "completed")
+@@ -3703,12 +3719,19 @@ class OrdinaryTerminalLifecycle(ComposedOneJobCase):
+         return given
+ 
+     def integration_port(self, held):
+-        from baton_v12.integration import TARGET_SCHEMA, activate_target
++        # W103068: THE COMPOSITION ADOPTS ITS OWN CONFIGURED TARGET NOW, so this
++        # PROVES the adoption rather than performing a second one.
++        # `activate_target` makes an exact repeat one act and refuses a CHANGED
++        # configuration for the same key by name, so a fixture activating this
++        # deployment's target under its own description would be a second
++        # configuration of one target.
++        from baton_v12.integration import target_of
+ 
+         deployment = self.deployment_of(held)
+-        activate_target(deployment.integration, {"schema": TARGET_SCHEMA,
+-                        "canonical_target_id": deployment.given["canonical_target_id"],
+-                        "description": "the disposable composed lifecycle target"})
++        self.assertIsNotNone(
++            target_of(deployment.integration,
++                      deployment.given["canonical_target_id"]),
++            "the composition adopted no configured canonical target")
+         port = TheComposedJobTraversesReviewAndAcceptance.integration_port(self, held)
+         port.object_runner = self.object_runner
+         return port
+@@ -6687,6 +6710,14 @@ class TwoBoundJobsTraverseServingAndCorrection(
+         given["integration_target_reference"] = "refs/heads/main"
+         given["integration_workspace"] = workspace
+         given["integration_observer"] = "baton.result-observer"
++        # W103068: AND WHERE THE INTEGRATOR'S OWN INSTRUCTION BYTES LIVE. The
++        # digest `composed_document` pins into the integration profile is the
++        # digest of exactly these bytes, which is what lets the production
++        # composition read them and prove them before it starts anything.
++        instructions = os.path.join(self.root, "integration-instructions")
++        with open(instructions, "wb") as writing:
++            writing.write(self.INSTRUCTIONS)
++        given["integration_instructions"] = instructions
+         held = {one["worker_id"]: one for one in given["workers"]}
+         for worker_id in ("implementation-worker-b", "review-worker-b"):
+             deployment = held[worker_id]["deployment"]
+@@ -6901,16 +6932,781 @@ class TwoBoundJobsTraverseServingAndCorrection(
+     # -- the integration half, one port per bound Job ------------------------
+ 
+     def activated(self, deployment, target_id):
+-        """The disposable canonical target, activated once by its own owner."""
+-        from baton_v12.integration import TARGET_SCHEMA, activate_target
++        """W103068: THE DEPLOYMENT ADOPTS ITS OWN CONFIGURED TARGETS, so this
++        PROVES the adoption instead of performing it.
++
++        `activate_target` makes an exact repeat one act and refuses a CHANGED
++        configuration for the same key by name -- so a fixture that activated
++        this deployment's own target under its own description would be a second
++        configuration of one target, which is the conflict the key exists to
++        catch. What a fixture may honestly do here is check that the composition
++        really adopted what it configured.
++        """
++        from baton_v12.integration import target_of
++
++        self.assertIsNotNone(target_of(deployment.integration, target_id),
++                             f"the composition adopted no target {target_id!r}")
++
++    JUDGMENT_WORKS = {"verification": "0000000a-W3",
++                      "review": "0000000a-W4",
++                      "approval": "0000000a-W5"}
++
++    def judgment_work(self, kind):
++        """This judgment's OWN Work, created for real.
++
++        W103068 review 2026-09-11T02-41-03Z: the first form of this helper
++        copied `self.config` wholesale, so every judgment carried the ORIGINAL
++        producer's `input_manifest.work_ref` and its own-Work claim was not
++        proved at all -- three executions would have run under one Job's Work.
++        A judgment acquires its authorized assignment through the Work its own
++        manifest names, so that Work has to exist and be its own.
++        """
++        from baton_v12.authority import Authority
++        from tests.job_manager import fixtures
+ 
+-        held = self.__dict__.setdefault("_activated", set())
+-        if target_id in held:
+-            return
+-        held.add(target_id)
+-        activate_target(deployment.integration, {
+-            "schema": TARGET_SCHEMA, "canonical_target_id": target_id,
+-            "description": "the disposable two-Job lifecycle target"})
++        held = self.__dict__.setdefault("_judgment_works", set())
++        work_id = self.JUDGMENT_WORKS[kind]
++        if work_id in held:
++            return work_id
++        authority = Authority.open(
++            self.authority_path,
++            expected_authority_uuid=self.config["authority_uuid"])
++        try:
++            who = self.document()["receipt_participants"][kind]
++            authority.add_route_handler(fixtures.ROUTE, who)
++            authority.create_work(work_id, fixtures.ROUTE,
++                                  contract="v12-assignment-1",
++                                  operation_id=f"create-{kind}-judgment-work")
++        finally:
++            authority.dispose()
++        held.add(work_id)
++        return work_id
++
++    def judgment_execution(self, kind, job_id="job-b"):
++        """One configured derived-result judgment execution.
++
++        W103068: a COMPLETE `single_worker` deployment for the participant that
++        owns this kind of judgment, launched under the accepted `review` role.
++        Its identity, homes, Work and input manifest are its OWN -- nothing is
++        borrowed from the original reviewer or the producer's Job, because a
++        judgment executed under another participant or another Work would be
++        attributable to the wrong actor and could never acquire its own
++        authorized assignment.
++        """
++        from baton_v12.authority import Authority
++
++        who = self.document()["receipt_participants"][kind]
++        # THE PRINCIPAL IS THE AUTHORITY'S OWN ANSWER. `self.principals` holds
++        # the three stage workers' and these judges are not among them; a
++        # configuration is refused unless the participant really resolves to the
++        # principal it names, so the fixture asks rather than guesses.
++        authority = Authority.open_readonly(
++            self.authority_path,
++            expected_authority_uuid=self.config["authority_uuid"])
++        try:
++            principal = authority.principal_of(who)
++        finally:
++            authority.dispose()
++        deployment = copy.deepcopy(self.config)
++        deployment["launch_role"] = stage_execution.JUDGMENT_LAUNCH_ROLE
++        deployment["participant"] = who
++        deployment["principal"] = principal
++        # ITS OWN WORK AND ITS OWN MANIFEST OVER ITS OWN TASK.
++        work_id = self.judgment_work(kind)
++        deployment["input_manifest"] = self.manifest_over(
++            work_id, self.judgment_task_bytes(kind))
++        deployment["task_document"] = self.judgment_task_document(kind)
++        for name in ("launch_home", "credential_home"):
++            place = os.path.join(self.root, f"judgment-{kind}-{name}")
++            os.makedirs(place, exist_ok=True)
++            deployment[name] = place
++        return {"worker_id": f"{job_id}-{kind}-judge",
++                "deployment": deployment}
++
++    def judgment_task_bytes(self, kind):
++        """The instructions this judgment executes under -- its own, and not
++        the producer's task, which is about writing the change rather than
++        judging the merged candidate."""
++        return json.dumps(
++            {"schema": "baton.dogfood-task/2",
++             "task_id": f"w103068-derived-{kind}",
++             "instructions": f"Judge the derived candidate: {kind}. Read /input/judgment.json for the exact result, policy generation and causal evidence. Inspect the read-only source and return the ordinary review report; accept only if this judgment is satisfied.",
++             "source_root": "source", "source_profile": "git-line",
++             "declared_base": self.base,
++             "verification": ["python3", "harness.py"]},
++            sort_keys=True).encode("utf-8")
++
++    def judgment_task_document(self, kind):
++        place = os.path.join(self.root, f"judgment-task-{kind}.json")
++        with open(place, "wb") as writing:
++            writing.write(self.judgment_task_bytes(kind))
++        return place
++
++    def judgment_workers(self, job_id="job-b", **changed):
++        held = {kind: self.judgment_execution(kind, job_id)
++                for kind in stage_execution._JUDGMENT_KINDS}
++        held.update(changed)
++        from baton_v12.authority import Authority
++        authority = Authority.open_readonly(self.authority_path, expected_authority_uuid=self.config["authority_uuid"])
++        try:
++            self.fixture_policy = authority.policy_generation()
++        finally:
++            authority.dispose()
++        return {job_id: held}
++
++    def judgment_turn(self, held, execution, verdict="accepted"):
++        from unittest.mock import patch
++        attempt_id = execution.intent["attempt_id"]
++        worker = execution.operations._worker
++        roots = worker._mounted(execution.intent, attempt_id, checkpoint=False)[0]
++        runtime_id = single_worker.attempt_runtime_of(held.control, attempt_id)["runtime_id"]
++        mounts = {one["Destination"]: one for one in self.engine.records[runtime_id]["mounts"]}
++        self.assertFalse(mounts["/input"]["RW"])
++        self.assertFalse(mounts["/input/source"]["RW"])
++        self.assertTrue(mounts["/output"]["RW"])
++        self.assertNotEqual(mounts["/input/source"]["Source"], mounts["/output"]["Source"])
++        staged = os.path.join(self.root, "mounted-" + attempt_id)
++        os.makedirs(staged, exist_ok=True)
++        for name in os.listdir(roots["inputs"]):
++            source = (worker.given["source_nomination"].place if name == "source"
++                      else os.path.join(roots["inputs"], name))
++            os.symlink(source, os.path.join(staged, name))
++        with open(os.path.join(staged, "judgment.json"), "rb") as reading:
++            self.assertEqual(json.load(reading), execution.subject)
++        self.assertEqual(self.vcs_in(worker.given["source_nomination"].place, "rev-parse", "HEAD").strip(), execution.subject["candidate"])
++        report = dict(self.REPORT, verdict=verdict)
++        with patch.object(self, "config", execution.given), patch.object(self, "mounted_view", lambda *args: dict(roots, inputs=staged)):
++            self.assertEqual(self.turn(held.control, "review", attempt_id, roots,
++                                      edits={"review-report.json": json.dumps(report)}), 0)
++
++    def pending_judgments(self):
++        from baton_v12.integration import reconciliation
++        from baton_v12.worker_manager import attempt_runtime_of
++
++        held = self.integrating(result_judgment_workers=self.judgment_workers())
++        self.drive_job(held.job, held.composed, "job-a", "integration", "completed", ticks=4)
++        deployment = self.deployment_of(held.composed)
++        reports = []
++        for _ in range(14):
++            reports.append(self.tick(held))
++            if len(deployment.judges) == 3:
++                break
++        if deployment.judges and len(deployment.judges) != 3:
++            deployment.judge_result(next(iter(deployment.judges))[0])
++        self.assertEqual(len(deployment.judges), 3, reports[-1])
++        result_id = next(iter(deployment.judges))[0]
++        result = reconciliation.result_of(deployment.integration, result_id)
++        self.assertEqual(result["state"], "published")
++        self.assertEqual(deployment.authority.receipts(result["derived_proposal_id"]), [])
++        return held, deployment, result_id, result
++
++    def test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs(self):
++        from baton_v12.integration import reconciliation
++        from baton_v12.worker_manager import attempt_runtime_of
++
++        held, deployment, result_id, result = self.pending_judgments()
++        attempts = set()
++        for (identity, kind), execution in deployment.judges.items():
++            self.assertEqual(identity, result_id)
++            self.assertEqual(execution.subject["kind"], kind)
++            self.assertEqual(execution.subject["causal_observations"], result["causal_observations"])
++            self.assertEqual(execution.subject["candidate"], result["prepared"]["head"])
++            self.assertNotEqual(execution.subject["candidate"], result["source_candidate"])
++            self.assertEqual(execution.intent["work_id"], self.JUDGMENT_WORKS[kind])
++            attempts.add(execution.intent["attempt_id"])
++            self.judgment_turn(held, execution)
++        self.assertEqual(len(attempts), 3)
++        self.tick(held)
++        for execution in deployment.judges.values():
++            execution.result()
++        self.drive_job(held.job, held.composed, "job-b", "integration", "completed", ticks=14)
++        settled = reconciliation.result_of(deployment.integration, result_id)
++        self.assertEqual(settled["state"], "imported")
++        self.assertEqual(len(deployment.authority.receipts(result["derived_proposal_id"])), 4)
++        for execution in deployment.judges.values():
++            first = execution.result()
++            self.assertEqual(execution.poll(), first)
++            self.assertEqual(first["verdict"], "accepted")
++            self.assertIn(attempt_runtime_of(held.control, execution.intent["attempt_id"])["cleanup"], ("complete", "retained"))
++        for job_id in ("job-a", "job-b"):
++            self.assertEqual(self.states_for(held.job, held.composed, job_id)["integration"], "completed")
++        landed = self.vcs("rev-parse", "refs/heads/main").strip()
++        self.assertEqual(self.vcs("show", landed + ":harness.py"), "print('the first job answered')\n")
++        self.assertEqual(self.vcs("show", landed + ":feature.py"), self.B_FEATURE)
++        self.assertEqual(self.vcs("show", landed + ":feature_check.py"), self.B_CHECK)
++        print("W103068 genuine consumer evidence " + json.dumps({
++            "derived_result": result_id, "derived_proposal": result["derived_proposal_id"],
++            "judgments": [one.result() for one in deployment.judges.values()],
++            "receipts": deployment.authority.receipts(result["derived_proposal_id"]),
++            "target": landed, "jobs": {job_id: self.states_for(held.job, held.composed, job_id) for job_id in ("job-a", "job-b")}}, sort_keys=True))
++
++    def test_rejected_derived_judgment_cannot_authorize_import(self):
++        from baton_v12.integration import reconciliation
++        held, deployment, result_id, result = self.pending_judgments()
++        target = deployment.authority.canonical_target()
++        for (_, kind), execution in deployment.judges.items():
++            self.judgment_turn(held, execution, verdict="rejected" if kind == "review" else "accepted")
++        self.tick(held)
++        self.assertEqual(deployment.judges[(result_id, "review")].result()["verdict"], "rejected")
++        self.assertEqual(deployment.authority.receipts(result["derived_proposal_id"]), [])
++        self.assertEqual(deployment.authority.canonical_target(), target)
++        self.assertEqual(reconciliation.result_of(deployment.integration, result_id)["state"], "published")
++
++    def test_unusable_judge_report_cannot_authorize_derived_receipts(self):
++        held, deployment, result_id, result = self.pending_judgments()
++        execution = next(iter(deployment.judges.values()))
++        self.judgment_turn(held, execution, verdict="not-a-verdict")
++        self.tick(held)
++        with self.assertRaisesRegex(ContractRefusal, "completed frozen result"):
++            execution.result()
++        self.assertEqual(deployment.authority.receipts(result["derived_proposal_id"]), [])
++
++    def test_policy_drift_cannot_reuse_or_redispatch_derived_judgments(self):
++        held, deployment, result_id, result = self.pending_judgments()
++        for execution in deployment.judges.values():
++            self.judgment_turn(held, execution)
++        starts = self.engine.minted
++        deployment.authority.grant_capability("baton.result-observer", "review", scope=self.scope)
++        with self.assertRaisesRegex(ContractRefusal, "policy generation"):
++            deployment.judge_result(result_id)
++        self.assertEqual(self.engine.minted, starts)
++        self.assertEqual(deployment.authority.receipts(result["derived_proposal_id"]), [])
++
++    def test_foreign_frozen_candidate_cannot_authorize_derived_receipts(self):
++        from unittest.mock import patch
++        held, deployment, result_id, result = self.pending_judgments()
++        for execution in deployment.judges.values():
++            self.judgment_turn(held, execution)
++        reader = single_worker.load_manifest
++
++        def foreign(*args):
++            value = reader(*args)
++            if args[-1] == "resultManifest" and value is not None:
++                value = copy.deepcopy(value)
++                for output in value["outputs"]:
++                    claim = (output.get("result_metadata") or {}).get("baton.checkpoint-review/1")
++                    if claim is not None:
++                        claim["head"] = result["source_candidate"]
++            return value
++
++        with patch.object(single_worker, "load_manifest", foreign):
++            self.tick(held)
++            with self.assertRaisesRegex(ContractRefusal, "another candidate"):
++                deployment.judge_result(result_id)
++        self.assertEqual(deployment.authority.receipts(result["derived_proposal_id"]), [])
++
++    def test_derived_judges_reconstruct_after_dispatch_without_second_launch(self):
++        held, deployment, result_id, result = self.pending_judgments()
++        starts = self.engine.minted
++        identities = {key: execution.intent for key, execution in deployment.judges.items()}
++        deployment.judges.clear()
++        with self.assertRaisesRegex(ContractRefusal, "awaits"):
++            deployment.judge_result(result_id)
++        self.assertEqual({key: execution.intent for key, execution in deployment.judges.items()}, identities)
++        self.assertEqual(self.engine.minted, starts)
++        for execution in deployment.judges.values():
++            self.judgment_turn(held, execution)
++        self.tick(held)
++        for (_, kind), execution in deployment.judges.items():
++            one = deployment.judgment_executions("job-b")[kind]
++            reconstructed = single_worker.JudgmentExecution(
++                execution.given, held.control, deployment.authority,
++                deployment.judgment_providers[one["worker_id"]],
++                worker_id=one["worker_id"],
++                subject=execution.subject, source=execution.given["source_nomination"].place,
++                engine_run=self.engine, clock=deployment.judgment_clock)
++            self.assertEqual(reconstructed.poll(), execution.result())
++        self.assertEqual(self.engine.minted, starts)
++
++    def judging(self, **changed):
++        """The two-Job document WITH its derived-result consumer configured."""
++        return self.traversing(result_judgment_workers=self.judgment_workers(
++            **changed))
++
++    def refused_judgment(self, **changed):
++        with self.assertRaises(ContractRefusal) as caught:
++            stage_execution.held_configuration(
++                self.composed_document(line_declared_base=self.base,
++                                       **self.two_jobs(**self.judging(
++                                           **changed))),
++                checkout=self.checkout)
++        return caught.exception
++
++    # -- the configured consumer, held before anything is opened -------------
++
++    def test_the_configured_judgment_executions_are_held_per_job(self):
++        """W103068: THE CONSUMER'S EXECUTION CONFIGURATION, proved and selected.
++
++        Each of the three judgments names its own worker identity and a complete
++        deployment, held by `single_worker`'s own validator, and each executes as
++        the participant `receipt_participants` already names for that kind.
++        """
++        given = stage_execution.held_configuration(
++            self.composed_document(line_declared_base=self.base,
++                                   **self.two_jobs(**self.judging())),
++            checkout=self.checkout)
++        held = given["result_judgment_workers"]
++        self.assertEqual(sorted(held), ["job-b"])
++        self.assertEqual(sorted(held["job-b"]),
++                         sorted(stage_execution._JUDGMENT_KINDS))
++        judges = given["receipt_participants"]
++        for kind, one in held["job-b"].items():
++            with self.subTest(kind=kind):
++                self.assertEqual(one["worker_id"], f"job-b-{kind}-judge")
++                self.assertEqual(one["deployment"]["participant"],
++                                 judges[kind])
++                self.assertEqual(one["deployment"]["launch_role"],
++                                 stage_execution.JUDGMENT_LAUNCH_ROLE)
++                # AND IT IS THE HELD FORM, not the bytes that were written:
++                # `single_worker._held` derives members the raw document has no
++                # business carrying.
++                self.assertIn("credential_resolution", one["deployment"])
++                # ITS OWN WORK, which is what it will acquire its authorized
++                # assignment through -- not the producer Job's.
++                self.assertEqual(
++                    one["deployment"]["input_manifest"]["work_ref"]["work_id"],
++                    self.JUDGMENT_WORKS[kind])
++        self.assertEqual(
++            len({one["deployment"]["input_manifest"]["work_ref"]["work_id"]
++                 for one in held["job-b"].values()}), 3)
++        for one in held["job-b"].values():
++            self.assertNotEqual(
++                one["deployment"]["input_manifest"]["work_ref"]["work_id"],
++                self.work)
++        # THE ORIGINAL STAGE-WORKER CONTRACT IS UNTOUCHED: this two-Job
++        # deployment still names exactly its own five stage workers in exactly
++        # the three stage roles, and no judgment execution leaked into them.
++        self.assertEqual(sorted(one["role"] for one in given["workers"]),
++                         ["implementation", "implementation", "integration",
++                          "review", "review"])
++        self.assertEqual(
++            {one["role"] for one in given["workers"]}, set(stage_execution.ROLES))
++        self.assertNotIn(
++            "job-b-review-judge",
++            {one["worker_id"] for one in given["workers"]})
++
++    def test_a_deployment_without_a_consumer_is_unchanged(self):
++        """Absent is an answer, and every accepted document predates this."""
++        given = stage_execution.held_configuration(
++            self.composed_document(line_declared_base=self.base,
++                                   **self.two_jobs(**self.traversing())),
++            checkout=self.checkout)
++        self.assertIsNone(given["result_judgment_workers"])
++
++    def test_a_judgment_execution_for_another_participant_is_refused(self):
++        """The execution and the judge are ONE fact: an execution configured for
++        somebody who does not own that judgment would produce a report this
++        deployment could never turn into that owner's receipt."""
++        other = self.judgment_execution("review")
++        other["deployment"]["participant"] = "baton.integrator"
++        other["deployment"]["principal"] = \
++            self.principals["baton.integrator"]
++        held = self.refused_judgment(review=other)
++        self.assertEqual((held.category, held.code), ("policy", "denied"))
++        self.assertIn("judgment belongs to", held.message)
++
++    def test_two_of_three_judgments_are_refused(self):
++        """Two judgments out of three is not an authorization."""
++        held = self.judgment_workers()
++        del held["job-b"]["approval"]
++        with self.assertRaises(ContractRefusal) as caught:
++            stage_execution.held_configuration(
++                self.composed_document(
++                    line_declared_base=self.base,
++                    **self.two_jobs(**self.traversing(
++                        result_judgment_workers=held))),
++                checkout=self.checkout)
++        self.assertIn("approval", caught.exception.message)
++
++    def test_a_consumer_for_an_unbound_job_is_refused(self):
++        """A derived result belongs to one Job's line and target."""
++        held = self.judgment_workers("job-nobody")
++        with self.assertRaises(ContractRefusal) as caught:
++            stage_execution.held_configuration(
++                self.composed_document(
++                    line_declared_base=self.base,
++                    **self.two_jobs(**self.traversing(
++                        result_judgment_workers=held))),
++                checkout=self.checkout)
++        self.assertEqual((caught.exception.category, caught.exception.code),
++                         ("refused", "precondition"))
++        self.assertIn("job-nobody", caught.exception.message)
++
++    def test_a_judgment_identity_that_collides_with_a_stage_worker_refuses(
++            self):
++        """A judgment execution is its own identity and not a stage worker's --
++        it serves no Job stage and takes no stage allocation."""
++        other = self.judgment_execution("verification")
++        other["worker_id"] = "review-worker"
++        held = self.refused_judgment(verification=other)
++        self.assertEqual((held.category, held.code),
++                         ("refused", "precondition"))
++        self.assertIn("already configures", held.message)
++
++    def test_the_judgment_subject_is_the_derived_candidate(self):
++        """W103068: WHAT A JUDGE IS ASKED ABOUT, read from the coordinator's own
++        custody record rather than composed by a caller.
++
++        It is the DERIVED candidate -- its own proposal, content and head, and
++        the target revision it was reconciled onto -- and never the producer's
++        original one, which a judgment of the merged bytes must not be about.
++        The retained causal observations travel with it as evidence, which is
++        not the same thing as a judgment.
++        """
++        held = self.integrating()
++        self.drive_job(held.job, held.composed, "job-a", "integration",
++                       "completed", ticks=4)
++        deployment = self.deployment_of(held.composed)
++        found = None
++        for _ in range(14):
++            self.tick(held)
++            found = deployment.integration._connection.execute(
++                "SELECT result_id, state FROM integration_results").fetchone()
++            if found is not None and found["state"] == "published":
++                break
++        self.assertEqual(found["state"], "published")
++        subject = deployment.judgment_subject(found["result_id"])
++        self.assertEqual(subject["result_id"], found["result_id"])
++        self.assertEqual(subject["job_id"], "job-b")
++        self.assertTrue(subject["derived_proposal_id"])
++        # THE DERIVED PROPOSAL IS NOT THE PRODUCER'S OWN.
++        self.assertNotEqual(subject["derived_proposal_id"],
++                            subject["source_proposal_id"])
++        # AND THE CANDIDATE IS THE MERGED HEAD, not the submission's.
++        self.assertNotEqual(subject["candidate"], subject["source_candidate"])
++        self.assertNotEqual(subject["candidate"], subject["source_base"])
++        # THE RETAINED CAUSAL EVIDENCE TRAVELS WITH IT, unmodified.
++        self.assertEqual(sorted(subject["causal_observations"]),
++                         ["base", "combined", "isolated"])
++        self.assertEqual(subject["observed_by"],
++                         deployment.observer_participant())
++
++    def test_a_configured_consumer_composes_and_resolves_its_judges(self):
++        """W103068: the consumer's configuration survives a REAL composition.
++
++        `_resolved` now asks the Authority about every judgment participant and
++        its configured Work as well as the stage workers, so this proves the
++        whole document composes with the consumer present -- and that the
++        deployment selects the three executions afterwards.
++        """
++        _job, _control, composed = self.serving_two(**self.judging())
++        deployment = self.deployment_of(composed)
++        held = deployment.judgment_executions("job-b")
++        self.assertEqual(sorted(held), sorted(stage_execution._JUDGMENT_KINDS))
++        judges = deployment.given["receipt_participants"]
++        for kind, one in held.items():
++            with self.subTest(kind=kind):
++                self.assertEqual(one["deployment"]["participant"],
++                                 judges[kind])
++                self.assertEqual(
++                    one["deployment"]["input_manifest"]["work_ref"]["work_id"],
++                    self.JUDGMENT_WORKS[kind])
++
++    def test_a_judgment_work_this_authority_does_not_project_is_refused(self):
++        """A judgment acquires its authorized assignment through the Work its
++        own manifest names, so a Work this Authority does not hold is one it
++        could never obtain an assignment for -- and that is answered while
++        nothing has been written, not at the launch."""
++        other = self.judgment_execution("verification")
++        other["deployment"]["input_manifest"] = self.manifest_over(
++            "0000000a-W9999", self.judgment_task_bytes("verification"))
++        with self.assertRaises(ContractRefusal) as caught:
++            self.serving_two(**self.judging(verification=other))
++        # The Authority refuses the projection read for a Work it does not
++        # hold, so the refusal is its own capability answer rather than this
++        # module's absent-projection one; either way it names the Work and it
++        # happens before anything durable is configured.
++        self.assertEqual(caught.exception.category, "refused")
++        self.assertIn("0000000a-W9999", caught.exception.message)
++        self.assertIn("judgment execution", caught.exception.message)
++
++    def test_a_job_with_no_configured_consumer_selects_none(self):
++        """A Job whose derived branch has no consumer has no way to obtain
++        independent judgments, so this says so rather than inventing one."""
++        held = self.both_accepted()
++        deployment = self.deployment_of(held.composed)
++        self.assertIsNone(deployment.judgment_executions("job-b"))
++
++    def credential_registry(self):
++        """A real user-credential registry, so the DEFAULT provider is used.
++
++        W103068: `worker_preflight` builds its production provider from
++        `credential_sources` when a composer injects none, and the literal
++        `factory` injects none. Configuring the registry exercises that default
++        path instead of substituting a provider, which is the difference between
++        controlling an external boundary and injecting a capability.
++        """
++        source = os.path.join(self.root, "factory-provider.token")
++        with open(source, "w", encoding="utf-8") as writing:
++            writing.write(self.secret)
++        os.chmod(source, 0o600)
++        place = os.path.join(self.root, "factory-credential-sources.json")
++        with open(place, "w", encoding="utf-8") as writing:
++            json.dump({"schema": "baton.user-credential-sources/1",
++                       "sources": [{"provider": "fixture",
++                                    "reference": "fixture/one",
++                                    "path": source}]}, writing)
++        os.chmod(place, 0o600)
++        return place
++
++    def factory_serving(self, **members):
++        """This deployment composed by the LITERAL public factory.
++
++        `tools.stage_execution:factory` takes exactly two operands, so nothing
++        can be injected through it: no `engine_run`, no `credential_provider`,
++        no `clock`, no `checkout` and no `integration_port`. That is the whole
++        point -- review 2026-09-11T02-06-10Z [P1] established that a witness
++        passing capabilities through `operations_from` proves construction but
++        not that the DEFAULTS work, and the defaults were in fact broken.
++
++        THE THREE SUBSTITUTIONS ARE EXTERNAL BOUNDARIES, named as the accepted
++        `ThePublicFactoryComposesThroughItsOwnEntryPoint` names its two: the
++        engine is this suite's own, because no case here starts real containers;
++        `_checkout` is the fixture's, because this suite's disk-backed root lives
++        inside the distribution and the real answer would refuse it for the
++        fixture's reason rather than the one under test; and the CLOCK is the
++        fixture's, because this suite pins its stores to `fixtures.NOW` and
++        `factory` takes no clock -- so a real-time worker reads the offers its
++        pinned store issued as `expired` and claims nothing. In production both
++        clocks are the same real one; that mismatch is this fixture's, not the
++        composition's.
++
++        THE CREDENTIAL PROVIDER IS NOT SUBSTITUTED. It is CONFIGURED, so
++        `worker_preflight`'s production default builds it from the registry --
++        which is the operand review 2026-09-11T02-06-10Z required be effective
++        rather than injected.
++        """
++        from unittest.mock import patch
++
++        self.engine = self.quiescing()
++        registry = self.credential_registry()
++        document = self.composed_document(line_declared_base=self.base,
++                                          **members)
++        document["workers"] = [
++            dict(one, deployment=dict(one["deployment"],
++                                      credential_sources=registry))
++            for one in document["workers"]]
++        place = os.path.join(self.root, "factory-stage-config.json")
++        with open(place, "w", encoding="utf-8") as writing:
++            json.dump(document, writing)
++        job, control = self.stores("stage-factory")
++        for one in (patch.dict(os.environ,
++                               {stage_execution.CONFIG_ENV: place}),
++                    patch.object(stage_execution, "_checkout",
++                                 lambda: self.checkout),
++                    patch.object(stage_execution.single_worker, "_engine_run",
++                                 self.engine),
++                    patch.object(stage_execution.single_worker, "_now",
++                                 lambda: NOW)):
++            one.start()
++            self.addCleanup(one.stop)
++        composed = stage_execution.factory(job, control)
++        self.addCleanup(composed.close)
++        self._composed = composed
++        return job, control, composed
++
++    def factory_coding(self, **members):
++        """`coding`, over the literal-factory composition."""
++        from baton_v12.job_manager import submit
++
++        job, control, composed = self.factory_serving(
++            **self.two_jobs(**self.traversing(**members)))
++        submit(job, self.both_jobs())
++        self.drive_job(job, composed, "job-b", "implementation", "waiting")
++        held = SimpleNamespace(job=job, control=control, composed=composed)
++        held.first = self.one_attempt_of(composed, "implementation-worker")
++        held.second = self.one_attempt_of(composed, "implementation-worker-b")
++        return held
++
++    def test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT(self):
++        """W103068's P1: the production composition supplies its own port.
++
++        WHAT THIS DOES NOT DO IS THE POINT. There is no `integration_port`
++        keyword anywhere in this case and no `connect()` step: the deployment is
++        the ordinary one `serving_two` composes through the public
++        `operations_from` entry that `factory` itself calls, with no capability
++        the operator did not already configure. Review 2026-09-11T01-22-35Z [P1]
++        measured that such a deployment mapped every Job's port to `None` and
++        refused `capability` before preparation, so the advertised production
++        entry point could not perform an ordinary direct integration at all.
++
++        AND THE PORT IS CONSTRUCTED, NOT INJECTED. Job A's own accepted line,
++        the proposal its producer published for that line and its canonical
++        target are read from their own public owners at the moment its
++        integration stage runs -- two of those three do not exist until the
++        review is accepted, which is why no configuration document could carry
++        them. The constructed port's own operands are compared against those
++        owners' answers here.
++
++        AND IT IS THE LITERAL `factory` THAT COMPOSES IT. Review
++        2026-09-11T02-06-10Z [P1]: an earlier form of this case passed
++        `engine_run` and `credential_provider` through `operations_from`, which
++        proves construction but NOT that the production defaults work -- and
++        they did not: `factory` supplies neither, so the deployment held `None`
++        for both and the constructed port refused for want of an engine. This
++        composes through `factory_serving`, which injects nothing through the
++        entry point; the engine and `_checkout` are external boundaries this
++        suite already substitutes, and the credential provider is CONFIGURED so
++        the production default builds it.
++
++        THE ENGINE BOUNDARY IS THE FIXTURE'S, as this record's other composed
++        cases drive it, and that is a controlled boundary rather than a claim
++        about a real container: this proves production CONSTRUCTION and
++        preparation, and W71879's actual run remains the model proof.
++        """
++        from baton_v12.worker_manager import review_cycles
++
++        held = self.factory_coding()
++        deployment = self.deployment_of(held.composed)
++        # AT COMPOSITION THIS DEPLOYMENT SUPPLIES NO PORT AT ALL, which is the
++        # exact state review 2026-09-11T01-22-35Z traced: `_integration_ports`
++        # maps every bound Job to None and nothing constructs one. No port can
++        # exist yet either -- neither Job has an accepted review, so two of the
++        # three operands a port is composed over do not exist.
++        self.assertEqual(held.composed.integrator.ports,
++                         {"job-a": None, "job-b": None})
++
++        # AND THEN BOTH JOBS ARE ACCEPTED, exactly as `both_accepted` does it.
++        held.first_review = self.accepted(
++            held, "job-a", "implementation-worker", "review-worker",
++            held.first, "print('the first job answered')\n")
++        held.second_review = self.accepted(
++            held, "job-b", "implementation-worker-b", "review-worker-b",
++            held.second, "print('the second job answered')\n",
++            edits={"feature.py": self.B_FEATURE,
++                   "feature_check.py": self.B_CHECK})
++
++        # AND JOB A'S INTEGRATION REALLY STARTS. `integrating` is the state a
++        # stage reaches only once its delivery was published and its runtime
++        # started through the port -- which is exactly what the accepted
++        # composition could not do, because it had no port to publish through.
++        self.drive_job(held.job, held.composed, "job-a", "integration",
++                       "integrating")
++
++        # THE PORT THIS DEPLOYMENT BUILT, and it is the real class.
++        port = held.composed.integrator.ports["job-a"]
++        self.assertIsInstance(port, integration_worker.IntegrationRuntimePort)
++        # JOB B WAS NOT GIVEN ONE: a port is one Job's, and B has not reached
++        # its own integration.
++        self.assertIsNone(held.composed.integrator.ports["job-b"])
++
++        # ITS THREE DYNAMIC OPERANDS ARE THE OWNERS' OWN ANSWERS.
++        line_id = deployment.line_for("job-a")["line_id"]
++        self.assertEqual(port.line_id, line_id)
++        self.assertEqual(
++            port.proposal_id,
++            deployment.published_proposal(
++                review_cycles.integration_checkpoint(held.control, line_id)))
++        self.assertEqual(port._target_id, deployment.target_for("job-a"))
++        # AND ITS FIXED HALF IS THE CONFIGURATION'S, not a default: the
++        # integrator's own identity digests, its adapter, the retained input
++        # manifest's own toolchain digest, and the instruction bytes this
++        # deployment configured -- whose digest the integration profile pins.
++        integrator = self.worker_of(held.composed, "integration")
++        given = integrator.given
++        self.assertEqual(port.identity,
++                         {one: given[one] for one in
++                          ("image_digest", "profile_digest", "policy_digest",
++                           "adapter_digest")})
++        self.assertEqual(port.adapter_name, given["adapter_name"])
++        self.assertEqual(port.toolchain_digest,
++                         given["input_manifest"]["toolchain_digest"])
++        from baton_v12.contracts import digest_of_bytes
++
++        self.assertEqual(port.instructions, self.INSTRUCTIONS)
++        self.assertEqual(digest_of_bytes(port.instructions),
++                         deployment.integration_profile["instructions_digest"])
++        # THE ASSIGNMENT PORT IS THE COMPOSITION'S OWN PUBLIC ONE -- the port
++        # that actually holds this attempt's claim, not a second Authority view.
++        self.assertIs(port.assignment_port,
++                      self.operations_of(held.composed, "integration").port)
++        # AND THE CREDENTIAL HOME IS A VIEW OVER THE CONFIGURED ROOT rather
++        # than the worker's private object: the root is configuration, so the
++        # view over it is composed, and what must agree is the place.
++        self.assertEqual(port.credential_home.place,
++                         integrator.credential_home.place)
++        self.assertEqual(port.credential_home.place,
++                         deployment.integration_served("job-a")[
++                             "credential_home"])
++
++        # RE-ENTERING THE STAGE USES THE SAME CAPACITY rather than building a
++        # second set of the homes one serialized integration owns.
++        self.tick(held)
++        self.assertIs(held.composed.integrator.ports["job-a"], port)
++
++    def test_the_constructed_port_is_the_same_one_through_completion(self):
++        """W103068: ONE CAPACITY FOR ONE JOB'S INTEGRATION, end to end.
++
++        THE CLAIM THIS CASE USED TO MAKE WAS WRONG and review
++        2026-09-11T02-06-10Z said so. It was named for supplied-port precedence
++        and asserted `assertIsNotNone`, but `integrating()` supplies no port at
++        all any more -- so what it actually measured was the CONSTRUCTED port
++        surviving to completion. That is worth measuring; it is just not what
++        the name said, and a control whose name misdescribes it is a control
++        nobody can rely on. The precedence claim is measured for real below.
++        """
++        held = self.integrating()
++        built = held.composed.integrator.ports["job-a"]
++        self.assertIsInstance(built, integration_worker.IntegrationRuntimePort)
++        self.drive_job(held.job, held.composed, "job-a", "integration",
++                       "completed", ticks=4)
++        self.assertIs(held.composed.integrator.ports["job-a"], built)
++
++    def test_a_supplied_port_takes_precedence_over_construction(self):
++        """AN OPERATOR'S INJECTED CAPABILITY STAYS THE ONE IN USE, measured by
++        actually supplying one.
++
++        This composes a second deployment over the same durable stores WITH a
++        per-Job port -- the operator-supplied shape `_integration_ports` has
++        always accepted -- and drives that Job's integration. The deployment
++        must not decide its own construction is better than what it was handed,
++        and the object identity is what proves it did not.
++        """
++        held = self.both_accepted()
++        supplied = self.integration_port(held, "job-a")
++        composed = stage_execution.operations_from(
++            self.composed_document(line_declared_base=self.base,
++                                   **self.traversing()),
++            held.job, held.control, engine_run=self.engine,
++            credential_provider=lambda provider, reference: self.secret,
++            clock=lambda: NOW, checkout=self.checkout,
++            integration_port={"job-a": supplied, "job-b": None})
++        self.addCleanup(composed.close)
++        held.composed = composed
++        self.assertIs(composed.integrator.ports["job-a"], supplied)
++        self.drive_job(held.job, composed, "job-a", "integration",
++                       "integrating")
++        # AND IT IS STILL THE OPERATOR'S OBJECT, not one built beside it.
++        self.assertIs(composed.integrator.ports["job-a"], supplied)
++
++    def test_instructions_that_do_not_match_the_pinned_digest_are_refused(self):
++        """The pin is what makes reading a configured file safe: bytes that
++        could never produce a bundle matching this deployment's own integration
++        profile are refused before any container is started."""
++        held = self.both_accepted()
++        deployment = self.deployment_of(held.composed)
++        other = os.path.join(self.root, "other-instructions")
++        self.write(other, "instructions this profile never pinned\n")
++        deployment.given["integration_instructions"] = other
++        with self.assertRaises(ContractRefusal) as caught:
++            deployment.integration_port_for(
++                "job-a", line_id=deployment.line_for("job-a")["line_id"],
++                proposal_id="proposal-whatever",
++                canonical_target_id=deployment.target_for("job-a"))
++        self.assertEqual(caught.exception.category, "refused")
++        self.assertEqual(caught.exception.code, "capability")
++        self.assertIn("integration profile pins", caught.exception.message)
++
++    def test_a_deployment_that_configures_no_instructions_is_refused(self):
++        """And an unconfigured one says which member is missing rather than
++        recovering the bytes from a document that means something else."""
++        held = self.both_accepted()
++        deployment = self.deployment_of(held.composed)
++        deployment.given.pop("integration_instructions", None)
++        with self.assertRaises(ContractRefusal) as caught:
++            deployment.integration_instructions()
++        self.assertEqual(caught.exception.code, "capability")
++        self.assertIn("integration_instructions", caught.exception.message)
+ 
+     def integration_port(self, held, job_id):
+         """THIS JOB'S accepted runtime port, over THIS JOB'S own operands.
+@@ -7017,9 +7813,17 @@ class TwoBoundJobsTraverseServingAndCorrection(
+                 stdout=options.get("stdout"), stderr=options.get("stderr"),
+                 timeout=10)
+ 
++        # W103068: THE HOMES ARE THE DEPLOYMENT'S OWN, ASKED RATHER THAN
++        # GUESSED. This turn used to name `<root>/integration-launch` and
++        # `<root>/integration-bundles` because the fixture itself had created
++        # them for a port it constructed by hand. The production composition
++        # provisions them under its configured `state_root`, so a turn that
++        # kept guessing would be reading a directory nothing writes.
+         launched = launch.adopt(
+-            os.path.join(self.root, "integration-launch"),
+-            attempt_id=attempt_id, session="integration-session",
++            deployment.integration_home(
++                stage_execution.INTEGRATION_LAUNCH_HOME),
++            attempt_id=attempt_id,
++            session=stage_execution.INTEGRATION_LAUNCH_SESSION,
+             contract=self.config["launch_contract"],
+             role=integration_worker.LAUNCH_ROLE)
+         places = {}
+@@ -7037,8 +7841,10 @@ class TwoBoundJobsTraverseServingAndCorrection(
+                 launch_place=launched.place,
+                 assignment_root=delivery.assignment_root,
+                 result_root=delivery.result_root,
+-                bundle_root=os.path.join(self.root, "integration-bundles",
+-                                         attempt_id),
++                bundle_root=os.path.join(
++                    deployment.integration_home(
++                        stage_execution.INTEGRATION_BUNDLE_HOME),
++                    attempt_id),
+                 target_root=self.source, scratch=places["scratch"])
+ 
+     def tick(self, held):
+@@ -7186,9 +7992,9 @@ class TwoBoundJobsTraverseServingAndCorrection(
+ 
+     # -- and the integration both accepted Jobs must share -------------------
+ 
+-    def both_accepted(self):
++    def both_accepted(self, **members):
+         """Both Jobs coded, reviewed and accepted, on one deployment."""
+-        held = self.coding()
++        held = self.coding(**members)
+         held.first_review = self.accepted(
+             held, "job-a", "implementation-worker", "review-worker",
+             held.first, "print('the first job answered')\n")
+@@ -7215,7 +8021,7 @@ class TwoBoundJobsTraverseServingAndCorrection(
+                 self.states_for(held.job, held.composed, job_id)["review"],
+                 "completed")
+         self.drive_job(held.job, held.composed, "job-a", "integration",
+-                       "claimed")
++                       "integrating")
+         allocated = {job_id: self.allocated(held.job, f"{job_id}/integration")
+                      for job_id in ("job-a", "job-b")}
+         self.assertEqual(allocated["job-a"], "integration-worker")
+@@ -7867,7 +8673,7 @@ class TwoBoundJobsTraverseServingAndCorrection(
+ 
+         return [one["attempt_id"] for one in episodes_of(job_store, stage_id)]
+ 
+-    def integrating(self, before=None):
++    def integrating(self, before=None, **members):
+         """Both Jobs accepted, and the FIRST one integrated for real.
+ 
+         `before` is handed the accepted deployment BEFORE Job A's integration
+@@ -7876,18 +8682,17 @@ class TwoBoundJobsTraverseServingAndCorrection(
+         them afterwards can only prove they did not move during the second
+         half of the run, which is not the claim.
+         """
+-        held = self.both_accepted()
++        held = self.both_accepted(**members)
+         if before is not None:
+             before(held)
++        # AND ITS INTEGRATION STARTS THROUGH THE PORT THIS DEPLOYMENT BUILT.
++        # No `integration_port`, no `connect`, no second composition: the
++        # accepted line and the published proposal this port is composed over
++        # are read from their own owners on the tick that needs them.
+         self.drive_job(held.job, held.composed, "job-a", "integration",
+-                       "claimed")
+-        self.connect(held, {"job-a": self.integration_port(held, "job-a"),
+-                            "job-b": None})
+-        report = self.tick(held)
+-        [started] = [one for one in report["started"]
+-                     if one["stage_id"] == "job-a/integration"]
+-        self.assertEqual(started["outcome"], "started", started)
+-        held.integrated = started["attempt_id"]
++                       "integrating")
++        held.integrated = self.attempted(held.job,
++                                         "job-a/integration")["attempt_id"]
+         self.assertEqual(self.integration_turn(held, held.integrated), 0)
+         self.engine.stopped = True
+         report = self.tick(held)
+diff --git a/v12/python/tools/single_worker.py b/v12/python/tools/single_worker.py
+index f935530..aa47951 100644
+--- a/v12/python/tools/single_worker.py
++++ b/v12/python/tools/single_worker.py
+@@ -56,7 +56,7 @@ from baton_v12.worker_manager.oci import ENGINES, EnginePort, OciAdapter
+ from tools.user_credentials import SourceRefusal, UserCredentialSources
+ 
+ __all__ = ["CONFIG_ENV", "CONFIG_SCHEMA", "factory", "operations_from",
+-           "worker_operations", "worker_preflight"]
++           "worker_operations", "worker_preflight", "JudgmentExecution"]
+ 
+ CONFIG_ENV = "BATON_V12_SINGLE_WORKER_CONFIG"
+ # W81115 MOVED THIS TO `/2`, and its reason is kept because the rule is the
+@@ -903,7 +903,7 @@ class _SingleWorker:
+ 
+     def __init__(self, given, control, port, *, credential_provider,
+                  engine_run, session=None, clock=None, checkpoint=None,
+-                 stage=None):
++                 stage=None, judgment_document=None):
+         self.given = given
+         # W103083: THE TWO PLACES A STAGE DIFFERS, AND THERE ARE ONLY TWO.
+         # What a worker MOUNTS and how its attempt ENDS are the whole of the
+@@ -920,6 +920,7 @@ class _SingleWorker:
+         # composes its own roots and boundary and ends through the v11 pass
+         # below.
+         self.stage = stage
++        self.judgment_document = judgment_document
+         self.control = control
+         self.port = port
+         # W81857: THE SESSION, FOR THE ONE ACT THE PORT DOES NOT CARRY. It is
+@@ -1046,6 +1047,9 @@ class _SingleWorker:
+             # between leaves a partial root the next process refuses above
+             # rather than repairs.
+             self._published_task(roots["inputs"])
++            if self.judgment_document is not None:
++                self._published_task(roots["inputs"], name="judgment.json",
++                                     content=self.judgment_document)
+             # W71917: THE MOUNTPOINT, NOT A COPY. What stood here walked the
+             # nominated tree a second time and wrote every file into the input
+             # root -- the ordinary copied bootstrap this Work retires. The
+@@ -1080,9 +1084,12 @@ class _SingleWorker:
+         # this deployment concluding something the reader it called never
+         # looked at.
+         self._proved_task(roots["inputs"])
++        if self.judgment_document is not None:
++            self._proved_task(roots["inputs"], name="judgment.json",
++                              content=self.judgment_document)
+         return held_input
+ 
+-    def _published_task(self, inputs):
++    def _published_task(self, inputs, *, name=TASK_DOCUMENT, content=None):
+         """Install the held task bytes as the read-only workload document.
+ 
+         NEVER FROM THE CONFIGURED PATH. The bytes were read once, at
+@@ -1134,8 +1141,8 @@ class _SingleWorker:
+         observe the incomplete name, and removing the second pathname is worth
+         more here than atomic appearance is.
+         """
+-        held = self.given["task_bytes"]
+-        place = os.path.join(inputs, TASK_DOCUMENT)
++        held = self.given["task_bytes"] if content is None else content
++        place = os.path.join(inputs, name)
+         try:
+             handle = os.open(place, os.O_RDWR | os.O_CREAT | os.O_EXCL
+                              | os.O_NOFOLLOW | os.O_CLOEXEC, 0o000)
+@@ -1173,7 +1180,7 @@ class _SingleWorker:
+         os.close(handle)
+         return place
+ 
+-    def _proved_task(self, inputs):
++    def _proved_task(self, inputs, *, name=TASK_DOCUMENT, content=None):
+         """The installed workload document, re-proved against the held bytes.
+ 
+         The same three questions the configuration asked, asked again of what
+@@ -1182,8 +1189,8 @@ class _SingleWorker:
+         delivery says in prose. A root whose protocol pair matches while its
+         task has moved is a root the worker would read something else out of.
+         """
+-        held = self.given["task_bytes"]
+-        place = os.path.join(inputs, TASK_DOCUMENT)
++        held = self.given["task_bytes"] if content is None else content
++        place = os.path.join(inputs, name)
+         try:
+             handle = os.open(place, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC
+                              | os.O_NONBLOCK)
+@@ -2305,6 +2312,24 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+         raise
+ 
+ 
++def effective_engine_run(engine_run=None):
++    """The engine runner this module would ACTUALLY use, named publicly.
++
++    W103068 review 2026-09-11T02-06-10Z [P1]. `worker_operations` resolves
++    `engine_run or _engine_run` privately, so a composer that passed its own
++    `engine_run` through to a second consumer passed `None` whenever the caller
++    had supplied nothing -- and the production `factory` supplies nothing. The
++    integration runtime port then refused for want of an engine capability, on
++    the one entry point that is supposed to work by default.
++
++    IT IS THE SAME EXPRESSION AND NOT A SECOND OPINION. Injected overrides and
++    ordinary defaults converge here by construction, which is exactly what the
++    pinned design requires: one boundary answers what this module runs
++    containers with, and `worker_operations` below resolves through it.
++    """
++    return engine_run or _engine_run
++
++
+ def worker_preflight(given, control_store, *, credential_provider=None,
+                      engine_run=None):
+     """The half of a worker deployment that needs no Authority.
+@@ -2348,7 +2373,7 @@ def worker_preflight(given, control_store, *, credential_provider=None,
+     # exists yet, so two distinct absent placeholders are used only to force
+     # the engine, identity, network and workspace-group checks before admission.
+     OciAdapter(
+-        given["engine"], EnginePort(engine_run or _engine_run),
++        given["engine"], EnginePort(effective_engine_run(engine_run)),
+         identity={"image_digest": given["image_digest"],
+                   "profile_digest": given["profile_digest"],
+                   "policy_digest": given["policy_digest"],
+@@ -2365,7 +2390,7 @@ def worker_preflight(given, control_store, *, credential_provider=None,
+ 
+ def worker_operations(given, control_store, authority, provider, *,
+                       engine_run=None, clock=None, checkpoint=None,
+-                      dispose=None, stage=None):
++                      dispose=None, stage=None, judgment_document=None):
+     """The half that needs an Authority, over one the CALLER owns.
+ 
+     `dispose` is what makes this reusable by a pool. A single-worker
+@@ -2404,8 +2429,9 @@ def worker_operations(given, control_store, authority, provider, *,
+                                  "credential_sources")}
+     worker = _SingleWorker(
+         runtime, control_store, port, credential_provider=provider,
+-        engine_run=engine_run or _engine_run, session=session, clock=clock,
+-        checkpoint=checkpoint, stage=stage)
++        engine_run=effective_engine_run(engine_run), session=session,
++        clock=clock,
++        checkpoint=checkpoint, stage=stage, judgment_document=judgment_document)
+     return _Operations(
+         control_store, port, mint_bearer=_bearer,
+         deliver_bearer=worker.delivered, start_runtime=worker.start,
+@@ -2426,6 +2452,150 @@ def worker_operations(given, control_store, authority, provider, *,
+         dispose=dispose if dispose is not None else authority.dispose)
+ 
+ 
++class JudgmentExecution:
++    """One configured judge, using the ordinary worker lifecycle end to end.
++
++    The intent identifies a separate Authority Work and execution, not a Job
++    stage or pool allocation. Only frozen, collected output can answer it.
++    """
++
++    def __init__(self, given, control, authority, provider, *, worker_id,
++                 subject, source, engine_run=None, clock=None):
++        self.control = control
++        self.subject = dict(subject)
++        self.given = dict(given, source_nomination=source_boundary.nominate_source(source))
++        self.document = json.dumps(subject, sort_keys=True, separators=(",", ":")).encode()
++        identity = digest({"subject": subject, "worker_id": worker_id,
++                           "participant": given["participant"],
++                           "input": given["input_manifest"]["manifest_digest"],
++                           "policy": given["policy_digest"],
++                           "profile": given["profile_digest"]})[7:]
++        self.intent = {"stage_id": "judgment-" + identity,
++                       "attempt_id": "judgment-" + identity,
++                       "offer_id": "judgment-offer-" + identity,
++                       "kind": "review", "work_id": given["input_manifest"]["work_ref"]["work_id"],
++                       "profile_name": given["profile_name"],
++                       "profile_digest": given["profile_digest"]}
++        self.input = {"input_digest": given["input_manifest"]["manifest_digest"],
++                      "policy_digest": given["policy_digest"]}
++        self.operations = worker_operations(
++            self.given, control, authority, provider, engine_run=engine_run,
++            dispose=lambda: None, judgment_document=self.document, clock=clock)
++
++    def poll(self):
++        operations, intent = self.operations, self.intent
++        for act in ("admit", "claim"):
++            if operations.receipt_of(operations.canonical_operation(act, intent["offer_id"])) is None:
++                if act == "admit":
++                    operations.admit(intent, self.input)
++                else:
++                    operations.claim(intent)
++        view = operations.observe(intent)
++        state = view["runtime"]
++        if state is not None and state["cleanup"] in ("complete", "retained"):
++            return self.result()
++        if view["start_failure"] is not None or view["preparation_failure"] is not None:
++            _refuse("the derived-result judge failed preparation or start",
++                    category="refused", code="precondition")
++        if state is None or state["runtime_id"] is None:
++            operations.launch(intent, self.input)
++        operations.dispatch(intent, self.input)
++        operations.refresh_runtime(intent)
++        view = operations.observe(intent)
++        terminal = (view["exchange"] or {}).get("terminal")
++        if terminal is None:
++            return None
++        if terminal["ending"] != "answered":
++            _refuse("the derived-result judge did not answer its command",
++                    category="refused", code="precondition")
++        operations.conclude(intent, self.input)
++        return self.result()
++
++    def result(self):
++        from baton_v12.worker_manager import assignment_of, frozen_output_of
++        from baton_v12.worker_manager.intake import intake_receipt_of
++
++        attempt_id = self.intent["attempt_id"]
++        # Bind even on recovery, when the runtime and writable output are gone.
++        row = self.operations._worker._claim(self.intent)
++        fixed = assignment_of(self.control, attempt_id)
++        frozen = frozen_output_of(self.control, attempt_id)
++        receipt = intake_receipt_of(self.control, attempt_id)
++        if frozen is None or frozen["disposition"] != "completed" or receipt is None or receipt["custody"] != "accepted":
++            _refuse("a judgment needs a completed frozen result in accepted custody",
++                    category="refused", code="precondition")
++        result = load_manifest(self.control, frozen["manifest_digest"], "resultManifest")
++        expected = {"work_ref": self.given["input_manifest"]["work_ref"],
++                    "participant": self.given["participant"],
++                    "generation": row["claim_generation"]}
++        fixed_ref = {"work_ref": {"authority_uuid": fixed["authority_uuid"], "work_id": fixed["work_id"]},
++                     "participant": fixed["participant"], "generation": fixed["generation"]}
++        if (result is None or result["assignment_ref"] != expected
++                or fixed_ref != _assignment(row)
++                or result["result_id"] != frozen["result_id"]
++                or receipt["assignment"] != fixed_ref
++                or receipt["result_id"] != frozen["result_id"]
++                or receipt["manifest_digest"] != frozen["manifest_digest"]):
++            _refuse("the judgment result, custody and assignment disagree", code="digest")
++        outputs = {one["name"]: one for one in result["outputs"]}
++        namespace = "baton.checkpoint-review/1"
++        for name in ("findings", "logs"):
++            if (name not in outputs or outputs[name].get("status") != "present"
++                    or outputs[name].get("artifact") is None or outputs[name].get("content_manifest") is None):
++                _refuse("the judgment did not freeze both findings and logs")
++            output = outputs[name]
++            artifacts = [one for one in receipt["artifacts"] if one["artifact_id"] == output["artifact"]["artifact_id"]]
++            if len(artifacts) != 1 or artifacts[0]["content_digest"] != output["content_manifest"]["tree_digest"]:
++                _refuse("the judgment output and accepted custody disagree", code="digest")
++        if any(namespace in (one.get("result_metadata") or {}) for name, one in outputs.items() if name != "findings"):
++            _refuse("a judgment carries competing report claims")
++        claim = (outputs["findings"].get("result_metadata") or {}).get(namespace)
++        if type(claim) is not dict or set(claim) != {"verdict", "base", "head", "tree"}:
++            _refuse("the frozen judgment report carries no closed review claim")
++        if (claim["base"] != self.subject["source_base"]
++                or claim["head"] != self.subject["candidate"]
++                or claim["tree"] != self.subject["tree"]):
++            _refuse("the frozen judgment describes another candidate", code="digest")
++        if claim["verdict"] not in ("accepted", "rejected", "changes-requested"):
++            _refuse("the frozen judgment carries an unknown verdict")
++        # Read the report from accepted custody, never from the former writer
++        # directory. Its bytes must still match the frozen content manifest.
++        from urllib.parse import unquote, urlsplit
++        artifact_id = outputs["findings"]["artifact"]["artifact_id"]
++        artifact = next(one for one in receipt["artifacts"] if one["artifact_id"] == artifact_id)
++        locator = urlsplit(artifact["custody_locator"])
++        if locator.scheme != "file" or locator.netloc or locator.query or locator.fragment:
++            _refuse("this judgment consumer reads local accepted report custody")
++        entries = [one for one in outputs["findings"]["content_manifest"]["entries"] if one["path"] == "report.json"]
++        if len(entries) != 1 or entries[0]["bytes"] > MAX_CONFIG_BYTES:
++            _refuse("the frozen judgment has no bounded report.json")
++        try:
++            descriptor = os.open(os.path.join(unquote(locator.path), "report.json"), os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
++        except OSError:
++            _refuse("the accepted judgment report is unavailable", code="path")
++        try:
++            if not stat.S_ISREG(os.fstat(descriptor).st_mode):
++                _refuse("the retained judgment report is not a regular file")
++            raw = os.read(descriptor, entries[0]["bytes"] + 1)
++        finally:
++            os.close(descriptor)
++        if len(raw) != entries[0]["bytes"] or digest_of_bytes(raw) != entries[0]["content_digest"]:
++            _refuse("the retained judgment report differs from frozen custody", code="digest")
++        try:
++            report = json.loads(raw)
++        except (ValueError, UnicodeError):
++            _refuse("the retained judgment report is not JSON")
++        if (type(report) is not dict or set(report) != {"schema", "verdict", "findings"}
++                or report["schema"] != "baton.review-report/1"
++                or report["verdict"] != claim["verdict"] or type(report["findings"]) is not str):
++            _refuse("the retained judgment report and its frozen claim disagree")
++        return {"subject": self.subject, "attempt_id": attempt_id,
++                "assignment": fixed, "verdict": claim["verdict"],
++                "result_id": frozen["result_id"],
++                "result_digest": frozen["manifest_digest"],
++                "receipt_digest": receipt["receipt_digest"]}
++
++
+ class _Observation:
+     """W85500: the durable exchange reader, composed from NOTHING ELSE.
+ 
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index 6f85e0d..feac265 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -43,6 +43,7 @@ slots, and a configuration carrying bytes is refused as one.
+ import json
+ import os
+ import re
++import stat
+ from types import SimpleNamespace
+ 
+ from baton_v12 import checkpoint_profiles
+@@ -64,6 +65,7 @@ from baton_v12.job_manager import ending, review_driver, scheduler
+ from baton_v12.job_manager.delegation import INTEGRATION_OBSERVATION_SCHEMA
+ from baton_v12.job_manager.scheduler import allocation_of
+ from baton_v12.job_manager.submission import job_of
++from baton_v12.source_profiles.checkout import clone_vector
+ from baton_v12.job_manager.scheduler import PooledManagerOperations
+ from baton_v12.worker_manager import (assignment_of,
+                                       attempt_runtime_of, claimed_offers_for,
+@@ -133,9 +135,57 @@ INDEPENDENT = (("implementation", "review"),)
+ # a result whose causal observations were produced by one of its three judges
+ # or by the integrator, so the owner that RUNS the harness is configured
+ # separately from the three that judge what it produced.
++# W103068: THE INTEGRATOR'S OWN TWO HOMES AND ITS LAUNCH SESSION, named here
++# for the reason `INTEGRATION_HOME` already is: where the integration role's
++# durable material lives under this deployment's `state_root` is this assembly's
++# wiring, and deriving them beside the delivery home keeps one deployment's
++# integration state in one place instead of asking the operator for three paths
++# that may not agree. `IntegrationRuntimePort` requires a bundle home and a
++# launch home as CONFIGURATION, so a composition that could not name them could
++# not construct the port at all.
++INTEGRATION_BUNDLE_HOME = "integration-bundles"
++INTEGRATION_LAUNCH_HOME = "integration-launch"
++# AND THE SESSION LABEL the launch contract is recorded under. It is one word
++# about this assembly's own integration launches, not a per-Job or per-attempt
++# fact, so it is named rather than configured.
++INTEGRATION_LAUNCH_SESSION = "integration-session"
++
+ _OPTIONAL_MEMBERS = ("job_bindings", "integration_target",
+                      "integration_workspace", "integration_observer",
+-                     "integration_target_reference")
++                     "integration_target_reference",
++                     "integration_instructions",
++                     "result_judgment_workers")
++
++# W103068, DESIGN-2026-09-11T02-27-46Z: THE EXECUTION CONFIGURATION OF THE THREE
++# OWNERS THAT JUDGE A DERIVED RESULT, and it is deliberately SEPARATE from the
++# three-stage pool.
++#
++# WHY IT IS NOT A FOURTH ROLE. `ROLES` names the three stages a Job HAS, the pool
++# gives one worker per role and `scheduler.own_pool` counts capacity over them; a
++# judge of a merged candidate is none of those -- it serves no Job stage and takes
++# no stage allocation. Adding it to `ROLES` would have made every accepted
++# deployment refuse for want of a fourth worker and would have put these actors
++# in the pool that serializes integration capacity.
++#
++# WHY EACH ENTRY IS A COMPLETE DEPLOYMENT. The alternative was to borrow the
++# review worker's image, credentials, storage and Work -- which would make the
++# judgment attributable to THAT participant, and independence is the whole reason
++# a judgment exists. `receipt_participants` already names WHO must judge; this
++# names what each of them EXECUTES with, and the two are matched here so a
++# deployment cannot configure an execution for somebody who is not a judge.
++#
++# KEYED BY BOUND JOB, because a derived result belongs to one Job's line and
++# target. A Job with no entry has no consumer: its derived branch stays pending
++# honestly rather than inventing one.
++# Spelled here rather than aliased: `_RECEIPT_MEMBERS` is defined below this
++# point, and one tuple read before it exists is a module that cannot import.
++# `_held_judgments` compares the two sets so they cannot drift apart.
++_JUDGMENT_KINDS = ("verification", "review", "approval")
++_JUDGMENT_MEMBERS = ("worker_id", "deployment")
++# AND THE LAUNCH CONTRACT THEY REUSE. A judgment IS a review -- of a different
++# subject -- so these executions are configured under the accepted `review`
++# launch role rather than a new protocol word nothing else reads.
++JUDGMENT_LAUNCH_ROLE = "review"
+ _MEMBERS = ("schema", "authority_store", "authority_uuid", "integration_store",
+             "state_root", "pool_generation", "workers", "checkpoint_profile",
+             "canonical_target_id", "integration_profile", "job_work_id",
+@@ -411,9 +461,97 @@ def held_configuration(document, *, checkout=None):
+         given["workers"], here, given["authority_uuid"],
+         many=given["schema"] == MULTI_CONFIG_SCHEMA)
+     given["job_bindings"] = _held_bindings(given)
++    given["result_judgment_workers"] = _held_judgments(given, here)
+     return given
+ 
+ 
++def _held_judgments(given, checkout):
++    """Every configured derived-result judgment execution, held before use.
++
++    W103068. WHAT THIS PROVES, and each one is a fault a later moment would
++    describe from the wrong place: the member is a mapping keyed by a Job this
++    deployment actually binds; each Job names EXACTLY the three judgment kinds,
++    because two of three judgments is not an authorization; each value carries a
++    worker id and a complete deployment, held by `single_worker`'s own validator
++    rather than by a second copy of its rules here; each deployment launches the
++    accepted review role; each participant IS the `receipt_participants` member
++    of its own kind, so an execution cannot be configured for somebody who is not
++    that judgment's owner; no judgment identity collides with a stage worker or
++    with another judgment; and every judgment path lies outside the checkout,
++    exactly as a stage worker's must.
++
++    ABSENT IS AN ANSWER. A deployment that never reconciles needs no consumer,
++    and every accepted document in this tree predates this member.
++    """
++    configured = given.get("result_judgment_workers")
++    if configured is None:
++        return None
++    if type(configured) is not dict or not configured:
++        _refuse("result_judgment_workers is a non-empty mapping from a bound "
++                "Job id to that Job's three configured judgment executions")
++    bound = {one["job_id"] for one in given["job_bindings"]}
++    unknown = sorted(one for one in configured if one not in bound)
++    if unknown:
++        _refuse(f"result_judgment_workers names Jobs {unknown} that this "
++                f"deployment binds nothing for; a derived result belongs to one "
++                f"Job's line and target", category="refused",
++                code="precondition")
++    identities = {one["worker_id"] for one in given["workers"]}
++    judges = dict(given["receipt_participants"])
++    if sorted(_JUDGMENT_KINDS) != sorted(_RECEIPT_MEMBERS):
++        _refuse(f"this build reads judgment kinds {_JUDGMENT_KINDS} and receipt "
++                f"participants {_RECEIPT_MEMBERS}; an execution configured for "
++                f"a kind nobody records is one nothing can adopt")
++    held = {}
++    for job_id in sorted(configured, key=lambda one: str(one)):
++        entry = _document(configured[job_id],
++                          f"Job {job_id!r}'s judgment executions",
++                          _JUDGMENT_KINDS)
++        held[job_id] = {}
++        for kind in _JUDGMENT_KINDS:
++            what = f"Job {job_id!r}'s {kind} judgment execution"
++            one = _document(entry[kind], what, _JUDGMENT_MEMBERS)
++            worker_id = _text(one["worker_id"], f"{what}'s worker id")
++            if worker_id in identities:
++                _refuse(f"{what} names worker {worker_id!r}, which this "
++                        f"deployment already configures; a judgment execution "
++                        f"is its own identity and not a stage worker's",
++                        category="refused", code="precondition")
++            identities.add(worker_id)
++            deployment = single_worker._held(one["deployment"],
++                                             roles=(JUDGMENT_LAUNCH_ROLE,))
++            if deployment["authority_uuid"] != given["authority_uuid"]:
++                _refuse(f"{what} names Authority "
++                        f"{deployment['authority_uuid']!r} and this deployment "
++                        f"is configured for {given['authority_uuid']!r}",
++                        category="refused", code="capability")
++            if deployment["launch_role"] != JUDGMENT_LAUNCH_ROLE:
++                _refuse(f"{what} launches the "
++                        f"{deployment['launch_role']!r} role; a judgment reuses "
++                        f"the accepted {JUDGMENT_LAUNCH_ROLE!r} launch contract",
++                        category="refused", code="precondition")
++            # THE EXECUTION AND THE JUDGE ARE ONE FACT. `receipt_participants`
++            # already says who records this kind of judgment; an execution
++            # configured for anybody else would produce a report this
++            # deployment could never turn into that owner's receipt.
++            if deployment["participant"] != judges[kind]:
++                _refuse(f"{what} executes as {deployment['participant']!r} and "
++                        f"this deployment's {kind} judgment belongs to "
++                        f"{judges[kind]!r}", category="policy", code="denied")
++            if deployment["workspace_storage"] != given["workers"][0]["deployment"]["workspace_storage"]:
++                _refuse("judgment workers use the manager's one configured workspace storage",
++                        category="refused", code="precondition")
++            if deployment["retention_disposition"] != "retain":
++                _refuse("judgment reports must be retained for receipt adoption",
++                        category="refused", code="precondition")
++            for name in ("workspace_storage", "launch_home",
++                         "credential_home"):
++                _outside(deployment[name], checkout, f"{what}'s {name}")
++            held[job_id][kind] = {"worker_id": worker_id,
++                                  "deployment": deployment}
++    return held
++
++
+ def _held_bindings(given):
+     """Every Job's own binding, or the one the one-Job document already is.
+ 
+@@ -1830,6 +1968,27 @@ class Integration:
+                     category="refused", code="precondition")
+         return self.ports[job_id]
+ 
++    def _constructed(self, stage, job, *, line_id, proposal_id,
++                     canonical_target_id):
++        """This Job's own constructed port, built once and kept.
++
++        THE MEMO IS PER JOB AND IT IS THE CAPACITY RULE, not a cache for speed.
++        `IntegrationRuntimePort` resolves a bundle home, a launch home and a
++        credential home, and one Job's integration is one capacity; a second
++        port for the same Job would be a second set of those homes for one
++        serialized integration. A port already SUPPLIED for a Job is never
++        replaced -- an operator's injected capability stays the one in use.
++        """
++        job_id = _bound_id(self.deployment, stage, job)
++        held = self.ports.get(job_id)
++        if held is not None:
++            return held
++        built = self.deployment.integration_port_for(
++            job_id, line_id=line_id, proposal_id=proposal_id,
++            canonical_target_id=canonical_target_id)
++        self.ports[job_id] = built
++        return built
++
+     def required_tests(self, job_id=None):
+         """The required-test selection, DERIVED from configured material.
+ 
+@@ -1947,21 +2106,12 @@ class Integration:
+         # deployment with no runtime port refused the one path that does not
+         # need one. The direct path still refuses exactly as it always did,
+         # a few lines below, once the branch decision has chosen it.
++        # W103068: AND AN ABSENT ONE IS NOT A REFUSAL ANY MORE. The direct
++        # branch below CONSTRUCTS the port it needs once its operands are
++        # resolved, so absence here means "not supplied by an operator" rather
++        # than "this deployment cannot integrate". The dead refusal this
++        # deferral left behind is removed with the capability gap it described.
+         _direct_port = port
+-        if False:
+-            # W103083: THE ONE CAPABILITY THIS BUILD DOES NOT HAVE. Every
+-            # other operand below is composed from an accepted operation. A
+-            # runtime port that starts an integration container over
+-            # `runtime.materialize_delivery`'s namespaces exists nowhere in
+-            # this tree -- `integrate_next` types the port and calls it, and
+-            # the only implementations are focused-test fixtures. Reported as
+-            # itself rather than stubbed, and contained to this stage: the
+-            # implementation and review stages of every Job go on running.
+-            _refuse("this deployment holds no integration runtime port; "
+-                    "`integrate_next` starts the integrator through one and "
+-                    "no accepted composition in this build builds one over "
+-                    "the integration delivery's namespaces",
+-                    category="refused", code="capability")
+         control = deployment.control
+         # W119405 review [P1]: THIS JOB'S LINE. `line()` is the one-Job
+         # spelling and refuses a deployment binding several, so an integration
+@@ -2029,15 +2179,31 @@ class Integration:
+         # write itself belongs to `execution` under the live grant, and no
+         # private runtime-port field is read to get any of it.
+         if _direct_port is None:
+-            # W103083, and now reached only for the DIRECT branch: no accepted
+-            # composition in this build starts an integration container over
+-            # `runtime.materialize_delivery`'s namespaces. Reported as itself
+-            # rather than stubbed, and contained to this stage.
+-            _refuse("this deployment holds no integration runtime port; "
+-                    "`integrate_next` starts the integrator through one and "
+-                    "no accepted composition in this build builds one over "
+-                    "the integration delivery's namespaces",
+-                    category="refused", code="capability")
++            # W103068 review 2026-09-11T01-22-35Z [P1]: THIS IS WHERE THE
++            # PRODUCTION PORT IS CONSTRUCTED, and this branch used to refuse
++            # `capability` here instead. The refusal was accurate about the
++            # accepted composition of the time and it was also the whole reason
++            # the public `factory` could not perform an ordinary direct
++            # integration: it supplied no port, so every direct candidate
++            # stopped one call before preparation.
++            #
++            # AND IT IS CONSTRUCTED HERE RATHER THAN ANYWHERE EARLIER because
++            # here is the first place all three of its dynamic operands exist
++            # and are read from their own owners: `line` came from the Job's own
++            # binding through `line_for`, `accepted` is that line's integration
++            # checkpoint, `operands["proposal_id"]` is the proposal the
++            # producer actually published for it, and the target is the Job's
++            # own. Two of the three do not exist until a review is accepted,
++            # which is why no configuration document could carry them and why
++            # the component fixture had to recompose the deployment after the
++            # fact. Nothing is recomposed here and no serving object is rebuilt.
++            #
++            # ONE PORT PER JOB, MEMOIZED, so a stage re-entered on a later tick
++            # is started through the same capacity rather than a second one.
++            port = self._constructed(
++                stage, job, line_id=line["line_id"],
++                proposal_id=operands["proposal_id"],
++                canonical_target_id=operands["canonical_target_id"])
+         finalize = None
+         if deployment.reconciles():
+             finalize = {
+@@ -2304,6 +2470,7 @@ class Integration:
+             # configured owners have not judged it yet; nothing here judges it
+             # for them.
+             try:
++                deployment.judge_result(held["result_id"])
+                 held = reconciliation.record_result_evidence(
+                     deployment.integration, deployment.authority,
+                     deployment.sessions["verification"],
+@@ -2691,8 +2858,22 @@ class StageDeployment:
+     """
+ 
+     def __init__(self, given, *, control, jobs, authority, integration,
+-                 profile, sessions, verdict=None):
++                 profile, sessions, verdict=None, engine_run=None,
++                 credential_provider=None, clock=None):
+         self.given = given
++        # W103068: THE TWO CAPABILITIES AN INTEGRATION RUNTIME PORT IS
++        # CONSTRUCTED WITH, retained because the port cannot be constructed
++        # until a review has been accepted and this composition is the only
++        # thing that will still be holding them then. They are the SAME objects
++        # this composition was handed; nothing is defaulted or rebuilt.
++        self._engine_run = engine_run
++        self._credential_provider = credential_provider
++        # AND THE COMPOSED INTEGRATION CAPACITY, attached after the workers are
++        # built because the operations object does not exist yet here.
++        self._integration_operations = None
++        self.judges = {}
++        self.judgment_clock = clock
++        self.judgment_providers = {}
+         self.control = control
+         self.jobs = jobs
+         self.authority = authority
+@@ -2922,6 +3103,410 @@ class StageDeployment:
+         return {"path": configured, "device": held.st_dev,
+                 "inode": held.st_ino}
+ 
++    @property
++    def integration_object_runner(self):
++        """The read-only Git object runner `integration_bundle` requires.
++
++        THAT MODULE NAMES THE CONTRACT AND SAYS WHOSE IT IS: `runner(argv, *,
++        directory) -> {"returncode", "stdout", "stderr"}` over BYTES, with the
++        descriptor valid for the call only, and "what this module cannot do is
++        audit an injected runner: the contract above is what a deployment
++        supplies". This assembly is that deployment, so it supplies one -- the
++        same production shape it already owns for the checkpoint profile, in the
++        second closed shape the bundle reader requires.
++
++        THE DIRECTORY IS A DESCRIPTOR AND NOT A PATH, which is the whole reason
++        the contract is separate: the caller has already opened the repository
++        and hands this the open handle, so nothing here re-resolves a path that
++        could have been replaced between the open and the read. It is passed
++        through to the child rather than retained.
++        """
++        import subprocess as _subprocess
++
++        def runner(argv, *, directory):
++            answer = _subprocess.run(
++                list(argv), cwd=f"/proc/self/fd/{directory}",
++                pass_fds=(directory,), capture_output=True,
++                timeout=GIT_SECONDS)
++            return {"returncode": answer.returncode,
++                    "stdout": answer.stdout, "stderr": answer.stderr}
++
++        return runner
++
++    def integration_instructions(self):
++        """The integrator's configured instruction bytes, read and PROVED.
++
++        W103068: `IntegrationRuntimePort` seals these into the bundle it
++        composes, and until now no accepted configuration said where they are.
++        The integration profile has always pinned their DIGEST -- that is what
++        `integration_bundle` and the coordinator's own profile compare against
++        -- so this member names the file and the pin is what makes reading it
++        safe: bytes that do not digest to the configured pin are refused before
++        any container is started, rather than producing a bundle that could
++        never match the profile it was sealed under.
++
++        IT IS NOT THE WORKER'S TASK DOCUMENT. The integration worker's task
++        document is the JOB's task -- the same document its producer and
++        reviewer are configured with -- and its digest is the input manifest's
++        business. The integrator's instructions are a different artifact about a
++        different act, so they are configured separately instead of being
++        recovered from a member that means something else.
++        """
++        configured = self.given.get("integration_instructions")
++        if configured is None:
++            _refuse("this deployment configures no integration_instructions; "
++                    "the integrator's instruction bytes are sealed into the "
++                    "bundle it runs and where they live is deployment wiring",
++                    category="refused", code="capability")
++        _text(configured, "the configured integration instructions")
++        _path(configured, "the configured integration instructions")
++        try:
++            with open(configured, "rb") as reading:
++                held = reading.read(MAX_CONFIG_BYTES + 1)
++        except OSError as failure:
++            _refuse(f"the configured integration instructions {configured!r} "
++                    f"cannot be read ({type(failure).__name__})",
++                    category="refused", code="capability")
++        if len(held) > MAX_CONFIG_BYTES:
++            _refuse(f"the integrator's instructions are at most "
++                    f"{MAX_CONFIG_BYTES} bytes", code="limit")
++        if not held:
++            _refuse("the integrator's instruction bytes are a non-empty byte "
++                    "string this deployment configured",
++                    category="refused", code="capability")
++        return held
++
++    def integration_home(self, name):
++        """One of this deployment's integration homes, made once."""
++        import os as _os
++
++        place = _os.path.join(self.given["state_root"], name)
++        _os.makedirs(place, exist_ok=True)
++        return place
++
++    def integration_operations_for(self, job_id):
++        """The composed integration worker's operations for one Job.
++
++        ONE CAPACITY, ONE OPERAND SET PER JOB. `_integration_operations`
++        answers a single object under one binding and a `_PerJobIntegration`
++        under several; both are the same worker, and what differs is the held
++        operands. This selects among them exactly as the provider does, so the
++        port a Job's integration is started by is composed over that Job's own
++        configured Work, input, profile and policy.
++        """
++        held = self._integration_operations
++        if held is None:
++            _refuse("this deployment has composed no integration worker "
++                    "operations; an integration runtime port is constructed "
++                    "over the capacity that serves the stage",
++                    category="refused", code="precondition")
++        selected = getattr(held, "held", None)
++        if type(selected) is dict:
++            if job_id not in selected:
++                _refuse(f"this deployment composes integration operands for "
++                        f"{sorted(selected)} and this stage names Job "
++                        f"{job_id!r}", category="refused", code="precondition")
++            return selected[job_id]
++        return held
++
++    def activate_targets(self):
++        """Adopt every canonical target this deployment configures.
++
++        W103068: THE SECOND OPERATOR STEP THE PRODUCTION COMPOSITION DID NOT
++        PERFORM. `enqueue` refuses an entry whose target "is not activated; an
++        entry belongs to a configured target", and nothing in the public factory
++        ever activated one -- the accepted component fixture called
++        `activate_target` by hand before every integration. A deployment that
++        configures a target and cannot adopt it is a deployment whose ordinary
++        integration refuses `policy/denied` on its first entry.
++
++        IT IS THE DOCUMENT'S OWN KEY AND A DERIVED DESCRIPTION. `activate_target`
++        makes an exact repeat one act -- the operation identity carries the
++        document's digest -- so this composes the same document from the same
++        configuration on every restart and replays instead of colliding. The key
++        is the configured `canonical_target_id` and is never derived from a
++        line, a proposal or a revision, which is that function's own rule.
++        """
++        from baton_v12.integration import TARGET_SCHEMA, activate_target
++
++        for target_id in sorted({one["canonical_target_id"] for one in
++                                 self.given["job_bindings"]}):
++            activate_target(self.integration, {
++                "schema": TARGET_SCHEMA, "canonical_target_id": target_id,
++                "description": f"configured by stage-execution deployment "
++                               f"{self.given['authority_uuid']} at pool "
++                               f"generation {self.given['pool_generation']}"})
++
++    def judgment_executions(self, job_id):
++        """This Job's three configured derived-result judgment executions.
++
++        W103068. ABSENCE IS AN ANSWER AND IT IS NOT A POSITIVE ONE: a Job whose
++        derived branch has no configured consumer has no way to obtain
++        independent judgments of the merged candidate, so this says so and the
++        caller leaves the result PUBLISHED. It never invents an execution, and
++        it never lets a successful merge stand in for a judgment.
++        """
++        configured = self.given.get("result_judgment_workers")
++        if configured is None or job_id not in configured:
++            return None
++        return configured[job_id]
++
++    def judge_result(self, result_id):
++        """Dispatch and adopt real judgments before current-policy receipts."""
++        subject = self.judgment_subject(result_id)
++        configured = self.judgment_executions(subject["job_id"])
++        if configured is None:
++            return None
++        subject["policy_generation"] = self.authority.policy_generation()
++        home = os.path.join(self.given["state_root"], "result-judgments", digest(result_id)[7:])
++        os.makedirs(home, exist_ok=True)
++        document = json.dumps(subject, sort_keys=True, separators=(",", ":")).encode()
++        dispatch = os.path.join(home, "subject.json")
++        # The first dispatch pins policy. Drift cannot silently start a new
++        # set of judges or reuse their reports under a newer generation.
++        try:
++            descriptor = os.open(dispatch, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o444)
++        except FileExistsError:
++            descriptor = os.open(dispatch, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
++            try:
++                if not stat.S_ISREG(os.fstat(descriptor).st_mode):
++                    _refuse("the retained judgment dispatch is not a regular file")
++                if os.read(descriptor, len(document) + 1) != document:
++                    _refuse("the derived judgment dispatch changed, including its policy generation",
++                            category="refused", code="precondition")
++            finally:
++                os.close(descriptor)
++        else:
++            with os.fdopen(descriptor, "wb") as stream:
++                stream.write(document)
++                stream.flush()
++                os.fsync(stream.fileno())
++        source = os.path.join(home, "source")
++        if not os.path.lexists(source):
++            held = reconciliation.result_of(self.integration, result_id)
++            cloned = _git_run(tuple(clone_vector(held["workspace"]["path"], source)))
++            if cloned["returncode"] != 0:
++                _refuse("the derived judgment snapshot could not be cloned",
++                        category="refused", code="precondition")
++            imported = _git_run(tuple(git_profile.import_vector(source, held["workspace"]["path"], subject["candidate"])))
++            if imported["returncode"] != 0:
++                _refuse("the derived judgment snapshot could not import its candidate",
++                        category="refused", code="precondition")
++            try:
++                self.profile.materialize(source, source, subject["candidate"])
++            except checkpoint_profiles.ProfileRefusal as failure:
++                _refuse(f"the derived judgment snapshot could not be materialized: {failure}",
++                        category="refused", code="precondition")
++        if not os.path.isdir(source) or os.path.islink(source):
++            _refuse("the judgment snapshot must be its own directory")
++        for expression, expected in (("HEAD", subject["candidate"]), ("HEAD^{tree}", subject["tree"])):
++            observed = _git_run(("git", "-C", source, "rev-parse", "--verify", expression))
++            if observed["returncode"] != 0 or observed["stdout"].strip() != expected:
++                _refuse("the retained judgment snapshot is not the derived candidate")
++        clean = _git_run(("git", "-C", source, "status", "--porcelain", "--untracked-files=all"))
++        if clean["returncode"] != 0 or clean["stdout"]:
++            _refuse("the retained judgment snapshot is not clean")
++        answers = {}
++        for kind, one in configured.items():
++            key = (result_id, kind)
++            if key not in self.judges:
++                self.judges[key] = single_worker.JudgmentExecution(
++                    one["deployment"], self.control, self.authority,
++                    self.judgment_providers[one["worker_id"]], worker_id=one["worker_id"],
++                    subject=dict(subject, kind=kind), source=source, engine_run=self._engine_run, clock=self.judgment_clock)
++            answers[kind] = self.judges[key].poll()
++        if any(answer is None for answer in answers.values()):
++            _refuse("the derived candidate awaits its configured judges' frozen reports",
++                    category="refused", code="precondition")
++        if any(answer["verdict"] != "accepted" for answer in answers.values()):
++            _refuse("a derived candidate judgment did not accept the result",
++                    category="refused", code="precondition")
++        if self.authority.policy_generation() != subject["policy_generation"]:
++            _refuse("policy changed while the derived candidate was judged",
++                    category="refused", code="precondition")
++        for kind, answer in answers.items():
++            evidence_id = "judgment-" + digest(answer)[7:]
++            operands = {"proposal_id": subject["derived_proposal_id"],
++                        "operation_id": evidence_id}
++            if kind == "verification":
++                self.sessions[kind].verify(dict(operands, verification_id=evidence_id, observation="passed"))
++            elif kind == "review":
++                self.sessions[kind].review(dict(operands, review_id=evidence_id, disposition="accepted"))
++            else:
++                self.sessions[kind].approve(dict(operands, approval_id=evidence_id, disposition="approved",
++                                                 policy_generation=subject["policy_generation"]))
++        return answers
++
++    def judgment_subject(self, result_id):
++        """The exact immutable subject a judgment is dispatched about.
++
++        EVERY MEMBER IS READ FROM THE COORDINATOR'S OWN CUSTODY RECORD, through
++        the public reader that re-derives that record's identity and re-proves
++        every act it passed through. Nothing here is composed from a caller
++        value, and nothing names the producer's ORIGINAL candidate: the subject
++        of this judgment is the DERIVED one -- its own proposal, its own content
++        and head, and the target revision it was reconciled onto.
++
++        THE CAUSAL EVIDENCE TRAVELS WITH IT, retained and unmodified, because a
++        judge must be able to read what the harness actually observed rather
++        than be told it passed. It is evidence for a judgment and never a
++        substitute for one: `record_result_evidence` still requires three real
++        receipts, and W133117 keeps a failing combined observation `blocked`.
++        """
++        held = reconciliation.result_of(self.integration, result_id)
++        if held["state"] != "published":
++            _refuse(f"result {result_id!r} is {held['state']!r}; a judgment is "
++                    f"dispatched about a published derived candidate",
++                    category="refused", code="precondition")
++        return {"result_id": held["result_id"],
++                "job_id": held["job_id"],
++                "canonical_target_id": held["canonical_target_id"],
++                "derived_proposal_id": held["derived_proposal_id"],
++                "derived_result_id": held["derived_result_id"],
++                "derived_result_digest": held["derived_result_digest"],
++                "content_digest": held["content_digest"],
++                "candidate": held["prepared"]["head"],
++                "tree": held["prepared"]["tree"],
++                "target_revision": held["target_revision"],
++                "source_proposal_id": held["source_proposal_id"],
++                "source_base": held["source_base"],
++                "source_candidate": held["source_candidate"],
++                "causal_observations": held["causal_observations"],
++                "observed_by": held["observed_by"]}
++
++    def integration_served(self, job_id):
++        """The held document this deployment's integrator serves a Job under.
++
++        THIS MODULE'S OWN ANSWER, not another module's private state.
++        `_served_deployment` is the same derivation `_integration_operations`
++        composed the capacity with and `_job_workers` reads for compatibility,
++        so the operands a constructed port is given are the ones the provider
++        itself holds the stage to -- one derivation, asked again, rather than a
++        second opinion about the same Job.
++        """
++        named = [one for one in self.given["workers"]
++                 if one["role"] == "integration"]
++        if len(named) != 1:
++            _refuse(f"this deployment names {len(named)} integration workers; "
++                    f"one deployment names one integrator",
++                    category="refused", code="precondition")
++        binding = self.binding_for(job_id)
++        return _served_deployment(self.given, named[0], binding)
++
++    def integration_port_for(self, job_id, *, line_id, proposal_id,
++                             canonical_target_id):
++        """CONSTRUCT this Job's real integration runtime port, here, now.
++
++        W103068 review 2026-09-11T01-22-35Z [P1]. `factory` composed a
++        deployment that supplied no port at all, `_integration_ports` mapped
++        every bound Job to `None`, and the direct branch therefore refused
++        `capability` before it ever reached preparation or admission -- so the
++        advertised production entry point could not perform an ordinary
++        integration. The concrete port class existed and every constructor call
++        was in a test.
++
++        WHY IT IS CONSTRUCTED HERE RATHER THAN AT CONFIGURATION. Two of its
++        three dynamic operands do not exist when a deployment is composed: the
++        accepted line's integration checkpoint and the proposal its producer
++        published come into being when a review is ACCEPTED, which is after
++        serving started. The component fixture answered that by recomposing the
++        whole deployment with ports after the fact; a production provider cannot
++        restart itself, so the fixed half is resolved at composition and the
++        dynamic half is read from its own public owners at the moment the stage
++        that needs it runs.
++
++        EVERY OPERAND IS ALREADY CONFIGURED OR DURABLY DERIVED, and none is
++        invented. The identity digests, adapter, engine, network, launch
++        contract, credential resolution, workspace storage, capacity and
++        retained input manifest are the integration worker's OWN held document;
++        the toolchain digest is that manifest's own member, exactly as
++        `single_worker` records it for every other role; the instruction bytes
++        are the integrator's own configured task document, whose digest the
++        integration profile already pins; the target directory, the delivery
++        home and the two sibling homes are this deployment's wiring; and the
++        engine and credential capabilities are the ones this composition was
++        handed. Nothing reads another module's private attributes.
++        """
++        from baton_v12.contracts import digest_of_bytes
++
++        from . import integration_worker
++
++        from baton_v12.worker_manager import credentials
++
++        operations = self.integration_operations_for(job_id)
++        given = self.integration_served(job_id)
++        instructions = self.integration_instructions()
++        # AND THE PROFILE'S PINNED DIGEST IS WHAT PROVES THEY ARE THE RIGHT
++        # BYTES. `integration_bundle` seals the instructions into the bundle and
++        # the coordinator's profile carries their digest, so a deployment whose
++        # configured instructions and integration profile disagree is one whose
++        # bundle could never match the profile it was sealed under -- and
++        # finding that out at the engine is finding it out too late.
++        pinned = self.integration_profile["instructions_digest"]
++        if digest_of_bytes(instructions) != pinned:
++            _refuse(f"the configured integration instructions digest to "
++                    f"{digest_of_bytes(instructions)!r} and this deployment's "
++                    f"integration profile pins "
++                    f"{pinned!r}", category="refused", code="capability")
++        if self._engine_run is None:
++            _refuse("this deployment was composed with no engine run "
++                    "capability; an integration runtime port starts a real "
++                    "container through one", category="refused",
++                    code="capability")
++        if self._credential_provider is None:
++            _refuse("this deployment was composed with no credential "
++                    "provider; the integrator's bearer is materialized through "
++                    "one", category="refused", code="capability")
++        manifest = given["input_manifest"]
++        return integration_worker.IntegrationRuntimePort(
++            coordinator=self.integration, manager=self.control, jobs=self.jobs,
++            # THE ASSIGNMENT PORT IS `ManagerOperations.port` -- the public
++            # restricted port this deployment's own composition was handed, and
++            # the one that actually holds this attempt's claim. A port composed
++            # here would be a second Authority view of the same participant.
++            authority=self.authority, assignment_port=operations.port,
++            profile=self.integration_profile, checkpoint_profile=self.profile,
++            object_runner=self.integration_object_runner,
++            line_id=line_id, proposal_id=proposal_id,
++            canonical_target_id=canonical_target_id,
++            canonical_target=self._place("integration_target")["path"],
++            # AND THE DELIVERY HOME IS PROVISIONED LIKE ITS TWO SIBLINGS. The
++            # port requires a directory that already exists, and where this
++            # deployment's integration material lives is its own wiring -- the
++            # accepted fixture made this one by hand, which is exactly the
++            # operator step a production composition may not depend on.
++            delivery_home=self.integration_home(INTEGRATION_HOME),
++            instructions=instructions,
++            identity={one: given[one] for one in
++                      ("image_digest", "profile_digest", "policy_digest",
++                       "adapter_digest")},
++            adapter_name=given["adapter_name"],
++            toolchain_digest=manifest["toolchain_digest"],
++            input_manifest=manifest, engine=given["engine"],
++            engine_run=self._engine_run,
++            workspace_storage=given["workspace_storage"],
++            workspace_group=self.workspace_group,
++            # THE CAPACITY IS ALREADY THE HELD OBJECT. `single_worker._held`
++            # replaces the configured integer with the capacity its own owner
++            # composed, so wrapping it again would be this module composing a
++            # second one over a number it did not configure.
++            capacity=given["workspace_capacity"],
++            bundle_home=self.integration_home(INTEGRATION_BUNDLE_HOME),
++            launch_home=self.integration_home(INTEGRATION_LAUNCH_HOME),
++            launch_session=INTEGRATION_LAUNCH_SESSION,
++            launch_contract=given["launch_contract"],
++            network=given["network"],
++            credential_resolution=given["credential_resolution"],
++            # THE CREDENTIAL HOME IS COMPOSED OVER THE CONFIGURED ROOT, which is
++            # what that class is: "assignment-scoped, fixed, and proved when the
++            # thing that holds it is built". The worker's own view is private to
++            # `single_worker` and reading it from here would be this module
++            # reaching into another's state; the ROOT is configuration, so the
++            # view over it is composed rather than borrowed.
++            credential_home=credentials.CredentialHome(
++                given["credential_home"]),
++            credential_provider=self._credential_provider)
++
+     @property
+     def reconciliation_profile(self):
+         """The standalone Git profile W133117 composes results with.
+@@ -3672,12 +4257,41 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+             given["integration_store"],
+             incarnation=_incarnation(control_store),
+             clock=clock or getattr(control_store, "_now", None) or _now)
++        # W103068 review 2026-09-11T02-06-10Z [P1]: THE EFFECTIVE CAPABILITIES,
++        # NOT THE RAW KEYWORDS. `factory` calls this with neither, so passing
++        # the keywords straight through handed the deployment `None` twice and
++        # the constructed port refused for want of an engine -- on the exact
++        # entry point that must work by default. The engine runner is resolved
++        # through `single_worker`'s own public boundary, so an injected override
++        # and the ordinary default converge on one value; the credential
++        # provider is the INTEGRATION WORKER'S OWN already-resolved provider,
++        # which `worker_preflight` answered above and which is the same object
++        # that worker serves its stages with. Neither reaches into private
++        # state and neither builds a differently configured source.
++        integrator_provider = None
++        for one, provider in zip(given["workers"], providers):
++            if one["role"] == "integration":
++                integrator_provider = provider
+         deployment = StageDeployment(
+             given, control=control_store, jobs=job_store,
+             authority=composed.authority, integration=composed.integration,
+             profile=profile, sessions=composed.sessions,
+-            verdict=review_verdict)
++            verdict=review_verdict,
++            engine_run=single_worker.effective_engine_run(engine_run),
++            credential_provider=integrator_provider, clock=clock)
+         composed.deployment = deployment
++        for judges in (given.get("result_judgment_workers") or {}).values():
++            for one in judges.values():
++                deployment.judgment_providers[one["worker_id"]] = single_worker.worker_preflight(
++                    one["deployment"], control_store,
++                    credential_provider=credential_provider, engine_run=engine_run)
++        # W103068: AND THE CONFIGURED TARGETS ARE ADOPTED. This is the first
++        # act after the coordinator is open, and it is here rather than in the
++        # integration branch because a target is deployment configuration: a
++        # composition that only adopted a target when some Job reached
++        # integration would leave the operator's own `status` unable to name
++        # what this deployment was configured to write to.
++        deployment.activate_targets()
+         composed.publication = deployment.publication
+         composed.integration_profile = deployment.integration_profile
+         composed.integrator = Integration(deployment, ports)
+@@ -3691,6 +4305,12 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+                 operations = _integration_operations(
+                     given, one, provider, control_store, composed.authority,
+                     engine_run=engine_run, clock=clock, checkpoint=checkpoint)
++                # W103068: AND THE DEPLOYMENT LEARNS ITS INTEGRATION CAPACITY.
++                # An integration runtime port is composed over this worker's own
++                # held operands, and it cannot be composed until an accepted
++                # review exists -- so what the composition keeps is the capacity
++                # itself rather than a port built too early.
++                deployment._integration_operations = operations
+             else:
+                 operations = single_worker.worker_operations(
+                     one["deployment"], control_store, composed.authority,
+@@ -3796,6 +4416,51 @@ def _resolved(authority, given):
+                     f"{deployment['principal']!r}", category="refused",
+                     code="capability")
+         resolved[who] = principal
++    # W103068 review 2026-09-11T02-41-03Z: AND EVERY CONFIGURED JUDGMENT
++    # EXECUTION, for the same reason and at the same moment. This iterated the
++    # stage workers only, so a judgment execution configured for a participant
++    # this Authority resolves to another principal -- or for a Work it does not
++    # hold -- would have been discovered by `worker_operations` at dispatch,
++    # with a control store already configured and a container about to start.
++    # Every question answerable from the document and the Authority alone is
++    # answered here, while nothing has been written.
++    for job_id, kinds in (given.get("result_judgment_workers") or {}).items():
++        for kind, one in sorted(kinds.items()):
++            deployment = one["deployment"]
++            who = deployment["participant"]
++            what = f"Job {job_id!r}'s {kind} judgment execution"
++            principal = _authority_read(
++                f"{what}'s participant {who!r} is not one this Authority "
++                f"resolves",
++                lambda who=who: authority.principal_of(who))
++            if principal != deployment["principal"]:
++                _refuse(f"{what}'s participant {who!r} resolves to "
++                        f"{principal!r} and its deployment is configured for "
++                        f"{deployment['principal']!r}", category="refused",
++                        code="capability")
++            # AND THE WORK IT EXECUTES UNDER IS THIS AUTHORITY'S OWN. A
++            # judgment acquires its authorized assignment through that Work, so
++            # a manifest naming a Work this Authority does not project could
++            # never obtain one -- and `worker_operations` makes exactly this
++            # refusal later, when the message is about a launch instead of a
++            # configuration.
++            work_id = deployment["input_manifest"]["work_ref"]["work_id"]
++            projected = _authority_read(
++                f"{what}'s configured Work {work_id!r} is not one this "
++                f"Authority projects",
++                lambda work_id=work_id: authority.project_work(work_id))
++            if projected is None \
++                    or projected["authority_uuid"] != given["authority_uuid"]:
++                _refuse(f"{what} names Work {work_id!r}, which is absent from "
++                        f"this Authority", category="refused",
++                        code="precondition")
++            # AND THE ANSWER STAYS THE POOL'S. `scheduler.activate_pool` takes
++            # this map and requires its keys to be EXACTLY the configured pool
++            # participants, so a judgment participant added here would refuse
++            # every activation -- which is the right rule, because a judge is
++            # not a pool worker and holds no stage capacity. What this loop
++            # contributes is the PROOF, made while nothing has been written,
++            # not a member of the pool's identity map.
+     return resolved
+ 
+ 

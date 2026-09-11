@@ -1,0 +1,166 @@
+--- review141138/tools/stage_execution.py
++++ v12/python/tools/stage_execution.py
+@@ -43,6 +43,7 @@
+ import json
+ import os
+ import re
++import stat
+ from types import SimpleNamespace
+ 
+ from baton_v12 import checkpoint_profiles
+@@ -64,6 +65,7 @@
+ from baton_v12.job_manager.delegation import INTEGRATION_OBSERVATION_SCHEMA
+ from baton_v12.job_manager.scheduler import allocation_of
+ from baton_v12.job_manager.submission import job_of
++from baton_v12.source_profiles.checkout import clone_vector
+ from baton_v12.job_manager.scheduler import PooledManagerOperations
+ from baton_v12.worker_manager import (assignment_of,
+                                       attempt_runtime_of, claimed_offers_for,
+@@ -536,6 +538,12 @@
+                 _refuse(f"{what} executes as {deployment['participant']!r} and "
+                         f"this deployment's {kind} judgment belongs to "
+                         f"{judges[kind]!r}", category="policy", code="denied")
++            if deployment["workspace_storage"] != given["workers"][0]["deployment"]["workspace_storage"]:
++                _refuse("judgment workers use the manager's one configured workspace storage",
++                        category="refused", code="precondition")
++            if deployment["retention_disposition"] != "retain":
++                _refuse("judgment reports must be retained for receipt adoption",
++                        category="refused", code="precondition")
+             for name in ("workspace_storage", "launch_home",
+                          "credential_home"):
+                 _outside(deployment[name], checkout, f"{what}'s {name}")
+@@ -2462,6 +2470,7 @@
+             # configured owners have not judged it yet; nothing here judges it
+             # for them.
+             try:
++                deployment.judge_result(held["result_id"])
+                 held = reconciliation.record_result_evidence(
+                     deployment.integration, deployment.authority,
+                     deployment.sessions["verification"],
+@@ -2850,7 +2859,7 @@
+ 
+     def __init__(self, given, *, control, jobs, authority, integration,
+                  profile, sessions, verdict=None, engine_run=None,
+-                 credential_provider=None):
++                 credential_provider=None, clock=None):
+         self.given = given
+         # W103068: THE TWO CAPABILITIES AN INTEGRATION RUNTIME PORT IS
+         # CONSTRUCTED WITH, retained because the port cannot be constructed
+@@ -2862,6 +2871,9 @@
+         # AND THE COMPOSED INTEGRATION CAPACITY, attached after the workers are
+         # built because the operations object does not exist yet here.
+         self._integration_operations = None
++        self.judges = {}
++        self.judgment_clock = clock
++        self.judgment_providers = {}
+         self.control = control
+         self.jobs = jobs
+         self.authority = authority
+@@ -3238,6 +3250,92 @@
+         if configured is None or job_id not in configured:
+             return None
+         return configured[job_id]
++
++    def judge_result(self, result_id):
++        """Dispatch and adopt real judgments before current-policy receipts."""
++        subject = self.judgment_subject(result_id)
++        configured = self.judgment_executions(subject["job_id"])
++        if configured is None:
++            return None
++        subject["policy_generation"] = self.authority.policy_generation()
++        home = os.path.join(self.given["state_root"], "result-judgments", digest(result_id)[7:])
++        os.makedirs(home, exist_ok=True)
++        document = json.dumps(subject, sort_keys=True, separators=(",", ":")).encode()
++        dispatch = os.path.join(home, "subject.json")
++        # The first dispatch pins policy. Drift cannot silently start a new
++        # set of judges or reuse their reports under a newer generation.
++        try:
++            descriptor = os.open(dispatch, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o444)
++        except FileExistsError:
++            descriptor = os.open(dispatch, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
++            try:
++                if not stat.S_ISREG(os.fstat(descriptor).st_mode):
++                    _refuse("the retained judgment dispatch is not a regular file")
++                if os.read(descriptor, len(document) + 1) != document:
++                    _refuse("the derived judgment dispatch changed, including its policy generation",
++                            category="refused", code="precondition")
++            finally:
++                os.close(descriptor)
++        else:
++            with os.fdopen(descriptor, "wb") as stream:
++                stream.write(document)
++                stream.flush()
++                os.fsync(stream.fileno())
++        source = os.path.join(home, "source")
++        if not os.path.lexists(source):
++            held = reconciliation.result_of(self.integration, result_id)
++            cloned = _git_run(tuple(clone_vector(held["workspace"]["path"], source)))
++            if cloned["returncode"] != 0:
++                _refuse("the derived judgment snapshot could not be cloned",
++                        category="refused", code="precondition")
++            imported = _git_run(tuple(git_profile.import_vector(source, held["workspace"]["path"], subject["candidate"])))
++            if imported["returncode"] != 0:
++                _refuse("the derived judgment snapshot could not import its candidate",
++                        category="refused", code="precondition")
++            try:
++                self.profile.materialize(source, source, subject["candidate"])
++            except checkpoint_profiles.ProfileRefusal as failure:
++                _refuse(f"the derived judgment snapshot could not be materialized: {failure}",
++                        category="refused", code="precondition")
++        if not os.path.isdir(source) or os.path.islink(source):
++            _refuse("the judgment snapshot must be its own directory")
++        for expression, expected in (("HEAD", subject["candidate"]), ("HEAD^{tree}", subject["tree"])):
++            observed = _git_run(("git", "-C", source, "rev-parse", "--verify", expression))
++            if observed["returncode"] != 0 or observed["stdout"].strip() != expected:
++                _refuse("the retained judgment snapshot is not the derived candidate")
++        clean = _git_run(("git", "-C", source, "status", "--porcelain", "--untracked-files=all"))
++        if clean["returncode"] != 0 or clean["stdout"]:
++            _refuse("the retained judgment snapshot is not clean")
++        answers = {}
++        for kind, one in configured.items():
++            key = (result_id, kind)
++            if key not in self.judges:
++                self.judges[key] = single_worker.JudgmentExecution(
++                    one["deployment"], self.control, self.authority,
++                    self.judgment_providers[one["worker_id"]], worker_id=one["worker_id"],
++                    subject=dict(subject, kind=kind), source=source, engine_run=self._engine_run, clock=self.judgment_clock)
++            answers[kind] = self.judges[key].poll()
++        if any(answer is None for answer in answers.values()):
++            _refuse("the derived candidate awaits its configured judges' frozen reports",
++                    category="refused", code="precondition")
++        if any(answer["verdict"] != "accepted" for answer in answers.values()):
++            _refuse("a derived candidate judgment did not accept the result",
++                    category="refused", code="precondition")
++        if self.authority.policy_generation() != subject["policy_generation"]:
++            _refuse("policy changed while the derived candidate was judged",
++                    category="refused", code="precondition")
++        for kind, answer in answers.items():
++            evidence_id = "judgment-" + digest(answer)[7:]
++            operands = {"proposal_id": subject["derived_proposal_id"],
++                        "operation_id": evidence_id}
++            if kind == "verification":
++                self.sessions[kind].verify(dict(operands, verification_id=evidence_id, observation="passed"))
++            elif kind == "review":
++                self.sessions[kind].review(dict(operands, review_id=evidence_id, disposition="accepted"))
++            else:
++                self.sessions[kind].approve(dict(operands, approval_id=evidence_id, disposition="approved",
++                                                 policy_generation=subject["policy_generation"]))
++        return answers
+ 
+     def judgment_subject(self, result_id):
+         """The exact immutable subject a judgment is dispatched about.
+@@ -4180,8 +4278,13 @@
+             profile=profile, sessions=composed.sessions,
+             verdict=review_verdict,
+             engine_run=single_worker.effective_engine_run(engine_run),
+-            credential_provider=integrator_provider)
++            credential_provider=integrator_provider, clock=clock)
+         composed.deployment = deployment
++        for judges in (given.get("result_judgment_workers") or {}).values():
++            for one in judges.values():
++                deployment.judgment_providers[one["worker_id"]] = single_worker.worker_preflight(
++                    one["deployment"], control_store,
++                    credential_provider=credential_provider, engine_run=engine_run)
+         # W103068: AND THE CONFIGURED TARGETS ARE ADOPTED. This is the first
+         # act after the coordinator is open, and it is here rather than in the
+         # integration branch because a target is deployment configuration: a

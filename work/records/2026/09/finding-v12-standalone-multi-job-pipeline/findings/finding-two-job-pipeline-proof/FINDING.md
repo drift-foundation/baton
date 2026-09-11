@@ -327,3 +327,155 @@ Freeze and execute the ordinary standalone A/B feasibility run through the exist
 Explicitly superseded: the older three-Job freeze, submit-all-three, deliberate fault-C containment, injected failure, companion-refusal and crash/restart/adversarial/race prerequisites. Do not add fault Job C to the immediate run or wait for its acceptance. Deliberate correction/failure exercises whose sole purpose is robustness are likewise deferred; normal review-requested correction, if it occurs, must still execute legitimately.
 
 Indexed deferral C-1: real fault-Job containment and fault-capacity behavior, plus companion negative/refusal scenarios, remain unproved as standalone guarantees. Revisit after successful A/B feasibility when the owner schedules robustness/resilience; use retained component evidence only for its stated boundary. No new planning Work or approval round solely to narrow to A/B. A concrete defect blocking/falsifying ordinary A/B is returned to its owner and fixed, never patched around in the demo. Existing source scope and run budgets remain; actual standalone evidence has not yet been produced by R.
+
+## 2026-09-11T04:02:49Z — tuner141510 preparation and deployment findings
+
+**Confirmed:** owner pass141506 assigns actual proof preparation/execution to
+baton.tuner and retains the targeted material-delta review through baton.feat
+before execution, returning to baton.tune. The accepted provider handoff is
+`../finding-standalone-stage-composition/CONSUMER-HANDOFF-2026-09-11T03-42-24Z.md`.
+This supersedes the old missing-composition finding as an execution gate;
+provider component acceptance is not actual proof acceptance.
+
+**Observed operational inputs still missing:** the current managed process
+does not hold dedicated workspace gid1001 (`baton-workspace`), although the
+host group names user sl. DEPLOYMENT.md requires membership in the manager
+process; login gid1000 is expressly not a substitute. No operator-prepared
+W71879 Git baseline/target was located in the inspected v12 state roots or
+fixture directory. The earlier preflight reserves preparation/commit to
+Slawomir, consistent with AGENTS.md Git ownership. The selected older provider
+image sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+exists, but that observation does not bind current worker/integration source
+bytes or supply an accepted current integration image. No image was built.
+The credential registry and its referenced source are present with owner-only
+modes; no credential payload was opened. These are deployment observations,
+not a newly discovered composition defect.
+
+**Observed policy boundary:** `docker ps` and exact `docker image inspect`
+succeed; `docker image ls --format ...` was denied access to the Docker socket.
+No escalation or broader-command retry was attempted. The deployment must
+provide the intended execution boundary and outside-checkout writable roots;
+this managed context currently has repository and /tmp write roots only.
+
+**Open allocation locator:** pass141506 preserves W71879's existing allocation.
+The proof records read here do not identify its numerical execution allowance
+or a prior spending ledger. The old20-minute suggestion is explicitly a
+proposal. W103068's numerical author/reviewer/reserve accounts belong to that
+provider and cannot fund this run. Obtain the existing allowance's exact
+locator/value and accumulated spend before freezing execution limits; this
+does not request a new allocation or reset an old one.
+
+**Preparation boundary:** create exact baseline payload and A/B task-contract
+files in this dossier, without creating a Git repository or implementing either
+requested feature. A replaces the specifically scheduled greeting expectation;
+B adds its hours feature/test and one self-contained required-test script.
+The latter is deliberate: the configured causal owner carries the named script
+alone into the original base, so it must not depend on a newly added test module.
+Use the existing supported stage dependency graph to propose both original
+reviews before A integration, then B integration after A. This makes direct A
+and derived B deterministic while allowing independent coding. These concrete
+run choices await the already required material-delta review. They grant no
+source changes, Git mutation, fake judgment, manual lifecycle repair, fault C,
+or new hardening prerequisite.
+
+## 2026-09-11T04:10:45Z — reviewer141577 confirms operational return
+
+review-2026-09-11T04-10-45Z.md retains all13 prepared files without drift and confirms missing effective workspace gid1001 and absent nominated run root. Operator Git baseline/target and numerical preserved allocation remain unresolved. These are concrete deployment inputs, not a new provider defect or another planning Work. OPERATIONAL-HANDOFF-2026-09-11T04-10-45Z.md names the exact repair/output and returns execution to tuner after ops. The next tuner packaging embeds full task scope and limits model evidence claims to what the accepted judgment input actually delivers; original/derived authorization still must be retained and verified by their real owners. No final material-delta approval or actual run claim. Read-only validation0.00040272800106322393s plus prior tuner0.004338626000389922s and historical uncertainty retained; no tests or provider-budget transfer.
+
+## 2026-09-11T04:20:37Z — prompt separates sandbox observation from host execution policy
+
+Owner M141636 supplies the source/target under /home/sl/.local/state/baton/v12/w71879-run1,
+baseline commit 2fbb2d456638e5706218020aebfa47f0a82c8920 and tree
+3492ba64448ab9d39bde53ee6456ce24e74ece2c, and explicitly approves A/B wall20min,
+implementation4min, original review/derived judge3min and integration2min limits.
+This supersedes the missing baseline and unidentified numerical allocation above;
+all preparation costs/uncertainty remain and provider reserves do not transfer.
+
+Read-only inspection finds host app-server PID4666 and dispatcher PID7011 already
+hold supplementary1001. The sandboxed shell's1000/65534 observation remains true,
+but does not establish that a host-group repair or restart is necessary.
+Installed default.rules:164 already allows the exact prefix
+`/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 -m tools.job_manager`.
+`codex execpolicy check` against installed default.rules and baton.rules returns
+allow; that exact command with --help succeeds from v12/python. The policy check
+warned that PATH aliases could not be created; its rule evaluation still succeeded.
+No store, model, container or actual run was started; diagnostic elapsed cost is
+not comprehensively measured and is not claimed zero.
+
+This supersedes treating all manager commands as restricted to the sandbox.
+It does not prove the final configured serve command or provisioning commands
+are authorized: adding BATON_V12_STAGE_EXECUTION_CONFIG changes the matched prefix.
+Current images, public Authority/config provisioning and their exact commands are
+still needed. Proposed next owner disposition is to return existing packaging to
+tuner, who identifies the exact missing command grants with reviewable artifacts;
+do not request a blanket sandbox override, guess a host restart or infer approval
+of a different command. M141636's execution hold remains until owner disposition.
+
+## 2026-09-11T04:26:29Z — tuner141676 executable packaging boundary
+
+**Confirmed:** return141673 authorizes completing deployment/provisioning
+artifacts within current access and identifying exact missing grants before
+execution. Source/target HEAD and baseline tree match M141636; target status
+is clean. Installed default.rules164 grants the exact unconfigured Job Manager
+prefix. It does not grant the stage-configuration environment prefix or an
+arbitrary provisioning/build helper. Host-group repair is not inferred.
+
+**Packaging choices for the existing delta review:** freeze local build contexts
+over the selected historical provider base, recopy current worker/profile bytes,
+and build one provider candidate plus the accepted integration recipe candidate.
+No package reinstall, floating base, credential payload or fixture provider is
+included. Candidate image IDs remain build outputs until independently reviewed
+for selection. Generate full tasks, seven policy documents, manifests, five
+stage deployments and three result-judge deployments, and provision fresh
+Authority Works/grants through public APIs only. Embed complete A/B scope in
+judge instructions and limit their evidence claims to the delivered candidate,
+causal observations and policy; concurrent peer/original report bodies are not
+assumed present. Preserve prepared141510 as history.
+
+**Observed capacity:** Docker reports32 CPUs and32718819328 memory bytes;
+the run-root filesystem has723990093824 available bytes at this observation.
+Accepted OCI limits are2 CPUs,2GiB and512 pids per runtime. All eight configured
+execution owners plus two helper slots conservatively fit20 CPUs/20GiB.
+Propose512MiB declared workspace capacity per assignment and16GiB retained-run
+storage stop threshold; capacity declaration is a free-space preflight, not a
+filesystem quota. Scratch limits remain the accepted owner's constants.
+The approved20/4/3/2-minute limits require an external run deadline observer:
+provider code has longer fixed deadlines and these are not configurable in
+single-worker/4. An exceeded proof limit stops the run exceptionally and retains
+evidence; it never authorizes another attempt or a manual success transition.
+
+**Additional operator Git operand:** the configured integration workspace must
+be an existing private Git repository for the accepted prepare/fetch/merge
+operations. The run root currently contains source and target only. Nominate
+`/home/sl/.local/state/baton/v12/w71879-run1/integration-workspace` as a fresh
+bare repository, prepared by Slawomir under existing Git ownership. Packaging
+will refuse absence, not initialize or repair it. This supplies a concrete
+existing provider operand, not a new protocol or planning prerequisite.
+
+### Packaging result under claim141676
+
+`PACKAGING-141676.md` and `prepared-141676/` now supply the concrete command
+handoff. Public-schema/bootstrap validation passes for five Works, five stage
+workers and three independent judge deployments. Temporary validation uses
+explicit historical image values only and is not the run configuration.
+Actual image build/selection and the final render remain behind the named
+engine grant, with the existing material-delta acceptance before submission.
+The exact build/provision/run helper commands and configured serve prefix have
+no matching installed rule; the unconfigured Job Manager prefix matches allow.
+This is a measured command-grant distinction, not a blanket host-access claim.
+No host group repair, escalation, rule edit or alternate launcher was attempted.
+
+The actual selected credential mapping is present in the registry metadata.
+The shared provider installation/default-model behavior is explicit; the
+factory's fixed provider-diverse label is not evidence of actual provider/model
+diversity in this run. The external guard uses public assignment owners and
+basic status, includes active derived judgments within the integration limit,
+and retains exceptional stops rather than repairing outcomes. Its scripts and
+all retained inputs receive independent review before any execution grant is
+used. Exact preparation costs, corrected packaging errors and retained
+temporary validation paths are in prepared-141676/spending.json. Prior
+preparation costs and all provider reserves remain unchanged.
+
+## 2026-09-11T04:51:36Z — independent command/scope acceptance, reviewer141816
+
+review-2026-09-11T04-51-36Z.md accepts the exact prepared141676 package for operator command-grant disposition. Independent33-file hash/size/mode check,45-provider-entry continuity, earlier payload continuity and clean operator source/target identities pass; three helper ASTs parse. COMMAND-REVIEW-2026-09-11T04-51-36Z.md names the three exact helper invocations and effects. This supersedes pending command/scope review, not final material-delta/image selection or actual execution acceptance. Ops supplies exact grants and operator bare workspace; tuner builds/checks/renders, then existing independent review binds real images/configs before provisioning/run. No blanket grant, new planning Work or host restart. Review validation0.009054458001628518s and all prior measured/unmeasured spending preserved; no actual models/builds/containers/submission here.

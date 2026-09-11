@@ -1,0 +1,38 @@
+### label: judgment-configuration-controls-2
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"]
+### exit: 1
+### elapsed_seconds: 17.061927
+### STDOUT
+
+### STDERR
+...............................F...............
+======================================================================
+FAIL: test_the_configured_judgment_executions_are_held_per_job (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_configured_judgment_executions_are_held_per_job)
+W103068: THE CONSUMER'S EXECUTION CONFIGURATION, proved and selected.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7034, in test_the_configured_judgment_executions_are_held_per_job
+    self.assertEqual(sorted(one["role"] for one in given["workers"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ["implementation", "integration", "review"])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['implementation', 'implementation', 'integration', 'review', 'review'] != ['implementation', 'integration', 'review']
+
+First differing element 1:
+'implementation'
+'integration'
+
+First list contains 2 additional elements.
+First extra element 3:
+'review'
+
+- ['implementation', 'implementation', 'integration', 'review', 'review']
+?                    ------------------               ----------
+
++ ['implementation', 'integration', 'review']
+
+----------------------------------------------------------------------
+Ran 47 tests in 16.856s
+
+FAILED (failures=1)

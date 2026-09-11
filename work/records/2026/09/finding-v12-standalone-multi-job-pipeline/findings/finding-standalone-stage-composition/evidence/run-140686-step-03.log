@@ -1,0 +1,28 @@
+### label: production-port-construction-witness-3
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT"]
+### exit: 1
+### elapsed_seconds: 0.903340
+### STDOUT
+
+### STDERR
+F
+======================================================================
+FAIL: test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT)
+W103068's P1: the production composition supplies its own port.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6953, in test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT
+    self.assertEqual(held.composed.integrator.ports,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     {"job-a": None, "job-b": None})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'job-a': <tools.integration_worker.IntegrationRunt[44 chars]None} != {'job-a': None, 'job-b': None}
++ {'job-a': None, 'job-b': None}
+- {'job-a': <tools.integration_worker.IntegrationRuntimePort object at 0x7587d0dc3e00>,
+-  'job-b': None}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.715s
+
+FAILED (failures=1)

@@ -1,0 +1,27 @@
+# Accepted composition consumer handoff — W103068 to W71879 — 2026-09-11T03:42:24Z
+
+Independent acceptance: review-2026-09-11T03-42-24Z.md. Candidate manifest: evidence/review-141384/result.json; exact four-file custody and base-relative/full diffs: evidence/tuner-141250/handoff-manifest.json. The45-entry provider input chain is placement140907/result.json plus these four accepted replacements; two target_rework paths remain deliberately absent. P/Q/R and deployment/one-Job acceptance are retained as referenced in this record. No implementation gap remains known in factory A or derived B judgment. This is provider acceptance; actual standalone/model proof is next.
+
+## Concrete consumer contract
+
+Use tools.stage_execution:factory with BATON_V12_STAGE_EXECUTION_CONFIG naming the held stage deployment document (schema baton.v12.stage-execution-deployment/2). Use actual immutable profile/image digests, authority UUID/store, Job manager incarnation/store and control store, configured target, outside-checkout state/credential/launch/workspace roots, supported provider credentials and accepted A/B input manifests/tasks. Keep each Job's job/review Work and persistent original line/base distinct; target binding may be shared. Ordinary submission contains A/B only. No injected integration_port, post-review connect/recomposition, manual claims/receipts/target repair or fixture provider.
+
+For the Job taking the derived branch, configure result_judgment_workers[job_id] with exactly verification, review and approval, each {worker_id, deployment}. Each deployment is a complete accepted single-worker review configuration with its own existing Authority Work/input_manifest, distinct actor matching receipt_participants, eligible route, configured credential_sources and actual provider/profile, launch_role review, retention_disposition retain and private credential/launch homes. All use the manager's one configured workspace_storage; assignment directories and report outputs are distinct. Configure real credentials for judges as well as stage workers: a registry only on workers does not implicitly configure judges.
+
+Each judge task uses the accepted git-line review task contract with the original source_base as declared_base. Its instructions direct the provider to /input/judgment.json and read-only source to assess its specific verification/review/approval duty, exact derived candidate, causal observations and permitted test changes. The consumer supplies the dynamic subject and candidate; do not pre-create guessed candidate receipts. The accepted adapter writes baton.review-report/1 with accepted/rejected/changes-requested verdict and nonempty findings; its own observed base/head/tree is frozen and cross-checked by the consumer. Approval is pinned to actual dispatch policy. Configure policy/Works before dispatch; do not change grants mid-flight merely to make the run pass.
+
+From v12/python with PYTHONPATH=src:. and the configuration environment set, the existing commands are:
+
+```text
+python3 -m tools.job_manager --store <job-store> --incarnation <incarnation> --authority-uuid <uuid> submit --document <A-B-submission.json>
+python3 -m tools.job_manager --store <job-store> --incarnation <incarnation> --authority-uuid <uuid> serve --control <control-store> --operations tools.stage_execution:factory --interval 1
+python3 -m tools.job_manager --store <job-store> --incarnation <incarnation> --authority-uuid <uuid> status --control <control-store>
+```
+
+These are invocation templates, not claims that real run paths/profiles are frozen here. The existing W71879 freeze supplies those exact local operands, roots, task contracts, resource/time limits and any targeted material-delta review before execution. Use supported public status/readers and retain production evidence. Basic status reports recorded observations and can lag serving; H-7 detached observation limitations are not silently claimed fixed. Do not instantiate a producer as a status workaround.
+
+Expected ordinary sequence: A/B isolated coding and original review, A's direct factory port integration, B's immutable original submission retained after target advance, derived candidate/causal evidence published, three actual judge assignments/runtimes/frozen reports, scoped current-policy receipts, normal B result import and real integration assignment settlement, both landed changes and both terminal Jobs. B's coordinator import has no B model integration runtime; retain that honest absence. If a real review requests correction, follow normal correction. No deliberate fault C or added robustness matrix.
+
+Run evidence must bind real tasks, profiles, dispatch/report/assignment/custody identities, original and derived authorization, exact target before/after and final states. The reviewer probe and tuner witness are useful controls only; never reuse their fake provider decisions as actual W71879 judgments. A concrete live blocker returns to its owner rather than being repaired in the demo.
+
+Budgets: author731.3390351440088/920s plus uncertainty; correction187.05443938200625/300s; reviewer13.312307043996647/25s. Joined40s and other reserves unchanged; unused provider budgets do not automatically fund the standalone run. Preserve W71879's existing run allocation. Hardening W136578/H-7/C-1/W129838 remains deferred. Next real outcome is A/B terminal integration evidence for W71830, not another component planning cycle.

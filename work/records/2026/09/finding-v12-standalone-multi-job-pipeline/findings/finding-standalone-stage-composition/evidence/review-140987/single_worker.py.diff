@@ -1,0 +1,46 @@
+--- placement140907/v12/python/tools/single_worker.py
++++ candidate140937/v12/python/tools/single_worker.py
+@@ -2305,6 +2305,24 @@
+         raise
+ 
+ 
++def effective_engine_run(engine_run=None):
++    """The engine runner this module would ACTUALLY use, named publicly.
++
++    W103068 review 2026-09-11T02-06-10Z [P1]. `worker_operations` resolves
++    `engine_run or _engine_run` privately, so a composer that passed its own
++    `engine_run` through to a second consumer passed `None` whenever the caller
++    had supplied nothing -- and the production `factory` supplies nothing. The
++    integration runtime port then refused for want of an engine capability, on
++    the one entry point that is supposed to work by default.
++
++    IT IS THE SAME EXPRESSION AND NOT A SECOND OPINION. Injected overrides and
++    ordinary defaults converge here by construction, which is exactly what the
++    pinned design requires: one boundary answers what this module runs
++    containers with, and `worker_operations` below resolves through it.
++    """
++    return engine_run or _engine_run
++
++
+ def worker_preflight(given, control_store, *, credential_provider=None,
+                      engine_run=None):
+     """The half of a worker deployment that needs no Authority.
+@@ -2348,7 +2366,7 @@
+     # exists yet, so two distinct absent placeholders are used only to force
+     # the engine, identity, network and workspace-group checks before admission.
+     OciAdapter(
+-        given["engine"], EnginePort(engine_run or _engine_run),
++        given["engine"], EnginePort(effective_engine_run(engine_run)),
+         identity={"image_digest": given["image_digest"],
+                   "profile_digest": given["profile_digest"],
+                   "policy_digest": given["policy_digest"],
+@@ -2404,7 +2422,8 @@
+                                  "credential_sources")}
+     worker = _SingleWorker(
+         runtime, control_store, port, credential_provider=provider,
+-        engine_run=engine_run or _engine_run, session=session, clock=clock,
++        engine_run=effective_engine_run(engine_run), session=session,
++        clock=clock,
+         checkpoint=checkpoint, stage=stage)
+     return _Operations(
+         control_store, port, mint_bearer=_bearer,

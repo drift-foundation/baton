@@ -1,0 +1,207 @@
+--- review140987/v12/python/tests/tools/test_stage_execution.py
++++ candidate141024/v12/python/tests/tools/test_stage_execution.py
+@@ -6947,6 +6947,204 @@
+         self.assertIsNotNone(target_of(deployment.integration, target_id),
+                              f"the composition adopted no target {target_id!r}")
+ 
++    def judgment_execution(self, kind, job_id="job-b"):
++        """One configured derived-result judgment execution.
++
++        W103068: a COMPLETE `single_worker` deployment for the participant that
++        owns this kind of judgment, launched under the accepted `review` role.
++        Its identity, homes and Work are its own -- nothing is borrowed from the
++        original reviewer, because a judgment executed under that participant
++        would be attributable to the wrong actor.
++        """
++        from baton_v12.authority import Authority
++
++        who = self.document()["receipt_participants"][kind]
++        # THE PRINCIPAL IS THE AUTHORITY'S OWN ANSWER. `self.principals` holds
++        # the three stage workers' and these judges are not among them; a
++        # configuration is refused unless the participant really resolves to the
++        # principal it names, so the fixture asks rather than guesses.
++        authority = Authority.open_readonly(
++            self.authority_path,
++            expected_authority_uuid=self.config["authority_uuid"])
++        try:
++            principal = authority.principal_of(who)
++        finally:
++            authority.dispose()
++        deployment = copy.deepcopy(self.config)
++        deployment["launch_role"] = stage_execution.JUDGMENT_LAUNCH_ROLE
++        deployment["participant"] = who
++        deployment["principal"] = principal
++        for name in ("workspace_storage", "launch_home", "credential_home"):
++            place = os.path.join(self.root, f"judgment-{kind}-{name}")
++            os.makedirs(place, exist_ok=True)
++            deployment[name] = place
++        return {"worker_id": f"{job_id}-{kind}-judge",
++                "deployment": deployment}
++
++    def judgment_workers(self, job_id="job-b", **changed):
++        held = {kind: self.judgment_execution(kind, job_id)
++                for kind in stage_execution._JUDGMENT_KINDS}
++        held.update(changed)
++        return {job_id: held}
++
++    def judging(self, **changed):
++        """The two-Job document WITH its derived-result consumer configured."""
++        return self.traversing(result_judgment_workers=self.judgment_workers(
++            **changed))
++
++    def refused_judgment(self, **changed):
++        with self.assertRaises(ContractRefusal) as caught:
++            stage_execution.held_configuration(
++                self.composed_document(line_declared_base=self.base,
++                                       **self.two_jobs(**self.judging(
++                                           **changed))),
++                checkout=self.checkout)
++        return caught.exception
++
++    # -- the configured consumer, held before anything is opened -------------
++
++    def test_the_configured_judgment_executions_are_held_per_job(self):
++        """W103068: THE CONSUMER'S EXECUTION CONFIGURATION, proved and selected.
++
++        Each of the three judgments names its own worker identity and a complete
++        deployment, held by `single_worker`'s own validator, and each executes as
++        the participant `receipt_participants` already names for that kind.
++        """
++        given = stage_execution.held_configuration(
++            self.composed_document(line_declared_base=self.base,
++                                   **self.two_jobs(**self.judging())),
++            checkout=self.checkout)
++        held = given["result_judgment_workers"]
++        self.assertEqual(sorted(held), ["job-b"])
++        self.assertEqual(sorted(held["job-b"]),
++                         sorted(stage_execution._JUDGMENT_KINDS))
++        judges = given["receipt_participants"]
++        for kind, one in held["job-b"].items():
++            with self.subTest(kind=kind):
++                self.assertEqual(one["worker_id"], f"job-b-{kind}-judge")
++                self.assertEqual(one["deployment"]["participant"],
++                                 judges[kind])
++                self.assertEqual(one["deployment"]["launch_role"],
++                                 stage_execution.JUDGMENT_LAUNCH_ROLE)
++                # AND IT IS THE HELD FORM, not the bytes that were written:
++                # `single_worker._held` derives members the raw document has no
++                # business carrying.
++                self.assertIn("credential_resolution", one["deployment"])
++        # THE ORIGINAL STAGE-WORKER CONTRACT IS UNTOUCHED: this two-Job
++        # deployment still names exactly its own five stage workers in exactly
++        # the three stage roles, and no judgment execution leaked into them.
++        self.assertEqual(sorted(one["role"] for one in given["workers"]),
++                         ["implementation", "implementation", "integration",
++                          "review", "review"])
++        self.assertEqual(
++            {one["role"] for one in given["workers"]}, set(stage_execution.ROLES))
++        self.assertNotIn(
++            "job-b-review-judge",
++            {one["worker_id"] for one in given["workers"]})
++
++    def test_a_deployment_without_a_consumer_is_unchanged(self):
++        """Absent is an answer, and every accepted document predates this."""
++        given = stage_execution.held_configuration(
++            self.composed_document(line_declared_base=self.base,
++                                   **self.two_jobs(**self.traversing())),
++            checkout=self.checkout)
++        self.assertIsNone(given["result_judgment_workers"])
++
++    def test_a_judgment_execution_for_another_participant_is_refused(self):
++        """The execution and the judge are ONE fact: an execution configured for
++        somebody who does not own that judgment would produce a report this
++        deployment could never turn into that owner's receipt."""
++        other = self.judgment_execution("review")
++        other["deployment"]["participant"] = "baton.integrator"
++        other["deployment"]["principal"] = \
++            self.principals["baton.integrator"]
++        held = self.refused_judgment(review=other)
++        self.assertEqual((held.category, held.code), ("policy", "denied"))
++        self.assertIn("judgment belongs to", held.message)
++
++    def test_two_of_three_judgments_are_refused(self):
++        """Two judgments out of three is not an authorization."""
++        held = self.judgment_workers()
++        del held["job-b"]["approval"]
++        with self.assertRaises(ContractRefusal) as caught:
++            stage_execution.held_configuration(
++                self.composed_document(
++                    line_declared_base=self.base,
++                    **self.two_jobs(**self.traversing(
++                        result_judgment_workers=held))),
++                checkout=self.checkout)
++        self.assertIn("approval", caught.exception.message)
++
++    def test_a_consumer_for_an_unbound_job_is_refused(self):
++        """A derived result belongs to one Job's line and target."""
++        held = self.judgment_workers("job-nobody")
++        with self.assertRaises(ContractRefusal) as caught:
++            stage_execution.held_configuration(
++                self.composed_document(
++                    line_declared_base=self.base,
++                    **self.two_jobs(**self.traversing(
++                        result_judgment_workers=held))),
++                checkout=self.checkout)
++        self.assertEqual((caught.exception.category, caught.exception.code),
++                         ("refused", "precondition"))
++        self.assertIn("job-nobody", caught.exception.message)
++
++    def test_a_judgment_identity_that_collides_with_a_stage_worker_refuses(
++            self):
++        """A judgment execution is its own identity and not a stage worker's --
++        it serves no Job stage and takes no stage allocation."""
++        other = self.judgment_execution("verification")
++        other["worker_id"] = "review-worker"
++        held = self.refused_judgment(verification=other)
++        self.assertEqual((held.category, held.code),
++                         ("refused", "precondition"))
++        self.assertIn("already configures", held.message)
++
++    def test_the_judgment_subject_is_the_derived_candidate(self):
++        """W103068: WHAT A JUDGE IS ASKED ABOUT, read from the coordinator's own
++        custody record rather than composed by a caller.
++
++        It is the DERIVED candidate -- its own proposal, content and head, and
++        the target revision it was reconciled onto -- and never the producer's
++        original one, which a judgment of the merged bytes must not be about.
++        The retained causal observations travel with it as evidence, which is
++        not the same thing as a judgment.
++        """
++        held = self.integrating()
++        self.drive_job(held.job, held.composed, "job-a", "integration",
++                       "completed", ticks=4)
++        deployment = self.deployment_of(held.composed)
++        found = None
++        for _ in range(14):
++            self.tick(held)
++            found = deployment.integration._connection.execute(
++                "SELECT result_id, state FROM integration_results").fetchone()
++            if found is not None and found["state"] == "published":
++                break
++        self.assertEqual(found["state"], "published")
++        subject = deployment.judgment_subject(found["result_id"])
++        self.assertEqual(subject["result_id"], found["result_id"])
++        self.assertEqual(subject["job_id"], "job-b")
++        self.assertTrue(subject["derived_proposal_id"])
++        # THE DERIVED PROPOSAL IS NOT THE PRODUCER'S OWN.
++        self.assertNotEqual(subject["derived_proposal_id"],
++                            subject["source_proposal_id"])
++        # AND THE CANDIDATE IS THE MERGED HEAD, not the submission's.
++        self.assertNotEqual(subject["candidate"], subject["source_candidate"])
++        self.assertNotEqual(subject["candidate"], subject["source_base"])
++        # THE RETAINED CAUSAL EVIDENCE TRAVELS WITH IT, unmodified.
++        self.assertEqual(sorted(subject["causal_observations"]),
++                         ["base", "combined", "isolated"])
++        self.assertEqual(subject["observed_by"],
++                         deployment.observer_participant())
++
++    def test_a_job_with_no_configured_consumer_selects_none(self):
++        """A Job whose derived branch has no consumer has no way to obtain
++        independent judgments, so this says so rather than inventing one."""
++        held = self.both_accepted()
++        deployment = self.deployment_of(held.composed)
++        self.assertIsNone(deployment.judgment_executions("job-b"))
++
+     def credential_registry(self):
+         """A real user-credential registry, so the DEFAULT provider is used.
+ 

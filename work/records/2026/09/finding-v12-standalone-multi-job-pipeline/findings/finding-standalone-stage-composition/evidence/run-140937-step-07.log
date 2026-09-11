@@ -1,0 +1,105 @@
+### label: judgment-configuration-controls
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"]
+### exit: 1
+### elapsed_seconds: 17.111750
+### STDOUT
+
+### STDERR
+....E.....EE...................E...F..........E
+======================================================================
+ERROR: test_a_consumer_for_an_unbound_job_is_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_consumer_for_an_unbound_job_is_refused)
+A derived result belongs to one Job's line and target.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7058, in test_a_consumer_for_an_unbound_job_is_refused
+    held = self.judgment_workers("job-nobody")
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6972, in judgment_workers
+    held = {kind: self.judgment_execution(kind, job_id)
+                  ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6963, in judgment_execution
+    deployment["principal"] = self.principals[who]
+                              ~~~~~~~~~~~~~~~^^^^^
+KeyError: 'baton.verifier'
+
+======================================================================
+ERROR: test_a_judgment_execution_for_another_participant_is_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_execution_for_another_participant_is_refused)
+The execution and the judge are ONE fact: an execution configured for
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7036, in test_a_judgment_execution_for_another_participant_is_refused
+    other = self.judgment_execution("review")
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6963, in judgment_execution
+    deployment["principal"] = self.principals[who]
+                              ~~~~~~~~~~~~~~~^^^^^
+KeyError: 'baton.approver-review'
+
+======================================================================
+ERROR: test_a_judgment_identity_that_collides_with_a_stage_worker_refuses (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_identity_that_collides_with_a_stage_worker_refuses)
+A judgment execution is its own identity and not a stage worker's --
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7074, in test_a_judgment_identity_that_collides_with_a_stage_worker_refuses
+    other = self.judgment_execution("verification")
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6963, in judgment_execution
+    deployment["principal"] = self.principals[who]
+                              ~~~~~~~~~~~~~~~^^^^^
+KeyError: 'baton.verifier'
+
+======================================================================
+ERROR: test_the_configured_judgment_executions_are_held_per_job (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_configured_judgment_executions_are_held_per_job)
+W103068: THE CONSUMER'S EXECUTION CONFIGURATION, proved and selected.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7002, in test_the_configured_judgment_executions_are_held_per_job
+    **self.two_jobs(**self.judging())),
+                      ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6979, in judging
+    return self.traversing(result_judgment_workers=self.judgment_workers(
+                                                   ~~~~~~~~~~~~~~~~~~~~~^
+        **changed))
+        ^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6972, in judgment_workers
+    held = {kind: self.judgment_execution(kind, job_id)
+                  ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6963, in judgment_execution
+    deployment["principal"] = self.principals[who]
+                              ~~~~~~~~~~~~~~~^^^^^
+KeyError: 'baton.verifier'
+
+======================================================================
+ERROR: test_two_of_three_judgments_are_refused (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_two_of_three_judgments_are_refused)
+Two judgments out of three is not an authorization.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7045, in test_two_of_three_judgments_are_refused
+    held = self.judgment_workers()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6972, in judgment_workers
+    held = {kind: self.judgment_execution(kind, job_id)
+                  ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6963, in judgment_execution
+    deployment["principal"] = self.principals[who]
+                              ~~~~~~~~~~~~~~~^^^^^
+KeyError: 'baton.verifier'
+
+======================================================================
+FAIL: test_the_judgment_subject_is_the_derived_candidate (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_judgment_subject_is_the_derived_candidate)
+W103068: WHAT A JUDGE IS ASKED ABOUT, read from the coordinator's own
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7119, in test_the_judgment_subject_is_the_derived_candidate
+    self.drive_job(held.job, held.composed, "job-b", "integration",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   "integrating", ticks=2)
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6814, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-b's integration stage never reached 'integrating': {'implementation': 'completed', 'review': 'completed', 'integration': 'claimed'}
+
+----------------------------------------------------------------------
+Ran 47 tests in 16.907s
+
+FAILED (failures=1, errors=5)

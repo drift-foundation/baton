@@ -52,3 +52,60 @@ present), so the container prerequisites are not the obstacle here. A sibling
 participant reported Docker permission-denied on the same host in the same
 period; that difference is worth knowing before anyone plans who runs the
 proof, and it is recorded rather than acted on.
+
+## 2026-09-11 — baton.tuner — claim141510 concrete preparation
+
+Read current detail, succeeded at standalone claim, read complete Work events
+and T71879 discussion, and consumed accepted W103068 handoff/review. Rechecked
+the45-entry accepted source chain:43 present files match, two deliberately
+absent target_rework paths remain absent. This supersedes the old entry-gate
+failure as current provider status, not as historical evidence.
+
+Created `prepared-141510/` with the ten-file operator baseline payload,
+complete A/B requests and three result-judge duties, without implementing the
+features or creating a Git repository. A schedules the exact existing greeting
+test change; B adds its tests and a self-contained causal harness. Appended
+the decision/findings before preparing files. Detailed handoff and remaining
+deployment inputs: `PREPARATION-141510.md`; current next step: PLAN.md.
+
+The managed process lacks configured workspace gid1001; the operator Git
+baseline/target and preserved numerical run-allocation locator are not supplied.
+Historical provider image and credential metadata exist, but current image
+assembly and exact runtime configuration remain preparation work. Return
+incomplete through baton.bug for those inputs, then complete the existing
+material-delta review through baton.feat before execution. No product code or
+existing repository test changed under this claim. No proof acceptance claim.
+
+No tests, model, container, submission or manual lifecycle operations ran.
+Measured hashes/AST preparation validation:0.004338626000389922s. Exploratory
+reads/edits/metadata checks were not comprehensively timed; preserve that
+uncertainty and all prior/external spending. Provider allocations/reserves
+remain separate. Actual A/B execution and terminal evidence remain outstanding.
+
+## 2026-09-11 — baton.tuner — claim141676 executable packaging
+
+Consumed owner M141636/return141673 and the independent operational review.
+Revalidated actual source/target commit/tree and ten baseline files; the old
+baseline/budget findings are explicitly superseded. Read the installed exact
+command grants: the unconfigured manager prefix is allowed, while configured
+serve/build/provision/run helper prefixes have no match. No grant or sandbox
+override was inferred, requested interactively or installed.
+
+Prepared current image contexts and three bounded helpers in prepared-141676:
+build/inspect candidates, generate full immutable tasks/policies/manifests and
+provision public Authority Works, and run one reviewed ordinary CLI submission
+with read-only deadline/resource observations. Corrected judge instructions
+embed full task scope and do not claim unavailable report bodies. Exact
+commands, resources, remaining bare-workspace Git operand, expected evidence
+and continuation are in PACKAGING-141676.md. Existing prepared141510 payloads
+remain unchanged; no product source or existing repository test was edited.
+
+Public bootstrap/schema validation passed after correcting UUID/canonical-array
+packaging errors. An AST check caught and corrected an unexecuted runner
+indentation error. Retain both successful and failed validation costs and all
+temporary paths in prepared-141676/spending.json; no provider reserve transfer.
+Only temporary validation Authorities were created; no production Authority,
+image, runtime, model judgment, submission or lifecycle result was created.
+Final run inputs require actual checked image IDs, the existing independent
+review and exact host grants. Pass this concrete packaging handoff for review
+and operational disposition; actual A/B terminal proof remains outstanding.

@@ -1,0 +1,13 @@
+### label: production-port-construction-witness-7
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_THE_CONFIGURED_DEPLOYMENT_CONSTRUCTS_ITS_OWN_INTEGRATION_PORT"]
+### exit: 0
+### elapsed_seconds: 1.001522
+### STDOUT
+
+### STDERR
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.809s
+
+OK

@@ -1,0 +1,13 @@
+### label: judgment-configuration-regression
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools", "python3", "-m", "unittest", "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection", "tests.tools.test_stage_execution.ThePublicFactoryComposesThroughItsOwnEntryPoint"]
+### exit: 0
+### elapsed_seconds: 15.039909
+### STDOUT
+
+### STDERR
+.........................................
+----------------------------------------------------------------------
+Ran 41 tests in 14.860s
+
+OK

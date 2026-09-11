@@ -1,0 +1,45 @@
+{
+ "claim": 141024,
+ "work": "W103068",
+ "participant": "baton.claude",
+ "status": "P2 configuration half BUILT and verified; execution/custody boundary is the exact remaining scope",
+ "owned_paths": "owner140905 serial four",
+ "paths": {
+  "v12/python/tools/stage_execution.py": {
+   "sha256": "759edc4c8a565d76268b4d7a8d013f80dc52daa7a7d8b9e54ec91b5b2d3153fd",
+   "bytes": 243993,
+   "mode": "0o664",
+   "input_sha256_prefix": "37c72327",
+   "changed_under_claim_141024": true
+  },
+  "v12/python/tools/single_worker.py": {
+   "sha256": "d57936e262f7f2df8e7f7ca031135eb957c9cfe3a053b8f594c3fb5a6e4025e2",
+   "bytes": 140433,
+   "mode": "0o664",
+   "input_sha256_prefix": "d57936e2",
+   "changed_under_claim_141024": false
+  },
+  "v12/python/tests/tools/test_stage_execution.py": {
+   "sha256": "1463de0c3286da2f3cafe554e2b7dc28ff9f0baaca399e5f3517b62a20165511",
+   "bytes": 433078,
+   "mode": "0o664",
+   "input_sha256_prefix": "1636ad13",
+   "changed_under_claim_141024": true
+  },
+  "v12/python/tests/tools/test_single_worker.py": {
+   "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+   "bytes": 182133,
+   "mode": "0o664",
+   "input_sha256_prefix": "40543a4e",
+   "changed_under_claim_141024": false
+  }
+ },
+ "error_identity": {
+  "focused_run": "step 10: 152 tests over test_single_worker plus the four previously-erroring stage classes and the public-factory class",
+  "errors": 13,
+  "identical_to_pinned_baseline": true,
+  "baseline_source": "run-140686-step-14.log retained pinned-input run",
+  "test_single_worker": "green",
+  "note": "13 errors are the retained pre-existing set; this is NOT an aggregate-green claim"
+ }
+}

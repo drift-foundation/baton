@@ -1,0 +1,198 @@
+{
+  "author_ceiling_seconds": 920,
+  "author_cumulative_seconds": 731.3390351440088,
+  "baseline": "accepted 201-case/13-error baseline reused; no broad rerun or aggregate-green claim",
+  "candidate": {
+    "v12/python/tests/tools/test_single_worker.py": {
+      "base_sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "bytes": 184015,
+      "delta_added": 37,
+      "delta_removed": 0,
+      "mode": "0o664",
+      "sha256": "e61576c9b968bd4547c044320bc255faa715a4675d37974f69e57a6d998d7f5c"
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "base_sha256": "564b53e7d4da3408356c33b77e4bac590d61454f2515355cb2ee666ab1488a30",
+      "bytes": 449356,
+      "delta_added": 178,
+      "delta_removed": 6,
+      "mode": "0o664",
+      "sha256": "f48e5077377e2e4fc2e571268d737a984a86633abd8eab5a19ba9faa5608a3d5"
+    },
+    "v12/python/tools/single_worker.py": {
+      "base_sha256": "d57936e262f7f2df8e7f7ca031135eb957c9cfe3a053b8f594c3fb5a6e4025e2",
+      "bytes": 150006,
+      "delta_added": 161,
+      "delta_removed": 10,
+      "mode": "0o664",
+      "sha256": "e2995d62dd37ca11b460451734e861b03b2dd9346d8dd577b0e921fa32554ed2"
+    },
+    "v12/python/tools/stage_execution.py": {
+      "base_sha256": "22ce116949ecf5d0aa9a814ebb2c615ab120a09099b424b8fa177579f559e350",
+      "bytes": 253451,
+      "delta_added": 105,
+      "delta_removed": 2,
+      "mode": "0o664",
+      "sha256": "89d048c9ef0684f4e10859ffa5faf3d698e61b5e6d073689667e06e28aedd2e0"
+    }
+  },
+  "claim": 141250,
+  "claim_charged_seconds": 30.749260085995775,
+  "consumer_witness": "consumer-witness.json",
+  "correction_ceiling_seconds": 300,
+  "correction_cumulative_seconds": 187.05443938200625,
+  "correction_remaining_seconds": 112.94556061799376,
+  "git_diff_check": "passed",
+  "historical_uncertainty": "carried unchanged; exploratory reads/edits/dossier work unmeasured on inherited basis",
+  "owner_reassignment": 141241,
+  "prior_accepted_overrun_seconds": 40.93217554400326,
+  "reserves": "joined40 and all other reserves unchanged; no transfers",
+  "reviewer_carry_seconds": 9.146181310000488,
+  "reviewer_ceiling_seconds": 25,
+  "runs": [
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs"
+      ],
+      "elapsed_seconds": 1.3371441349954694,
+      "returncode": 1,
+      "run": "run-1"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs"
+      ],
+      "elapsed_seconds": 2.2406802920013433,
+      "returncode": 1,
+      "run": "run-2"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs"
+      ],
+      "elapsed_seconds": 2.267713982000714,
+      "returncode": 1,
+      "run": "run-3"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs"
+      ],
+      "elapsed_seconds": 1.6279578750036308,
+      "returncode": 1,
+      "run": "run-4"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs"
+      ],
+      "elapsed_seconds": 1.6692834830028005,
+      "returncode": 0,
+      "run": "run-5"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs"
+      ],
+      "elapsed_seconds": 2.5559542089977185,
+      "returncode": 1,
+      "run": "run-6"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs"
+      ],
+      "elapsed_seconds": 1.480766348002362,
+      "returncode": 1,
+      "run": "run-7"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_rejected_derived_judgment_cannot_authorize_import",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_policy_drift_cannot_reuse_or_redispatch_derived_judgments",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_foreign_frozen_candidate_cannot_authorize_derived_receipts",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_derived_judges_reconstruct_after_dispatch_without_second_launch"
+      ],
+      "elapsed_seconds": 6.980166146000556,
+      "returncode": 1,
+      "run": "run-8"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_rejected_derived_judgment_cannot_authorize_import",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_unusable_judge_report_cannot_authorize_derived_receipts",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_policy_drift_cannot_reuse_or_redispatch_derived_judgments",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_foreign_frozen_candidate_cannot_authorize_derived_receipts",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_derived_judges_reconstruct_after_dispatch_without_second_launch",
+        "tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_judgment_subject_is_delivered_read_only_beside_unchanged_task",
+        "tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_changed_judgment_subject_refuses_recovery_without_repair"
+      ],
+      "elapsed_seconds": 8.289221251994604,
+      "returncode": 0,
+      "run": "run-9"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_configured_judgment_executions_are_held_per_job",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_deployment_without_a_consumer_is_unchanged",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_execution_for_another_participant_is_refused",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_two_of_three_judgments_are_refused",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_consumer_for_an_unbound_job_is_refused",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_identity_that_collides_with_a_stage_worker_refuses",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_configured_consumer_composes_and_resolves_its_judges",
+        "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_work_this_authority_does_not_project_is_refused",
+        "tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_the_published_document_is_the_held_bytes_at_a_real_file",
+        "tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_a_restart_neither_rewrites_the_task_nor_starts_a_second_runtime"
+      ],
+      "elapsed_seconds": 2.1831521569984034,
+      "returncode": 0,
+      "run": "run-10"
+    }
+  ],
+  "static_candidate_audit_seconds_including_0.05_reserve": 0.11722020699817222,
+  "test_seconds": 30.632039878997603,
+  "work": "W103068"
+}

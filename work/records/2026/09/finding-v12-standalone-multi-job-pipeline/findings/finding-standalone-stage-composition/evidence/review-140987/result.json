@@ -1,0 +1,48 @@
+{
+  "work": "W103068",
+  "claim": 140987,
+  "candidate": {
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "37c72327f62ace90ab5b4c8aba6a76d1e811397db60196881dc360d624ff1f62",
+      "bytes": 234303,
+      "mode": "0o664"
+    },
+    "v12/python/tools/single_worker.py": {
+      "sha256": "d57936e262f7f2df8e7f7ca031135eb957c9cfe3a053b8f594c3fb5a6e4025e2",
+      "bytes": 140433,
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "1636ad131fdfdf01fc5ddf682419126b85a08021fd357f01038686cff94d7823",
+      "bytes": 422703,
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_single_worker.py": {
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "bytes": 182133,
+      "mode": "0o664"
+    }
+  },
+  "checked_entries": 45,
+  "unexpected_drift": [],
+  "argv": [
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/evidence/review-140987/probe.py"
+  ],
+  "exit": 0,
+  "baseline_errors": 13,
+  "current_errors": 13,
+  "error_identities_equal": true,
+  "author_nonzero_steps": [
+    1,
+    5
+  ],
+  "author_claim_seconds": 29.534122293996916,
+  "author_cumulative_seconds": 573.8187180559995,
+  "correction_remaining_seconds": 150.46587770600308,
+  "elapsed_seconds": 1.1500692800036632,
+  "outer_reserve_seconds": 0.1,
+  "charged_seconds": 1.2500692800036632,
+  "reviewer_cumulative_seconds": 8.952968286004273,
+  "reviewer_ceiling_seconds": 25
+}

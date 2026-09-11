@@ -1,0 +1,57 @@
+{
+  "work": "W103068",
+  "claim": 141074,
+  "candidate": {
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "759edc4c8a565d76268b4d7a8d013f80dc52daa7a7d8b9e54ec91b5b2d3153fd",
+      "bytes": 243993,
+      "mode": "0o664"
+    },
+    "v12/python/tools/single_worker.py": {
+      "sha256": "d57936e262f7f2df8e7f7ca031135eb957c9cfe3a053b8f594c3fb5a6e4025e2",
+      "bytes": 140433,
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "1463de0c3286da2f3cafe554e2b7dc28ff9f0baaca399e5f3517b62a20165511",
+      "bytes": 433078,
+      "mode": "0o664"
+    },
+    "v12/python/tests/tools/test_single_worker.py": {
+      "sha256": "40543a4e56ab1215feec25c69ca842e6b6fbc279739fab989d8590ee54e4a8c2",
+      "bytes": 182133,
+      "mode": "0o664"
+    }
+  },
+  "checked_entries": 45,
+  "unexpected_drift": [],
+  "changed_existing_tests": [],
+  "added_tests": [
+    "TwoBoundJobsTraverseServingAndCorrection.test_a_consumer_for_an_unbound_job_is_refused",
+    "TwoBoundJobsTraverseServingAndCorrection.test_a_deployment_without_a_consumer_is_unchanged",
+    "TwoBoundJobsTraverseServingAndCorrection.test_a_job_with_no_configured_consumer_selects_none",
+    "TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_execution_for_another_participant_is_refused",
+    "TwoBoundJobsTraverseServingAndCorrection.test_a_judgment_identity_that_collides_with_a_stage_worker_refuses",
+    "TwoBoundJobsTraverseServingAndCorrection.test_the_configured_judgment_executions_are_held_per_job",
+    "TwoBoundJobsTraverseServingAndCorrection.test_the_judgment_subject_is_the_derived_candidate",
+    "TwoBoundJobsTraverseServingAndCorrection.test_two_of_three_judgments_are_refused"
+  ],
+  "baseline_error_identities_equal": true,
+  "author_current_claim_seconds": 79.11830010600534,
+  "author_correction_spent_seconds": 108.65242240000225,
+  "author_cumulative_seconds": 652.9370181620048,
+  "correction_remaining_seconds": 71.34757759999775,
+  "nonzero_correction_steps": [
+    1,
+    5,
+    7,
+    8,
+    10
+  ],
+  "elapsed_seconds": 0.08003577600175049,
+  "outer_reserve_seconds": 0.05,
+  "charged_seconds": 0.13003577600175048,
+  "reviewer_cumulative_seconds": 9.083004062006024,
+  "reviewer_ceiling_seconds": 25,
+  "runtime_tests_run": 0
+}
