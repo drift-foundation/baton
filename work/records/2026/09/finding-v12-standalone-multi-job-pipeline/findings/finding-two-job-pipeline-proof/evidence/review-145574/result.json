@@ -1,0 +1,499 @@
+{
+  "observed_at": "2026-09-11T15:58:43.921136+00:00",
+  "run_result": {
+    "exceptional_stops": [
+      {
+        "answer": "Flag --time has been deprecated, use --timeout instead\n349badf3cd8265e341c71b6e1464936db8d866793dce9ee280ea91bc2ac98a55\n",
+        "argv": [
+          "docker",
+          "stop",
+          "--time",
+          "2",
+          "349badf3cd8265e341c71b6e1464936db8d866793dce9ee280ea91bc2ac98a55"
+        ]
+      }
+    ],
+    "failure": "TimeoutError: approved proof wall/active-attempt deadline reached",
+    "initial": {
+      "source": {
+        "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "path": "/home/sl/.local/state/baton/v12/w71879-run4/source",
+        "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+      },
+      "target": {
+        "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "path": "/home/sl/.local/state/baton/v12/w71879-run4/target",
+        "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+      }
+    },
+    "ordinary_operator_transitions": 0,
+    "started_at": "2026-09-11T15:46:35.668682+00:00",
+    "stats_observations": {
+      "available": 106,
+      "coverage": "sampled command output only; gaps are not measurements or lifecycle results",
+      "gaps": [],
+      "not-requested": 4,
+      "truncated_samples": [],
+      "unavailable": 0
+    },
+    "submitted": true,
+    "terminal_both": false,
+    "wall_seconds": 272.6205856000015
+  },
+  "total_four_failed_wall_seconds": 832.7213562070247,
+  "source_checks": {
+    "v12/worker/integration_contract.py": true,
+    "v12/worker/integration_entry.py": true,
+    "v12/worker/integration_workload.py": true
+  },
+  "target": [
+    {
+      "path": "demo/greeting.py",
+      "regular": true,
+      "mode": "0o644",
+      "sha256": "b30a9aae2f567e51ec4ff770378659b51c4bc304d1280d87fc94ea9b891ce5ab",
+      "candidate_matches": true,
+      "bytes": 143,
+      "modified_at": "2026-09-11T15:50:09.508247+00:00"
+    },
+    {
+      "path": "tests/test_greeting.py",
+      "regular": true,
+      "mode": "0o644",
+      "sha256": "a722734fb3f54d3a5dbcd2dbd2e4e356ea0a17c7565cc5ff1335208b24ce4548",
+      "candidate_matches": true,
+      "bytes": 624,
+      "modified_at": "2026-09-11T15:50:09.508575+00:00"
+    }
+  ],
+  "git": {
+    "source": {
+      "revision": [
+        "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+      ],
+      "status": ""
+    },
+    "target": {
+      "revision": [
+        "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+      ],
+      "status": " M demo/greeting.py\n M tests/test_greeting.py\n"
+    }
+  },
+  "integration_result_entries": [],
+  "workspace_entries": [
+    "result-attempt-29cb33dbf7b0028b039a5f8d045bffafa0163f8dfba26681d8b69bc761529380"
+  ],
+  "samples": {
+    "count": 110,
+    "first_wall": 0.1556136860017432,
+    "last_wall": 268.3374609760067,
+    "stats": {
+      "not-requested": 4,
+      "available": 106
+    },
+    "last_claims": {
+      "a": {
+        "current": {
+          "work_ref": {
+            "authority_uuid": "c71879ae000000000000000000000001",
+            "work_id": "c71879ae-W1"
+          },
+          "participant": "baton.proof-integrator",
+          "generation": 3
+        },
+        "events": [
+          {
+            "seq": 1,
+            "decision": {
+              "endpoint": "baton.proof-impl-a",
+              "principal": "principal:w71879-run4-impl-a",
+              "effective_scope": "scope:w71879-run4",
+              "role": "proof-impl-a",
+              "grant": "direct",
+              "policy_generation": 24
+            },
+            "assignment_ref": {
+              "work_ref": {
+                "authority_uuid": "c71879ae000000000000000000000001",
+                "work_id": "c71879ae-W1"
+              },
+              "participant": "baton.proof-impl-a",
+              "generation": 1
+            },
+            "cause": "claimed",
+            "fenced": false,
+            "reason": null,
+            "gate": null,
+            "phase": "active",
+            "at": "2026-09-11T15:46:37.010Z"
+          },
+          {
+            "seq": 3,
+            "decision": null,
+            "assignment_ref": {
+              "work_ref": {
+                "authority_uuid": "c71879ae000000000000000000000001",
+                "work_id": "c71879ae-W1"
+              },
+              "participant": "baton.proof-impl-a",
+              "generation": 1
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "reason": "review checkpoint writer completed",
+            "gate": "runtime-quiescence:1",
+            "phase": "block",
+            "at": "2026-09-11T15:47:07.268Z"
+          },
+          {
+            "seq": 4,
+            "decision": {
+              "endpoint": "baton.proof-review-a",
+              "principal": "principal:w71879-run4-review-a",
+              "effective_scope": "scope:w71879-run4",
+              "role": "proof-review-a",
+              "grant": "direct",
+              "policy_generation": 24
+            },
+            "assignment_ref": {
+              "work_ref": {
+                "authority_uuid": "c71879ae000000000000000000000001",
+                "work_id": "c71879ae-W1"
+              },
+              "participant": "baton.proof-review-a",
+              "generation": 2
+            },
+            "cause": "claimed",
+            "fenced": false,
+            "reason": null,
+            "gate": null,
+            "phase": "active",
+            "at": "2026-09-11T15:47:09.571Z"
+          },
+          {
+            "seq": 7,
+            "decision": null,
+            "assignment_ref": {
+              "work_ref": {
+                "authority_uuid": "c71879ae000000000000000000000001",
+                "work_id": "c71879ae-W1"
+              },
+              "participant": "baton.proof-review-a",
+              "generation": 2
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "reason": "independent checkpoint review completed",
+            "gate": "runtime-quiescence:2",
+            "phase": "block",
+            "at": "2026-09-11T15:48:37.372Z"
+          },
+          {
+            "seq": 9,
+            "decision": {
+              "endpoint": "baton.proof-integrator",
+              "principal": "principal:w71879-run4-integrator",
+              "effective_scope": "scope:w71879-run4",
+              "role": "proof-integration",
+              "grant": "direct",
+              "policy_generation": 24
+            },
+            "assignment_ref": {
+              "work_ref": {
+                "authority_uuid": "c71879ae000000000000000000000001",
+                "work_id": "c71879ae-W1"
+              },
+              "participant": "baton.proof-integrator",
+              "generation": 3
+            },
+            "cause": "claimed",
+            "fenced": false,
+            "reason": null,
+            "gate": null,
+            "phase": "active",
+            "at": "2026-09-11T15:49:05.814Z"
+          }
+        ]
+      },
+      "b": {
+        "current": null,
+        "events": [
+          {
+            "seq": 2,
+            "decision": {
+              "endpoint": "baton.proof-impl-b",
+              "principal": "principal:w71879-run4-impl-b",
+              "effective_scope": "scope:w71879-run4",
+              "role": "proof-impl-b",
+              "grant": "direct",
+              "policy_generation": 24
+            },
+            "assignment_ref": {
+              "work_ref": {
+                "authority_uuid": "c71879ae000000000000000000000001",
+                "work_id": "c71879ae-W2"
+              },
+              "participant": "baton.proof-impl-b",
+              "generation": 1
+            },
+            "cause": "claimed",
+            "fenced": false,
+            "reason": null,
+            "gate": null,
+            "phase": "active",
+            "at": "2026-09-11T15:46:37.016Z"
+          },
+          {
+            "seq": 5,
+            "decision": null,
+            "assignment_ref": {
+              "work_ref": {
+                "authority_uuid": "c71879ae000000000000000000000001",
+                "work_id": "c71879ae-W2"
+              },
+              "participant": "baton.proof-impl-b",
+              "generation": 1
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "reason": "review checkpoint writer completed",
+            "gate": "runtime-quiescence:1",
+            "phase": "block",
+            "at": "2026-09-11T15:47:18.018Z"
+          },
+          {
+            "seq": 6,
+            "decision": {
+              "endpoint": "baton.proof-review-b",
+              "principal": "principal:w71879-run4-review-b",
+              "effective_scope": "scope:w71879-run4",
+              "role": "proof-review-b",
+              "grant": "direct",
+              "policy_generation": 24
+            },
+            "assignment_ref": {
+              "work_ref": {
+                "authority_uuid": "c71879ae000000000000000000000001",
+                "work_id": "c71879ae-W2"
+              },
+              "participant": "baton.proof-review-b",
+              "generation": 2
+            },
+            "cause": "claimed",
+            "fenced": false,
+            "reason": null,
+            "gate": null,
+            "phase": "active",
+            "at": "2026-09-11T15:47:20.337Z"
+          },
+          {
+            "seq": 8,
+            "decision": null,
+            "assignment_ref": {
+              "work_ref": {
+                "authority_uuid": "c71879ae000000000000000000000001",
+                "work_id": "c71879ae-W2"
+              },
+              "participant": "baton.proof-review-b",
+              "generation": 2
+            },
+            "cause": "cancelled",
+            "fenced": true,
+            "reason": "independent checkpoint review completed",
+            "gate": "runtime-quiescence:2",
+            "phase": "block",
+            "at": "2026-09-11T15:49:03.509Z"
+          }
+        ]
+      },
+      "verification": {
+        "current": null,
+        "events": []
+      },
+      "review": {
+        "current": null,
+        "events": []
+      },
+      "approval": {
+        "current": null,
+        "events": []
+      }
+    }
+  },
+  "artifacts": [
+    {
+      "stage": "job-a/implementation",
+      "path": "/home/sl/.local/state/baton/v12/w71879-run4/storage/.baton-review-lines/line-d605f0555de2501464a68ab249b186961c3ebca53927ca464a356db93701634c/custody/attempt-6a83ce9d218af799001908e71d1fcc653fe8205b4cc9279aaef72457ceda43eb/proposal/result.json",
+      "sha256": "58f5a294f46d2306006964114bd353002903c9d9e119a54eb80bf55aaa585c77",
+      "document": {
+        "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "changed_paths": [
+          "demo/greeting.py",
+          "tests/test_greeting.py"
+        ],
+        "disposition": "candidate",
+        "entry_head": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "head": "58c20e7e1ed8a2875b3f04d97471b59fe850bf90",
+        "provider": {
+          "failure_reason": null,
+          "seconds_bound": 3600,
+          "status": 0
+        },
+        "schema": "baton.dogfood-proposal/2",
+        "task_id": "w71879-run4-a",
+        "verification": {
+          "argv": [
+            "python3",
+            "check_greeting.py"
+          ],
+          "status": 0
+        },
+        "why": "the candidate changed the source and its own verification passed"
+      }
+    },
+    {
+      "stage": "job-a/review",
+      "path": "/home/sl/.local/state/baton/v12/w71879-run4/storage/attempt-587fec9a6fc64ba89a37cfa592e3b12d1effb0cd1cca7d779b3f9bef392fc331/custody/attempt-587fec9a6fc64ba89a37cfa592e3b12d1effb0cd1cca7d779b3f9bef392fc331/findings/report.json",
+      "sha256": "5e67b4874842b85b2af61618c02c1e8f7cb06c4e94c25321bd15c34358431811",
+      "document": {
+        "findings": "ACCEPTED. Every claim below was substantiated by reading the tree at /input/source and by re-running the verification myself from a writable copy of the collected candidate tree (the original was left untouched).\n\nScope. git diff 2fbb2d4..58c20e7 (base -> claimed head, both matching proposal/result.json) shows exactly two modified paths: demo/greeting.py and tests/test_greeting.py. No additions, deletions or renames; demo/units.py and tests/test_units.py (B's line) and tests/test_guard.py are untouched. The working tree is clean at 58c20e7, so what I reviewed is what was committed.\n\nBehavior. demo/greeting.py now reads: trimmed = name.strip(); if not trimmed: raise ValueError(\"name is empty\"); return \"Hello, \" + trimmed + \"!\". I exercised it directly: greet('Ada') and greet(' Ada ') both return 'Hello, Ada!'; greet('\\tAda\\n') returns 'Hello, Ada!'; greet('Ada Lovelace') returns 'Hello, Ada Lovelace!' (interior spacing untouched); greet(''), greet('   ') and greet('\\t\\n') each raise ValueError whose str() is exactly 'name is empty'. The 'Hello, ' prefix and '!' suffix punctuation from the base are preserved verbatim.\n\nTests. The scheduled existing-test behavior change is present and is the only edit to an existing assertion: test_surrounding_spaces went from expecting 'Hello,  Ada !' to 'Hello, Ada!'. The ordinary-name assertion test_name (greet('Ada') == 'Hello, Ada!') is retained unchanged, as required. Two new cases were added -- test_empty_name and test_whitespace_only_name -- each asserting both that ValueError is raised and that its message equals 'name is empty', so the exception-message requirement is covered and not merely the exception type.\n\nVerification. I ran the required argv myself: `python3 check_greeting.py` from the candidate tree. It ran 4 tests, all ok, exit status 0 -- matching the argv and status 0 recorded in result.json and in output.json's baton.git-ordinary-tests/1 metadata. I did not rely on proposal/verification.txt, which by design carries no command output. I additionally ran the full suite (`python3 -m unittest discover -s tests -v`): 7 tests, all ok, so the change causes no collateral failures outside the greeting suite.\n\nProposal integrity. The four proposal artifacts' sha256 digests and byte sizes all match the content_manifest entries in output.json; objects.bundle's only head is 58c20e7, the claimed head; and proposal/change.patch is byte-identical to the real `git diff 2fbb2d4 58c20e7`. No deliberate omission or injected defect was requested, and I found none -- so no correction is being requested and the same-line correction path is not needed.\n\nOne non-blocking observation, recorded for the operator rather than as a change request: the required submission field `test_scope` = [\"tests/test_greeting.py\"] does not appear anywhere in the submitted metadata. I grepped the whole tree (excluding .git) for the string `test_scope` and got no hits; neither proposal/result.json (schema baton.dogfood-proposal/2) nor output.json's baton.git-ordinary-tests/1 block carries such a field, and those schemas appear to have no slot for it in this fixture. Substantively the constraint it expresses is satisfied -- tests/test_greeting.py is the one and only test file the change modifies -- so this is a metadata-emission gap in the harness rather than a defect in the change under review, and it does not affect the verdict.",
+        "schema": "baton.review-report/1",
+        "verdict": "accepted"
+      }
+    },
+    {
+      "stage": "job-a/review",
+      "path": "/home/sl/.local/state/baton/v12/w71879-run4/storage/attempt-587fec9a6fc64ba89a37cfa592e3b12d1effb0cd1cca7d779b3f9bef392fc331/custody/attempt-587fec9a6fc64ba89a37cfa592e3b12d1effb0cd1cca7d779b3f9bef392fc331/logs/review.json",
+      "sha256": "001754a586e0c0fa51f06737b592270a4df3804e8a835b9fa840f788129ec844",
+      "document": {
+        "provider": {
+          "failure_reason": null,
+          "seconds_bound": 3600,
+          "status": 0
+        },
+        "report_bytes": 3398,
+        "reviewed": {
+          "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+          "head": "58c20e7e1ed8a2875b3f04d97471b59fe850bf90",
+          "tree": "280258b3aecd0a1227aa5a72b2d82443135eb4f6"
+        },
+        "schema": "baton.review-log/1",
+        "task_id": "w71879-run4-a",
+        "verdict": "accepted",
+        "verification": null
+      }
+    },
+    {
+      "stage": "job-b/implementation",
+      "path": "/home/sl/.local/state/baton/v12/w71879-run4/storage/.baton-review-lines/line-863e1bde6c7bf4b8f7db743ce906fe8bc7abcb02117c1d2797be6c0c5f596d74/custody/attempt-6ea25cb32e20fe332e2f09bb52332c897b2406553b3203e3b98ab1e0adadb2cb/proposal/result.json",
+      "sha256": "91b94320f657c54973c2998e03699d41a70a92e0e7dd40cbe2e282712960a2cf",
+      "document": {
+        "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "changed_paths": [
+          "check_hours.py",
+          "demo/units.py",
+          "tests/test_hours.py"
+        ],
+        "disposition": "candidate",
+        "entry_head": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "head": "219bbc8a39e8875191648db442b530aa4bc57ec7",
+        "provider": {
+          "failure_reason": null,
+          "seconds_bound": 3600,
+          "status": 0
+        },
+        "schema": "baton.dogfood-proposal/2",
+        "task_id": "w71879-run4-b",
+        "verification": {
+          "argv": [
+            "python3",
+            "check_hours.py"
+          ],
+          "status": 0
+        },
+        "why": "the candidate changed the source and its own verification passed"
+      }
+    },
+    {
+      "stage": "job-b/review",
+      "path": "/home/sl/.local/state/baton/v12/w71879-run4/storage/attempt-b63bf1481088115295b4ed1c98877fcfba1f5866be0efb9c7ff24f7370838d62/custody/attempt-b63bf1481088115295b4ed1c98877fcfba1f5866be0efb9c7ff24f7370838d62/findings/report.json",
+      "sha256": "70879906837ff921d712f2d882c9e7a6b4c73c909828cb56b4ada317a9aac669",
+      "document": {
+        "findings": "ACCEPTED. Every claim below was substantiated by reading and executing the tree at /input/source (which I left unmodified; git status is clean and no __pycache__ was created there). All execution was done on copies under /tmp/review-work.\n\nCommands I actually ran, and their real results:\n\n1. `python3 check_hours.py` on a copy of the candidate tree (repo root as cwd): exit 0, stdout `check_hours: all hour and minute conversions passed`. This is my own run, not a restatement of proposal/verification.txt (which deliberately withholds stdout/stderr).\n\n2. `python3 check_hours.py` copied verbatim into the frozen original base (`git archive 2fbb2d4`): exit 1 with `ImportError: cannot import name 'hours_to_seconds' from 'demo.units'`. The required causal observation -- a real nonzero exit on the base -- holds, and it is a genuine failure rather than a caught/simulated one.\n\n3. `python3 -m unittest discover -s tests -v` on the candidate: 8 tests, OK, exit 0. The three new HoursTest cases pass alongside the preserved MinutesTest (test_zero, test_two), GreetingTest and GuardTest -- so existing tests are intact.\n\nScope and content review:\n\n- `git diff 2fbb2d4 HEAD` is exactly three files, 29 insertions, 0 deletions: `demo/units.py` (modified), `tests/test_hours.py` (new), `check_hours.py` (new). No other path is touched; `demo/greeting.py`, `check_greeting.py`, `tests/test_greeting.py`, `tests/test_guard.py`, `tests/test_units.py` and `README.md` are byte-identical to the base, so nothing from A's line was copied in.\n- `demo/units.py` adds `hours_to_seconds(n): return n * 3600` and leaves `minutes_to_seconds` unchanged.\n- `tests/test_hours.py` is a unittest module covering 0 -> 0, 1 -> 3600, 2 -> 7200. It is purely additive, consistent with a submission test_scope of [].\n- `check_hours.py` is self-contained: its only import is `from demo.units import hours_to_seconds, minutes_to_seconds`. It asserts hours 0/3600/7200 and minutes 0/120, then prints the success line as the final statement, so the line can only be reached after every assertion passes. It does not import `tests.test_hours` (notably unlike the pre-existing `check_greeting.py`, which loads a test module), has no try/except around the import or the assertions, writes no files, installs nothing, and does not define or patch any missing function. Because it depends on no test module, a changed test module cannot affect it.\n\nProposal metadata consistency:\n\n- `proposal/result.json` declares base `2fbb2d45...` and head `219bbc8a...`; the repo's `origin/main`/`main` is that same base commit and HEAD is that same candidate commit, with a clean worktree, so the files I read and ran are the committed candidate. The declared base is unchanged from the original line.\n- `proposal/change.patch` is byte-for-byte the same change as `git diff 2fbb2d4 HEAD`.\n- `proposal/objects.bundle` verifies, carries head `219bbc8a...` and requires base `2fbb2d45...`.\n- `verification.argv` is `[\"python3\", \"check_hours.py\"]` as required, and the four proposal artifacts' sizes and sha256 digests match `output.json`'s manifest entries exactly.\n\nNot verifiable here (stated for transparency, not held against the change): the dossier contains only B's line, so I could not execute the script against a real merge of A and B. Structurally the risk is low -- the change is purely additive, touches no file outside `demo/units.py` plus two new files, and the script's outcome depends solely on `demo/units.py` -- but the merged-result run itself remains for the operator to perform.",
+        "schema": "baton.review-report/1",
+        "verdict": "accepted"
+      }
+    },
+    {
+      "stage": "job-b/review",
+      "path": "/home/sl/.local/state/baton/v12/w71879-run4/storage/attempt-b63bf1481088115295b4ed1c98877fcfba1f5866be0efb9c7ff24f7370838d62/custody/attempt-b63bf1481088115295b4ed1c98877fcfba1f5866be0efb9c7ff24f7370838d62/logs/review.json",
+      "sha256": "67978278ddedb6579bad461ff1239ec732036c83f48bc90c7adf85186e4d4332",
+      "document": {
+        "provider": {
+          "failure_reason": null,
+          "seconds_bound": 3600,
+          "status": 0
+        },
+        "report_bytes": 3549,
+        "reviewed": {
+          "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+          "head": "219bbc8a39e8875191648db442b530aa4bc57ec7",
+          "tree": "61b45dae717b492a6ae7a8dee441828c5f63057f"
+        },
+        "schema": "baton.review-log/1",
+        "task_id": "w71879-run4-b",
+        "verdict": "accepted",
+        "verification": null
+      }
+    }
+  ],
+  "prompt": {
+    "reconstructed": true,
+    "private_report_path_placeholder": true,
+    "sha256": "e42d1fc9fef98b552323317c29d202bf260fdbb928f282d5cdc590860dee88b5",
+    "report_members_not_explicitly_named_as_JSON_keys": [
+      "schema",
+      "assignment_digest",
+      "bundle_digest",
+      "outcome",
+      "phase",
+      "paths",
+      "verification",
+      "code"
+    ],
+    "report_schema_named": true,
+    "contract_members": [
+      "schema",
+      "assignment_digest",
+      "bundle_digest",
+      "outcome",
+      "phase",
+      "paths",
+      "verification",
+      "code"
+    ],
+    "contract_outcomes": [
+      "imported",
+      "refused",
+      "held"
+    ],
+    "contract_phases": [
+      "preflight",
+      "import",
+      "verification"
+    ],
+    "contract_codes": [
+      "scope-exceeded",
+      "path-unsupported",
+      "target-drift",
+      "target-unwritable",
+      "verification-failed",
+      "partial-import",
+      "provider-unable"
+    ]
+  },
+  "elapsed_seconds": 0.018950637997477315
+}

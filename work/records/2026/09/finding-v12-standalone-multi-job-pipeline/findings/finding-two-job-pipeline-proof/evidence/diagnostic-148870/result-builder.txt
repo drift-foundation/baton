@@ -1,0 +1,1 @@
+function Oe({startedAt:t,common:r,variant:n}){let l={type:"result",duration_ms:Math.max(0,Math.round(performance.now()-t)),uuid:Qn()};return{...r,...n,...l}}ms();function us(t,r){return r||ls(t)?"cancelled":"completed"}Vn();function Pt(t){return t===

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "3fbd01bf2553e7605c056fa17709a89acfbfb2b56137de68770fc7cd93ca731c",
+    "labels": {
+      "baton.v12.adapter_digest": "sha256:68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+      "baton.v12.authority_uuid": "c71879b3000000000000000000000001",
+      "baton.v12.effective_scope": "scope:w71879-run9",
+      "baton.v12.generation": "1",
+      "baton.v12.participant": "baton.proof-verification",
+      "baton.v12.policy_digest": "sha256:1f985712c3ec8cb09b3005ea0d60f38dd79d0d990c8f5bbadfbf011e8c3537d2",
+      "baton.v12.principal": "principal:w71879-run9-verification",
+      "baton.v12.profile_digest": "sha256:e9cc25e922d3e3cf018f0c7538d953b8dd773cdc96bc8eea5cea522b4b3b1112",
+      "baton.v12.runtime_attempt_id": "judgment-4a8cf8b5dda2a25dce32b469cb0f43bfe6a7ee60a4b03de6dc25c10ad0c9851d",
+      "baton.v12.work_id": "c71879b3-W3"
+    },
+    "state": {
+      "Dead": false,
+      "Error": "",
+      "ExitCode": 137,
+      "FinishedAt": "2026-09-12T05:59:54.534110797Z",
+      "OOMKilled": false,
+      "Paused": false,
+      "Pid": 0,
+      "Restarting": false,
+      "Running": false,
+      "StartedAt": "2026-09-12T05:57:52.376400778Z",
+      "Status": "exited"
+    }
+  },
+  {
+    "id": "e3abf8787175fc44e5e8134d187e84aeb9c7def804de4ec0969ab600a0ce3e6a",
+    "labels": {
+      "baton.v12.adapter_digest": "sha256:68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+      "baton.v12.authority_uuid": "c71879b3000000000000000000000001",
+      "baton.v12.effective_scope": "scope:w71879-run9",
+      "baton.v12.generation": "3",
+      "baton.v12.participant": "baton.proof-integrator",
+      "baton.v12.policy_digest": "sha256:1f985712c3ec8cb09b3005ea0d60f38dd79d0d990c8f5bbadfbf011e8c3537d2",
+      "baton.v12.principal": "principal:w71879-run9-integrator",
+      "baton.v12.profile_digest": "sha256:e9cc25e922d3e3cf018f0c7538d953b8dd773cdc96bc8eea5cea522b4b3b1112",
+      "baton.v12.runtime_attempt_id": "attempt-85e6ee03f9e63c295946eb1e8c2083da14745e01cf4c10c066a98bc99f744cf1",
+      "baton.v12.work_id": "c71879b3-W1"
+    },
+    "state": {
+      "Dead": false,
+      "Error": "",
+      "ExitCode": 0,
+      "FinishedAt": "2026-09-12T05:57:49.816387399Z",
+      "OOMKilled": false,
+      "Paused": false,
+      "Pid": 0,
+      "Restarting": false,
+      "Running": false,
+      "StartedAt": "2026-09-12T05:56:29.199344483Z",
+      "Status": "exited"
+    }
+  }
+]

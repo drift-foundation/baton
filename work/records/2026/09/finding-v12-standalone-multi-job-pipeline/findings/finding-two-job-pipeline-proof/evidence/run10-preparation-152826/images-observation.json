@@ -1,0 +1,13 @@
+{
+  "source": "direct docker image inspect, tuner152826",
+  "images": {
+    "integration": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+    "provider": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13"
+  },
+  "users": {
+    "provider": "65532:65532",
+    "integration": "65532:65532"
+  },
+  "rebuild": false,
+  "qualification": "Existing exact image metadata only; no runtime/model/authentication probe."
+}

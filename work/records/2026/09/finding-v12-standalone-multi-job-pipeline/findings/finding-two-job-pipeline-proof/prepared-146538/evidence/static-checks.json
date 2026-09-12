@@ -1,0 +1,35 @@
+{
+  "scope": "Read-only immutable image availability, Bash syntax and working-tree whitespace checks; no container or model launch",
+  "results": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "3ee58a",
+        "wall_time_seconds": 0.000002034,
+        "exit_code": 0,
+        "original_token_count": 42,
+        "output": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99 amd64 linux\nsha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2 amd64 linux\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "3ba334",
+        "wall_time_seconds": 0.000001873,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "c9742e",
+        "wall_time_seconds": 0.000002094,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    }
+  ]
+}

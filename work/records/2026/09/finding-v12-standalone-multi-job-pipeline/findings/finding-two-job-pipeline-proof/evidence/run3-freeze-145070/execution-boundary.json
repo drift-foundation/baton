@@ -1,0 +1,29 @@
+{
+  "work": "W71879",
+  "claim": 145070,
+  "cwd": "/home/sl/src/baton/v12/python",
+  "model_run_authorized": false,
+  "rule_checks": {
+    "provision": {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "26dcc1",
+        "wall_time_seconds": 0.000002023,
+        "exit_code": 0,
+        "original_token_count": 31,
+        "output": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n{\"matchedRules\":[]}\n"
+      }
+    },
+    "run": {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "9f4a92",
+        "wall_time_seconds": 0.000002054,
+        "exit_code": 0,
+        "original_token_count": 31,
+        "output": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n{\"matchedRules\":[]}\n"
+      }
+    }
+  },
+  "source": "exact execpolicy checks against /home/sl/.codex/rules/default.rules and baton.rules; preparation host execution does not supply these later execution boundaries"
+}

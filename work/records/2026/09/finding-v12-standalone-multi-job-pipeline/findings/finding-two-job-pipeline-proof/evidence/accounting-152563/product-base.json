@@ -1,0 +1,14 @@
+{
+  "v12/python/src/baton_v12/worker_manager/store.py": {
+    "sha256": "sha256:a692a6021e57544e6c92cba89611e9e0ca3fe87ca72ca748c8155843b6a93b32",
+    "bytes": 39938
+  },
+  "v12/python/tests/manager/test_store.py": {
+    "sha256": "sha256:9a5566355c375c98d2464e802a4d3d599cdd24fabc1b8d2135963830e339c093",
+    "bytes": 64526
+  },
+  "v12/python/tests/manager/test_workspaces.py": {
+    "sha256": "sha256:8874973c44e83f1ccbf0c1a19fc3ac1953f220c9312d551ca0e9fe63175935d5",
+    "bytes": 98823
+  }
+}

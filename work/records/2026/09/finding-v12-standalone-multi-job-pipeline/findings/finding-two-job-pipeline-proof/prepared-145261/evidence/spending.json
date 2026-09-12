@@ -1,0 +1,8 @@
+{
+  "previous_listed_preparation_diagnosis_seconds": 2.1643190810253747,
+  "failed_run1_run2_run3_wall_seconds": 560.1007706070232,
+  "offline_test_command_seconds": 0.043959831,
+  "static_and_continuity_seconds": 0.15002837000065483,
+  "listed_preparation_before_manifest_seconds": 2.3583072820260296,
+  "uncertainty": "Tests internal duration is within command duration, not added twice. All untimed reads/edits/CLI/package work and operator/billing uncertainty remain additional. Static inner timing used instead of also counting its tool wall. No model run, new reserve, runtime or production state."
+}

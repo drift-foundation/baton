@@ -1,0 +1,46 @@
+{
+  "/home/sl/.local/state/baton/v12/w71879-run9/evidence/run-result.json": {
+    "bytes": 1280,
+    "sha256": "sha256:6da6057e81422346a3d11e72cdd03e3c1f4e1cc25fa452c2743527a713c4746e"
+  },
+  "/home/sl/.local/state/baton/v12/w71879-run9/evidence/samples.jsonl": {
+    "bytes": 7699224,
+    "sha256": "sha256:e00e76080bd5dff27e6fa42837c3209040dbb57b5cee8c6f5d7ec42af7313092"
+  },
+  "/home/sl/.local/state/baton/v12/w71879-run9/launch/verification/judgment-4a8cf8b5dda2a25dce32b469cb0f43bfe6a7ee60a4b03de6dc25c10ad0c9851d/events/receipt.json": {
+    "bytes": 368,
+    "sha256": "sha256:c4a354429445e2c215e913c09b4dd5848ff599ee30d47e36cad2017b454340c9"
+  },
+  "/home/sl/.local/state/baton/v12/w71879-run9/launch/verification/judgment-4a8cf8b5dda2a25dce32b469cb0f43bfe6a7ee60a4b03de6dc25c10ad0c9851d/events/state-describe.json": {
+    "bytes": 467,
+    "sha256": "sha256:f0643d2366d95bec572de23e59e38b09a54c9c161606abc250fa6903bfed1511"
+  },
+  "/home/sl/.local/state/baton/v12/w71879-run9/launch/verification/judgment-4a8cf8b5dda2a25dce32b469cb0f43bfe6a7ee60a4b03de6dc25c10ad0c9851d/events/state-work.json": {
+    "bytes": 461,
+    "sha256": "sha256:04d7ab3b5aa0a594338c7d1cffa2eab9eaefd8fdea0e79a040e4145ee2ebc760"
+  },
+  "/home/sl/.local/state/baton/v12/w71879-run9/state/result-judgments/91bfaeed0719be803da08ea598ea892453a4bdaff4933e026f6c8dbb945b1f62/subject.json": {
+    "bytes": 2503,
+    "sha256": "sha256:9f87bbcebb666ef58aad69bb72b7f12e0b6b7a0c7123d28a6e1dbf46beaa996f"
+  },
+  "/home/sl/.local/state/baton/v12/w71879-run9/storage/judgment-4a8cf8b5dda2a25dce32b469cb0f43bfe6a7ee60a4b03de6dc25c10ad0c9851d/inputs/judgment.json": {
+    "bytes": 2525,
+    "sha256": "sha256:13bfa0b2605da0992b9797f7fa9347764910f6c22cf8b31ae12774da97d5f321"
+  },
+  "/home/sl/.local/state/baton/v12/w71879-run9/storage/judgment-7726d393de3e99b7d953d0c6a35f29c59b4ce0bbe1ed4c7e542a162d21d94845/custody/judgment-7726d393de3e99b7d953d0c6a35f29c59b4ce0bbe1ed4c7e542a162d21d94845/findings/report.json": {
+    "bytes": 4308,
+    "sha256": "sha256:c16408008061a349b2c2c6d6ef551d410aeeb96527ce552ec91d86e9665bd0c9"
+  },
+  "/home/sl/.local/state/baton/v12/w71879-run9/storage/judgment-7726d393de3e99b7d953d0c6a35f29c59b4ce0bbe1ed4c7e542a162d21d94845/custody/judgment-7726d393de3e99b7d953d0c6a35f29c59b4ce0bbe1ed4c7e542a162d21d94845/sealed.json": {
+    "bytes": 3482,
+    "sha256": "sha256:e74609146f51e3f9d572ca0417b7cfb272f2f8893691ff181b9e59a754517286"
+  },
+  "/home/sl/.local/state/baton/v12/w71879-run9/storage/judgment-78e5208870d271ecf6b6153ba7e92911b100d3695cf11735c591c5b27118b177/custody/judgment-78e5208870d271ecf6b6153ba7e92911b100d3695cf11735c591c5b27118b177/findings/report.json": {
+    "bytes": 5721,
+    "sha256": "sha256:91f93f9e2c748c707cd05a785bdbc22f133246554e4e899b9795cf6d669f106c"
+  },
+  "/home/sl/.local/state/baton/v12/w71879-run9/storage/judgment-78e5208870d271ecf6b6153ba7e92911b100d3695cf11735c591c5b27118b177/custody/judgment-78e5208870d271ecf6b6153ba7e92911b100d3695cf11735c591c5b27118b177/sealed.json": {
+    "bytes": 3486,
+    "sha256": "sha256:8465de248f5c284bcc7dc79bac0eef8fc2bd36aa8263f48c9f37890a9d73b868"
+  }
+}

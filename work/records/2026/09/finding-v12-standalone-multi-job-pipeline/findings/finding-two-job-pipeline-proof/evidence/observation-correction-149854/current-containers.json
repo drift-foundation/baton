@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "docker",
+    "ps",
+    "--filter",
+    "label=baton.v12.authority_uuid=c71879b2000000000000000000000001",
+    "--format",
+    "{{.ID}} {{.Status}}"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "scope": "Direct observation during claim149854: no running containers with this exact Authority label."
+}

@@ -1,0 +1,35 @@
+{
+  "accepted_candidate_files_unchanged": 198,
+  "cost_limits": "Additional untimed reads, one failed coordinator read, host/model billing and earlier rounding remain unmeasured; no model work executed by this script.",
+  "cumulative_preparation_and_analysis_seconds": 50.18569579989499,
+  "judgments": {
+    "approval": {
+      "attempt_id": "judgment-78e5208870d271ecf6b6153ba7e92911b100d3695cf11735c591c5b27118b177",
+      "frozen_at": "2026-09-12T05:59:45.122Z",
+      "manifest_digest": "sha256:96bc8f4b23f1f4843b238a9964e0d1a60983f7ead936a897b09892bec9f75eb2",
+      "pass_at": "2026-09-12T05:59:45.143Z",
+      "report_sha256": "sha256:91f93f9e2c748c707cd05a785bdbc22f133246554e4e899b9795cf6d669f106c",
+      "verdict": "accepted"
+    },
+    "review": {
+      "attempt_id": "judgment-7726d393de3e99b7d953d0c6a35f29c59b4ce0bbe1ed4c7e542a162d21d94845",
+      "frozen_at": "2026-09-12T05:59:52.168Z",
+      "manifest_digest": "sha256:522f4ff76f735a27639910a44f778a3ad5248be253c43f711ff9e41f868c3304",
+      "pass_at": "2026-09-12T05:59:52.189Z",
+      "report_sha256": "sha256:c16408008061a349b2c2c6d6ef551d410aeeb96527ce552ec91d86e9665bd0c9",
+      "verdict": "accepted"
+    }
+  },
+  "last_sample_wall_seconds": 401.79450912901666,
+  "limits": "Retained sealed-file consistency and public Authority pass corroborate reports; coordinator read failed separately. No current intake/coordinator state or eventual verification outcome inferred.",
+  "markers_unchanged": 2,
+  "nine_failed_attempt_walls_seconds": 2002.0388815780316,
+  "observed_at": "2026-09-12T06:14:36.594779+00:00",
+  "prior_preparation_seconds": 50.14386868789525,
+  "retained_containers": 2,
+  "run9_wall_seconds": 408.2074813900108,
+  "running_containers": 0,
+  "samples": 154,
+  "this_analysis_seconds": 0.0418271119997371,
+  "verification_workspace_names": []
+}

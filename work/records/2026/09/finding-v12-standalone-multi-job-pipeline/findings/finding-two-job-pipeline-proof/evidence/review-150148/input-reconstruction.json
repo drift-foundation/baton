@@ -1,0 +1,211 @@
+{
+  "work": "W71879",
+  "claim": 150125,
+  "retained_reconstruction": "/tmp/w71879-150125-documents-k5st2eqy",
+  "scope": "Actual host output comparison and read-only baseline/provenance. Not host UID/GID posture, model execution or terminal proof.",
+  "actual_documents": {
+    "authority-provisioning.json": "sha256:9c9216083359c970a9ef0936d9895e1ad909739f872e1d7886896eee16218388",
+    "integration-instructions.txt": "sha256:4b3160e825f6d4f166fc5fc8477f8d85f3190420ba402dcfb780f01df7be9f76",
+    "manifests/a.json": "sha256:4dec8f68973fa3d42a1a4d66ba077a2332b1ae584b9c79bebf291fc1935f970c",
+    "manifests/approval.json": "sha256:86041af87753328b287cf91e973054d12b768dc60e4b337e0468b922cfb3821b",
+    "manifests/b.json": "sha256:aaee1f204ff779f97c2aad72bcb7896abb6e487e7cc50a53986293d0c7273616",
+    "manifests/integrator.json": "sha256:f50114e641c713b1c6f98a075f132cfa77a74fe61f7bd236ef798051dc18041a",
+    "manifests/review.json": "sha256:6aeb09d793ff2c6d9010885c423c7497febed68c5b36d955fde03a8fc7cff230",
+    "manifests/verification.json": "sha256:ac4505041ea5505d04a8fdeedfe180fb4edc4321a91f1d7604cccde8d3e31a19",
+    "policies/credential_policy.json": "sha256:5367e2ae17e31ebb65e3617ef3fd2535030f7ff12d81e7a671408d2dc9ffbe1b",
+    "policies/mount_policy.json": "sha256:645faa6a419678c6d09aab26c5111d2b211d6b3796e50efccadab3ef552b12ef",
+    "policies/network_policy.json": "sha256:a14940241891a84e976d38f16fa111807cb9c5581e5229ccc91e746f61c14071",
+    "policies/policy.json": "sha256:22c6244bff87c73768eba29df89f81ebd0408629b27d97347f93eab366b6c8eb",
+    "policies/resource_policy.json": "sha256:8eeb3db84370b6882c214af5767c8f1dc6584d1b1d3f130f634cbdfd14fdc01f",
+    "policies/retention_policy.json": "sha256:c1098e7a9835fe2dd9fd908c0d679111c9b81a3139d1a984791fc38d14056448",
+    "policies/tool_policy.json": "sha256:f7bc4929a448b26fa9916dfa898e97d5b96644023ee12ee5d629f233b6726134",
+    "role-instructions.json": "sha256:7c44b0c1554adda2e37e25943e3f40c85b6c6fe85e0a343f75bca5ee17518027",
+    "runtime-profile.json": "sha256:fecd8baf13a3fbf2aeb229d4c0c3d6c2f423871d76701fad79bb7838f9572b28",
+    "stage-execution.json": "sha256:381654827ce6eb290e31c21694837e8cf10c56d6d4d9641e92df2467cb0fdc87",
+    "submission.json": "sha256:a4870e29847dcb18774e5d2136e8d4ccb606da11c32c0e5ac7fef056491e4fe9",
+    "tasks/a.json": "sha256:bf22644b09fd1dc74811f8deedfa9acf2a676c9cc81c5710bba116e388414e06",
+    "tasks/approval.json": "sha256:ab00af7bf06f66d0d4fa10f23dde1620d98daafc7496e5a21626376bf3cb9c78",
+    "tasks/b.json": "sha256:e392cc5d8771780efc39be7ceddc6c4c73f79516afed1300c78a1b4aef82130f",
+    "tasks/review.json": "sha256:da6084ba4265e960e95f025cea13c3ae09bc6f5a3b2b5993b0ac9f26fd2888fc",
+    "tasks/verification.json": "sha256:e93d313651191ff0c939ad8efc0894c8fcf15a2f450802b862b8011a2c896334",
+    "toolchain.json": "sha256:47192127fff971d3b7631dfc612209d825e578cb8a38de176ff2660495f83fb9",
+    "workers/approval.json": "sha256:17bef3bae93642b9f69816db5ec16a08d640dc904b6cd2c9853bc39888e82deb",
+    "workers/impl-a.json": "sha256:c4c30a83d629a947fd129d38504aceb995855b083ac257b82d927a77662c0ea6",
+    "workers/impl-b.json": "sha256:d6e8c5cca92fd9827ce4b96e3c56f90ad87991ac4d65df14bfbcd573e21c6121",
+    "workers/integrator.json": "sha256:c5c61c67cc78fa11d3a2897e9062393ddeebaa5fa80b667ecb46dbf1bacf271f",
+    "workers/review-a.json": "sha256:a3af2a7e2a90bd3c778b6d48954fb2614af501b7509e32cc51496c3a5b7c24cf",
+    "workers/review-b.json": "sha256:da5b020a0c70e1f4c44091689141c2d67158e08de584cfe548d7c352278349ab",
+    "workers/review.json": "sha256:9ce1129b4b2e10ed56fed36aeeeff260ea6535af6de3ae32981ed8ff2678db59",
+    "workers/verification.json": "sha256:d96ed0dcc6c4d58faab9a236fd8317c70ea11de8474c497f36e784593cb698b2"
+  },
+  "prior_manifests_verified": [
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-preparation-150007/candidate-manifest.json",
+      "sha256": "sha256:7c5ad3aeb64f845cc083ab9f25c6b857840f845f257b8591b8ac6ffb4f76f260",
+      "files": 153
+    }
+  ],
+  "accepted_correction_custody": {
+    "old_manifest": "sha256:81747c62cd9863f9c0899e1292d80fc82b1757501caa7628e6286b933ba1dd81",
+    "manifest_bindings_checked": 989,
+    "authorized_changed_manifest_paths": [],
+    "old_run8_markers": {
+      "selected-images.json": "sha256:d0da4684accfa0cba16dc712d2456745de56ef3632f315a7c17a6649407a8f5f",
+      "execution-review.json": "sha256:dc3f225a30c91e30ca50a30659bc840287992708d385f36b4721e0d0f0e297c3"
+    },
+    "source_bindings": {
+      "provider_chain": [
+        "AGENTS.md",
+        "v12/README.md",
+        "v12/python/src/baton_v12/checkpoint_profiles.py",
+        "v12/python/src/baton_v12/integration/__init__.py",
+        "v12/python/src/baton_v12/integration/admission.py",
+        "v12/python/src/baton_v12/integration/driver.py",
+        "v12/python/src/baton_v12/integration/execution.py",
+        "v12/python/src/baton_v12/integration/git_profile.py",
+        "v12/python/src/baton_v12/integration/queue.py",
+        "v12/python/src/baton_v12/integration/reconciliation.py",
+        "v12/python/src/baton_v12/integration/recovery.py",
+        "v12/python/src/baton_v12/integration/runtime.py",
+        "v12/python/src/baton_v12/integration/schema.py",
+        "v12/python/src/baton_v12/integration/store.py",
+        "v12/python/src/baton_v12/job_manager/delegation.py",
+        "v12/python/src/baton_v12/worker_manager/attempts.py",
+        "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+        "v12/python/src/baton_v12/worker_manager/schema.py",
+        "v12/python/src/baton_v12/worker_manager/target_rework.py",
+        "v12/python/tests/integration/test_admission.py",
+        "v12/python/tests/integration/test_coordinator.py",
+        "v12/python/tests/integration/test_driver.py",
+        "v12/python/tests/integration/test_execution.py",
+        "v12/python/tests/integration/test_reconciliation.py",
+        "v12/python/tests/integration/test_recovery.py",
+        "v12/python/tests/integration/test_runtime.py",
+        "v12/python/tests/job_manager/test_delegation.py",
+        "v12/python/tests/job_manager/test_scheduling.py",
+        "v12/python/tests/manager/test_attempts.py",
+        "v12/python/tests/manager/test_integration_image.py",
+        "v12/python/tests/manager/test_integration_worker.py",
+        "v12/python/tests/manager/test_store.py",
+        "v12/python/tests/manager/test_target_rework.py",
+        "v12/python/tests/tools/test_integration_bundle.py",
+        "v12/python/tests/tools/test_integration_worker.py",
+        {
+          "path": "v12/python/tests/tools/test_stage_execution.py",
+          "accepted_base": "f48e5077377e2e4fc2e571268d737a984a86633abd8eab5a19ba9faa5608a3d5",
+          "current": "sha256:707f4c79aff798b6583866f6da62711545a8a0cf74608bf27ff268a1d2ebb2fc",
+          "authority": "owner149847"
+        },
+        "v12/python/tools/integration_bundle.py",
+        "v12/python/tools/integration_worker.py",
+        {
+          "path": "v12/python/tools/stage_execution.py",
+          "accepted_base": "89d048c9ef0684f4e10859ffa5faf3d698e61b5e6d073689667e06e28aedd2e0",
+          "current": "sha256:b56451dcd899e09ebc2f47505ffaf85018cd9ef003b09e60af8caf4b543553c9",
+          "authority": "owner149847"
+        },
+        "v12/worker/Dockerfile.integration",
+        "v12/worker/integration_contract.py",
+        "v12/worker/integration_entry.py",
+        "v12/worker/integration_workload.py",
+        "v12/python/tools/single_worker.py",
+        "v12/python/tests/tools/test_single_worker.py"
+      ],
+      "source_requirements": [
+        "v12/python/src/baton_v12/integration/oci_delivery.py",
+        "v12/worker/integration_workload.py",
+        "v12/worker/Dockerfile.integration",
+        {
+          "path": "v12/python/tools/stage_execution.py",
+          "accepted_base": "sha256:89d048c9ef0684f4e10859ffa5faf3d698e61b5e6d073689667e06e28aedd2e0",
+          "current": "sha256:b56451dcd899e09ebc2f47505ffaf85018cd9ef003b09e60af8caf4b543553c9",
+          "authority": "owner149847"
+        }
+      ],
+      "current_observation_sources": [
+        "v12/python/tools/job_manager.py",
+        "v12/python/src/baton_v12/job_manager/projection.py",
+        "v12/python/src/baton_v12/worker_manager/workspaces.py"
+      ]
+    },
+    "unchanged_product_test_methods": 412,
+    "added_product_test_methods": [
+      "TwoBoundJobsTraverseServingAndCorrection.test_readonly_integration_observation_keeps_the_bound_job"
+    ],
+    "successor_changes": [
+      "README.md",
+      "run.py",
+      "test_run8_preparation.py",
+      "runner-helpers.json"
+    ],
+    "four_helpers": {
+      "deployment.py": "sha256:47e8fd83573656d0bfeba9808f5b7d487b8f4d50d64a218c711ec7a1632b7c04",
+      "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+      "run.py": "sha256:f1597051ebae22196dcd6a2e0553faca0577936c21eec0fe7542647b094d23b5",
+      "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+    },
+    "source_and_test": {
+      "v12/python/tools/stage_execution.py": "sha256:b56451dcd899e09ebc2f47505ffaf85018cd9ef003b09e60af8caf4b543553c9",
+      "v12/python/tests/tools/test_stage_execution.py": "sha256:707f4c79aff798b6583866f6da62711545a8a0cf74608bf27ff268a1d2ebb2fc"
+    },
+    "verification_seconds": 0.11923621498863213
+  },
+  "provider_entries_verified": 45,
+  "source_requirements_verified": 4,
+  "observation_sources_verified": 3,
+  "image_checks": {
+    "provider": {
+      "id": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+      "static_files_and_launcher": 11,
+      "inspection_container": "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8",
+      "still_never_started": true
+    },
+    "integration": {
+      "id": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+      "static_files_and_launcher": 13,
+      "inspection_container": "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404",
+      "still_never_started": true
+    },
+    "exact_successful_commands": 33,
+    "host_build_and_static_inspection_seconds": 0.8677917640015949,
+    "scope": "Content from owner-executed accepted helper; direct current metadata independently matches. No static copy repeated, no provider execution.",
+    "four_helpers": {
+      "deployment.py": "sha256:4c99557d5d780bc1fc2ea641dc524e3632e001851e785ab07e7ed3af31d69d64",
+      "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+      "run.py": "sha256:b85e074d96233cb29dc1c360eb26a4611534792249b036166c441df6225e6d5e",
+      "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+    }
+  },
+  "baseline": {
+    "source": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "branch": "main",
+      "status": "",
+      "baseline_files": 10
+    },
+    "target": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "branch": "main",
+      "status": "",
+      "baseline_files": 10
+    }
+  },
+  "integration_workspace_bare": true,
+  "run9_unprovisioned_names_absent": [
+    "authority.sqlite3",
+    "integration.sqlite3",
+    "jobs.sqlite3",
+    "control.sqlite3",
+    "state",
+    "storage",
+    "launch",
+    "credentials",
+    "evidence"
+  ],
+  "validation_file": "sha256:3e7a9ad6ef578910bfb081ea2b6597905a3a421f46136e4a6e9c05b7fbb0d157",
+  "actual_configuration": "sha256:381654827ce6eb290e31c21694837e8cf10c56d6d4d9641e92df2467cb0fdc87",
+  "actual_submission": "sha256:a4870e29847dcb18774e5d2136e8d4ccb606da11c32c0e5ac7fef056491e4fe9",
+  "runtime_profile_digest": "sha256:e9cc25e922d3e3cf018f0c7538d953b8dd773cdc96bc8eea5cea522b4b3b1112",
+  "host_validation_seconds": 0.02505731099518016,
+  "verification_seconds": 0.16211222900892608
+}

@@ -1,0 +1,16 @@
+Retained fixture root: /tmp/w71879-target-posture-144859-n2vfw7c1
+test_affected_file_requires_worker_exact_mode (test_target_posture.TargetPostureTests.test_affected_file_requires_worker_exact_mode) ... ok
+test_compatible_target_is_readonly (test_target_posture.TargetPostureTests.test_compatible_target_is_readonly) ... ok
+test_git_directory_requires_setgid (test_target_posture.TargetPostureTests.test_git_directory_requires_setgid) ... ok
+test_git_trust_is_exact_and_process_local (test_target_posture.TargetPostureTests.test_git_trust_is_exact_and_process_local) ... ok
+test_mutable_git_metadata_requires_group_write (test_target_posture.TargetPostureTests.test_mutable_git_metadata_requires_group_write) ... ok
+test_prepare_boundaries_refuse_before_git_or_state (test_target_posture.TargetPostureTests.test_prepare_boundaries_refuse_before_git_or_state) ... ok
+test_root_requires_group_write (test_target_posture.TargetPostureTests.test_root_requires_group_write) ... ok
+test_run_refuses_before_submit_or_engine_command (test_target_posture.TargetPostureTests.test_run_refuses_before_submit_or_engine_command) ... ok
+test_wrong_group_refuses (test_target_posture.TargetPostureTests.test_wrong_group_refuses) ... ok
+test_wrong_owner_refuses_despite_group_access (test_target_posture.TargetPostureTests.test_wrong_owner_refuses_despite_group_access) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.007s
+
+OK

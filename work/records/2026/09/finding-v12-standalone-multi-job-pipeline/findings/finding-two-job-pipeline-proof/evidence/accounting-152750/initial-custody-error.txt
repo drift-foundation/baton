@@ -1,0 +1,1 @@
+Initial utility KeyError: mode; one historical manifest omits optional mode. Corrected verification to check modes where supplied; hashes/sizes unchanged. Untimed utility cost retained as uncertainty.

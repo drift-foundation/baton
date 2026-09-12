@@ -1,0 +1,12 @@
+{
+  "previous_cumulative_listed_seconds": 42.981603961921884,
+  "red_regression_reported_rounded_seconds": 0.948,
+  "green_observation_suite_reported_rounded_seconds": 2.047,
+  "offline_suite_seconds": 0.3350662440061569,
+  "provenance_before_documentation_seconds": 0.1281878849840723,
+  "final_provenance_seconds": 0.121590340975672,
+  "current_listed_seconds": 3.5798444699659013,
+  "cumulative_listed_seconds": 46.56144843188778,
+  "all_eight_failed_runtime_seconds": 1593.8314001880208,
+  "uncertainty": "Additional untimed reads/edits/CLI/hash/static checks, initial source-search path miss, initial provenance allowlist failure, model/host/operator/billing and rounded unittest timing. No tool outer/inner duration double count; previous runs/build/validation remain spent."
+}

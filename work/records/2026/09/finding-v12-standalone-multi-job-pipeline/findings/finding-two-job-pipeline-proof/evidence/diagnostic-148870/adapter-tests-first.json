@@ -1,0 +1,5 @@
+{
+  "returncode": 1,
+  "wall_seconds": 9.614955884986557,
+  "command": "PYTHONPATH=v12/python/src python3 -B -m unittest discover -s v12/python/tests/manager -p test_claude_agent.py -v"
+}

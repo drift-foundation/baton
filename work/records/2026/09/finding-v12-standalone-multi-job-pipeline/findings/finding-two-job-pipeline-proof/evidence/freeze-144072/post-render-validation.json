@@ -1,0 +1,16 @@
+{
+  "work": "W71879",
+  "claim": 144072,
+  "observed_at": "2026-09-11T11:51:11.446449+00:00",
+  "validation": "pure schemas and cross-document image/profile/policy/record/task/actor/dependency/budget checks; no serving factory or Authority opened",
+  "configuration": "sha256:747ae861826fa7993a847f610e98b83859b1b25db0b15f83ca2fb42cc2660976",
+  "submission": "sha256:154cdee4547dd3e0fbde6021fecf1abdf91db4643ec71e84e18e577bee199287",
+  "frozen_files": 33,
+  "workers": 8,
+  "manifests": 6,
+  "tasks": 5,
+  "policies": 7,
+  "public_authority_facts_origin": "retained validation bootstrap only, not production provisioning; production creation timestamps will differ",
+  "production_roots_and_selection_markers_absent": true,
+  "validation_wall_seconds": 0.021399332996224985
+}

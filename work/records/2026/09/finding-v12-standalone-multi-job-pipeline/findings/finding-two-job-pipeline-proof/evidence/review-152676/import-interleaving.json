@@ -1,0 +1,13 @@
+{
+  "scope": "Real disposable owners and ordinary fixture import; simulated engine/provider, no live execution.",
+  "read_result_state": "imported",
+  "policy_before_import": 16,
+  "policy_after_import": 16,
+  "result_after_import": "imported",
+  "jobs_after_import": {
+    "job-a": "completed",
+    "job-b": "completed"
+  },
+  "observer_outcome": "returned",
+  "seconds": 1.5545308400178328
+}

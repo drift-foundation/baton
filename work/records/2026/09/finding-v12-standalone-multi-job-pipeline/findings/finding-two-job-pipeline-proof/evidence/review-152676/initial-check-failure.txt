@@ -1,0 +1,4 @@
+Initial reviewer checks.py invocation exited1 before custody/tests because importing the retained read helper required v12/python/src on sys.path:
+ModuleNotFoundError: No module named 'baton_v12'
+Corrected only reviewer utility import setup. No product failure or measured test spending inferred; startup cost remains untimed additional uncertainty.
+Second invocation hit the retained helper default read limit while checking large historical evidence. Explicit16MiB bound matches prior review custody checks; no candidate bytes changed. Second startup/custody partial cost is also untimed uncertainty, not omitted successful test time.

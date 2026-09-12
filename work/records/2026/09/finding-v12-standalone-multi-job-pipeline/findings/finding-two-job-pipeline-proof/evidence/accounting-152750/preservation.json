@@ -1,0 +1,13 @@
+{
+  "unchanged_files": {
+    "accounting-152563": 92,
+    "accounting-150501": 75,
+    "run9-freeze-150125": 198,
+    "run9-budget-150384": 19
+  },
+  "excluded_from_old_manifest": "Three ongoing dossier journals FINDING/PLAN/PROGRESS; append/current-state edits are explicit history, not immutable candidate bytes.",
+  "product_paths_unchanged": true,
+  "new_execution_markers_absent": true,
+  "checks": "digest/size and mode where supplied",
+  "seconds": 0.021985336992656812
+}

@@ -1,0 +1,10 @@
+{
+  "unchanged_manifests": {
+    "evidence/run9-freeze-150125/candidate-manifest.json": 198,
+    "evidence/run9-budget-150384/candidate-manifest.json": 19,
+    "evidence/accounting-150501/candidate-manifest.json": 75
+  },
+  "five_unassigned_source_contracts_unchanged": true,
+  "new_execution_markers_absent": true,
+  "seconds": 0.013340701989363879
+}

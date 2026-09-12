@@ -1,0 +1,149 @@
+Retained offline schema fixture root: /tmp/w71879-146538-schema-fixtures-fm0z9d8z
+setUpClass (test_manifest_timestamp.ManifestTimestampTests) ... ERROR
+Retained synthetic report fixture root: /tmp/w71879-146538-report-fixtures-ncfc77zd
+setUpClass (test_report_instructions.ReportInstructionsTests) ... ERROR
+Retained offline public bootstrap: /tmp/w71879-146538-public-bootstrap-zhg4o0ys
+setUpClass (test_run5_preparation.Run5PreparationTests) ... ERROR
+Retained offline fixture root: /tmp/w71879-145261-unit-runner-dnoh33k7
+test_active_attempt_deadline_remains_fatal (test_stats_observation.RunnerTests.test_active_attempt_deadline_remains_fatal) ... ok
+test_actual_registered_watchdog_is_fatal_and_contains (test_stats_observation.RunnerTests.test_actual_registered_watchdog_is_fatal_and_contains) ... ok
+test_eof_gap_flushes_surrounding_evidence_and_continues (test_stats_observation.RunnerTests.test_eof_gap_flushes_surrounding_evidence_and_continues) ... ok
+test_final_verification_failure_stays_fatal (test_stats_observation.RunnerTests.test_final_verification_failure_stays_fatal) ... ok
+test_host_capacity_refuses_before_submission (test_stats_observation.RunnerTests.test_host_capacity_refuses_before_submission) ... ok
+test_incomplete_jobs_do_not_become_terminal_from_gap (test_stats_observation.RunnerTests.test_incomplete_jobs_do_not_become_terminal_from_gap) ... ok
+test_missing_claim_timestamp_remains_fatal (test_stats_observation.RunnerTests.test_missing_claim_timestamp_remains_fatal) ... ok
+test_required_status_inspect_storage_remain_fatal (test_stats_observation.RunnerTests.test_required_status_inspect_storage_remain_fatal) ... ok
+test_subprocess_timeout_remains_gap_and_continues (test_stats_observation.RunnerTests.test_subprocess_timeout_remains_gap_and_continues) ... ok
+test_bounded_output_has_explicit_truncation (test_stats_observation.StatsTests.test_bounded_output_has_explicit_truncation) ... ok
+test_no_ids_is_not_requested (test_stats_observation.StatsTests.test_no_ids_is_not_requested) ... ok
+test_nonzero_retains_eof_and_partial_output_without_retry (test_stats_observation.StatsTests.test_nonzero_retains_eof_and_partial_output_without_retry) ... ok
+test_requested_empty_or_whitespace_is_unavailable (test_stats_observation.StatsTests.test_requested_empty_or_whitespace_is_unavailable) ... ok
+test_required_inspect_and_label_checks_stay_strict (test_stats_observation.StatsTests.test_required_inspect_and_label_checks_stay_strict) ... ok
+test_subprocess_timeout_retains_partial_bytes (test_stats_observation.StatsTests.test_subprocess_timeout_retains_partial_bytes) ... ok
+test_success_retains_requested_ids_raw_output_and_timing (test_stats_observation.StatsTests.test_success_retains_requested_ids_raw_output_and_timing) ... ok
+test_watchdog_and_nontelemetry_errors_propagate (test_stats_observation.StatsTests.test_watchdog_and_nontelemetry_errors_propagate) ... ok
+
+======================================================================
+ERROR: setUpClass (test_manifest_timestamp.ManifestTimestampTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/source_boundary.py", line 360, in nominate_source
+    held = os.lstat(place)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/.local/state/baton/v12/w71879-run5/source'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146538/test_manifest_timestamp.py", line 33, in setUpClass
+    cls.hashes = deployment.documents(cls.good, cls.images, cls.facts)
+                 ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146538/deployment.py", line 316, in documents
+    stage_execution.held_configuration(config)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 460, in held_configuration
+    given["workers"] = _held_workers(
+                       ~~~~~~~~~~~~~^
+        given["workers"], here, given["authority_uuid"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        many=given["schema"] == MULTI_CONFIG_SCHEMA)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 668, in _held_workers
+    deployment = single_worker._held(named, roles=ROLES)
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 329, in _held
+    given["source_nomination"] = source_boundary.nominate_source(
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        given["nominated_source"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/source_boundary.py", line 362, in nominate_source
+    _refuse(f"the nominated source {name_value(place)} is not a directory "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager can see ({type(failure).__name__})")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/source_boundary.py", line 186, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the nominated source '/home/sl/.local/state/baton/v12/w71879-run5/source' is not a directory this manager can see (FileNotFoundError)
+
+======================================================================
+ERROR: setUpClass (test_report_instructions.ReportInstructionsTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/source_boundary.py", line 360, in nominate_source
+    held = os.lstat(place)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/.local/state/baton/v12/w71879-run5/source'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146538/test_report_instructions.py", line 29, in setUpClass
+    deployment.documents(cls.config, json.loads((HERE / 'candidate-images.json').read_text()), facts)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146538/deployment.py", line 316, in documents
+    stage_execution.held_configuration(config)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 460, in held_configuration
+    given["workers"] = _held_workers(
+                       ~~~~~~~~~~~~~^
+        given["workers"], here, given["authority_uuid"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        many=given["schema"] == MULTI_CONFIG_SCHEMA)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 668, in _held_workers
+    deployment = single_worker._held(named, roles=ROLES)
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 329, in _held
+    given["source_nomination"] = source_boundary.nominate_source(
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        given["nominated_source"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/source_boundary.py", line 362, in nominate_source
+    _refuse(f"the nominated source {name_value(place)} is not a directory "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager can see ({type(failure).__name__})")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/source_boundary.py", line 186, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the nominated source '/home/sl/.local/state/baton/v12/w71879-run5/source' is not a directory this manager can see (FileNotFoundError)
+
+======================================================================
+ERROR: setUpClass (test_run5_preparation.Run5PreparationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/source_boundary.py", line 360, in nominate_source
+    held = os.lstat(place)
+FileNotFoundError: [Errno 2] No such file or directory: '/home/sl/.local/state/baton/v12/w71879-run5/source'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146538/test_run5_preparation.py", line 29, in setUpClass
+    cls.hashes = deployment.documents(cls.config, json.loads((HERE / 'candidate-images.json').read_text()), cls.facts)
+                 ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146538/deployment.py", line 316, in documents
+    stage_execution.held_configuration(config)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 460, in held_configuration
+    given["workers"] = _held_workers(
+                       ~~~~~~~~~~~~~^
+        given["workers"], here, given["authority_uuid"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        many=given["schema"] == MULTI_CONFIG_SCHEMA)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 668, in _held_workers
+    deployment = single_worker._held(named, roles=ROLES)
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 329, in _held
+    given["source_nomination"] = source_boundary.nominate_source(
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        given["nominated_source"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/source_boundary.py", line 362, in nominate_source
+    _refuse(f"the nominated source {name_value(place)} is not a directory "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager can see ({type(failure).__name__})")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/source_boundary.py", line 186, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the nominated source '/home/sl/.local/state/baton/v12/w71879-run5/source' is not a directory this manager can see (FileNotFoundError)
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.060s
+
+FAILED (errors=3)

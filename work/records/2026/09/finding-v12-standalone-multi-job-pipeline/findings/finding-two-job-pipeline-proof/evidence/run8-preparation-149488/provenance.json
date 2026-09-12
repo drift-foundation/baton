@@ -1,0 +1,149 @@
+{
+  "work": "W71879",
+  "claim": 149488,
+  "prior_manifests": [
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run7-freeze-149356/candidate-manifest.json",
+      "sha256": "sha256:6e95a68815f0d1c353dc7f78836dc762132176a92f17f28ac0b39b6b88052224",
+      "verified_files": 864
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/image-preparation-149053/candidate-manifest.json",
+      "sha256": "sha256:fa2f9526995166f66c195704b71bfb4504c3713d6820362565641b88246c9037",
+      "verified_files": 73
+    }
+  ],
+  "preserved_run7_markers": {
+    "selected-images.json": "d0da4684accfa0cba16dc712d2456745de56ef3632f315a7c17a6649407a8f5f",
+    "execution-review.json": "87289f5ec4d7a2d31455516856de4a71cb0b27f259e0645e2291370a0229caed"
+  },
+  "source_bindings": {
+    "v12/python/src/baton_v12/integration/oci_delivery.py": "sha256:ccfa812ac3b6c4fa68d32bc4fcb25bf2c05c7220369af1b39dedc0aef8a08282",
+    "v12/worker/integration_workload.py": "sha256:b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+    "v12/worker/Dockerfile.integration": "sha256:afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+    "v12/python/tools/stage_execution.py": "sha256:89d048c9ef0684f4e10859ffa5faf3d698e61b5e6d073689667e06e28aedd2e0",
+    "v12/python/tools/job_manager.py": "sha256:1060e26a4196bafbc55db7955271853b1a2dde45e316d39cba7681939aeb6bb7",
+    "v12/python/src/baton_v12/job_manager/projection.py": "sha256:d22c3e7d83731e9ecf5c74255b2d40a46f8b24b858fd091226cd60e9eba91af3",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "sha256:19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9"
+  },
+  "provider_chain_entries": 45,
+  "changed_copies": [
+    "deployment.py",
+    "offline-images.json",
+    "offline_fixture.py",
+    "operator-prepare.sh",
+    "policies/mount_policy.json",
+    "policies/policy.json",
+    "policies/retention_policy.json",
+    "record-snapshot/FINDING.md",
+    "record-snapshot/PLAN.md",
+    "run.py",
+    "runner-helpers.json",
+    "tasks/a.json",
+    "tasks/approval.json",
+    "tasks/b.json",
+    "tasks/review.json",
+    "tasks/verification.json",
+    "test_early_failure.py",
+    "test_manifest_timestamp.py",
+    "test_observed_status.py",
+    "test_report_instructions.py",
+    "test_run8_preparation.py",
+    "verify_offline.py",
+    "README.md"
+  ],
+  "unchanged_copies": [
+    "build_images.py",
+    "candidate-images.json",
+    "correction_expectations.py",
+    "evidence/correction-delta.patch",
+    "evidence/failed-verification.json",
+    "evidence/failed-verification.txt",
+    "evidence/intermediate-verification.json",
+    "evidence/intermediate-verification.txt",
+    "evidence/provenance.json",
+    "evidence/run6-diagnostic-replay.json",
+    "evidence/run6-original-result.json",
+    "evidence/run6-status-facts.json",
+    "evidence/spending.json",
+    "evidence/verification.json",
+    "evidence/verification.txt",
+    "failure_observation.py",
+    "image-context/Dockerfile.provider",
+    "image-context/python/src/baton_v12/source_profiles/__init__.py",
+    "image-context/python/src/baton_v12/source_profiles/checkout.py",
+    "image-context/worker/Dockerfile.integration",
+    "image-context/worker/baton_worker.py",
+    "image-context/worker/claude_agent.py",
+    "image-context/worker/dogfood_entry.py",
+    "image-context/worker/integration_contract.py",
+    "image-context/worker/integration_entry.py",
+    "image-context/worker/integration_workload.py",
+    "image-context/worker/worker-control-1.0.schema.json",
+    "image-context-manifest.json",
+    "policies/credential_policy.json",
+    "policies/network_policy.json",
+    "policies/resource_policy.json",
+    "policies/tool_policy.json",
+    "provider-installation.json",
+    "target_posture.py",
+    "test_image_preparation.py",
+    "test_provider_detail.py",
+    "test_stats_observation.py"
+  ],
+  "credential_delivery_check": {
+    "scope": "eight offline constructed worker documents; configured provider/reference and separate fresh per-worker homes, not credential contents or successful login validation",
+    "fixture": "/tmp/w71879-149488-public-bootstrap-wwades7x/documents",
+    "distinct_homes": [
+      "/tmp/w71879-149488-public-bootstrap-wwades7x/offline-run/credentials/approval",
+      "/tmp/w71879-149488-public-bootstrap-wwades7x/offline-run/credentials/impl-a",
+      "/tmp/w71879-149488-public-bootstrap-wwades7x/offline-run/credentials/impl-b",
+      "/tmp/w71879-149488-public-bootstrap-wwades7x/offline-run/credentials/integrator",
+      "/tmp/w71879-149488-public-bootstrap-wwades7x/offline-run/credentials/review-a",
+      "/tmp/w71879-149488-public-bootstrap-wwades7x/offline-run/credentials/review-b",
+      "/tmp/w71879-149488-public-bootstrap-wwades7x/offline-run/credentials/review",
+      "/tmp/w71879-149488-public-bootstrap-wwades7x/offline-run/credentials/verification"
+    ],
+    "runtime_path_rule": "deployment uses RUN/credentials/actor; RUN is fresh run8",
+    "owner_refreshed_source_attestation": 149484
+  },
+  "run7": {
+    "scope": "bounded retained first-failure replay and existing supplementary detail, no broader diagnosis",
+    "sample_count": 5,
+    "first_failure_sample": 5,
+    "first_failure_seconds": 8.753998197993496,
+    "wall_seconds": 9.106425506004598,
+    "first_failure_to_end_seconds": 0.35242730801110156,
+    "terminal_both": false,
+    "supported_provider_detail": {
+      "authentication_cause": "provider-reported-oauth-session-expired-refresh-failed",
+      "availability": "available",
+      "basis": "supplementary published adapter report; never raw provider output",
+      "detail": {
+        "classification": "authentication_failed",
+        "explanation": "Failed to authenticate: OAuth session expired and could not be refreshed",
+        "explanation_status": "supported-constant",
+        "http_status": null,
+        "request_id": null,
+        "request_id_status": "unavailable",
+        "schema": "baton.provider-diagnostic/1"
+      },
+      "next_action": "Provider reports an expired OAuth session that could not be refreshed. The credential owner should restore the supported login before any separately authorized retry.",
+      "provider_exit_status": 1,
+      "provider_reason": "api-error"
+    },
+    "source_files": {
+      "run-result.json": "sha256:1a1b67aad2e357f52a8d9652a8e1a7499431245ad2e8729d120d7de607880125",
+      "first-failure.json": "sha256:1405fae03ccdfae627db33928db62bf47ada082c046e3b63e8c18691d8b46fe9",
+      "failure-diagnostic.json": "sha256:b06df9ab72756438d0024e53718a85cc0cd6c92dfb8d5058a49616aa491f3d0e",
+      "samples.jsonl": "sha256:4a773ae4a1e38f421fcd6fff8606beb5c39997cce9950dace831116f5b9de203"
+    }
+  },
+  "images": {
+    "integration": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+    "provider": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13"
+  },
+  "fresh_run8_absent": true,
+  "new_actual_host_outputs_and_markers_absent": true,
+  "verification_seconds": 0.16430123799364083
+}

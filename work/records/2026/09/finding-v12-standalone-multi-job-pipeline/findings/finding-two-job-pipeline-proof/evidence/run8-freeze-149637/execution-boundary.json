@@ -1,0 +1,57 @@
+{
+  "work": "W71879",
+  "claim": 149637,
+  "owner_authorization_event": 149484,
+  "operator_completion_event": 149607,
+  "operator_attempts_authorized": 1,
+  "authorization_condition": "Existing final independent actual-input review and genuine new marker; no additional permission request.",
+  "agent_model_execution_authorized": false,
+  "cwd": "/home/sl/src/baton/v12/python",
+  "requirements": [
+    "Final independent input review binds exact candidate, actual33 inputs, both accepted images and four helpers; genuine new selected-images and execution-review markers",
+    "Host supplementary gid1001, scoped fresh run8 writes and ordinary engine access",
+    "No image rebuild, preparation repeat, automatic retry, historical repair or manual ordinary transition"
+  ],
+  "configuration": "sha256:3ba82de6d6de6caab7312402582cc6b99418b7d8e2b7dfcebcbc1248ab3c38d7",
+  "submission": "sha256:a2e2107eb0fcf6203d8d0e4e28c029fb2d0d1ff242d7a8ad787234ce33d08697",
+  "profile": "sha256:15929015622f1264fa7f8f500ba8435d5a2ef4c366dee45b3d3a43e14d59bf88",
+  "images": {
+    "provider": {
+      "id": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+      "static_files_and_launcher": 11,
+      "inspection_container": "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8",
+      "still_never_started": true
+    },
+    "integration": {
+      "id": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+      "static_files_and_launcher": 13,
+      "inspection_container": "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404",
+      "still_never_started": true
+    },
+    "exact_successful_commands": 33,
+    "host_build_and_static_inspection_seconds": 0.8677917640015949,
+    "scope": "Content from owner-executed accepted helper; direct current metadata independently matches. No static copy repeated, no provider execution.",
+    "four_helpers": {
+      "deployment.py": "sha256:47e8fd83573656d0bfeba9808f5b7d487b8f4d50d64a218c711ec7a1632b7c04",
+      "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+      "run.py": "sha256:6cada83f9e8e99eef2865ffcfd823ec3995d59002e688cef00585da359e9bca9",
+      "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+    }
+  },
+  "provision": [
+    "/usr/bin/env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "PYTHONPATH=src:.",
+    "/usr/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149488/deployment.py",
+    "provision"
+  ],
+  "run": [
+    "/usr/bin/env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "PYTHONPATH=src:.",
+    "/usr/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149488/run.py"
+  ],
+  "routine_oauth_policy": "Campaign03:46:36Z: no recurring reviewer turn solely for identities/digests/credential instances within an accepted recovery procedure. This completes the already scheduled run8 review; repeatable procedure is queued separately and does not block run8."
+}

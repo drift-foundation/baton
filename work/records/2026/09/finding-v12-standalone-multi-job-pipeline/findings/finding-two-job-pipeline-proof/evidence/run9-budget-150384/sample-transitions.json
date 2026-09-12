@@ -1,0 +1,163 @@
+[
+  {
+    "sample": 1,
+    "states": {},
+    "wall_seconds": 0.16013635200215504
+  },
+  {
+    "sample": 2,
+    "states": {
+      "job-a/implementation": "offered",
+      "job-a/integration": "blocked",
+      "job-a/review": "blocked",
+      "job-b/implementation": "offered",
+      "job-b/integration": "blocked",
+      "job-b/review": "blocked"
+    },
+    "wall_seconds": 1.1675436799996532
+  },
+  {
+    "sample": 3,
+    "states": {
+      "job-a/implementation": "waiting",
+      "job-a/integration": "blocked",
+      "job-a/review": "blocked",
+      "job-b/implementation": "running",
+      "job-b/integration": "blocked",
+      "job-b/review": "blocked"
+    },
+    "wall_seconds": 2.3462962370249443
+  },
+  {
+    "sample": 4,
+    "states": {
+      "job-a/implementation": "running",
+      "job-a/integration": "blocked",
+      "job-a/review": "blocked",
+      "job-b/implementation": "running",
+      "job-b/integration": "blocked",
+      "job-b/review": "blocked"
+    },
+    "wall_seconds": 5.546249106002506
+  },
+  {
+    "sample": 14,
+    "states": {
+      "job-a/implementation": "completed",
+      "job-a/integration": "blocked",
+      "job-a/review": "offered",
+      "job-b/implementation": "running",
+      "job-b/integration": "blocked",
+      "job-b/review": "blocked"
+    },
+    "wall_seconds": 36.599436454998795
+  },
+  {
+    "sample": 15,
+    "states": {
+      "job-a/implementation": "completed",
+      "job-a/integration": "blocked",
+      "job-a/review": "reviewing",
+      "job-b/implementation": "running",
+      "job-b/integration": "blocked",
+      "job-b/review": "blocked"
+    },
+    "wall_seconds": 38.7936984320113
+  },
+  {
+    "sample": 17,
+    "states": {
+      "job-a/implementation": "completed",
+      "job-a/integration": "blocked",
+      "job-a/review": "reviewing",
+      "job-b/implementation": "completed",
+      "job-b/integration": "blocked",
+      "job-b/review": "offered"
+    },
+    "wall_seconds": 44.19288751701242
+  },
+  {
+    "sample": 18,
+    "states": {
+      "job-a/implementation": "completed",
+      "job-a/integration": "blocked",
+      "job-a/review": "reviewing",
+      "job-b/implementation": "completed",
+      "job-b/integration": "blocked",
+      "job-b/review": "reviewing"
+    },
+    "wall_seconds": 46.38647785401554
+  },
+  {
+    "sample": 41,
+    "states": {
+      "job-a/implementation": "completed",
+      "job-a/integration": "blocked",
+      "job-a/review": "completed",
+      "job-b/implementation": "completed",
+      "job-b/integration": "blocked",
+      "job-b/review": "reviewing"
+    },
+    "wall_seconds": 119.9826933320146
+  },
+  {
+    "sample": 78,
+    "states": {
+      "job-a/implementation": "completed",
+      "job-a/integration": "queued",
+      "job-a/review": "completed",
+      "job-b/implementation": "completed",
+      "job-b/integration": "blocked",
+      "job-b/review": "completed"
+    },
+    "wall_seconds": 201.28728981001768
+  },
+  {
+    "sample": 79,
+    "states": {
+      "job-a/implementation": "completed",
+      "job-a/integration": "offered",
+      "job-a/review": "completed",
+      "job-b/implementation": "completed",
+      "job-b/integration": "blocked",
+      "job-b/review": "completed"
+    },
+    "wall_seconds": 202.47407425902202
+  },
+  {
+    "sample": 80,
+    "states": {
+      "job-a/implementation": "completed",
+      "job-a/integration": "integrating",
+      "job-a/review": "completed",
+      "job-b/implementation": "completed",
+      "job-b/integration": "blocked",
+      "job-b/review": "completed"
+    },
+    "wall_seconds": 203.6558067940059
+  },
+  {
+    "sample": 117,
+    "states": {
+      "job-a/implementation": "completed",
+      "job-a/integration": "completed",
+      "job-a/review": "completed",
+      "job-b/implementation": "completed",
+      "job-b/integration": "offered",
+      "job-b/review": "completed"
+    },
+    "wall_seconds": 285.0841938230151
+  },
+  {
+    "sample": 118,
+    "states": {
+      "job-a/implementation": "completed",
+      "job-a/integration": "completed",
+      "job-a/review": "completed",
+      "job-b/implementation": "completed",
+      "job-b/integration": "claimed",
+      "job-b/review": "completed"
+    },
+    "wall_seconds": 286.27043906602194
+  }
+]

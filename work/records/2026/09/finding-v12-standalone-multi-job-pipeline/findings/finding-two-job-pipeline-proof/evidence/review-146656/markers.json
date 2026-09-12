@@ -1,0 +1,9 @@
+{
+  "reviewed_paths": 445,
+  "markers": {
+    "selected-images.json": "sha256:1a21904794361ef768064be6c97ba1855adf869b82c74119b92f22593c21203e",
+    "execution-review.json": "sha256:60c81f6a970e2b235086e478fb849f19f08f65ba9e4e9febfb330607f9030839"
+  },
+  "review_locator": "baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/review-2026-09-11T19-11-49Z.md",
+  "execution_authorized": false
+}

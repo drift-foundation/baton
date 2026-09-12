@@ -1,0 +1,28 @@
+{
+  "work": "W71879",
+  "claim": 144859,
+  "prior_listed_preparation_diagnosis_seconds": 1.2642006099997194,
+  "run1_seconds": 223.9077433210041,
+  "run2_seconds": 300.8523036100087,
+  "combined_model_run_wall_seconds_spent": 524.7600469310128,
+  "new_measured_seconds": {
+    "first_10_test_command_wall": 0.037014676,
+    "static_task_policy_continuity_and_live_refusal": 0.14364997200027574,
+    "final_10_test_command_wall": 0.032825581
+  },
+  "test_history": [
+    {
+      "passed": 10,
+      "fixture": "/tmp/w71879-target-posture-144859-o0ana123",
+      "reason": "initial correction tests"
+    },
+    {
+      "passed": 10,
+      "fixture": "/tmp/w71879-target-posture-144859-5zcydkei",
+      "reason": "rerun after requiring the new posture helper in execution-review bindings"
+    }
+  ],
+  "listed_preparation_before_manifest_seconds": 1.4776908389999952,
+  "uncertainty": "Initial continuity check, source/metadata/CLI reads, imports/edits and shell syntax check are not comprehensively measured; all earlier untimed/operator costs and unknown provider billing remain. No new model run or provider reserve transfer. Internal final test duration is a subset of its command wall and is not added twice.",
+  "future_model_run_authorized": false
+}

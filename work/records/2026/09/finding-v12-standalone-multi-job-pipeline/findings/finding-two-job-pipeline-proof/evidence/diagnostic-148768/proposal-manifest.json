@@ -1,0 +1,22 @@
+{
+  "work": "W71879",
+  "claim": 148768,
+  "scope": "verified installed metadata and exact static code acquisition; no execution authorization",
+  "files": {
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/STATIC-PROVIDER-PATHS-148768.md": {
+      "sha256": "00230ac724fa85188d76b65e820e95cdf26624491cdb052c83d4fa7a05e61bea",
+      "bytes": 5594,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/diagnostic-148768/provider-package.json": {
+      "sha256": "204e690591b935992fff95f6d2af6aeac86be074719da7900f1c4e4056f37efe",
+      "bytes": 1476,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/diagnostic-148768/verification.json": {
+      "sha256": "ed0977e58dcbe5d7f7f0b440d09f7c7e50f7e7f3a0f912e398b741d4aa697752",
+      "bytes": 1346,
+      "mode": "0o664"
+    }
+  }
+}

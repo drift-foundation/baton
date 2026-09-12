@@ -1,0 +1,8 @@
+{
+  "tests": 17,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 0.013851740994141437,
+  "retained_fixture_root": "/tmp/w71879-145261-unit-runner-4f1gug3v",
+  "scope": "offline mocked process/owner/clock answers; no real review markers, engine, model, Git or live Authority; temporary evidence is UNIT fixture data"
+}

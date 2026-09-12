@@ -1,0 +1,405 @@
+{
+  "work": "W71879",
+  "claim": 144777,
+  "run": {
+    "exceptional_stops": [],
+    "failure": "TimeoutError: approved proof wall/active-attempt deadline reached",
+    "initial": {
+      "source": {
+        "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "path": "/home/sl/.local/state/baton/v12/w71879-run2/source",
+        "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+      },
+      "target": {
+        "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "path": "/home/sl/.local/state/baton/v12/w71879-run2/target",
+        "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+      }
+    },
+    "ordinary_operator_transitions": 0,
+    "started_at": "2026-09-11T13:33:24.463586+00:00",
+    "submitted": true,
+    "terminal_both": false,
+    "wall_seconds": 300.8523036100087
+  },
+  "provider_results": [
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/storage/.baton-review-lines/line-59ce07a060cee7841545f2a7256fcff8aeef87d5ae0720da4071ee55ba30ab76/custody/attempt-0718061b0c8e9c3e2aa9ce581f10087731468c07ea11f7703d79f82ee4f737aa/proposal/result.json",
+      "document": {
+        "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "changed_paths": [
+          "demo/greeting.py",
+          "tests/test_greeting.py"
+        ],
+        "disposition": "candidate",
+        "entry_head": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "head": "d2ecb3bf8c638192a8065ad506774b8be0c85aea",
+        "provider": {
+          "failure_reason": null,
+          "seconds_bound": 3600,
+          "status": 0
+        },
+        "schema": "baton.dogfood-proposal/2",
+        "task_id": "w71879-run2-a",
+        "verification": {
+          "argv": [
+            "python3",
+            "check_greeting.py"
+          ],
+          "status": 0
+        },
+        "why": "the candidate changed the source and its own verification passed"
+      }
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/storage/.baton-review-lines/line-d548085216c06310c6bd6688d24f1ea24deba192fbb1381847cfce305011dcc8/custody/attempt-f4a66d25432267939b433110d25f80e5c230bd16b857f94e3b4caca31042ba3b/proposal/result.json",
+      "document": {
+        "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "changed_paths": [
+          "check_hours.py",
+          "demo/units.py",
+          "tests/test_hours.py"
+        ],
+        "disposition": "candidate",
+        "entry_head": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "head": "f0f73ec80ce9e339e7ce1322082c4520e3312dd0",
+        "provider": {
+          "failure_reason": null,
+          "seconds_bound": 3600,
+          "status": 0
+        },
+        "schema": "baton.dogfood-proposal/2",
+        "task_id": "w71879-run2-b",
+        "verification": {
+          "argv": [
+            "python3",
+            "check_hours.py"
+          ],
+          "status": 0
+        },
+        "why": "the candidate changed the source and its own verification passed"
+      }
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/storage/attempt-f717b258e332e57a6b6b0d73cbfb39e93157ee0bf50ab3dd36e9f03cf2e90735/custody/attempt-f717b258e332e57a6b6b0d73cbfb39e93157ee0bf50ab3dd36e9f03cf2e90735/logs/review.json",
+      "document": {
+        "provider": {
+          "failure_reason": null,
+          "seconds_bound": 3600,
+          "status": 0
+        },
+        "report_bytes": 4385,
+        "reviewed": {
+          "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+          "head": "d2ecb3bf8c638192a8065ad506774b8be0c85aea",
+          "tree": "280258b3aecd0a1227aa5a72b2d82443135eb4f6"
+        },
+        "schema": "baton.review-log/1",
+        "task_id": "w71879-run2-a",
+        "verdict": "accepted",
+        "verification": null
+      }
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/storage/attempt-43fb0ce043b33c4d51351730ac0b7b54018f506b221435b336ce0c71c0bc1429/custody/attempt-43fb0ce043b33c4d51351730ac0b7b54018f506b221435b336ce0c71c0bc1429/logs/review.json",
+      "document": {
+        "provider": {
+          "failure_reason": null,
+          "seconds_bound": 3600,
+          "status": 0
+        },
+        "report_bytes": 4885,
+        "reviewed": {
+          "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+          "head": "f0f73ec80ce9e339e7ce1322082c4520e3312dd0",
+          "tree": "df97d2c502b5d3ed7b337772fd6a457eb48dbf61"
+        },
+        "schema": "baton.review-log/1",
+        "task_id": "w71879-run2-b",
+        "verdict": "accepted",
+        "verification": null
+      }
+    }
+  ],
+  "evidence_files": [
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/evidence/run-result.json",
+      "bytes": 721,
+      "sha256": "8c29ab3ec767259af2e30fe74aadf64654e48b8c8654210faca04889428a2508"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/evidence/serve.log",
+      "bytes": 1879,
+      "sha256": "7442d006c29c51dd886d4262dddc3168660ecbfaddf8b2bae0a78ff28de5db4f"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/evidence/samples.jsonl",
+      "bytes": 6218017,
+      "sha256": "c9cfb79030ac9900b5521084c1ea8978b734ec396ee5b0b02532578b0105545d"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/evidence/provisioning.json",
+      "bytes": 5832,
+      "sha256": "a0fd1bdffe39af346cb90cf88d3e2662148cb78a9fc79b2bb8fa14058675ee96"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/evidence/submit.json",
+      "bytes": 2548,
+      "sha256": "f09124f99223c2f66a862194529353ebfe4f947054d3404a1dc6ca37cf7b9336"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/storage/.baton-review-lines/line-59ce07a060cee7841545f2a7256fcff8aeef87d5ae0720da4071ee55ba30ab76/custody/attempt-0718061b0c8e9c3e2aa9ce581f10087731468c07ea11f7703d79f82ee4f737aa/proposal/result.json",
+      "bytes": 589,
+      "sha256": "adaf4b6a2c291abf9fa6ecfd8adf8d9cb95769a9453d648960b0d13a21726d41"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/storage/.baton-review-lines/line-d548085216c06310c6bd6688d24f1ea24deba192fbb1381847cfce305011dcc8/custody/attempt-f4a66d25432267939b433110d25f80e5c230bd16b857f94e3b4caca31042ba3b/proposal/result.json",
+      "bytes": 600,
+      "sha256": "c6bf4b2c1de75f0301a427c651c1ff601428516e6d0b3fe2ceb887df3c234495"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/storage/attempt-f717b258e332e57a6b6b0d73cbfb39e93157ee0bf50ab3dd36e9f03cf2e90735/custody/attempt-f717b258e332e57a6b6b0d73cbfb39e93157ee0bf50ab3dd36e9f03cf2e90735/logs/review.json",
+      "bytes": 399,
+      "sha256": "458dcec7c1afe74c6702a7dc476e84f0624571c813048cb533e4196079f533ef"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/storage/attempt-43fb0ce043b33c4d51351730ac0b7b54018f506b221435b336ce0c71c0bc1429/custody/attempt-43fb0ce043b33c4d51351730ac0b7b54018f506b221435b336ce0c71c0bc1429/logs/review.json",
+      "bytes": 399,
+      "sha256": "2563620db6dc5f24fc50cefff282c5bf042e6acad320f4d0cc4a9b04cb1295a0"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/state/integration-bundles/attempt-bb05c723a9d447711399126c59f169b3ae91b3b98f3fd1b3d7a6cea677e78df2/integration.json",
+      "bytes": 3979,
+      "sha256": "b6d495221faad1d49dad13a8606ff7797561400d9b6136b731ef64063e6278e4"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/state/integration-bundles/attempt-bb05c723a9d447711399126c59f169b3ae91b3b98f3fd1b3d7a6cea677e78df2/evidence/checkpoint.json",
+      "bytes": 1048,
+      "sha256": "a1fbb232d4650e14fab4ba8ee18663ff881378bc88bc8872293837c8381a1f99"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/state/integration-bundles/attempt-bb05c723a9d447711399126c59f169b3ae91b3b98f3fd1b3d7a6cea677e78df2/evidence/authority.json",
+      "bytes": 11125,
+      "sha256": "1857265848083c187b0c28c9241fab02af1d92d95dd336394c17e133470bfbf9"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/state/integration-bundles/attempt-bb05c723a9d447711399126c59f169b3ae91b3b98f3fd1b3d7a6cea677e78df2/evidence/receipts.json",
+      "bytes": 2059,
+      "sha256": "2ee74477e422d4ad4fd077f9cf153014d2cefd0f62d9116bd7740437f96ee120"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/state/integration-bundles/attempt-bb05c723a9d447711399126c59f169b3ae91b3b98f3fd1b3d7a6cea677e78df2/evidence/job.json",
+      "bytes": 480,
+      "sha256": "958c8965f36e96e17175c2f26b74b9be3450dad7c2789dad965a1a65b099a684"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/state/integration-bundles/attempt-bb05c723a9d447711399126c59f169b3ae91b3b98f3fd1b3d7a6cea677e78df2/evidence/result.json",
+      "bytes": 826,
+      "sha256": "6264ce62ba3292710e75ceffcb6307fb8776d522c31c86ce9c6d1465bdd4efb4"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/state/integration-bundles/attempt-bb05c723a9d447711399126c59f169b3ae91b3b98f3fd1b3d7a6cea677e78df2/evidence/review.json",
+      "bytes": 1983,
+      "sha256": "6874a62187a6381ea428ccbc9ca59320caea2f43576131e34e36065bc9eb166e"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/state/integration-bundles/attempt-bb05c723a9d447711399126c59f169b3ae91b3b98f3fd1b3d7a6cea677e78df2/evidence/proposal.json",
+      "bytes": 975,
+      "sha256": "19068e447b5a63f368c34c7fd75b618588ec783d9911f7aa938dc40188310c5b"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/state/integration-bundles/attempt-bb05c723a9d447711399126c59f169b3ae91b3b98f3fd1b3d7a6cea677e78df2/evidence/tests.json",
+      "bytes": 903,
+      "sha256": "7b1465c42a8d53e5791f530c14ea1d813b926f1aee07a86b28498bc02ea7de1f"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/state/integration-launch/attempt-bb05c723a9d447711399126c59f169b3ae91b3b98f3fd1b3d7a6cea677e78df2/launch.json",
+      "bytes": 116,
+      "sha256": "f02c8c38a4f9a4a5d76caf8a479535233ee1c1f59b2df23e6d6278054b0cf0e7"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/state/integration/integration/assignment/assignment.json",
+      "bytes": 603,
+      "sha256": "58feac3a9ffd7b2021d50717224c8276d71649b0ff28ba70926a358b9ed6e690"
+    }
+  ],
+  "target_posture": [
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/target",
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0o775"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/target/.git",
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0o775"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/target/.git/config",
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0o664"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/target/.git/objects",
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0o775"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/target/.git/refs",
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0o775"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/target/demo/greeting.py",
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0o664"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run2/target/tests/test_greeting.py",
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0o664"
+    }
+  ],
+  "configured_workspace_group": 1001,
+  "samples": 170,
+  "transitions": [
+    {
+      "wall_seconds": 1.1651511050004046,
+      "stage": "job-a/implementation",
+      "state": "offered",
+      "runtime": null
+    },
+    {
+      "wall_seconds": 1.1651511050004046,
+      "stage": "job-a/review",
+      "state": "blocked",
+      "runtime": null
+    },
+    {
+      "wall_seconds": 1.1651511050004046,
+      "stage": "job-a/integration",
+      "state": "blocked",
+      "runtime": null
+    },
+    {
+      "wall_seconds": 1.1651511050004046,
+      "stage": "job-b/implementation",
+      "state": "offered",
+      "runtime": null
+    },
+    {
+      "wall_seconds": 1.1651511050004046,
+      "stage": "job-b/review",
+      "state": "blocked",
+      "runtime": null
+    },
+    {
+      "wall_seconds": 1.1651511050004046,
+      "stage": "job-b/integration",
+      "state": "blocked",
+      "runtime": null
+    },
+    {
+      "wall_seconds": 2.322183558004326,
+      "stage": "job-a/implementation",
+      "state": "starting",
+      "runtime": "running"
+    },
+    {
+      "wall_seconds": 2.322183558004326,
+      "stage": "job-b/implementation",
+      "state": "starting",
+      "runtime": "running"
+    },
+    {
+      "wall_seconds": 34.0783909640013,
+      "stage": "job-a/implementation",
+      "state": "completed",
+      "runtime": "destroyed"
+    },
+    {
+      "wall_seconds": 34.0783909640013,
+      "stage": "job-a/review",
+      "state": "offered",
+      "runtime": null
+    },
+    {
+      "wall_seconds": 36.25177280900243,
+      "stage": "job-a/review",
+      "state": "starting",
+      "runtime": "running"
+    },
+    {
+      "wall_seconds": 36.25177280900243,
+      "stage": "job-b/implementation",
+      "state": "completed",
+      "runtime": "destroyed"
+    },
+    {
+      "wall_seconds": 36.25177280900243,
+      "stage": "job-b/review",
+      "state": "queued",
+      "runtime": null
+    },
+    {
+      "wall_seconds": 38.4305304550071,
+      "stage": "job-b/review",
+      "state": "starting",
+      "runtime": "running"
+    },
+    {
+      "wall_seconds": 138.14453985801083,
+      "stage": "job-a/review",
+      "state": "completed",
+      "runtime": "destroyed"
+    },
+    {
+      "wall_seconds": 178.4988812560041,
+      "stage": "job-a/integration",
+      "state": "queued",
+      "runtime": null
+    },
+    {
+      "wall_seconds": 178.4988812560041,
+      "stage": "job-b/review",
+      "state": "completed",
+      "runtime": "destroyed"
+    },
+    {
+      "wall_seconds": 179.665574122002,
+      "stage": "job-a/integration",
+      "state": "offered",
+      "runtime": null
+    },
+    {
+      "wall_seconds": 180.8290630870033,
+      "stage": "job-a/integration",
+      "state": "claimed",
+      "runtime": "not-started"
+    }
+  ],
+  "baseline": {
+    "source": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "status": ""
+    },
+    "target": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "status": ""
+    }
+  },
+  "first_error_trace": "not retained: final serve.log only; target posture mismatch confirmed by current metadata and source; first specific error inferred",
+  "public_owner_probe": "ControlStore.open could not open live database from this managed Python boundary; no SQL/raw-store fallback or retry. Supported exact Job Manager status succeeded. Supplemental mount-boundary probe did not execute.",
+  "failed_probe_seconds": 0.021988386,
+  "measured_seconds": 0.026215132005745545,
+  "prior_listed_preparation_seconds": 1.215997091993974,
+  "run1_spent_seconds": 223.9077433210041,
+  "uncertainty": "All untimed source/CLI/Docker/document reads and edits plus historical/operator/billing uncertainty remain additional; no new model or tests."
+}

@@ -1,0 +1,179 @@
+{
+  "work": "W71879",
+  "claim": 149249,
+  "freeze_complete": false,
+  "images": {
+    "provider": {
+      "id": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+      "static_files_and_launcher": 11,
+      "inspection_container": "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8",
+      "still_never_started": true
+    },
+    "integration": {
+      "id": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+      "static_files_and_launcher": 13,
+      "inspection_container": "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404",
+      "still_never_started": true
+    },
+    "exact_successful_commands": 33,
+    "host_build_and_static_inspection_seconds": 0.8677917640015949,
+    "scope": "Content from owner-executed accepted helper; direct current metadata independently matches. No static copy repeated, no provider execution.",
+    "four_helpers": {
+      "deployment.py": "sha256:f0cbf8e54cbc9b62a0019c4c2fa9a9e96ca7cd59b4cc592c536db7cd0b97bc9b",
+      "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+      "run.py": "sha256:f48cb792d80154758307e66c654fcd59b1f179396f166dc0c8bf0da13be55c1e",
+      "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+    }
+  },
+  "prior_manifests_verified": [
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/image-preparation-149053/candidate-manifest.json",
+      "sha256": "sha256:fa2f9526995166f66c195704b71bfb4504c3713d6820362565641b88246c9037",
+      "files": 73
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/diagnostic-148870/candidate-manifest.json",
+      "sha256": "sha256:0c13a9034aef59636214749876bb83960c18a457dc79a992cf1c6b2c15d0028f",
+      "files": 76
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-147109/candidate-manifest.json",
+      "sha256": "sha256:94d8b8e83b5d11a25edc8b91ae54e9bef98bc7a718cd8d17616784a00ea22cb2",
+      "files": 43
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run6-freeze-146988/candidate-manifest.json",
+      "sha256": "sha256:87a320bdee36cfdca8e7d18372e65ff26eeb314eeda948db3402692b328dd0a9",
+      "files": 568
+    }
+  ],
+  "provider_chain_entries_verified": 45,
+  "composition_observer_bindings_verified": 7,
+  "validation": {
+    "sha256": "sha256:e86dfb80633780aff7dda52f88fcec3c00dab88fdabeeb2aec0a9d73d4b6cb9f",
+    "temporary_path_retained": "/tmp/w71879-149053-validation-7cqoy4kx",
+    "host_seconds": 0.025083887012442574,
+    "public_bootstrap_authority": "c71879b1000000000000000000000001",
+    "temporary_documents_match": true,
+    "actual_render_equivalence_established": false
+  },
+  "baseline": {
+    "source": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "status": "",
+      "branch": "main",
+      "index_digest_unchanged_by_reads": "sha256:1df06294ebd8573cdb67354e8efb952b5e6cfbb81b798efb354954ed3da8ab57",
+      "payloads": {
+        "README.md": {
+          "sha256": "sha256:f17e4568a49779e4215d3584ad29d009d9a7a81e44a1d06a5c67eefd41c5d9bf",
+          "mode": "0o664"
+        },
+        "check_greeting.py": {
+          "sha256": "sha256:ef2f043ae6e449d2e23f687695d21fc21c424776efe76e18af5997081d35fbd6",
+          "mode": "0o664"
+        },
+        ".gitignore": {
+          "sha256": "sha256:862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793",
+          "mode": "0o664"
+        },
+        "tests/test_guard.py": {
+          "sha256": "sha256:985459697a7e04ce76b1da1afdac4996aaef8264b5c3c11ba51b2806de16a816",
+          "mode": "0o664"
+        },
+        "tests/__init__.py": {
+          "sha256": "sha256:01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "mode": "0o664"
+        },
+        "tests/test_greeting.py": {
+          "sha256": "sha256:f6fb8233390ce3feb801fad552bf6cd66ab131e54000b2d784687ded6a643c95",
+          "mode": "0o664"
+        },
+        "tests/test_units.py": {
+          "sha256": "sha256:26e146ea3d81b88972dc56538ee50b8ed438918c48968165e25f299701883523",
+          "mode": "0o664"
+        },
+        "demo/__init__.py": {
+          "sha256": "sha256:01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "mode": "0o664"
+        },
+        "demo/units.py": {
+          "sha256": "sha256:b96936e12ea4fd44b6a418e8a44911c4ecfced8f6d9dca8671528f1607d5131f",
+          "mode": "0o664"
+        },
+        "demo/greeting.py": {
+          "sha256": "sha256:bf2306895de87391dc278701447b1095afaadd0d6f8f55f80ee48383f8618ea0",
+          "mode": "0o664"
+        }
+      },
+      "observed_root_mode": "0o775",
+      "projected_uid": 1000,
+      "projected_gid": 1000
+    },
+    "target": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "status": "",
+      "branch": "main",
+      "index_digest_unchanged_by_reads": "sha256:48fd3763b711935d787c9850c5f159f7ec73e7d12d9712d4bf9cd59f2d2fbea8",
+      "payloads": {
+        "README.md": {
+          "sha256": "sha256:f17e4568a49779e4215d3584ad29d009d9a7a81e44a1d06a5c67eefd41c5d9bf",
+          "mode": "0o664"
+        },
+        "check_greeting.py": {
+          "sha256": "sha256:ef2f043ae6e449d2e23f687695d21fc21c424776efe76e18af5997081d35fbd6",
+          "mode": "0o664"
+        },
+        ".gitignore": {
+          "sha256": "sha256:862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793",
+          "mode": "0o664"
+        },
+        "tests/test_guard.py": {
+          "sha256": "sha256:985459697a7e04ce76b1da1afdac4996aaef8264b5c3c11ba51b2806de16a816",
+          "mode": "0o664"
+        },
+        "tests/__init__.py": {
+          "sha256": "sha256:01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "mode": "0o664"
+        },
+        "tests/test_greeting.py": {
+          "sha256": "sha256:f6fb8233390ce3feb801fad552bf6cd66ab131e54000b2d784687ded6a643c95",
+          "mode": "0o644"
+        },
+        "tests/test_units.py": {
+          "sha256": "sha256:26e146ea3d81b88972dc56538ee50b8ed438918c48968165e25f299701883523",
+          "mode": "0o664"
+        },
+        "demo/__init__.py": {
+          "sha256": "sha256:01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "mode": "0o664"
+        },
+        "demo/units.py": {
+          "sha256": "sha256:b96936e12ea4fd44b6a418e8a44911c4ecfced8f6d9dca8671528f1607d5131f",
+          "mode": "0o644"
+        },
+        "demo/greeting.py": {
+          "sha256": "sha256:bf2306895de87391dc278701447b1095afaadd0d6f8f55f80ee48383f8618ea0",
+          "mode": "0o644"
+        }
+      },
+      "observed_root_mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    }
+  },
+  "integration_workspace_bare": true,
+  "unprovisioned_names_absent": [
+    "authority.sqlite3",
+    "integration.sqlite3",
+    "jobs.sqlite3",
+    "control.sqlite3",
+    "state",
+    "storage",
+    "launch",
+    "credentials",
+    "evidence"
+  ],
+  "missing_actual_rendered_root": "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149053/frozen-config",
+  "host_posture_scope": "Owner149242 attests accepted host65532:1001 helper/validation success. Managed projected IDs are observations, not independent proof of actual host UID/GID.",
+  "verification_seconds": 0.027848276018630713
+}

@@ -1,0 +1,2 @@
+{"id":"sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13","os":"linux","arch":"amd64","user":"65532:65532","entrypoint":["python3","/opt/baton/dogfood_entry.py"]}
+{"id":"sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533","os":"linux","arch":"amd64","user":"65532:65532","entrypoint":["python3","/opt/baton/integration_entry.py"]}

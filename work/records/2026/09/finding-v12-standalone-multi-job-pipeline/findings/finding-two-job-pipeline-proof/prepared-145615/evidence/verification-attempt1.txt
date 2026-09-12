@@ -1,0 +1,62 @@
+test_manifest_timestamp (unittest.loader._FailedTest.test_manifest_timestamp) ... ERROR
+test_report_instructions (unittest.loader._FailedTest.test_report_instructions) ... ERROR
+test_stats_observation (unittest.loader._FailedTest.test_stats_observation) ... ERROR
+
+======================================================================
+ERROR: test_manifest_timestamp (unittest.loader._FailedTest.test_manifest_timestamp)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_manifest_timestamp
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145615/test_manifest_timestamp.py", line 15, in <module>
+    import deployment
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145615/deployment.py", line 22, in <module>
+    from tools import dogfood_operator, stage_execution
+ImportError: cannot import name 'dogfood_operator' from 'tools' (unknown location)
+
+
+======================================================================
+ERROR: test_report_instructions (unittest.loader._FailedTest.test_report_instructions)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_report_instructions
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145615/test_report_instructions.py", line 12, in <module>
+    import deployment
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145615/deployment.py", line 22, in <module>
+    from tools import dogfood_operator, stage_execution
+ImportError: cannot import name 'dogfood_operator' from 'tools' (unknown location)
+
+
+======================================================================
+ERROR: test_stats_observation (unittest.loader._FailedTest.test_stats_observation)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_stats_observation
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.13/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+    ~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145615/test_stats_observation.py", line 22, in <module>
+    spec.loader.exec_module(runner)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145615/run.py", line 19, in <module>
+    from deployment import ACTORS, BASE, CONFIG, HERE, REPO, RUN, TREE, UUID, WORKS, baseline, git_read, sha, write_json
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145615/deployment.py", line 22, in <module>
+    from tools import dogfood_operator, stage_execution
+ImportError: cannot import name 'dogfood_operator' from 'tools' (unknown location)
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+FAILED (errors=3)

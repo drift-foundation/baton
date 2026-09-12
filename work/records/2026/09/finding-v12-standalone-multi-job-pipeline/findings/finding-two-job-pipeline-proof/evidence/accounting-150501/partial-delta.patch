@@ -1,0 +1,807 @@
+--- prepared-150007/run.py
++++ prepared-150501/run.py
+@@ -15,6 +15,7 @@
+ import time
+ 
+ from baton_v12.authority import Authority
++from accounting import Alarm, BoundJudges, BudgetExpired, BudgetWake, evaluate, final_timeout
+ from failure_observation import first_failure, provider_diagnostic
+ from target_posture import manager_git_environment
+ from deployment import ACTORS, BASE, CONFIG, HERE, REPO, RUN, TREE, UUID, WORKS, baseline, git_read, sha, write_json
+@@ -119,6 +120,15 @@
+             process.wait(timeout=2)
+ 
+ 
++def judge_observation(status, claims, authority):
++    # No file is needed before any judge is configured/started in unit fixtures;
++    # actual execution-review binds this config before main can submit.
++    config = json.loads((CONFIG / 'stage-execution.json').read_text())
++    reader = BoundJudges(config, incarnation=PREFIX[PREFIX.index('--incarnation') + 1], authority=authority,
++                         clock=lambda: datetime.now(timezone.utc).isoformat())
++    return reader.read(status, claims)
++
++
+ def main():
+     approval = json.loads((HERE / 'execution-review.json').read_text())
+     if approval.get('verdict') != 'accepted' or not approval.get('review_locator'):
+@@ -129,8 +139,8 @@
+     for path, expected in approval['reviewed_files'].items():
+         if sha(Path(path)) != expected:
+             raise RuntimeError('reviewed input or helper drift: ' + path)
+-    if any(str(path) not in approval['reviewed_files'] for path in (HERE / 'run.py', HERE / 'deployment.py', HERE / 'target_posture.py', HERE / 'failure_observation.py')):
+-        raise RuntimeError('the existing review must bind all four execution helpers')
++    if any(str(path) not in approval['reviewed_files'] for path in (HERE / 'run.py', HERE / 'deployment.py', HERE / 'target_posture.py', HERE / 'failure_observation.py', HERE / 'accounting.py')):
++        raise RuntimeError('the existing review must bind all five execution helpers')
+     if 1001 not in set(os.getgroups()):
+         raise RuntimeError('manager launch boundary lacks supplementary workspace gid1001')
+     if (RUN / 'jobs.sqlite3').exists() or containers():
+@@ -152,11 +162,11 @@
+     serve = None
+     authority = None
+ 
+-    def alarm(_signum, _frame):
+-        raise TimeoutError('approved proof wall/active-attempt deadline reached')
+-
++    alarm = Alarm(started=started, monotonic=time.monotonic,
++                  set_timer=lambda seconds: signal.setitimer(signal.ITIMER_REAL, seconds),
++                  record=record, persist=lambda chosen: write_json(evidence / 'budget-clock.json', chosen))
+     previous_alarm = signal.signal(signal.SIGALRM, alarm)
+-    signal.setitimer(signal.ITIMER_REAL, 1200)
++    alarm.whole()
+     try:
+         response = command(PREFIX + ['submit', '--document', str(CONFIG / 'submission.json')])
+         (evidence / 'submit.json').write_text(response)
+@@ -165,85 +175,63 @@
+         with (evidence / 'serve.log').open('x') as log, (evidence / 'samples.jsonl').open('x') as samples:
+             serve = subprocess.Popen(SERVE, cwd=CWD, stdout=log, stderr=subprocess.STDOUT, start_new_session=True, env=manager_git_environment(RUN / 'target'))
+             while True:
+-                if serve.poll() is not None:
+-                    raise RuntimeError('ordinary serve exited before both terminal Jobs')
+-                elapsed = time.monotonic() - started
+-                if elapsed >= 1200:
+-                    raise RuntimeError('approved1200s wall deadline reached')
+-                claims = {}
+-                now = datetime.now(timezone.utc)
+-                remaining = 1200 - elapsed
+-                for name, work_id in WORKS.items():
+-                    current = authority.assignment_of(work_id)
+-                    events = authority.assignment_events(work_id)
+-                    claims[name] = {'current': current, 'events': events}
+-                    for index, event in enumerate(events):
+-                        if event['cause'] != 'claimed':
+-                            continue
+-                        ending = next((later for later in events[index + 1:] if later['assignment_ref'] == event['assignment_ref']), None)
+-                        if ending:
+-                            began = datetime.fromisoformat(event['at'].replace('Z', '+00:00'))
+-                            ended = datetime.fromisoformat(ending['at'].replace('Z', '+00:00'))
+-                            if (ended - began).total_seconds() > LIMITS[event['assignment_ref']['participant']]:
+-                                raise RuntimeError('a completed claim exceeded its approved attempt limit: ' + work_id)
+-                    if current:
+-                        matched = [event for event in events if event['cause'] == 'claimed' and event['assignment_ref'] == current]
+-                        if not matched:
+-                            raise RuntimeError('public owner supplied no matching claim timestamp')
+-                        stamp = datetime.fromisoformat(matched[-1]['at'].replace('Z', '+00:00'))
+-                        age = (now - stamp).total_seconds()
+-                        if age >= LIMITS[current['participant']]:
+-                            raise RuntimeError('approved attempt deadline reached: ' + work_id + '/' + current['participant'])
+-                        remaining = min(remaining, LIMITS[current['participant']] - age)
+-                signal.setitimer(signal.ITIMER_REAL, max(0.001, remaining))
+-                runtime_rows = containers()
+-                held_bytes = retained_bytes()
+-                if held_bytes >= 17179869184:
+-                    raise RuntimeError('retained run storage reached16GiB stop threshold')
+-                # Before first serve initialization the control store can be
+-                # absent. That is startup, not a status command to run against
+-                # a made-up store. Once present, use the existing read-only
+-                # observation factory; no serving producer is constructed.
+-                status = json.loads(command(STATUS)) if (RUN / 'control.sqlite3').exists() else None
+-                failed = first_failure(status, authority_uuid=UUID, incarnation=PREFIX[PREFIX.index('--incarnation') + 1], works=WORKS)
+-                if failed is not None:
+-                    # Set primary evidence before optional diagnostics/telemetry.
+-                    # Pending collection and quiescence alone never reach here.
+-                    failed.update(sample='samples.jsonl:' + str(sample_number + 1), wall_seconds=elapsed)
+-                    record['primary_failure'] = failed
+-                    samples.write(json.dumps({'wall_seconds': elapsed, 'claims': claims, 'status': status,
+-                                              'runtime_observations': runtime_rows, 'docker_stats': None,
+-                                              'telemetry_skipped': 'definitive required-attempt failure',
+-                                              'retained_bytes': held_bytes}) + '\n')
++                try:
++                    if serve.poll() is not None:
++                        raise RuntimeError('ordinary serve exited before both terminal Jobs')
++                    alarm.whole()  # Keep whole-run protection while acquiring fresh owner facts.
++                    elapsed = time.monotonic() - started
++                    claims = {name: {'current': authority.assignment_of(work_id),
++                                     'events': authority.assignment_events(work_id)} for name, work_id in WORKS.items()}
++                    status = json.loads(command(STATUS)) if (RUN / 'control.sqlite3').exists() else None
++                    failed = first_failure(status, authority_uuid=UUID, incarnation=PREFIX[PREFIX.index('--incarnation') + 1], works=WORKS)
++                    exclusions, judge_observations, judge_failure = ({}, [], None) if failed is not None else judge_observation(status, claims, authority)
++                    if failed is None and judge_failure is not None:
++                        failed = dict(judge_failure, job_id='job-b', stage_id='job-b/judgment/' + judge_failure['kind'],
++                                      work_id=judge_failure['assignment']['work_ref']['work_id'], episode=1,
++                                      runtime_id=None, artifacts=[], observed_at=datetime.now(timezone.utc).isoformat())
++                    if failed is not None:
++                        failed.update(sample='samples.jsonl:' + str(sample_number + 1), wall_seconds=elapsed)
++                        record['primary_failure'] = failed
++                        samples.write(json.dumps({'wall_seconds': elapsed, 'claims': claims, 'status': status,
++                                                  'judgments': judge_observations, 'docker_stats': None, 'telemetry_skipped': 'definitive required-attempt failure'}) + '\n')
++                        samples.flush()
++                        raise RequiredAttemptFailure('definitive required attempt failed: ' + failed['stage_id'])
++                    chosen = evaluate(claims, exclusions, now=datetime.now(timezone.utc).timestamp(),
++                                      elapsed=time.monotonic() - started, limits=LIMITS)
++                    alarm.arm(chosen)
++                    runtime_rows = containers()
++                    held_bytes = retained_bytes()
++                    if held_bytes >= 17179869184:
++                        raise RuntimeError('retained run storage reached16GiB stop threshold')
++                    stats = stats_observation(runtime_rows)
++                    sample = {'wall_seconds': elapsed, 'claims': claims, 'status': status,
++                              'runtime_observations': runtime_rows, 'docker_stats': stats, 'judgments': judge_observations, 'accounting': chosen,
++                              'retained_bytes': held_bytes}
++                    samples.write(json.dumps(sample) + '\n')
+                     samples.flush()
+-                    raise RequiredAttemptFailure('definitive required attempt failed: ' + failed['stage_id'])
+-                stats = stats_observation(runtime_rows)
+-                sample = {'wall_seconds': elapsed, 'claims': claims, 'status': status,
+-                          'runtime_observations': runtime_rows, 'docker_stats': stats,
+-                          'retained_bytes': held_bytes}
+-                samples.write(json.dumps(sample) + '\n')
+-                samples.flush()
+-                sample_number += 1
+-                summary = record['stats_observations']
+-                summary[stats['state']] += 1
+-                locator = 'samples.jsonl:' + str(sample_number)
+-                if stats['state'] == 'unavailable':
+-                    summary['gaps'].append({'sample': locator, 'requested_ids': stats['requested_ids'], 'error': stats['error']})
+-                if stats['stdout_truncated'] or stats['stderr_truncated']:
+-                    summary['truncated_samples'].append(locator)
+-                if status and {job['job_id'] for job in status['jobs']} == {'job-a', 'job-b'} and all(
+-                        stage['state'] == 'completed' for job in status['jobs'] for stage in job['stages']):
+-                    record['terminal_both'] = True
+-                    record['terminal_wall_seconds'] = time.monotonic() - started
+-                    write_json(evidence / 'terminal-status.json', status)
+-                    if runtime_rows:
+-                        raise RuntimeError('terminal stages still have a live labelled runtime')
+-                    break
+-                time.sleep(min(1, max(0, 1200 - (time.monotonic() - started))))
+-        signal.setitimer(signal.ITIMER_REAL, 0)
++                    sample_number += 1
++                    summary = record['stats_observations']
++                    summary[stats['state']] += 1
++                    locator = 'samples.jsonl:' + str(sample_number)
++                    if stats['state'] == 'unavailable':
++                        summary['gaps'].append({'sample': locator, 'requested_ids': stats['requested_ids'], 'error': stats['error']})
++                    if stats['stdout_truncated'] or stats['stderr_truncated']:
++                        summary['truncated_samples'].append(locator)
++                    if status and {job['job_id'] for job in status['jobs']} == {'job-a', 'job-b'} and all(
++                            stage['state'] == 'completed' for job in status['jobs'] for stage in job['stages']):
++                        record['terminal_both'] = True
++                        record['terminal_wall_seconds'] = time.monotonic() - started
++                        write_json(evidence / 'terminal-status.json', status)
++                        if runtime_rows:
++                            raise RuntimeError('terminal stages still have a live labelled runtime')
++                        break
++                    time.sleep(min(1, max(0, 1200 - (time.monotonic() - started))))
++                except BudgetWake:
++                    continue
++        alarm.whole()
+         stop_serving(serve)
+         verify = subprocess.run([PYTHON, '-B', '-m', 'unittest', 'discover', '-s', 'tests', '-v'],
+-                                cwd=RUN / 'target', capture_output=True, text=True, timeout=30)
++                                cwd=RUN / 'target', capture_output=True, text=True, timeout=final_timeout(time.monotonic() - started))
+         (evidence / 'final-tests.log').write_text(verify.stdout + verify.stderr)
+         record['final_test_exit'] = verify.returncode
+         if verify.returncode:
+@@ -255,9 +243,15 @@
+         (evidence / 'final-target.diff').write_text(git_read(RUN / 'target', 'diff', '--binary', BASE, 'HEAD') + '\n')
+         if record['final_source_identity'] != BASE + ' ' + TREE or record['final_source_status'] or record['final_target_status']:
+             raise RuntimeError('source changed or final target is dirty')
++        final_timeout(time.monotonic() - started)
++        record['success_wall_seconds'] = time.monotonic() - started
++        signal.setitimer(signal.ITIMER_REAL, 0)
+         record['result'] = 'both terminal; final verification passed; independent evidence assessment still owed'
+     except BaseException as failure:
+         signal.setitimer(signal.ITIMER_REAL, 0)
++        if isinstance(failure, BudgetExpired):
++            record['expired_budget'] = failure.clock
++            write_json(evidence / 'expired-budget.json', failure.clock)
+         primary = record.get('primary_failure')
+         if primary is not None:
+             record['failure'] = 'RequiredAttemptFailure: ' + primary['stage_id'] + '/' + primary['attempt_id'] + ' ' + (primary['disposition'] or primary['ending'])
+--- prepared-150007/accounting.py
++++ prepared-150501/accounting.py
+@@ -0,0 +1,306 @@
++"""Owner150498: proof-only clocks and public read-only judge observations.
++
++No serving factory, control-store connection, SQL, credential read, or transition.
++The retained subject locates a result; only its public owner can bind that result.
++"""
++from datetime import datetime
++import math
++import os
++from pathlib import Path
++import stat
++import json
++
++from baton_v12.contracts import digest, digest_of_bytes
++from baton_v12.contracts.manifest import check_manifest_structure
++from baton_v12.integration import IntegrationStore, reconciliation
++from baton_v12.worker_manager import launch, exchange
++
++
++class AccountingError(RuntimeError):
++    pass
++
++
++class BudgetExpired(TimeoutError):
++    def __init__(self, clock):
++        self.clock = clock
++        super().__init__('approved deadline reached: ' + clock['kind'])
++
++
++class BudgetWake(Exception):
++    """Re-observe a potentially ended/paused clock; never call this a failure."""
++
++
++def instant(text):
++    answer = datetime.fromisoformat(text.replace('Z', '+00:00'))
++    if answer.tzinfo is None:
++        raise AccountingError('an accounting timestamp has no timezone')
++    return answer.timestamp()
++
++
++def key(assignment):
++    return json.dumps(assignment, sort_keys=True, separators=(',', ':'))
++
++
++def intervals(claims, now):
++    answer = []
++    for name, history in claims.items():
++        events = history['events']
++        seen = set()
++        for index, event in enumerate(events):
++            if event['cause'] != 'claimed':
++                continue
++            assignment = event['assignment_ref']
++            identity = key(assignment)
++            if identity in seen:
++                raise AccountingError('duplicate claim identity')
++            seen.add(identity)
++            ending = next((later for later in events[index + 1:] if later['assignment_ref'] == assignment), None)
++            start = instant(event['at'])
++            end = instant(ending['at']) if ending else now
++            if end < start or end > now or start > now:
++                raise AccountingError('inconsistent claim timestamps')
++            if ending is None and history['current'] != assignment:
++                raise AccountingError('unended claim is not the current assignment')
++            answer.append({'name': name, 'assignment': assignment, 'start': start, 'end': end,
++                           'active': ending is None, 'ending': ending['cause'] if ending else None})
++        if history['current'] is not None and key(history['current']) not in seen:
++            raise AccountingError('public owner supplied no matching claim timestamp')
++    return answer
++
++
++def union_seconds(ranges):
++    total, end = 0.0, None
++    for lo, hi in sorted(ranges):
++        if hi < lo:
++            raise AccountingError('reversed exclusion')
++        total += max(0, hi - max(lo, end if end is not None else lo))
++        end = hi if end is None else max(end, hi)
++    return total
++
++
++def evaluate(claims, exclusions, *, now, elapsed, limits):
++    """Exclusions come only from BoundJudges.read; completed claims use same math."""
++    whole = {'kind': 'whole-run', 'limit': 1200, 'charged': elapsed,
++             'excluded': 0, 'remaining': 1200 - elapsed, 'assignment': None}
++    if elapsed < 0 or not math.isfinite(elapsed):
++        raise AccountingError('invalid whole-run duration')
++    if whole['remaining'] <= 0:
++        raise BudgetExpired(whole)
++    rows = intervals(claims, now)
++    by_assignment = {key(row['assignment']): row for row in rows}
++    clocks = [whole]
++    for row in rows:
++        identity = key(row['assignment'])
++        ranges, paused = [], False
++        for judge in exclusions.get(identity, []):
++            fixed = by_assignment.get(key(judge))
++            if fixed is None or fixed['name'] not in ('verification', 'review', 'approval'):
++                raise AccountingError('exclusion has no exact derived judge claim')
++            lo, hi = max(row['start'], fixed['start']), min(row['end'], fixed['end'])
++            if hi >= lo:
++                ranges.append((lo, hi))
++            paused = paused or row['active'] and fixed['active']
++        excluded = union_seconds(ranges)
++        charged = row['end'] - row['start'] - excluded
++        limit = limits[row['assignment']['participant']]
++        if excluded and limit != 120:
++            raise AccountingError('only integration can exclude judge time')
++        remaining = limit - charged
++        clock = dict(row, kind='integration' if limit == 120 else 'attempt', limit=limit,
++                     charged=charged, excluded=excluded, paused=paused,
++                     remaining=remaining, exclusions=ranges)
++        # Completed exactly-at-limit claims are legal; active exactly-at-limit are not.
++        if remaining < 0 or row['active'] and remaining <= 0:
++            raise BudgetExpired(clock)
++        if row['active']:
++            clocks.append(dict(clock, alarm_remaining=None if paused else remaining))
++    if whole['remaining'] <= 0:
++        raise BudgetExpired(whole)
++    winner = min((one for one in clocks if one.get('alarm_remaining', one['remaining']) is not None), key=lambda one: one.get('alarm_remaining', one['remaining']))
++    return {'winner': winner, 'remaining': winner.get('alarm_remaining', winner['remaining']), 'clocks': clocks}
++
++
++def final_timeout(elapsed):
++    left = 1200 - elapsed
++    if left <= 0:
++        raise BudgetExpired({'kind': 'whole-run', 'limit': 1200, 'charged': elapsed, 'remaining': left})
++    return min(30, left)
++
++
++def document(path):
++    """Bounded regular file and no symlinks at any path component."""
++    path = Path(path)
++    fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY)
++    try:
++        for part in path.parts[1:-1]:
++            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
++            os.close(fd)
++            fd = child
++        child = os.open(path.name, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW, dir_fd=fd)
++        try:
++            if not stat.S_ISREG(os.fstat(child).st_mode):
++                raise AccountingError('accounting evidence is not a regular file')
++            with os.fdopen(child, 'rb', closefd=False) as stream:
++                raw = stream.read(65537)
++            if len(raw) > 65536:
++                raise AccountingError('accounting evidence exceeds64KiB')
++        finally:
++            os.close(child)
++    finally:
++        os.close(fd)
++    def pairs(items):
++        result = {}
++        for name, value in items:
++            if name in result:
++                raise AccountingError('duplicate accounting document member')
++            result[name] = value
++        return result
++    def invalid(_):
++        raise AccountingError('nonfinite accounting document value')
++    return json.loads(raw, object_pairs_hook=pairs, parse_constant=invalid), raw
++
++
++def subject_of(held, policy):
++    names = ('result_id', 'job_id', 'canonical_target_id', 'derived_proposal_id', 'derived_result_id',
++             'derived_result_digest', 'content_digest', 'target_revision', 'source_proposal_id',
++             'source_base', 'source_candidate', 'causal_observations', 'observed_by')
++    return dict({name: held[name] for name in names}, candidate=held['prepared']['head'],
++                tree=held['prepared']['tree'], policy_generation=policy)
++
++
++class BoundJudges:
++    def __init__(self, config, *, incarnation, authority, clock, workspace_group=None):
++        self.workspace_group = workspace_group
++        self.config, self.incarnation, self.authority, self.clock = config, incarnation, authority, clock
++
++    def read(self, status, claims):
++        config = self.config
++        exclusions, observations, failure = {}, [], None
++        if not status:
++            return exclusions, observations, failure
++        if status.get('schema') != 'baton.v12.job-status/4' or status.get('canonical') is not True or status.get('incarnation') != self.incarnation:
++            raise AccountingError('foreign or noncanonical status for accounting')
++        rows = intervals(claims, instant(self.clock()))
++        stages = {stage['job_id']: stage for job in status['jobs'] for stage in job['stages'] if stage['kind'] == 'integration'}
++        root = Path(config['state_root']) / 'result-judgments'
++        if not root.exists():
++            return exclusions, observations, failure
++        if root.is_symlink() or not root.is_dir():
++            raise AccountingError('invalid result subject directory')
++        # This proof has one derived B result and no retries. A new cardinality is a refusal.
++        homes = list(root.iterdir())
++        if len(homes) > 1:
++            raise AccountingError('unexpected multiple derived results in this proof')
++        for home in homes:
++            place = home / 'subject.json'
++            if not place.exists():
++                continue  # Before dispatch, no exclusion.
++            subject, _ = document(place)
++            if home.name != digest(subject['result_id'])[7:]:
++                raise AccountingError('subject locator does not bind its result')
++            with IntegrationStore.open_readonly(config['integration_store'], incarnation=self.incarnation, clock=self.clock) as owner:
++                held = reconciliation.result_of(owner, subject['result_id'])
++            if held['state'] not in ('published', 'authorized', 'imported'):
++                raise AccountingError('dispatched subject is not a published result')
++            if subject != subject_of(held, self.authority.policy_generation()):
++                raise AccountingError('derived subject/result/policy disagree')
++            stage = stages.get(held['job_id'])
++            bindings = [one for one in config['job_bindings'] if one['job_id'] == held['job_id']]
++            if len(bindings) != 1 or stage is None:
++                raise AccountingError('result has no exact configured Job')
++            binding = bindings[0]
++            fixed = held['integration_assignment']
++            if (held['authority_uuid'] != config['authority_uuid'] or held['integration_attempt_id'] != stage['attempt_id']
++                    or stage['work_id'] != binding['job_work_id'] or held['work_id'] != binding['job_work_id']
++                    or held['canonical_target_id'] != binding['canonical_target_id']
++                    or held['source_base'] != binding['line_declared_base']
++                    or fixed['work_ref'] != {'authority_uuid': config['authority_uuid'], 'work_id': stage['work_id']}
++                    or fixed['participant'] != 'baton.proof-integrator'
++                    or len([one for one in rows if one['assignment'] == fixed]) != 1):
++                raise AccountingError('derived result/Job/stage/assignment binding mismatch')
++            configured = config['result_judgment_workers'][held['job_id']]
++            if set(configured) != {'verification', 'review', 'approval'}:
++                raise AccountingError('all three independent judges are required')
++            exclusions[key(fixed)] = []
++            for kind, one in configured.items():
++                given = one['deployment']
++                candidates = [row for row in rows if row['name'] == kind]
++                if not candidates:
++                    continue
++                if len(candidates) != 1:
++                    raise AccountingError('unexpected judge claim generation/retry')
++                row = candidates[0]
++                assignment = row['assignment']
++                if (assignment['generation'] != 1 or assignment['participant'] != given['participant'] or assignment['work_ref'] != given['input_manifest']['work_ref']
++                        or assignment['work_ref']['authority_uuid'] != config['authority_uuid']):
++                    raise AccountingError('judge assignment differs from configured Work/participant')
++                judged = dict(subject, kind=kind)
++                attempt = 'judgment-' + digest({'subject': judged, 'worker_id': one['worker_id'],
++                    'participant': given['participant'], 'input': given['input_manifest']['manifest_digest'],
++                    'policy': given['policy_digest'], 'profile': given['profile_digest']})[7:]
++                observation = {'kind': kind, 'attempt_id': attempt, 'assignment': assignment, 'result_id': held['result_id'], 'exchange': None, 'verdict': None}
++                sealed_path = Path(given['workspace_storage']) / attempt / 'custody' / attempt / 'sealed.json'
++                if sealed_path.exists():
++                    sealed, _ = document(sealed_path)
++                    check_manifest_structure(sealed, 'resultManifest')
++                    if sealed['assignment_ref'] != assignment or sealed['result_id'] != 'result-' + attempt:
++                        raise AccountingError('sealed judge result belongs to another assignment/attempt')
++                    findings = next(one for one in sealed['outputs'] if one['name'] == 'findings')
++                    report, raw = document(sealed_path.parent / 'findings/report.json')
++                    entries = [entry for entry in findings['content_manifest']['entries'] if entry['path'] == 'report.json']
++                    claim = findings['result_metadata']['baton.checkpoint-review/1']
++                    if (len(entries) != 1 or entries[0]['bytes'] != len(raw) or entries[0]['content_digest'] != digest_of_bytes(raw)
++                            or claim['base'] != subject['source_base'] or claim['head'] != subject['candidate'] or claim['tree'] != subject['tree']
++                            or report['schema'] != 'baton.review-report/1' or report['verdict'] != claim['verdict']):
++                        raise AccountingError('frozen judgment report/subject mismatch')
++                    observation['verdict'] = report['verdict']
++                    if sealed['disposition'] != 'completed' or report['verdict'] != 'accepted':
++                        failure = failure or dict(observation, ending='answered', disposition='plan-rejected', fault_code=None)
++                else:
++                    if self.workspace_group is None:
++                        raise AccountingError('missing product contract: public read-only worker-manager workspace-group acquisition for derived-judge exchange observation')
++                    delivered = launch.adopt(given['launch_home'], attempt_id=attempt,
++                        session='session-' + digest(attempt)[7:31], contract=given['launch_contract'], role=given['launch_role'],
++                        transport=exchange.EXCHANGE_TRANSPORT, workspace_group=self.workspace_group)
++                    if delivered is not None:
++                        view = exchange.observation(delivered.exchange)
++                        observation['exchange'] = view
++                        terminal = view.get('terminal') or {}
++                        if view.get('foreign') or view.get('unreadable'):
++                            raise AccountingError('required judge exchange is unreadable/foreign')
++                        ending = terminal.get('ending')
++                        if view.get('receipt') and (ending in ('lost', 'faulted') or ending == 'answered' and terminal.get('disposition') in ('unable', 'cancelled', 'plan-rejected')):
++                            failure = failure or dict(observation, ending=ending, disposition=terminal.get('disposition'), fault_code=terminal.get('fault_code'))
++                    elif not row['active']:
++                        raise AccountingError('ended judge lacks both exchange and frozen report')
++                exclusions[key(fixed)].append(assignment)
++                observations.append(observation)
++        return exclusions, observations, failure
++
++
++class Alarm:
++    """A stale attempt alarm asks for fresh owners; only whole expiry is final here."""
++    def __init__(self, *, started, monotonic, set_timer, record, persist):
++        self.started, self.monotonic, self.set_timer = started, monotonic, set_timer
++        self.record, self.persist = record, persist
++
++    def whole(self):
++        elapsed = self.monotonic() - self.started
++        final_timeout(elapsed)
++        self.arm({'winner': {'kind': 'whole-run', 'limit': 1200, 'charged': elapsed,
++                            'remaining': 1200 - elapsed}, 'remaining': 1200 - elapsed})
++
++    def arm(self, chosen):
++        self.record['budget_clock'] = chosen
++        self.persist(chosen)  # Evidence is retained before the chosen alarm is armed.
++        self.set_timer(max(0.001, chosen['remaining']))
++
++    def __call__(self, _signum, _frame):
++        elapsed = self.monotonic() - self.started
++        if elapsed >= 1200:
++            raise BudgetExpired({'kind': 'whole-run', 'limit': 1200, 'charged': elapsed, 'remaining': 1200 - elapsed})
++        # The timer may describe a claim that just ended or began judging. Never
++        # turn that stale sampling hint into a definitive failure. Re-arm whole
++        # before unwinding a bounded read; the loop obtains fresh owner facts.
++        self.set_timer(1200 - elapsed)
++        raise BudgetWake()
+--- prepared-150007/test_accounting.py
++++ prepared-150501/test_accounting.py
+@@ -0,0 +1,181 @@
++"""Offline owner-time fixtures. No live engine, credential or database operation."""
++from copy import deepcopy
++from datetime import datetime, timezone
++import json
++from pathlib import Path
++import tempfile
++import unittest
++from unittest import mock
++
++import accounting as a
++
++HERE = Path(__file__).resolve().parent
++REC = HERE.parent
++LIMITS = {'impl': 240, 'original-review': 180, 'integrator': 120, 'verification': 180, 'review': 180, 'approval': 180}
++
++
++def at(number):
++    return datetime.fromtimestamp(number, timezone.utc).isoformat()
++
++
++def history(name, start, end=None):
++    fixed = {'work_ref': {'authority_uuid': 'unit', 'work_id': name}, 'participant': name, 'generation': 1}
++    events = [{'cause': 'claimed', 'assignment_ref': fixed, 'at': at(start)}]
++    if end is not None:
++        events.append({'cause': 'pass', 'assignment_ref': fixed, 'at': at(end)})
++    return {'current': fixed if end is None else None, 'events': events}
++
++
++class AccountingTests(unittest.TestCase):
++    def choose(self, rows, now, *, elapsed=300, credited=True):
++        excludes = {}
++        if credited and 'integrator' in rows:
++            excludes[a.key(rows['integrator']['events'][0]['assignment_ref'])] = [row['events'][0]['assignment_ref'] for name, row in rows.items() if name in ('verification', 'review', 'approval')]
++        return a.evaluate(rows, excludes, now=now, elapsed=elapsed, limits=LIMITS)
++
++    def integration(self, decision):
++        return next(c for c in decision['clocks'] if c['kind'] == 'integration')
++
++    def test_run9_replay_preserves_unspent_judge_allowance(self):
++        claims = json.loads((REC / 'evidence/run9-budget-150384/authority-assignments.json').read_text())
++        deadline = a.instant('2026-09-12T05:59:52.183Z')
++        for row in claims.values():
++            row['events'] = [e for e in row['events'] if a.instant(e['at']) <= deadline]
++            row['current'] = row['events'][-1]['assignment_ref'] if row['events'][-1]['cause'] == 'claimed' else None
++        fixed = claims['b']['current']
++        excludes = {a.key(fixed): [claims[n]['events'][0]['assignment_ref'] for n in ('verification', 'review', 'approval')]}
++        limits = {e['assignment_ref']['participant']: 240 if 'impl-' in e['assignment_ref']['participant'] else 120 if 'integrator' in e['assignment_ref']['participant'] else 180 for row in claims.values() for e in row['events']}
++        decision = a.evaluate(claims, excludes, now=deadline, elapsed=405.787504, limits=limits)
++        self.assertAlmostEqual(.158, self.integration(decision)['charged'], places=5)
++        self.assertAlmostEqual(60.158, decision['remaining'], places=5)
++        self.assertTrue(self.integration(decision)['paused'])
++        json.dumps(decision, allow_nan=False)
++
++    def test_direct_integration_has_no_credit(self):
++        with self.assertRaises(a.BudgetExpired) as caught:
++            self.choose({'integrator': history('integrator', 0)}, 120)
++        self.assertEqual(0, caught.exception.clock['excluded'])
++
++    def test_overlapping_judges_are_union_not_sum(self):
++        rows = {'integrator': history('integrator', 0), 'verification': history('verification', 10, 70), 'review': history('review', 20, 80), 'approval': history('approval', 30, 60)}
++        clock = self.integration(self.choose(rows, 100))
++        self.assertEqual((70, 30, 90, False), (clock['excluded'], clock['charged'], clock['remaining'], clock['paused']))
++
++    def test_gaps_preparation_and_post_judgment_are_charged(self):
++        rows = {'integrator': history('integrator', 0), 'verification': history('verification', 10, 30), 'review': history('review', 40, 60)}
++        self.assertEqual(60, self.integration(self.choose(rows, 100))['charged'])
++        with self.assertRaises(a.BudgetExpired): self.choose(rows, 160)
++
++    def test_judge180_stays_armed_while_integration_paused(self):
++        rows = {'integrator': history('integrator', 0), 'verification': history('verification', 10)}
++        decision = self.choose(rows, 150)
++        self.assertEqual(40, decision['remaining'])
++        with self.assertRaises(a.BudgetExpired) as caught: self.choose(rows, 190)
++        self.assertEqual('verification', caught.exception.clock['assignment']['participant'])
++
++    def test_completed_intervals_between_polls_cannot_hide_overrun(self):
++        rows = {'integrator': history('integrator', 0, 200), 'verification': history('verification', 10, 70)}
++        with self.assertRaises(a.BudgetExpired): self.choose(rows, 210)
++        rows['integrator'] = history('integrator', 0, 180)
++        self.choose(rows, 210)  # exactly120 charged ended on time
++
++    def test_exclusions_clipped_to_integration_interval(self):
++        rows = {'integrator': history('integrator', 20), 'verification': history('verification', 10, 30)}
++        self.assertEqual(10, self.integration(self.choose(rows, 50))['excluded'])
++
++    def test_repeated_poll_never_resets_integration_balance(self):
++        rows = {'integrator': history('integrator', 0), 'verification': history('verification', 20, 80)}
++        self.assertEqual(40, self.integration(self.choose(rows, 100))['charged'])
++        self.assertEqual(60, self.integration(self.choose(rows, 120))['charged'])
++
++    def test_no_credit_without_bound_result(self):
++        rows = {'integrator': history('integrator', 0), 'verification': history('verification', 10)}
++        with self.assertRaises(a.BudgetExpired): self.choose(rows, 120, credited=False)
++
++    def test_foreign_or_unclaimed_exclusion_refuses(self):
++        row = history('integrator', 0)
++        with self.assertRaises(a.AccountingError):
++            a.evaluate({'integrator': row}, {a.key(row['current']): [history('review', 1)['current']]}, now=50, elapsed=50, limits=LIMITS)
++
++    def test_future_missing_and_duplicate_claims_refuse(self):
++        for row in (history('integrator', 60), {'current': history('integrator', 0)['current'], 'events': []}):
++            with self.assertRaises(a.AccountingError): self.choose({'integrator': row}, 50, credited=False)
++        row = history('integrator', 0); row['events'] *= 2
++        with self.assertRaises(a.AccountingError): self.choose({'integrator': row}, 50, credited=False)
++
++    def test_whole1200_wins_even_when_judges_pause_integration(self):
++        with self.assertRaises(a.BudgetExpired) as caught:
++            self.choose({'integrator': history('integrator', 0), 'verification': history('verification', 10)}, 20, elapsed=1200)
++        self.assertEqual('whole-run', caught.exception.clock['kind'])
++
++    def test_final_tests_require_positive_remainder_and_cap30(self):
++        self.assertEqual(30, a.final_timeout(1100))
++        self.assertEqual(.5, a.final_timeout(1199.5))
++        for value in (1200, 1201):
++            with self.assertRaises(a.BudgetExpired): a.final_timeout(value)
++
++    def test_stale_alarm_wakes_for_fresh_owners_but_whole_expiry_is_fatal(self):
++        clock = [120]; calls = []; record = {}
++        alarm = a.Alarm(started=0, monotonic=lambda: clock[0], set_timer=lambda seconds: calls.append(('arm', seconds)), record=record, persist=lambda value: calls.append(('persist', value)))
++        alarm.arm({'winner': {'kind': 'integration'}, 'remaining': 1})
++        self.assertEqual('persist', calls[0][0])
++        with self.assertRaises(a.BudgetWake): alarm(None, None)
++        self.assertEqual(('arm', 1080), calls[-1])
++        clock[0] = 1200
++        with self.assertRaises(a.BudgetExpired): alarm(None, None)
++
++
++class BindingTests(unittest.TestCase):
++    def setUp(self):
++        self.root = Path(tempfile.mkdtemp(prefix='w71879-150501-binding-'))
++        self.config = json.loads((REC / 'prepared-150007/frozen-config/stage-execution.json').read_text())
++        self.config['state_root'] = str(self.root)
++        self.subject = json.loads((REC / 'evidence/run9-budget-150384/subject.json').read_text())
++        home = self.root / 'result-judgments' / a.digest(self.subject['result_id'])[7:]
++        home.mkdir(parents=True)
++        self.subject_path = home / 'subject.json'; self.subject_path.write_text(json.dumps(self.subject))
++        self.status = json.loads((REC / 'evidence/run9-budget-150384/last-status.json').read_text())
++        self.claims = json.loads((REC / 'evidence/run9-budget-150384/authority-assignments.json').read_text())
++        self.held = dict(self.subject, state='published', authority_uuid=self.config['authority_uuid'],
++                         integration_assignment=self.claims['b']['current'], integration_attempt_id=self.status['jobs'][1]['stages'][-1]['attempt_id'],
++                         work_id=self.claims['b']['current']['work_ref']['work_id'], prepared={'head': self.subject['candidate'], 'tree': self.subject['tree']})
++        self.authority = mock.Mock(); self.authority.policy_generation.return_value = 25
++        self.reader = a.BoundJudges(self.config, incarnation='w71879-run9', authority=self.authority, clock=lambda: '2026-09-12T06:01:00Z')
++        # All exchange/output paths in this test are private fixture paths.
++        for kind, one in self.config['result_judgment_workers']['job-b'].items():
++            one['deployment']['workspace_storage'] = str(self.root / 'storage' / kind)
++            one['deployment']['launch_home'] = str(self.root / 'launch' / kind)
++
++    def read(self):
++        with mock.patch.object(a.IntegrationStore, 'open_readonly') as opened, mock.patch.object(a.reconciliation, 'result_of', return_value=self.held):
++            answer = self.reader.read(self.status, self.claims)
++            opened.assert_called_once()
++            return answer
++
++    def test_missing_readonly_workspace_group_is_explicit_product_contract(self):
++        with self.assertRaisesRegex(a.AccountingError, 'missing product contract'): self.read()
++
++    def test_wrong_result_assignment_stage_policy_and_work_refuse_before_credit(self):
++        original = deepcopy(self.held)
++        for field, value in (('authority_uuid', 'foreign'), ('integration_attempt_id', 'foreign'), ('work_id', 'foreign'), ('canonical_target_id', 'foreign'), ('source_base', 'foreign')):
++            self.held = deepcopy(original); self.held[field] = value
++            with self.subTest(field=field), self.assertRaises(a.AccountingError): self.read()
++        self.held = original; self.authority.policy_generation.return_value = 26
++        with self.assertRaises(a.AccountingError): self.read()
++
++    def test_absent_subject_grants_no_credit(self):
++        self.config['state_root'] = str(self.root / 'not-created')
++        self.assertEqual(({}, [], None), self.reader.read(self.status, self.claims))
++
++    def test_required_public_owner_refusal_propagates(self):
++        with mock.patch.object(a.IntegrationStore, 'open_readonly', side_effect=a.AccountingError('read-only owner refused')):
++            with self.assertRaisesRegex(a.AccountingError, 'owner refused'): self.reader.read(self.status, self.claims)
++
++    def test_no_serving_factory_or_private_store_access_in_helper(self):
++        source = (HERE / 'accounting.py').read_text()
++        for forbidden in ('._connection', 'sqlite3', 'operations_from(', 'StageDeployment(', 'ControlStore.open('):
++            self.assertNotIn(forbidden, source)
++
++
++if __name__ == '__main__':
++    unittest.main()
+--- prepared-150007/test_stats_observation.py
++++ prepared-150501/test_stats_observation.py
+@@ -108,7 +108,7 @@
+                'HostConfig': {'NanoCpus': 2000000000, 'Memory': 2147483648, 'PidsLimit': 512}}
+         approval = {'verdict': 'accepted', 'review_locator': 'UNIT-ONLY mocked read; no marker file',
+                     'config_files': {'stage-execution.json': 'unit', 'submission.json': 'unit'},
+-                    'reviewed_files': {str(HERE / n): 'unit' for n in ('run.py', 'deployment.py', 'target_posture.py', 'failure_observation.py')}}
++                    'reviewed_files': {str(HERE / n): 'unit' for n in ('run.py', 'deployment.py', 'target_posture.py', 'failure_observation.py', 'accounting.py')}}
+         original_read = Path.read_text
+         original_exists = Path.exists
+         def read(path, *args, **kwargs):
+@@ -156,6 +156,7 @@
+             if argv[:2] == ['docker', 'stats']:
+                 if stats == 'watchdog':
+                     # Invoke the actual handler registered by main, not a surrogate error.
++                    clock.now = 1200
+                     registered_alarm[0](None, None)
+                 if isinstance(stats, BaseException): raise stats
+                 return stats or completed(1, '', 'EOF')
+@@ -176,6 +177,7 @@
+             patch(runner, 'baseline', return_value={'UNIT_fixture': True})
+             cmd = patch(runner, 'command', side_effect=command)
+             patch(runner, 'containers', side_effect=containers)
++            patch(runner, 'judge_observation', return_value=({}, [], None))
+             patch(runner, 'retained_bytes', return_value=17179869184 if fault == 'storage' else 123)
+             patch(runner.Authority, 'open_readonly', return_value=owner)
+             patch(runner.subprocess, 'Popen', return_value=serve)
+@@ -209,7 +211,7 @@
+         self.assertEqual((1, 1, 0), (summary['unavailable'], summary['not-requested'], summary['available']))
+         self.assertEqual('samples.jsonl:1', summary['gaps'][0]['sample'])
+         self.assertEqual(1, sum(call.args[0][:2] == ['docker', 'stats'] for call in held.process_call.call_args_list))
+-        self.assertEqual([1200, 1200, 1199], [call.args[1] for call in held.timers.call_args_list if call.args[1] != 0])
++        self.assertEqual([1200, 1200, 1200, 1199, 1199, 1199], [call.args[1] for call in held.timers.call_args_list if call.args[1] != 0])
+         self.assertTrue(held.result['terminal_both'])
+         self.assertEqual(0, held.result['final_test_exit'])
+ 
+@@ -222,7 +224,7 @@
+     def test_actual_registered_watchdog_is_fatal_and_contains(self):
+         held = self.exercise(stats='watchdog')
+         self.assertIsInstance(held.error, TimeoutError)
+-        self.assertIn('approved proof wall/active-attempt deadline', held.result['failure'])
++        self.assertIn('approved deadline reached: whole-run', held.result['failure'])
+         self.assertFalse(held.result['terminal_both'])
+         self.assertGreater(held.stopped.call_count, 0)
+         self.assertEqual(0, held.result['stats_observations']['unavailable'])
+@@ -250,7 +252,7 @@
+ 
+     def test_active_attempt_deadline_remains_fatal(self):
+         held = self.exercise(claim_age=241)
+-        self.assertIn('approved attempt deadline', str(held.error))
++        self.assertIn('approved deadline reached: attempt', str(held.error))
+         held.process_call.assert_not_called()
+ 
+     def test_incomplete_jobs_do_not_become_terminal_from_gap(self):
+--- prepared-150007/test_run9_preparation.py
++++ prepared-150501/test_run9_preparation.py
+@@ -67,10 +67,11 @@
+         self.assertEqual(expected, (HERE / 'deployment.py').read_text())
+         expected_runner = (PRIOR / 'run.py').read_text().replace('w71879-run8', 'w71879-run9')
+ 
+-        self.assertEqual(expected_runner, (HERE / 'run.py').read_text())
+-        for name in ('target_posture.py', 'failure_observation.py', 'test_stats_observation.py', 'test_provider_detail.py'):
++        self.assertEqual(expected_runner, (HERE.parent / 'prepared-150007/run.py').read_text())
++        self.assertIn('evaluate(claims, exclusions', (HERE / 'run.py').read_text())
++        for name in ('target_posture.py', 'failure_observation.py', 'test_provider_detail.py'):
+             self.assertEqual((PRIOR / name).read_bytes(), (HERE / name).read_bytes())
+-        self.assertIn("(HERE / 'run.py', HERE / 'deployment.py', HERE / 'target_posture.py', HERE / 'failure_observation.py')", (HERE / 'run.py').read_text())
++        self.assertIn("(HERE / 'run.py', HERE / 'deployment.py', HERE / 'target_posture.py', HERE / 'failure_observation.py', HERE / 'accounting.py')", (HERE / 'run.py').read_text())
+ 
+     def test_operator_recipe_preserves_fresh_only_guards_and_fixed_host_posture(self):
+         expected = (PRIOR / 'operator-prepare.sh').read_text().replace('run8', 'run9').replace('prepared-149488/target_posture.py', 'prepared-150007/target_posture.py')
+--- prepared-150007/test_image_preparation.py
++++ prepared-150501/test_image_preparation.py
+@@ -62,7 +62,7 @@
+         self.assertEqual('sha256:5fb321bf417ffc5cd4e3f36e7c9c7e029bf47aaa36d5621db979fcc5e6eabe15', native['sha256'])
+         self.assertEqual((250162696, 0o755), (native['bytes'], native['mode']))
+         hashes = json.loads((HERE / 'runner-helpers.json').read_text())
+-        self.assertEqual({'run.py', 'deployment.py', 'target_posture.py', 'failure_observation.py'}, set(hashes))
++        self.assertEqual({'run.py', 'deployment.py', 'target_posture.py', 'failure_observation.py', 'accounting.py'}, set(hashes))
+         for name, expected in hashes.items(): self.assertEqual(expected, images.sha((HERE / name).read_bytes()))
+ 
+ 
+--- prepared-150007/runner-helpers.json
++++ prepared-150501/runner-helpers.json
+@@ -1,6 +1,7 @@
+ {
++  "run.py": "sha256:ed09e1b87ee9bd51dc47c459f57b3c4caaba17cc90d90b7a65b5c30189159254",
+   "deployment.py": "sha256:4c99557d5d780bc1fc2ea641dc524e3632e001851e785ab07e7ed3af31d69d64",
++  "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97",
+   "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+-  "run.py": "sha256:b85e074d96233cb29dc1c360eb26a4611534792249b036166c441df6225e6d5e",
+-  "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
++  "accounting.py": "sha256:45cc9d3bbfee7991e992ee2dab25bcc58d167689f7e9f95aae64085007619872"
+ }
+--- prepared-150007/verify_offline.py
++++ prepared-150501/verify_offline.py
+@@ -12,7 +12,7 @@
+ HERE = Path(__file__).resolve().parent
+ REPO = next(parent for parent in HERE.parents if (parent / 'v12/python/src/baton_v12').is_dir())
+ sys.path[:0] = [str(HERE), str(REPO / 'v12/python/src'), str(REPO / 'v12/python'), str(REPO / 'v12/worker')]
+-retained = Path(tempfile.mkdtemp(prefix='w71879-150007-offline-verification-'))
++retained = Path(tempfile.mkdtemp(prefix='w71879-150501-offline-verification-'))
+ started = time.monotonic()
+ output = io.StringIO()
+ with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):

@@ -1,0 +1,17 @@
+{
+  "markers": {
+    "selected-images.json": "sha256:d0da4684accfa0cba16dc712d2456745de56ef3632f315a7c17a6649407a8f5f",
+    "execution-review.json": "sha256:a91d806c71c07e344698569dd44522f80775c888ac2d28606dc519ef448beeb9"
+  },
+  "reviewed_files": 199,
+  "config_files": {
+    "stage-execution.json": "sha256:381654827ce6eb290e31c21694837e8cf10c56d6d4d9641e92df2467cb0fdc87",
+    "submission.json": "sha256:a4870e29847dcb18774e5d2136e8d4ccb606da11c32c0e5ac7fef056491e4fe9"
+  },
+  "verified": true,
+  "owner_authority": [
+    150004,
+    150121
+  ],
+  "agent_execution_authorized": false
+}

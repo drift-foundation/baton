@@ -1,0 +1,23 @@
+{
+  "claim": 152872,
+  "files": {
+    "run10-preparation-152826": 72,
+    "accounting-152750": 86,
+    "accounting-152563": 92,
+    "accounting-150501": 75,
+    "run9-freeze-150125": 198,
+    "run9-budget-150384": 19
+  },
+  "helpers": {
+    "run.py": "sha256:3050c82d6d00e880b91843a69d7fa933cd4221fca22f66011155ba518f4ca9a0",
+    "accounting.py": "sha256:30a984a316d76d379dde3e743037ca6d1f0bfc105ed365781b1d42fdf727c245",
+    "deployment.py": "sha256:19a6a4a426807f65c09cdb37a27d496d9259059099b80a7df58660dfcfc5509c",
+    "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97",
+    "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9"
+  },
+  "run10_absent": true,
+  "actual_inputs_and_markers_absent": true,
+  "operator_recipe_commands": 5,
+  "continuing_journals_captured_before_review_append": true,
+  "seconds": 0.04187188600189984
+}

@@ -1,0 +1,322 @@
+{
+  "correction": {
+    "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146797/candidate-manifest.json",
+    "sha256": "sha256:156cb7f53d1eab4e41d1602742ddda778376250b6d1af5e7eee9e12a3c775588",
+    "files": 39
+  },
+  "preparation": {
+    "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146538/candidate-manifest.json",
+    "sha256": "sha256:bbb5761e087ed5bd61c8371de09346da35f9632f7cbbb203ce16b657cdc5483b",
+    "files": 37
+  },
+  "freeze": {
+    "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run5-freeze-146623/candidate-manifest.json",
+    "sha256": "sha256:a9ff1b8e38de58a862319c13de4bf1badccc15c28d8b88b74eb7f955d0a9f531",
+    "files": 444
+  },
+  "source_requirements": {
+    "v12/python/src/baton_v12/integration/oci_delivery.py": "sha256:ccfa812ac3b6c4fa68d32bc4fcb25bf2c05c7220369af1b39dedc0aef8a08282",
+    "v12/worker/integration_workload.py": "sha256:b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+    "v12/worker/Dockerfile.integration": "sha256:afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+    "v12/python/tools/stage_execution.py": "sha256:89d048c9ef0684f4e10859ffa5faf3d698e61b5e6d073689667e06e28aedd2e0"
+  },
+  "current_observation_sources": {
+    "v12/python/tools/job_manager.py": "sha256:1060e26a4196bafbc55db7955271853b1a2dde45e316d39cba7681939aeb6bb7",
+    "v12/python/src/baton_v12/job_manager/projection.py": "sha256:d22c3e7d83731e9ecf5c74255b2d40a46f8b24b858fd091226cd60e9eba91af3",
+    "v12/python/src/baton_v12/worker_manager/workspaces.py": "sha256:19ea613d2da8cf47f6a25bbad76372f1b91eae9b57130e017ddfee2e964d40b9"
+  },
+  "provider_chain": {
+    "AGENTS.md": {
+      "sha256": "a7323bbc227aabe8322f747d5750bc4823cbad2b56dce1f863ddd5921223eb7f",
+      "accepted_matches": true
+    },
+    "v12/README.md": {
+      "sha256": "0ee2369c991470bc83306c33dd3e3849a6bf3faa371d4f6031ea0766f80858c5",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/checkpoint_profiles.py": {
+      "sha256": "91215f5b0b8f0adc01a1bbdca922f6e1debeab07e9adda04490ea50bb57efc3b",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/__init__.py": {
+      "sha256": "ba149ff8763da631e395925fdc0f0140a494c3d295cb5d9a847254261c18d3f4",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/admission.py": {
+      "sha256": "93b803004608b289dc43a65bba467ea280658896e7a4fbd777c6be816d000791",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/driver.py": {
+      "sha256": "837483eb9fb8031dae2f8c73472a63a155efbee0b46bd1b5151c70ae35372db8",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/execution.py": {
+      "sha256": "af356a985d6a746a59cc26049b7acd3d5f33551c1ee8752ce931434e5f7a1a04",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/git_profile.py": {
+      "sha256": "ccd0b048ae039df779cbb2ae468c63b8c5f43f73346b4643dd9cefdde89b7902",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/queue.py": {
+      "sha256": "18ced502ebcff18946c1c72914223166c995484ce2baccd6423bb3f7ca0b23a0",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/reconciliation.py": {
+      "sha256": "c575077386c81c135b337b5e5a940aeabfe2d142c15edcbade6e905bbc36af6d",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/recovery.py": {
+      "sha256": "c04db7f2bf45ac665b4cc66b0a394ffb1f02ea794d009c25a0312e6acdc2f732",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/runtime.py": {
+      "sha256": "d76676e04d4917be39f723d670ce7ecb2fc5830ae9246e388a844e337806d2cb",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/schema.py": {
+      "sha256": "164de55dd44ab31f0e4a761dfa96eb1dddc893f0954d9697306f4306e0d4523d",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/integration/store.py": {
+      "sha256": "8117df2b43ed702dd30733c2acf9c135d16b17c293021a4b07ee69a4837eab49",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/job_manager/delegation.py": {
+      "sha256": "3019d7ea94db2fdd3b0e9c3933f0d2b10241fdaf64c2550129c7bbb81ecfadf6",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/attempts.py": {
+      "sha256": "99bd3f77f1968f76a6839632132e43cf6eecdfda0fe833b124b522e2895eaf55",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/review_cycles.py": {
+      "sha256": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/schema.py": {
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "accepted_matches": true
+    },
+    "v12/python/src/baton_v12/worker_manager/target_rework.py": {
+      "expected_absence_matches": true
+    },
+    "v12/python/tests/integration/test_admission.py": {
+      "sha256": "c33ddf9f4aabcc8f9a34c714c3434e519602c4b3984e00b74c7f35df242e6cce",
+      "accepted_matches": true
+    },
+    "v12/python/tests/integration/test_coordinator.py": {
+      "sha256": "7fb6ec2c3af86b1ed7920aca57cdf348afa68bbab86101acda4fd2b4930243ea",
+      "accepted_matches": true
+    },
+    "v12/python/tests/integration/test_driver.py": {
+      "sha256": "aba50ff33f19a137271318ff440bb125d43211cec12de1a07e10d33b2e74e834",
+      "accepted_matches": true
+    },
+    "v12/python/tests/integration/test_execution.py": {
+      "sha256": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "accepted_matches": true
+    },
+    "v12/python/tests/integration/test_reconciliation.py": {
+      "sha256": "213520989b628f414d3f0ad27fce2d1f4131cf48435f2ed6af1c5f4c29b77a72",
+      "accepted_matches": true
+    },
+    "v12/python/tests/integration/test_recovery.py": {
+      "sha256": "c33cfa13818177afc882dd896d842036010c44656886a73c133687001e08b8fa",
+      "accepted_matches": true
+    },
+    "v12/python/tests/integration/test_runtime.py": {
+      "sha256": "76dce0c03f1b94a5cad5df0cf146a5b96132eb5f7eba771377f34407b04c640d",
+      "accepted_matches": true
+    },
+    "v12/python/tests/job_manager/test_delegation.py": {
+      "sha256": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "accepted_matches": true
+    },
+    "v12/python/tests/job_manager/test_scheduling.py": {
+      "sha256": "79ba448c1f21a6c92bc9230291b5bfd04273024280b00ea197d1fa700066c103",
+      "accepted_matches": true
+    },
+    "v12/python/tests/manager/test_attempts.py": {
+      "sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0",
+      "accepted_matches": true
+    },
+    "v12/python/tests/manager/test_integration_image.py": {
+      "sha256": "c941e1a99023e43181480928c36936bb9d783e2b44c2687eb57de5ea80d0d78e",
+      "accepted_matches": true
+    },
+    "v12/python/tests/manager/test_integration_worker.py": {
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "accepted_matches": true
+    },
+    "v12/python/tests/manager/test_store.py": {
+      "sha256": "9a5566355c375c98d2464e802a4d3d599cdd24fabc1b8d2135963830e339c093",
+      "accepted_matches": true
+    },
+    "v12/python/tests/manager/test_target_rework.py": {
+      "expected_absence_matches": true
+    },
+    "v12/python/tests/tools/test_integration_bundle.py": {
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "accepted_matches": true
+    },
+    "v12/python/tests/tools/test_integration_worker.py": {
+      "sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "accepted_matches": true
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "f48e5077377e2e4fc2e571268d737a984a86633abd8eab5a19ba9faa5608a3d5",
+      "accepted_matches": true
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+      "accepted_matches": true
+    },
+    "v12/python/tools/integration_worker.py": {
+      "sha256": "2c3156da8c4f9bf4430b325ca0e32fc9c8bfbb59f5caa7ccccdd71b4fca65796",
+      "accepted_matches": true
+    },
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "89d048c9ef0684f4e10859ffa5faf3d698e61b5e6d073689667e06e28aedd2e0",
+      "accepted_matches": true
+    },
+    "v12/worker/Dockerfile.integration": {
+      "sha256": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "accepted_matches": true
+    },
+    "v12/worker/integration_contract.py": {
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "accepted_matches": true
+    },
+    "v12/worker/integration_entry.py": {
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "accepted_matches": true
+    },
+    "v12/worker/integration_workload.py": {
+      "sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "accepted_matches": true
+    },
+    "v12/python/tools/single_worker.py": {
+      "sha256": "e2995d62dd37ca11b460451734e861b03b2dd9346d8dd577b0e921fa32554ed2",
+      "accepted_matches": true
+    },
+    "v12/python/tests/tools/test_single_worker.py": {
+      "sha256": "e61576c9b968bd4547c044320bc255faa715a4675d37974f69e57a6d998d7f5c",
+      "accepted_matches": true
+    }
+  },
+  "verification_seconds": 0.00995228299871087,
+  "run6_absent": true,
+  "work": "W71879",
+  "claim": 146897,
+  "changed_dependencies": [
+    {
+      "path": "deployment.py",
+      "prior": "prepared-146797/deployment.py"
+    },
+    {
+      "path": "offline_fixture.py",
+      "prior": "prepared-146797/offline_fixture.py"
+    },
+    {
+      "path": "operator-prepare.sh",
+      "prior": "prepared-146797/operator-prepare.sh"
+    },
+    {
+      "path": "policies/mount_policy.json",
+      "prior": "prepared-146797/policies/mount_policy.json"
+    },
+    {
+      "path": "policies/policy.json",
+      "prior": "prepared-146797/policies/policy.json"
+    },
+    {
+      "path": "policies/retention_policy.json",
+      "prior": "prepared-146797/policies/retention_policy.json"
+    },
+    {
+      "path": "run.py",
+      "prior": "prepared-146797/run.py"
+    },
+    {
+      "path": "tasks/a.json",
+      "prior": "prepared-146797/tasks/a.json"
+    },
+    {
+      "path": "tasks/approval.json",
+      "prior": "prepared-146797/tasks/approval.json"
+    },
+    {
+      "path": "tasks/b.json",
+      "prior": "prepared-146797/tasks/b.json"
+    },
+    {
+      "path": "tasks/review.json",
+      "prior": "prepared-146797/tasks/review.json"
+    },
+    {
+      "path": "tasks/verification.json",
+      "prior": "prepared-146797/tasks/verification.json"
+    },
+    {
+      "path": "test_manifest_timestamp.py",
+      "prior": "prepared-146797/test_manifest_timestamp.py"
+    },
+    {
+      "path": "test_observed_status.py",
+      "prior": "prepared-146797/test_observed_status.py"
+    },
+    {
+      "path": "test_report_instructions.py",
+      "prior": "prepared-146797/test_report_instructions.py"
+    },
+    {
+      "path": "test_run6_preparation.py",
+      "prior": "prepared-146797/test_run5_preparation.py"
+    },
+    {
+      "path": "verify_offline.py",
+      "prior": "prepared-146797/verify_offline.py"
+    }
+  ],
+  "unchanged_dependencies": [
+    "candidate-images.json",
+    "correction_expectations.py",
+    "image-context-manifest.json",
+    "policies/credential_policy.json",
+    "policies/network_policy.json",
+    "policies/resource_policy.json",
+    "policies/tool_policy.json",
+    "target_posture.py",
+    "test_stats_observation.py"
+  ],
+  "snapshot_scope": "Current FINDING/PLAN after owner146894 preparation ruling; earlier immutable snapshots preserved.",
+  "git_read_observation": {
+    "source": "/home/sl/.local/state/baton/v12/w71879-run1/source",
+    "status": "clean",
+    "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+    "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+    "no_optional_locks": true
+  },
+  "images": {
+    "provider": {
+      "id": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+      "platform": "linux/amd64",
+      "user": "65532:65532",
+      "entrypoint": [
+        "python3",
+        "/opt/baton/dogfood_entry.py"
+      ]
+    },
+    "integration": {
+      "id": "sha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2",
+      "platform": "linux/amd64",
+      "user": "65532:65532",
+      "entrypoint": [
+        "python3",
+        "/opt/baton/integration_entry.py"
+      ]
+    }
+  },
+  "instruction_sha256": "sha256:4b3160e825f6d4f166fc5fc8477f8d85f3190420ba402dcfb780f01df7be9f76"
+}

@@ -1,0 +1,24 @@
+{
+  "manifest": "sha256:7c5ad3aeb64f845cc083ab9f25c6b857840f845f257b8591b8ac6ffb4f76f260",
+  "verified_files": 153,
+  "four_helpers": {
+    "deployment.py": "sha256:4c99557d5d780bc1fc2ea641dc524e3632e001851e785ab07e7ed3af31d69d64",
+    "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+    "run.py": "sha256:b85e074d96233cb29dc1c360eb26a4611534792249b036166c441df6225e6d5e",
+    "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+  },
+  "independent_fixture_credential_config_only": {
+    "distinct_homes": [
+      "/tmp/w71879-150007-public-bootstrap-6pk73kw5/offline-run/credentials/approval",
+      "/tmp/w71879-150007-public-bootstrap-6pk73kw5/offline-run/credentials/review",
+      "/tmp/w71879-150007-public-bootstrap-6pk73kw5/offline-run/credentials/verification",
+      "/tmp/w71879-150007-public-bootstrap-6pk73kw5/offline-run/credentials/integrator",
+      "/tmp/w71879-150007-public-bootstrap-6pk73kw5/offline-run/credentials/review-b",
+      "/tmp/w71879-150007-public-bootstrap-6pk73kw5/offline-run/credentials/impl-b",
+      "/tmp/w71879-150007-public-bootstrap-6pk73kw5/offline-run/credentials/review-a",
+      "/tmp/w71879-150007-public-bootstrap-6pk73kw5/offline-run/credentials/impl-a"
+    ],
+    "payloads_read": false
+  },
+  "seconds": 0.012321967020398006
+}

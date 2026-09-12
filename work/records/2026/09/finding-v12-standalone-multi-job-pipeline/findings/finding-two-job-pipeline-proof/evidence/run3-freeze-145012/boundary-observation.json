@@ -1,0 +1,87 @@
+{
+  "work": "W71879",
+  "claim": 145012,
+  "observed_at": "2026-09-11T14:27:10.807687+00:00",
+  "outcome": "managed namespace cannot establish host target IDs; concrete render incomplete",
+  "uid": 1000,
+  "gid": 1000,
+  "groups": [
+    65534,
+    65534,
+    65534,
+    65534,
+    65534,
+    65534,
+    65534,
+    65534,
+    1000,
+    65534
+  ],
+  "uid_map": "      1000          0          1\n",
+  "gid_map": "      1000          0          1\n",
+  "metadata_in_managed_namespace": {
+    "/home/sl/.local/state/baton/v12/w71879-run3": {
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0o700"
+    },
+    "/home/sl/.local/state/baton/v12/w71879-run3/source": {
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0o775"
+    },
+    "/home/sl/.local/state/baton/v12/w71879-run3/target": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o2775"
+    },
+    "/home/sl/.local/state/baton/v12/w71879-run3/target/.git": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o2775"
+    },
+    "/home/sl/.local/state/baton/v12/w71879-run3/target/.git/config": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o664"
+    },
+    "/home/sl/.local/state/baton/v12/w71879-run3/target/demo/greeting.py": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o644"
+    },
+    "/home/sl/.local/state/baton/v12/w71879-run3/integration-workspace": {
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0o775"
+    }
+  },
+  "unchanged_packages": {
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-144859/candidate-manifest.json": {
+      "files": 25,
+      "sha256": "sha256:6b4121c4f36c3b881e4fd2d8edcc09ac358c6c28b5b98b787c1a7f1185aa9b33",
+      "all_bytes_sizes_modes_match": true
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run2-freeze-144546/candidate-manifest.json": {
+      "files": 159,
+      "sha256": "sha256:e681e9501b8221fbc791de7b2f8ef12ad6ba11f12b045717c7e186ce8e362330",
+      "all_bytes_sizes_modes_match": true
+    }
+  },
+  "run_root_entries": [
+    "integration-workspace",
+    "source",
+    "target"
+  ],
+  "absent_prepared_outputs": [
+    "frozen-config",
+    "validation.json",
+    "execution-review.json",
+    "selected-images.json"
+  ],
+  "read_only_probe_error": "TargetPostureError: /home/sl/.local/state/baton/v12/w71879-run3/target: gid 65534, expected workspace gid 1001",
+  "failed_probe_command_wall_seconds": 0.032879572,
+  "exact_posture_command_also_refused": true,
+  "probe_limit": "No host ownership mismatch inferred. Foreign IDs are not represented by this managed namespace. Operator144993 reports host check passed.",
+  "seconds": 0.003486240006168373
+}

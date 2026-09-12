@@ -1,0 +1,16 @@
+{
+  "tests": 10,
+  "failures": 0,
+  "errors": 0,
+  "wall_seconds": 0.00702026899671182,
+  "retained_fixture_root": "/tmp/w71879-target-posture-144859-5zcydkei",
+  "positive_fixture_identity": {
+    "uid": 1000,
+    "gid": 1000
+  },
+  "production_identity": {
+    "uid": 65532,
+    "gid": 1001
+  },
+  "scope": "real filesystem fixtures with explicit test uid/gid; production guard refusal before side effects; no actual fixed-uid runtime or model execution"
+}

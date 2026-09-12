@@ -1,0 +1,15 @@
+{
+  "failed_run_walls_seconds": [
+    223.9077433210041,
+    300.8523036100087,
+    35.340723676010384,
+    272.6205856000015,
+    292.0414934099972
+  ],
+  "failed_run_total_seconds": 1124.7628496170219,
+  "prior_listed_preparation_diagnosis_seconds": 6.433112515973729,
+  "host_validation_seconds": 0.023940075989230536,
+  "actual_inputs_verification_seconds": 0.04444523699930869,
+  "listed_preparation_diagnosis_seconds": 6.501497828962268,
+  "uncertainty": "Untimed reads, edits, CLI/static/image/manifest checks, failed Python-subprocess image inspection, previous failed commands, host/operator time and billing are additional. Do not add enclosing tool wall time again or transfer reserves."
+}

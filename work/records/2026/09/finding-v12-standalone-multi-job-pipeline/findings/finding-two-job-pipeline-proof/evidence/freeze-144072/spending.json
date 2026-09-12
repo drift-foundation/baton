@@ -1,0 +1,21 @@
+{
+  "prior_measured_seconds": {
+    "tuner141510_validation": 0.004338626000389922,
+    "reviewer141577_validation": 0.00040272800106322393,
+    "tuner141676_measured_commands": 0.344718749,
+    "tuner141676_final_ast": 0.003242869002860971,
+    "tuner141676_final_hash": 0.005245332002232317,
+    "reviewer141816_validation": 0.009054458001628518
+  },
+  "new_measured_seconds": {
+    "operator_image_build": 0.3397777770005632,
+    "tuner144072_pre_render_validation": 0.01080163600272499,
+    "tuner144072_render_command_wall": 0.038097835,
+    "tuner144072_post_render_validation_internal": 0.021399332996224985,
+    "tuner144072_candidate_byte_manifest": 0.0019820820016320795
+  },
+  "sum_listed_disjoint_measurements_seconds": 0.7790614250093202,
+  "uncertainty": "Reads, edits, canonical coordination, Docker/grant diagnostics and failed first old-payload locator check are not internally measured. Prior failures, retained temporary paths and uncertainty remain in prepared-141676/spending.json and prior handoffs. This is not a zero-cost or complete wall-time claim. Post-render command wrapper/import time is outside its internal measurement. Provider verification budgets remain separate.",
+  "production_submission_seconds": 0,
+  "production_submission_seconds_basis": "No production submission or model execution occurred; operator image build included only never-started inspection containers."
+}

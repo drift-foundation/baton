@@ -1,0 +1,38 @@
+{
+  "work": "W71879",
+  "claim": 145012,
+  "rule_files": [
+    "/home/sl/.codex/rules/default.rules",
+    "/home/sl/.codex/rules/baton.rules"
+  ],
+  "commands": {
+    "validate": {
+      "command": "/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-144859/deployment.py validate",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "execpolicy_check": {
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "fac24d",
+          "wall_time_seconds": 0.000002695,
+          "exit_code": 0,
+          "original_token_count": 31,
+          "output": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n{\"matchedRules\":[]}\n"
+        }
+      }
+    },
+    "render": {
+      "command": "/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-144859/deployment.py render",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "execpolicy_check": {
+        "status": "fulfilled",
+        "value": {
+          "chunk_id": "01c507",
+          "wall_time_seconds": 0.000001743,
+          "exit_code": 0,
+          "original_token_count": 31,
+          "output": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n{\"matchedRules\":[]}\n"
+        }
+      }
+    }
+  }
+}

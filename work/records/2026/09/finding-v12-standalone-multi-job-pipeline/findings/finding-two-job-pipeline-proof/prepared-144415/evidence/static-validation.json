@@ -1,0 +1,14 @@
+{
+  "helpers_ast": "pass",
+  "new_works": {
+    "a": "c71879ac-W1",
+    "approval": "c71879ac-W5",
+    "b": "c71879ac-W2",
+    "review": "c71879ac-W4",
+    "verification": "c71879ac-W3"
+  },
+  "policies": "only run-root/scope and owner-ruling locators changed; numerical/resource/retention/network/credential behavior unchanged",
+  "run2_absent": true,
+  "task_behavior": "all five instruction bodies and verification commands unchanged; only task IDs change run1 to run2",
+  "wall_seconds": 0.13649385400640313
+}

@@ -1,0 +1,28 @@
+{
+  "work": "W71879",
+  "claim": 144132,
+  "candidate_manifest_sha256": "sha256:c10f798f017fd9b174bcb08cc555379e2afda52b40bcc486ef156664a56491fa",
+  "candidate_files": 79,
+  "candidate_drift": [],
+  "provider_entries": 45,
+  "provider_drift": [],
+  "pure_schema_and_consistency": "passed",
+  "distinct_worker_principals": 8,
+  "images": {
+    "integration": "sha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2",
+    "provider": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+  },
+  "retained_image_content_checks": 14,
+  "config_sha256": "sha256:747ae861826fa7993a847f610e98b83859b1b25db0b15f83ca2fb42cc2660976",
+  "submission_sha256": "sha256:154cdee4547dd3e0fbde6021fecf1abdf91db4643ec71e84e18e577bee199287",
+  "baseline": {
+    "source": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+    "target": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+  },
+  "bare_workspace": "true",
+  "production_state_and_selection_markers_absent": true,
+  "live_image_metadata": "independent standalone docker image inspect passed both IDs/linux-amd64/non-root/entrypoints/layers; transcript retained by tool, diagnostic time unmeasured",
+  "measured_validation_seconds": 0.028188105003209785,
+  "unmeasured": "imports and diagnostic/source/dossier reads/edits; historical uncertainty retained",
+  "actual_models_builds_containers_submissions": 0
+}

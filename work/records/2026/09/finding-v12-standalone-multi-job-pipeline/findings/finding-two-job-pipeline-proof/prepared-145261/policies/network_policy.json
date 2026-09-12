@@ -1,0 +1,4 @@
+{
+  "engine_network": "bridge",
+  "purpose": "selected Claude provider authentication and model requests"
+}

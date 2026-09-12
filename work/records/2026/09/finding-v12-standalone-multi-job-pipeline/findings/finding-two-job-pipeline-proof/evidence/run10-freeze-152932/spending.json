@@ -1,0 +1,13 @@
+{
+  "checks_seconds": {
+    "actual_input_check": 0.057846604991937056,
+    "accepted_source_check": 0.0053621139959432185,
+    "new_host_validation": 0.024462229979690164
+  },
+  "this_claim_seconds": 0.08767094896757044,
+  "previous_cumulative_seconds": 111.43528896497313,
+  "cumulative_seconds": 111.5229599139407,
+  "nine_failed_runtime_walls_seconds": 2002.0388815780316,
+  "new_model_attempts": 0,
+  "qualification": "Host validation counted once; initial historical-checker rejection and untimed/static/CLI/host/operator/billing/rounding uncertainty retained. No duplicate subprocess timing."
+}

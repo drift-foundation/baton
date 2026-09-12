@@ -1,0 +1,14 @@
+{
+  "previous_cumulative_seconds": 77.31003484297104,
+  "checks_seconds": {
+    "initial-verification": 8.378303206991404,
+    "final-verification": 8.453982752020238,
+    "preservation": 0.021985336992656812,
+    "owner_host_read": 0.004285491013433784
+  },
+  "this_return_measured_seconds": 16.858556787017733,
+  "cumulative_seconds": 94.16859162998877,
+  "runtime_failures_seconds": 2002.0388815780316,
+  "new_model_attempts": 0,
+  "qualification": "Retained measured checks plus reported host read; initial custody utility error and prior untimed/CLI/static/host/operator/billing/rounding uncertainty persist. No duplicate inner/subprocess timing."
+}

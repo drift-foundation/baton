@@ -1,0 +1,104 @@
+{
+  "old_manifest": "sha256:81747c62cd9863f9c0899e1292d80fc82b1757501caa7628e6286b933ba1dd81",
+  "manifest_bindings_checked": 989,
+  "authorized_changed_manifest_paths": [],
+  "old_run8_markers": {
+    "selected-images.json": "sha256:d0da4684accfa0cba16dc712d2456745de56ef3632f315a7c17a6649407a8f5f",
+    "execution-review.json": "sha256:dc3f225a30c91e30ca50a30659bc840287992708d385f36b4721e0d0f0e297c3"
+  },
+  "source_bindings": {
+    "provider_chain": [
+      "AGENTS.md",
+      "v12/README.md",
+      "v12/python/src/baton_v12/checkpoint_profiles.py",
+      "v12/python/src/baton_v12/integration/__init__.py",
+      "v12/python/src/baton_v12/integration/admission.py",
+      "v12/python/src/baton_v12/integration/driver.py",
+      "v12/python/src/baton_v12/integration/execution.py",
+      "v12/python/src/baton_v12/integration/git_profile.py",
+      "v12/python/src/baton_v12/integration/queue.py",
+      "v12/python/src/baton_v12/integration/reconciliation.py",
+      "v12/python/src/baton_v12/integration/recovery.py",
+      "v12/python/src/baton_v12/integration/runtime.py",
+      "v12/python/src/baton_v12/integration/schema.py",
+      "v12/python/src/baton_v12/integration/store.py",
+      "v12/python/src/baton_v12/job_manager/delegation.py",
+      "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "v12/python/src/baton_v12/worker_manager/schema.py",
+      "v12/python/src/baton_v12/worker_manager/target_rework.py",
+      "v12/python/tests/integration/test_admission.py",
+      "v12/python/tests/integration/test_coordinator.py",
+      "v12/python/tests/integration/test_driver.py",
+      "v12/python/tests/integration/test_execution.py",
+      "v12/python/tests/integration/test_reconciliation.py",
+      "v12/python/tests/integration/test_recovery.py",
+      "v12/python/tests/integration/test_runtime.py",
+      "v12/python/tests/job_manager/test_delegation.py",
+      "v12/python/tests/job_manager/test_scheduling.py",
+      "v12/python/tests/manager/test_attempts.py",
+      "v12/python/tests/manager/test_integration_image.py",
+      "v12/python/tests/manager/test_integration_worker.py",
+      "v12/python/tests/manager/test_store.py",
+      "v12/python/tests/manager/test_target_rework.py",
+      "v12/python/tests/tools/test_integration_bundle.py",
+      "v12/python/tests/tools/test_integration_worker.py",
+      {
+        "path": "v12/python/tests/tools/test_stage_execution.py",
+        "accepted_base": "f48e5077377e2e4fc2e571268d737a984a86633abd8eab5a19ba9faa5608a3d5",
+        "current": "sha256:707f4c79aff798b6583866f6da62711545a8a0cf74608bf27ff268a1d2ebb2fc",
+        "authority": "owner149847"
+      },
+      "v12/python/tools/integration_bundle.py",
+      "v12/python/tools/integration_worker.py",
+      {
+        "path": "v12/python/tools/stage_execution.py",
+        "accepted_base": "89d048c9ef0684f4e10859ffa5faf3d698e61b5e6d073689667e06e28aedd2e0",
+        "current": "sha256:b56451dcd899e09ebc2f47505ffaf85018cd9ef003b09e60af8caf4b543553c9",
+        "authority": "owner149847"
+      },
+      "v12/worker/Dockerfile.integration",
+      "v12/worker/integration_contract.py",
+      "v12/worker/integration_entry.py",
+      "v12/worker/integration_workload.py",
+      "v12/python/tools/single_worker.py",
+      "v12/python/tests/tools/test_single_worker.py"
+    ],
+    "source_requirements": [
+      "v12/python/src/baton_v12/integration/oci_delivery.py",
+      "v12/worker/integration_workload.py",
+      "v12/worker/Dockerfile.integration",
+      {
+        "path": "v12/python/tools/stage_execution.py",
+        "accepted_base": "sha256:89d048c9ef0684f4e10859ffa5faf3d698e61b5e6d073689667e06e28aedd2e0",
+        "current": "sha256:b56451dcd899e09ebc2f47505ffaf85018cd9ef003b09e60af8caf4b543553c9",
+        "authority": "owner149847"
+      }
+    ],
+    "current_observation_sources": [
+      "v12/python/tools/job_manager.py",
+      "v12/python/src/baton_v12/job_manager/projection.py",
+      "v12/python/src/baton_v12/worker_manager/workspaces.py"
+    ]
+  },
+  "unchanged_product_test_methods": 412,
+  "added_product_test_methods": [
+    "TwoBoundJobsTraverseServingAndCorrection.test_readonly_integration_observation_keeps_the_bound_job"
+  ],
+  "successor_changes": [
+    "run.py",
+    "test_run8_preparation.py",
+    "runner-helpers.json"
+  ],
+  "four_helpers": {
+    "deployment.py": "sha256:47e8fd83573656d0bfeba9808f5b7d487b8f4d50d64a218c711ec7a1632b7c04",
+    "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+    "run.py": "sha256:f1597051ebae22196dcd6a2e0553faca0577936c21eec0fe7542647b094d23b5",
+    "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+  },
+  "source_and_test": {
+    "v12/python/tools/stage_execution.py": "sha256:b56451dcd899e09ebc2f47505ffaf85018cd9ef003b09e60af8caf4b543553c9",
+    "v12/python/tests/tools/test_stage_execution.py": "sha256:707f4c79aff798b6583866f6da62711545a8a0cf74608bf27ff268a1d2ebb2fc"
+  },
+  "verification_seconds": 0.1281878849840723
+}

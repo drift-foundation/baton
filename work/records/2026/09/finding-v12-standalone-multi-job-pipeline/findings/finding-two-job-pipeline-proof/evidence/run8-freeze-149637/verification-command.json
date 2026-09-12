@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "python3",
+    "-B",
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run8-freeze-149637/check_inputs.py",
+    "--output",
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run8-freeze-149637/post-render.json"
+  ],
+  "cwd": "/home/sl/src/baton",
+  "returncode": 0,
+  "retained_reconstruction": "/tmp/w71879-149637-documents-zjbwioj0",
+  "scope": "One read-only actual-input/source/image-provenance verification; no unchanged test-suite rerun."
+}

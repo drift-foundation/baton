@@ -1,0 +1,25 @@
+{
+  "scope": "Read-only run1 source commit/tree and clean-status observations; operator script repeats its own baseline gates before fresh cloning",
+  "results": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "b9baba",
+        "wall_time_seconds": 0.000002455,
+        "exit_code": 0,
+        "original_token_count": 21,
+        "output": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "81a0e6",
+        "wall_time_seconds": 0.000001112,
+        "exit_code": 0,
+        "original_token_count": 0,
+        "output": ""
+      }
+    }
+  ]
+}

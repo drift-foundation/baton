@@ -1,0 +1,15 @@
+{
+  "source": "canonical Work event152747, baton.slaw,2026-09-12T13:16:39Z",
+  "command": "evidence/accounting-152563/inspect_readers.py in host context",
+  "control": {
+    "state": "read",
+    "configured_gid": 1001
+  },
+  "integration": {
+    "state": "published",
+    "job_id": "job-b",
+    "policy_generation": null
+  },
+  "seconds": 0.004285491013433784,
+  "qualification": "Owner-reported host evidence; not independently re-probed. Does not establish managed refusal cause or B import."
+}

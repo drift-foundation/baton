@@ -1,0 +1,52 @@
+{
+  "manifest": "sha256:d0c4aa3f674c72b90161d645009594f8ecbed6299c9bb13b70c2d4ea0692eab9",
+  "verified_files": 944,
+  "provider_chain_entries": 45,
+  "source_bindings": 7,
+  "helpers": {
+    "deployment.py": "sha256:47e8fd83573656d0bfeba9808f5b7d487b8f4d50d64a218c711ec7a1632b7c04",
+    "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+    "run.py": "sha256:6cada83f9e8e99eef2865ffcfd823ec3995d59002e688cef00585da359e9bca9",
+    "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+  },
+  "fresh_root_and_actual_outputs_absent": true,
+  "credential_configuration_only": {
+    "workers": 8,
+    "distinct_homes": [
+      "/tmp/w71879-149488-public-bootstrap-j24oipcc/offline-run/credentials/approval",
+      "/tmp/w71879-149488-public-bootstrap-j24oipcc/offline-run/credentials/impl-a",
+      "/tmp/w71879-149488-public-bootstrap-j24oipcc/offline-run/credentials/impl-b",
+      "/tmp/w71879-149488-public-bootstrap-j24oipcc/offline-run/credentials/integrator",
+      "/tmp/w71879-149488-public-bootstrap-j24oipcc/offline-run/credentials/review-a",
+      "/tmp/w71879-149488-public-bootstrap-j24oipcc/offline-run/credentials/review-b",
+      "/tmp/w71879-149488-public-bootstrap-j24oipcc/offline-run/credentials/review",
+      "/tmp/w71879-149488-public-bootstrap-j24oipcc/offline-run/credentials/verification"
+    ],
+    "owner_login_attestation": 149484,
+    "payloads_read": false
+  },
+  "run7": {
+    "first_failure_sample": 5,
+    "first_failure_seconds": 8.753998197993496,
+    "wall_seconds": 9.106425506004598,
+    "terminal_both": false,
+    "diagnostic": {
+      "authentication_cause": "provider-reported-oauth-session-expired-refresh-failed",
+      "availability": "available",
+      "basis": "supplementary published adapter report; never raw provider output",
+      "detail": {
+        "classification": "authentication_failed",
+        "explanation": "Failed to authenticate: OAuth session expired and could not be refreshed",
+        "explanation_status": "supported-constant",
+        "http_status": null,
+        "request_id": null,
+        "request_id_status": "unavailable",
+        "schema": "baton.provider-diagnostic/1"
+      },
+      "next_action": "Provider reports an expired OAuth session that could not be refreshed. The credential owner should restore the supported login before any separately authorized retry.",
+      "provider_exit_status": 1,
+      "provider_reason": "api-error"
+    }
+  },
+  "seconds": 0.17690747100277804
+}

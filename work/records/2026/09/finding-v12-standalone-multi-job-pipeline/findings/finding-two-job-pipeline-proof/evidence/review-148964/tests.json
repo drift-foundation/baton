@@ -1,0 +1,43 @@
+{
+  "adapter": {
+    "returncode": 0,
+    "seconds": 9.545173057995271,
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "v12/python/tests/manager",
+      "-p",
+      "test_claude_agent.py",
+      "-v"
+    ]
+  },
+  "package": {
+    "returncode": 0,
+    "seconds": 0.3661678039934486,
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-148870/verify_offline.py"
+    ]
+  },
+  "worker-entry": {
+    "returncode": 0,
+    "seconds": 0.23001187498448417,
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "v12/python/tests/manager",
+      "-p",
+      "test_worker_image.py",
+      "-v"
+    ]
+  }
+}

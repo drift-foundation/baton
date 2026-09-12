@@ -1,0 +1,7 @@
+{
+  "prior_listed": 41.32822863395641,
+  "current_listed": 0.15542164698126726,
+  "cumulative_listed": 41.483650280937674,
+  "failed_run_walls": 1341.1107609820174,
+  "uncertainty": "Untimed reads/edits/static diagnosis, Docker inspection and earlier host/operator/billing uncertainty. Owner build/validation already included in prior total, not added again."
+}

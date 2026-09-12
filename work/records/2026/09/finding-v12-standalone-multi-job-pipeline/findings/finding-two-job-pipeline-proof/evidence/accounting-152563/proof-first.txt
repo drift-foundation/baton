@@ -1,0 +1,113 @@
+test_completed_intervals_between_polls_cannot_hide_overrun (test_accounting.AccountingTests.test_completed_intervals_between_polls_cannot_hide_overrun) ... ok
+test_direct_integration_has_no_credit (test_accounting.AccountingTests.test_direct_integration_has_no_credit) ... ok
+test_exclusions_clipped_to_integration_interval (test_accounting.AccountingTests.test_exclusions_clipped_to_integration_interval) ... ok
+test_final_tests_require_positive_remainder_and_cap30 (test_accounting.AccountingTests.test_final_tests_require_positive_remainder_and_cap30) ... ok
+test_foreign_or_unclaimed_exclusion_refuses (test_accounting.AccountingTests.test_foreign_or_unclaimed_exclusion_refuses) ... ok
+test_future_missing_and_duplicate_claims_refuse (test_accounting.AccountingTests.test_future_missing_and_duplicate_claims_refuse) ... ok
+test_gaps_preparation_and_post_judgment_are_charged (test_accounting.AccountingTests.test_gaps_preparation_and_post_judgment_are_charged) ... ok
+test_judge180_stays_armed_while_integration_paused (test_accounting.AccountingTests.test_judge180_stays_armed_while_integration_paused) ... ok
+test_no_credit_without_bound_result (test_accounting.AccountingTests.test_no_credit_without_bound_result) ... ok
+test_overlapping_judges_are_union_not_sum (test_accounting.AccountingTests.test_overlapping_judges_are_union_not_sum) ... ok
+test_repeated_poll_never_resets_integration_balance (test_accounting.AccountingTests.test_repeated_poll_never_resets_integration_balance) ... ok
+test_run9_replay_preserves_unspent_judge_allowance (test_accounting.AccountingTests.test_run9_replay_preserves_unspent_judge_allowance) ... ok
+test_stale_alarm_wakes_for_fresh_owners_but_whole_expiry_is_fatal (test_accounting.AccountingTests.test_stale_alarm_wakes_for_fresh_owners_but_whole_expiry_is_fatal) ... ok
+test_whole1200_wins_even_when_judges_pause_integration (test_accounting.AccountingTests.test_whole1200_wins_even_when_judges_pause_integration) ... ok
+test_absent_subject_grants_no_credit (test_accounting.BindingTests.test_absent_subject_grants_no_credit) ... ok
+test_ended_judge_without_activated_owner_binding_refuses (test_accounting.BindingTests.test_ended_judge_without_activated_owner_binding_refuses) ... ok
+test_no_serving_factory_or_private_store_access_in_helper (test_accounting.BindingTests.test_no_serving_factory_or_private_store_access_in_helper) ... ok
+test_required_public_owner_refusal_propagates (test_accounting.BindingTests.test_required_public_owner_refusal_propagates) ... ok
+test_wrong_result_assignment_stage_policy_and_work_refuse_before_credit (test_accounting.BindingTests.test_wrong_result_assignment_stage_policy_and_work_refuse_before_credit) ... ok
+test_deadline_exception_stays_primary (test_command_errors.CommandErrorTests.test_deadline_exception_stays_primary) ... ok
+test_empty_stderr_still_reports_command_and_status (test_command_errors.CommandErrorTests.test_empty_stderr_still_reports_command_and_status) ... ok
+test_long_traceback_keeps_terminal_exception_and_marks_omission (test_command_errors.CommandErrorTests.test_long_traceback_keeps_terminal_exception_and_marks_omission) ... ok
+test_short_error_is_kept_in_full_with_nonzero_status (test_command_errors.CommandErrorTests.test_short_error_is_kept_in_full_with_nonzero_status) ... ok
+test_success_preserves_stdout_and_does_not_expose_stderr (test_command_errors.CommandErrorTests.test_success_preserves_stdout_and_does_not_expose_stderr) ... ok
+Retained synthetic diagnostic fixtures: /tmp/w71879-147109-diagnostic-fixtures-7ndmry6c
+test_existing_timeout_start_error_and_unclassified_remain_distinct (test_early_failure.DiagnosticTests.test_existing_timeout_start_error_and_unclassified_remain_distinct) ... ok
+test_foreign_artifact_and_symlink_reports_are_not_read (test_early_failure.DiagnosticTests.test_foreign_artifact_and_symlink_reports_are_not_read) ... ok
+test_missing_oversized_duplicate_malformed_or_wrong_task_is_unavailable (test_early_failure.DiagnosticTests.test_missing_oversized_duplicate_malformed_or_wrong_task_is_unavailable) ... ok
+test_only_closed_reason_and_status_cross_report_boundary (test_early_failure.DiagnosticTests.test_only_closed_reason_and_status_cross_report_boundary) ... ok
+test_unknown_auth_spelling_and_untrusted_values_stay_unknown (test_early_failure.DiagnosticTests.test_unknown_auth_spelling_and_untrusted_values_stay_unknown) ... ok
+test_containment_timeout_does_not_replace_primary_or_prevent_final_record (test_early_failure.EarlyFailureTests.test_containment_timeout_does_not_replace_primary_or_prevent_final_record) ... Retained offline fixture root: /tmp/w71879-145261-unit-runner-07j3o5o7
+ok
+test_correlated_fault_cancel_and_lost_are_definitive (test_early_failure.EarlyFailureTests.test_correlated_fault_cancel_and_lost_are_definitive) ... ok
+test_deadline_after_detection_is_secondary_and_primary_is_persisted (test_early_failure.EarlyFailureTests.test_deadline_after_detection_is_secondary_and_primary_is_persisted) ... ok
+test_main_stops_before_telemetry_or_later_deadline_and_keeps_evidence (test_early_failure.EarlyFailureTests.test_main_stops_before_telemetry_or_later_deadline_and_keeps_evidence) ... ok
+test_pending_collection_quiescence_and_success_are_not_failure (test_early_failure.EarlyFailureTests.test_pending_collection_quiescence_and_success_are_not_failure) ... ok
+test_retained_run6_first_failure_is_sample5_not_final_timeout (test_early_failure.EarlyFailureTests.test_retained_run6_first_failure_is_sample5_not_final_timeout) ... ok
+test_review_failure_is_independently_detected_at_sample21 (test_early_failure.EarlyFailureTests.test_review_failure_is_independently_detected_at_sample21) ... ok
+test_stale_foreign_and_uncorrelated_answers_do_not_decide_failure (test_early_failure.EarlyFailureTests.test_stale_foreign_and_uncorrelated_answers_do_not_decide_failure) ... ok
+test_complete_accepted_context_changes_only_reviewed_adapter (test_image_preparation.ImagePreparationTests.test_complete_accepted_context_changes_only_reviewed_adapter) ... ok
+test_exact_provider_installation_and_independent_helper_bindings (test_image_preparation.ImagePreparationTests.test_exact_provider_installation_and_independent_helper_bindings) ... ok
+test_launcher_is_only_verified_metadata_declared_native_executable (test_image_preparation.ImagePreparationTests.test_launcher_is_only_verified_metadata_declared_native_executable) ... ok
+test_static_member_requires_exact_regular_type_size_mode_and_bytes (test_image_preparation.ImagePreparationTests.test_static_member_requires_exact_regular_type_size_mode_and_bytes) ... ok
+test_frozen_rejection_is_primary_and_does_not_need_other_judges_to_finish (test_joined_judges.JoinedJudges.test_frozen_rejection_is_primary_and_does_not_need_other_judges_to_finish) ... ok
+test_pending_then_three_frozen_reports_and_both_imported_without_reader_actions (test_joined_judges.JoinedJudges.test_pending_then_three_frozen_reports_and_both_imported_without_reader_actions) ... ERROR
+Retained offline schema fixture root: /tmp/w71879-150007-schema-fixtures-4laut74j
+test_candidate_constructor_emits_all_six_valid_manifests (test_manifest_timestamp.ManifestTimestampTests.test_candidate_constructor_emits_all_six_valid_manifests) ... ok
+test_old_value_is_rejected_by_real_frozen_manifest_validator (test_manifest_timestamp.ManifestTimestampTests.test_old_value_is_rejected_by_real_frozen_manifest_validator) ... ok
+test_original_constant_refuses_through_actual_constructor (test_manifest_timestamp.ManifestTimestampTests.test_original_constant_refuses_through_actual_constructor) ... ok
+Retained bounded correction fixtures: /tmp/w71879-150007-correction-fixtures-act2n3jn
+test_actual_status_command_parses_observer_and_exact_config (test_observed_status.ObservedStatusTests.test_actual_status_command_parses_observer_and_exact_config) ... ok
+test_held_projection_never_satisfies_actual_runner_terminal_criterion (test_observed_status.ObservedStatusTests.test_held_projection_never_satisfies_actual_runner_terminal_criterion) ... ok
+test_instructed_git_reads_preserve_real_repository_witness (test_observed_status.ObservedStatusTests.test_instructed_git_reads_preserve_real_repository_witness) ... ok
+test_real_projection_distinguishes_completed_held_and_answered (test_observed_status.ObservedStatusTests.test_real_projection_distinguishes_completed_held_and_answered) ... ok
+test_real_prompt_preserves_contract_and_adds_explicit_safe_git_reads (test_observed_status.ObservedStatusTests.test_real_prompt_preserves_contract_and_adds_explicit_safe_git_reads) ... ok
+test_selected_real_factory_loads_config_and_has_no_serving_actions (test_observed_status.ObservedStatusTests.test_selected_real_factory_loads_config_and_has_no_serving_actions) ... ok
+test_inconsistent_or_nonfailure_reports_cannot_earn_authentication_detail (test_provider_detail.ProviderDetailTests.test_inconsistent_or_nonfailure_reports_cannot_earn_authentication_detail) ... ok
+test_old_reports_preserve_existing_output_and_unknown_cause (test_provider_detail.ProviderDetailTests.test_old_reports_preserve_existing_output_and_unknown_cause) ... ok
+test_real_adapter_contract_survives_both_published_report_shapes (test_provider_detail.ProviderDetailTests.test_real_adapter_contract_survives_both_published_report_shapes) ... ok
+test_status_and_explicit_omissions_survive_without_authentication_inference (test_provider_detail.ProviderDetailTests.test_status_and_explicit_omissions_survive_without_authentication_inference) ... ok
+test_unrecognized_schema_shape_members_values_and_prose_are_not_published (test_provider_detail.ProviderDetailTests.test_unrecognized_schema_shape_members_values_and_prose_are_not_published) ... ok
+Retained synthetic report fixture root: /tmp/w71879-150007-report-fixtures-cu5vg4tl
+test_actual_composed_instructions_supply_exact_contract_vocabulary (test_report_instructions.ReportInstructionsTests.test_actual_composed_instructions_supply_exact_contract_vocabulary) ... ok
+test_missing_extra_keys_invalid_codes_and_unsorted_paths_are_rejected (test_report_instructions.ReportInstructionsTests.test_missing_extra_keys_invalid_codes_and_unsorted_paths_are_rejected) ... ok
+test_original_full_tasks_and_runtime_guards_remain_exact (test_report_instructions.ReportInstructionsTests.test_original_full_tasks_and_runtime_guards_remain_exact) ... ok
+test_real_report_reader_correlates_exact_digest_strings (test_report_instructions.ReportInstructionsTests.test_real_report_reader_correlates_exact_digest_strings) ... ok
+test_synthetic_success_refusal_and_held_use_real_closed_report_parser (test_report_instructions.ReportInstructionsTests.test_synthetic_success_refusal_and_held_use_real_closed_report_parser) ... ok
+test_verification_preserves_nonzero_null_and_rejects_invalid_shapes (test_report_instructions.ReportInstructionsTests.test_verification_preserves_nonzero_null_and_rejects_invalid_shapes) ... ok
+Retained offline public bootstrap: /tmp/w71879-150007-public-bootstrap-7yg7oros
+test_deployment_runner_and_all_four_helpers_preserve_accepted_behavior (test_run9_preparation.Run9PreparationTests.test_deployment_runner_and_all_four_helpers_preserve_accepted_behavior) ... ok
+test_operator_recipe_preserves_fresh_only_guards_and_fixed_host_posture (test_run9_preparation.Run9PreparationTests.test_operator_recipe_preserves_fresh_only_guards_and_fixed_host_posture) ... ok
+test_public_bootstrap_and_all_execution_bindings_use_fresh_namespace (test_run9_preparation.Run9PreparationTests.test_public_bootstrap_and_all_execution_bindings_use_fresh_namespace) ... ok
+test_tasks_policies_and_report_contract_preserve_accepted_behavior (test_run9_preparation.Run9PreparationTests.test_tasks_policies_and_report_contract_preserve_accepted_behavior) ... ok
+Retained offline fixture root: /tmp/w71879-145261-unit-runner-u6j6gzoh
+test_active_attempt_deadline_remains_fatal (test_stats_observation.RunnerTests.test_active_attempt_deadline_remains_fatal) ... ok
+test_actual_registered_watchdog_is_fatal_and_contains (test_stats_observation.RunnerTests.test_actual_registered_watchdog_is_fatal_and_contains) ... ok
+test_eof_gap_flushes_surrounding_evidence_and_continues (test_stats_observation.RunnerTests.test_eof_gap_flushes_surrounding_evidence_and_continues) ... ok
+test_final_verification_failure_stays_fatal (test_stats_observation.RunnerTests.test_final_verification_failure_stays_fatal) ... ok
+test_host_capacity_refuses_before_submission (test_stats_observation.RunnerTests.test_host_capacity_refuses_before_submission) ... ok
+test_incomplete_jobs_do_not_become_terminal_from_gap (test_stats_observation.RunnerTests.test_incomplete_jobs_do_not_become_terminal_from_gap) ... ok
+test_missing_claim_timestamp_remains_fatal (test_stats_observation.RunnerTests.test_missing_claim_timestamp_remains_fatal) ... ok
+test_required_status_inspect_storage_remain_fatal (test_stats_observation.RunnerTests.test_required_status_inspect_storage_remain_fatal) ... ok
+test_subprocess_timeout_remains_gap_and_continues (test_stats_observation.RunnerTests.test_subprocess_timeout_remains_gap_and_continues) ... ok
+test_bounded_output_has_explicit_truncation (test_stats_observation.StatsTests.test_bounded_output_has_explicit_truncation) ... ok
+test_no_ids_is_not_requested (test_stats_observation.StatsTests.test_no_ids_is_not_requested) ... ok
+test_nonzero_retains_eof_and_partial_output_without_retry (test_stats_observation.StatsTests.test_nonzero_retains_eof_and_partial_output_without_retry) ... ok
+test_requested_empty_or_whitespace_is_unavailable (test_stats_observation.StatsTests.test_requested_empty_or_whitespace_is_unavailable) ... ok
+test_required_inspect_and_label_checks_stay_strict (test_stats_observation.StatsTests.test_required_inspect_and_label_checks_stay_strict) ... ok
+test_subprocess_timeout_retains_partial_bytes (test_stats_observation.StatsTests.test_subprocess_timeout_retains_partial_bytes) ... ok
+test_success_retains_requested_ids_raw_output_and_timing (test_stats_observation.StatsTests.test_success_retains_requested_ids_raw_output_and_timing) ... ok
+test_watchdog_and_nontelemetry_errors_propagate (test_stats_observation.StatsTests.test_watchdog_and_nontelemetry_errors_propagate) ... ok
+
+======================================================================
+ERROR: test_pending_then_three_frozen_reports_and_both_imported_without_reader_actions (test_joined_judges.JoinedJudges.test_pending_then_three_frozen_reports_and_both_imported_without_reader_actions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-152563/test_joined_judges.py", line 47, in test_pending_then_three_frozen_reports_and_both_imported_without_reader_actions
+    exclusions, observations, failed = self.observe(fixture, held, deployment)
+                                       ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-152563/test_joined_judges.py", line 36, in observe
+    return reader.read(projected, claims)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-152563/accounting.py", line 218, in read
+    fixed, configured = self.bind_result(status, claims, subject, held)
+                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-152563/accounting.py", line 247, in bind_result
+    raise AccountingError('derived subject/result/policy disagree')
+accounting.AccountingError: derived subject/result/policy disagree
+
+----------------------------------------------------------------------
+Ran 84 tests in 2.816s
+
+FAILED (errors=1)

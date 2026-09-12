@@ -1,0 +1,242 @@
+--- a/v12/python/src/baton_v12/worker_manager/store.py
++++ b/v12/python/src/baton_v12/worker_manager/store.py
+@@ -33,7 +33,10 @@
+ """
+ 
+ import json
++import os
+ import sqlite3
++from contextlib import contextmanager
++from urllib.parse import quote
+ 
+ from ..contracts import (ContractRefusal, canonical_text,
+                          check_no_durable_secret, own)
+@@ -243,10 +246,12 @@
+ class ControlStore:
+     """One manager's handle on one control store."""
+ 
+-    def __init__(self, connection, *, incarnation, clock):
++    def __init__(self, connection, *, incarnation, clock, readonly=False):
+         self._connection = connection
+         self.incarnation = incarnation
+         self._clock = clock
++        self._readonly = readonly
++        self._snapshots = 0
+ 
+     # -- opening -------------------------------------------------------------
+ 
+@@ -314,6 +319,70 @@
+             raise
+         return store
+ 
++    @classmethod
++    def open_readonly(cls, path, *, incarnation, clock):
++        """Read an existing recognized manager; never initialize or change it.
++
++        SQLite owns its WAL/SHM coordination files, as for the Authority and
++        coordinator read-only openers. The database connection is mode=ro,
++        never immutable and never reopened with write access on a refusal.
++        """
++        boundaries.text(path, "a read-only control store path")
++        boundaries.text(incarnation, "a manager incarnation")
++        boundaries.capability(clock, "the manager's instant source")
++        if not os.path.isfile(path):
++            raise ContractRefusal("refused", "precondition", "a read-only manager requires an existing regular store")
++        connection = None
++        try:
++            uri = "file:" + quote(os.path.abspath(path), safe="/") + "?mode=ro"
++            connection = sqlite3.connect(uri, uri=True, isolation_level=None, timeout=_BUSY_TIMEOUT_MS / 1000)
++            connection.row_factory = sqlite3.Row
++            connection.execute(f"PRAGMA busy_timeout = {_BUSY_TIMEOUT_MS}")
++            connection.execute("PRAGMA foreign_keys = ON")
++            store = cls(connection, incarnation=incarnation, clock=clock, readonly=True)
++            with store.snapshot():
++                if not cls._objects(connection):
++                    raise ContractRefusal("refused", "precondition", "a read-only manager refuses an empty store without initializing it")
++                cls._adopt(connection, path)
++            store._now()
++            return store
++        except BaseException as failure:
++            if connection is not None:
++                try:
++                    connection.close()
++                except BaseException:
++                    pass
++            if isinstance(failure, sqlite3.Error):
++                raise ContractRefusal("refused", "precondition", "the existing manager store could not be read through its non-writing opener (" + type(failure).__name__ + "); no write-capable fallback was attempted") from None
++            raise
++
++    @contextmanager
++    def snapshot(self):
++        """Keep related owner reads coherent, including nested readers.
++
++        No action is allowed inside this read boundary, even on an ordinary
++        handle. A caller already inside an action keeps that action's snapshot;
++        this context never commits or rolls back its caller's transaction.
++        """
++        connection = self._connection
++        owns = not connection.in_transaction
++        if owns:
++            connection.execute("BEGIN")
++        self._snapshots += 1
++        try:
++            yield self
++            if owns:
++                connection.execute("COMMIT")
++        except BaseException:
++            if owns:
++                try:
++                    connection.execute("ROLLBACK")
++                except BaseException:
++                    pass
++            raise
++        finally:
++            self._snapshots -= 1
++
+     @staticmethod
+     def _objects(connection):
+         # NOTHING TO OWN, and saying so beats owning it. SQLite's catalogue
+@@ -503,6 +572,8 @@
+         managers can reach it concurrently and a read-then-write check outside
+         would let both through.
+         """
++        if self._readonly or self._snapshots:
++            raise ContractRefusal("policy", "denied", "a read-only manager or read snapshot performs no action")
+         # THE SAME RULE, AT EVERY VALUE THAT REACHES A TEXT COLUMN. The review
+         # named the kind; a sweep found the identity, the settled instant, the
+         # sealed refusal and both READ paths leaking `UnicodeEncodeError` the
+--- a/v12/python/tests/manager/test_store.py
++++ b/v12/python/tests/manager/test_store.py
+@@ -1306,3 +1306,91 @@
+ 
+ if __name__ == "__main__":
+     unittest.main()
++
++
++class ReadonlyAcquisition(StoreCase):
++    def read(self, path=None, clock=None):
++        held = ControlStore.open_readonly(path or self.path, incarnation='read-only-test', clock=clock or (lambda: NOW))
++        self.addCleanup(held.close)
++        return held
++
++    def test_existing_store_preserves_bytes_and_journal_without_initialization(self):
++        self.store().close()
++        with sqlite3.connect(self.path) as prepared:
++            prepared.execute('PRAGMA journal_mode=DELETE')
++        before = self.bytes_at(self.path)
++        with mock.patch.object(ControlStore, '_initialize', side_effect=AssertionError('initialize')), mock.patch.object(ControlStore, '_request_wal', side_effect=AssertionError('journal mode')):
++            held = self.read()
++            self.assertEqual('delete', held._connection.execute('PRAGMA journal_mode').fetchone()[0])
++            with self.assertRaises(sqlite3.OperationalError):
++                held._connection.execute("INSERT INTO meta VALUES ('forbidden','write')")
++            held.close()
++        self.assertEqual(before, self.bytes_at(self.path))
++
++    def test_missing_empty_foreign_version_and_unreadable_stores_refuse(self):
++        missing = os.path.join(self.root, 'missing.sqlite3')
++        with self.assertRaises(ContractRefusal): self.read(missing)
++        self.assertFalse(os.path.exists(missing))
++        cases = [self.foreign_store('empty.sqlite3', []), self.foreign_store('foreign.sqlite3', ['CREATE TABLE stranger (value TEXT)'])]
++        self.store().close()
++        with sqlite3.connect(self.path) as changed:
++            changed.execute("UPDATE meta SET value='unsupported' WHERE key='schema_version'")
++        cases.append(self.path)
++        garbage = os.path.join(self.root, 'garbage.sqlite3')
++        with open(garbage, 'wb') as output: output.write(b'not a database')
++        cases.append(garbage)
++        for path in cases:
++            before = self.bytes_at(path)
++            with self.subTest(path=path), self.assertRaises(ContractRefusal): self.read(path)
++            self.assertEqual(before, self.bytes_at(path))
++
++    def test_actions_refuse_before_callback_even_if_the_operation_is_replayable(self):
++        writer = self.store()
++        signature = self.signature()
++        writer.transact('existing', 'offer.issue', signature, lambda connection: {'done': True})
++        held = self.read()
++        action = mock.Mock(side_effect=AssertionError('external action ran'))
++        for operation in ('existing', 'new'):
++            with self.assertRaises(ContractRefusal) as caught:
++                held.transact(operation, 'offer.issue', signature, action)
++            self.assertEqual(('policy', 'denied'), (caught.exception.category, caught.exception.code))
++        action.assert_not_called()
++
++    def test_snapshot_is_coherent_nested_and_releases_on_failure(self):
++        writer = self.store()
++        writer._connection.execute("INSERT INTO meta VALUES ('snapshot-test','before')")
++        held = self.read()
++        with held.snapshot():
++            self.assertEqual('before', held._connection.execute("SELECT value FROM meta WHERE key='snapshot-test'").fetchone()[0])
++            writer._connection.execute("UPDATE meta SET value='after' WHERE key='snapshot-test'")
++            with held.snapshot():
++                self.assertEqual('before', held._connection.execute("SELECT value FROM meta WHERE key='snapshot-test'").fetchone()[0])
++        self.assertEqual('after', held._connection.execute("SELECT value FROM meta WHERE key='snapshot-test'").fetchone()[0])
++        with self.assertRaisesRegex(RuntimeError, 'fixture'):
++            with held.snapshot(): raise RuntimeError('fixture')
++        self.assertFalse(held._connection.in_transaction)
++        with held.snapshot(): self.assertEqual(0, held._snapshots - 1)
++
++    def test_failed_adoption_and_failed_clock_close_acquired_connection(self):
++        self.store().close()
++        original = sqlite3.connect
++        connections = []
++        def connect(*args, **kwargs):
++            connection = original(*args, **kwargs); connections.append(connection); return connection
++        with mock.patch.object(store_module.sqlite3, 'connect', side_effect=connect):
++            with self.assertRaisesRegex(RuntimeError, 'clock'):
++                self.read(clock=lambda: (_ for _ in ()).throw(RuntimeError('clock')))
++            with mock.patch.object(ControlStore, '_adopt', side_effect=RuntimeError('adopt')):
++                with self.assertRaisesRegex(RuntimeError, 'adopt'): self.read()
++        self.assertEqual(2, len(connections))
++        for connection in connections:
++            with self.assertRaises(sqlite3.ProgrammingError): connection.execute('SELECT 1')
++
++    def test_regular_serving_still_acts_after_snapshot_and_uri_characters_are_literal(self):
++        path = os.path.join(self.root, 'question?#.sqlite3')
++        writer = self.store(path)
++        with writer.snapshot():
++            with self.assertRaises(ContractRefusal): writer.transact('no', 'offer.issue', self.signature(), mock.Mock())
++        self.assertEqual({'done': True}, writer.transact('yes', 'offer.issue', self.signature(), lambda connection: {'done': True}))
++        held = self.read(path)
++        self.assertEqual((True, {'done': True}), held.replay('yes', self.signature(), kind='offer.issue'))
+--- a/v12/python/tests/manager/test_workspaces.py
++++ b/v12/python/tests/manager/test_workspaces.py
+@@ -2034,3 +2034,38 @@
+         self.assertEqual(caught.exception.code, "limit")
+         # STILL NEVER FOLLOWED, and still nothing changed.
+         self.assertTrue(os.path.islink(os.path.join(self.line, "link-0")))
++
++
++class ReadonlyConfiguredGroup(unittest.TestCase):
++    def setUp(self):
++        self.root = tempfile.TemporaryDirectory(prefix='v12-readonly-group-')
++        self.addCleanup(self.root.cleanup)
++        self.path = os.path.join(self.root.name, 'control.sqlite3')
++        self.writer = ControlStore.open(self.path, incarnation='group-writer', clock=lambda: '2026-09-12T00:00:00.000Z')
++        self.addCleanup(self.writer.close)
++        workspaces.configure_workspace_group(self.writer, WORKSPACE_GROUP)
++        self.reader = ControlStore.open_readonly(self.path, incarnation='group-reader', clock=lambda: '2026-09-12T00:00:00.000Z')
++        self.addCleanup(self.reader.close)
++
++    def test_real_group_capability_is_read_in_a_coherent_snapshot(self):
++        original = workspaces._configured_gid
++        def interleaved(store):
++            answer = original(store)
++            # Deliberate fixture corruption by another connection between the
++            # two owner reads. The reader must keep its original snapshot.
++            self.writer._connection.execute('UPDATE meta SET value=? WHERE key=?', (str(WORKSPACE_GROUP + 1), workspaces.WORKSPACE_GROUP_KEY))
++            return answer
++        with self.reader.snapshot(), mock.patch.object(workspaces, '_configured_gid', side_effect=interleaved):
++            group = workspaces.configured_workspace_group(self.reader)
++            self.assertIsInstance(group, workspaces.WorkspaceGroup)
++            self.assertEqual(WORKSPACE_GROUP, group.gid)
++        with self.reader.snapshot(), self.assertRaises(ContractRefusal):
++            workspaces.configured_workspace_group(self.reader)
++
++    def test_missing_configuration_is_not_minted_or_repaired(self):
++        self.writer._connection.execute('DELETE FROM meta WHERE key=?', (workspaces.WORKSPACE_GROUP_KEY,))
++        with self.reader.snapshot(), self.assertRaises(ContractRefusal):
++            workspaces.configured_workspace_group(self.reader)
++        with self.assertRaises(ContractRefusal):
++            workspaces.configure_workspace_group(self.reader, WORKSPACE_GROUP)
++        self.assertIsNone(self.writer._connection.execute('SELECT value FROM meta WHERE key=?', (workspaces.WORKSPACE_GROUP_KEY,)).fetchone())

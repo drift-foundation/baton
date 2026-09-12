@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/sl/src/baton/v12/python/tools/job_manager.py", line 469, in <module>
+    raise SystemExit(main(sys.argv[1:]))
+                     ~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/job_manager.py", line 464, in main
+    return taken.run(taken, clock or _utc_clock(),
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     stream if stream is not None else sys.stdout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/job_manager.py", line 122, in _status
+    with _job_store(taken, clock) as store:
+         ~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/job_manager.py", line 76, in _job_store
+    return JobStore.open(taken.store, authority_uuid=taken.authority_uuid,
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         incarnation=taken.incarnation, clock=clock)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 225, in open
+    if cls._objects(connection):
+       ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 246, in _objects
+    return [row[0] for row in connection.execute(
+                              ~~~~~~~~~~~~~~~~~~^
+        "SELECT name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'")]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: unable to open database file

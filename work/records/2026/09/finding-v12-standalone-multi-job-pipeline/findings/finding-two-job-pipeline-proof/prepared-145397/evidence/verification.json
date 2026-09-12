@@ -1,0 +1,11 @@
+{
+  "work": "W71879",
+  "claim": 145397,
+  "tests": 20,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 0.19202788200345822,
+  "schema_fixture_root": "/tmp/w71879-145397-schema-fixtures-u94skijz",
+  "stats_fixture_root": "/tmp/w71879-145261-unit-runner-isendlwe",
+  "scope": "actual frozen manifest/schema and documents constructor with synthetic facts; copied unchanged stats tests; no production Authority/host validation/model/engine/Git or review markers"
+}

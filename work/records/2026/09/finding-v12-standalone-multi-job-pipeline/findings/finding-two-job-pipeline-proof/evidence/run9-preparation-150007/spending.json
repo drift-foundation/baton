@@ -1,0 +1,9 @@
+{
+  "previous_cumulative_listed_seconds": 49.12045941689553,
+  "offline_suite_seconds": 0.33578467299230397,
+  "preparation_provenance_seconds": 0.1402508479950484,
+  "current_listed_seconds": 0.47603552098735236,
+  "cumulative_listed_seconds": 49.59649493788288,
+  "eight_failed_runtime_seconds": 1593.8314001880208,
+  "uncertainty": "Additional untimed reads/edits/static checks/hash/CLI/operator host/login/billing and prior rounded-test uncertainty. Nested provenance time and suite inner/outer time are not added twice. No prior failures/build/validation recounted; no limit or reserve change."
+}

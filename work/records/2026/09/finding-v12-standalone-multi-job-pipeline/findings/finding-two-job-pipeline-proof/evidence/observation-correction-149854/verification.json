@@ -1,0 +1,29 @@
+{
+  "red": {
+    "command": "/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 -m unittest tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_readonly_integration_observation_keeps_the_bound_job -v",
+    "tests": 1,
+    "errors": 1,
+    "seconds_reported_rounded": 0.948,
+    "exception": "ContractRefusal: integration delivery disagrees with the configured fixed attempt",
+    "interpretation": "Pre-correction observer uses global operands instead of the actual binding. This fixture has a distinct global target and fails the earlier target correlation; owner run8 traceback reached later producer selection. Both arise from the missing context binding.",
+    "cwd": "/home/sl/src/baton/v12/python"
+  },
+  "green": {
+    "command": "/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 -m unittest tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_readonly_integration_observation_keeps_the_bound_job tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_fresh_process_observes_owned_completion_after_serving_closes tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly -v",
+    "tests": 5,
+    "errors": 0,
+    "failures": 0,
+    "seconds_reported_rounded": 2.047,
+    "cwd": "/home/sl/src/baton/v12/python"
+  },
+  "offline": {
+    "scope": "offline synthetic fixtures only; not integration or host execution evidence",
+    "tests": 63,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 0.3350662440061569,
+    "retained": "/tmp/w71879-149488-offline-verification-xjg_caf2"
+  },
+  "static": "git diff --check passed; all412 old product-test method ASTs unchanged, one additive method.",
+  "timing_scope": "Product unittest durations are reported rounded, not fabricated process precision. Additional setup/tool wall uncertainty remains; inner and outer durations not added twice."
+}

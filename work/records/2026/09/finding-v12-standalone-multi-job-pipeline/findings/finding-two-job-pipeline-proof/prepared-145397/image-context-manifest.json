@@ -1,0 +1,42 @@
+{
+  "python/src/baton_v12/source_profiles/__init__.py": {
+    "bytes": 3367,
+    "sha256": "sha256:c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+  },
+  "python/src/baton_v12/source_profiles/checkout.py": {
+    "bytes": 16345,
+    "sha256": "sha256:037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+  },
+  "worker/Dockerfile.integration": {
+    "bytes": 5790,
+    "sha256": "sha256:afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28"
+  },
+  "worker/baton_worker.py": {
+    "bytes": 98926,
+    "sha256": "sha256:da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923"
+  },
+  "worker/claude_agent.py": {
+    "bytes": 166051,
+    "sha256": "sha256:9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955"
+  },
+  "worker/dogfood_entry.py": {
+    "bytes": 810,
+    "sha256": "sha256:bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3"
+  },
+  "worker/integration_contract.py": {
+    "bytes": 57431,
+    "sha256": "sha256:74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92"
+  },
+  "worker/integration_entry.py": {
+    "bytes": 5287,
+    "sha256": "sha256:0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3"
+  },
+  "worker/integration_workload.py": {
+    "bytes": 70815,
+    "sha256": "sha256:b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394"
+  },
+  "worker/worker-control-1.0.schema.json": {
+    "bytes": 51419,
+    "sha256": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+  }
+}

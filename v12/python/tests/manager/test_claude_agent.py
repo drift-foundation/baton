@@ -30,6 +30,7 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest import mock
 
 WORKER = (pathlib.Path(__file__).resolve().parents[3] / "worker")
 sys.path.insert(0, str(WORKER))
@@ -3110,3 +3111,117 @@ class TheOrdinaryTestObservationIsTheActualOne(LineCase):
         """No candidate, so nothing for either document to be about."""
         answered = self.worked()
         self.assertEqual(answered["outputs"][0]["result_metadata"], {})
+
+
+def _diagnostic_record(**changes):
+    document = {"type": "result", "subtype": "success", "is_error": True,
+                "terminal_reason": "api_error", "api_error_status": None,
+                "result": claude_agent.PROVIDER_OAUTH_EXPLANATION}
+    document.update(changes)
+    return json.dumps(document).encode()
+
+
+class SupportedProviderDetail(AdapterCase):
+    """W71879: real anonymous-pipe input, exact constant output, no provider run."""
+    MARKER = "PROVIDER-DETAIL-SECRET-148870"
+    speaking = TheStructuredRecordIsMappedAndNeverPublished.speaking
+    turned = TheStructuredRecordIsMappedAndNeverPublished.turned
+    published = TheStructuredRecordIsMappedAndNeverPublished.published
+
+    def test_fixed_explanation_survives_real_pipe_and_untrusted_siblings_do_not(self):
+        body = _diagnostic_record(request_id=self.MARKER,
+                                  hidden={self.MARKER: self.MARKER})
+        answer = self.turned(says=body.decode(), status=1, chunks=4)
+        provider = self.result()["provider"]
+        self.assertEqual("api-error", provider["failure_reason"])
+        self.assertEqual("provider-failed", self.result()["disposition"])
+        self.assertEqual("unable", answer["disposition"])
+        self.assertEqual("authentication_failed", provider["diagnostic"]["classification"])
+        self.assertEqual(claude_agent.PROVIDER_OAUTH_EXPLANATION,
+                         provider["diagnostic"]["explanation"])
+        self.assertIsNone(provider["diagnostic"]["request_id"])
+        self.assertNotIn(self.MARKER.encode(), self.published())
+        self.assertNotIn(self.MARKER, answer["recap"])
+
+    def test_arbitrary_error_prose_is_withheld_but_http_status_survives(self):
+        body = _diagnostic_record(result=self.MARKER, api_error_status=401,
+                                  request_id=self.MARKER)
+        answer = self.turned(says=body.decode(), status=1, chunks=3)
+        detail = self.result()["provider"]["diagnostic"]
+        self.assertEqual(401, detail["http_status"])
+        self.assertEqual("unknown", detail["classification"])
+        self.assertEqual("withheld", detail["explanation_status"])
+        self.assertIsNone(detail["explanation"])
+        self.assertNotIn(self.MARKER.encode(), self.published())
+        self.assertNotIn(self.MARKER, answer["recap"])
+
+    def test_zero_exit_does_not_publish_even_recognized_error_record(self):
+        self.turned(says=_diagnostic_record().decode(), status=0)
+        self.assertNotIn("diagnostic", self.result()["provider"])
+        self.assertIsNone(self.result()["provider"]["failure_reason"])
+
+    def test_partial_and_oversized_records_have_no_detail(self):
+        for body, partial in [(_diagnostic_record(), True),
+                              (_diagnostic_record()+b" "*65536, False)]:
+            detail = claude_agent._provider_diagnostic(body, partial=partial)
+            self.assertIsNone(detail["explanation"])
+            self.assertIsNone(detail["http_status"])
+            self.assertEqual("unavailable", detail["explanation_status"])
+
+    def test_supported_record_and_full_constant_are_required(self):
+        for changes in ({"type": "assistant"}, {"subtype": "error_during_execution"},
+                        {"is_error": 1}, {"is_error": False},
+                        {"terminal_reason": self.MARKER},
+                        {"result": claude_agent.PROVIDER_OAUTH_EXPLANATION+self.MARKER},
+                        {"result": {"text": claude_agent.PROVIDER_OAUTH_EXPLANATION}},
+                        {"result": self.MARKER}):
+            with self.subTest(changes=changes):
+                detail = claude_agent._provider_diagnostic(_diagnostic_record(**changes), partial=False)
+                self.assertEqual("unknown", detail["classification"])
+                self.assertIsNone(detail["explanation"])
+                self.assertNotIn(self.MARKER, json.dumps(detail))
+
+    def test_http_status_is_typed_bounded_and_never_an_authentication_cause(self):
+        for code in (400,401,403,429,500,599,True,False,399,600,-1,401.0,self.MARKER,None):
+            detail = claude_agent._provider_diagnostic(_diagnostic_record(result="",api_error_status=code),partial=False)
+            self.assertEqual(code if type(code) is int and 400<=code<=599 else None, detail["http_status"])
+            self.assertEqual("unknown", detail["classification"])
+            self.assertNotIn(self.MARKER,json.dumps(detail))
+
+    def test_strict_parser_failures_cannot_leak_or_classify(self):
+        good = _diagnostic_record().decode()
+        for raw in (b"{",good.encode()+b" {}",b'[]',b'"x"',b'\xff',
+                    (good[:-1]+',"is_error":true}').encode(),
+                    (good[:-1]+',"other":NaN}').encode(),
+                    (good[:-1]+',"other":'+"["*30000+"0"+"]"*30000+'}').encode()):
+            detail = claude_agent._provider_diagnostic(raw,partial=False)
+            self.assertEqual("unavailable",detail["explanation_status"])
+            self.assertIsNone(detail["explanation"])
+            self.assertIsNone(detail["http_status"])
+
+
+class SupportedLineProviderDetail(LineCase):
+    def test_line_proposal_retains_supported_detail_without_candidate(self):
+        with mock.patch.object(ClaudeAgent,"_ran_provider",return_value=(1,_diagnostic_record(),False)):
+            answer=self.worked()
+        result=self.result()
+        self.assertEqual("baton.dogfood-proposal/2",result["schema"])
+        self.assertEqual("provider-failed",result["disposition"])
+        self.assertEqual("unable",answer["disposition"])
+        self.assertEqual(claude_agent.PROVIDER_OAUTH_EXPLANATION,result["provider"]["diagnostic"]["explanation"])
+        self.assertEqual({},answer["outputs"][0]["result_metadata"])
+
+
+class SupportedReviewProviderDetail(ReviewCase):
+    def test_review_log_retains_detail_without_a_verdict(self):
+        marker="PROVIDER-REVIEW-SECRET-148870"
+        with mock.patch.object(ClaudeAgent,"_ran_provider",return_value=(1,_diagnostic_record(request_id=marker),False)):
+            answer=self.reviewed(report=None)
+        raw=self.read(self.logs(claude_agent.REVIEW_LOG));result=json.loads(raw)
+        self.assertEqual("baton.review-log/1",result["schema"])
+        self.assertIsNone(result["verdict"])
+        self.assertEqual("unable",answer["disposition"])
+        self.assertEqual(claude_agent.PROVIDER_OAUTH_EXPLANATION,result["provider"]["diagnostic"]["explanation"])
+        self.assertNotIn(marker,raw)
+        self.assertNotIn(marker,answer["recap"])
+        self.assertIsNone(self.claim(answer))

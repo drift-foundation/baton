@@ -1,0 +1,26 @@
+{
+  "work": "W71879",
+  "claim": 144585,
+  "candidate_manifest": "sha256:e681e9501b8221fbc791de7b2f8ef12ad6ba11f12b045717c7e186ce8e362330",
+  "files_verified": 159,
+  "provider_entries_verified": 45,
+  "configuration": "sha256:7081a6fe3e54563393ecb149f4b398a9cb1c918f2871f400fde3dbf267c1522f",
+  "submission": "sha256:4b010820657b031ec222dd5825ff698b688da6266bc811c6f7b6143919a26694",
+  "profile_digest": "sha256:de0dc4d3fd75d32adf29e2a26e92f8f040cb5746e2b353c48dd236707e00e8a0",
+  "final_documents_verified": 33,
+  "delta": "32 documents equal accepted run1 after namespace/declaration/ruling substitutions and derived digest replacements; public authority observations match successful validation",
+  "schemas": "held configuration/submission/six input manifests pass",
+  "principals": 9,
+  "policy_generation": 24,
+  "baseline": {
+    "source": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+    "target": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+  },
+  "bare_workspace": true,
+  "production_state_and_markers_absent": true,
+  "measured_seconds": 0.03381236300629098,
+  "prior_listed_preparation_seconds": 1.1195892509876832,
+  "failed_comparison_seconds": 0.062595478,
+  "run1_wall_seconds_spent": 223.9077433210041,
+  "uncertainty": "Imports, source reads, CLI/document work, operator Git duration, prior diagnostics and billing remain additional untimed costs. Initial reviewer harness unnecessarily attempted canonical digest of deployment document deeper than canonical manifest limit; corrected to actual profile/policy/manifest digest owners; second comparator exposed omitted policy-semantic digest normalization. No candidate change."
+}

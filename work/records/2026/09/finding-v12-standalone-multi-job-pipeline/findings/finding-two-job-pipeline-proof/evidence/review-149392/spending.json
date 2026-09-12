@@ -1,0 +1,7 @@
+{
+  "prior_listed": 41.56176510594751,
+  "current_listed": 0.099630968994461,
+  "cumulative_listed": 41.66139607494197,
+  "failed_run_walls": 1341.1107609820174,
+  "uncertainty": "Untimed reads/edits, Docker/static/diff checks, marker creation/verification and prior operator render/host/billing uncertainty. Prior owner build/validation/failures not counted again."
+}

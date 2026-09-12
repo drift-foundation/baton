@@ -1,0 +1,825 @@
+{
+  "timestamp": "2026-09-11T19:25:52.417736+00:00",
+  "metadata": {
+    ".git": {
+      "inode": 45111219,
+      "size": 4096,
+      "mode": "0o2775",
+      "mtime_ns": 1789154395340487331,
+      "mtime": "2026-09-11T19:19:55.340487+00:00",
+      "sha256": null
+    },
+    ".git/index": {
+      "inode": 45111609,
+      "size": 941,
+      "mode": "0o644",
+      "mtime_ns": 1789154350200016146,
+      "mtime": "2026-09-11T19:19:10.200016+00:00",
+      "sha256": "23a6cc3ecaafb83ab0c823198c93c2b2b7a00027ee82549b77ece04e03674d5e"
+    },
+    ".git/HEAD": {
+      "inode": 45111272,
+      "size": 21,
+      "mode": "0o664",
+      "mtime_ns": 1789153478775935700,
+      "mtime": "2026-09-11T19:04:38.775936+00:00",
+      "sha256": "28d25bf82af4c0e2b72f50959b2beb859e3e60b9630a5e8c603dad4ddb2b6e80"
+    },
+    ".git/refs/heads/main": {
+      "inode": 45111274,
+      "size": 41,
+      "mode": "0o664",
+      "mtime_ns": 1789153478775973450,
+      "mtime": "2026-09-11T19:04:38.775974+00:00",
+      "sha256": "6a149a35bc1abe4d95ff9bed0ca632fd138c890f55e702b416a6cf1313fe5d3b"
+    }
+  },
+  "actual_index": {
+    "version": 2,
+    "entries": [
+      {
+        "path": ".gitignore",
+        "stat": {
+          "ctime_s": 1789153481,
+          "ctime_ns": 495168345,
+          "mtime_s": 1789153478,
+          "mtime_ns": 776150560,
+          "dev": 66306,
+          "ino": 45111280,
+          "mode": 33188,
+          "uid": 65532,
+          "gid": 1001,
+          "size": 19
+        },
+        "oid": "7a60b85e148f80966a550e5ab6a762a907c69ca6",
+        "flags": 10
+      },
+      {
+        "path": "README.md",
+        "stat": {
+          "ctime_s": 1789153481,
+          "ctime_ns": 495168345,
+          "mtime_s": 1789153478,
+          "mtime_ns": 776150560,
+          "dev": 66306,
+          "ino": 45111281,
+          "mode": 33188,
+          "uid": 65532,
+          "gid": 1001,
+          "size": 527
+        },
+        "oid": "e85e850655ea70197cd455bfa8fa9b99875cd6a8",
+        "flags": 9
+      },
+      {
+        "path": "check_greeting.py",
+        "stat": {
+          "ctime_s": 1789153481,
+          "ctime_ns": 495168345,
+          "mtime_s": 1789153478,
+          "mtime_ns": 776150560,
+          "dev": 66306,
+          "ino": 45111282,
+          "mode": 33188,
+          "uid": 65532,
+          "gid": 1001,
+          "size": 207
+        },
+        "oid": "c33c92115924021acb680949b1b736743d289cf2",
+        "flags": 17
+      },
+      {
+        "path": "demo/__init__.py",
+        "stat": {
+          "ctime_s": 1789153481,
+          "ctime_ns": 495168345,
+          "mtime_s": 1789153478,
+          "mtime_ns": 776150560,
+          "dev": 66306,
+          "ino": 45111284,
+          "mode": 33188,
+          "uid": 65532,
+          "gid": 1001,
+          "size": 1
+        },
+        "oid": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+        "flags": 16
+      },
+      {
+        "path": "demo/greeting.py",
+        "stat": {
+          "ctime_s": 1789153481,
+          "ctime_ns": 495168345,
+          "mtime_s": 1789153478,
+          "mtime_ns": 776399082,
+          "dev": 66306,
+          "ino": 45111285,
+          "mode": 33188,
+          "uid": 65532,
+          "gid": 1001,
+          "size": 51
+        },
+        "oid": "4504fd7a5a16ad39334cc1caa45d89a1d60c0bc9",
+        "flags": 16
+      },
+      {
+        "path": "demo/units.py",
+        "stat": {
+          "ctime_s": 1789153481,
+          "ctime_ns": 495168345,
+          "mtime_s": 1789153478,
+          "mtime_ns": 776399082,
+          "dev": 66306,
+          "ino": 45111286,
+          "mode": 33188,
+          "uid": 65532,
+          "gid": 1001,
+          "size": 45
+        },
+        "oid": "dd56fae4e934ac52febd9c389662468e9eb7cea4",
+        "flags": 13
+      },
+      {
+        "path": "tests/__init__.py",
+        "stat": {
+          "ctime_s": 1789153481,
+          "ctime_ns": 495168345,
+          "mtime_s": 1789153478,
+          "mtime_ns": 776399082,
+          "dev": 66306,
+          "ino": 45111288,
+          "mode": 33188,
+          "uid": 65532,
+          "gid": 1001,
+          "size": 1
+        },
+        "oid": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+        "flags": 17
+      },
+      {
+        "path": "tests/test_greeting.py",
+        "stat": {
+          "ctime_s": 1789153481,
+          "ctime_ns": 495168345,
+          "mtime_s": 1789153478,
+          "mtime_ns": 776433045,
+          "dev": 66306,
+          "ino": 45111289,
+          "mode": 33188,
+          "uid": 65532,
+          "gid": 1001,
+          "size": 267
+        },
+        "oid": "f1e76482dcf986ea63ca2e09eba394c5cb938db3",
+        "flags": 22
+      },
+      {
+        "path": "tests/test_guard.py",
+        "stat": {
+          "ctime_s": 1789153481,
+          "ctime_ns": 495168345,
+          "mtime_s": 1789153478,
+          "mtime_ns": 776433045,
+          "dev": 66306,
+          "ino": 45111290,
+          "mode": 33188,
+          "uid": 65532,
+          "gid": 1001,
+          "size": 132
+        },
+        "oid": "9bef23b0be13b6b3915127349f141b9faa36e210",
+        "flags": 19
+      },
+      {
+        "path": "tests/test_units.py",
+        "stat": {
+          "ctime_s": 1789153481,
+          "ctime_ns": 495168345,
+          "mtime_s": 1789153478,
+          "mtime_ns": 776433045,
+          "dev": 66306,
+          "ino": 45111291,
+          "mode": 33188,
+          "uid": 65532,
+          "gid": 1001,
+          "size": 253
+        },
+        "oid": "f5442b7ffa1723e6c0f12cdd784b786e9a788ee2",
+        "flags": 19
+      }
+    ],
+    "sha256": "23a6cc3ecaafb83ab0c823198c93c2b2b7a00027ee82549b77ece04e03674d5e"
+  },
+  "source_index": {
+    "version": 2,
+    "entries": [
+      {
+        "path": ".gitignore",
+        "stat": {
+          "ctime_s": 1789153478,
+          "ctime_ns": 772473053,
+          "mtime_s": 1789153478,
+          "mtime_ns": 772473053,
+          "dev": 66306,
+          "ino": 40536611,
+          "mode": 33188,
+          "uid": 1000,
+          "gid": 1000,
+          "size": 19
+        },
+        "oid": "7a60b85e148f80966a550e5ab6a762a907c69ca6",
+        "flags": 10
+      },
+      {
+        "path": "README.md",
+        "stat": {
+          "ctime_s": 1789153478,
+          "ctime_ns": 772473053,
+          "mtime_s": 1789153478,
+          "mtime_ns": 772473053,
+          "dev": 66306,
+          "ino": 40536612,
+          "mode": 33188,
+          "uid": 1000,
+          "gid": 1000,
+          "size": 527
+        },
+        "oid": "e85e850655ea70197cd455bfa8fa9b99875cd6a8",
+        "flags": 9
+      },
+      {
+        "path": "check_greeting.py",
+        "stat": {
+          "ctime_s": 1789153478,
+          "ctime_ns": 772473053,
+          "mtime_s": 1789153478,
+          "mtime_ns": 772473053,
+          "dev": 66306,
+          "ino": 40536613,
+          "mode": 33188,
+          "uid": 1000,
+          "gid": 1000,
+          "size": 207
+        },
+        "oid": "c33c92115924021acb680949b1b736743d289cf2",
+        "flags": 17
+      },
+      {
+        "path": "demo/__init__.py",
+        "stat": {
+          "ctime_s": 1789153478,
+          "ctime_ns": 772473053,
+          "mtime_s": 1789153478,
+          "mtime_ns": 772473053,
+          "dev": 66306,
+          "ino": 45111210,
+          "mode": 33188,
+          "uid": 1000,
+          "gid": 1000,
+          "size": 1
+        },
+        "oid": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+        "flags": 16
+      },
+      {
+        "path": "demo/greeting.py",
+        "stat": {
+          "ctime_s": 1789153478,
+          "ctime_ns": 772732355,
+          "mtime_s": 1789153478,
+          "mtime_ns": 772732355,
+          "dev": 66306,
+          "ino": 45111211,
+          "mode": 33188,
+          "uid": 1000,
+          "gid": 1000,
+          "size": 51
+        },
+        "oid": "4504fd7a5a16ad39334cc1caa45d89a1d60c0bc9",
+        "flags": 16
+      },
+      {
+        "path": "demo/units.py",
+        "stat": {
+          "ctime_s": 1789153478,
+          "ctime_ns": 772732355,
+          "mtime_s": 1789153478,
+          "mtime_ns": 772732355,
+          "dev": 66306,
+          "ino": 45111212,
+          "mode": 33188,
+          "uid": 1000,
+          "gid": 1000,
+          "size": 45
+        },
+        "oid": "dd56fae4e934ac52febd9c389662468e9eb7cea4",
+        "flags": 13
+      },
+      {
+        "path": "tests/__init__.py",
+        "stat": {
+          "ctime_s": 1789153478,
+          "ctime_ns": 772732355,
+          "mtime_s": 1789153478,
+          "mtime_ns": 772732355,
+          "dev": 66306,
+          "ino": 45111214,
+          "mode": 33188,
+          "uid": 1000,
+          "gid": 1000,
+          "size": 1
+        },
+        "oid": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+        "flags": 17
+      },
+      {
+        "path": "tests/test_greeting.py",
+        "stat": {
+          "ctime_s": 1789153478,
+          "ctime_ns": 772768402,
+          "mtime_s": 1789153478,
+          "mtime_ns": 772768402,
+          "dev": 66306,
+          "ino": 45111215,
+          "mode": 33188,
+          "uid": 1000,
+          "gid": 1000,
+          "size": 267
+        },
+        "oid": "f1e76482dcf986ea63ca2e09eba394c5cb938db3",
+        "flags": 22
+      },
+      {
+        "path": "tests/test_guard.py",
+        "stat": {
+          "ctime_s": 1789153478,
+          "ctime_ns": 772768402,
+          "mtime_s": 1789153478,
+          "mtime_ns": 772768402,
+          "dev": 66306,
+          "ino": 45111216,
+          "mode": 33188,
+          "uid": 1000,
+          "gid": 1000,
+          "size": 132
+        },
+        "oid": "9bef23b0be13b6b3915127349f141b9faa36e210",
+        "flags": 19
+      },
+      {
+        "path": "tests/test_units.py",
+        "stat": {
+          "ctime_s": 1789153478,
+          "ctime_ns": 772768402,
+          "mtime_s": 1789153478,
+          "mtime_ns": 772768402,
+          "dev": 66306,
+          "ino": 45111217,
+          "mode": 33188,
+          "uid": 1000,
+          "gid": 1000,
+          "size": 253
+        },
+        "oid": "f5442b7ffa1723e6c0f12cdd784b786e9a788ee2",
+        "flags": 19
+      }
+    ],
+    "sha256": "0fcfc46029c606f033e7ea97fada78a6b42fa8255643026262b98ce636fd8360"
+  },
+  "same_staged_entries": true,
+  "target_files": [
+    {
+      "path": "demo/greeting.py",
+      "metadata": {
+        "inode": 45111285,
+        "size": 134,
+        "mode": "0o644",
+        "mtime_ns": 1789154382937417738,
+        "mtime": "2026-09-11T19:19:42.937418+00:00",
+        "sha256": "c3e213ac8b856c52f82e70ab24d645e19a17671250178453d6b62dcf177bcf57"
+      },
+      "candidate_matches": true
+    },
+    {
+      "path": "tests/test_greeting.py",
+      "metadata": {
+        "inode": 45111289,
+        "size": 612,
+        "mode": "0o644",
+        "mtime_ns": 1789154382937735358,
+        "mtime": "2026-09-11T19:19:42.937735+00:00",
+        "sha256": "7d7fc64e3e28d979a6ba216b98fc10cff3b6ecc9f5e96ae04f2306c33686c0b8"
+      },
+      "candidate_matches": true
+    }
+  ],
+  "source_revision": "2fbb2d456638e5706218020aebfa47f0a82c8920\n3492ba64448ab9d39bde53ee6456ce24e74ece2c\n",
+  "target_revision": "2fbb2d456638e5706218020aebfa47f0a82c8920\n3492ba64448ab9d39bde53ee6456ce24e74ece2c\n",
+  "target_status": " M demo/greeting.py\n M tests/test_greeting.py\n",
+  "cached_diff": "",
+  "integration_result": {
+    "attempt_id": "attempt-c81b70054cccc2c87fba1e2ca30cb0318174f3fc54a507f2189f211e65697d73",
+    "canonical_target_id": "w71879-target",
+    "detail": {
+      "detail": {
+        "observed": "the target's version-control metadata moved during this turn, and no candidate imports it"
+      },
+      "reason": "repository-mutated"
+    },
+    "entry_id": "integration-driver.entry:5456e87497afd05c8ff2542582ef9f2e1b4698f17533613875743183b5b1893f",
+    "fence": 1,
+    "lease_id": "integration-driver.lease:f3b87915a4f4d2034b70d4483b6dc6a8bf8ef870121dcc77cbddb368d70b33a2",
+    "outcome": "held",
+    "schema": "baton.v12.integration-result/1"
+  },
+  "run_result": {
+    "exceptional_stops": [],
+    "failure": "TimeoutError: approved proof wall/active-attempt deadline reached",
+    "initial": {
+      "source": {
+        "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "path": "/home/sl/.local/state/baton/v12/w71879-run5/source",
+        "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+      },
+      "target": {
+        "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "path": "/home/sl/.local/state/baton/v12/w71879-run5/target",
+        "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+      }
+    },
+    "ordinary_operator_transitions": 0,
+    "started_at": "2026-09-11T19:16:13.750102+00:00",
+    "stats_observations": {
+      "available": 89,
+      "coverage": "sampled command output only; gaps are not measurements or lifecycle results",
+      "gaps": [
+        {
+          "error": {
+            "type": "nonzero-exit"
+          },
+          "requested_ids": [
+            "6b271da2a17dc87ed5f1a81fe6100052eb055e2578ad37dee152f423b5df146e",
+            "5f2fd0062affa341d49cec8212e1a7e3ac8963bf270d291c59d196c3d102df62"
+          ],
+          "sample": "samples.jsonl:18"
+        }
+      ],
+      "not-requested": 55,
+      "truncated_samples": [],
+      "unavailable": 1
+    },
+    "submitted": true,
+    "terminal_both": false,
+    "wall_seconds": 292.0414934099972
+  },
+  "sample_count": 145,
+  "last_claims": {
+    "a": {
+      "current": {
+        "work_ref": {
+          "authority_uuid": "c71879af000000000000000000000001",
+          "work_id": "c71879af-W1"
+        },
+        "participant": "baton.proof-integrator",
+        "generation": 3
+      },
+      "events": [
+        {
+          "seq": 1,
+          "decision": {
+            "endpoint": "baton.proof-impl-a",
+            "principal": "principal:w71879-run5-impl-a",
+            "effective_scope": "scope:w71879-run5",
+            "role": "proof-impl-a",
+            "grant": "direct",
+            "policy_generation": 24
+          },
+          "assignment_ref": {
+            "work_ref": {
+              "authority_uuid": "c71879af000000000000000000000001",
+              "work_id": "c71879af-W1"
+            },
+            "participant": "baton.proof-impl-a",
+            "generation": 1
+          },
+          "cause": "claimed",
+          "fenced": false,
+          "reason": null,
+          "gate": null,
+          "phase": "active",
+          "at": "2026-09-11T19:16:15.093Z"
+        },
+        {
+          "seq": 3,
+          "decision": null,
+          "assignment_ref": {
+            "work_ref": {
+              "authority_uuid": "c71879af000000000000000000000001",
+              "work_id": "c71879af-W1"
+            },
+            "participant": "baton.proof-impl-a",
+            "generation": 1
+          },
+          "cause": "cancelled",
+          "fenced": true,
+          "reason": "review checkpoint writer completed",
+          "gate": "runtime-quiescence:1",
+          "phase": "block",
+          "at": "2026-09-11T19:16:39.075Z"
+        },
+        {
+          "seq": 4,
+          "decision": {
+            "endpoint": "baton.proof-review-a",
+            "principal": "principal:w71879-run5-review-a",
+            "effective_scope": "scope:w71879-run5",
+            "role": "proof-review-a",
+            "grant": "direct",
+            "policy_generation": 24
+          },
+          "assignment_ref": {
+            "work_ref": {
+              "authority_uuid": "c71879af000000000000000000000001",
+              "work_id": "c71879af-W1"
+            },
+            "participant": "baton.proof-review-a",
+            "generation": 2
+          },
+          "cause": "claimed",
+          "fenced": false,
+          "reason": null,
+          "gate": null,
+          "phase": "active",
+          "at": "2026-09-11T19:16:41.389Z"
+        },
+        {
+          "seq": 7,
+          "decision": null,
+          "assignment_ref": {
+            "work_ref": {
+              "authority_uuid": "c71879af000000000000000000000001",
+              "work_id": "c71879af-W1"
+            },
+            "participant": "baton.proof-review-a",
+            "generation": 2
+          },
+          "cause": "cancelled",
+          "fenced": true,
+          "reason": "independent checkpoint review completed",
+          "gate": "runtime-quiescence:2",
+          "phase": "block",
+          "at": "2026-09-11T19:18:06.129Z"
+        },
+        {
+          "seq": 9,
+          "decision": {
+            "endpoint": "baton.proof-integrator",
+            "principal": "principal:w71879-run5-integrator",
+            "effective_scope": "scope:w71879-run5",
+            "role": "proof-integration",
+            "grant": "direct",
+            "policy_generation": 24
+          },
+          "assignment_ref": {
+            "work_ref": {
+              "authority_uuid": "c71879af000000000000000000000001",
+              "work_id": "c71879af-W1"
+            },
+            "participant": "baton.proof-integrator",
+            "generation": 3
+          },
+          "cause": "claimed",
+          "fenced": false,
+          "reason": null,
+          "gate": null,
+          "phase": "active",
+          "at": "2026-09-11T19:19:05.423Z"
+        }
+      ]
+    },
+    "b": {
+      "current": null,
+      "events": [
+        {
+          "seq": 2,
+          "decision": {
+            "endpoint": "baton.proof-impl-b",
+            "principal": "principal:w71879-run5-impl-b",
+            "effective_scope": "scope:w71879-run5",
+            "role": "proof-impl-b",
+            "grant": "direct",
+            "policy_generation": 24
+          },
+          "assignment_ref": {
+            "work_ref": {
+              "authority_uuid": "c71879af000000000000000000000001",
+              "work_id": "c71879af-W2"
+            },
+            "participant": "baton.proof-impl-b",
+            "generation": 1
+          },
+          "cause": "claimed",
+          "fenced": false,
+          "reason": null,
+          "gate": null,
+          "phase": "active",
+          "at": "2026-09-11T19:16:15.099Z"
+        },
+        {
+          "seq": 5,
+          "decision": null,
+          "assignment_ref": {
+            "work_ref": {
+              "authority_uuid": "c71879af000000000000000000000001",
+              "work_id": "c71879af-W2"
+            },
+            "participant": "baton.proof-impl-b",
+            "generation": 1
+          },
+          "cause": "cancelled",
+          "fenced": true,
+          "reason": "review checkpoint writer completed",
+          "gate": "runtime-quiescence:1",
+          "phase": "block",
+          "at": "2026-09-11T19:17:03.348Z"
+        },
+        {
+          "seq": 6,
+          "decision": {
+            "endpoint": "baton.proof-review-b",
+            "principal": "principal:w71879-run5-review-b",
+            "effective_scope": "scope:w71879-run5",
+            "role": "proof-review-b",
+            "grant": "direct",
+            "policy_generation": 24
+          },
+          "assignment_ref": {
+            "work_ref": {
+              "authority_uuid": "c71879af000000000000000000000001",
+              "work_id": "c71879af-W2"
+            },
+            "participant": "baton.proof-review-b",
+            "generation": 2
+          },
+          "cause": "claimed",
+          "fenced": false,
+          "reason": null,
+          "gate": null,
+          "phase": "active",
+          "at": "2026-09-11T19:17:05.661Z"
+        },
+        {
+          "seq": 8,
+          "decision": null,
+          "assignment_ref": {
+            "work_ref": {
+              "authority_uuid": "c71879af000000000000000000000001",
+              "work_id": "c71879af-W2"
+            },
+            "participant": "baton.proof-review-b",
+            "generation": 2
+          },
+          "cause": "cancelled",
+          "fenced": true,
+          "reason": "independent checkpoint review completed",
+          "gate": "runtime-quiescence:2",
+          "phase": "block",
+          "at": "2026-09-11T19:19:03.110Z"
+        }
+      ]
+    },
+    "verification": {
+      "current": null,
+      "events": []
+    },
+    "review": {
+      "current": null,
+      "events": []
+    },
+    "approval": {
+      "current": null,
+      "events": []
+    }
+  },
+  "probes": [
+    {
+      "label": "optional-locks-disabled",
+      "status": "",
+      "before": {
+        ".git": [
+          16384,
+          222084
+        ],
+        ".git/index": [
+          32768,
+          222092,
+          941,
+          1789153478772768402
+        ],
+        ".git/HEAD": [
+          32768,
+          222141,
+          21,
+          1789153478772284102
+        ]
+      },
+      "after": {
+        ".git": [
+          16384,
+          222084
+        ],
+        ".git/index": [
+          32768,
+          222092,
+          941,
+          1789153478772768402
+        ],
+        ".git/HEAD": [
+          32768,
+          222141,
+          21,
+          1789153478772284102
+        ]
+      },
+      "witness_changed": false,
+      "index_before": {
+        "inode": 222092,
+        "size": 941,
+        "mode": "0o664",
+        "mtime_ns": 1789153478772768402,
+        "mtime": "2026-09-11T19:04:38.772768+00:00",
+        "sha256": "0fcfc46029c606f033e7ea97fada78a6b42fa8255643026262b98ce636fd8360"
+      },
+      "index_after": {
+        "inode": 222092,
+        "size": 941,
+        "mode": "0o664",
+        "mtime_ns": 1789153478772768402,
+        "mtime": "2026-09-11T19:04:38.772768+00:00",
+        "sha256": "0fcfc46029c606f033e7ea97fada78a6b42fa8255643026262b98ce636fd8360"
+      },
+      "staged_entries_unchanged": true
+    },
+    {
+      "label": "ordinary-status",
+      "status": "",
+      "before": {
+        ".git": [
+          16384,
+          222158
+        ],
+        ".git/index": [
+          32768,
+          222166,
+          941,
+          1789153478772768402
+        ],
+        ".git/HEAD": [
+          32768,
+          222215,
+          21,
+          1789153478772284102
+        ]
+      },
+      "after": {
+        ".git": [
+          16384,
+          222158
+        ],
+        ".git/index": [
+          32768,
+          222225,
+          941,
+          1789154752416304270
+        ],
+        ".git/HEAD": [
+          32768,
+          222215,
+          21,
+          1789153478772284102
+        ]
+      },
+      "witness_changed": true,
+      "index_before": {
+        "inode": 222166,
+        "size": 941,
+        "mode": "0o664",
+        "mtime_ns": 1789153478772768402,
+        "mtime": "2026-09-11T19:04:38.772768+00:00",
+        "sha256": "0fcfc46029c606f033e7ea97fada78a6b42fa8255643026262b98ce636fd8360"
+      },
+      "index_after": {
+        "inode": 222225,
+        "size": 941,
+        "mode": "0o664",
+        "mtime_ns": 1789154752416304270,
+        "mtime": "2026-09-11T19:25:52.416304+00:00",
+        "sha256": "e9adfb1711917e6388e245bf37cf6c5c30a83d06b894d4c8dbd3d16ac875bd44"
+      },
+      "staged_entries_unchanged": true
+    }
+  ],
+  "temporary_fixture": "/tmp/w71879-146732-index-probe-pbeiq_np",
+  "seconds": 0.027057298997533508,
+  "writer_attribution": "Unobserved exact PID/command. Provider-side Git refresh inferred from timing and stat-cache update; this fixture proves the mechanism only."
+}

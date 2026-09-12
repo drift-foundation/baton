@@ -1,0 +1,19 @@
+{
+  "unchanged_manifest_entries": {
+    "accounting-152750": 86,
+    "accounting-152563": 92,
+    "accounting-150501": 75,
+    "run9-freeze-150125": 198,
+    "run9-budget-150384": 19
+  },
+  "exclusions": "Only ongoing dossier FINDING/PLAN/PROGRESS journals",
+  "five_helpers_bound": true,
+  "three_runtime_helpers_identical": true,
+  "run_and_deployment_only_tested_fresh_metadata_delta": true,
+  "images_unchanged": {
+    "integration": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+    "provider": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13"
+  },
+  "actual_inputs_and_execution_markers_absent": true,
+  "seconds": 0.02536415497888811
+}

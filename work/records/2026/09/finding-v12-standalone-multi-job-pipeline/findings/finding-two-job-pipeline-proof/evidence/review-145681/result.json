@@ -1,0 +1,47 @@
+{
+  "verdict": "accepted bounded instruction correction; not executable inputs or timeout proof",
+  "manifest": "sha256:601f57182dd6b19922b5ce5e0f7b58abde24f74533a3720af07d75f3bd13bbdd",
+  "counts": {
+    "candidate_files": 33,
+    "prior_candidate_manifest": 27,
+    "preserved_run4_freeze": 327
+  },
+  "unchanged_dependencies": [
+    "candidate-images.json",
+    "image-context-manifest.json",
+    "operator-prepare.sh",
+    "policies/credential_policy.json",
+    "policies/mount_policy.json",
+    "policies/network_policy.json",
+    "policies/policy.json",
+    "policies/resource_policy.json",
+    "policies/retention_policy.json",
+    "policies/tool_policy.json",
+    "record-snapshot/FINDING.md",
+    "record-snapshot/PLAN.md",
+    "run.py",
+    "target_posture.py",
+    "tasks/a.json",
+    "tasks/approval.json",
+    "tasks/b.json",
+    "tasks/review.json",
+    "tasks/verification.json",
+    "test_manifest_timestamp.py",
+    "test_stats_observation.py"
+  ],
+  "provider_entries": 45,
+  "source_requirements": 4,
+  "only_helper_change": "one literal instructions += statement in documents()",
+  "emitted_instructions": "sha256:599b5612c1d3c1062f9184f233ec2f58cccd4fd2f728b1c176727513700f6379",
+  "tests": {
+    "scope": "offline synthetic fixtures only; not integration or host execution evidence",
+    "tests": 26,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 0.21783486299682409,
+    "retained": "/tmp/w71879-145615-offline-verification-fuyiczch"
+  },
+  "verification_seconds": 0.21783486299682409,
+  "custody_check_seconds": 0.014610429992899299,
+  "no_new_run_or_marker": true
+}

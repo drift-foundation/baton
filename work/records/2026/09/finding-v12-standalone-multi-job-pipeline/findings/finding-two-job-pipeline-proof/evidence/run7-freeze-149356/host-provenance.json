@@ -1,0 +1,44 @@
+{
+  "owner_host_preparation_event": 149242,
+  "owner_exact_render_event": 149352,
+  "host_posture_scope": "Owner successful reviewed helper and validation attest real65532:1001 posture; managed projected UID/GID below do not independently establish actual host ownership.",
+  "target": {
+    ".": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "tests": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo/greeting.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo/units.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "tests/test_greeting.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    }
+  },
+  "preparation_hashes": {
+    "validation.json": "sha256:e86dfb80633780aff7dda52f88fcec3c00dab88fdabeeb2aec0a9d73d4b6cb9f",
+    "candidate-images.json": "sha256:d0da4684accfa0cba16dc712d2456745de56ef3632f315a7c17a6649407a8f5f",
+    "image-build/result.json": "sha256:3c61790f085e7ac2145067e0906e136b577a3d38d1c7e4cb92ca6d11763f26e5",
+    "runner-helpers.json": "sha256:1e58a945f8b6354e29411410e79a2a177f15928a6c0abc08f7c86db8f46deb28",
+    "build_images.py": "sha256:352e80a5e91e471b717f5113a6e6aff67bab8fb9a85ff4c57a6d32fee51c6103"
+  }
+}

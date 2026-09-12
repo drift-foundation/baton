@@ -1,0 +1,39 @@
+{
+  "claim": 150148,
+  "manifest": "sha256:aa78787caaf0796d303c703bc745e758d46e67dde671a6668d6e95de3b9ac5a2",
+  "verified_files": 198,
+  "posture": {
+    ".": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "tests": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo/greeting.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo/units.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "tests/test_greeting.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    }
+  },
+  "ownership_basis": "Owner150121 successful reviewed host helper/validation; projected65534 IDs do not establish real65532:1001.",
+  "seconds": 0.013480279012583196
+}

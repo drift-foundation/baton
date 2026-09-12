@@ -1,0 +1,21 @@
+{
+  "work": "W71879",
+  "claim": 145261,
+  "old_candidate_files": 229,
+  "old_execution_bindings": 230,
+  "provider_chain_entries": 45,
+  "all_unchanged": true,
+  "python_ast": "pass",
+  "operator_bash_syntax": "pass",
+  "task_behavior": 5,
+  "policy_behavior": 7,
+  "unchanged_functions": [
+    "command",
+    "containers",
+    "retained_bytes",
+    "stop_serving"
+  ],
+  "future_root_absent": "/home/sl/.local/state/baton/v12/w71879-run4",
+  "scope": "new stats telemetry helper and sample summary; fresh identities only in other packaging; no live state/model/Git changes",
+  "seconds": 0.15002837000065483
+}

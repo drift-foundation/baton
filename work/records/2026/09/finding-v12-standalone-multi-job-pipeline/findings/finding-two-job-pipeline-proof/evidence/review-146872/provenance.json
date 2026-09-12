@@ -1,0 +1,27 @@
+{
+  "counts": {
+    "candidate": 39,
+    "prior_preparation": 37,
+    "prior_freeze": 444
+  },
+  "provider_entries": 45,
+  "source_requirements": 4,
+  "additional_observation_sources": 3,
+  "unchanged_dependencies": 23,
+  "changed_dependencies": [
+    "deployment.py",
+    "run.py",
+    "test_run5_preparation.py"
+  ],
+  "candidate_sha256": "156cb7f53d1eab4e41d1602742ddda778376250b6d1af5e7eee9e12a3c775588",
+  "verification_seconds": 0.014238912001019344,
+  "suite": {
+    "scope": "offline synthetic fixtures only; not integration or host execution evidence",
+    "tests": 36,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 0.2945548329880694,
+    "retained": "/tmp/w71879-146538-offline-verification-c96m6cl9"
+  },
+  "scope": "File hashes/modes, exact diff and offline suite. No live owner settlement, model run or host posture claim."
+}

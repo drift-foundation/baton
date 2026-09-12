@@ -1,0 +1,1 @@
+{"state":{"Dead":false,"Error":"","ExitCode":137,"FinishedAt":"2026-09-11T15:51:08.21614187Z","OOMKilled":false,"Paused":false,"Pid":0,"Restarting":false,"Running":false,"StartedAt":"2026-09-11T15:49:05.968178136Z","Status":"exited"},"tmpfs":{"/dev/shm":"rw,noexec,nosuid,nodev,size=16m","/tmp":"rw,noexec,nosuid,nodev,size=64m"},"cpus":2000000000,"memory":2147483648,"pids":512}

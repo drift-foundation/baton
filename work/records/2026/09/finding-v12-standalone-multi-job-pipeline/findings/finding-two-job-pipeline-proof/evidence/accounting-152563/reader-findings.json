@@ -1,0 +1,18 @@
+{
+  "control": {
+    "state": "refused",
+    "type": "ContractRefusal",
+    "category": "refused",
+    "code": "precondition",
+    "underlying": "OperationalError"
+  },
+  "integration": {
+    "state": "refused",
+    "type": "ContractRefusal",
+    "category": "refused",
+    "code": "precondition",
+    "underlying": "OperationalError: unable to open database file"
+  },
+  "scope": "supported mode=ro openers only; no fallback, repair or manual sidecars",
+  "seconds": 0.00027831702027469873
+}

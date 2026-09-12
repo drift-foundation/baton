@@ -1,0 +1,94 @@
+Import exactly the genuinely accepted candidate from the supplied bundle into the configured target. Judge scope against the full candidate and retained independent review/task evidence. Respect the specifically scheduled existing greeting test change and preserve unrelated files. Refuse unauthorized changes rather than correcting them. Run the supplied required verification and report the actual result.
+
+# A: normalize greeting names
+
+Implement this complete request on A's private line from the frozen original
+base. Change only `demo/greeting.py` and `tests/test_greeting.py`.
+
+`greet(name)` must strip surrounding whitespace, return `Hello, Ada!` for
+both `Ada` and ` Ada `, and raise `ValueError("name is empty")` for empty or
+whitespace-only names. Preserve the existing punctuation and ordinary-name
+case. Replace the existing surrounding-spaces expectation with the trimmed
+result. Add assertions for empty and whitespace-only rejection, including the
+exception message. This explicitly schedules that existing-test behavior
+change; retain the ordinary-name assertion.
+
+Required verification argv: `["python3", "check_greeting.py"]`.
+Submission `test_scope`: `["tests/test_greeting.py"]`.
+
+No deliberate omission or injected correction is requested. If the independent
+review requests a real correction, use the normal same-line correction path.
+
+
+# B: convert hours to seconds
+
+Implement this complete request on B's private line from the same frozen
+original base as A. Change only `demo/units.py`, add `tests/test_hours.py`,
+and add `check_hours.py` at the repository root.
+
+Add `hours_to_seconds(n)` returning `n * 3600`. Cover 0, 1 and 2 hours in the
+new unittest module. Preserve `minutes_to_seconds` and the existing tests.
+
+The new `check_hours.py` must be self-contained apart from importing
+`demo.units`: import both conversion functions and assert the hours results
+0, 3600 and 7200 and minutes results 0 and 120. Print a clear success line
+only after every assertion passes. It must not import `tests.test_hours`,
+create files, install dependencies, repair missing functions, catch an import
+or assertion failure, or depend on a changed test module. The configured
+causal observer carries this one script into the original base; the missing
+hours function there must produce a real nonzero exit. The same script must
+pass on B's isolated candidate and the separately merged result.
+
+Required verification argv: `["python3", "check_hours.py"]`.
+Submission `test_scope`: `[]` (only additive test files).
+
+Do not copy A's result into B's original line or change its declared base.
+
+
+Provider completion contract (existing baton.integration-report/1)
+
+After the bounded import/verification task, write one UTF-8 JSON object to the
+private report path supplied below under this runtime's exact operands, then
+end the provider turn. Write only this provider report outside the target. Do
+not publish the manager's integration-result, change version-control state,
+repair permissions or bypass any before-write scope, review, base, path, type,
+mode or ownership check. Preserve all full-task and existing-test requirements.
+Do not start another import or verification attempt, hide a failure or extend
+the deadline to produce a successful report.
+
+The object has exactly these eight keys, with no extra diagnostics:
+- schema: the literal string "baton.integration-report/1".
+- assignment_digest: copy the exact digest string from "The assignment it answers
+  is" in this runtime's exact operands below, including its sha256: prefix.
+- bundle_digest: copy the exact digest string from "Its measured identity is"
+  in this runtime's exact operands below, including its sha256: prefix.
+  Never invent either digest, use an earlier run's identity or substitute a
+  candidate/blob/instructions digest. Do not put placeholder text in the report.
+- outcome: one of ["imported", "refused", "held"]. Report what actually happened:
+  imported claims a completed exact import; refused reports inability to proceed;
+  held reports an incomplete or uncertain operation. These are provider claims,
+  not manager settlement or terminal acceptance.
+- phase: one of ["preflight", "import", "verification"], naming where you stopped.
+- paths: a sorted, unique JSON array of repository-relative paths actually
+  changed, bounded by the supplied path table (at most 251). Use [] if none
+  changed. Do not claim planned changes as performed changes.
+- verification: null if you did not perform verification; otherwise an object
+  with exactly argv and status. argv is the actual nonempty command array of
+  nonempty strings; status is the observed integer exit status, or null if no
+  exit status was obtained. Never substitute zero for a failed, unperformed or
+  unfinished check. Preserve the actual nonzero or unavailable result.
+- code: null only for outcome imported; otherwise one of ["scope-exceeded",
+  "path-unsupported", "target-drift", "target-unwritable", "verification-failed",
+  "partial-import", "provider-unable"], chosen for the actual refusal/hold.
+
+An imported claim requires the completed exact candidate at every scheduled
+path, phase "verification", the complete sorted scheduled path list, and code
+null. If verification was performed and failed or did not finish, report that
+failure/uncertainty with the matching refused/held outcome and code, never a
+successful import claim. The verification field may be null when the provider
+did not run the check; this does not assert that verification passed. The
+runtime still independently reads back the target, runs the scheduled check,
+and reads back again before composing its own integration result. A valid
+report shape alone establishes neither import nor successful verification.
+Bound the report to 65536 UTF-8 bytes. Write the private report and end the turn
+promptly after this bounded task; do not wait for the manager's settlement.

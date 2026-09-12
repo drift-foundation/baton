@@ -1,0 +1,6 @@
+{
+  "command": "python3 -B /tmp/w71879-149488-verify.py",
+  "exit_code": 1,
+  "failure": "ModuleNotFoundError: baton_v12; new verification script omitted the existing Python source path needed by the accepted failure reader. Correct only verifier import path; no product/helper/test change.",
+  "timing": "No internal completed timing; failed command remains untimed uncertainty."
+}

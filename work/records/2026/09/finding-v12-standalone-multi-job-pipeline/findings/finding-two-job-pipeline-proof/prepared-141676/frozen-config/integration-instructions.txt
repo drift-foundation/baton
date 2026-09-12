@@ -1,0 +1,45 @@
+Import exactly the genuinely accepted candidate from the supplied bundle into the configured target. Judge scope against the full candidate and retained independent review/task evidence. Respect the specifically scheduled existing greeting test change and preserve unrelated files. Refuse unauthorized changes rather than correcting them. Run the supplied required verification and report the actual result.
+
+# A: normalize greeting names
+
+Implement this complete request on A's private line from the frozen original
+base. Change only `demo/greeting.py` and `tests/test_greeting.py`.
+
+`greet(name)` must strip surrounding whitespace, return `Hello, Ada!` for
+both `Ada` and ` Ada `, and raise `ValueError("name is empty")` for empty or
+whitespace-only names. Preserve the existing punctuation and ordinary-name
+case. Replace the existing surrounding-spaces expectation with the trimmed
+result. Add assertions for empty and whitespace-only rejection, including the
+exception message. This explicitly schedules that existing-test behavior
+change; retain the ordinary-name assertion.
+
+Required verification argv: `["python3", "check_greeting.py"]`.
+Submission `test_scope`: `["tests/test_greeting.py"]`.
+
+No deliberate omission or injected correction is requested. If the independent
+review requests a real correction, use the normal same-line correction path.
+
+
+# B: convert hours to seconds
+
+Implement this complete request on B's private line from the same frozen
+original base as A. Change only `demo/units.py`, add `tests/test_hours.py`,
+and add `check_hours.py` at the repository root.
+
+Add `hours_to_seconds(n)` returning `n * 3600`. Cover 0, 1 and 2 hours in the
+new unittest module. Preserve `minutes_to_seconds` and the existing tests.
+
+The new `check_hours.py` must be self-contained apart from importing
+`demo.units`: import both conversion functions and assert the hours results
+0, 3600 and 7200 and minutes results 0 and 120. Print a clear success line
+only after every assertion passes. It must not import `tests.test_hours`,
+create files, install dependencies, repair missing functions, catch an import
+or assertion failure, or depend on a changed test module. The configured
+causal observer carries this one script into the original base; the missing
+hours function there must produce a real nonzero exit. The same script must
+pass on B's isolated candidate and the separately merged result.
+
+Required verification argv: `["python3", "check_hours.py"]`.
+Submission `test_scope`: `[]` (only additive test files).
+
+Do not copy A's result into B's original line or change its declared base.

@@ -1,0 +1,8 @@
+{
+  "failed_runtime_wall_seconds": 524.7600469310128,
+  "prior_listed_preparation_diagnosis_seconds": 1.6266462880108228,
+  "failed_preflight_command_seconds": 0.032879572,
+  "continuity_and_namespace_evidence_seconds": 0.003486240006168373,
+  "listed_preparation_diagnosis_seconds": 1.663012100016991,
+  "uncertainty": "Tool outputs reporting microsecond-only timing for other commands are not comprehensive measurements. All untimed reads, CLI/rule checks, edits, operator preparation and billing uncertainty remain additional. No model, reserve transfer or new run."
+}

@@ -1,0 +1,40 @@
+{
+  "exceptional_stops": [],
+  "failure": "RuntimeError: command failed: ['/usr/bin/env', 'PYTHONDONTWRITEBYTECODE=1', 'PYTHONPATH=src:.', 'BATON_V12_STAGE_EXECUTION_CONFIG=/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149488/frozen-config/stage-execution.json', '/usr/bin/python3', '-m', 'tools.job_manager', '--store', '/home/sl/.local/state/baton/v12/w71879-run8/jobs.sqlite3', '--incarnation', 'w71879-run8', '--authority-uuid', 'c71879b2000000000000000000000001', 'status', '--control', '/home/sl/.local/state/baton/v12/w71879-run8/control.sqlite3', '--observe', 'tools.stage_execution:observing_factory']\nTraceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/sl/src/baton/v12/python/tools/job_manager.py\", line 469, in <module>\n    raise SystemExit(main(sys.argv[1:]))\n                     ~~~~^^^^^^^^^^^^^^\n  File \"/home/sl/src/baton/v12/python/tools/job_manager.py\", line 464, in main\n    return taken.run(taken, clock or _utc_clock(),\n           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                     stream if stream is not None else sys.stdout)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sl/src/baton/v12/python/tools/job_manager.py\", line 147, in _status\n    return _emit(status(store, _Observing(control, observed),\n                 ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                        observed_at=clock()), stream)\n                        ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py\", line 602, in status\n    held = stage_states(store, operations)\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py\", line 466, in stage_states\n    \"observed\": (delegation.observation_of(\n                 ~~~~~~~~~~~~~~~~~~~~~~~~~^\n        operations, episodes.attempting(stage, live),\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        submission.job_of(store, stage[\"job_id\"]))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py\", line 364, in observation_of\n    return _bound(operations.observe(stage), stage)\n                  ~~~~~~~~~~~~~~~~~~^^^^^^^\n  File \"/home/sl/src/baton/v12/python/tools/job_manager.py\", line 193, in observe\n    return self._operations.observe(stage)\n           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^\n  File \"/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py\", line 1001, in observe\n    \"integration\": (self._observe_integration(stage)\n  ",
+  "initial": {
+    "source": {
+      "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+      "path": "/home/sl/.local/state/baton/v12/w71879-run8/source",
+      "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+    },
+    "target": {
+      "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+      "path": "/home/sl/.local/state/baton/v12/w71879-run8/target",
+      "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+    }
+  },
+  "ordinary_operator_transitions": 0,
+  "started_at": "2026-09-12T04:10:43.856869+00:00",
+  "stats_observations": {
+    "available": 93,
+    "coverage": "sampled command output only; gaps are not measurements or lifecycle results",
+    "gaps": [
+      {
+        "error": {
+          "type": "nonzero-exit"
+        },
+        "requested_ids": [
+          "033b80738c849345c607a736dfa73ce9c34ed695c833680b467ad9a068f3493e",
+          "327143a5c71c8f3f48e5741762d4bcdd92fc43bcfd0afb9c44cc271543c9f656"
+        ],
+        "sample": "samples.jsonl:17"
+      }
+    ],
+    "not-requested": 5,
+    "truncated_samples": [],
+    "unavailable": 1
+  },
+  "submitted": true,
+  "terminal_both": false,
+  "wall_seconds": 243.6142136999988
+}

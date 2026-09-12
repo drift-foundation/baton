@@ -1,0 +1,1004 @@
+--- prepared-149854/README.md
++++ prepared-150007/README.md
+@@ -1,40 +1,130 @@
+-# W71879 observation and command-error correction — claim149854
++# Run9 preparation — W71879 claim150007
+ 
+-This is a correction candidate derived from prepared-149488. Its run8 identities
+-are historical fixture metadata. Do not run provision, prepare, build, render or
+-run.py against run8: its one-attempt authorization was consumed and no retry is
+-authorized. Copied operator recipes and image context are preserved dependencies
+-for offline checks, not new host instructions. No actual inputs or review markers
+-are copied. Future packaging must bind accepted source and fresh authorized state.
++Owner150004 accepts review-2026-09-12T04-45-50Z.md and authorizes fresh run9
++preparation using the accepted observer/runner corrections, unchanged images and
++supported credential delivery. Exactly ONE OPERATOR attempt is already authorized
++after required input checks and genuine execution bindings. No additional run
++permission request, image rebuild, agent model execution or automatic retry.
+ 
+-Owner149847 explicitly assigns the read-only observation binding correction in
+-v12/python/tools/stage_execution.py, plus runner command-error retention. The
+-observer shares only pure binding/Work/target/allocation readers; local read-only
+-Authority/coordinator handles remain unchanged. No serving deployment or sessions.
+-The successor runner retains the final2000 command-stderr characters and reports
+-truncation/exit status. This is manager/engine error text already captured by the
+-runner; it does not read provider streams or credentials. Very long exception
+-messages can still exceed the bound, with that omission explicit. Structured safe
+-provider diagnostics and first-failure priority remain unchanged.
++Fresh root /home/sl/.local/state/baton/v12/w71879-run9; Authority
++c71879b3000000000000000000000001; creation 2026-09-12T04:59:54.280Z. All namespaces/tasks/
++principals/manifests/incarnation/submission use run9. Source remains original clean
++run1 baseline2fbb2d456638e5706218020aebfa47f0a82c8920,
++tree3492ba64448ab9d39bde53ee6456ce24e74ece2c. Do not use an old dirty target as source.
++Actual run9 host preparation/validation/render and execution bindings are pending.
+ 
+-Only run.py, runner-helpers.json and copied test_run8_preparation.py behavior
+-expectation change here; README clarifies scope, test_command_errors.py adds five
+-focused cases. All other copied files remain byte-identical, including the three
+-other execution helpers, deployment, tasks, policies and integration instructions.
+-W71830 standing test-change authority applies; existing assertions preserve every
+-guard while accounting for the exact scheduled runner delta.
++## Accepted behavior and images
+ 
+-From /home/sl/src/baton, offline verification:
++Provider sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13.
++Integration sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533.
++Current metadata confirms these existing accepted images; source/installation
++evidence from149053 and correction review149919 is reused. No rebuild. Copied
++build_images.py/image-context are only dependencies for existing offline custody
++tests: do not invoke the build helper or deployment.py prepare.
++
++Host stage_execution.py stays at accepted
++b56451dcd899e09ebc2f47505ffaf85018cd9ef003b09e60af8caf4b543553c9:
++read-only integration keeps the actual Job binding and producer. Runner retains
++accepted final2000 command-stderr characters with explicit omission/length/status;
++structured safe diagnostics and first required failure priority stay unchanged.
++run.py/deployment.py differ from149854 only by fresh identity/time/ruling. Four
++helper digests in runner-helpers.json must be bound by genuine execution review.
++All full A/B tasks, independent original reviews and B's three independent derived
++judges remain; integration instruction hash stays
++4b3160e825f6d4f166fc5fc8477f8d85f3190420ba402dcfb780f01df7be9f76.
++No manual ordinary transitions or synthetic receipts establish actual success.
++
++Credential sources remain /home/sl/.baton/credential-sources.json, slot claude,
++operator-file/w64268-run1. Supported delivery resolves configured source into
++fresh RUN/credentials/<actor> homes for all eight workers, including integrator
++and B judges. Old credential deliveries are preserved. No credential payload
++read/copy/probe or new login-health claim accompanies this preparation. Offline
++worker-document checks establish configuration only, not real delivery or login.
++
++## Exact host preparation commands
++
++Pass the concrete preparation for existing independent review, Next ops. Slawomir
++executes these THREE SEPARATE commands in order, stopping at the first failure and
++retaining stdout/stderr/exit status and partial outputs. Do not blindly repeat.
++Git mutations and real65532:1001 target ownership remain operator operations.
++
++Fresh host preparation, with supplementary gid1001:
+ 
+ ```sh
+-python3 -B work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149854/verify_offline.py
++/bin/bash /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-150007/operator-prepare.sh
+ ```
+ 
+-63 tests pass. Five focused product observation checks also pass, including the
+-new two-producer real-account regression, unknown/foreign Job refusal, both bound
+-producer selections, existing fresh-process read-only handle/disposal/nonmutation
+-coverage and observation-only exchange behavior. Initial red regression retained.
+-Full evidence, exact source delta/custody and spending are in
+-../evidence/observation-correction-149854 and ../OBSERVATION-CORRECTION-149854.md.
+-Run8 outcome remains failed/unconfirmed; no corrected read was run over its stores.
+-Direct independent review; no retry, repair, broader hardening or new planning gate.
++Then with cwd /home/sl/src/baton/v12/python, validate:
++
++```sh
++/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-150007/deployment.py validate
++```
++
++After validation succeeds, from the same cwd, render:
++
++```sh
++/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-150007/deployment.py render
++```
++
++The accepted recipe refuses an existing run9 root, checks clean original source,
++uses no-hardlink clones, sets fresh target65532:1001/0644 files/2775 directories
++and creates a bare integration workspace. Managed projected IDs do not establish
++real host ownership. Return posture, validation.json and all33 actual files under
++this package's frozen-config with printed configuration/submission hashes. Verify
++the files physically exist: temporary validation or offline fixture outputs are
++not actual render evidence. No selection/review marker is copied or fabricated.
++
++## Exact one-attempt execution after required bindings
++
++After actual input checks and genuine run9 selection/execution bindings cover
++accepted source/images, all33 inputs and all four helpers, owner150004's one-attempt
++authorization applies. No new run-permission request. Cwd
++/home/sl/src/baton/v12/python, actual host gid1001/scoped writes/ordinary engine:
++
++Provision once:
++
++```sh
++/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-150007/deployment.py provision
++```
++
++Then one ordinary submit/serve:
++
++```sh
++/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-150007/run.py
++```
++
++These are separate operator commands. No agent model execution, repeated consumed
++run, automatic subsequent attempt, historical-state repair or deadline increase.
++Keep1200 whole/240 implementation/180 review-judge/120 integration seconds, with
++B judges inside integration budget. Preserve2CPU/2GiB/512PIDs per container,
++20CPU/20GiB capacity,22GiB available/16GiB free and retained-storage stop;512MiB
++declared workspace size is not a quota. All target/custody/source/failure/detail/
++authorization and true both-terminal success requirements remain.
++
++## Verification and retained history
++
++From /home/sl/src/baton:
++
++```sh
++python3 -B /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-150007/verify_offline.py
++```
++
++63 offline cases pass; fixture /tmp/w71879-150007-offline-verification-3ual0ms5.
++Changed copied tests: test_run9_preparation.py rebinds four whole-equality cases to
++accepted149854; timestamp/report/status fixtures update fresh metadata;
++test_early_failure.py changes only the synthetic runner namespace. Genuine run6
++historical replay stays unchanged. Command-error/stats/provider-detail/image
++cases and accepted product tests remain unchanged. W71830 standing authority
++covers these exact fixture changes, with all expectations preserved. Existing
++five independent product observation checks and accepted diagnostic results are
++reused, without rerunning unchanged product suites.
++
++Run8 failed243.6142136999988s; its last99-sample history shows both implementations
++and reviews complete, A integrating and B blocked. A terminal settlement remains
++unconfirmed. All eight failures/evidence/credentials stay attributable and intact.
++Failed runtime walls1593.8314001880208s remain spent, plus cumulative preparation
++in owning spending.json. Actual A settlement, B judgments/coordinator import,
++causal merged observation and both terminal Jobs remain owed. Preserve run5/run6
++uncertainty and W144335/W144813/W136578/W129838/fault-C/H7/resilience deferrals.
++Parent03:46:36Z routine recovery direction adds no planning gate; a general
++repeatable procedure remains queued rather than silently claimed implemented.
+--- prepared-149854/deployment.py
++++ prepared-150007/deployment.py
+@@ -1,4 +1,4 @@
+-"""W71879 future run8 preparation packaging and public-API provisioning; never submits a Job.
++"""W71879 future run9 preparation packaging and public-API provisioning; never submits a Job.
+ 
+ prepare writes review inputs beside this script. validate uses a fresh /tmp
+ Authority to validate the bootstrap/document logic without a runtime. provision
+@@ -26,14 +26,14 @@
+ DOSSIER = HERE.parent
+ CONFIG = HERE / 'frozen-config'
+ REPO = Path('/home/sl/src/baton')
+-RUN = Path('/home/sl/.local/state/baton/v12/w71879-run8')
+-UUID = 'c71879b2000000000000000000000001'
++RUN = Path('/home/sl/.local/state/baton/v12/w71879-run9')
++UUID = 'c71879b3000000000000000000000001'
+ BASE = '2fbb2d456638e5706218020aebfa47f0a82c8920'
+ TREE = '3492ba64448ab9d39bde53ee6456ce24e74ece2c'
+ PROVIDER_BASE = 'sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4'
+-CREATED = '2026-09-12T03:32:20.835Z'
+-SCOPE = 'scope:w71879-run8'
+-PROFILE = 'claude-w71879-run8'
++CREATED = '2026-09-12T04:59:54.280Z'
++SCOPE = 'scope:w71879-run9'
++PROFILE = 'claude-w71879-run9'
+ REGISTRY = '/home/sl/.baton/credential-sources.json'
+ CREDENTIAL = {'provider': 'operator-file', 'reference': 'w64268-run1'}
+ ACTORS = {name: 'baton.proof-' + name for name in
+@@ -90,7 +90,7 @@
+                         'Do not modify source or invent receipts.\n\n' + duty +
+                         '\n\nThe complete accepted task scope follows. A is already landed; B is being merged.\n\n' + a + '\n\n' + b)
+         requests[name] = (instructions, 'check_hours.py')
+-    return {name: {'schema': 'baton.dogfood-task/2', 'task_id': 'w71879-run8-' + name,
++    return {name: {'schema': 'baton.dogfood-task/2', 'task_id': 'w71879-run9-' + name,
+                    'instructions': instructions, 'source_root': 'source',
+                    'source_profile': 'git-line', 'declared_base': BASE,
+                    'verification': ['python3', check]}
+@@ -99,7 +99,7 @@
+ 
+ def policy_documents():
+     return {
+-        'policy': {'work': 'W71879', 'ruling': 'M141636/return149484; run8 preparation and exactly one operator attempt after independent input review authorized; no agent model execution or automatic retry', 'base': BASE,
++        'policy': {'work': 'W71879', 'ruling': 'M141636/return150004; run9 preparation and exactly one operator attempt after required input checks and genuine execution bindings authorized; no agent model execution or automatic retry', 'base': BASE,
+                    'scope': SCOPE, 'automatic_retry': False, 'ordinary_operator_transitions': 0,
+                    'submission': ['job-a', 'job-b'], 'review_before_execution': True},
+         'resource_policy': {'wall_seconds': 1200, 'implementation_attempt_seconds': 240,
+@@ -129,7 +129,7 @@
+         authority.set_policy('canonical_target', BASE)
+         authority.certify_contract('v12-assignment-1', profile=PROFILE)
+         for name, actor in ACTORS.items():
+-            authority.bind_endpoint(actor, 'principal:w71879-run8-' + name)
++            authority.bind_endpoint(actor, 'principal:w71879-run9-' + name)
+         for name in ('a', 'b'):
+             authority.add_route_handler('proof-impl-' + name, ACTORS['impl-' + name])
+             authority.add_route_handler('proof-review-' + name, ACTORS['review-' + name])
+@@ -252,7 +252,7 @@
+         payload = task_path.read_bytes()
+         given = dogfood_operator.input_manifest(
+             work_ref={'authority_uuid': UUID, 'work_id': WORKS[name]}, staged=empty,
+-            created_at=CREATED, manifest_id='w71879-run8-' + name,
++            created_at=CREATED, manifest_id='w71879-run9-' + name,
+             assignment_contract='v12-assignment-1',
+             human_contract={'artifact_id': 'w71879-task-' + name, 'media_type': 'application/json',
+                             'bytes': len(payload), 'content_digest': digest_of_bytes(payload),
+@@ -337,7 +337,7 @@
+                      'stages': [{'kind': kind, 'work_id': WORKS[name], 'profile_name': PROFILE,
+                                  'profile_digest': profile_digest, 'depends_on': dep[kind]}
+                                 for kind in ('implementation', 'review', 'integration')]})
+-    submission = {'schema': 'baton.v12.job-submission/1', 'submission_id': 'w71879-run8', 'jobs': jobs}
++    submission = {'schema': 'baton.v12.job-submission/1', 'submission_id': 'w71879-run9', 'jobs': jobs}
+     owned_submission(submission)
+     write_json(destination / 'stage-execution.json', config)
+     write_json(destination / 'submission.json', submission)
+@@ -381,7 +381,7 @@
+ def validate():
+     baseline()
+     started = time.monotonic()
+-    destination = Path(tempfile.mkdtemp(prefix='w71879-149488-validation-'))
++    destination = Path(tempfile.mkdtemp(prefix='w71879-150007-validation-'))
+     print('Retained validation directory:', destination, flush=True)
+     facts = bootstrap(destination / 'authority.sqlite3')
+     # Historical image values exercise schema composition ONLY. They are
+--- prepared-149854/offline_fixture.py
++++ prepared-150007/offline_fixture.py
+@@ -11,6 +11,6 @@
+ def documents_in_fixture(destination, images, facts):
+     root = destination.parent / 'offline-run'
+     (root / 'source').mkdir(parents=True, exist_ok=True)
+-    (root / 'OFFLINE-ONLY.txt').write_text('Temporary source nomination only; not actual run8 inputs, Git baseline or host validation.\n')
++    (root / 'OFFLINE-ONLY.txt').write_text('Temporary source nomination only; not actual run9 inputs, Git baseline or host validation.\n')
+     with mock.patch.object(deployment, 'RUN', root):
+         return deployment.documents(destination, images, facts)
+--- prepared-149854/operator-prepare.sh
++++ prepared-150007/operator-prepare.sh
+@@ -3,14 +3,14 @@
+ set -euo pipefail
+ umask 0002
+ 
+-run8_root=/home/sl/.local/state/baton/v12/w71879-run8
++run9_root=/home/sl/.local/state/baton/v12/w71879-run9
+ run1_source=/home/sl/.local/state/baton/v12/w71879-run1/source
+-target="$run8_root/target"
++target="$run9_root/target"
+ expected_commit=2fbb2d456638e5706218020aebfa47f0a82c8920
+ expected_tree=3492ba64448ab9d39bde53ee6456ce24e74ece2c
+ 
+-test ! -e "$run8_root"
+-test ! -L "$run8_root"
++test ! -e "$run9_root"
++test ! -L "$run9_root"
+ case " $(id -G) " in
+     *' 1001 '*) ;;
+     *) printf '%s\n' 'Operator must already hold workspace gid1001.' >&2; exit 1 ;;
+@@ -19,22 +19,22 @@
+ test "$(git --no-optional-locks -C "$run1_source" symbolic-ref --short HEAD)" = main
+ test -z "$(git --no-optional-locks -C "$run1_source" status --porcelain)"
+ 
+-mkdir -m 700 "$run8_root"
+-git clone --no-hardlinks --single-branch --branch main "$run1_source" "$run8_root/source"
++mkdir -m 700 "$run9_root"
++git clone --no-hardlinks --single-branch --branch main "$run1_source" "$run9_root/source"
+ install -d -g 1001 -m 2775 "$target"
+-git clone --no-hardlinks --single-branch --branch main "$run8_root/source" "$target"
+-git init --bare "$run8_root/integration-workspace"
++git clone --no-hardlinks --single-branch --branch main "$run9_root/source" "$target"
++git init --bare "$run9_root/integration-workspace"
+ 
+ # Initial preparation only: the fresh target has never held a submitted Job.
+ # The unchanged worker requires its own uid and exact 100644 -> 0644 modes.
+ chmod 0644 "$target/demo/greeting.py" "$target/demo/units.py" "$target/tests/test_greeting.py"
+ sudo -- chown -R --no-dereference 65532:1001 "$target"
+ 
+-for checkout_path in "$run8_root/source" "$target"; do
++for checkout_path in "$run9_root/source" "$target"; do
+     test "$(git --no-optional-locks -c safe.directory="$target" -C "$checkout_path" show --no-patch --format='%H %T' HEAD)" = "$expected_commit $expected_tree"
+     test "$(git --no-optional-locks -c safe.directory="$target" -C "$checkout_path" symbolic-ref --short HEAD)" = main
+     test -z "$(git --no-optional-locks -c safe.directory="$target" -C "$checkout_path" status --porcelain)"
+ done
+-test "$(git -C "$run8_root/integration-workspace" rev-parse --is-bare-repository)" = true
+-/usr/bin/env PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149488/target_posture.py "$target"
++test "$(git -C "$run9_root/integration-workspace" rev-parse --is-bare-repository)" = true
++/usr/bin/env PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-150007/target_posture.py "$target"
+ printf '%s\n' 'Fresh target preparation complete; no Authority provisioning or model run performed.'
+--- prepared-149854/policies/mount_policy.json
++++ prepared-150007/policies/mount_policy.json
+@@ -1,7 +1,7 @@
+ {
+-  "mutable_storage": "/home/sl/.local/state/baton/v12/w71879-run8/storage",
++  "mutable_storage": "/home/sl/.local/state/baton/v12/w71879-run9/storage",
+   "source": "read-only original source and manager-held private git-line",
+-  "target": "/home/sl/.local/state/baton/v12/w71879-run8/target",
++  "target": "/home/sl/.local/state/baton/v12/w71879-run9/target",
+   "target_reference": "refs/heads/main",
+   "workspace_group": 1001
+ }
+--- prepared-149854/policies/policy.json
++++ prepared-150007/policies/policy.json
+@@ -3,8 +3,8 @@
+   "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+   "ordinary_operator_transitions": 0,
+   "review_before_execution": true,
+-  "ruling": "M141636/return149484; run8 preparation and exactly one operator attempt after independent input review authorized; no agent model execution or automatic retry",
+-  "scope": "scope:w71879-run8",
++  "ruling": "M141636/return150004; run9 preparation and exactly one operator attempt after required input checks and genuine execution bindings authorized; no agent model execution or automatic retry",
++  "scope": "scope:w71879-run9",
+   "submission": [
+     "job-a",
+     "job-b"
+--- prepared-149854/policies/retention_policy.json
++++ prepared-150007/policies/retention_policy.json
+@@ -1,5 +1,5 @@
+ {
+   "automatic_deletion": false,
+   "disposition": "retain",
+-  "root": "/home/sl/.local/state/baton/v12/w71879-run8"
++  "root": "/home/sl/.local/state/baton/v12/w71879-run9"
+ }
+--- prepared-149854/record-snapshot/FINDING.md
++++ prepared-150007/record-snapshot/FINDING.md
+@@ -2496,3 +2496,253 @@
+ limits, resource/custody/target/success guards, deferrals and earlier uncertainties.
+ Seven failed runtime walls now total1350.217186488022s; prior six and run7 remain
+ separately recorded. Continue fresh preparation directly, not diagnostic expansion.
++
++
++## 2026-09-12T03:39:27.526Z — run8 preparation ready for independent review, tuner149488
++
++RUN8-PREPARATION-149488.md and prepared-149488/README.md give exact host preparation,
++validate/render and conditional provision/run commands. Manifest
++evidence/run8-preparation-149488/candidate-manifest.json SHA256
++d0c4aa3f674c72b90161d645009594f8ecbed6299c9bb13b70c2d4ea0692eab9 binds 944 files. Fresh run8 root/Authority
++c71879b2000000000000000000000001 and all identities/time/ruling updated; same
++accepted image IDs, source, tasks, instructions, early-failure/detail behavior and
++all guards preserved. Four helpers bound; posture/detail unchanged. Actual host
++root, validation,33 config files and review markers remain pending and absent.
++
++58 offline tests pass; exact copied test paths/reasons and full deltas retained.
++Prior864/73 files, both run7 markers,45 provider entries and seven sources unchanged.
++Original source clean. Eight constructed credential configurations preserve the
++supported registry/provider/reference with distinct fresh homes; no credential
++payload/old delivery read or copy. Run7 safe result/failure/detail/samples retained,
++first failure independently replayed at sample5/8.753998197993496s; total failed
++wall9.106425506004598s and provider-reported OAuth detail agree. No broader diagnosis.
++A new provenance utility import omission was corrected without accepted-code/test
++change; initial failed script/output/time uncertainty retained. Syntax/AST/diff pass.
++
++Direct feat preparation review, Next ops for concrete host steps. Owner149484
++already authorizes one OPERATOR attempt after independent actual-input review;
++no repeat permission request after that condition. Actual-input binding/review
++still precedes provision/run; no agent model run, image rebuild, automatic retry,
++historical modification, raw store or credential access. Current listed
++0.5419705809908919s; cumulative42.20336665593286s plus uncertainty. Seven failed
++run walls1350.217186488022s, prior six and run7 separately retained. All limits,
++resources/custody/target/success guards, deferrals and A/B proof requirements remain.
++
++## 2026-09-12T03:46:41Z — run8 preparation independently accepted, reviewer149543
++
++**Confirmed.** review-2026-09-12T03-46-41Z.md accepts944-file manifest
++d0c4aa3f674c72b90161d645009594f8ecbed6299c9bb13b70c2d4ea0692eab9.
++Independent58 offline tests, exact custody/source/four-helper checks, current
++image metadata, eight fresh credential configurations and bounded run7 replay pass.
++Initial reviewer path-allowlist omission corrected only in review utility; retained
++failure/cost uncertainty. Candidate unchanged, actual host outputs still absent.
++Pending preparation review is superseded by acceptance; actual-input review stays
++pending. Pass ops Next tune for exact host prepare/validate/render,33 actual input
++bindings, then independent final review. Owner149484 already permits exactly one
++operator attempt after that condition; no repeat permission request, agent model
++run, image rebuild or automatic retry. Full review carries exact commands,
++scope/tests/evidence and actual A/B integration outcomes still owed. All limits,
++guards, historical evidence/credentials and concrete deferrals remain.
++Current listed0.5083211320161354s, cumulative42.711687787948996s plus uncertainty;
++seven failed walls1350.217186488022s.
++
++
++## 2026-09-12T03:56:57.324550+00:00 — owner149607 actual run8 binding, tuner149637
++
++Owner149607 reports accepted host preparation, validation and rendering completed
++successfully. Current actual configuration is3ba82de6d6de6caab7312402582cc6b99418b7d8e2b7dfcebcbc1248ab3c38d7
++and submissiona2e2107eb0fcf6203d8d0e4e28c029fb2d0d1ff242d7a8ad787234ce33d08697. These are
++read from actual outputs; the handoff did not repeat literal printed hashes.
++Verify all33 files against accepted constructors/public facts, bind host posture
++and reuse accepted images/source evidence. Prior pending operator preparation is
++superseded; no prepare/render rebuild or runtime operation is needed here.
++
++Owner149484 already authorizes exactly one OPERATOR attempt after the existing
++final input review. Parent03:46:36Z routine OAuth ruling prevents adding another
++planning gate: this finishes the already scheduled run8 review, not a recurring
++review requirement for identity/credential-instance changes alone. Repeatable
++procedure implementation remains queued, not silently claimed complete or a
++prerequisite to this attempt. Preserve current genuine reviewer-marker guard.
++
++Tuner owns RUN8-FREEZE-149637.md and evidence/run8-freeze-149637 plus current
++dossier entries only; accepted helpers/source/tests/images remain unchanged.
++Preserve all limits, historical evidence/credentials, failure handling, deferrals
++and real A/B success requirements. Host UID/GID remains owner evidence under
++managed projection; no credential/store reads or agent model execution.
++
++
++## 2026-09-12T03:59:11.912593+00:00 — actual run8 freeze ready, tuner149637
++
++RUN8-FREEZE-149637.md and evidence/run8-freeze-149637/candidate-manifest.json
++sha256:81747c62cd9863f9c0899e1292d80fc82b1757501caa7628e6286b933ba1dd81 bind989 exact files including33 actual inputs.
++All actual bytes reconstruct exactly from accepted constructors/public facts.
++Current immutable image metadata and retained33-command installation/source checks
++agree; no rebuild. Four helpers,944 preparation bindings and prior source chain
++remain unchanged. Clean original source/target/main/base/tree,10 payloads each,
++bare workspace and target modes verify; real ownership remains operator evidence.
++Run8 unprovisioned; no markers fabricated or credential/store/provider access.
++No source/helper/test/old-package change; prior tests apply, bounded check/diff pass.
++
++This supersedes pending actual-input binding. Direct existing final independent
++feat review, Next ops; genuine new markers bind this candidate. Owner149484 already
++authorizes exactly one operator provision/run after that condition, reaffirmed
++149607; exact commands in handoff/execution-boundary.json, no new permission gate.
++Parent03:46:36Z routine recovery direction applied without adding a planning gate;
++repeatable-procedure implementation remains queued separately, not a run8 blocker.
++Actual A/B settlement/judgments/import/causal observation/both-terminal proof remains
++owed; all limits/guards/deferrals/old credentials/evidence preserved.
++Current listed0.13019086996791884s includes operator validation once;
++cumulative42.841878657916915s plus uncertainty, seven failed runtime walls1350.217186488022s.
++
++## 2026-09-12T04:00:48Z — final run8 inputs independently accepted, reviewer149664
++
++**Confirmed.** review-2026-09-12T04-00-48Z.md accepts989-file manifest
++81747c62cd9863f9c0899e1292d80fc82b1757501caa7628e6286b933ba1dd81 and all33 actual
++inputs, independently reconstructed with accepted constructors/public facts and
++actual source. Same images/four helpers/source/custody verified; clean source and
++target baseline, bare workspace and target modes match. Real ownership remains
++owner149607 attestation, managed projection disclosed. Literal stdout digests were
++not supplied; actual bytes/reconstruction establish the bound hashes.
++
++Genuine prepared-149488 markers created and verified: selected-images.json
++d0da4684accfa0cba16dc712d2456745de56ef3632f315a7c17a6649407a8f5f and
++execution-review.json dc3f225a30c91e30ca50a30659bc840287992708d385f36b4721e0d0f0e297c3.
++The latter binds990 files including manifest, configuration/submission/profile
++and all four helpers. Pending final review/markers superseded by acceptance.
++Owner149484/149607 already authorize exactly one OPERATOR attempt; no additional
++permission request. Pass ops Next tune for exact separate provision/run commands
++in review and RUN8-FREEZE-149637.md. No preparation repeat, rebuild, agent model
++execution, automatic retry, store/credential read, old-root repair or fake evidence.
++
++Parent03:46:36Z routine OAuth recovery ruling applies: smallest supported repeatable
++procedure remains queued for the next safe handoff, not another gate for this run
++or a claimed completed implementation. Retain all limits/guards/deferrals and
++historical evidence/credentials. Actual A settlement, B derived judges/coordinator
++import, causal merged observation and both terminal Jobs remain owed. Prior58 and
++181/54/106 checks reused unchanged; no source/test/helper edits or repeated suite.
++Independent evidence/review-149664 retains reconstruction/custody/marker checks.
++Current listed0.13972530400496908s; cumulative42.981603961921884s plus untimed
++review/marker/CLI/host/login/billing uncertainty; failed walls1350.217186488022s.
++
++
++## 2026-09-12T04:35:30.783992+00:00 — run8 observation binding defect, owner149847 / tuner149854
++
++Observed retained run8 result: submitted true, terminal_both false, wall
++243.6142136999988s; primary status-command RuntimeError retains only first2000
++stderr characters and cuts before the final exception. Owner149847 supplies full
++traceback diagnosis: StageObservation.observe_integration builds a context without
++binding_for; Integration.account calls required_tests(_bound_id(context, stage)),
++which selects both producers and refuses. Static source confirms that path.
++Owner reports both implementations/original reviews completed and no containers
++running; A terminal settlement remains unconfirmed. No lost traceback recovered
++by inference, no store/credential read or live retry. Eight failed runtime walls
++total1593.8314001880208s; prior seven remain separately attributable.
++
++Confirmed bounded reassignment: tuner may correct v12/python/tools/stage_execution.py
++read-only integration context to carry the real Job binding and configured producer.
++Reuse existing pure deployment binding/Work/target/allocation readers without
++constructing a serving deployment or adding sessions/acts. Preserve unknown-Job
++refusal, read-only owner lifetimes and unactivated-stage behavior. Add focused
++multi-Job coverage in v12/python/tests/tools/test_stage_execution.py.
++This explicitly supersedes treating the old observation context as sufficient
++for multi-Job settlement; historical component acceptance remains its prior scope.
++
++Also prepare successor prepared-149854/run.py error retention: keep bounded
++manager/engine command stderr tail with explicit truncation metadata so the
++terminal exception survives long traceback prefixes. Same2000-character bound,
++no raw provider stream/credential access, no changes to safe provider diagnostic
++reader or first-failure priority. New successor test_command_errors.py covers
++long/short/empty errors, exit status and success. Copied test_run8_preparation.py
++accounts for this exact authorized runner delta; all other assertions stay.
++W71830 standing test-change authority covers these exact paths; old run8 package/
++markers/evidence remain immutable. New package is correction evidence using old
++identities, never authority to execute a consumed run. No fresh attempt authorized.
++
++Direct independent review after correction, no model retry/historical-state repair
++or broader hardening. Preserve all execution/resource/custody/target/success limits,
++deferrals and safe diagnostics. Repeatable OAuth procedure stays queued separately.
++
++
++## 2026-09-12T04:43:29.763395+00:00 — bounded correction ready for review, tuner149854
++
++OBSERVATION-CORRECTION-149854.md and79-file manifestsha256:f39eedf82d8b87c238bddca481c0aceb8c32f8966d4f71d588ae54eb1d57ca21
++bind current source/test, successor and evidence. Shared pure binding/Work/target/
++allocation readers preserve actual Job identity in read-only integration context;
++no serving capability/session/lifecycle change. Unknown/foreign Jobs refuse.
++One additive real two-producer completion-account regression plus four existing
++observation checks pass; all412 old test method ASTs preserved. Successor runner
++keeps final2000 stderr characters with explicit truncation/length/exit status;
++five new command cases plus58 inherited cases pass. Safe provider diagnostics
++and first-failure priority unchanged. Exact copied test delta scheduled above.
++
++Run8's99 samples confirm both implementations/reviews complete; last A integrating/
++B blocked, terminal settlement unconfirmed. Retained run failed243.6142136999988s;
++no matching running containers. No historical read with corrected observer,
++repair/retry/new model execution, credentials or raw store access. Old989 files/
++markers preserved;45 provider/seven source bindings explicitly account for only
++the authorized source/test delta against exact retained bases. Initial red
++regression and provenance-utility allowance omission/correction retained.
++
++Pending implementation superseded. Direct independent feat review, Next ops;
++no broader hardening or new planning prerequisite. Candidate keeps old identities
++as fixtures only and carries no execution authority. Real A/B complete proof
++remains owed. All limits/guards/deferrals/old evidence and uncertainties preserved.
++Current listed3.5798444699659013s, cumulative46.56144843188778s plus uncertainty; eight failed
++walls1593.8314001880208s remain spent.
++
++## 2026-09-12T04:45:50Z — observation/error correction independently accepted, reviewer149919
++
++**Confirmed.** review-2026-09-12T04-45-50Z.md accepts79-file manifest
++f39eedf82d8b87c238bddca481c0aceb8c32f8966d4f71d588ae54eb1d57ca21.
++Independent5 product/63 offline checks and custody/provenance pass;412 existing
++product methods unchanged. Pure binding/Work/target/allocation readers preserve
++actual Job operands through read-only observation without serving capability.
++Unknown/foreign refusal, local read-only lifetimes and unactivated behavior stay.
++Runner keeps final2000 manager/engine stderr characters with explicit truncation/
++length/status; safe diagnostics and first-failure priority unchanged. Exact test
++paths/expectation changes and their acceptance recorded in review.
++
++Pending correction review superseded. Pass ops Next tune for owner disposition,
++not a model retry: consumed run8 and successor historical identities cannot be
++executed again; no new marker/config or image rebuild. Reuse accepted correction
++bytes if fresh preparation is authorized. Old989 custody/markers and source bases
++preserved. Run8 failed243.6142136999988s; A terminal settlement unconfirmed.
++Actual A settlement/B judges/coordinator import/causal merged observation/both
++terminal Jobs remain owed. All budgets/guards/deferrals/history and parent03:46:36Z
++queued repeatable recovery procedure retained; no new planning prerequisite.
++Current listed2.5590109850077423s; cumulative49.12045941689553s plus rounded/untimed/
++host/billing uncertainty; eight failed walls1593.8314001880208s remain spent.
++
++
++## 2026-09-12T04:59:54.280Z — owner150004 fresh run9 authority, tuner150007
++
++Owner150004 accepts review-2026-09-12T04-45-50Z.md and authorizes fresh run9
++preparation using accepted observer/runner corrections, unchanged images and
++supported credential delivery. Exactly one OPERATOR attempt is already authorized
++after required input checks and genuine execution bindings; no additional run
++permission request. This explicitly supersedes pending next-attempt disposition,
++not input/marker checks or agent execution restrictions. No rebuild, automatic
++retry, historical repair or broader hardening. Existing run8 authority is consumed.
++
++Revalidated current accepted source/test hashes and fresh root absence. Tuner owns
++new prepared-150007, RUN9-PREPARATION-150007.md and evidence/run9-preparation-150007
++plus current dossier entries only. Root /home/sl/.local/state/baton/v12/w71879-run9,
++Authority c71879b3000000000000000000000001. Copy accepted149854 behavior, changing
++only namespace/time/ruling and copied fixtures. Bound whole-helper/task/policy
++equality, reuse accepted tests/source/image evidence and provide exact host
++prepare/validate/render then conditional provision/run commands together.
++
++Copied test scope under W71830 authority: test_run9_preparation.py rebases four
++preparation cases from test_run8_preparation.py onto accepted149854; timestamp,
++report and observed-status fixtures update namespace/time; test_early_failure.py
++updates only synthetic fresh-run relabeling, preserving actual run6 historical
++replay. Command-error/stats/provider-detail/image cases unchanged. No product or
++old-package/test/image changes. Supported operator-file/w64268-run1 registry
++reference uses fresh per-worker homes; do not read/copy credential payloads or
++assume a new login. All historical roots/evidence/credentials remain preserved.
++
++Keep all1200/240/180/120 limits/resource/custody/target/failure/detail/success guards,
++actual A/B completion requirements and concrete deferrals. Eight failed walls
++1593.8314001880208s and cumulative listed49.12045941689553s plus uncertainty remain
++spent. Parent03:46:36Z recovery direction adds no planning gate; reuse accepted
++evidence and do not claim a repeatable procedure already exists.
+--- prepared-149854/record-snapshot/PLAN.md
++++ prepared-150007/record-snapshot/PLAN.md
+@@ -1,3 +1,122 @@
++# Current action — fresh run9 preparation, tuner150007 — 2026-09-12T04:59:54.280Z
++
++Owner150004 authorizes fresh inputs using accepted149919 correction and unchanged
++images, plus exactly one operator attempt after required checks/genuine bindings.
++Prepare exact host/validation/render/provision/run commands; no repeat run-permission
++request, rebuild, agent model execution, automatic retry or historical repair.
++Prior pending owner disposition superseded. Fresh root/Authority and copied test
++scope pinned in latest FINDING; all guards/limits/deferrals/evidence remain.
++
++# Historical correction acceptance (fresh preparation authorized150004)
++
++# Current action — observation/error correction accepted; owner disposition, reviewer149919 — 2026-09-12T04:45:50Z
++
++review-2026-09-12T04-45-50Z.md accepts79-file manifestf39eedf82d8b87c238bddca481c0aceb8c32f8966d4f71d588ae54eb1d57ca21.
++Independent five product checks and63 offline cases pass;412 old test methods
++unchanged. Actual Job binding survives read-only observation; runner retains
++bounded terminal stderr with explicit omission/status. Pass ops Next tune for
++owner next-attempt disposition. Pending independent correction review superseded.
++No retry/fresh executable package/marker authorized; successor149854 has historical
++identities only. Images need no rebuild. All guards/limits/deferrals remain; actual
++A/B completion still owed, run8 A settlement unconfirmed. Repeatable OAuth procedure
++queued separately, no new planning gate. Cumulative49.12045941689553s plus uncertainty;
++eight failed walls1593.8314001880208s remain spent.
++
++# Historical correction handoff (independently accepted)
++
++# Current action — independent observation/error correction review, tuner149854 — 2026-09-12T04:43:29.763395+00:00
++
++OBSERVATION-CORRECTION-149854.md and79-file manifestsha256:f39eedf82d8b87c238bddca481c0aceb8c32f8966d4f71d588ae54eb1d57ca21
++are ready. Five product observation checks and63 package checks pass; all412
++existing product test methods unchanged. Direct feat review, Next ops, under
++owner149847. No retry/historical repair/broader hardening. Prior pending correction
++superseded; all limits/guards/deferrals and actual A/B terminal proof remain.
++Run8 failed243.6142136999988s; A terminal settlement unconfirmed. Successor149854
++is correction evidence with historical identities, not a fresh runnable attempt.
++Listed cumulative46.56144843188778s plus uncertainty; failed walls1593.8314001880208s.
++
++# Historical correction (ready for independent review)
++
++# Current action — bounded observation/error correction, tuner149854 — 2026-09-12T04:35:30.783992+00:00
++
++Owner149847 assigns read-only per-Job integration binding and runner terminal-error
++retention, with focused coverage and direct independent review. Prior run8 execution
++next-action superseded: attempt failed243.6142136999988s, A settlement unconfirmed.
++No retry/repair/broader hardening. Exact source/test/successor scope in latest FINDING.
++All guards/limits/deferrals remain; eight failed walls1593.8314001880208s.
++
++# Historical run8 acceptance (attempt executed unsuccessfully)
++
++# Current action — run8 actual inputs accepted; one authorized operator attempt, reviewer149664 — 2026-09-12T04:00:48Z
++
++review-2026-09-12T04-00-48Z.md accepts989-file manifest81747c62cd9863f9c0899e1292d80fc82b1757501caa7628e6286b933ba1dd81
++and33 actual inputs. Genuine new markers bind990 files including manifest. Pass ops
++Next tune with exact separate provision/run commands in review/RUN8-FREEZE-149637.md.
++Owner149484/149607 already authorize ONE operator attempt; no additional permission
++request. Pending final input review superseded by acceptance and verified markers.
++No preparation repeat/rebuild/agent execution/auto retry; all guards/limits/deferrals
++and actual A/B completion proof remain. Parent03:46:36Z repeatable recovery procedure
++stays queued at next safe handoff, not a new run8 gate or a claimed implementation.
++Cumulative listed42.981603961921884s plus uncertainty; seven failed walls1350.217186488022s.
++
++# Historical final input handoff (accepted)
++
++# Current action — final run8 input review, tuner149637 — 2026-09-12T03:59:11.912593+00:00
++
++RUN8-FREEZE-149637.md and989-file manifest sha256:81747c62cd9863f9c0899e1292d80fc82b1757501caa7628e6286b933ba1dd81
++bind33 actual inputs, accepted unchanged images/source/four helpers and host evidence.
++All deterministic comparisons pass. Direct existing final feat review, Next ops
++with exact provision/run commands; owner149484 already permits ONE operator attempt
++after that condition. Genuine markers pending; no additional permission/planning
++gate, no preparation repeat/rebuild/agent model execution/auto retry. Parent03:46:36Z
++applies; repeatable-procedure implementation remains queued separately.
++Prior pending actual binding superseded. All guards/limits/deferrals and A/B proof
++requirements remain; cumulative listed42.841878657916915s plus uncertainty, seven failed
++walls1350.217186488022s.
++
++# Historical binding (completed)
++
++# Current action — bind actual run8 inputs, tuner149637 — 2026-09-12T03:56:57.324550+00:00
++
++Owner149607 completed host preparation/validation/render. Bind all33 actual inputs
++and current posture using accepted149488 package and existing image/source evidence;
++finish existing final independent review, then ops uses already granted149484
++one-attempt authorization. No additional permission/planning gate or rebuild.
++Prior pending host preparation superseded; all guards/limits/deferrals remain.
++
++# Historical preparation acceptance (operator completion reported149607)
++
++# Current action — run8 preparation accepted; operator host preparation, reviewer149543 — 2026-09-12T03:46:41Z
++
++review-2026-09-12T03-46-41Z.md accepts944-file manifest d0c4aa3f674c72b90161d645009594f8ecbed6299c9bb13b70c2d4ea0692eab9.
++Pass ops Next tune for exactly operator-prepare.sh, deployment.py validate/render
++from prepared-149488/README.md. Return actual posture/validation/all33 rendered
++inputs and printed hashes for custody binding and final independent review.
++No rebuild or deployment.py prepare. Owner149484 already authorizes exactly one
++operator attempt after final actual-input review; no new run permission request.
++Genuine run8 review markers remain pending. No agent model execution/auto retry.
++Same accepted images/behavior;58 independent offline tests and944 bindings pass.
++Prior pending preparation review is superseded; all limits/guards/deferrals,
++old roots/credentials/evidence and actual A/B outcomes remain.
++Cumulative listed42.711687787948996s plus uncertainty; seven failed walls1350.217186488022s.
++
++# Historical preparation handoff (independently accepted)
++
++# Current action — independent run8 preparation review, tuner149488 — 2026-09-12T03:39:27.526Z
++
++RUN8-PREPARATION-149488.md and 944-file manifest d0c4aa3f674c72b90161d645009594f8ecbed6299c9bb13b70c2d4ea0692eab9
++are ready.58 offline checks pass; same accepted images/behavior/four-helper scope
++with fresh identities and supported per-attempt credential delivery. Direct feat
++review, Next ops with exact host prepare/validate/render commands; bind resulting
++actual33 inputs for final independent review. Owner149484 already authorizes one
++operator attempt after that review condition, not agent execution or auto retry.
++No rebuild/broad diagnosis; old seven runs/credentials/evidence retained. Prior
++in-progress preparation superseded. All limits/guards/deferrals and A/B proof
++remain. Cumulative listed42.20336665593286s plus uncertainty; failed walls
++1350.217186488022s remain spent.
++
++# Historical action (fresh package ready)
++
+ # Current action — fresh run8 preparation, tuner149488 — 2026-09-12T03:32:20.835Z
+ 
+ Owner149484 logged in again after explicit run7 OAuth failure and authorizes fresh
+--- prepared-149854/run.py
++++ prepared-150007/run.py
+@@ -22,11 +22,11 @@
+ PYTHON = '/usr/bin/python3'
+ CWD = REPO / 'v12/python'
+ PREFIX = ['/usr/bin/env', 'PYTHONDONTWRITEBYTECODE=1', 'PYTHONPATH=src:.', PYTHON, '-m', 'tools.job_manager',
+-          '--store', str(RUN / 'jobs.sqlite3'), '--incarnation', 'w71879-run8', '--authority-uuid', UUID]
++          '--store', str(RUN / 'jobs.sqlite3'), '--incarnation', 'w71879-run9', '--authority-uuid', UUID]
+ SERVE = ['/usr/bin/env', 'PYTHONDONTWRITEBYTECODE=1', 'PYTHONPATH=src:.',
+          'BATON_V12_STAGE_EXECUTION_CONFIG=' + str(CONFIG / 'stage-execution.json'),
+          PYTHON, '-m', 'tools.job_manager', '--store', str(RUN / 'jobs.sqlite3'),
+-         '--incarnation', 'w71879-run8', '--authority-uuid', UUID, 'serve',
++         '--incarnation', 'w71879-run9', '--authority-uuid', UUID, 'serve',
+          '--control', str(RUN / 'control.sqlite3'), '--operations', 'tools.stage_execution:factory', '--interval', '1']
+ STATUS = PREFIX[:3] + ['BATON_V12_STAGE_EXECUTION_CONFIG=' + str(CONFIG / 'stage-execution.json')] + PREFIX[3:] + ['status', '--control', str(RUN / 'control.sqlite3'), '--observe', 'tools.stage_execution:observing_factory']
+ LIMITS = {ACTORS[name]: (240 if name.startswith('impl-') else 120 if name == 'integrator' else 180)
+--- prepared-149854/runner-helpers.json
++++ prepared-150007/runner-helpers.json
+@@ -1,6 +1,6 @@
+ {
+-  "deployment.py": "sha256:47e8fd83573656d0bfeba9808f5b7d487b8f4d50d64a218c711ec7a1632b7c04",
++  "deployment.py": "sha256:4c99557d5d780bc1fc2ea641dc524e3632e001851e785ab07e7ed3af31d69d64",
+   "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+-  "run.py": "sha256:f1597051ebae22196dcd6a2e0553faca0577936c21eec0fe7542647b094d23b5",
++  "run.py": "sha256:b85e074d96233cb29dc1c360eb26a4611534792249b036166c441df6225e6d5e",
+   "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+ }
+--- prepared-149854/tasks/a.json
++++ prepared-150007/tasks/a.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run8-a",
++  "task_id": "w71879-run9-a",
+   "verification": [
+     "python3",
+     "check_greeting.py"
+--- prepared-149854/tasks/approval.json
++++ prepared-150007/tasks/approval.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run8-approval",
++  "task_id": "w71879-run9-approval",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-149854/tasks/b.json
++++ prepared-150007/tasks/b.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run8-b",
++  "task_id": "w71879-run9-b",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-149854/tasks/review.json
++++ prepared-150007/tasks/review.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run8-review",
++  "task_id": "w71879-run9-review",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-149854/tasks/verification.json
++++ prepared-150007/tasks/verification.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run8-verification",
++  "task_id": "w71879-run9-verification",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-149854/test_early_failure.py
++++ prepared-150007/test_early_failure.py
+@@ -96,7 +96,7 @@
+             fixtures.RunnerTests.setUpClass()
+         fixture = fixtures.RunnerTests('test_incomplete_jobs_do_not_become_terminal_from_gap')
+         # Relabel an explicit synthetic copy for the fresh runner; retained facts stay exact.
+-        synthetic = json.loads(json.dumps(FAILED).replace(HISTORICAL_UUID, runner.UUID).replace('c71879b0-', runner.UUID[:8] + '-').replace(INCARNATION, 'w71879-run8'))
++        synthetic = json.loads(json.dumps(FAILED).replace(HISTORICAL_UUID, runner.UUID).replace('c71879b0-', runner.UUID[:8] + '-').replace(INCARNATION, 'w71879-run9'))
+         with mock.patch.object(fixtures, 'jobs', return_value=synthetic):
+             return fixture.exercise(terminal=False, **kwargs)
+ 
+--- prepared-149854/test_manifest_timestamp.py
++++ prepared-150007/test_manifest_timestamp.py
+@@ -1,7 +1,7 @@
+ """Actual frozen-schema regressions; emitted files are offline fixtures only.
+ 
+ No Authority is opened or created. No host validate/render gate is bypassed:
+-only the document constructor receives explicitly synthetic run8-shaped facts.
++only the document constructor receives explicitly synthetic run9-shaped facts.
+ """
+ from copy import deepcopy
+ import json
+@@ -17,18 +17,18 @@
+ 
+ HERE = Path(__file__).resolve().parent
+ ORIGINAL = '2026-09-11T15:06:04Z'
+-CORRECTED = '2026-09-12T03:32:20.835Z'
++CORRECTED = '2026-09-12T04:59:54.280Z'
+ 
+ 
+ class ManifestTimestampTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.retained = Path(tempfile.mkdtemp(prefix='w71879-149488-schema-fixtures-'))
++        cls.retained = Path(tempfile.mkdtemp(prefix='w71879-150007-schema-fixtures-'))
+         print('Retained offline schema fixture root:', cls.retained, flush=True)
+         (cls.retained / 'FIXTURE-ONLY.txt').write_text('Synthetic constructor parameters and document outputs. Not host validation or final run inputs. No Authority/model/runtime created.\n')
+         cls.images = json.loads((HERE / 'offline-images.json').read_text())
+         cls.facts = {'authority_uuid': deployment.UUID, 'policy_generation': 24,
+-                     'principals': {actor: 'principal:w71879-run8-' + actor for actor in deployment.ACTORS},
++                     'principals': {actor: 'principal:w71879-run9-' + actor for actor in deployment.ACTORS},
+                      'fixture_scope': 'synthetic offline constructor parameters, not public Authority observations'}
+         cls.good = cls.retained / 'valid'
+         cls.hashes = documents_in_fixture(cls.good, cls.images, cls.facts)
+--- prepared-149854/test_observed_status.py
++++ prepared-150007/test_observed_status.py
+@@ -31,11 +31,11 @@
+ class ObservedStatusTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.root = Path(tempfile.mkdtemp(prefix='w71879-149488-correction-fixtures-'))
++        cls.root = Path(tempfile.mkdtemp(prefix='w71879-150007-correction-fixtures-'))
+         print('Retained bounded correction fixtures:', cls.root, flush=True)
+-        (cls.root / 'OFFLINE-ONLY.txt').write_text('Synthetic inputs and copied Git source. Not actual run8 inputs, provider attribution, owner settlement or host state.\n')
++        (cls.root / 'OFFLINE-ONLY.txt').write_text('Synthetic inputs and copied Git source. Not actual run9 inputs, provider attribution, owner settlement or host state.\n')
+         facts = {'authority_uuid': deployment.UUID, 'policy_generation': 24,
+-                 'principals': {actor: 'principal:w71879-run8-' + actor for actor in deployment.ACTORS},
++                 'principals': {actor: 'principal:w71879-run9-' + actor for actor in deployment.ACTORS},
+                  'fixture_scope': 'synthetic constructor parameters only'}
+         cls.config = cls.root / 'documents'
+         documents_in_fixture(cls.config, json.loads((HERE / 'offline-images.json').read_text()), facts)
+@@ -61,7 +61,7 @@
+     def test_instructed_git_reads_preserve_real_repository_witness(self):
+         # Copy ordinary existing source files without using git init/clone,
+         # staging or any mutable Git operation. Never touch a real run target.
+-        source = Path('/home/sl/.local/state/baton/v12/w71879-run1/source')  # Original retained baseline; fresh run8 does not exist.
++        source = Path('/home/sl/.local/state/baton/v12/w71879-run1/source')  # Original retained baseline; fresh run9 does not exist.
+         target = self.root / 'copied-source'
+         shutil.copytree(source, target)
+         index_before = (target / '.git/index').read_bytes()
+@@ -94,7 +94,7 @@
+         self.assertEqual(str(runner.RUN / 'control.sqlite3'), taken.control)
+         self.assertEqual('tools.stage_execution:observing_factory', taken.observe)
+         self.assertEqual(str(runner.RUN / 'jobs.sqlite3'), taken.store)
+-        self.assertEqual('w71879-run8', taken.incarnation)
++        self.assertEqual('w71879-run9', taken.incarnation)
+ 
+     def test_selected_real_factory_loads_config_and_has_no_serving_actions(self):
+         name = runner.STATUS[runner.STATUS.index('--observe') + 1]
+--- prepared-149854/test_report_instructions.py
++++ prepared-150007/test_report_instructions.py
+@@ -20,11 +20,11 @@
+ class ReportInstructionsTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.root = Path(tempfile.mkdtemp(prefix='w71879-149488-report-fixtures-'))
++        cls.root = Path(tempfile.mkdtemp(prefix='w71879-150007-report-fixtures-'))
+         print('Retained synthetic report fixture root:', cls.root, flush=True)
+         (cls.root / 'FIXTURE-ONLY.txt').write_text('Synthetic offline documents, prompts and reports. No actual result namespace or execution evidence.\n')
+         facts = {'authority_uuid': deployment.UUID, 'policy_generation': 24,
+-                 'principals': {actor: 'principal:w71879-run8-' + actor for actor in deployment.ACTORS},
++                 'principals': {actor: 'principal:w71879-run9-' + actor for actor in deployment.ACTORS},
+                  'fixture_scope': 'synthetic offline facts, not Authority observations'}
+         cls.config = cls.root / 'constructor'
+         documents_in_fixture(cls.config, json.loads((HERE / 'offline-images.json').read_text()), facts)
+--- prepared-149854/verify_offline.py
++++ prepared-150007/verify_offline.py
+@@ -12,7 +12,7 @@
+ HERE = Path(__file__).resolve().parent
+ REPO = next(parent for parent in HERE.parents if (parent / 'v12/python/src/baton_v12').is_dir())
+ sys.path[:0] = [str(HERE), str(REPO / 'v12/python/src'), str(REPO / 'v12/python'), str(REPO / 'v12/worker')]
+-retained = Path(tempfile.mkdtemp(prefix='w71879-149488-offline-verification-'))
++retained = Path(tempfile.mkdtemp(prefix='w71879-150007-offline-verification-'))
+ started = time.monotonic()
+ output = io.StringIO()
+ with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+--- prepared-149854/test_run8_preparation.py
++++ prepared-150007/test_run9_preparation.py
+@@ -10,15 +10,15 @@
+ import run as runner
+ 
+ HERE = Path(__file__).resolve().parent
+-PRIOR = HERE.parent / 'prepared-149053'
+-CREATED = '2026-09-12T03:32:20.835Z'
+-RULING = 'M141636/return149484; run8 preparation and exactly one operator attempt after independent input review authorized; no agent model execution or automatic retry'
++PRIOR = HERE.parent / 'prepared-149854'
++CREATED = '2026-09-12T04:59:54.280Z'
++RULING = 'M141636/return150004; run9 preparation and exactly one operator attempt after required input checks and genuine execution bindings authorized; no agent model execution or automatic retry'
+ 
+ 
+-class Run8PreparationTests(unittest.TestCase):
++class Run9PreparationTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.root = Path(tempfile.mkdtemp(prefix='w71879-149488-public-bootstrap-'))
++        cls.root = Path(tempfile.mkdtemp(prefix='w71879-150007-public-bootstrap-'))
+         print('Retained offline public bootstrap:', cls.root, flush=True)
+         (cls.root / 'OFFLINE-ONLY.txt').write_text('Public bootstrap/schema tests only. Not host validation or execution.\n')
+         cls.facts = deployment.bootstrap(cls.root / 'authority.sqlite3')
+@@ -26,34 +26,34 @@
+         cls.hashes = documents_in_fixture(cls.config, json.loads((HERE / 'offline-images.json').read_text()), cls.facts)
+ 
+     def test_public_bootstrap_and_all_execution_bindings_use_fresh_namespace(self):
+-        self.assertEqual('c71879b2000000000000000000000001', self.facts['authority_uuid'])
++        self.assertEqual('c71879b3000000000000000000000001', self.facts['authority_uuid'])
+         self.assertEqual(24, self.facts['policy_generation'])
+         self.assertEqual(9, len(self.facts['principals']))
+         for actor, principal in self.facts['principals'].items():
+-            self.assertEqual('principal:w71879-run8-' + actor, principal)
+-        self.assertEqual({name: 'c71879b2-W' + str(i) for i, name in enumerate(('a', 'b', 'verification', 'review', 'approval'), 1)}, deployment.WORKS)
++            self.assertEqual('principal:w71879-run9-' + actor, principal)
++        self.assertEqual({name: 'c71879b3-W' + str(i) for i, name in enumerate(('a', 'b', 'verification', 'review', 'approval'), 1)}, deployment.WORKS)
+         config = json.loads((self.config / 'stage-execution.json').read_text())
+-        self.assertEqual('/home/sl/.local/state/baton/v12/w71879-run8', str(deployment.RUN))
++        self.assertEqual('/home/sl/.local/state/baton/v12/w71879-run9', str(deployment.RUN))
+         self.assertEqual(str(self.root / 'offline-run/target'), config['integration_target'])
+         self.assertEqual(str(self.root / 'offline-run/integration-workspace'), config['integration_workspace'])
+-        self.assertEqual('w71879-run8', json.loads((self.config / 'submission.json').read_text())['submission_id'])
++        self.assertEqual('w71879-run9', json.loads((self.config / 'submission.json').read_text())['submission_id'])
+         self.assertEqual(8, len(list((self.config / 'workers').glob('*.json'))))
+         for path in self.config.rglob('*'):
+             if path.is_file():
+-                self.assertNotIn('w71879-run7', path.read_text())
+-                self.assertNotIn('c71879b1', path.read_text())
++                self.assertNotIn('w71879-run8', path.read_text())
++                self.assertNotIn('c71879b2', path.read_text())
+         for argv in (runner.PREFIX, runner.SERVE, runner.STATUS):
+-            self.assertEqual('w71879-run8', argv[argv.index('--incarnation') + 1])
++            self.assertEqual('w71879-run9', argv[argv.index('--incarnation') + 1])
+         self.assertEqual(CREATED, deployment.CREATED)
+ 
+     def test_tasks_policies_and_report_contract_preserve_accepted_behavior(self):
+         for name, task in deployment.task_documents().items():
+             old = json.loads((PRIOR / 'tasks' / (name + '.json')).read_text())
+-            old['task_id'] = old['task_id'].replace('run7', 'run8')
++            old['task_id'] = old['task_id'].replace('run8', 'run9')
+             self.assertEqual(old, task)
+             self.assertEqual(task, json.loads((HERE / 'tasks' / (name + '.json')).read_text()))
+         for name, policy in deployment.policy_documents().items():
+-            old = json.loads((PRIOR / 'policies' / (name + '.json')).read_text().replace('w71879-run7', 'w71879-run8'))
++            old = json.loads((PRIOR / 'policies' / (name + '.json')).read_text().replace('w71879-run8', 'w71879-run9'))
+             if name == 'policy': old['ruling'] = RULING
+             self.assertEqual(old, policy)
+             self.assertEqual(policy, json.loads((HERE / 'policies' / (name + '.json')).read_text()))
+@@ -63,19 +63,19 @@
+ 
+     def test_deployment_runner_and_all_four_helpers_preserve_accepted_behavior(self):
+         old = (PRIOR / 'deployment.py').read_text()
+-        expected = old.replace('run7', 'run8').replace('c71879b1000000000000000000000001', 'c71879b2000000000000000000000001').replace('2026-09-12T02:23:07.032Z', CREATED).replace('M141636/return149049; run8 image and package preparation authorized; model execution not authorized', RULING).replace('w71879-149053-validation-', 'w71879-149488-validation-')
++        expected = old.replace('run8', 'run9').replace('c71879b2000000000000000000000001', 'c71879b3000000000000000000000001').replace('2026-09-12T03:32:20.835Z', CREATED).replace('M141636/return149484; run9 preparation and exactly one operator attempt after independent input review authorized; no agent model execution or automatic retry', RULING).replace('w71879-149488-validation-', 'w71879-150007-validation-')
+         self.assertEqual(expected, (HERE / 'deployment.py').read_text())
+-        expected_runner = (PRIOR / 'run.py').read_text().replace('w71879-run7', 'w71879-run8')
+-        expected_runner = expected_runner.replace("        raise RuntimeError('command failed: ' + repr(argv) + '\\n' + done.stderr[:2000])", "        tail = done.stderr[-2000:]\n        if len(done.stderr) > 2000:\n            tail = '[stderr truncated to final 2000 of ' + str(len(done.stderr)) + ' characters]\\n' + tail\n        raise RuntimeError('command failed (exit ' + str(done.returncode) + '): ' + repr(argv) + '\\n' + tail)")
++        expected_runner = (PRIOR / 'run.py').read_text().replace('w71879-run8', 'w71879-run9')
++
+         self.assertEqual(expected_runner, (HERE / 'run.py').read_text())
+         for name in ('target_posture.py', 'failure_observation.py', 'test_stats_observation.py', 'test_provider_detail.py'):
+             self.assertEqual((PRIOR / name).read_bytes(), (HERE / name).read_bytes())
+         self.assertIn("(HERE / 'run.py', HERE / 'deployment.py', HERE / 'target_posture.py', HERE / 'failure_observation.py')", (HERE / 'run.py').read_text())
+ 
+     def test_operator_recipe_preserves_fresh_only_guards_and_fixed_host_posture(self):
+-        expected = (PRIOR / 'operator-prepare.sh').read_text().replace('run7', 'run8').replace('prepared-149053/target_posture.py', 'prepared-149488/target_posture.py')
++        expected = (PRIOR / 'operator-prepare.sh').read_text().replace('run8', 'run9').replace('prepared-149488/target_posture.py', 'prepared-150007/target_posture.py')
+         self.assertEqual(expected, (HERE / 'operator-prepare.sh').read_text())
+-        for guard in ('test ! -e "$run8_root"', 'test ! -L "$run8_root"', '65532:1001', 'chmod 0644', 'git clone --no-hardlinks', 'w71879-run1/source'):
++        for guard in ('test ! -e "$run9_root"', 'test ! -L "$run9_root"', '65532:1001', 'chmod 0644', 'git clone --no-hardlinks', 'w71879-run1/source'):
+             self.assertIn(guard, expected)
+ 
+ 

@@ -1,0 +1,126 @@
+{
+  "work": "W71879",
+  "claim": 149356,
+  "retained_reconstruction": "/tmp/w71879-149356-documents-c_4fydb5",
+  "scope": "Actual host output comparison and read-only baseline/provenance. Not host UID/GID posture, model execution or terminal proof.",
+  "actual_documents": {
+    "authority-provisioning.json": "sha256:6d985c2be671d424008bc68fe52f895e2d0e5018e1f27d9283ae36ea4d9ac8ae",
+    "integration-instructions.txt": "sha256:4b3160e825f6d4f166fc5fc8477f8d85f3190420ba402dcfb780f01df7be9f76",
+    "manifests/a.json": "sha256:6dc49e1be9246ab053f6029dfac518aa67975d2e3414ad7b823657b5122d414e",
+    "manifests/approval.json": "sha256:c6332ae9651effc1095dc64a17c21630e14ecad7630bc07e07cf7db9a541cd70",
+    "manifests/b.json": "sha256:e60660f385987482db1122ec48d771d67291a9cc0e31e9f626e779070b5836c2",
+    "manifests/integrator.json": "sha256:b8e4683d4add8b4ff9c31b6e00f1e151339c3b235a1e172636a9ac3a97ac3c6a",
+    "manifests/review.json": "sha256:2ad37497f66c161c7dd1925de8d7bca3ce16f7a6f369372293d241e0b7ebc8e3",
+    "manifests/verification.json": "sha256:96ec449c8449e16aba61de3c73ee54f4b9ecb4b985586a2f72efc4d5507c72cd",
+    "policies/credential_policy.json": "sha256:5367e2ae17e31ebb65e3617ef3fd2535030f7ff12d81e7a671408d2dc9ffbe1b",
+    "policies/mount_policy.json": "sha256:d9c8837f42e60fe14daf378de5da59d5153c6660ebc0744d2471d79e702db087",
+    "policies/network_policy.json": "sha256:a14940241891a84e976d38f16fa111807cb9c5581e5229ccc91e746f61c14071",
+    "policies/policy.json": "sha256:17ebbf9fb36d7f7702d64e74a480d775a360d9fa6ec50e3a82469f32b7356921",
+    "policies/resource_policy.json": "sha256:8eeb3db84370b6882c214af5767c8f1dc6584d1b1d3f130f634cbdfd14fdc01f",
+    "policies/retention_policy.json": "sha256:7f1fd327a7b0abc279cab39299aaa041fcabdeaa3dfebe07f56183f31cb17acf",
+    "policies/tool_policy.json": "sha256:f7bc4929a448b26fa9916dfa898e97d5b96644023ee12ee5d629f233b6726134",
+    "role-instructions.json": "sha256:7c44b0c1554adda2e37e25943e3f40c85b6c6fe85e0a343f75bca5ee17518027",
+    "runtime-profile.json": "sha256:141d8994da3aa283cbdd16f72d574e6b81d288eb80d7c8c309c89061aac6695e",
+    "stage-execution.json": "sha256:bebe5ae64ade6c67857fba14fc6cf9145401157ed3e3b3f479aa16375b4e43d2",
+    "submission.json": "sha256:1486585695d9ca9c5dd3bf8da684ca7417761dbe3eb4bb207c1e9ffcfee52937",
+    "tasks/a.json": "sha256:1bf700bd58806362143825966f2273bd7090f7737c59e7d7b6b4453d078c057c",
+    "tasks/approval.json": "sha256:999005b7d74c2c233ba961cb14cc2466f222694c45abfedce78cf900aaf8fbfd",
+    "tasks/b.json": "sha256:383ae5ed6856da764e9854e3776fdf6b7eb3600c10ff5d9ef45ffd9a77256b02",
+    "tasks/review.json": "sha256:7e821c35c0ca5ec6bd950788ef37611cac2bc24d8a83a14363b3ad6025c574de",
+    "tasks/verification.json": "sha256:e0d4d0e0315cf6a00c8bd7f42bed94d4d5e37255231f3826db17ae3e8952470d",
+    "toolchain.json": "sha256:47192127fff971d3b7631dfc612209d825e578cb8a38de176ff2660495f83fb9",
+    "workers/approval.json": "sha256:324454f72c0993849bc3da5d703492818afe00fff4f083518bc530bca29aacec",
+    "workers/impl-a.json": "sha256:a30bd494634ece55351c62272faa557d237702c72edb410d8527d1e2ad4de925",
+    "workers/impl-b.json": "sha256:15ebf4063cf503f158b568a668bf87dc7942f8aa600aa0e03d17ba09576bc057",
+    "workers/integrator.json": "sha256:ad4927cbeb9d5a39d06e585eca3a3531ee352e5fd91c44be722b372a5df027ca",
+    "workers/review-a.json": "sha256:301901d55c4394a29f49c921913b41b10c653bf9202bf8f46b8fc630fc5cd869",
+    "workers/review-b.json": "sha256:c98ce1474f1e5ecdd0e939419035df809ad1120607acb0c5f439fa184bc0f968",
+    "workers/review.json": "sha256:98b441165b095afda04b148c895ad5a499f525eaac9a4bac152f94b0b30e750b",
+    "workers/verification.json": "sha256:c9e982b022d610d7cf4e9018c32e3ed458bc46c47fe23af35a0fc1b4f1fcdeee"
+  },
+  "prior_manifests_verified": [
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run7-freeze-149249/candidate-manifest.json",
+      "sha256": "sha256:dfe1c346ddf07c2b6bcd359a028e2a0f2eb4b6f61f10a97a21d0c707044d905b",
+      "files": 820
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/image-preparation-149053/candidate-manifest.json",
+      "sha256": "sha256:fa2f9526995166f66c195704b71bfb4504c3713d6820362565641b88246c9037",
+      "files": 73
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/diagnostic-148870/candidate-manifest.json",
+      "sha256": "sha256:0c13a9034aef59636214749876bb83960c18a457dc79a992cf1c6b2c15d0028f",
+      "files": 76
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-147109/candidate-manifest.json",
+      "sha256": "sha256:94d8b8e83b5d11a25edc8b91ae54e9bef98bc7a718cd8d17616784a00ea22cb2",
+      "files": 43
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run6-freeze-146988/candidate-manifest.json",
+      "sha256": "sha256:87a320bdee36cfdca8e7d18372e65ff26eeb314eeda948db3402692b328dd0a9",
+      "files": 568
+    }
+  ],
+  "provider_entries_verified": 45,
+  "source_requirements_verified": 4,
+  "observation_sources_verified": 3,
+  "image_checks": {
+    "provider": {
+      "id": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+      "static_files_and_launcher": 11,
+      "inspection_container": "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8",
+      "still_never_started": true
+    },
+    "integration": {
+      "id": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+      "static_files_and_launcher": 13,
+      "inspection_container": "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404",
+      "still_never_started": true
+    },
+    "exact_successful_commands": 33,
+    "host_build_and_static_inspection_seconds": 0.8677917640015949,
+    "scope": "Content from owner-executed accepted helper; direct current metadata independently matches. No static copy repeated, no provider execution.",
+    "four_helpers": {
+      "deployment.py": "sha256:f0cbf8e54cbc9b62a0019c4c2fa9a9e96ca7cd59b4cc592c536db7cd0b97bc9b",
+      "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+      "run.py": "sha256:f48cb792d80154758307e66c654fcd59b1f179396f166dc0c8bf0da13be55c1e",
+      "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+    }
+  },
+  "baseline": {
+    "source": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "branch": "main",
+      "status": "",
+      "baseline_files": 10
+    },
+    "target": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "branch": "main",
+      "status": "",
+      "baseline_files": 10
+    }
+  },
+  "integration_workspace_bare": true,
+  "run7_unprovisioned_names_absent": [
+    "authority.sqlite3",
+    "integration.sqlite3",
+    "jobs.sqlite3",
+    "control.sqlite3",
+    "state",
+    "storage",
+    "launch",
+    "credentials",
+    "evidence"
+  ],
+  "validation_file": "sha256:e86dfb80633780aff7dda52f88fcec3c00dab88fdabeeb2aec0a9d73d4b6cb9f",
+  "actual_configuration": "sha256:bebe5ae64ade6c67857fba14fc6cf9145401157ed3e3b3f479aa16375b4e43d2",
+  "actual_submission": "sha256:1486585695d9ca9c5dd3bf8da684ca7417761dbe3eb4bb207c1e9ffcfee52937",
+  "runtime_profile_digest": "sha256:32304e72dfb20ad1f9de26945ac6934a551d780a7a625e3c2e9e20f0d6bd2a6c",
+  "host_validation_seconds": 0.025083887012442574,
+  "verification_seconds": 0.07800101200700738
+}

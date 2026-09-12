@@ -1,0 +1,31 @@
+{
+  "claim": 145102,
+  "candidate_manifest": "sha256:9c2a40cd84df9bad831c4056f46237d94cb69021bb441f80987c6acbf68711cd",
+  "candidate_files": 229,
+  "provider_entries": 45,
+  "provider_absences": [
+    "v12/python/src/baton_v12/worker_manager/target_rework.py",
+    "v12/python/tests/manager/test_target_rework.py"
+  ],
+  "source_requirements": 4,
+  "generated_documents_matched": 33,
+  "ordinary_schema_validation": "pass through unchanged documents helper",
+  "temporary_path_retained": "/tmp/w71879-review-145102-documents-3u9k6nqt",
+  "config_files": {
+    "stage-execution.json": "sha256:0361270c0d84a36ef10537be10eb732c5c873af4139ff4d169083943d5aed9ae",
+    "submission.json": "sha256:f93620921f899a8d5dfbecacb222843d2f89710f6a23005547e3ff7cc9b6e357"
+  },
+  "images": {
+    "integration": "sha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2",
+    "provider": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+  },
+  "baseline": {
+    "source": "clean main at original commit/tree",
+    "target": "clean main at original commit/tree"
+  },
+  "bare_workspace": true,
+  "production_roots_absent": true,
+  "host_posture": "owner144993/145067 and unchanged host-generated outputs; managed projected IDs not host validation",
+  "host_validation": "sha256:eb1b1dfafa70e093bc4b651d0115c48ea1c666ac3ca09e722527b8caa3f2a190",
+  "wall_seconds": 0.16394702000252437
+}

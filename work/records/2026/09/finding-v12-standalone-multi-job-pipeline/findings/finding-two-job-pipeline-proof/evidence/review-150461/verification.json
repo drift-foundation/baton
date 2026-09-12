@@ -1,0 +1,29 @@
+{
+  "claim": 150461,
+  "candidate_files": 19,
+  "retained_source_files": 11,
+  "samples": 154,
+  "a_completed_sample": 117,
+  "last_sample_seconds": 401.79450912901666,
+  "review_reports": {
+    "review": {
+      "sha256": "sha256:c16408008061a349b2c2c6d6ef551d410aeeb96527ce552ec91d86e9665bd0c9",
+      "pass_at": "2026-09-12T05:59:52.189Z",
+      "frozen_at": "2026-09-12T05:59:52.168Z"
+    },
+    "approval": {
+      "sha256": "sha256:91f93f9e2c748c707cd05a785bdbc22f133246554e4e899b9795cf6d669f106c",
+      "pass_at": "2026-09-12T05:59:45.143Z",
+      "frozen_at": "2026-09-12T05:59:45.122Z"
+    }
+  },
+  "verification_age_at_old_deadline": 119.842,
+  "verification_remaining": 60.158,
+  "review_pass_after_old_deadline": 0.006,
+  "proposed_nonjudge_charge": 0.158,
+  "historical_terminal_both": false,
+  "coordinator_current_state": "unverified; public opener refusal recorded by tuner; not bypassed or repeated",
+  "old_candidate_bindings": 198,
+  "old_markers": 2,
+  "seconds": 0.04571810597553849
+}

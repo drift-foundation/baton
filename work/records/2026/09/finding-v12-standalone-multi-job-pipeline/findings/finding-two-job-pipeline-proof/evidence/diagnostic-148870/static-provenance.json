@@ -1,0 +1,105 @@
+{
+  "claim": 148870,
+  "owner_copy_event": 148865,
+  "files": {
+    "install.cjs": {
+      "path": "/tmp/w71879-148768-provider-install.cjs",
+      "bytes": 7196,
+      "sha256": "5cbab1670597f492cd4eeb946f3c344ebcb1fbd43c623ba192c9b33744461b85",
+      "mode": "0o644"
+    },
+    "cli-wrapper.cjs": {
+      "path": "/tmp/w71879-148768-provider-cli-wrapper.cjs",
+      "bytes": 4997,
+      "sha256": "61ad63033d9c8155d5e60a29f45dc4665afa07631c0b108e62cc83bf45ba490e",
+      "mode": "0o644"
+    },
+    "claude.exe": {
+      "path": "/tmp/w71879-148768-provider-claude.exe",
+      "bytes": 250162696,
+      "sha256": "5fb321bf417ffc5cd4e3f36e7c9c7e029bf47aaa36d5621db979fcc5e6eabe15",
+      "mode": "0o755"
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+      "bytes": 166051,
+      "mode": "0o644"
+    },
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "sha256": "a6c6e57ad38dd9c24c6ad864080ed02f0106ce27a509631b52436c1f9bbf5dd7",
+      "bytes": 154396,
+      "mode": "0o644"
+    }
+  },
+  "slices": [
+    {
+      "file": "error-construction.txt",
+      "binary_offset": 210817979,
+      "bytes": 11500,
+      "sha256": "3fb5fbe52fa4dc0cbd4cfa5075d933e79d3f668cb9a2ede3d8f2fc6037641e81"
+    },
+    {
+      "file": "result-construction.txt",
+      "binary_offset": 226354946,
+      "bytes": 1600,
+      "sha256": "c83dec4b54c7abada25513098a148913d82d533d00b977c345eb09e8cdb805a5"
+    },
+    {
+      "file": "json-publication.txt",
+      "binary_offset": 226428814,
+      "bytes": 3600,
+      "sha256": "6f993a46d5ea6c39f5bdbb21cdde5c33ded068442e37fe83d07dc34fcffbfe4c"
+    },
+    {
+      "file": "result-schema.txt",
+      "binary_offset": 203300431,
+      "bytes": 880,
+      "sha256": "805662e815aa2c449764fcdd188c10b3263826e38817a42954fdeeb2ba1abc34"
+    },
+    {
+      "file": "assistant-text-selection.txt",
+      "binary_offset": 211356221,
+      "bytes": 400,
+      "sha256": "53bfbcc502d4c6afc96f09eb36ba484f5f9fc6a004339e57592e52b09beaf017"
+    },
+    {
+      "file": "text-selection-export.txt",
+      "binary_offset": 215707279,
+      "bytes": 120,
+      "sha256": "5c5927272ef5c85d6431e3c9c69195b56d4428139ecbb0ff6c953832e917229f"
+    },
+    {
+      "file": "text-selection-import.txt",
+      "binary_offset": 226256742,
+      "bytes": 100,
+      "sha256": "f3ebb84086d40bb93f2555b875078d6d2182e761fd68e574f08f7aaf57c4a88c"
+    },
+    {
+      "file": "result-builder.txt",
+      "binary_offset": 218026363,
+      "bytes": 250,
+      "sha256": "6d28989d3ccbbe09d86c9b3169c0e6fb061d8c016ca0802325212ceb7a4054bd"
+    },
+    {
+      "file": "result-builder-export.txt",
+      "binary_offset": 218067818,
+      "bytes": 170,
+      "sha256": "30fac55b1e9f907f39c16c610dae5862fe84dd866ab2478c9d2d59d8c933d614"
+    },
+    {
+      "file": "result-builder-import.txt",
+      "binary_offset": 226249863,
+      "bytes": 100,
+      "sha256": "01e95ec1c6d6254e6b293534f4e29894c9d5947635f7ccaedba9878208b141d2"
+    }
+  ],
+  "elf": {
+    "class": 2,
+    "endianness": 1,
+    "machine": 62
+  },
+  "container": "a2b00b62bdbb3f413b6e4e9539cf71190b237430a8856367567315b4f98ef5af",
+  "image": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+  "seconds": 0.24158323399024084,
+  "provider_code_executed": false
+}

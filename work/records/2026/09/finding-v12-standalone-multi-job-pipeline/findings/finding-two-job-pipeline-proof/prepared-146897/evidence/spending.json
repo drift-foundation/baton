@@ -1,0 +1,15 @@
+{
+  "prior_failed_run_seconds": [
+    223.9077433210041,
+    300.8523036100087,
+    35.340723676010384,
+    272.6205856000015,
+    292.0414934099972
+  ],
+  "failed_run_total_seconds": 1124.7628496170219,
+  "prior_listed_preparation_diagnosis_seconds": 5.820637809978901,
+  "this_offline_verification_seconds": 0.29618631600169465,
+  "this_provenance_seconds": 0.00995228299871087,
+  "listed_preparation_diagnosis_seconds": 6.126776408979307,
+  "uncertainty": "Untimed reads, edits, CLI/static/manifest checks, previous failed commands, host/operator time and billing are additional. No enclosing tool-time double-counting or reserve transfer."
+}

@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149053/verify_offline.py"
+  ],
+  "returncode": 0,
+  "seconds": 0.3635497950017452
+}

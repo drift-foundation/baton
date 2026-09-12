@@ -1,0 +1,253 @@
+{
+  "accepted_candidate_files_verified": 79,
+  "accepted_candidate_manifest": "sha256:f39eedf82d8b87c238bddca481c0aceb8c32f8966d4f71d588ae54eb1d57ca21",
+  "prior_custody": {
+    "old_manifest": "sha256:81747c62cd9863f9c0899e1292d80fc82b1757501caa7628e6286b933ba1dd81",
+    "manifest_bindings_checked": 989,
+    "authorized_changed_manifest_paths": [],
+    "old_run8_markers": {
+      "selected-images.json": "sha256:d0da4684accfa0cba16dc712d2456745de56ef3632f315a7c17a6649407a8f5f",
+      "execution-review.json": "sha256:dc3f225a30c91e30ca50a30659bc840287992708d385f36b4721e0d0f0e297c3"
+    },
+    "source_bindings": {
+      "provider_chain": [
+        "AGENTS.md",
+        "v12/README.md",
+        "v12/python/src/baton_v12/checkpoint_profiles.py",
+        "v12/python/src/baton_v12/integration/__init__.py",
+        "v12/python/src/baton_v12/integration/admission.py",
+        "v12/python/src/baton_v12/integration/driver.py",
+        "v12/python/src/baton_v12/integration/execution.py",
+        "v12/python/src/baton_v12/integration/git_profile.py",
+        "v12/python/src/baton_v12/integration/queue.py",
+        "v12/python/src/baton_v12/integration/reconciliation.py",
+        "v12/python/src/baton_v12/integration/recovery.py",
+        "v12/python/src/baton_v12/integration/runtime.py",
+        "v12/python/src/baton_v12/integration/schema.py",
+        "v12/python/src/baton_v12/integration/store.py",
+        "v12/python/src/baton_v12/job_manager/delegation.py",
+        "v12/python/src/baton_v12/worker_manager/attempts.py",
+        "v12/python/src/baton_v12/worker_manager/review_cycles.py",
+        "v12/python/src/baton_v12/worker_manager/schema.py",
+        "v12/python/src/baton_v12/worker_manager/target_rework.py",
+        "v12/python/tests/integration/test_admission.py",
+        "v12/python/tests/integration/test_coordinator.py",
+        "v12/python/tests/integration/test_driver.py",
+        "v12/python/tests/integration/test_execution.py",
+        "v12/python/tests/integration/test_reconciliation.py",
+        "v12/python/tests/integration/test_recovery.py",
+        "v12/python/tests/integration/test_runtime.py",
+        "v12/python/tests/job_manager/test_delegation.py",
+        "v12/python/tests/job_manager/test_scheduling.py",
+        "v12/python/tests/manager/test_attempts.py",
+        "v12/python/tests/manager/test_integration_image.py",
+        "v12/python/tests/manager/test_integration_worker.py",
+        "v12/python/tests/manager/test_store.py",
+        "v12/python/tests/manager/test_target_rework.py",
+        "v12/python/tests/tools/test_integration_bundle.py",
+        "v12/python/tests/tools/test_integration_worker.py",
+        {
+          "path": "v12/python/tests/tools/test_stage_execution.py",
+          "accepted_base": "f48e5077377e2e4fc2e571268d737a984a86633abd8eab5a19ba9faa5608a3d5",
+          "current": "sha256:707f4c79aff798b6583866f6da62711545a8a0cf74608bf27ff268a1d2ebb2fc",
+          "authority": "owner149847"
+        },
+        "v12/python/tools/integration_bundle.py",
+        "v12/python/tools/integration_worker.py",
+        {
+          "path": "v12/python/tools/stage_execution.py",
+          "accepted_base": "89d048c9ef0684f4e10859ffa5faf3d698e61b5e6d073689667e06e28aedd2e0",
+          "current": "sha256:b56451dcd899e09ebc2f47505ffaf85018cd9ef003b09e60af8caf4b543553c9",
+          "authority": "owner149847"
+        },
+        "v12/worker/Dockerfile.integration",
+        "v12/worker/integration_contract.py",
+        "v12/worker/integration_entry.py",
+        "v12/worker/integration_workload.py",
+        "v12/python/tools/single_worker.py",
+        "v12/python/tests/tools/test_single_worker.py"
+      ],
+      "source_requirements": [
+        "v12/python/src/baton_v12/integration/oci_delivery.py",
+        "v12/worker/integration_workload.py",
+        "v12/worker/Dockerfile.integration",
+        {
+          "path": "v12/python/tools/stage_execution.py",
+          "accepted_base": "sha256:89d048c9ef0684f4e10859ffa5faf3d698e61b5e6d073689667e06e28aedd2e0",
+          "current": "sha256:b56451dcd899e09ebc2f47505ffaf85018cd9ef003b09e60af8caf4b543553c9",
+          "authority": "owner149847"
+        }
+      ],
+      "current_observation_sources": [
+        "v12/python/tools/job_manager.py",
+        "v12/python/src/baton_v12/job_manager/projection.py",
+        "v12/python/src/baton_v12/worker_manager/workspaces.py"
+      ]
+    },
+    "unchanged_product_test_methods": 412,
+    "added_product_test_methods": [
+      "TwoBoundJobsTraverseServingAndCorrection.test_readonly_integration_observation_keeps_the_bound_job"
+    ],
+    "successor_changes": [
+      "README.md",
+      "run.py",
+      "test_run8_preparation.py",
+      "runner-helpers.json"
+    ],
+    "four_helpers": {
+      "deployment.py": "sha256:47e8fd83573656d0bfeba9808f5b7d487b8f4d50d64a218c711ec7a1632b7c04",
+      "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+      "run.py": "sha256:f1597051ebae22196dcd6a2e0553faca0577936c21eec0fe7542647b094d23b5",
+      "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+    },
+    "source_and_test": {
+      "v12/python/tools/stage_execution.py": "sha256:b56451dcd899e09ebc2f47505ffaf85018cd9ef003b09e60af8caf4b543553c9",
+      "v12/python/tests/tools/test_stage_execution.py": "sha256:707f4c79aff798b6583866f6da62711545a8a0cf74608bf27ff268a1d2ebb2fc"
+    },
+    "verification_seconds": 0.12916160401073284
+  },
+  "images": {
+    "integration": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+    "provider": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13"
+  },
+  "four_helpers": {
+    "deployment.py": "sha256:4c99557d5d780bc1fc2ea641dc524e3632e001851e785ab07e7ed3af31d69d64",
+    "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+    "run.py": "sha256:b85e074d96233cb29dc1c360eb26a4611534792249b036166c441df6225e6d5e",
+    "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+  },
+  "changed_copies": [
+    "README.md",
+    "deployment.py",
+    "offline_fixture.py",
+    "operator-prepare.sh",
+    "policies/mount_policy.json",
+    "policies/policy.json",
+    "policies/retention_policy.json",
+    "record-snapshot/FINDING.md",
+    "record-snapshot/PLAN.md",
+    "run.py",
+    "runner-helpers.json",
+    "tasks/a.json",
+    "tasks/approval.json",
+    "tasks/b.json",
+    "tasks/review.json",
+    "tasks/verification.json",
+    "test_early_failure.py",
+    "test_manifest_timestamp.py",
+    "test_observed_status.py",
+    "test_report_instructions.py",
+    "verify_offline.py"
+  ],
+  "offline_worker_configurations": {
+    "approval": {
+      "credential_sources": "/home/sl/.baton/credential-sources.json",
+      "credential_slots": [
+        "claude"
+      ],
+      "credential_profile": {
+        "claude": {
+          "provider": "operator-file",
+          "reference": "w64268-run1"
+        }
+      },
+      "credential_home": "/tmp/w71879-150007-public-bootstrap-k_dvm895/offline-run/credentials/approval"
+    },
+    "review": {
+      "credential_sources": "/home/sl/.baton/credential-sources.json",
+      "credential_slots": [
+        "claude"
+      ],
+      "credential_profile": {
+        "claude": {
+          "provider": "operator-file",
+          "reference": "w64268-run1"
+        }
+      },
+      "credential_home": "/tmp/w71879-150007-public-bootstrap-k_dvm895/offline-run/credentials/review"
+    },
+    "verification": {
+      "credential_sources": "/home/sl/.baton/credential-sources.json",
+      "credential_slots": [
+        "claude"
+      ],
+      "credential_profile": {
+        "claude": {
+          "provider": "operator-file",
+          "reference": "w64268-run1"
+        }
+      },
+      "credential_home": "/tmp/w71879-150007-public-bootstrap-k_dvm895/offline-run/credentials/verification"
+    },
+    "integrator": {
+      "credential_sources": "/home/sl/.baton/credential-sources.json",
+      "credential_slots": [
+        "claude"
+      ],
+      "credential_profile": {
+        "claude": {
+          "provider": "operator-file",
+          "reference": "w64268-run1"
+        }
+      },
+      "credential_home": "/tmp/w71879-150007-public-bootstrap-k_dvm895/offline-run/credentials/integrator"
+    },
+    "review-b": {
+      "credential_sources": "/home/sl/.baton/credential-sources.json",
+      "credential_slots": [
+        "claude"
+      ],
+      "credential_profile": {
+        "claude": {
+          "provider": "operator-file",
+          "reference": "w64268-run1"
+        }
+      },
+      "credential_home": "/tmp/w71879-150007-public-bootstrap-k_dvm895/offline-run/credentials/review-b"
+    },
+    "impl-b": {
+      "credential_sources": "/home/sl/.baton/credential-sources.json",
+      "credential_slots": [
+        "claude"
+      ],
+      "credential_profile": {
+        "claude": {
+          "provider": "operator-file",
+          "reference": "w64268-run1"
+        }
+      },
+      "credential_home": "/tmp/w71879-150007-public-bootstrap-k_dvm895/offline-run/credentials/impl-b"
+    },
+    "review-a": {
+      "credential_sources": "/home/sl/.baton/credential-sources.json",
+      "credential_slots": [
+        "claude"
+      ],
+      "credential_profile": {
+        "claude": {
+          "provider": "operator-file",
+          "reference": "w64268-run1"
+        }
+      },
+      "credential_home": "/tmp/w71879-150007-public-bootstrap-k_dvm895/offline-run/credentials/review-a"
+    },
+    "impl-a": {
+      "credential_sources": "/home/sl/.baton/credential-sources.json",
+      "credential_slots": [
+        "claude"
+      ],
+      "credential_profile": {
+        "claude": {
+          "provider": "operator-file",
+          "reference": "w64268-run1"
+        }
+      },
+      "credential_home": "/tmp/w71879-150007-public-bootstrap-k_dvm895/offline-run/credentials/impl-a"
+    }
+  },
+  "credential_scope": "Synthetic generated deployment documents only; no credential payload, registry contents, delivery or authentication read/probe.",
+  "original_source_clean": true,
+  "fresh_run9_absent": true,
+  "actual_inputs_and_markers_absent": true,
+  "verification_seconds": 0.14506326499395072
+}

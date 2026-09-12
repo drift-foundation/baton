@@ -1,0 +1,25 @@
+test_candidate_constructor_emits_all_six_valid_manifests (test_manifest_timestamp.ManifestTimestampTests.test_candidate_constructor_emits_all_six_valid_manifests) ... ok
+test_old_value_is_rejected_by_real_frozen_manifest_validator (test_manifest_timestamp.ManifestTimestampTests.test_old_value_is_rejected_by_real_frozen_manifest_validator) ... ok
+test_original_constant_refuses_through_actual_constructor (test_manifest_timestamp.ManifestTimestampTests.test_original_constant_refuses_through_actual_constructor) ... ok
+test_active_attempt_deadline_remains_fatal (test_stats_observation.RunnerTests.test_active_attempt_deadline_remains_fatal) ... ok
+test_actual_registered_watchdog_is_fatal_and_contains (test_stats_observation.RunnerTests.test_actual_registered_watchdog_is_fatal_and_contains) ... ok
+test_eof_gap_flushes_surrounding_evidence_and_continues (test_stats_observation.RunnerTests.test_eof_gap_flushes_surrounding_evidence_and_continues) ... ok
+test_final_verification_failure_stays_fatal (test_stats_observation.RunnerTests.test_final_verification_failure_stays_fatal) ... ok
+test_host_capacity_refuses_before_submission (test_stats_observation.RunnerTests.test_host_capacity_refuses_before_submission) ... ok
+test_incomplete_jobs_do_not_become_terminal_from_gap (test_stats_observation.RunnerTests.test_incomplete_jobs_do_not_become_terminal_from_gap) ... ok
+test_missing_claim_timestamp_remains_fatal (test_stats_observation.RunnerTests.test_missing_claim_timestamp_remains_fatal) ... ok
+test_required_status_inspect_storage_remain_fatal (test_stats_observation.RunnerTests.test_required_status_inspect_storage_remain_fatal) ... ok
+test_subprocess_timeout_remains_gap_and_continues (test_stats_observation.RunnerTests.test_subprocess_timeout_remains_gap_and_continues) ... ok
+test_bounded_output_has_explicit_truncation (test_stats_observation.StatsTests.test_bounded_output_has_explicit_truncation) ... ok
+test_no_ids_is_not_requested (test_stats_observation.StatsTests.test_no_ids_is_not_requested) ... ok
+test_nonzero_retains_eof_and_partial_output_without_retry (test_stats_observation.StatsTests.test_nonzero_retains_eof_and_partial_output_without_retry) ... ok
+test_requested_empty_or_whitespace_is_unavailable (test_stats_observation.StatsTests.test_requested_empty_or_whitespace_is_unavailable) ... ok
+test_required_inspect_and_label_checks_stay_strict (test_stats_observation.StatsTests.test_required_inspect_and_label_checks_stay_strict) ... ok
+test_subprocess_timeout_retains_partial_bytes (test_stats_observation.StatsTests.test_subprocess_timeout_retains_partial_bytes) ... ok
+test_success_retains_requested_ids_raw_output_and_timing (test_stats_observation.StatsTests.test_success_retains_requested_ids_raw_output_and_timing) ... ok
+test_watchdog_and_nontelemetry_errors_propagate (test_stats_observation.StatsTests.test_watchdog_and_nontelemetry_errors_propagate) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.052s
+
+OK

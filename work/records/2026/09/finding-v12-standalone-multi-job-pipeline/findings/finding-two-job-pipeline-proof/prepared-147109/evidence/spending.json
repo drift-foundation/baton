@@ -1,0 +1,19 @@
+{
+  "prior_failed_run_seconds": [
+    223.9077433210041,
+    300.8523036100087,
+    35.340723676010384,
+    272.6205856000015,
+    292.0414934099972,
+    216.34791136499553
+  ],
+  "failed_run_total_seconds": 1341.1107609820174,
+  "prior_listed_preparation_diagnosis_seconds": 6.558265653970405,
+  "provenance_seconds": 0.014020125003298745,
+  "failed_suite_seconds": 0.3226501370081678,
+  "intermediate_suite_seconds": 0.3156040370085975,
+  "final_suite_seconds": 0.31302173700532876,
+  "diagnostic_replay_seconds": 0.008093866999843158,
+  "uncertainty": "Untimed reads/edits/CLI/static/manifest checks, failed null-terminal summary, locator errors, prior command failures, host/operator and billing uncertainty remain additional; no enclosing tool-time double counting or reserve transfer.",
+  "listed_preparation_diagnosis_seconds": 7.531655556995641
+}

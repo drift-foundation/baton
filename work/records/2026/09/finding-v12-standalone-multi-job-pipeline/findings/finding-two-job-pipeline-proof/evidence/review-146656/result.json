@@ -1,0 +1,100 @@
+{
+  "review_claim": 146656,
+  "candidate_manifest": "sha256:a9ff1b8e38de58a862319c13de4bf1badccc15c28d8b88b74eb7f955d0a9f531",
+  "files": 444,
+  "images_metadata_match": true,
+  "actual_input_check": {
+    "work": "W71879",
+    "claim": 146623,
+    "retained_reconstruction": "/tmp/w71879-146623-documents-y8oxi9no",
+    "scope": "Actual host output comparison and read-only baseline/provenance. Not host UID/GID posture, model execution or terminal proof.",
+    "actual_documents": {
+      "authority-provisioning.json": "sha256:46d605a800f3c1130b6c51d1dfb4a1a299af1ba28fcee6abb786351e57446f65",
+      "integration-instructions.txt": "sha256:599b5612c1d3c1062f9184f233ec2f58cccd4fd2f728b1c176727513700f6379",
+      "manifests/a.json": "sha256:2b1aa1abc994798997a23e98156db7a07de6b0d955b89943aa68d931dba1d5ea",
+      "manifests/approval.json": "sha256:4cc79b71eaa8da84c86a51977e26cc150505a1e518ae26b6b4c58dcfcea8591f",
+      "manifests/b.json": "sha256:0187271800886d08e12c02787c6150b4df87aee5b360fc98ca23c969dd85abc2",
+      "manifests/integrator.json": "sha256:cff96a93ec859f9dcb35ce3aaccead77bc2cd8a6bfbdd25776c40f2d40785263",
+      "manifests/review.json": "sha256:8246dabe342e11c851f97250f2691b9d6f8892558ee03a7d0273d2d8528396d5",
+      "manifests/verification.json": "sha256:4d37abe035b0a7d82d876d64f223595ffc53fd5b9cc2870f620d82b361c6cef1",
+      "policies/credential_policy.json": "sha256:5367e2ae17e31ebb65e3617ef3fd2535030f7ff12d81e7a671408d2dc9ffbe1b",
+      "policies/mount_policy.json": "sha256:959902432b9f7891886a954e66703af7523bcae65dac15d4212c9525ca598d80",
+      "policies/network_policy.json": "sha256:a14940241891a84e976d38f16fa111807cb9c5581e5229ccc91e746f61c14071",
+      "policies/policy.json": "sha256:9e69c27ca84397e47f24b7f5206b5ca66f71ed38bc756920d8f9be828e998996",
+      "policies/resource_policy.json": "sha256:8eeb3db84370b6882c214af5767c8f1dc6584d1b1d3f130f634cbdfd14fdc01f",
+      "policies/retention_policy.json": "sha256:10ca0007d58ab4e43cf916cf0b368e604e25ba4391bce504ba5287ca043cd954",
+      "policies/tool_policy.json": "sha256:f7bc4929a448b26fa9916dfa898e97d5b96644023ee12ee5d629f233b6726134",
+      "role-instructions.json": "sha256:7c44b0c1554adda2e37e25943e3f40c85b6c6fe85e0a343f75bca5ee17518027",
+      "runtime-profile.json": "sha256:de0c07d61ccf4a25adc23d7512dc55fd1b39e1a2eab84bd225e76e75801b7912",
+      "stage-execution.json": "sha256:0b1f2afcd8a004852eaa438512cce89a6d89bc121f29f2cf02dc37b21f540dfd",
+      "submission.json": "sha256:dbee9d671c298fdf3092a09493c0262075788de593381ea457ede76d36a230a7",
+      "tasks/a.json": "sha256:ee6aa7dcd3e9236222953d1a5ac7c6243328e06acd90d6c760773519bef87df9",
+      "tasks/approval.json": "sha256:4941846bbe9e8326945c481616e0d3c98866ce404f68c1de10ecac5322c83a3c",
+      "tasks/b.json": "sha256:2433a21cf7aaa3cf7c31a096d6dc99179fb18348a917b6964810c53ec0c5c44c",
+      "tasks/review.json": "sha256:3a7d191dcabeec26e1627df62ac3dd53cb8413c2b428a13cc59f2822c748fd48",
+      "tasks/verification.json": "sha256:ab3402b239e97d0f2e7e54a1b0638d38f1105d9ff25e3ff0afa0da1787f01704",
+      "toolchain.json": "sha256:d7554927724fb74d7afa1d356ab5025170b8f33dd8b68a0f1d580500c4e540a6",
+      "workers/approval.json": "sha256:8d83dbeb11608e3bdbf44bd6111712fcef6168b096b2775ffd8f162d0842340b",
+      "workers/impl-a.json": "sha256:a622ea9bf3f7c28d808e534706477cecb785071321f7c0b91f8e83f8c08e1804",
+      "workers/impl-b.json": "sha256:b6ab557f9213da940f451e4e8f16f10edadfed5179bf71bc7c38e2ecca455f12",
+      "workers/integrator.json": "sha256:4fb1a613e3d87ba456d71a205bf152518531bfb39fefe1e87febaf1b61872447",
+      "workers/review-a.json": "sha256:37896faebf3ba79ae5d6054968d1839a7ec2abec2bdede35758342ee722f9c83",
+      "workers/review-b.json": "sha256:a5e88c78be97e4da3f8c02c49848511dd8eeee60a105173d6124298a0c490937",
+      "workers/review.json": "sha256:3fca92ced75ece3b5a3face547e71b17e3878cc3f29f8a1cc3af63cd0de85b4f",
+      "workers/verification.json": "sha256:24de3bde3c42604a97e4dd43cef18c0616f339b6856796429fc7ae2f02702486"
+    },
+    "prior_manifests_verified": [
+      {
+        "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146538/candidate-manifest.json",
+        "sha256": "sha256:bbb5761e087ed5bd61c8371de09346da35f9632f7cbbb203ce16b657cdc5483b",
+        "files": 37
+      },
+      {
+        "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145615/candidate-manifest.json",
+        "sha256": "sha256:601f57182dd6b19922b5ce5e0f7b58abde24f74533a3720af07d75f3bd13bbdd",
+        "files": 33
+      },
+      {
+        "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run4-freeze-145461/candidate-manifest.json",
+        "sha256": "sha256:8dd26ff86cbef12103b9184d4f06fd8d011494dd3f4c967bd533f9f032378f0a",
+        "files": 327
+      }
+    ],
+    "provider_entries_verified": 45,
+    "source_requirements_verified": 4,
+    "baseline": {
+      "source": {
+        "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+        "branch": "main",
+        "status": "",
+        "baseline_files": 10
+      },
+      "target": {
+        "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+        "branch": "main",
+        "status": "",
+        "baseline_files": 10
+      }
+    },
+    "integration_workspace_bare": true,
+    "run5_unprovisioned_names_absent": [
+      "authority.sqlite3",
+      "integration.sqlite3",
+      "jobs.sqlite3",
+      "control.sqlite3",
+      "state",
+      "storage",
+      "launch",
+      "credentials",
+      "evidence"
+    ],
+    "validation_file": "sha256:068d5b7c99c3a7b01712a0e8c99472a0bbfefeef649684905384088532196e9d",
+    "actual_configuration": "sha256:0b1f2afcd8a004852eaa438512cce89a6d89bc121f29f2cf02dc37b21f540dfd",
+    "actual_submission": "sha256:dbee9d671c298fdf3092a09493c0262075788de593381ea457ede76d36a230a7",
+    "runtime_profile_digest": "sha256:b40d5d2609351818da42833e742d63056e3e947b494f1ca27b92a9105aa162a3",
+    "host_validation_seconds": 0.025035662998561747,
+    "verification_seconds": 0.04096820000268053
+  },
+  "custody_check_seconds": 0.00908059100038372,
+  "execution_authorized": false
+}

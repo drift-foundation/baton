@@ -1,0 +1,12 @@
+{
+  "prior_listed": 8.034513683007784,
+  "static_verification": 0.24158323399024084,
+  "adapter_first": 9.614955884986557,
+  "adapter_final": 9.558853342983639,
+  "reader_first": 0.3315211730077863,
+  "reader_final": 0.33523380299448036,
+  "worker_entry": 0.22131634000106715,
+  "cumulative_listed": 28.337977460971555,
+  "failed_run_walls": 1341.1107609820174,
+  "uncertainty": "Untimed initial/static reads, hashes, edits, searches, commands and preservation checks; prior failed commands, host/operator and billing. No reserve transfer or outer tool-wall double count."
+}

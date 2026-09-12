@@ -8070,6 +8070,44 @@ class TwoBoundJobsTraverseServingAndCorrection(
                       caught.exception.message)
         del deployment
 
+    def test_readonly_integration_observation_keeps_the_bound_job(self):
+        """The public observer reaches the real two-producer completion account."""
+        from contextlib import ExitStack
+        from baton_v12.authority import Authority
+        from baton_v12.integration import IntegrationStore
+        from baton_v12.job_manager import episodes_of
+
+        held = self.integrating()
+        self.drive_job(held.job, held.composed, "job-a", "integration", "completed", ticks=4)
+        stage = {"job_id": "job-a", "kind": "integration", "stage_id": "job-a/integration",
+                 **episodes_of(held.job, "job-a/integration")[-1]}
+        expected = held.composed.integrator.observe(stage)
+        self.assertEqual(expected["state"], "completed")
+        document = self.composed_document(line_declared_base=self.base, **self.traversing())
+        with ExitStack() as guards:
+            for owner, method in ((Authority, "open"), (Authority, "session"),
+                    (IntegrationStore, "open"), (stage_execution, "operations_from"),
+                    (stage_execution.Integration, "run"), (stage_execution.Integration, "finish"),
+                    (stage_execution.scheduler, "activate_pool"), (stage_execution.review_cycles, "create_line")):
+                guards.enter_context(mock.patch.object(owner, method, side_effect=AssertionError("observation acted: " + method)))
+            observed = stage_execution.observation_from(document, held.job, held.control, checkout=self.checkout)
+            self.assertEqual(observed.observe_integration(stage), expected)
+            with self.assertRaises(ContractRefusal) as unknown:
+                observed.observe_integration(dict(stage, job_id="unbound-job"))
+            self.assertIn("binds no Job", unknown.exception.message)
+            # A real Job's binding must also refuse a foreign fixed assignment.
+            with self.assertRaises(ContractRefusal) as foreign:
+                observed.observe_integration(dict(stage, job_id="job-b"))
+            self.assertEqual(foreign.exception.code, "operation-collision")
+            # Both producer selections pass through the observation context;
+            # this probe does not stand in for the real completion above.
+            def required(reader, selected):
+                return reader.required_tests(stage_execution._bound_id(reader.deployment, selected))
+            with mock.patch.object(stage_execution.Integration, "observe", required):
+                for job_id in ("job-a", "job-b"):
+                    self.assertEqual(observed.observe_integration(dict(stage, job_id=job_id)),
+                                     held.composed.integrator.required_tests(job_id))
+
     def test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool(
             self):
         """THE TERMINAL HALF, driven inside a deployment serving two Jobs.

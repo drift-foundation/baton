@@ -1,0 +1,43 @@
+{
+  "claim": 152791,
+  "verified_files": {
+    "accounting-152750": 89,
+    "accounting-152563": 92,
+    "accounting-150501": 75,
+    "run9-freeze-150125": 198,
+    "run9-budget-150384": 19
+  },
+  "previous_manifest_exclusions": [
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/FINDING.md",
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/PLAN.md",
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/PROGRESS.md"
+  ],
+  "current_journals_captured_before_review_append": true,
+  "changed_package_files": [
+    "README.md",
+    "accounting.py",
+    "run.py",
+    "runner-helpers.json",
+    "test_joined_judges.py",
+    "test_stats_observation.py",
+    "verify_offline.py"
+  ],
+  "helper_bindings_verified": 5,
+  "execution_markers_absent": true,
+  "host_evidence": {
+    "source": "canonical Work event152747, baton.slaw,2026-09-12T13:16:39Z",
+    "command": "evidence/accounting-152563/inspect_readers.py in host context",
+    "control": {
+      "state": "read",
+      "configured_gid": 1001
+    },
+    "integration": {
+      "state": "published",
+      "job_id": "job-b",
+      "policy_generation": null
+    },
+    "seconds": 0.004285491013433784,
+    "qualification": "Owner-reported host evidence; not independently re-probed. Does not establish managed refusal cause or B import."
+  },
+  "seconds": 0.043393594009103253
+}

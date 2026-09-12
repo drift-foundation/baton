@@ -1,0 +1,4 @@
+Standalone docker ps -a with exact run9 Authority label, reviewer150461:
+3fbd01bf2553 Exited (137)
+e3abf8787175 Exited (0)
+No running containers observed. Historical containers retained.

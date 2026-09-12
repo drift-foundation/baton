@@ -1,0 +1,32 @@
+{
+  "work": "W71879",
+  "claim": 144072,
+  "render": {
+    "chunk_id": "bcca6d",
+    "wall_time_seconds": 0.038097835,
+    "exit_code": 0,
+    "original_token_count": 46,
+    "output": "{\"configuration\": \"sha256:747ae861826fa7993a847f610e98b83859b1b25db0b15f83ca2fb42cc2660976\", \"submission\": \"sha256:154cdee4547dd3e0fbde6021fecf1abdf91db4643ec71e84e18e577bee199287\"}\n"
+  },
+  "grants": {
+    "provision": {
+      "chunk_id": "0a7d95",
+      "wall_time_seconds": 0.000001463,
+      "exit_code": 0,
+      "original_token_count": 31,
+      "output": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n{\"matchedRules\":[]}\n"
+    },
+    "run": {
+      "chunk_id": "1282ba",
+      "wall_time_seconds": 0.000002114,
+      "exit_code": 0,
+      "original_token_count": 31,
+      "output": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n{\"matchedRules\":[]}\n"
+    }
+  },
+  "target_operations_executed": false,
+  "rules": [
+    "/home/sl/.codex/rules/default.rules",
+    "/home/sl/.codex/rules/baton.rules"
+  ]
+}

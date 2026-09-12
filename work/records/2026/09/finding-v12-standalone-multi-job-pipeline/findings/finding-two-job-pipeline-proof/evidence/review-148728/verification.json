@@ -1,0 +1,12 @@
+{
+  "claim": 148728,
+  "counts": {
+    "proposal": 3,
+    "accepted_runner": 43
+  },
+  "source_bindings": 12,
+  "destination_absent": true,
+  "destination": "/tmp/w71879-148686-provider-package.json",
+  "seconds": 0.0038121060060802847,
+  "scope": "Proposal/accepted-runner/source custody only. Exact installed provider metadata remains unavailable; no copying, provider execution, model calls or credential reads."
+}

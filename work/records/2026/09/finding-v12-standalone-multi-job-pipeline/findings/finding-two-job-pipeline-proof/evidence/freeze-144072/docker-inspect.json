@@ -1,0 +1,132 @@
+[
+    {
+        "Architecture": "amd64",
+        "Config": {
+            "Entrypoint": [
+                "python3",
+                "/opt/baton/dogfood_entry.py"
+            ],
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "NODE_VERSION=22.23.2",
+                "YARN_VERSION=1.22.22",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "PYTHONUNBUFFERED=1",
+                "PYTHONPATH=/opt/baton",
+                "PYTHONHASHSEED=0",
+                "NODE_NO_WARNINGS=1"
+            ],
+            "User": "65532:65532"
+        },
+        "Created": "2026-09-11T11:42:46.22648759Z",
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/fbe03dbe56b20b52a3fa3baa9c9fc146bc987f84aac800e892cda3a66807237f/diff:/var/lib/docker/overlay2/d4b9d629e863d88e71223e1fda21ea847d9752d0699e40641fd15c10ae5464f4/diff:/var/lib/docker/overlay2/4a9e2b791f766a6bd7ea1b92d7755f57733b21ca2fa2ce51a11bcdec675fbad9/diff:/var/lib/docker/overlay2/4dd1762cecfe1e85a28ed9e81f863663df7e4b35fe484bde051f6c357e989ee7/diff:/var/lib/docker/overlay2/af2c934d14fb62f310c437a4d5524242f397d561ae670a1b099b5fa82c5bc82d/diff:/var/lib/docker/overlay2/742ed00adf7e9d2452a0e5595ce3409b3857af61742cc3ab7c8ec0a9cf6ad2af/diff:/var/lib/docker/overlay2/1290ec0d0d5c90cedc0d2ec4ff714b8e50bee783fb4692be483e7f7224d870e8/diff:/var/lib/docker/overlay2/ab05f3861ed589d35af64ca567e4612157ef1e5609e12b913a894274e6bc5196/diff:/var/lib/docker/overlay2/9d9f5ed7c79323227e93af256c1f48c6bc55a2af07584e41e3830f96d868e38a/diff:/var/lib/docker/overlay2/d10e6fe74a4ad603078c6aa24ae9e27f99a8a22dc9ec4c457d1aacdfcdc1e45e/diff:/var/lib/docker/overlay2/a780637dc0f8615f6bf0acd1cef3e46ee6639773001ede121de01d81da64e821/diff:/var/lib/docker/overlay2/f3f5f2215d6cac2aebfa6b3632366d94b2d2178dd5b67d97077888ae32ade3ea/diff:/var/lib/docker/overlay2/00e9e5ef85a9a36d6f1253a083693cc94715db0b2ec7f02919bffb0401ede4cc/diff:/var/lib/docker/overlay2/8108d8074799de71e77c0f6029a09f26871ec2896a8fb44ebef8f35e845a5aad/diff:/var/lib/docker/overlay2/bfee542e94d18ea54304fbe7bb7ec599dec5428e03d20083251c6bf872f9d42a/diff:/var/lib/docker/overlay2/a5ac5b94c69ca5987980769ebf3365794ea85b85882f908a5a41d693e82d8c87/diff:/var/lib/docker/overlay2/b4e113dd9e9b7d3f1517fb5693a05430d1e688110d163a6b2ea51b4d723f806c/diff",
+                "MergedDir": "/var/lib/docker/overlay2/6ea3c37adcceb73d251932e3eb594b8a0ff2ceafe5132be7fef7c346b74d19cd/merged",
+                "UpperDir": "/var/lib/docker/overlay2/6ea3c37adcceb73d251932e3eb594b8a0ff2ceafe5132be7fef7c346b74d19cd/diff",
+                "WorkDir": "/var/lib/docker/overlay2/6ea3c37adcceb73d251932e3eb594b8a0ff2ceafe5132be7fef7c346b74d19cd/work"
+            },
+            "Name": "overlay2"
+        },
+        "Id": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+        "Metadata": {
+            "LastTagTime": "2026-09-11T05:42:46.230824186-06:00"
+        },
+        "Os": "linux",
+        "Parent": "sha256:1a10b2882e648a7369961c658c90eaa5877b5041660cf6e8530e76c392f26d69",
+        "RepoDigests": [],
+        "RepoTags": [
+            "baton-w71879-provider:candidate-141676"
+        ],
+        "RootFS": {
+            "Layers": [
+                "sha256:411a86676185cb54d695a805b238194a64e9b77e0c723f3802fbb87d333ea0b3",
+                "sha256:cb8e24308fa9dfe5d100e9df89c8bf815d7fbf1bc2820a4df3e886a85b5af266",
+                "sha256:719ff9a705e2ab3113fb02e2b712b746ced7ba6e0c391e1d4732a74cb9a3e8e7",
+                "sha256:e7f3647533c8d394413ca75664e9778541700b2de74b1a911d549d88d67ca469",
+                "sha256:55bbdff9d54a38f8e67b2f30506ed492ebc2160ac1ffa34878578b11dd4fc44b",
+                "sha256:401f985d6391a1fa21a6e5e5ab1a03aa2dea7229e75506da45c9ac0e632e8098",
+                "sha256:d36c5f7069f60e267bbbbd068d95525f6a30e61b65afb12ec2e7926bbe6219cc",
+                "sha256:5e3fc97650dbe882e9ed9c32040d88e65ef88a2af53cd0b7262a86181d895f0c",
+                "sha256:7040ebb009b9f41e3831a61ec43e9d05d820f8152b56386f69601590f2c324bf",
+                "sha256:76e0c1fa78ca55f9d02cb51fa3b2ec3e688180b0a63f6a1ecac576dc3b869b76",
+                "sha256:2ef9b5915d0cdf902adf0bc066e7be723915cd16e3b38669cf020e958b6ffc58",
+                "sha256:498842fc6d881f710721c2e2e072cb397a5d3bc9948d6c6676c21461e1a4799a",
+                "sha256:6f203ef14ec679dfb8bb7accf43250091a7bf3870f1369214e9a604814644c98",
+                "sha256:7f5aaa6f9999dee1bf5741b832d4e1fffde8747de68fa56038dadc6bd02770f6",
+                "sha256:ae76fa2f2624364ba58b1c5ae100d11ed5d0c91c4785047af4075e50f8f06ad9",
+                "sha256:e91ce98ea400be915867e319952212641a28f2aee9132c13e6cdb9f16f05573e",
+                "sha256:db11d968afd04bb2cedf3a0873df69ec7050ab004d4ea746bb30b904da5c6c84",
+                "sha256:477f75e978fcf43f9b010683e053d5995f713c674c600efb63942af54e05fc23"
+            ],
+            "Type": "layers"
+        },
+        "Size": 627574121
+    },
+    {
+        "Architecture": "amd64",
+        "Config": {
+            "Entrypoint": [
+                "python3",
+                "/opt/baton/integration_entry.py"
+            ],
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "NODE_VERSION=22.23.2",
+                "YARN_VERSION=1.22.22",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "PYTHONUNBUFFERED=1",
+                "PYTHONPATH=/opt/baton",
+                "PYTHONHASHSEED=0",
+                "NODE_NO_WARNINGS=1"
+            ],
+            "User": "65532:65532"
+        },
+        "Created": "2026-09-11T11:42:46.398207815Z",
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/var/lib/docker/overlay2/3a4de10b3918514a99296beae24767d304de481692ada038686dc45915a4c467/diff:/var/lib/docker/overlay2/0c8734efcfd3f981017b666def99d7b01c97a4196cb58860ab91fdbf41b6548d/diff:/var/lib/docker/overlay2/b02c924617414311c513c3191588c3b2095cef08dcad9b67555b4da5925a1c1e/diff:/var/lib/docker/overlay2/c7f94330d8ac1fdd41674bacc31cc99cfad12830e0f2388b348c8e40f2a51d53/diff:/var/lib/docker/overlay2/4a9e2b791f766a6bd7ea1b92d7755f57733b21ca2fa2ce51a11bcdec675fbad9/diff:/var/lib/docker/overlay2/4dd1762cecfe1e85a28ed9e81f863663df7e4b35fe484bde051f6c357e989ee7/diff:/var/lib/docker/overlay2/af2c934d14fb62f310c437a4d5524242f397d561ae670a1b099b5fa82c5bc82d/diff:/var/lib/docker/overlay2/742ed00adf7e9d2452a0e5595ce3409b3857af61742cc3ab7c8ec0a9cf6ad2af/diff:/var/lib/docker/overlay2/1290ec0d0d5c90cedc0d2ec4ff714b8e50bee783fb4692be483e7f7224d870e8/diff:/var/lib/docker/overlay2/ab05f3861ed589d35af64ca567e4612157ef1e5609e12b913a894274e6bc5196/diff:/var/lib/docker/overlay2/9d9f5ed7c79323227e93af256c1f48c6bc55a2af07584e41e3830f96d868e38a/diff:/var/lib/docker/overlay2/d10e6fe74a4ad603078c6aa24ae9e27f99a8a22dc9ec4c457d1aacdfcdc1e45e/diff:/var/lib/docker/overlay2/a780637dc0f8615f6bf0acd1cef3e46ee6639773001ede121de01d81da64e821/diff:/var/lib/docker/overlay2/f3f5f2215d6cac2aebfa6b3632366d94b2d2178dd5b67d97077888ae32ade3ea/diff:/var/lib/docker/overlay2/00e9e5ef85a9a36d6f1253a083693cc94715db0b2ec7f02919bffb0401ede4cc/diff:/var/lib/docker/overlay2/8108d8074799de71e77c0f6029a09f26871ec2896a8fb44ebef8f35e845a5aad/diff:/var/lib/docker/overlay2/bfee542e94d18ea54304fbe7bb7ec599dec5428e03d20083251c6bf872f9d42a/diff:/var/lib/docker/overlay2/a5ac5b94c69ca5987980769ebf3365794ea85b85882f908a5a41d693e82d8c87/diff:/var/lib/docker/overlay2/b4e113dd9e9b7d3f1517fb5693a05430d1e688110d163a6b2ea51b4d723f806c/diff",
+                "MergedDir": "/var/lib/docker/overlay2/a1eb5580b6c6298fce7b58ca0df1dd9983fe09c76f3002d24f14f8bb1223e7bd/merged",
+                "UpperDir": "/var/lib/docker/overlay2/a1eb5580b6c6298fce7b58ca0df1dd9983fe09c76f3002d24f14f8bb1223e7bd/diff",
+                "WorkDir": "/var/lib/docker/overlay2/a1eb5580b6c6298fce7b58ca0df1dd9983fe09c76f3002d24f14f8bb1223e7bd/work"
+            },
+            "Name": "overlay2"
+        },
+        "Id": "sha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2",
+        "Metadata": {
+            "LastTagTime": "2026-09-11T05:42:46.402460966-06:00"
+        },
+        "Os": "linux",
+        "Parent": "sha256:6f095c3d24b12532261dacba54bfb9294b6bfd04219d67a7a0bc1d823d37ca81",
+        "RepoDigests": [],
+        "RepoTags": [
+            "baton-w71879-integration:candidate-141676"
+        ],
+        "RootFS": {
+            "Layers": [
+                "sha256:411a86676185cb54d695a805b238194a64e9b77e0c723f3802fbb87d333ea0b3",
+                "sha256:cb8e24308fa9dfe5d100e9df89c8bf815d7fbf1bc2820a4df3e886a85b5af266",
+                "sha256:719ff9a705e2ab3113fb02e2b712b746ced7ba6e0c391e1d4732a74cb9a3e8e7",
+                "sha256:e7f3647533c8d394413ca75664e9778541700b2de74b1a911d549d88d67ca469",
+                "sha256:55bbdff9d54a38f8e67b2f30506ed492ebc2160ac1ffa34878578b11dd4fc44b",
+                "sha256:401f985d6391a1fa21a6e5e5ab1a03aa2dea7229e75506da45c9ac0e632e8098",
+                "sha256:d36c5f7069f60e267bbbbd068d95525f6a30e61b65afb12ec2e7926bbe6219cc",
+                "sha256:5e3fc97650dbe882e9ed9c32040d88e65ef88a2af53cd0b7262a86181d895f0c",
+                "sha256:7040ebb009b9f41e3831a61ec43e9d05d820f8152b56386f69601590f2c324bf",
+                "sha256:76e0c1fa78ca55f9d02cb51fa3b2ec3e688180b0a63f6a1ecac576dc3b869b76",
+                "sha256:2ef9b5915d0cdf902adf0bc066e7be723915cd16e3b38669cf020e958b6ffc58",
+                "sha256:498842fc6d881f710721c2e2e072cb397a5d3bc9948d6c6676c21461e1a4799a",
+                "sha256:6f203ef14ec679dfb8bb7accf43250091a7bf3870f1369214e9a604814644c98",
+                "sha256:7f5aaa6f9999dee1bf5741b832d4e1fffde8747de68fa56038dadc6bd02770f6",
+                "sha256:ae76fa2f2624364ba58b1c5ae100d11ed5d0c91c4785047af4075e50f8f06ad9",
+                "sha256:dccd09ebc01974520a3ed335927362ab8da149e1fb55622f16da006519ba7811",
+                "sha256:6d5a00aaf4fba50c3bc756b9ea914d94f5687b5c2f61c6d73c2e1e27588b6d7b",
+                "sha256:cfcd07acbd544c2d756a267a52014f6278b098929dc4723ddb7f460c7043a602",
+                "sha256:db11d968afd04bb2cedf3a0873df69ec7050ab004d4ea746bb30b904da5c6c84",
+                "sha256:477f75e978fcf43f9b010683e053d5995f713c674c600efb63942af54e05fc23"
+            ],
+            "Type": "layers"
+        },
+        "Size": 627706844
+    }
+]

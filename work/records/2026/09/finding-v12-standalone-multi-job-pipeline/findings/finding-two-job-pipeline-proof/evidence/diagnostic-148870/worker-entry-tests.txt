@@ -1,0 +1,181 @@
+test_a_document_carrying_material_it_should_not_latches_too (test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_carrying_material_it_should_not_latches_too)
+CLOSED, not an allowlist. An extra top-level member is how a second ... ok
+test_a_document_from_another_generation_latches (test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_from_another_generation_latches)
+W26291 REPLACED `test_an_invalid_posture_...`. The posture axis is ... ok
+test_a_document_short_a_member_or_carrying_a_bad_value_latches (test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_document_short_a_member_or_carrying_a_bad_value_latches) ... ok
+test_a_healthy_container_keeps_answering_after_a_foreign_frame (test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_healthy_container_keeps_answering_after_a_foreign_frame)
+The other half of the same move: lifting the binding out of ... ok
+test_a_latched_fault_does_not_answer_another_sessions_envelope (test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_does_not_answer_another_sessions_envelope)
+Startup correlation does not relax the common session binding. ... ok
+test_a_latched_fault_refuses_a_foreign_protocol_the_same_way (test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_refuses_a_foreign_protocol_the_same_way)
+The binding is protocol AND session, and both precede the latched ... ok
+test_a_latched_fault_with_no_readable_envelope_says_nothing (test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_latched_fault_with_no_readable_envelope_says_nothing) ... ok
+test_a_refused_binding_on_a_latched_container_still_answers_once (test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_a_refused_binding_on_a_latched_container_still_answers_once)
+The three properties the correction had to KEEP. Which fault a ... ok
+test_exactly_one_envelope_is_read_and_the_task_is_never_dispatched (test_worker_image.ABootstrapFaultIsLatchedAndCorrelated.test_exactly_one_envelope_is_read_and_the_task_is_never_dispatched)
+Reading the envelope grants no task, workspace, output, tool or ... ok
+test_a_descriptor_that_is_not_the_frozen_shape_refuses (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_descriptor_that_is_not_the_frozen_shape_refuses)
+The closed set is the contract's own. A member missing is a ... ok
+test_a_directory_link_is_not_silently_omitted_from_measurement (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_directory_link_is_not_silently_omitted_from_measurement)
+`os.walk(..., followlinks=False)` lists a directory link in ... ok
+test_a_keyword_this_worker_does_not_implement_is_a_fault (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_keyword_this_worker_does_not_implement_is_a_fault)
+THE PROPERTY THAT KEEPS THIS FROM BECOMING A PARAPHRASE AGAIN. ... ok
+test_a_path_that_resolves_out_of_the_root_never_reaches_the_agent (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_path_that_resolves_out_of_the_root_never_reaches_the_agent)
+AND SEPARATED THE OTHER WAY. This spelling is perfectly canonical ... ok
+test_a_regular_file_link_is_refused_too (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_regular_file_link_is_refused_too)
+The other half of `link_policy: forbid`. The review's case covers a ... ok
+test_a_spelling_the_grammar_refuses_never_reaches_the_agent (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_spelling_the_grammar_refuses_never_reaches_the_agent)
+SEPARATED FROM CONTAINMENT ON PURPOSE. Each of these stays INSIDE ... ok
+test_a_stated_validator_digest_is_refused_rather_than_ignored (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_stated_validator_digest_is_refused_rather_than_ignored)
+FAIL-CLOSED, not unimplemented. §7.2 makes `type` opaque and the ... ok
+test_a_value_matching_no_frozen_branch_is_refused (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_a_value_matching_no_frozen_branch_is_refused)
+`validator_digest` is `oneOf` a digest or null, and this is the ... ok
+test_constraints_that_are_not_the_frozen_shape_refuse (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_constraints_that_are_not_the_frozen_shape_refuse) ... ok
+test_descriptor_values_are_the_frozen_types_and_bounds (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_descriptor_values_are_the_frozen_types_and_bounds)
+Deriving member names is not validation of the members' values. ... ok
+test_each_frozen_keyword_can_refuse_on_its_own (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_each_frozen_keyword_can_refuse_on_its_own)
+W6633 twelfth review: prove each guard fails INDEPENDENTLY. ... ok
+test_one_name_is_declared_once (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_one_name_is_declared_once) ... ok
+test_the_entry_ceiling_refuses_before_publication (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_the_entry_ceiling_refuses_before_publication)
+The scripted agent writes one file per declared output, so a ... ok
+test_the_output_manifest_name_is_reserved (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_the_output_manifest_name_is_reserved)
+`output.json` is this root's protocol document, and its presence ... ok
+test_two_declarations_cannot_name_one_tree (test_worker_image.ADeclarationIsProvedBeforeAnAgentIsDispatched.test_two_declarations_cannot_name_one_tree)
+§7.2: the same bytes under two names are two artifacts with two ... ok
+test_an_agents_output_answer_is_held_against_the_declarations (test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_an_agents_output_answer_is_held_against_the_declarations)
+W14251, closed. `workspace` is gone, and what replaces it is not a ... ok
+test_an_answer_member_that_is_not_bounded_text_is_refused (test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_an_answer_member_that_is_not_bounded_text_is_refused) ... ok
+test_an_answer_missing_a_member_never_becomes_a_frame (test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_an_answer_missing_a_member_never_becomes_a_frame) ... ok
+test_an_answer_with_an_extra_member_never_becomes_a_frame (test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_an_answer_with_an_extra_member_never_becomes_a_frame) ... ok
+test_the_correlated_work_answer_names_outputs_only (test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_the_correlated_work_answer_names_outputs_only)
+The completion envelope carries workerOutput documents; the framed ... ok
+test_the_pinned_answer_sets_are_what_the_contract_names (test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_the_pinned_answer_sets_are_what_the_contract_names) ... ok
+test_the_scripted_work_answer_is_exactly_the_pinned_set (test_worker_image.TheAnswerIsValidatedBeforeItIsFramed.test_the_scripted_work_answer_is_exactly_the_pinned_set) ... ok
+test_a_contract_valid_input_manifest_reaches_the_agent (test_worker_image.TheArtifactNeutralInputIsTheFrozenManifest.test_a_contract_valid_input_manifest_reaches_the_agent)
+The reference worker consumes the contract's actual inputManifest. ... ok
+test_a_declared_output_path_cannot_escape_the_output_root (test_worker_image.TheArtifactNeutralInputIsTheFrozenManifest.test_a_declared_output_path_cannot_escape_the_output_root)
+The worker consumes the path, so it owns the relative-path check. ... ok
+test_declared_output_limits_hold_before_completion_publication (test_worker_image.TheArtifactNeutralInputIsTheFrozenManifest.test_declared_output_limits_hold_before_completion_publication)
+Constraints are assignment inputs, not manager-only commentary. ... ok
+test_a_delivery_missing_a_binding_member_refuses (test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_a_delivery_missing_a_binding_member_refuses)
+The pair rule cannot be checked against a document that does not ... ok
+test_a_document_that_says_it_is_the_other_one_refuses (test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_a_document_that_says_it_is_the_other_one_refuses)
+W19784 second round. The closed-member check alone would NOT catch ... ok
+test_a_malformed_assignment_document_refuses (test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_a_malformed_assignment_document_refuses) ... ok
+test_a_mis_composed_pair_refuses_before_the_agent (test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_a_mis_composed_pair_refuses_before_the_agent)
+Each document below is separately readable and separately ... ok
+test_a_missing_assignment_document_refuses_before_the_agent (test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_a_missing_assignment_document_refuses_before_the_agent)
+Nothing is written, because nothing ran. A worker that dispatched an ... ok
+test_an_agent_never_runs_for_an_operation_this_runtime_refuses (test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_an_agent_never_runs_for_an_operation_this_runtime_refuses)
+W26291 REPLACED `test_consent_reads_neither_input_document`, whose ... ok
+test_an_identity_this_worker_would_have_to_invent_refuses (test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_an_identity_this_worker_would_have_to_invent_refuses)
+`assignment_ref` is COPIED, so a delivered value that is not exactly ... ok
+test_both_delivered_manifests_are_closed_before_dispatch (test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_both_delivered_manifests_are_closed_before_dispatch)
+A second identity alias is invalid even when all pair bindings and ... ok
+test_both_delivered_manifests_prove_their_own_digest_before_dispatch (test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_both_delivered_manifests_prove_their_own_digest_before_dispatch)
+The approved ruling says the worker validates both CLOSED manifests, ... ok
+test_the_envelope_carries_the_delivered_identity_exactly (test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_the_envelope_carries_the_delivered_identity_exactly)
+The positive that closes the finding: run the whole path and read ... ok
+test_the_identity_is_not_taken_from_the_input_manifest (test_worker_image.TheAssignmentIdentityComesFromItsOwnDocument.test_the_identity_is_not_taken_from_the_input_manifest)
+A worker that fell back to the input side would be reading a ... ok
+test_a_clean_end_of_input_is_an_answer (test_worker_image.TheChannelIsFramedAndBounded.test_a_clean_end_of_input_is_an_answer) ... ok
+test_a_frame_round_trips (test_worker_image.TheChannelIsFramedAndBounded.test_a_frame_round_trips) ... ok
+test_a_header_that_never_ends_is_bounded_too (test_worker_image.TheChannelIsFramedAndBounded.test_a_header_that_never_ends_is_bounded_too)
+A header is caller input, so the bound is on it as well as on the ... ok
+test_a_malformed_frame_has_no_identity_so_it_gets_no_answer (test_worker_image.TheChannelIsFramedAndBounded.test_a_malformed_frame_has_no_identity_so_it_gets_no_answer) ... ok
+test_an_oversized_frame_is_refused_before_it_is_read (test_worker_image.TheChannelIsFramedAndBounded.test_an_oversized_frame_is_refused_before_it_is_read) ... ok
+test_our_own_answer_is_bounded_and_keeps_its_identity (test_worker_image.TheChannelIsFramedAndBounded.test_our_own_answer_is_bounded_and_keeps_its_identity)
+An agent that produced an enormous recap must not make this program ... ok
+test_the_framing_is_length_prefixed_and_not_newline_delimited (test_worker_image.TheChannelIsFramedAndBounded.test_the_framing_is_length_prefixed_and_not_newline_delimited)
+A newline is a byte an agent's output legitimately contains, and a ... ok
+test_a_member_no_operation_names_is_named (test_worker_image.TheClosureIsPerOperation.test_a_member_no_operation_names_is_named)
+W19784, migrating W6633's leftover. This asserted "missing task", ... ok
+test_an_unknown_member_is_refused_rather_than_ignored (test_worker_image.TheClosureIsPerOperation.test_an_unknown_member_is_refused_rather_than_ignored) ... ok
+test_an_unknown_operation_is_refused_before_anything_else (test_worker_image.TheClosureIsPerOperation.test_an_unknown_operation_is_refused_before_anything_else) ... ok
+test_describe_does_not_accept_another_operations_member (test_worker_image.TheClosureIsPerOperation.test_describe_does_not_accept_another_operations_member) ... ok
+test_each_operation_names_exactly_its_own_members (test_worker_image.TheClosureIsPerOperation.test_each_operation_names_exactly_its_own_members) ... ok
+test_a_fault_carries_the_same_identity_and_nothing_else (test_worker_image.TheEnvelopeBindsEveryFrame.test_a_fault_carries_the_same_identity_and_nothing_else) ... ok
+test_a_frame_naming_another_session_is_refused (test_worker_image.TheEnvelopeBindsEveryFrame.test_a_frame_naming_another_session_is_refused)
+A worker answers only the session the manager minted for it. ... ok
+test_a_frame_refused_for_its_shape_never_spends_its_id (test_worker_image.TheEnvelopeBindsEveryFrame.test_a_frame_refused_for_its_shape_never_spends_its_id)
+The other side of the same rule, and the reason the fence sits ... ok
+test_a_frame_speaking_another_protocol_is_refused (test_worker_image.TheEnvelopeBindsEveryFrame.test_a_frame_speaking_another_protocol_is_refused) ... ok
+test_a_missing_identity_member_is_answered_by_no_frame_at_all (test_worker_image.TheEnvelopeBindsEveryFrame.test_a_missing_identity_member_is_answered_by_no_frame_at_all)
+The ruling forbids inventing an uncorrelated response shape, so a ... ok
+test_a_missing_session_identity_produces_no_frame (test_worker_image.TheEnvelopeBindsEveryFrame.test_a_missing_session_identity_produces_no_frame)
+Without it nothing this program says could be matched to anything, ... ok
+test_a_well_formed_request_is_answered_and_correlated (test_worker_image.TheEnvelopeBindsEveryFrame.test_a_well_formed_request_is_answered_and_correlated) ... ok
+test_a_worker_refuses_a_frame_minted_for_another_container (test_worker_image.TheEnvelopeBindsEveryFrame.test_a_worker_refuses_a_frame_minted_for_another_container)
+W26291 REPLACED the cross-POSTURE case, whose subject -- two ... ok
+test_an_id_that_reached_the_agent_is_spent_whatever_the_outcome (test_worker_image.TheEnvelopeBindsEveryFrame.test_an_id_that_reached_the_agent_is_spent_whatever_the_outcome)
+"It failed, so you may send it again" is exactly the reasoning a ... ok
+test_an_identity_member_that_is_not_bounded_text_is_uncorrelatable (test_worker_image.TheEnvelopeBindsEveryFrame.test_an_identity_member_that_is_not_bounded_text_is_uncorrelatable) ... ok
+test_an_operation_id_is_consumed_once_within_a_session (test_worker_image.TheEnvelopeBindsEveryFrame.test_an_operation_id_is_consumed_once_within_a_session) ... ok
+test_a_missing_optional_output_is_not_named_as_produced (test_worker_image.TheFramedAnswerIsNotTheCompletionEnvelope.test_a_missing_optional_output_is_not_named_as_produced)
+The member is what was PRODUCED. An output answered ... ok
+test_an_entry_wider_than_a_frame_is_not_bounded_text (test_worker_image.TheFramedAnswerIsNotTheCompletionEnvelope.test_an_entry_wider_than_a_frame_is_not_bounded_text)
+A list of unbounded strings is unbounded text with extra steps. ... ok
+test_the_rule_has_no_exemption_for_outputs (test_worker_image.TheFramedAnswerIsNotTheCompletionEnvelope.test_the_rule_has_no_exemption_for_outputs)
+`check_answer` is a boundary and is exercised as one. The member ... ok
+test_the_cache_is_removed_before_the_worker_is_imported (test_worker_image.TheGateCannotRunAgainstStaleBytecode.test_the_cache_is_removed_before_the_worker_is_imported)
+Ordering is the whole content: a removal after the import would ... ok
+test_the_module_under_test_is_the_file_on_disk (test_worker_image.TheGateCannotRunAgainstStaleBytecode.test_the_module_under_test_is_the_file_on_disk)
+Not that a cache is absent -- that what this suite has loaded IS the ... ok
+test_a_directory_at_the_launch_path_is_refused_by_the_descriptor (test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_a_directory_at_the_launch_path_is_refused_by_the_descriptor) ... ok
+test_a_document_wider_than_the_ceiling_is_refused_before_it_parses (test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_a_document_wider_than_the_ceiling_is_refused_before_it_parses) ... ok
+test_a_link_at_the_launch_path_is_not_followed (test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_a_link_at_the_launch_path_is_not_followed)
+`O_NOFOLLOW`. A link is how a path this contract FIXED becomes a ... ok
+test_a_pipe_at_the_launch_path_does_not_block (test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_a_pipe_at_the_launch_path_does_not_block)
+`O_NONBLOCK`, and the case BOUNDS ITSELF for the reason W26283's ... ok
+test_a_whole_document_at_the_fixed_path_is_read (test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_a_whole_document_at_the_fixed_path_is_read) ... ok
+test_a_writable_document_is_refused_however_good_its_bytes_are (test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_a_writable_document_is_refused_however_good_its_bytes_are)
+A launch document this worker could rewrite is one it could change ... ok
+test_an_absent_document_says_nothing_at_all (test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_an_absent_document_says_nothing_at_all) ... ok
+test_no_environment_value_stands_in_for_the_document (test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_no_environment_value_stands_in_for_the_document)
+THE SUPERSESSION'S OWN CLAUSE. `serve` takes no environment operand ... ok
+test_the_read_takes_at_most_the_ceiling_plus_one_byte (test_worker_image.TheLaunchReadIsBoundedNoFollowAndProved.test_the_read_takes_at_most_the_ceiling_plus_one_byte)
+W26283's rule, applied to the one file this program reads. ... ok
+test_a_falsey_injected_agent_is_still_the_injected_agent (test_worker_image.TheProviderInjectionSeam.test_a_falsey_injected_agent_is_still_the_injected_agent)
+Injection is an explicit optional value, not a truthiness test. ... ok
+test_an_injected_agent_needs_no_scripted_default_module (test_worker_image.TheProviderInjectionSeam.test_an_injected_agent_needs_no_scripted_default_module)
+An override must not import the unused thing it overrides. ... ok
+test_none_still_constructs_the_scripted_default (test_worker_image.TheProviderInjectionSeam.test_none_still_constructs_the_scripted_default) ... ok
+test_no_secret_or_assignment_material_enters_a_layer (test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_no_secret_or_assignment_material_enters_a_layer)
+An EXHAUSTIVE list, so a layer cannot carry an assignment, a bearer ... ok
+test_the_base_is_pinned_by_digest_and_never_by_tag (test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_base_is_pinned_by_digest_and_never_by_tag) ... ok
+test_the_entrypoint_is_exec_form_with_no_shell (test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_entrypoint_is_exec_form_with_no_shell)
+No shell in the process tree, so nothing interprets a signal or a ... ok
+test_the_image_announces_no_network_or_health_surface (test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_image_announces_no_network_or_health_surface) ... ok
+test_the_image_defaults_to_no_posture_and_no_session (test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_image_defaults_to_no_posture_and_no_session) ... ok
+test_the_runtime_user_is_a_fixed_non_root_numeric_id (test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_runtime_user_is_a_fixed_non_root_numeric_id) ... ok
+test_the_shipped_contract_is_data_and_not_a_second_program (test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_shipped_contract_is_data_and_not_a_second_program)
+The one thing that would make the third COPY a mistake: if it were ... ok
+test_the_user_agrees_with_the_adapters_own_restriction (test_worker_image.TheRecipeIsInspectableWithoutADaemon.test_the_user_agrees_with_the_adapters_own_restriction)
+Two places agreeing because they were written from one decision. ... ok
+test_a_closed_channel_is_the_manager_closing_it_and_not_cancellation (test_worker_image.TheScriptedFixtures.test_a_closed_channel_is_the_manager_closing_it_and_not_cancellation)
+SUPERSEDED FIXTURE, and the ruling is why. An input stream empty ... ok
+test_an_agent_fault_is_a_frame_and_carries_no_traceback (test_worker_image.TheScriptedFixtures.test_an_agent_fault_is_a_frame_and_carries_no_traceback)
+A traceback would carry paths from inside the image out through the ... ok
+test_execution_completes_and_recaps (test_worker_image.TheScriptedFixtures.test_execution_completes_and_recaps)
+W19784, migrating W6633's leftover. This read `answer["workspace"]` ... ok
+test_the_same_request_produces_the_same_bytes (test_worker_image.TheScriptedFixtures.test_the_same_request_produces_the_same_bytes)
+DETERMINISTIC is what makes a reproducibility case possible. ... ok
+test_the_scripted_consider_is_deterministic_and_reads_the_document (test_worker_image.TheScriptedFixtures.test_the_scripted_consider_is_deterministic_and_reads_the_document)
+ASKED OF THE AGENT DIRECTLY, and W26291 is why. ... ok
+test_the_entry_point_imports_nothing_from_the_distribution (test_worker_image.TheWorkerHoldsNoneOfTheManagersCapabilities.test_the_entry_point_imports_nothing_from_the_distribution)
+A worker that could import the manager is a worker one bug away ... ok
+test_the_operation_set_is_the_one_runtimes (test_worker_image.TheWorkerHoldsNoneOfTheManagersCapabilities.test_the_operation_set_is_the_one_runtimes)
+W26291 REPLACED `test_the_two_postures_are_the_whole_set`. ... ok
+test_the_protocol_name_is_the_only_thing_it_announces (test_worker_image.TheWorkerHoldsNoneOfTheManagersCapabilities.test_the_protocol_name_is_the_only_thing_it_announces) ... ok
+test_material_cannot_arrive_inside_a_frame (test_worker_image.ThisRuntimeAnswersOnlyItsOwnOperations.test_material_cannot_arrive_inside_a_frame) ... ok
+test_the_entitlement_is_checked_on_every_operation (test_worker_image.ThisRuntimeAnswersOnlyItsOwnOperations.test_the_entitlement_is_checked_on_every_operation)
+A check that ran once at start is a check a later message walks ... ok
+test_the_refusal_names_a_real_operation_rather_than_an_unknown_word (test_worker_image.ThisRuntimeAnswersOnlyItsOwnOperations.test_the_refusal_names_a_real_operation_rather_than_an_unknown_word)
+The distinction is the whole reason `consider` is kept. An unknown ... ok
+test_there_is_no_message_that_widens_this_runtime (test_worker_image.ThisRuntimeAnswersOnlyItsOwnOperations.test_there_is_no_message_that_widens_this_runtime) ... ok
+test_this_runtime_is_not_asked_to_consider (test_worker_image.ThisRuntimeAnswersOnlyItsOwnOperations.test_this_runtime_is_not_asked_to_consider) ... ok
+
+----------------------------------------------------------------------
+Ran 106 tests in 0.175s
+
+OK

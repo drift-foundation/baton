@@ -1,0 +1,52 @@
+{
+  "work": "W71879",
+  "claim": 144415,
+  "checks": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "key": "operator_prepare",
+        "cmd": "/bin/bash /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-144415/operator-prepare.sh",
+        "result": {
+          "chunk_id": "6256cd",
+          "wall_time_seconds": 0.000001312,
+          "exit_code": 0,
+          "original_token_count": 31,
+          "output": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n{\"matchedRules\":[]}\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "key": "provision",
+        "cmd": "/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-144415/deployment.py provision",
+        "result": {
+          "chunk_id": "698d11",
+          "wall_time_seconds": 5.71e-7,
+          "exit_code": 0,
+          "original_token_count": 31,
+          "output": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n{\"matchedRules\":[]}\n"
+        }
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "key": "run",
+        "cmd": "/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-144415/run.py",
+        "result": {
+          "chunk_id": "9ac70a",
+          "wall_time_seconds": 0.000002675,
+          "exit_code": 0,
+          "original_token_count": 31,
+          "output": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n{\"matchedRules\":[]}\n"
+        }
+      }
+    }
+  ],
+  "target_operations_executed": false,
+  "operator_prepare_is_operator_only": "No agent Git mutation is permitted even if a future execution rule matches.",
+  "cwd": "/home/sl/src/baton/v12/python",
+  "operator_script_syntax": "bash -n passed; script not executed"
+}

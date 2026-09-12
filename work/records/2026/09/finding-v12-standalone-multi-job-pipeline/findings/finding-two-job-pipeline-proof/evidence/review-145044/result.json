@@ -1,0 +1,75 @@
+{
+  "claim": 145044,
+  "uid_map": "      1000          0          1\n",
+  "gid_map": "      1000          0          1\n",
+  "uid": 1000,
+  "gid": 1000,
+  "metadata": {
+    "/home/sl/.local/state/baton/v12/w71879-run3": {
+      "uid": 1000,
+      "gid": 1000,
+      "mode": "0o700",
+      "mtime_ns": 1789136408930445743,
+      "ctime_ns": 1789136408930445743
+    },
+    "/home/sl/.local/state/baton/v12/w71879-run3/target": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o2775",
+      "mtime_ns": 1789136408930326154,
+      "ctime_ns": 1789136440591064102
+    },
+    "/home/sl/.local/state/baton/v12/w71879-run3/target/.git": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o2775",
+      "mtime_ns": 1789136408930427072,
+      "ctime_ns": 1789136440591064102
+    },
+    "/home/sl/.local/state/baton/v12/w71879-run3/target/.git/config": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o664",
+      "mtime_ns": 1789136408929987044,
+      "ctime_ns": 1789136440591064102
+    },
+    "/home/sl/.local/state/baton/v12/w71879-run3/target/demo/greeting.py": {
+      "uid": 65534,
+      "gid": 65534,
+      "mode": "0o644",
+      "mtime_ns": 1789136408930326154,
+      "ctime_ns": 1789136440591064102
+    }
+  },
+  "posture_answer": null,
+  "posture_error": "/home/sl/.local/state/baton/v12/w71879-run3/target: gid 65534, expected workspace gid 1001",
+  "metadata_unchanged": true,
+  "manifests": {
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-144859/candidate-manifest.json": {
+      "sha256": "sha256:6b4121c4f36c3b881e4fd2d8edcc09ac358c6c28b5b98b787c1a7f1185aa9b33",
+      "files": 25
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run2-freeze-144546/candidate-manifest.json": {
+      "sha256": "sha256:e681e9501b8221fbc791de7b2f8ef12ad6ba11f12b045717c7e186ce8e362330",
+      "files": 159
+    }
+  },
+  "run_root_entries": [
+    "integration-workspace",
+    "source",
+    "target"
+  ],
+  "absent_outputs": [
+    "frozen-config",
+    "validation.json",
+    "execution-review.json",
+    "selected-images.json"
+  ],
+  "evidence_hashes": {
+    "boundary-observation.json": "sha256:e9423a0b449889f312a54b2b22ccc91ba909ee8cf324f16827a529aaa51273f8",
+    "command-boundary.json": "sha256:25229c30539e4b666dd1dd9c94930a0039881477cf94bc56947639cbdf8f5de4",
+    "spending.json": "sha256:a263e28e113f5702cc9d04d7c2a37ee1d19febcfb701d8a845dd4a3c551d046d"
+  },
+  "wall_seconds": 0.005080713002826087,
+  "limit": "Managed projected IDs do not establish real host ownership; no root mutation, validation/render execution, model or runtime."
+}

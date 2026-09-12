@@ -1,0 +1,222 @@
+{
+  "claim": 145165,
+  "result": {
+    "exceptional_stops": [],
+    "failure": "RuntimeError: command failed: ['docker', 'stats', '--no-stream', '--format', '{{json .}}', '7bf96f43c64ff2d6d21fd8f6763b2ba05b2c47fd979f1bae368d8dd0725c9498']\nEOF\n",
+    "initial": {
+      "source": {
+        "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "path": "/home/sl/.local/state/baton/v12/w71879-run3/source",
+        "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+      },
+      "target": {
+        "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "path": "/home/sl/.local/state/baton/v12/w71879-run3/target",
+        "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+      }
+    },
+    "ordinary_operator_transitions": 0,
+    "started_at": "2026-09-11T14:44:26.275678+00:00",
+    "submitted": true,
+    "terminal_both": false,
+    "wall_seconds": 35.340723676010384
+  },
+  "canonical_stages": [
+    {
+      "stage": "job-a/implementation",
+      "state": "completed",
+      "runtime": {
+        "runtime_id": "88b1b4a343d396ca2f08c66b33b3eace81a6bb91adc5c8b82fda04ac47f6e53a",
+        "execution_runtime": "destroyed",
+        "assignment": {
+          "work_ref": {
+            "authority_uuid": "c71879ad000000000000000000000001",
+            "work_id": "c71879ad-W1"
+          },
+          "participant": "baton.proof-impl-a",
+          "generation": 1
+        },
+        "activity": {
+          "attempt_id": "attempt-211f27956cae7ac71bc0723cd2b29c8e6f98396e901f68fad70c5ee4e5f66952",
+          "bytes_observed": null,
+          "observed_at": null
+        }
+      },
+      "receipts": [
+        {
+          "act": "admit",
+          "state": "performed",
+          "recorded_at": "2026-09-11T14:44:26.612Z"
+        },
+        {
+          "act": "claim",
+          "state": "performed",
+          "recorded_at": "2026-09-11T14:44:27.624Z"
+        }
+      ]
+    },
+    {
+      "stage": "job-a/review",
+      "state": "offered",
+      "runtime": null,
+      "receipts": [
+        {
+          "act": "admit",
+          "state": "performed",
+          "recorded_at": "2026-09-11T14:45:01.257Z"
+        }
+      ]
+    },
+    {
+      "stage": "job-a/integration",
+      "state": "blocked",
+      "runtime": null,
+      "receipts": []
+    },
+    {
+      "stage": "job-b/implementation",
+      "state": "completed",
+      "runtime": {
+        "runtime_id": "7bf96f43c64ff2d6d21fd8f6763b2ba05b2c47fd979f1bae368d8dd0725c9498",
+        "execution_runtime": "destroyed",
+        "assignment": {
+          "work_ref": {
+            "authority_uuid": "c71879ad000000000000000000000001",
+            "work_id": "c71879ad-W2"
+          },
+          "participant": "baton.proof-impl-b",
+          "generation": 1
+        },
+        "activity": {
+          "attempt_id": "attempt-ccf6721c7413c81c536cdd40657ce40826287804836210ce77808ba8f8c54b82",
+          "bytes_observed": null,
+          "observed_at": null
+        }
+      },
+      "receipts": [
+        {
+          "act": "admit",
+          "state": "performed",
+          "recorded_at": "2026-09-11T14:44:26.615Z"
+        },
+        {
+          "act": "claim",
+          "state": "performed",
+          "recorded_at": "2026-09-11T14:44:27.626Z"
+        }
+      ]
+    },
+    {
+      "stage": "job-b/review",
+      "state": "queued",
+      "runtime": null,
+      "receipts": []
+    },
+    {
+      "stage": "job-b/integration",
+      "state": "blocked",
+      "runtime": null,
+      "receipts": []
+    }
+  ],
+  "sample_count": 12,
+  "last_sample_wall_seconds": 30.944603705007466,
+  "sampled_runtime_caps": [
+    {
+      "NanoCpus": 2000000000,
+      "Memory": 2147483648,
+      "PidsLimit": 512
+    },
+    {
+      "NanoCpus": 2000000000,
+      "Memory": 2147483648,
+      "PidsLimit": 512
+    }
+  ],
+  "proposals": {
+    "w71879-run3-a": {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run3/storage/.baton-review-lines/line-a023132a89cbb5d47ea257d3ea855847add89efcee3d7e17a25fffd6a61d2c3f/custody/attempt-211f27956cae7ac71bc0723cd2b29c8e6f98396e901f68fad70c5ee4e5f66952/proposal/result.json",
+      "sha256": "sha256:57e564b9c889e6d54c469fa82a3490b4ea7e5a8cdb7615fa2f1f01c768518430",
+      "result": {
+        "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "changed_paths": [
+          "demo/greeting.py",
+          "tests/test_greeting.py"
+        ],
+        "disposition": "candidate",
+        "entry_head": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "head": "3f314b4ee4dcfb7cf4f9da219d0a3d377aad2fc5",
+        "provider": {
+          "failure_reason": null,
+          "seconds_bound": 3600,
+          "status": 0
+        },
+        "schema": "baton.dogfood-proposal/2",
+        "task_id": "w71879-run3-a",
+        "verification": {
+          "argv": [
+            "python3",
+            "check_greeting.py"
+          ],
+          "status": 0
+        },
+        "why": "the candidate changed the source and its own verification passed"
+      }
+    },
+    "w71879-run3-b": {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run3/storage/.baton-review-lines/line-3873c13c4e220c41d9faa1694a7081cad3c88b38e4859e66fd6bde0ef08c32bb/custody/attempt-ccf6721c7413c81c536cdd40657ce40826287804836210ce77808ba8f8c54b82/proposal/result.json",
+      "sha256": "sha256:1bdbb688ad1ff794632e362e8497303153e8467def52a35dd9ae84c71c0fcaf9",
+      "result": {
+        "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "changed_paths": [
+          "check_hours.py",
+          "demo/units.py",
+          "tests/test_hours.py"
+        ],
+        "disposition": "candidate",
+        "entry_head": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "head": "00b27a221385ee37fc581ff5bbec1fbd050868b3",
+        "provider": {
+          "failure_reason": null,
+          "seconds_bound": 3600,
+          "status": 0
+        },
+        "schema": "baton.dogfood-proposal/2",
+        "task_id": "w71879-run3-b",
+        "verification": {
+          "argv": [
+            "python3",
+            "check_hours.py"
+          ],
+          "status": 0
+        },
+        "why": "the candidate changed the source and its own verification passed"
+      }
+    }
+  },
+  "baseline": {
+    "source": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "status": ""
+    },
+    "target": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "status": ""
+    }
+  },
+  "live_labelled_containers": [],
+  "evidence_hashes": {
+    "submit.json": "sha256:c3f4301007ca0456e9ee898c1f4e81fd369a43e80a4d3e7d71c684665fbba08a",
+    "provisioning.json": "sha256:fd88affe93745f1dc905e6c79a9de5f5932a288f8637e584be12b1e08abb2de6",
+    "samples.jsonl": "sha256:8bb3e7194bed6a577e89a53df0f8fb166b812c271c7eaff5d6673499e36bcbee",
+    "serve.log": "sha256:de82fd4f766e22fe2dbe398bf19ef9c7ef93d2dfdbba449170091aa1fd1c8f29",
+    "run-result.json": "sha256:b5db17b9cd1a98eaa1db6afe8afcb93dbe870cc19ed1348f8949b0aaa77f4e5b"
+  },
+  "unchanged_execution_bindings": 230,
+  "deterministic_reproduction": {
+    "method": "mocked CompletedProcess(nonzero, stderr EOF) through unchanged command helper; no engine/model/production action",
+    "refusal": "command failed: ['docker', 'stats', '--no-stream', '--format', '{{json .}}', 'retained-B-id']\nEOF\n"
+  },
+  "wall_seconds": 0.13093595999816898,
+  "limitations": "Original EOF cause unconfirmed; candidates own verification0 is retained producer evidence, not independent acceptance. No reviews or integrations completed."
+}

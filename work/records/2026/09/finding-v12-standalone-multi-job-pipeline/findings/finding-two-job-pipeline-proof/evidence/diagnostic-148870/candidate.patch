@@ -1,0 +1,318 @@
+--- v12/worker/claude_agent.py (claim base)
++++ v12/worker/claude_agent.py
+@@ -237,6 +237,10 @@
+ # equality and nothing else: a regex over provider-authored text is the wider
+ # classifier W55360 explicitly declined to become.
+ PROVIDER_FAILURE_REASONS = {"api_error": "api-error"}
++
++# W71879: exact constant from the installed 2.1.247 LWo authentication branch.
++# A full equality match preserves useful detail without publishing arbitrary prose.
++PROVIDER_OAUTH_EXPLANATION = "Failed to authenticate: OAuth session expired and could not be refreshed"
+ 
+ # The words this adapter publishes when it did not get one from the map. Each
+ # is THIS module's own vocabulary, not the provider's.
+@@ -737,7 +741,8 @@
+                                           "status": provider["status"],
+                                           "failure_reason":
+                                               provider.get("failure_reason"),
+-                                          "seconds_bound": PROVIDER_SECONDS},
++                                          "seconds_bound": PROVIDER_SECONDS,
++                                          **_diagnostic_member(provider)},
+                                       "verification": (
+                                           {"status": verification["status"],
+                                            "argv": list(task["verification"])}
+@@ -754,14 +759,15 @@
+                                  "changed_paths": changed,
+                                  "source_entries": copied,
+                                  # W55360: the mapped word, or null on a clean
+-                                 # turn. This is the ONLY member of this record
+-                                 # derived from anything a child wrote, and it
+-                                 # is one of a closed set this module spells.
++                                 # turn. W71879 additionally permits typed HTTP
++                                 # status and one exact static explanation in
++                                 # diagnostic; arbitrary child text stays out.
+                                  "provider": {
+                                      "status": provider["status"],
+                                      "failure_reason":
+                                          provider.get("failure_reason"),
+-                                     "seconds_bound": PROVIDER_SECONDS},
++                                     "seconds_bound": PROVIDER_SECONDS,
++                                     **_diagnostic_member(provider)},
+                                  "verification": (
+                                      {"status": verification["status"],
+                                       "argv": list(task["verification"])}
+@@ -864,7 +870,8 @@
+                                  "status": provider["status"],
+                                  "failure_reason":
+                                      provider.get("failure_reason"),
+-                                 "seconds_bound": PROVIDER_SECONDS},
++                                 "seconds_bound": PROVIDER_SECONDS,
++                                 **_diagnostic_member(provider)},
+                              "verification": None},
+                             indent=1, sort_keys=True) + "\n")
+         if report is None:
+@@ -1694,12 +1701,14 @@
+         # read, matched against a closed map, and discarded. What crosses the
+         # boundary below is one of this module's own words -- never the
+         # provider's spelling of it, never the document, never a parser
+-        # complaint. Stderr is still on `DEVNULL` and was never opened.
++        # complaint. W71879 adds the separately bounded detail reader below;
++        # stderr is still on `DEVNULL` and was never opened.
+         reason = _failure_reason(record, partial=partial)
+         return {"ok": False, "status": status, "failure_reason": reason,
++                "diagnostic": _provider_diagnostic(record, partial=partial),
+                 "why": f"the provider exited {status} ({reason}); its own "
+-                       f"diagnostic is not published, because the process "
+-                       f"that wrote it holds this attempt's credential"}
++                       f"unrestricted diagnostic is withheld; supported "
++                       f"nonsecret detail is in provider.diagnostic"}
+ 
+     def _ran_provider(self, argv, *, cwd, seconds, env):
+         """The provider child, whose STDOUT ALONE is read, bounded and drained.
+@@ -2042,8 +2051,19 @@
+       provider could fault the worker rather than be classified by it. It is
+       caught here and answers the same one word, still without the exception.
+     """
+-    if partial or not record:
++    document = _provider_document(record, partial=partial)
++    if document is None:
+         return UNCLASSIFIED
++    found = document.get("terminal_reason")
++    if not isinstance(found, str):
++        return UNCLASSIFIED
++    return PROVIDER_FAILURE_REASONS.get(found, UNCLASSIFIED)
++
++
++def _provider_document(record, *, partial):
++    """Strict bounded parsing shared by the category and detail readers."""
++    if partial or not record or len(record) > MAX_PROVIDER_RECORD:
++        return None
+ 
+     def paired(items):
+         seen = {}
+@@ -2063,15 +2083,44 @@
+         document = json.loads(record.decode("utf-8"), object_pairs_hook=paired,
+                               parse_constant=refused)
+     except (UnicodeDecodeError, ValueError, RecursionError):
+-        return UNCLASSIFIED
++        return None
+     if not isinstance(document, dict):
+-        return UNCLASSIFIED
+-    found = document.get("terminal_reason")
+-    if not isinstance(found, str):
+-        return UNCLASSIFIED
+-    # EQUALITY, AND A MAP THIS FILE OWNS. Not a prefix, not a substring, not a
+-    # pattern: an unknown spelling is unclassified rather than nearly matched.
+-    return PROVIDER_FAILURE_REASONS.get(found, UNCLASSIFIED)
++        return None
++    return document
++
++
++def _provider_diagnostic(record, *, partial):
++    """Publish only typed HTTP status and an evidence-backed exact constant.
++
++    W71879's static 2.1.247 trace is pinned in its diagnostic dossier. Result
++    text can contain arbitrary exception prose, so unrecognized text and IDs
++    never leave this parser. HTTP status alone does not diagnose authentication.
++    Malformed, partial, oversized or unsupported records retain explicit gaps.
++    """
++    result = {"schema": "baton.provider-diagnostic/1", "http_status": None,
++              "classification": "unknown", "explanation": None,
++              "explanation_status": "unavailable", "request_id": None,
++              "request_id_status": "unavailable"}
++    document = _provider_document(record, partial=partial)
++    if document is None or document.get("type") != "result" or document.get("subtype") != "success" or document.get("is_error") is not True or document.get("terminal_reason") != "api_error":
++        return result
++    code = document.get("api_error_status")
++    if type(code) is int and 400 <= code <= 599:
++        result["http_status"] = code
++    explanation = document.get("result")
++    if explanation == PROVIDER_OAUTH_EXPLANATION:
++        result.update(classification="authentication_failed",
++                      explanation=PROVIDER_OAUTH_EXPLANATION,
++                      explanation_status="supported-constant")
++    elif explanation is not None and explanation != "":
++        result["explanation_status"] = "withheld"
++    return result
++
++
++def _diagnostic_member(provider):
++    """Older injected providers and clean turns retain their existing shape."""
++    diagnostic = provider.get("diagnostic")
++    return {"diagnostic": diagnostic} if diagnostic is not None else {}
+ 
+ 
+ def _disposition(provider, patch, verification):
+--- v12/python/tests/manager/test_claude_agent.py (claim base)
++++ v12/python/tests/manager/test_claude_agent.py
+@@ -30,6 +30,7 @@
+ import tempfile
+ import time
+ import unittest
++from unittest import mock
+ 
+ WORKER = (pathlib.Path(__file__).resolve().parents[3] / "worker")
+ sys.path.insert(0, str(WORKER))
+@@ -3110,3 +3111,117 @@
+         """No candidate, so nothing for either document to be about."""
+         answered = self.worked()
+         self.assertEqual(answered["outputs"][0]["result_metadata"], {})
++
++
++def _diagnostic_record(**changes):
++    document = {"type": "result", "subtype": "success", "is_error": True,
++                "terminal_reason": "api_error", "api_error_status": None,
++                "result": claude_agent.PROVIDER_OAUTH_EXPLANATION}
++    document.update(changes)
++    return json.dumps(document).encode()
++
++
++class SupportedProviderDetail(AdapterCase):
++    """W71879: real anonymous-pipe input, exact constant output, no provider run."""
++    MARKER = "PROVIDER-DETAIL-SECRET-148870"
++    speaking = TheStructuredRecordIsMappedAndNeverPublished.speaking
++    turned = TheStructuredRecordIsMappedAndNeverPublished.turned
++    published = TheStructuredRecordIsMappedAndNeverPublished.published
++
++    def test_fixed_explanation_survives_real_pipe_and_untrusted_siblings_do_not(self):
++        body = _diagnostic_record(request_id=self.MARKER,
++                                  hidden={self.MARKER: self.MARKER})
++        answer = self.turned(says=body.decode(), status=1, chunks=4)
++        provider = self.result()["provider"]
++        self.assertEqual("api-error", provider["failure_reason"])
++        self.assertEqual("provider-failed", self.result()["disposition"])
++        self.assertEqual("unable", answer["disposition"])
++        self.assertEqual("authentication_failed", provider["diagnostic"]["classification"])
++        self.assertEqual(claude_agent.PROVIDER_OAUTH_EXPLANATION,
++                         provider["diagnostic"]["explanation"])
++        self.assertIsNone(provider["diagnostic"]["request_id"])
++        self.assertNotIn(self.MARKER.encode(), self.published())
++        self.assertNotIn(self.MARKER, answer["recap"])
++
++    def test_arbitrary_error_prose_is_withheld_but_http_status_survives(self):
++        body = _diagnostic_record(result=self.MARKER, api_error_status=401,
++                                  request_id=self.MARKER)
++        answer = self.turned(says=body.decode(), status=1, chunks=3)
++        detail = self.result()["provider"]["diagnostic"]
++        self.assertEqual(401, detail["http_status"])
++        self.assertEqual("unknown", detail["classification"])
++        self.assertEqual("withheld", detail["explanation_status"])
++        self.assertIsNone(detail["explanation"])
++        self.assertNotIn(self.MARKER.encode(), self.published())
++        self.assertNotIn(self.MARKER, answer["recap"])
++
++    def test_zero_exit_does_not_publish_even_recognized_error_record(self):
++        self.turned(says=_diagnostic_record().decode(), status=0)
++        self.assertNotIn("diagnostic", self.result()["provider"])
++        self.assertIsNone(self.result()["provider"]["failure_reason"])
++
++    def test_partial_and_oversized_records_have_no_detail(self):
++        for body, partial in [(_diagnostic_record(), True),
++                              (_diagnostic_record()+b" "*65536, False)]:
++            detail = claude_agent._provider_diagnostic(body, partial=partial)
++            self.assertIsNone(detail["explanation"])
++            self.assertIsNone(detail["http_status"])
++            self.assertEqual("unavailable", detail["explanation_status"])
++
++    def test_supported_record_and_full_constant_are_required(self):
++        for changes in ({"type": "assistant"}, {"subtype": "error_during_execution"},
++                        {"is_error": 1}, {"is_error": False},
++                        {"terminal_reason": self.MARKER},
++                        {"result": claude_agent.PROVIDER_OAUTH_EXPLANATION+self.MARKER},
++                        {"result": {"text": claude_agent.PROVIDER_OAUTH_EXPLANATION}},
++                        {"result": self.MARKER}):
++            with self.subTest(changes=changes):
++                detail = claude_agent._provider_diagnostic(_diagnostic_record(**changes), partial=False)
++                self.assertEqual("unknown", detail["classification"])
++                self.assertIsNone(detail["explanation"])
++                self.assertNotIn(self.MARKER, json.dumps(detail))
++
++    def test_http_status_is_typed_bounded_and_never_an_authentication_cause(self):
++        for code in (400,401,403,429,500,599,True,False,399,600,-1,401.0,self.MARKER,None):
++            detail = claude_agent._provider_diagnostic(_diagnostic_record(result="",api_error_status=code),partial=False)
++            self.assertEqual(code if type(code) is int and 400<=code<=599 else None, detail["http_status"])
++            self.assertEqual("unknown", detail["classification"])
++            self.assertNotIn(self.MARKER,json.dumps(detail))
++
++    def test_strict_parser_failures_cannot_leak_or_classify(self):
++        good = _diagnostic_record().decode()
++        for raw in (b"{",good.encode()+b" {}",b'[]',b'"x"',b'\xff',
++                    (good[:-1]+',"is_error":true}').encode(),
++                    (good[:-1]+',"other":NaN}').encode(),
++                    (good[:-1]+',"other":'+"["*30000+"0"+"]"*30000+'}').encode()):
++            detail = claude_agent._provider_diagnostic(raw,partial=False)
++            self.assertEqual("unavailable",detail["explanation_status"])
++            self.assertIsNone(detail["explanation"])
++            self.assertIsNone(detail["http_status"])
++
++
++class SupportedLineProviderDetail(LineCase):
++    def test_line_proposal_retains_supported_detail_without_candidate(self):
++        with mock.patch.object(ClaudeAgent,"_ran_provider",return_value=(1,_diagnostic_record(),False)):
++            answer=self.worked()
++        result=self.result()
++        self.assertEqual("baton.dogfood-proposal/2",result["schema"])
++        self.assertEqual("provider-failed",result["disposition"])
++        self.assertEqual("unable",answer["disposition"])
++        self.assertEqual(claude_agent.PROVIDER_OAUTH_EXPLANATION,result["provider"]["diagnostic"]["explanation"])
++        self.assertEqual({},answer["outputs"][0]["result_metadata"])
++
++
++class SupportedReviewProviderDetail(ReviewCase):
++    def test_review_log_retains_detail_without_a_verdict(self):
++        marker="PROVIDER-REVIEW-SECRET-148870"
++        with mock.patch.object(ClaudeAgent,"_ran_provider",return_value=(1,_diagnostic_record(request_id=marker),False)):
++            answer=self.reviewed(report=None)
++        raw=self.read(self.logs(claude_agent.REVIEW_LOG));result=json.loads(raw)
++        self.assertEqual("baton.review-log/1",result["schema"])
++        self.assertIsNone(result["verdict"])
++        self.assertEqual("unable",answer["disposition"])
++        self.assertEqual(claude_agent.PROVIDER_OAUTH_EXPLANATION,result["provider"]["diagnostic"]["explanation"])
++        self.assertNotIn(marker,raw)
++        self.assertNotIn(marker,answer["recap"])
++        self.assertIsNone(self.claim(answer))
+--- prepared-147109/failure_observation.py
++++ prepared-148870/failure_observation.py
+@@ -126,11 +126,42 @@
+         if code is not None and (type(code) is not int or not -255 <= code <= 255):
+             return result
+         result.update(availability='available', provider_reason=reason, provider_exit_status=code)
++        detail = _supported_detail(provider.get('diagnostic')) if reason == 'api-error' and type(code) is int and code != 0 else None
++        if detail is not None:
++            result['detail'] = detail
++            if detail['classification'] == 'authentication_failed':
++                result['authentication_cause'] = 'provider-reported-oauth-session-expired-refresh-failed'
+         result['next_action'] = {
+             'api-error': 'Provider reported api-error; authentication, account and network cause remain unknown. Obtain an approved structured diagnostic before retry.',
+             'timeout': 'Adapter reported its provider deadline; retain evidence and diagnose without increasing the proof deadline.',
+             'start-error': 'Adapter could not start the provider; inspect the approved executable/runtime boundary without reading credentials.',
+             'unclassified': 'Adapter could not classify a complete supported terminal reason; retain unknown and request scoped diagnostic work.'}[reason]
++        if detail is not None and detail['classification'] == 'authentication_failed':
++            result['next_action'] = 'Provider reports an expired OAuth session that could not be refreshed. The credential owner should restore the supported login before any separately authorized retry.'
+     except (OSError, ValueError, TypeError, KeyError, AttributeError, RecursionError):
+         pass
+     return result
++
++
++_OAUTH_EXPLANATION = 'Failed to authenticate: OAuth session expired and could not be refreshed'
++
++
++def _supported_detail(given):
++    """Reconstruct the reviewed adapter contract; never trust arbitrary report prose."""
++    keys = {'schema', 'http_status', 'classification', 'explanation', 'explanation_status', 'request_id', 'request_id_status'}
++    if not isinstance(given, dict) or set(given) != keys or given['schema'] != 'baton.provider-diagnostic/1':
++        return None
++    code = given['http_status']
++    if code is not None and (type(code) is not int or not 400 <= code <= 599):
++        return None
++    if given['request_id'] is not None or given['request_id_status'] != 'unavailable':
++        return None
++    recognized = given['classification'] == 'authentication_failed' and given['explanation'] == _OAUTH_EXPLANATION and given['explanation_status'] == 'supported-constant'
++    unknown = given['classification'] == 'unknown' and given['explanation'] is None and given['explanation_status'] in ('unavailable', 'withheld')
++    if not (recognized or unknown):
++        return None
++    return {'schema': 'baton.provider-diagnostic/1', 'http_status': code,
++            'classification': 'authentication_failed' if recognized else 'unknown',
++            'explanation': _OAUTH_EXPLANATION if recognized else None,
++            'explanation_status': 'supported-constant' if recognized else ('withheld' if given['explanation_status'] == 'withheld' else 'unavailable'),
++            'request_id': None, 'request_id_status': 'unavailable'}

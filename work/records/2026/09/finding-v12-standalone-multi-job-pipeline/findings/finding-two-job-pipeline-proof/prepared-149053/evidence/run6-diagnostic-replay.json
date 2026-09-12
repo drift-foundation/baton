@@ -1,0 +1,98 @@
+{
+  "scope": "Retained canonical status and published adapter reports read only; no live store/runtime/repair",
+  "observations": [
+    {
+      "sample": 5,
+      "wall_seconds": 8.731681402990944,
+      "failure": {
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "kind": "implementation",
+        "work_id": "c71879b0-W1",
+        "attempt_id": "attempt-60ec2c226145057b408eac86d03c0d453bb35acb1ba3c80f887cf5cfd1cbe8fe",
+        "episode": 1,
+        "assignment": {
+          "work_ref": {
+            "authority_uuid": "c71879b0000000000000000000000001",
+            "work_id": "c71879b0-W1"
+          },
+          "participant": "baton.proof-impl-a",
+          "generation": 1
+        },
+        "runtime_id": "a2b00b62bdbb3f413b6e4e9539cf71190b237430a8856367567315b4f98ef5af",
+        "sequence_id": "sequence-0da1e92e4f7baf56178722cf685398ea",
+        "ending": "answered",
+        "disposition": "unable",
+        "fault_code": null,
+        "manifest_digest": "sha256:6a4fcaa8f05e17fafc080c61854cb68d667f4701700f3aba008ab022026b3615",
+        "observed_at": "2026-09-11T20:18:36.039Z",
+        "artifacts": [
+          {
+            "output_name": "proposal",
+            "artifact_id": "attempt-60ec2c226145057b408eac86d03c0d453bb35acb1ba3c80f887cf5cfd1cbe8fe:proposal",
+            "media_type": "application/octet-stream",
+            "bytes": 548,
+            "content_digest": "sha256:c8c05740953ab020eac378f647674f88f49cf21e7c499c81295d59f0b7879173",
+            "locator": "file:///home/sl/.local/state/baton/v12/w71879-run6/storage/.baton-review-lines/line-f4160c532923d20a69a723513d4171f3f321f9d4fff8d461cd66b27d89b8d930/custody/attempt-60ec2c226145057b408eac86d03c0d453bb35acb1ba3c80f887cf5cfd1cbe8fe/proposal"
+          }
+        ],
+        "recovery": "no automatic retry or repair authorized for this proof"
+      },
+      "diagnostic": {
+        "availability": "available",
+        "provider_reason": "api-error",
+        "provider_exit_status": 1,
+        "authentication_cause": "unknown",
+        "basis": "supplementary published adapter report; never raw provider output",
+        "next_action": "Provider reported api-error; authentication, account and network cause remain unknown. Obtain an approved structured diagnostic before retry."
+      }
+    },
+    {
+      "sample": 21,
+      "wall_seconds": 41.547954526991816,
+      "failure": {
+        "job_id": "job-b",
+        "stage_id": "job-b/review",
+        "kind": "review",
+        "work_id": "c71879b0-W2",
+        "attempt_id": "attempt-9fa8efa9f799a6a4b6bbde95592c531202778c70fb80b64c09bf81fa8be4b842",
+        "episode": 1,
+        "assignment": {
+          "work_ref": {
+            "authority_uuid": "c71879b0000000000000000000000001",
+            "work_id": "c71879b0-W2"
+          },
+          "participant": "baton.proof-review-b",
+          "generation": 2
+        },
+        "runtime_id": "17c8dadfe949b47e75d5af9b85ac27e1b129214508227273e76e8ddc2d5cb7d2",
+        "sequence_id": "sequence-236d0ff70450725f344fe74be133a7b5",
+        "ending": "answered",
+        "disposition": "unable",
+        "fault_code": null,
+        "manifest_digest": "sha256:362e572070d25b154eed4cb9b145d47aea5d864a4e07e10e62e9d092a6129986",
+        "observed_at": "2026-09-11T20:19:08.851Z",
+        "artifacts": [
+          {
+            "output_name": "logs",
+            "artifact_id": "attempt-9fa8efa9f799a6a4b6bbde95592c531202778c70fb80b64c09bf81fa8be4b842:logs",
+            "media_type": "application/octet-stream",
+            "bytes": 397,
+            "content_digest": "sha256:a99d521320a8a00e1df67593f670c389a3941e67fdf8095f453cbffb20a22f99",
+            "locator": "file:///home/sl/.local/state/baton/v12/w71879-run6/storage/attempt-9fa8efa9f799a6a4b6bbde95592c531202778c70fb80b64c09bf81fa8be4b842/custody/attempt-9fa8efa9f799a6a4b6bbde95592c531202778c70fb80b64c09bf81fa8be4b842/logs"
+          }
+        ],
+        "recovery": "no automatic retry or repair authorized for this proof"
+      },
+      "diagnostic": {
+        "availability": "available",
+        "provider_reason": "api-error",
+        "provider_exit_status": 1,
+        "authentication_cause": "unknown",
+        "basis": "supplementary published adapter report; never raw provider output",
+        "next_action": "Provider reported api-error; authentication, account and network cause remain unknown. Obtain an approved structured diagnostic before retry."
+      }
+    }
+  ],
+  "verification_seconds": 0.008093866999843158
+}

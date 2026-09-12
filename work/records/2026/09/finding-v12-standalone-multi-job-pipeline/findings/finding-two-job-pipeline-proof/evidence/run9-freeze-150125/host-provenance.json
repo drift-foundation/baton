@@ -1,0 +1,42 @@
+{
+  "owner_host_preparation_validation_render_event": 150121,
+  "scope": "Successful reviewed operator helper/validation attest real65532:1001 posture. Managed projected UID/GID here do not independently establish actual host ownership.",
+  "target": {
+    ".": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "tests": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo/greeting.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo/units.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "tests/test_greeting.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    }
+  },
+  "actual_hashes": {
+    "configuration": "sha256:381654827ce6eb290e31c21694837e8cf10c56d6d4d9641e92df2467cb0fdc87",
+    "submission": "sha256:a4870e29847dcb18774e5d2136e8d4ccb606da11c32c0e5ac7fef056491e4fe9"
+  },
+  "stdout_comparison": "Owner reports success without separately repeating literal stdout hashes; actual bytes and reconstruction bind these values.",
+  "validation_sha256": "sha256:3e7a9ad6ef578910bfb081ea2b6597905a3a421f46136e4a6e9c05b7fbb0d157"
+}

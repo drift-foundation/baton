@@ -1,0 +1,40 @@
+{
+  "exceptional_stops": [
+    {
+      "answer": "Flag --time has been deprecated, use --timeout instead\n3fbd01bf2553e7605c056fa17709a89acfbfb2b56137de68770fc7cd93ca731c\n",
+      "argv": [
+        "docker",
+        "stop",
+        "--time",
+        "2",
+        "3fbd01bf2553e7605c056fa17709a89acfbfb2b56137de68770fc7cd93ca731c"
+      ]
+    }
+  ],
+  "failure": "TimeoutError: approved proof wall/active-attempt deadline reached",
+  "initial": {
+    "source": {
+      "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+      "path": "/home/sl/.local/state/baton/v12/w71879-run9/source",
+      "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+    },
+    "target": {
+      "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+      "path": "/home/sl/.local/state/baton/v12/w71879-run9/target",
+      "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+    }
+  },
+  "ordinary_operator_transitions": 0,
+  "started_at": "2026-09-12T05:53:06.395496+00:00",
+  "stats_observations": {
+    "available": 149,
+    "coverage": "sampled command output only; gaps are not measurements or lifecycle results",
+    "gaps": [],
+    "not-requested": 5,
+    "truncated_samples": [],
+    "unavailable": 0
+  },
+  "submitted": true,
+  "terminal_both": false,
+  "wall_seconds": 408.2074813900108
+}

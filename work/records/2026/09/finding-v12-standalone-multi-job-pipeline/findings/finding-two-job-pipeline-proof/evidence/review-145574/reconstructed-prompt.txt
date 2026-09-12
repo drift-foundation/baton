@@ -1,0 +1,81 @@
+Import exactly the genuinely accepted candidate from the supplied bundle into the configured target. Judge scope against the full candidate and retained independent review/task evidence. Respect the specifically scheduled existing greeting test change and preserve unrelated files. Refuse unauthorized changes rather than correcting them. Run the supplied required verification and report the actual result.
+
+# A: normalize greeting names
+
+Implement this complete request on A's private line from the frozen original
+base. Change only `demo/greeting.py` and `tests/test_greeting.py`.
+
+`greet(name)` must strip surrounding whitespace, return `Hello, Ada!` for
+both `Ada` and ` Ada `, and raise `ValueError("name is empty")` for empty or
+whitespace-only names. Preserve the existing punctuation and ordinary-name
+case. Replace the existing surrounding-spaces expectation with the trimmed
+result. Add assertions for empty and whitespace-only rejection, including the
+exception message. This explicitly schedules that existing-test behavior
+change; retain the ordinary-name assertion.
+
+Required verification argv: `["python3", "check_greeting.py"]`.
+Submission `test_scope`: `["tests/test_greeting.py"]`.
+
+No deliberate omission or injected correction is requested. If the independent
+review requests a real correction, use the normal same-line correction path.
+
+
+# B: convert hours to seconds
+
+Implement this complete request on B's private line from the same frozen
+original base as A. Change only `demo/units.py`, add `tests/test_hours.py`,
+and add `check_hours.py` at the repository root.
+
+Add `hours_to_seconds(n)` returning `n * 3600`. Cover 0, 1 and 2 hours in the
+new unittest module. Preserve `minutes_to_seconds` and the existing tests.
+
+The new `check_hours.py` must be self-contained apart from importing
+`demo.units`: import both conversion functions and assert the hours results
+0, 3600 and 7200 and minutes results 0 and 120. Print a clear success line
+only after every assertion passes. It must not import `tests.test_hours`,
+create files, install dependencies, repair missing functions, catch an import
+or assertion failure, or depend on a changed test module. The configured
+causal observer carries this one script into the original base; the missing
+hours function there must produce a real nonzero exit. The same script must
+pass on B's isolated candidate and the separately merged result.
+
+Required verification argv: `["python3", "check_hours.py"]`.
+Submission `test_scope`: `[]` (only additive test files).
+
+Do not copy A's result into B's original line or change its declared base.
+
+-- this runtime's exact operands --
+
+The approved evidence bundle is mounted read-only at /input/source.
+Its measured identity is {'manifest': [{'path': 'blobs/a722734fb3f54d3a5dbcd2dbd2e4e356ea0a17c7565cc5ff1335208b24ce4548', 'bytes': 624, 'digest': 'sha256:a722734fb3f54d3a5dbcd2dbd2e4e356ea0a17c7565cc5ff1335208b24ce4548'}, {'path': 'blobs/b30a9aae2f567e51ec4ff770378659b51c4bc304d1280d87fc94ea9b891ce5ab', 'bytes': 143, 'digest': 'sha256:b30a9aae2f567e51ec4ff770378659b51c4bc304d1280d87fc94ea9b891ce5ab'}, {'path': 'blobs/bf2306895de87391dc278701447b1095afaadd0d6f8f55f80ee48383f8618ea0', 'bytes': 51, 'digest': 'sha256:bf2306895de87391dc278701447b1095afaadd0d6f8f55f80ee48383f8618ea0'}, {'path': 'blobs/f6fb8233390ce3feb801fad552bf6cd66ab131e54000b2d784687ded6a643c95', 'bytes': 267, 'digest': 'sha256:f6fb8233390ce3feb801fad552bf6cd66ab131e54000b2d784687ded6a643c95'}, {'path': 'evidence/authority.json', 'bytes': 9062, 'digest': 'sha256:a6e816c9403207cc5444da32960268e776cb2ca0f9619a0f0f2945f084859868'}, {'path': 'evidence/checkpoint.json', 'bytes': 1048, 'digest': 'sha256:93f465f4ceca97c8512e0f74e31a4a8c66881c753ab79756eec8600eceba0e9f'}, {'path': 'evidence/job.json', 'bytes': 480, 'digest': 'sha256:8dd8d20b84745d766b3eedbfad03b9449fb4fb455fb2f96e6938e420699c3315'}, {'path': 'evidence/proposal.json', 'bytes': 975, 'digest': 'sha256:180ec0ab40130fd5f8d9035b78e47fb6ba6119a8c7e4ecda133bfbf84bb646de'}, {'path': 'evidence/receipts.json', 'bytes': 2059, 'digest': 'sha256:188abb8665eed2848f92c008ee239bdf6bc66461848d9620e45cdd1b9abe6ab5'}, {'path': 'evidence/result.json', 'bytes': 826, 'digest': 'sha256:206e07d7c9fdc9518fd0cde04ade2406ffd7f5623491c988bd0773e350c0b2ac'}, {'path': 'evidence/review.json', 'bytes': 1983, 'digest': 'sha256:9591c7d972e8f42555e2a6b9432ebb42b49bdf0d0d11d5c487ad4a354a253181'}, {'path': 'evidence/tests.json', 'bytes': 903, 'digest': 'sha256:a7ba11ceecaf8653c9bd8b53582f7648ae9c0723d4681a36be2641ab22ebf951'}, {'path': 'instructions.txt', 'bytes': 2602, 'digest': 'sha256:8dc2bf03482d8dd75ff6621aa2b5eafa0be99959c25143cecac3a30fe3c66fc2'}, {'path': 'integration.json', 'bytes': 3978, 'digest': 'sha256:f7e76cde0e1c192814fc8c9d5ac88f59f18003aa6df10fdb8604bdda8c4224c9'}], 'bundle_digest': 'sha256:01df74063bea72bcc5420a922971db672c59a16d0669765cdd61c994aa32acd0'}.
+The assignment it answers is sha256:0b93a166d6bf8d6911a25a9916df468325f85cf6c7a3f8dad1cb80fcba1726da.
+The candidate blobs are under /input/source/blobs/, named by the content address each path row declares.
+The target is /target and it is the only tree you may change.
+Write your bounded baton.integration-report/1 report to /tmp/RECONSTRUCTED-NOT-ACTUAL/integration-report/report.json and write no other file outside the target.
+This integration is attempt attempt-29cb33dbf7b0028b039a5f8d045bffafa0163f8dfba26681d8b69bc761529380 of target w71879-target, entry integration-driver.entry:926ec10b2bc12b2035b98ae35b3332325a4f6566018fa9a55a6b90abe89bd67b, fence 1.
+
+Import exactly these paths and no others:
+  edit demo/greeting.py from base bf2306895de87391dc278701447b1095afaadd0d6f8f55f80ee48383f8618ea0 mode 100644 to candidate b30a9aae2f567e51ec4ff770378659b51c4bc304d1280d87fc94ea9b891ce5ab mode 100644
+  edit tests/test_greeting.py from base f6fb8233390ce3feb801fad552bf6cd66ab131e54000b2d784687ded6a643c95 mode 100644 to candidate a722734fb3f54d3a5dbcd2dbd2e4e356ea0a17c7565cc5ff1335208b24ce4548 mode 100644
+
+Before importing anything, read the accepted authority account at /input/source/evidence/authority.json and the independent review documents it carries.
+
+EVALUATE THE WHOLE CANDIDATE, not only the rows listed as requiring authority. For EVERY path in the table above, decide for yourself whether it is an EXISTING TEST. For each one that is:
+  - establish that the accepted scheduled scope below names it, and
+  - read the frozen independent review's own documents and establish that the review actually evaluated that change.
+An existing test the scheduled scope does not name, or one the review did not evaluate, is NOT authorized however ordinary its content looks. An EMPTY authority account is not permission for anything: it means no row was pre-granted, not that nothing needs deciding. Stop and report a refusal rather than importing such a change.
+
+The accepted scheduled test scope is:
+  tests/test_greeting.py
+
+The frozen independent review's documents are:
+  findings/findings.txt
+  findings/report.json
+  logs/review.json
+
+These rows were pre-granted by the accepted records, and still require your evaluation above:
+  tests/test_greeting.py requires existing-test
+
+After importing, the scheduled verification python3 check_greeting.py is run over the target by this runtime and must exit zero; run it yourself first if you want to know before reporting.
+
+Do not change version-control state in any way. Do not repair permissions, redesign the candidate, resolve a conflict, or touch a path outside this table. If any of that is required, stop and report a refusal with its code.

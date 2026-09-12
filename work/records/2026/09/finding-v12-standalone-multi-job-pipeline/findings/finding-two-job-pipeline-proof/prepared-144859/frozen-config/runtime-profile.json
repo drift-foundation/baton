@@ -1,0 +1,21 @@
+{
+  "credentials": {
+    "provider": "operator-file",
+    "reference": "w64268-run1"
+  },
+  "image_variants": {
+    "integration": "sha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2",
+    "provider": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+  },
+  "model_selection": "provider default; shared installation, distinct principals and fresh contexts",
+  "name": "claude-w71879-run3",
+  "network": "bridge",
+  "provider": "Claude CLI",
+  "roles": [
+    "implementation",
+    "review",
+    "integration"
+  ],
+  "selected_base": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+  "source_profile": "git-line"
+}

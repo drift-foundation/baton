@@ -1,0 +1,13 @@
+{
+  "a_integration_claim_to_pass_seconds": 81.076,
+  "approval_claim_to_pass_seconds": 112.567,
+  "b_integration_claim": "2026-09-12T05:57:52.183000+00:00",
+  "counterfactual_only": "Interval subtraction at the historical deadline does not establish eventual verification acceptance or import completion.",
+  "old_integration_deadline": "2026-09-12T05:59:52.183000+00:00",
+  "proposed_non_judge_charge_at_old_deadline_seconds": 0.158,
+  "review_claim_to_pass_seconds": 119.729,
+  "verification_180s_deadline": "2026-09-12T06:00:52.341000+00:00",
+  "verification_age_at_old_deadline_seconds": 119.842,
+  "verification_claim": "2026-09-12T05:57:52.341000+00:00",
+  "verification_own_remaining_at_old_deadline_seconds": 60.158
+}

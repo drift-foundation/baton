@@ -1,0 +1,17 @@
+{
+  "work": "W71879",
+  "claim": 144415,
+  "accepted_run1_package_files_unchanged": 79,
+  "accepted_provider_entries_unchanged": 45,
+  "run1_source_clean_at_original_base": true,
+  "baseline_payload_matches": true,
+  "run2_absent": true,
+  "credential_source": "operator-file/w64268-run1 metadata maps to /home/sl/.claude/.credentials.json; host refreshed per owner M144306; payload not inspected",
+  "new_authority_uuid": "c71879ac000000000000000000000001",
+  "created": "2026-09-11T12:44:23.512Z",
+  "images_reused": {
+    "integration": "sha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2",
+    "provider": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+  },
+  "verification_wall_seconds": 0.007775528996717185
+}

@@ -1,0 +1,36 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "attempt-72ba2a518a465e61752d89f1bf168195dbc6d3a0c83a6edbef2c4594b3173188:proposal",
+      "bytes": 882,
+      "content_digest": "sha256:159c021dd3cc2bc9ef4abdc1f90b08fcc5182f7e9d69dcef348b5bb06ce45516",
+      "locator": "file:///home/sl/.local/state/baton/v12/w71879-run7/storage/.baton-review-lines/line-eb88b19634a3250ccf85fc5065ae3c074d148aa15f5966ae428e49b4ec87c7c9/custody/attempt-72ba2a518a465e61752d89f1bf168195dbc6d3a0c83a6edbef2c4594b3173188/proposal",
+      "media_type": "application/octet-stream",
+      "output_name": "proposal"
+    }
+  ],
+  "assignment": {
+    "generation": 1,
+    "participant": "baton.proof-impl-a",
+    "work_ref": {
+      "authority_uuid": "c71879b1000000000000000000000001",
+      "work_id": "c71879b1-W1"
+    }
+  },
+  "attempt_id": "attempt-72ba2a518a465e61752d89f1bf168195dbc6d3a0c83a6edbef2c4594b3173188",
+  "disposition": "unable",
+  "ending": "answered",
+  "episode": 1,
+  "fault_code": null,
+  "job_id": "job-a",
+  "kind": "implementation",
+  "manifest_digest": "sha256:79af27b1bea4d3d52556f11419365efd00e3b64f70a86b46ae6f0f55b9e7f143",
+  "observed_at": "2026-09-12T03:28:03.298Z",
+  "recovery": "no automatic retry or repair authorized for this proof",
+  "runtime_id": "41550d32d00c5e7dda098bfcb24a8fd444c9afda45fd04db600efc9f8d4205b1",
+  "sample": "samples.jsonl:5",
+  "sequence_id": "sequence-b0e525f5265c1887c2b2c6f3fcc15c50",
+  "stage_id": "job-a/implementation",
+  "wall_seconds": 8.753998197993496,
+  "work_id": "c71879b1-W1"
+}

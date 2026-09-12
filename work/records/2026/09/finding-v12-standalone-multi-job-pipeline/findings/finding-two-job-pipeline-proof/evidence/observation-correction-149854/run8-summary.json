@@ -1,0 +1,22 @@
+{
+  "samples": 99,
+  "last_sample_wall_seconds": 240.73159520799527,
+  "stages": {
+    "job-a": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "integrating"
+    },
+    "job-b": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "blocked"
+    }
+  },
+  "run_result_sha256": "sha256:e0d49c3a06c1f5d9bd57df1b93001428a425b041d28dccce2f217c84e4570054",
+  "samples_sha256": "sha256:ef67c10457082261d99ef451ed26985f332c5c0e80f418e4193bc81bf11356fb",
+  "operator_event": 149847,
+  "terminal_settlement_claim": "unconfirmed; no corrected observer run against historical state",
+  "run8_failed_wall_seconds": 243.6142136999988,
+  "all_eight_failed_wall_seconds": 1593.8314001880208
+}

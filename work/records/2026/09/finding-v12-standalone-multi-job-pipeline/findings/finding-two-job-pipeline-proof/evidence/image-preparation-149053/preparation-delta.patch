@@ -1,0 +1,516 @@
+--- prepared-148870/deployment.py
++++ prepared-149053/deployment.py
+@@ -1,4 +1,4 @@
+-"""W71879 future run6 preparation packaging and public-API provisioning; never submits a Job.
++"""W71879 future run7 preparation packaging and public-API provisioning; never submits a Job.
+ 
+ prepare writes review inputs beside this script. validate uses a fresh /tmp
+ Authority to validate the bootstrap/document logic without a runtime. provision
+@@ -26,14 +26,14 @@
+ DOSSIER = HERE.parent
+ CONFIG = HERE / 'frozen-config'
+ REPO = Path('/home/sl/src/baton')
+-RUN = Path('/home/sl/.local/state/baton/v12/w71879-run6')
+-UUID = 'c71879b0000000000000000000000001'
++RUN = Path('/home/sl/.local/state/baton/v12/w71879-run7')
++UUID = 'c71879b1000000000000000000000001'
+ BASE = '2fbb2d456638e5706218020aebfa47f0a82c8920'
+ TREE = '3492ba64448ab9d39bde53ee6456ce24e74ece2c'
+ PROVIDER_BASE = 'sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4'
+-CREATED = '2026-09-11T19:51:48.071Z'
+-SCOPE = 'scope:w71879-run6'
+-PROFILE = 'claude-w71879-run6'
++CREATED = '2026-09-12T02:23:07.032Z'
++SCOPE = 'scope:w71879-run7'
++PROFILE = 'claude-w71879-run7'
+ REGISTRY = '/home/sl/.baton/credential-sources.json'
+ CREDENTIAL = {'provider': 'operator-file', 'reference': 'w64268-run1'}
+ ACTORS = {name: 'baton.proof-' + name for name in
+@@ -90,7 +90,7 @@
+                         'Do not modify source or invent receipts.\n\n' + duty +
+                         '\n\nThe complete accepted task scope follows. A is already landed; B is being merged.\n\n' + a + '\n\n' + b)
+         requests[name] = (instructions, 'check_hours.py')
+-    return {name: {'schema': 'baton.dogfood-task/2', 'task_id': 'w71879-run6-' + name,
++    return {name: {'schema': 'baton.dogfood-task/2', 'task_id': 'w71879-run7-' + name,
+                    'instructions': instructions, 'source_root': 'source',
+                    'source_profile': 'git-line', 'declared_base': BASE,
+                    'verification': ['python3', check]}
+@@ -99,7 +99,7 @@
+ 
+ def policy_documents():
+     return {
+-        'policy': {'work': 'W71879', 'ruling': 'M141636/return146894; run6 preparation authorized; model execution not authorized', 'base': BASE,
++        'policy': {'work': 'W71879', 'ruling': 'M141636/return149049; run7 image and package preparation authorized; model execution not authorized', 'base': BASE,
+                    'scope': SCOPE, 'automatic_retry': False, 'ordinary_operator_transitions': 0,
+                    'submission': ['job-a', 'job-b'], 'review_before_execution': True},
+         'resource_policy': {'wall_seconds': 1200, 'implementation_attempt_seconds': 240,
+@@ -129,7 +129,7 @@
+         authority.set_policy('canonical_target', BASE)
+         authority.certify_contract('v12-assignment-1', profile=PROFILE)
+         for name, actor in ACTORS.items():
+-            authority.bind_endpoint(actor, 'principal:w71879-run6-' + name)
++            authority.bind_endpoint(actor, 'principal:w71879-run7-' + name)
+         for name in ('a', 'b'):
+             authority.add_route_handler('proof-impl-' + name, ACTORS['impl-' + name])
+             authority.add_route_handler('proof-review-' + name, ACTORS['review-' + name])
+@@ -252,7 +252,7 @@
+         payload = task_path.read_bytes()
+         given = dogfood_operator.input_manifest(
+             work_ref={'authority_uuid': UUID, 'work_id': WORKS[name]}, staged=empty,
+-            created_at=CREATED, manifest_id='w71879-run6-' + name,
++            created_at=CREATED, manifest_id='w71879-run7-' + name,
+             assignment_contract='v12-assignment-1',
+             human_contract={'artifact_id': 'w71879-task-' + name, 'media_type': 'application/json',
+                             'bytes': len(payload), 'content_digest': digest_of_bytes(payload),
+@@ -337,7 +337,7 @@
+                      'stages': [{'kind': kind, 'work_id': WORKS[name], 'profile_name': PROFILE,
+                                  'profile_digest': profile_digest, 'depends_on': dep[kind]}
+                                 for kind in ('implementation', 'review', 'integration')]})
+-    submission = {'schema': 'baton.v12.job-submission/1', 'submission_id': 'w71879-run6', 'jobs': jobs}
++    submission = {'schema': 'baton.v12.job-submission/1', 'submission_id': 'w71879-run7', 'jobs': jobs}
+     owned_submission(submission)
+     write_json(destination / 'stage-execution.json', config)
+     write_json(destination / 'submission.json', submission)
+@@ -381,7 +381,7 @@
+ def validate():
+     baseline()
+     started = time.monotonic()
+-    destination = Path(tempfile.mkdtemp(prefix='w71879-146897-validation-'))
++    destination = Path(tempfile.mkdtemp(prefix='w71879-149053-validation-'))
+     print('Retained validation directory:', destination, flush=True)
+     facts = bootstrap(destination / 'authority.sqlite3')
+     # Historical image values exercise schema composition ONLY. They are
+--- prepared-148870/image-context-manifest.json
++++ prepared-149053/image-context-manifest.json
+@@ -16,8 +16,8 @@
+     "sha256": "sha256:da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923"
+   },
+   "worker/claude_agent.py": {
+-    "bytes": 166051,
+-    "sha256": "sha256:9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955"
++    "bytes": 168520,
++    "sha256": "sha256:489399897c3f0ae94f06be9da47adde3f05210fa0ecfd7faad295daf6accfe2a"
+   },
+   "worker/dogfood_entry.py": {
+     "bytes": 810,
+--- prepared-148870/offline_fixture.py
++++ prepared-149053/offline_fixture.py
+@@ -11,6 +11,6 @@
+ def documents_in_fixture(destination, images, facts):
+     root = destination.parent / 'offline-run'
+     (root / 'source').mkdir(parents=True, exist_ok=True)
+-    (root / 'OFFLINE-ONLY.txt').write_text('Temporary source nomination only; not actual run6 inputs, Git baseline or host validation.\n')
++    (root / 'OFFLINE-ONLY.txt').write_text('Temporary source nomination only; not actual run7 inputs, Git baseline or host validation.\n')
+     with mock.patch.object(deployment, 'RUN', root):
+         return deployment.documents(destination, images, facts)
+--- prepared-148870/operator-prepare.sh
++++ prepared-149053/operator-prepare.sh
+@@ -3,14 +3,14 @@
+ set -euo pipefail
+ umask 0002
+ 
+-run6_root=/home/sl/.local/state/baton/v12/w71879-run6
++run7_root=/home/sl/.local/state/baton/v12/w71879-run7
+ run1_source=/home/sl/.local/state/baton/v12/w71879-run1/source
+-target="$run6_root/target"
++target="$run7_root/target"
+ expected_commit=2fbb2d456638e5706218020aebfa47f0a82c8920
+ expected_tree=3492ba64448ab9d39bde53ee6456ce24e74ece2c
+ 
+-test ! -e "$run6_root"
+-test ! -L "$run6_root"
++test ! -e "$run7_root"
++test ! -L "$run7_root"
+ case " $(id -G) " in
+     *' 1001 '*) ;;
+     *) printf '%s\n' 'Operator must already hold workspace gid1001.' >&2; exit 1 ;;
+@@ -19,22 +19,22 @@
+ test "$(git --no-optional-locks -C "$run1_source" symbolic-ref --short HEAD)" = main
+ test -z "$(git --no-optional-locks -C "$run1_source" status --porcelain)"
+ 
+-mkdir -m 700 "$run6_root"
+-git clone --no-hardlinks --single-branch --branch main "$run1_source" "$run6_root/source"
++mkdir -m 700 "$run7_root"
++git clone --no-hardlinks --single-branch --branch main "$run1_source" "$run7_root/source"
+ install -d -g 1001 -m 2775 "$target"
+-git clone --no-hardlinks --single-branch --branch main "$run6_root/source" "$target"
+-git init --bare "$run6_root/integration-workspace"
++git clone --no-hardlinks --single-branch --branch main "$run7_root/source" "$target"
++git init --bare "$run7_root/integration-workspace"
+ 
+ # Initial preparation only: the fresh target has never held a submitted Job.
+ # The unchanged worker requires its own uid and exact 100644 -> 0644 modes.
+ chmod 0644 "$target/demo/greeting.py" "$target/demo/units.py" "$target/tests/test_greeting.py"
+ sudo -- chown -R --no-dereference 65532:1001 "$target"
+ 
+-for checkout_path in "$run6_root/source" "$target"; do
++for checkout_path in "$run7_root/source" "$target"; do
+     test "$(git --no-optional-locks -c safe.directory="$target" -C "$checkout_path" show --no-patch --format='%H %T' HEAD)" = "$expected_commit $expected_tree"
+     test "$(git --no-optional-locks -c safe.directory="$target" -C "$checkout_path" symbolic-ref --short HEAD)" = main
+     test -z "$(git --no-optional-locks -c safe.directory="$target" -C "$checkout_path" status --porcelain)"
+ done
+-test "$(git -C "$run6_root/integration-workspace" rev-parse --is-bare-repository)" = true
+-/usr/bin/env PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146897/target_posture.py "$target"
++test "$(git -C "$run7_root/integration-workspace" rev-parse --is-bare-repository)" = true
++/usr/bin/env PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149053/target_posture.py "$target"
+ printf '%s\n' 'Fresh target preparation complete; no Authority provisioning or model run performed.'
+--- prepared-148870/policies/mount_policy.json
++++ prepared-149053/policies/mount_policy.json
+@@ -1,7 +1,7 @@
+ {
+-  "mutable_storage": "/home/sl/.local/state/baton/v12/w71879-run6/storage",
++  "mutable_storage": "/home/sl/.local/state/baton/v12/w71879-run7/storage",
+   "source": "read-only original source and manager-held private git-line",
+-  "target": "/home/sl/.local/state/baton/v12/w71879-run6/target",
++  "target": "/home/sl/.local/state/baton/v12/w71879-run7/target",
+   "target_reference": "refs/heads/main",
+   "workspace_group": 1001
+ }
+--- prepared-148870/policies/policy.json
++++ prepared-149053/policies/policy.json
+@@ -3,8 +3,8 @@
+   "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+   "ordinary_operator_transitions": 0,
+   "review_before_execution": true,
+-  "ruling": "M141636/return146894; run6 preparation authorized; model execution not authorized",
+-  "scope": "scope:w71879-run6",
++  "ruling": "M141636/return149049; run7 image and package preparation authorized; model execution not authorized",
++  "scope": "scope:w71879-run7",
+   "submission": [
+     "job-a",
+     "job-b"
+--- prepared-148870/policies/retention_policy.json
++++ prepared-149053/policies/retention_policy.json
+@@ -1,5 +1,5 @@
+ {
+   "automatic_deletion": false,
+   "disposition": "retain",
+-  "root": "/home/sl/.local/state/baton/v12/w71879-run6"
++  "root": "/home/sl/.local/state/baton/v12/w71879-run7"
+ }
+--- prepared-148870/run.py
++++ prepared-149053/run.py
+@@ -22,11 +22,11 @@
+ PYTHON = '/usr/bin/python3'
+ CWD = REPO / 'v12/python'
+ PREFIX = ['/usr/bin/env', 'PYTHONDONTWRITEBYTECODE=1', 'PYTHONPATH=src:.', PYTHON, '-m', 'tools.job_manager',
+-          '--store', str(RUN / 'jobs.sqlite3'), '--incarnation', 'w71879-run6', '--authority-uuid', UUID]
++          '--store', str(RUN / 'jobs.sqlite3'), '--incarnation', 'w71879-run7', '--authority-uuid', UUID]
+ SERVE = ['/usr/bin/env', 'PYTHONDONTWRITEBYTECODE=1', 'PYTHONPATH=src:.',
+          'BATON_V12_STAGE_EXECUTION_CONFIG=' + str(CONFIG / 'stage-execution.json'),
+          PYTHON, '-m', 'tools.job_manager', '--store', str(RUN / 'jobs.sqlite3'),
+-         '--incarnation', 'w71879-run6', '--authority-uuid', UUID, 'serve',
++         '--incarnation', 'w71879-run7', '--authority-uuid', UUID, 'serve',
+          '--control', str(RUN / 'control.sqlite3'), '--operations', 'tools.stage_execution:factory', '--interval', '1']
+ STATUS = PREFIX[:3] + ['BATON_V12_STAGE_EXECUTION_CONFIG=' + str(CONFIG / 'stage-execution.json')] + PREFIX[3:] + ['status', '--control', str(RUN / 'control.sqlite3'), '--observe', 'tools.stage_execution:observing_factory']
+ LIMITS = {ACTORS[name]: (240 if name.startswith('impl-') else 120 if name == 'integrator' else 180)
+--- prepared-148870/tasks/a.json
++++ prepared-149053/tasks/a.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run6-a",
++  "task_id": "w71879-run7-a",
+   "verification": [
+     "python3",
+     "check_greeting.py"
+--- prepared-148870/tasks/approval.json
++++ prepared-149053/tasks/approval.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run6-approval",
++  "task_id": "w71879-run7-approval",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-148870/tasks/b.json
++++ prepared-149053/tasks/b.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run6-b",
++  "task_id": "w71879-run7-b",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-148870/tasks/review.json
++++ prepared-149053/tasks/review.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run6-review",
++  "task_id": "w71879-run7-review",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-148870/tasks/verification.json
++++ prepared-149053/tasks/verification.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run6-verification",
++  "task_id": "w71879-run7-verification",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-148870/test_early_failure.py
++++ prepared-149053/test_early_failure.py
+@@ -14,10 +14,12 @@
+ FACTS = json.loads((HERE / 'evidence/run6-status-facts.json').read_text())
+ FAILED = FACTS['samples'][4]['status']
+ INCARNATION = 'w71879-run6'
++HISTORICAL_UUID = 'c71879b0000000000000000000000001'
++HISTORICAL_WORKS = {name: 'c71879b0-W' + str(i) for i, name in enumerate(('a', 'b', 'verification', 'review', 'approval'), 1)}
+ 
+ 
+ def detect(status):
+-    return first_failure(status, authority_uuid=runner.UUID, incarnation=INCARNATION, works=runner.WORKS)
++    return first_failure(status, authority_uuid=HISTORICAL_UUID, incarnation=INCARNATION, works=HISTORICAL_WORKS)
+ 
+ 
+ class EarlyFailureTests(unittest.TestCase):
+@@ -93,7 +95,9 @@
+         if not hasattr(fixtures.RunnerTests, 'retained'):
+             fixtures.RunnerTests.setUpClass()
+         fixture = fixtures.RunnerTests('test_incomplete_jobs_do_not_become_terminal_from_gap')
+-        with mock.patch.object(fixtures, 'jobs', return_value=deepcopy(FAILED)):
++        # Relabel an explicit synthetic copy for the fresh runner; retained facts stay exact.
++        synthetic = json.loads(json.dumps(FAILED).replace(HISTORICAL_UUID, runner.UUID).replace('c71879b0-', runner.UUID[:8] + '-').replace(INCARNATION, 'w71879-run7'))
++        with mock.patch.object(fixtures, 'jobs', return_value=synthetic):
+             return fixture.exercise(terminal=False, **kwargs)
+ 
+     def test_main_stops_before_telemetry_or_later_deadline_and_keeps_evidence(self):
+--- prepared-148870/test_manifest_timestamp.py
++++ prepared-149053/test_manifest_timestamp.py
+@@ -1,7 +1,7 @@
+ """Actual frozen-schema regressions; emitted files are offline fixtures only.
+ 
+ No Authority is opened or created. No host validate/render gate is bypassed:
+-only the document constructor receives explicitly synthetic run6-shaped facts.
++only the document constructor receives explicitly synthetic run7-shaped facts.
+ """
+ from copy import deepcopy
+ import json
+@@ -17,18 +17,18 @@
+ 
+ HERE = Path(__file__).resolve().parent
+ ORIGINAL = '2026-09-11T15:06:04Z'
+-CORRECTED = '2026-09-11T19:51:48.071Z'
++CORRECTED = '2026-09-12T02:23:07.032Z'
+ 
+ 
+ class ManifestTimestampTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.retained = Path(tempfile.mkdtemp(prefix='w71879-146897-schema-fixtures-'))
++        cls.retained = Path(tempfile.mkdtemp(prefix='w71879-149053-schema-fixtures-'))
+         print('Retained offline schema fixture root:', cls.retained, flush=True)
+         (cls.retained / 'FIXTURE-ONLY.txt').write_text('Synthetic constructor parameters and document outputs. Not host validation or final run inputs. No Authority/model/runtime created.\n')
+-        cls.images = json.loads((HERE / 'candidate-images.json').read_text())
++        cls.images = json.loads((HERE / 'offline-images.json').read_text())
+         cls.facts = {'authority_uuid': deployment.UUID, 'policy_generation': 24,
+-                     'principals': {actor: 'principal:w71879-run6-' + actor for actor in deployment.ACTORS},
++                     'principals': {actor: 'principal:w71879-run7-' + actor for actor in deployment.ACTORS},
+                      'fixture_scope': 'synthetic offline constructor parameters, not public Authority observations'}
+         cls.good = cls.retained / 'valid'
+         cls.hashes = documents_in_fixture(cls.good, cls.images, cls.facts)
+--- prepared-148870/test_observed_status.py
++++ prepared-149053/test_observed_status.py
+@@ -31,14 +31,14 @@
+ class ObservedStatusTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.root = Path(tempfile.mkdtemp(prefix='w71879-146897-correction-fixtures-'))
++        cls.root = Path(tempfile.mkdtemp(prefix='w71879-149053-correction-fixtures-'))
+         print('Retained bounded correction fixtures:', cls.root, flush=True)
+-        (cls.root / 'OFFLINE-ONLY.txt').write_text('Synthetic inputs and copied Git source. Not actual run6 inputs, provider attribution, owner settlement or host state.\n')
++        (cls.root / 'OFFLINE-ONLY.txt').write_text('Synthetic inputs and copied Git source. Not actual run7 inputs, provider attribution, owner settlement or host state.\n')
+         facts = {'authority_uuid': deployment.UUID, 'policy_generation': 24,
+-                 'principals': {actor: 'principal:w71879-run6-' + actor for actor in deployment.ACTORS},
++                 'principals': {actor: 'principal:w71879-run7-' + actor for actor in deployment.ACTORS},
+                  'fixture_scope': 'synthetic constructor parameters only'}
+         cls.config = cls.root / 'documents'
+-        documents_in_fixture(cls.config, json.loads((HERE / 'candidate-images.json').read_text()), facts)
++        documents_in_fixture(cls.config, json.loads((HERE / 'offline-images.json').read_text()), facts)
+         cls.instructions = (cls.config / 'integration-instructions.txt').read_bytes()
+         cls.prompt = workload.compose_prompt(instructions=cls.instructions, bundle_root='/input/source',
+             target_root='/target', report_place='/tmp/SYNTHETIC-report.json',
+@@ -61,7 +61,7 @@
+     def test_instructed_git_reads_preserve_real_repository_witness(self):
+         # Copy ordinary existing source files without using git init/clone,
+         # staging or any mutable Git operation. Never touch a real run target.
+-        source = Path('/home/sl/.local/state/baton/v12/w71879-run1/source')  # Original retained baseline; fresh run6 does not exist.
++        source = Path('/home/sl/.local/state/baton/v12/w71879-run1/source')  # Original retained baseline; fresh run7 does not exist.
+         target = self.root / 'copied-source'
+         shutil.copytree(source, target)
+         index_before = (target / '.git/index').read_bytes()
+@@ -94,7 +94,7 @@
+         self.assertEqual(str(runner.RUN / 'control.sqlite3'), taken.control)
+         self.assertEqual('tools.stage_execution:observing_factory', taken.observe)
+         self.assertEqual(str(runner.RUN / 'jobs.sqlite3'), taken.store)
+-        self.assertEqual('w71879-run6', taken.incarnation)
++        self.assertEqual('w71879-run7', taken.incarnation)
+ 
+     def test_selected_real_factory_loads_config_and_has_no_serving_actions(self):
+         name = runner.STATUS[runner.STATUS.index('--observe') + 1]
+--- prepared-148870/test_report_instructions.py
++++ prepared-149053/test_report_instructions.py
+@@ -20,14 +20,14 @@
+ class ReportInstructionsTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.root = Path(tempfile.mkdtemp(prefix='w71879-146897-report-fixtures-'))
++        cls.root = Path(tempfile.mkdtemp(prefix='w71879-149053-report-fixtures-'))
+         print('Retained synthetic report fixture root:', cls.root, flush=True)
+         (cls.root / 'FIXTURE-ONLY.txt').write_text('Synthetic offline documents, prompts and reports. No actual result namespace or execution evidence.\n')
+         facts = {'authority_uuid': deployment.UUID, 'policy_generation': 24,
+-                 'principals': {actor: 'principal:w71879-run6-' + actor for actor in deployment.ACTORS},
++                 'principals': {actor: 'principal:w71879-run7-' + actor for actor in deployment.ACTORS},
+                  'fixture_scope': 'synthetic offline facts, not Authority observations'}
+         cls.config = cls.root / 'constructor'
+-        documents_in_fixture(cls.config, json.loads((HERE / 'candidate-images.json').read_text()), facts)
++        documents_in_fixture(cls.config, json.loads((HERE / 'offline-images.json').read_text()), facts)
+         cls.instructions = (cls.config / 'integration-instructions.txt').read_text()
+         cls.extension = cls.instructions.split('Provider completion contract', 1)[1]
+         cls.rows = [{'path': path, 'operation': 'edit',
+--- prepared-148870/test_run6_preparation.py
++++ prepared-149053/test_run7_preparation.py
+@@ -1,9 +1,5 @@
+-"""Fresh run6 packaging checks through public bootstrap and real constructors.
+-
+-Temporary Authority facts are real offline preparation observations, never
+-production state, model reports, host posture or terminal acceptance evidence.
+-"""
+-import ast
++"""Fresh identities and preserved accepted behavior; no host or model execution."""
++import hashlib
+ import json
+ from pathlib import Path
+ import tempfile
+@@ -14,76 +10,71 @@
+ import run as runner
+ 
+ HERE = Path(__file__).resolve().parent
+-PRIOR = HERE.parent / 'prepared-146797'
+-CREATED = '2026-09-11T19:51:48.071Z'
+-RULING = 'M141636/return146894; run6 preparation authorized; model execution not authorized'
++PRIOR = HERE.parent / 'prepared-148870'
++CREATED = '2026-09-12T02:23:07.032Z'
++RULING = 'M141636/return149049; run7 image and package preparation authorized; model execution not authorized'
+ 
+ 
+-class Run6PreparationTests(unittest.TestCase):
++class Run7PreparationTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.root = Path(tempfile.mkdtemp(prefix='w71879-146897-public-bootstrap-'))
++        cls.root = Path(tempfile.mkdtemp(prefix='w71879-149053-public-bootstrap-'))
+         print('Retained offline public bootstrap:', cls.root, flush=True)
+-        (cls.root / 'OFFLINE-ONLY.txt').write_text('Public bootstrap and real document schemas only. Not host validation or model execution.\n')
++        (cls.root / 'OFFLINE-ONLY.txt').write_text('Public bootstrap/schema tests only. Not host validation or execution.\n')
+         cls.facts = deployment.bootstrap(cls.root / 'authority.sqlite3')
+         cls.config = cls.root / 'documents'
+-        cls.hashes = documents_in_fixture(cls.config, json.loads((HERE / 'candidate-images.json').read_text()), cls.facts)
++        cls.hashes = documents_in_fixture(cls.config, json.loads((HERE / 'offline-images.json').read_text()), cls.facts)
+ 
+     def test_public_bootstrap_and_all_execution_bindings_use_fresh_namespace(self):
+-        self.assertEqual('c71879b0000000000000000000000001', self.facts['authority_uuid'])
++        self.assertEqual('c71879b1000000000000000000000001', self.facts['authority_uuid'])
+         self.assertEqual(24, self.facts['policy_generation'])
+         self.assertEqual(9, len(self.facts['principals']))
+         for actor, principal in self.facts['principals'].items():
+-            self.assertEqual('principal:w71879-run6-' + actor, principal)
+-        self.assertEqual({name: 'c71879b0-W' + str(i) for i, name in enumerate(('a', 'b', 'verification', 'review', 'approval'), 1)}, deployment.WORKS)
++            self.assertEqual('principal:w71879-run7-' + actor, principal)
++        self.assertEqual({name: 'c71879b1-W' + str(i) for i, name in enumerate(('a', 'b', 'verification', 'review', 'approval'), 1)}, deployment.WORKS)
+         config = json.loads((self.config / 'stage-execution.json').read_text())
+-        self.assertEqual('/home/sl/.local/state/baton/v12/w71879-run6', str(deployment.RUN))
++        self.assertEqual('/home/sl/.local/state/baton/v12/w71879-run7', str(deployment.RUN))
+         self.assertEqual(str(self.root / 'offline-run/target'), config['integration_target'])
+         self.assertEqual(str(self.root / 'offline-run/integration-workspace'), config['integration_workspace'])
+-        self.assertEqual('w71879-run6', json.loads((self.config / 'submission.json').read_text())['submission_id'])
++        self.assertEqual('w71879-run7', json.loads((self.config / 'submission.json').read_text())['submission_id'])
+         self.assertEqual(8, len(list((self.config / 'workers').glob('*.json'))))
+         for path in self.config.rglob('*'):
+             if path.is_file():
+-                text = path.read_text()
+-                self.assertNotIn('w71879-run5', text)
+-                self.assertNotIn('c71879af', text)
++                self.assertNotIn('w71879-run6', path.read_text())
++                self.assertNotIn('c71879b0', path.read_text())
+         for argv in (runner.PREFIX, runner.SERVE, runner.STATUS):
+-            self.assertEqual('w71879-run6', argv[argv.index('--incarnation') + 1])
++            self.assertEqual('w71879-run7', argv[argv.index('--incarnation') + 1])
+         self.assertEqual(CREATED, deployment.CREATED)
+ 
+-    def test_tasks_policies_images_and_report_contract_preserve_accepted_behavior(self):
++    def test_tasks_policies_and_report_contract_preserve_accepted_behavior(self):
+         for name, task in deployment.task_documents().items():
+             old = json.loads((PRIOR / 'tasks' / (name + '.json')).read_text())
+-            old['task_id'] = old['task_id'].replace('run5', 'run6')
++            old['task_id'] = old['task_id'].replace('run6', 'run7')
+             self.assertEqual(old, task)
+             self.assertEqual(task, json.loads((HERE / 'tasks' / (name + '.json')).read_text()))
+         for name, policy in deployment.policy_documents().items():
+-            old = json.loads((PRIOR / 'policies' / (name + '.json')).read_text().replace('w71879-run5', 'w71879-run6'))
+-            if name == 'policy':
+-                old['ruling'] = RULING
++            old = json.loads((PRIOR / 'policies' / (name + '.json')).read_text().replace('w71879-run6', 'w71879-run7'))
++            if name == 'policy': old['ruling'] = RULING
+             self.assertEqual(old, policy)
+             self.assertEqual(policy, json.loads((HERE / 'policies' / (name + '.json')).read_text()))
+-        self.assertEqual((PRIOR / 'evidence/generated-integration-instructions.txt').read_bytes(), (self.config / 'integration-instructions.txt').read_bytes())
+-        for name in ('candidate-images.json', 'image-context-manifest.json', 'target_posture.py'):
++        instructions = (self.config / 'integration-instructions.txt').read_bytes()
++        self.assertEqual('4b3160e825f6d4f166fc5fc8477f8d85f3190420ba402dcfb780f01df7be9f76', hashlib.sha256(instructions).hexdigest())
++        self.assertEqual((PRIOR / 'candidate-images.json').read_bytes(), (HERE / 'offline-images.json').read_bytes())
++
++    def test_deployment_runner_and_all_four_helpers_preserve_accepted_behavior(self):
++        old = (PRIOR / 'deployment.py').read_text()
++        expected = old.replace('run6', 'run7').replace('c71879b0000000000000000000000001', 'c71879b1000000000000000000000001').replace('2026-09-11T19:51:48.071Z', CREATED).replace('M141636/return146894; run7 preparation authorized; model execution not authorized', RULING).replace('w71879-146897-validation-', 'w71879-149053-validation-')
++        self.assertEqual(expected, (HERE / 'deployment.py').read_text())
++        self.assertEqual((PRIOR / 'run.py').read_text().replace('w71879-run6', 'w71879-run7'), (HERE / 'run.py').read_text())
++        for name in ('target_posture.py', 'failure_observation.py', 'test_stats_observation.py', 'test_provider_detail.py'):
+             self.assertEqual((PRIOR / name).read_bytes(), (HERE / name).read_bytes())
+-
+-    def test_deployment_and_runner_differ_only_in_scheduled_identity_metadata(self):
+-        old = (PRIOR / 'deployment.py').read_text()
+-        expected = old.replace('run5', 'run6').replace('c71879af000000000000000000000001', 'c71879b0000000000000000000000001').replace('2026-09-11T18:51:56.074Z', CREATED).replace('M141636/return146531; run6 preparation authorized; model execution not authorized', RULING).replace('w71879-146538-validation-', 'w71879-146897-validation-')
+-        self.assertEqual(expected, (HERE / 'deployment.py').read_text())
+-        self.assertEqual((HERE.parent / 'prepared-146897/run.py').read_text(), (PRIOR / 'run.py').read_text().replace('w71879-run5', 'w71879-run6'))
+-        self.assertIn('from failure_observation import first_failure, provider_diagnostic', (HERE / 'run.py').read_text())
++        self.assertIn("(HERE / 'run.py', HERE / 'deployment.py', HERE / 'target_posture.py', HERE / 'failure_observation.py')", (HERE / 'run.py').read_text())
+ 
+     def test_operator_recipe_preserves_fresh_only_guards_and_fixed_host_posture(self):
+-        expected = (PRIOR / 'operator-prepare.sh').read_text().replace('run5', 'run6').replace('prepared-146538/target_posture.py', 'prepared-146897/target_posture.py')
++        expected = (PRIOR / 'operator-prepare.sh').read_text().replace('run6', 'run7').replace('prepared-146897/target_posture.py', 'prepared-149053/target_posture.py')
+         self.assertEqual(expected, (HERE / 'operator-prepare.sh').read_text())
+-        self.assertEqual((HERE.parent / 'prepared-146897/test_stats_observation.py').read_text().replace("('run.py', 'deployment.py', 'target_posture.py')", "('run.py', 'deployment.py', 'target_posture.py', 'failure_observation.py')").replace('events=None, claim_age=None):', 'events=None, claim_age=None, stop_error=None):').replace("stopped = patch(runner, 'stop_serving')", "stopped = patch(runner, 'stop_serving', side_effect=stop_error)"), (HERE / 'test_stats_observation.py').read_text())
+-        self.assertIn('test ! -e "$run6_root"', expected)
+-        self.assertIn('test ! -L "$run6_root"', expected)
+-        self.assertIn('65532:1001', expected)
+-        self.assertIn('chmod 0644', expected)
+-        self.assertIn('git clone --no-hardlinks', expected)
+-        self.assertIn('w71879-run1/source', expected)
++        for guard in ('test ! -e "$run7_root"', 'test ! -L "$run7_root"', '65532:1001', 'chmod 0644', 'git clone --no-hardlinks', 'w71879-run1/source'):
++            self.assertIn(guard, expected)
+ 
+ 
+ if __name__ == '__main__':
+--- prepared-148870/verify_offline.py
++++ prepared-149053/verify_offline.py
+@@ -12,7 +12,7 @@
+ HERE = Path(__file__).resolve().parent
+ REPO = next(parent for parent in HERE.parents if (parent / 'v12/python/src/baton_v12').is_dir())
+ sys.path[:0] = [str(HERE), str(REPO / 'v12/python/src'), str(REPO / 'v12/python'), str(REPO / 'v12/worker')]
+-retained = Path(tempfile.mkdtemp(prefix='w71879-146897-offline-verification-'))
++retained = Path(tempfile.mkdtemp(prefix='w71879-149053-offline-verification-'))
+ started = time.monotonic()
+ output = io.StringIO()
+ with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):

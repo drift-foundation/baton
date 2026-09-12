@@ -1,0 +1,9 @@
+{
+  "previous_cumulative_listed_seconds": 42.711687787948996,
+  "actual_input_verification_seconds": 0.10465844898135401,
+  "operator_validation_seconds": 0.02553242098656483,
+  "current_listed_seconds": 0.13019086996791884,
+  "cumulative_listed_seconds": 42.841878657916915,
+  "failed_runtime_seconds": 1350.217186488022,
+  "uncertainty": "Additional untimed reads, hashing, static checks, edits, CLI, operator host preparation/render/login and billing. Prior seven failures, reviewer utility failures and earlier operator image build remain spent and are not recounted. Tool outer wall not double counted with inner verifier."
+}

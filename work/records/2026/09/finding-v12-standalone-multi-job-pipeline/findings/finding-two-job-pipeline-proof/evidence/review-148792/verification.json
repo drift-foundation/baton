@@ -1,0 +1,56 @@
+{
+  "claim": 148792,
+  "counts": {
+    "proposal": 3,
+    "accepted_runner": 43
+  },
+  "metadata_sha256": "204e690591b935992fff95f6d2af6aeac86be074719da7900f1c4e4056f37efe",
+  "metadata_bytes": 1476,
+  "metadata_mode": "0o644",
+  "metadata": {
+    "name": "@anthropic-ai/claude-code",
+    "version": "2.1.247",
+    "bin": {
+      "claude": "bin/claude.exe"
+    },
+    "scripts": {
+      "postinstall": "node install.cjs",
+      "prepare": "node -e \"if (!process.env.AUTHORIZED) { console.error('ERROR: Direct publishing is not allowed.\\nPlease see the release workflow documentation to publish this package.'); process.exit(1); }\""
+    },
+    "engines": {
+      "node": ">=22.0.0"
+    },
+    "type": "module",
+    "author": "Anthropic <support@anthropic.com>",
+    "license": "SEE LICENSE IN README.md",
+    "description": "Use Claude, Anthropic's AI assistant, right from your terminal. Claude can understand your codebase, edit files, run terminal commands, and handle entire workflows for you.",
+    "homepage": "https://github.com/anthropics/claude-code",
+    "bugs": {
+      "url": "https://github.com/anthropics/claude-code/issues"
+    },
+    "dependencies": {},
+    "optionalDependencies": {
+      "@anthropic-ai/claude-code-darwin-arm64": "2.1.247",
+      "@anthropic-ai/claude-code-darwin-x64": "2.1.247",
+      "@anthropic-ai/claude-code-linux-x64": "2.1.247",
+      "@anthropic-ai/claude-code-linux-arm64": "2.1.247",
+      "@anthropic-ai/claude-code-linux-x64-musl": "2.1.247",
+      "@anthropic-ai/claude-code-linux-arm64-musl": "2.1.247",
+      "@anthropic-ai/claude-code-win32-x64": "2.1.247",
+      "@anthropic-ai/claude-code-win32-arm64": "2.1.247"
+    },
+    "files": [
+      "bin/claude.exe",
+      "install.cjs",
+      "cli-wrapper.cjs",
+      "sdk-tools.d.ts"
+    ]
+  },
+  "destinations_absent": [
+    "/tmp/w71879-148768-provider-install.cjs",
+    "/tmp/w71879-148768-provider-cli-wrapper.cjs",
+    "/tmp/w71879-148768-provider-claude.exe"
+  ],
+  "seconds": 0.003350547020090744,
+  "scope": "Static metadata and custody only; no provider execution, copy, credentials, streams or model call. Container posture independently inspected through Docker."
+}

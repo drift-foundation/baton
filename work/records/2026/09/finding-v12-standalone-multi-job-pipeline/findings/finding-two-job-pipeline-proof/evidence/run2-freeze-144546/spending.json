@@ -1,0 +1,24 @@
+{
+  "prior_listed_preparation_seconds": 1.0196849790054525,
+  "this_claim_measured_seconds": {
+    "actual_roots_and_package_check": 0.009826491994317621,
+    "public_bootstrap_schema_validation": 0.02399148499534931,
+    "render_command_wall": 0.040798469,
+    "post_render_cross_document_validation": 0.021456704998854548
+  },
+  "listed_preparation_before_manifest_seconds": 1.115758129993974,
+  "run1_wall_seconds_spent": 223.9077433210041,
+  "run2_model_or_submission_seconds": 0,
+  "uncertainty": "All historical/current untimed reads, imports, edits, command-grant/Docker diagnostics, operator Git preparation duration and unknown provider billing remain additional. No comprehensive wall-time or zero-cost claim; no reserve transfer. Prior failed validations and reviewer comparisons remain recorded.",
+  "retained_validation_directories": [
+    "/tmp/w71879-144415-validation-yywyz7p8",
+    "/tmp/w71879-144415-validation-61nlhurh"
+  ],
+  "limits_seconds": [
+    1200,
+    240,
+    180,
+    120
+  ],
+  "automatic_further_retry": false
+}

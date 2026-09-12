@@ -1,0 +1,14 @@
+{
+  "claim": 152676,
+  "seconds_by_check": {
+    "custody": 0.0662978439941071,
+    "product": 0.7501522150123492,
+    "proof": 5.520927338016918,
+    "initial_interleaving_fixture": 1.5545308400178328,
+    "confirmed_interleaving": 1.4783718899998348
+  },
+  "current_listed_seconds": 9.370280127041042,
+  "cumulative_listed_preparation_seconds": 77.31003484297104,
+  "nine_failed_runtime_walls_seconds": 2002.0388815780316,
+  "uncertainty": "Two failed reviewer utility startups/partial custody runs untimed, plus previous untimed/static/CLI/host/operator/billing/rounding uncertainty. Product/proof subprocess wall measurements include startup; inner suite times are not added twice. No live model run."
+}

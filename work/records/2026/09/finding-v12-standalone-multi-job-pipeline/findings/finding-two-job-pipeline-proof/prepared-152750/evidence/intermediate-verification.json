@@ -1,0 +1,8 @@
+{
+  "scope": "offline synthetic fixtures only; not integration or host execution evidence",
+  "tests": 49,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 0.3156040370085975,
+  "retained": "/tmp/w71879-146897-offline-verification-lrl545au"
+}

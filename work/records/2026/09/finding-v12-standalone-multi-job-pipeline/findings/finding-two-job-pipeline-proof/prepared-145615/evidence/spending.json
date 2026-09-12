@@ -1,0 +1,15 @@
+{
+  "failed_runtime_walls_seconds": [
+    223.9077433210041,
+    300.8523036100087,
+    35.340723676010384,
+    272.6205856000015
+  ],
+  "failed_runtime_total_seconds": 832.7213562070247,
+  "prior_listed_preparation_diagnosis_seconds": 3.458741714035963,
+  "this_failed_test_loader_seconds": 0.14202758799365256,
+  "this_successful_offline_verification_seconds": 0.21242764199269004,
+  "listed_preparation_diagnosis_total_seconds": 3.8131969440223057,
+  "uncertainty": "Untimed reads, edits, CLI, provenance/freeze checks, failed commands, host/operator time and billing remain additional. Not total wall/account billing; no reserve transfer.",
+  "first_test_attempt": "Agent launcher omitted v12/python from import path. Three module loading errors, no assertions executed. Corrected in verify_offline.py; not product defect."
+}

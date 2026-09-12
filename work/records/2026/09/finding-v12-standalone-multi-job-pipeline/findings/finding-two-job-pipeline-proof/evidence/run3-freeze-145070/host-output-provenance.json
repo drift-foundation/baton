@@ -1,0 +1,18 @@
+{
+  "work": "W71879",
+  "claim": 145070,
+  "owner_return": 145067,
+  "owner_preparation_return": 144993,
+  "statement": "Host deployment.py validate and render both succeeded. Retain their outputs as host evidence, bind the concrete run3 inputs and complete the existing final material-delta review. Preserve the accepted preparation and both failed runs. Another model run remains unauthorized pending the reviewed package.",
+  "host_validation": {
+    "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-144859/validation.json",
+    "sha256": "sha256:eb1b1dfafa70e093bc4b651d0115c48ea1c666ac3ca09e722527b8caa3f2a190",
+    "temporary_path_retained": "/tmp/w71879-144859-validation-u94zf88o",
+    "seconds": 0.024825863001751713
+  },
+  "host_rendered_configuration": "sha256:0361270c0d84a36ef10537be10eb732c5c873af4139ff4d169083943d5aed9ae",
+  "host_rendered_submission": "sha256:f93620921f899a8d5dfbecacb222843d2f89710f6a23005547e3ff7cc9b6e357",
+  "distinction": "Host success is owner-reported and supported by outputs from the unchanged reviewed helper. Managed checks validate schemas, bytes and read-only Git identity; they do not reproduce host UID/GID posture.",
+  "credential_payload_read": false,
+  "model_run_authorized": false
+}

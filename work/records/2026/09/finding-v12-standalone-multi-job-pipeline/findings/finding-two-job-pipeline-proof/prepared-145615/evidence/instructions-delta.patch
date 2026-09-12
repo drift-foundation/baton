@@ -1,0 +1,59 @@
+--- prepared-145397/deployment.py
++++ prepared-145615/deployment.py
+@@ -180,6 +180,56 @@
+                     'Respect the specifically scheduled existing greeting test change and preserve unrelated files. '
+                     'Refuse unauthorized changes rather than correcting them. Run the supplied required verification and report the actual result.\n\n' +
+                     tasks['a']['instructions'] + '\n\n' + tasks['b']['instructions'])
++    instructions += """
++
++Provider completion contract (existing baton.integration-report/1)
++
++After the bounded import/verification task, write one UTF-8 JSON object to the
++private report path supplied below under this runtime's exact operands, then
++end the provider turn. Write only this provider report outside the target. Do
++not publish the manager's integration-result, change version-control state,
++repair permissions or bypass any before-write scope, review, base, path, type,
++mode or ownership check. Preserve all full-task and existing-test requirements.
++Do not start another import or verification attempt, hide a failure or extend
++the deadline to produce a successful report.
++
++The object has exactly these eight keys, with no extra diagnostics:
++- schema: the literal string "baton.integration-report/1".
++- assignment_digest: copy the exact digest string from "The assignment it answers
++  is" in this runtime's exact operands below, including its sha256: prefix.
++- bundle_digest: copy the exact digest string from "Its measured identity is"
++  in this runtime's exact operands below, including its sha256: prefix.
++  Never invent either digest, use an earlier run's identity or substitute a
++  candidate/blob/instructions digest. Do not put placeholder text in the report.
++- outcome: one of ["imported", "refused", "held"]. Report what actually happened:
++  imported claims a completed exact import; refused reports inability to proceed;
++  held reports an incomplete or uncertain operation. These are provider claims,
++  not manager settlement or terminal acceptance.
++- phase: one of ["preflight", "import", "verification"], naming where you stopped.
++- paths: a sorted, unique JSON array of repository-relative paths actually
++  changed, bounded by the supplied path table (at most 251). Use [] if none
++  changed. Do not claim planned changes as performed changes.
++- verification: null if you did not perform verification; otherwise an object
++  with exactly argv and status. argv is the actual nonempty command array of
++  nonempty strings; status is the observed integer exit status, or null if no
++  exit status was obtained. Never substitute zero for a failed, unperformed or
++  unfinished check. Preserve the actual nonzero or unavailable result.
++- code: null only for outcome imported; otherwise one of ["scope-exceeded",
++  "path-unsupported", "target-drift", "target-unwritable", "verification-failed",
++  "partial-import", "provider-unable"], chosen for the actual refusal/hold.
++
++An imported claim requires the completed exact candidate at every scheduled
++path, phase "verification", the complete sorted scheduled path list, and code
++null. If verification was performed and failed or did not finish, report that
++failure/uncertainty with the matching refused/held outcome and code, never a
++successful import claim. The verification field may be null when the provider
++did not run the check; this does not assert that verification passed. The
++runtime still independently reads back the target, runs the scheduled check,
++and reads back again before composing its own integration result. A valid
++report shape alone establishes neither import nor successful verification.
++Bound the report to 65536 UTF-8 bytes. Write the private report and end the turn
++promptly after this bounded task; do not wait for the manager's settlement.
++"""
+     (destination / 'integration-instructions.txt').write_text(instructions)
+     empty = {'entries': [], 'entry_count': 0, 'total_bytes': 0,
+              'tree_digest': stage_execution.single_worker.EMPTY_TREE_DIGEST}

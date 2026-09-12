@@ -1,0 +1,7 @@
+{
+  "prior_listed": 28.337977460971555,
+  "current_listed": 10.772683072922518,
+  "cumulative_listed": 39.11066053389408,
+  "failed_run_walls": 1341.1107609820174,
+  "uncertainty": "Untimed reads/edits/searches/diff-check/Docker inspection including broad native symbol search and previous host/operator/billing uncertainty; process-wall tests counted once, package internal time not added again."
+}

@@ -1,0 +1,8 @@
+FROM sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/claude_agent.py /opt/baton/claude_agent.py
+COPY worker/dogfood_entry.py /opt/baton/dogfood_entry.py
+COPY worker/worker-control-1.0.schema.json /opt/baton/worker-control-1.0.schema.json
+COPY python/src/baton_v12/source_profiles /opt/baton/source_profiles
+USER 65532:65532
+ENTRYPOINT ["python3", "/opt/baton/dogfood_entry.py"]

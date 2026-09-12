@@ -1,0 +1,34 @@
+{
+  "claim": 149299,
+  "available_files_verified": 820,
+  "images": {
+    "provider": {
+      "id": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+      "static_files_and_launcher": 11,
+      "inspection_container": "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8",
+      "still_never_started": true
+    },
+    "integration": {
+      "id": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+      "static_files_and_launcher": 13,
+      "inspection_container": "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404",
+      "still_never_started": true
+    },
+    "exact_successful_commands": 33,
+    "host_build_and_static_inspection_seconds": 0.8677917640015949,
+    "scope": "Content from owner-executed accepted helper; direct current metadata independently matches. No static copy repeated, no provider execution.",
+    "four_helpers": {
+      "deployment.py": "sha256:f0cbf8e54cbc9b62a0019c4c2fa9a9e96ca7cd59b4cc592c536db7cd0b97bc9b",
+      "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+      "run.py": "sha256:f48cb792d80154758307e66c654fcd59b1f179396f166dc0c8bf0da13be55c1e",
+      "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+    }
+  },
+  "actual_rendered_path": "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149053/frozen-config",
+  "actual_rendered_path_absent": true,
+  "actual_rendered_file_count": 0,
+  "freeze_complete": false,
+  "temporary_validation_digests_match": true,
+  "seconds": 0.15542164698126726,
+  "scope": "Read-only review of absent actual inputs and available evidence. No store/credential reads, rendering, reconstruction, Docker copy/build/start, host repair or model execution."
+}

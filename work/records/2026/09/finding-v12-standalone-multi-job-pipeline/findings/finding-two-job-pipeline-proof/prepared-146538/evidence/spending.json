@@ -1,0 +1,16 @@
+{
+  "failed_runtime_walls_seconds": [
+    223.9077433210041,
+    300.8523036100087,
+    35.340723676010384,
+    272.6205856000015
+  ],
+  "failed_runtime_total_seconds": 832.7213562070247,
+  "prior_listed_preparation_diagnosis_seconds": 4.045642237012029,
+  "this_failed_offline_test_seconds": 0.20350630499888211,
+  "this_successful_offline_test_seconds": 0.2470358199934708,
+  "this_provenance_verification_seconds": 0.011201624001841992,
+  "listed_preparation_diagnosis_total_seconds": 4.5073859860062235,
+  "uncertainty": "Untimed reads, edits, CLI, static checks, commands, host/operator time and provider billing remain additional. Test internal duration is not added again. No model retry or reserve transfer.",
+  "failed_test_scope": "Three document setup refusals due to missing not-yet-prepared run5/source;17 stats tests passed. Fixed only offline fixture root nomination, not product/source guard."
+}

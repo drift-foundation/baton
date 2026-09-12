@@ -1,0 +1,22 @@
+{
+  "work": "W71879",
+  "claim": 148686,
+  "scope": "static diagnostic acquisition proposal; no source change or execution authorization",
+  "files": {
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/DIAGNOSTIC-ACQUISITION-148686.md": {
+      "sha256": "d568cc1581f18b995e6c5973729ff5cf8b6a1b460a89cd73162c6733757c17af",
+      "bytes": 9852,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/diagnostic-148686/operational-finding.json": {
+      "sha256": "c758eb526aad225108e959d51424937910bdb7b345baf0e53c15c6a6cff79aaf",
+      "bytes": 1963,
+      "mode": "0o664"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/diagnostic-148686/source-and-preservation.json": {
+      "sha256": "da312ad4ef89f260e903673414e1f28cc414d7b80d6dd635991d4044d5813d7d",
+      "bytes": 2510,
+      "mode": "0o664"
+    }
+  }
+}

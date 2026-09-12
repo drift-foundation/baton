@@ -1,0 +1,46 @@
+{
+  "claim": 148964,
+  "native_module_begin": 208811874,
+  "native_module_end": 215729406,
+  "same_module_bBe_LWo_and_xr": true,
+  "slices": [
+    {
+      "file": "assistant-error-constructor.txt",
+      "offset": 215396625,
+      "bytes": 450,
+      "sha256": "607dae38e64266b22648752c6a4d689690d4a409d63dc7ad32ecd630bffde6bb"
+    },
+    {
+      "file": "assistant-text-filter.txt",
+      "offset": 215498682,
+      "bytes": 31,
+      "sha256": "be1616dd20be8e0ed6caccd275e1b2bc28cbf7ed5d0ec05a43e8fbc7e720702f"
+    },
+    {
+      "file": "text-filter-xW-94767.txt",
+      "offset": 208906641,
+      "bytes": 260,
+      "sha256": "dfc3b63faf29e7cbbbe5fae7fc0d42b2b1abda968768b68e7e21e5ab989a5de5"
+    },
+    {
+      "file": "text-filter-zw-94802.txt",
+      "offset": 208906676,
+      "bytes": 260,
+      "sha256": "dcbd515c2a1aab70175cb2dee4f78f8f1a3bcef3bd74d07d3e80b09d32085fc9"
+    },
+    {
+      "file": "text-filter-C_-94902.txt",
+      "offset": 208906776,
+      "bytes": 260,
+      "sha256": "fdef8cfb25d544b880092fa5abc6ee2fee2da1f66d0772e16974ca6d230f411c"
+    },
+    {
+      "file": "text-filter-PV-6681466.txt",
+      "offset": 215493340,
+      "bytes": 260,
+      "sha256": "73b71e593bda6a6c95684afb144b87216bfcd6da138322f66cad3b9cb119f589"
+    }
+  ],
+  "note": "source-extra-0.txt from initial unqualified symbol search is an unrelated xr in another module; it is not evidence for the error constructor. The exact same-module constructor is retained here.",
+  "seconds": 0.3498335959739052
+}

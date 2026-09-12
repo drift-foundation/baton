@@ -1,0 +1,19 @@
+{
+  "claim": 149919,
+  "manifest": "sha256:f39eedf82d8b87c238bddca481c0aceb8c32f8966d4f71d588ae54eb1d57ca21",
+  "files": 79,
+  "source_and_test": {
+    "v12/python/tools/stage_execution.py": "sha256:b56451dcd899e09ebc2f47505ffaf85018cd9ef003b09e60af8caf4b543553c9",
+    "v12/python/tests/tools/test_stage_execution.py": "sha256:707f4c79aff798b6583866f6da62711545a8a0cf74608bf27ff268a1d2ebb2fc"
+  },
+  "helpers": {
+    "deployment.py": "sha256:47e8fd83573656d0bfeba9808f5b7d487b8f4d50d64a218c711ec7a1632b7c04",
+    "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+    "run.py": "sha256:f1597051ebae22196dcd6a2e0553faca0577936c21eec0fe7542647b094d23b5",
+    "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+  },
+  "unchanged_old_test_methods": 412,
+  "retained_run8_wall": 243.6142136999988,
+  "terminal_both": false,
+  "custody_seconds": 0.008140822988934815
+}

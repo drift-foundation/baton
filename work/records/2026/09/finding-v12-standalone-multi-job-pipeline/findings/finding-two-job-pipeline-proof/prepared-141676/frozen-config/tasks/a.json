@@ -1,0 +1,12 @@
+{
+  "declared_base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+  "instructions": "# A: normalize greeting names\n\nImplement this complete request on A's private line from the frozen original\nbase. Change only `demo/greeting.py` and `tests/test_greeting.py`.\n\n`greet(name)` must strip surrounding whitespace, return `Hello, Ada!` for\nboth `Ada` and ` Ada `, and raise `ValueError(\"name is empty\")` for empty or\nwhitespace-only names. Preserve the existing punctuation and ordinary-name\ncase. Replace the existing surrounding-spaces expectation with the trimmed\nresult. Add assertions for empty and whitespace-only rejection, including the\nexception message. This explicitly schedules that existing-test behavior\nchange; retain the ordinary-name assertion.\n\nRequired verification argv: `[\"python3\", \"check_greeting.py\"]`.\nSubmission `test_scope`: `[\"tests/test_greeting.py\"]`.\n\nNo deliberate omission or injected correction is requested. If the independent\nreview requests a real correction, use the normal same-line correction path.\n",
+  "schema": "baton.dogfood-task/2",
+  "source_profile": "git-line",
+  "source_root": "source",
+  "task_id": "w71879-run1-a",
+  "verification": [
+    "python3",
+    "check_greeting.py"
+  ]
+}

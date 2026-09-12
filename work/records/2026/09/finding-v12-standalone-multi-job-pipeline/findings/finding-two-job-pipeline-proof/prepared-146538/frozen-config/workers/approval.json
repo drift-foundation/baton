@@ -1,0 +1,149 @@
+{
+  "adapter_digest": "sha256:68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+  "adapter_name": "docker-single-worker",
+  "authority_store": "/home/sl/.local/state/baton/v12/w71879-run5/authority.sqlite3",
+  "authority_uuid": "c71879af000000000000000000000001",
+  "credential_home": "/home/sl/.local/state/baton/v12/w71879-run5/credentials/approval",
+  "credential_profile": {
+    "claude": {
+      "provider": "operator-file",
+      "reference": "w64268-run1"
+    }
+  },
+  "credential_slots": [
+    "claude"
+  ],
+  "credential_sources": "/home/sl/.baton/credential-sources.json",
+  "engine": "docker",
+  "image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+  "input_manifest": {
+    "assignment_contract": "v12-assignment-1",
+    "created_at": "2026-09-11T18:51:56.074Z",
+    "credential_policy_digest": "sha256:e0dbf821e4516455821d152aa78965a79a676dc250ab16c41452e0e0fb6cf44f",
+    "extensions": {},
+    "human_contract": {
+      "artifact_id": "w71879-task-approval",
+      "bytes": 3280,
+      "content_digest": "sha256:4941846bbe9e8326945c481616e0d3c98866ce404f68c1de10ecac5322c83a3c",
+      "locator": "artifact://contracts/w71879-task-approval",
+      "media_type": "application/json"
+    },
+    "manifest_digest": "sha256:15a0989ab4f40e1a06921de292b7a0038652f948563148444c58d8b37cafc20b",
+    "manifest_id": "w71879-run5-approval",
+    "mount_policy_digest": "sha256:749519f63905f651fc9cf868b5a2d2961042445f2e0c699d1aae8d69e77b8cd6",
+    "network_policy_digest": "sha256:574bceb2a56b459e1c514d9f6c3a8c51c0af68eaecc4f0ffa88b7f61c12eb0e5",
+    "outputs": [
+      {
+        "constraints": {
+          "allowed_media_types": [
+            "application/octet-stream",
+            "text/plain"
+          ],
+          "link_policy": "forbid",
+          "max_bytes": 67108864,
+          "max_entries": 2000,
+          "validator_digest": null
+        },
+        "name": "proposal",
+        "path": "proposal",
+        "required": false,
+        "type": "git-change-proposal"
+      },
+      {
+        "constraints": {
+          "allowed_media_types": [
+            "application/octet-stream",
+            "text/plain"
+          ],
+          "link_policy": "forbid",
+          "max_bytes": 67108864,
+          "max_entries": 2000,
+          "validator_digest": null
+        },
+        "name": "findings",
+        "path": "findings",
+        "required": false,
+        "type": "directory-result"
+      },
+      {
+        "constraints": {
+          "allowed_media_types": [
+            "application/octet-stream",
+            "text/plain"
+          ],
+          "link_policy": "forbid",
+          "max_bytes": 67108864,
+          "max_entries": 2000,
+          "validator_digest": null
+        },
+        "name": "logs",
+        "path": "logs",
+        "required": false,
+        "type": "directory-result"
+      }
+    ],
+    "policy_digest": "sha256:0d7ee0ad6f669fbc373480b7bf19fe557f5b8a9ecd7c2ace3f0323d9d1d6742d",
+    "record_binding": {
+      "finding_digest": "sha256:57484040efad9cfd87230e4159a1bc2bec9b3e7bad1cfb1fa2d8fafc60d955be",
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof",
+      "plan_digest": "sha256:764beaf29c9efa64f902abd4ddc63b6e5c5701fa2ee976892aadd466dabb6784",
+      "root": "baton"
+    },
+    "resource_policy_digest": "sha256:52d6bd82e882256454be06e68a0f76bb1b1a61197268e32f63348f96b35ca04d",
+    "retention_policy_digest": "sha256:08b8f45be97b4d3f63d1a66d33eb20ce34564f3cdd130a081539fff155c4d49d",
+    "role_instructions_digest": "sha256:54b587b5b4ffafd5a0c90c47fb1c01ff344c8b063762e38cd6d86c5be9468d6d",
+    "runtime_profile_digest": "sha256:b40d5d2609351818da42833e742d63056e3e947b494f1ca27b92a9105aa162a3",
+    "schema": "baton.worker-manifest/input",
+    "sources": [
+      {
+        "consumption": {
+          "baton.source-boundary/1": {
+            "delivery": "nominated-mount",
+            "profile": "git-line",
+            "workspace": "disk"
+          }
+        },
+        "content_manifest": {
+          "entries": [],
+          "entry_count": 0,
+          "total_bytes": 0,
+          "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "destination": "source",
+        "name": "source",
+        "required": true
+      }
+    ],
+    "tool_policy_digest": "sha256:f2b4d60d21c4116ea01458e03c1e827c5a4a38a3dd9cc557bea9ad93ebef0922",
+    "toolchain_digest": "sha256:11978339915fdb527184b04ea8063a0f567370968b180ae52f62d12791ba8caf",
+    "version": {
+      "major": 1,
+      "minor": 0
+    },
+    "work_ref": {
+      "authority_uuid": "c71879af000000000000000000000001",
+      "work_id": "c71879af-W5"
+    },
+    "worker_image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+  },
+  "launch_contract": "v12-assignment-1",
+  "launch_home": "/home/sl/.local/state/baton/v12/w71879-run5/launch/approval",
+  "launch_role": "review",
+  "network": "bridge",
+  "nominated_source": "/home/sl/.local/state/baton/v12/w71879-run5/source",
+  "participant": "baton.proof-approval",
+  "policy_digest": "sha256:0d7ee0ad6f669fbc373480b7bf19fe557f5b8a9ecd7c2ace3f0323d9d1d6742d",
+  "principal": "principal:w71879-run5-approval",
+  "profile_digest": "sha256:b40d5d2609351818da42833e742d63056e3e947b494f1ca27b92a9105aa162a3",
+  "profile_name": "claude-w71879-run5",
+  "retention_disposition": "retain",
+  "retention_policy_digest": "sha256:08b8f45be97b4d3f63d1a66d33eb20ce34564f3cdd130a081539fff155c4d49d",
+  "review_route": "proof-judge-approval",
+  "schema": "baton.v12.single-worker-deployment/4",
+  "task_document": "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146538/frozen-config/tasks/approval.json",
+  "workspace_capacity": {
+    "max_bytes": 536870912
+  },
+  "workspace_group": 1001,
+  "workspace_storage": "/home/sl/.local/state/baton/v12/w71879-run5/storage"
+}

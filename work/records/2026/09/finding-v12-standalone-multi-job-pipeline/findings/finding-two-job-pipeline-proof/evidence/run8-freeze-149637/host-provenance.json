@@ -1,0 +1,47 @@
+{
+  "owner_host_preparation_validation_render_event": 149607,
+  "host_posture_scope": "Successful reviewed operator helper and validation attest real65532:1001 posture; managed projected ownership does not independently establish actual host UID/GID.",
+  "target": {
+    ".": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "tests": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo/greeting.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo/units.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "tests/test_greeting.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    }
+  },
+  "actual_output_hashes": {
+    "configuration": "sha256:3ba82de6d6de6caab7312402582cc6b99418b7d8e2b7dfcebcbc1248ab3c38d7",
+    "submission": "sha256:a2e2107eb0fcf6203d8d0e4e28c029fb2d0d1ff242d7a8ad787234ce33d08697"
+  },
+  "printed_hash_comparison": "Owner149607 reports render success without repeating literal stdout digests. These hashes bind actual bytes and exact deterministic reconstruction, not a claimed comparison with separately supplied stdout.",
+  "preparation_hashes": {
+    "validation.json": "sha256:540d6aab5cc243f823489c9969b7c0f0e4bb4ca10027236edfccaa75d83f7881",
+    "candidate-images.json": "sha256:d0da4684accfa0cba16dc712d2456745de56ef3632f315a7c17a6649407a8f5f",
+    "runner-helpers.json": "sha256:56765a2d228d605556c307627ef1616860a2e469d092faceb99f1d075c6cd3ed",
+    "operator-prepare.sh": "sha256:c6dc56afe6f1d660762934deade48665aeb44ce2d3dccdbeccfbcd1c3941e68d"
+  }
+}

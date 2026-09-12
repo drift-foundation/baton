@@ -1,0 +1,36 @@
+{
+  "scope": "copied offline fixture only; not writer attribution",
+  "witness_unchanged": true,
+  "index_sha256": "0fcfc46029c606f033e7ea97fada78a6b42fa8255643026262b98ce636fd8360",
+  "reads": [
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-c",
+        "safe.directory=/tmp/w71879-146797-correction-fixtures-fdxwar7m/copied-source",
+        "-C",
+        "/tmp/w71879-146797-correction-fixtures-fdxwar7m/copied-source",
+        "status",
+        "--porcelain"
+      ],
+      "stdout": " M demo/greeting.py\n",
+      "status": 0
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-c",
+        "safe.directory=/tmp/w71879-146797-correction-fixtures-fdxwar7m/copied-source",
+        "-C",
+        "/tmp/w71879-146797-correction-fixtures-fdxwar7m/copied-source",
+        "diff",
+        "--",
+        "demo/greeting.py"
+      ],
+      "stdout": "diff --git a/demo/greeting.py b/demo/greeting.py\nindex 4504fd7..5172db0 100644\n--- a/demo/greeting.py\n+++ b/demo/greeting.py\n@@ -1,2 +1,4 @@\n def greet(name):\n     return \"Hello, \" + name + \"!\"\n+\n+# Offline worktree edit to require an actual status/diff observation.\n",
+      "status": 0
+    }
+  ]
+}

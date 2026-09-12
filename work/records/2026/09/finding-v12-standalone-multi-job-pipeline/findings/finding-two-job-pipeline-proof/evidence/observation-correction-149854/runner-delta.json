@@ -1,0 +1,5 @@
+{
+  "old_command_failure": "        raise RuntimeError('command failed: ' + repr(argv) + '\\n' + done.stderr[:2000])",
+  "new_command_failure": "        tail = done.stderr[-2000:]\n        if len(done.stderr) > 2000:\n            tail = '[stderr truncated to final 2000 of ' + str(len(done.stderr)) + ' characters]\\n' + tail\n        raise RuntimeError('command failed (exit ' + str(done.returncode) + '): ' + repr(argv) + '\\n' + tail)",
+  "purpose": "Same bounded manager/engine stderr source and2000-character limit, explicit truncation and exit code, terminal tail retained. No raw provider stream or credential read; accepted provider diagnostics remain unchanged."
+}

@@ -1,0 +1,6 @@
+{
+  "command": "python3 -B work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run7-freeze-149249/observe_available.py",
+  "exit_code": 1,
+  "tool_reported_wall_seconds": 0.057862589,
+  "failure": "New observation script incorrectly applied target-only0644 posture to source clone as well. Source clone is permitted0664 under accepted operator umask0002. Corrected only the check to target; no mode, source, helper or assertion in accepted tests changed."
+}

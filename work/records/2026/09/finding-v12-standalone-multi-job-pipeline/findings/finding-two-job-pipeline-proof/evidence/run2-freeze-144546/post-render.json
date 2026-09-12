@@ -1,0 +1,18 @@
+{
+  "work": "W71879",
+  "claim": 144546,
+  "observed_at": "2026-09-11T13:07:08.010898+00:00",
+  "validation": "pure held-configuration/submission/manifest schemas and cross-document bindings; actual nominated source inspected by ordinary validator, no factory/stage/runtime/submission",
+  "configuration": "sha256:7081a6fe3e54563393ecb149f4b398a9cb1c918f2871f400fde3dbf267c1522f",
+  "submission": "sha256:4b010820657b031ec222dd5825ff698b688da6266bc811c6f7b6143919a26694",
+  "profile_digest": "sha256:de0dc4d3fd75d32adf29e2a26e92f8f040cb5746e2b353c48dd236707e00e8a0",
+  "frozen_files": 33,
+  "workers": 8,
+  "manifests": 6,
+  "tasks": 5,
+  "policies": 7,
+  "live_images_match_retained_immutable_metadata": true,
+  "production_roots_stores_and_markers_absent": true,
+  "public_authority_facts_origin": "temporary validation Authority only; actual provisioning timestamps will differ",
+  "validation_seconds": 0.021456704998854548
+}

@@ -1,0 +1,23 @@
+{
+  "claim": 149392,
+  "verified_candidate_files": 864,
+  "candidate_manifest": "sha256:6e95a68815f0d1c353dc7f78836dc762132176a92f17f28ac0b39b6b88052224",
+  "actual_inputs": 33,
+  "images": {
+    "integration": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+    "provider": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13"
+  },
+  "helpers": {
+    "deployment.py": "sha256:f0cbf8e54cbc9b62a0019c4c2fa9a9e96ca7cd59b4cc592c536db7cd0b97bc9b",
+    "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+    "run.py": "sha256:f48cb792d80154758307e66c654fcd59b1f179396f166dc0c8bf0da13be55c1e",
+    "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+  },
+  "current_inspection_containers_never_started": true,
+  "actual_target_modes_match": true,
+  "real_host_uid_gid_basis": "Owner149242 accepted preparation attestation; managed projection is not independent actual UID/GID proof.",
+  "seconds": 0.021629956987453625,
+  "prior_checker_claim": 149356,
+  "independent_reconstruction": "/tmp/w71879-149356-documents-c_4fydb5",
+  "model_execution_authorized": false
+}

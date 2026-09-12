@@ -1,0 +1,19 @@
+{
+  "work": "W71879",
+  "claim": 145461,
+  "owner_return": 145458,
+  "statement": "Corrected prepared-145397 host validate/render both succeeded. Bind actual run4 inputs and complete final material-delta review. Return exact execution commands. Another model run remains unauthorized.",
+  "validation_path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145397/validation.json",
+  "validation_sha256": "sha256:90147a9b90086a2ec59dafe21552547bf662461e423657f657cce4e7350cbbd8",
+  "configuration": "sha256:539e916938248a66e93c63840273fd2645bc72910390aa1a95b13a86824200d0",
+  "submission": "sha256:18be3ca002288f2a67a7f77dcacb2fe1e6af4404e4799aa51d30b880e269006b",
+  "retained_host_validation": "/tmp/w71879-145261-validation-rwl3zzq5",
+  "preserved_failed_host_validation": "/tmp/w71879-145261-validation-00nb1okq",
+  "host_scope": "Successful unchanged-helper host posture/baseline check is operator evidence. Managed supplemental Git and deterministic schema/document checks do not reproduce host ID access.",
+  "direct_routing_ruling": {
+    "path": "baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/FINDING.md",
+    "heading": "2026-09-11T15:26:31Z \u2014 owner confirms direct routing for clear corrections",
+    "application": "Within accepted scope clear bounded corrections go directly to tuner then independent review; uncertain cause/scope may need diagnosis. Host/Git operations, unresolved decisions and run authorization remain with operator."
+  },
+  "model_run_authorized": false
+}

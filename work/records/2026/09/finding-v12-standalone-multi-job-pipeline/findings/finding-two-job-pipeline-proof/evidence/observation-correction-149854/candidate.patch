@@ -1,0 +1,348 @@
+--- base/v12/python/tools/stage_execution.py
++++ v12/python/tools/stage_execution.py
+@@ -993,11 +993,9 @@
+ def _bound_id(deployment, stage, job=None):
+     """This stage's Job id, or None when the answer is the global one.
+ 
+-    W119405. Read-only observation and the accepted integration cases reach
+-    these consumers through a deployment DOUBLE holding the configuration and
+-    not this composition's readers, and through stages that carry no Job. Both
+-    keep exactly the answer they were accepted with; only a real composition
+-    asked about a real Job selects per Job.
++    Legacy integration doubles without binding readers and stages carrying no
++    Job keep their global answer. Serving and read-only observation both carry
++    the binding readers and select the actual Job.
+     """
+     if not hasattr(deployment, "binding_for"):
+         return None
+@@ -1007,11 +1005,8 @@
+ def _bound(deployment, stage):
+     """This stage's integrator, bound Work and bound target.
+ 
+-    W119405 review 2026-09-09T18:35Z [P1]. Read-only observation reaches this
+-    through a deployment DOUBLE in the accepted integration cases, which holds
+-    the configuration and not this composition's readers -- so when the per-Job
+-    readers are absent the answer is exactly the one those cases accepted, and
+-    only a real composition selects per Job.
++    Legacy deployment doubles without per-Job readers retain their global
++    operands. Both production serving and observation use the binding readers.
+     """
+     job_id = _bound_id(deployment, stage)
+     if job_id is None:
+@@ -4531,6 +4526,13 @@
+ 
+     canonical = True
+ 
++    # Reuse only the configuration/allocation readers, without constructing a
++    # serving deployment. Integration.account needs the same per-Job operands.
++    binding_for = StageDeployment.binding_for
++    works_for = StageDeployment.works_for
++    target_for = StageDeployment.target_for
++    worker_for = StageDeployment.worker_for
++
+     def __init__(self, given, workers, job_store, control_store):
+         self.given = given
+         self.control = control_store
+@@ -4587,6 +4589,8 @@
+                     incarnation=_incarnation(self.control), clock=_now) as coordinator:
+                 context = SimpleNamespace(given=self.given, control=self.control,
+                     authority=authority, integration=coordinator,
++                    binding_for=self.binding_for, works_for=self.works_for,
++                    target_for=self.target_for, worker_for=self.worker_for,
+                     integration_profile=integration_from(self.given),
+                     integration_root=os.path.join(self.given["state_root"], INTEGRATION_HOME),
+                     workspace_group=configured_workspace_group(self.control))
+--- base/v12/python/tests/tools/test_stage_execution.py
++++ v12/python/tests/tools/test_stage_execution.py
+@@ -8070,6 +8070,44 @@
+                       caught.exception.message)
+         del deployment
+ 
++    def test_readonly_integration_observation_keeps_the_bound_job(self):
++        """The public observer reaches the real two-producer completion account."""
++        from contextlib import ExitStack
++        from baton_v12.authority import Authority
++        from baton_v12.integration import IntegrationStore
++        from baton_v12.job_manager import episodes_of
++
++        held = self.integrating()
++        self.drive_job(held.job, held.composed, "job-a", "integration", "completed", ticks=4)
++        stage = {"job_id": "job-a", "kind": "integration", "stage_id": "job-a/integration",
++                 **episodes_of(held.job, "job-a/integration")[-1]}
++        expected = held.composed.integrator.observe(stage)
++        self.assertEqual(expected["state"], "completed")
++        document = self.composed_document(line_declared_base=self.base, **self.traversing())
++        with ExitStack() as guards:
++            for owner, method in ((Authority, "open"), (Authority, "session"),
++                    (IntegrationStore, "open"), (stage_execution, "operations_from"),
++                    (stage_execution.Integration, "run"), (stage_execution.Integration, "finish"),
++                    (stage_execution.scheduler, "activate_pool"), (stage_execution.review_cycles, "create_line")):
++                guards.enter_context(mock.patch.object(owner, method, side_effect=AssertionError("observation acted: " + method)))
++            observed = stage_execution.observation_from(document, held.job, held.control, checkout=self.checkout)
++            self.assertEqual(observed.observe_integration(stage), expected)
++            with self.assertRaises(ContractRefusal) as unknown:
++                observed.observe_integration(dict(stage, job_id="unbound-job"))
++            self.assertIn("binds no Job", unknown.exception.message)
++            # A real Job's binding must also refuse a foreign fixed assignment.
++            with self.assertRaises(ContractRefusal) as foreign:
++                observed.observe_integration(dict(stage, job_id="job-b"))
++            self.assertEqual(foreign.exception.code, "operation-collision")
++            # Both producer selections pass through the observation context;
++            # this probe does not stand in for the real completion above.
++            def required(reader, selected):
++                return reader.required_tests(stage_execution._bound_id(reader.deployment, selected))
++            with mock.patch.object(stage_execution.Integration, "observe", required):
++                for job_id in ("job-a", "job-b"):
++                    self.assertEqual(observed.observe_integration(dict(stage, job_id=job_id)),
++                                     held.composed.integrator.required_tests(job_id))
++
+     def test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool(
+             self):
+         """THE TERMINAL HALF, driven inside a deployment serving two Jobs.
+--- prepared-149488/README.md
++++ prepared-149854/README.md
+@@ -1,174 +1,40 @@
+-# Run8 preparation — W71879 claim149488
++# W71879 observation and command-error correction — claim149854
+ 
+-Owner149484 reports login again after run7's explicit OAuth expiry/refresh failure
+-and authorizes fresh workspace/input preparation with the same accepted images,
+-source behavior, early-failure handling and diagnostics. **Exactly one subsequent
+-operator attempt is already authorized after independent review binds the new
+-actual inputs.** No additional run-permission request is needed once that condition
+-is met. Agent model execution and automatic retries remain unauthorized.
++This is a correction candidate derived from prepared-149488. Its run8 identities
++are historical fixture metadata. Do not run provision, prepare, build, render or
++run.py against run8: its one-attempt authorization was consumed and no retry is
++authorized. Copied operator recipes and image context are preserved dependencies
++for offline checks, not new host instructions. No actual inputs or review markers
++are copied. Future packaging must bind accepted source and fresh authorized state.
+ 
+-This package is ready for independent preparation review. Actual host preparation,
+-validation and33 rendered inputs remain pending. Fresh root
+-/home/sl/.local/state/baton/v12/w71879-run8 is absent. Fresh Authority
+-c71879b2000000000000000000000001; run8 scope/profile/principals/incarnation/tasks/
+-manifest/submission; creation 2026-09-12T03:32:20.835Z. Original base
+-2fbb2d456638e5706218020aebfa47f0a82c8920/tree3492ba64448ab9d39bde53ee6456ce24e74ece2c.
++Owner149847 explicitly assigns the read-only observation binding correction in
++v12/python/tools/stage_execution.py, plus runner command-error retention. The
++observer shares only pure binding/Work/target/allocation readers; local read-only
++Authority/coordinator handles remain unchanged. No serving deployment or sessions.
++The successor runner retains the final2000 command-stderr characters and reports
++truncation/exit status. This is manager/engine error text already captured by the
++runner; it does not read provider streams or credentials. Very long exception
++messages can still exceed the bound, with that omission explicit. Structured safe
++provider diagnostics and first-failure priority remain unchanged.
+ 
+-## Same accepted images and supported credential delivery
++Only run.py, runner-helpers.json and copied test_run8_preparation.py behavior
++expectation change here; README clarifies scope, test_command_errors.py adds five
++focused cases. All other copied files remain byte-identical, including the three
++other execution helpers, deployment, tasks, policies and integration instructions.
++W71830 standing test-change authority applies; existing assertions preserve every
++guard while accounting for the exact scheduled runner delta.
+ 
+-- Provider: sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13
+-- Integration: sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533
++From /home/sl/src/baton, offline verification:
+ 
+-These are the exact images accepted by review-2026-09-12T03-17-32Z.md and used by
+-run7. Current direct image inspection confirms availability, linux/amd64,
+-65532:65532 and accepted entrypoints. candidate-images.json names these existing
+-images, not newly built candidates. No image rebuild is requested or performed.
+-Inherited build_images.py/context are retained only for accepted static custody
+-tests; do not invoke that build helper. Exact installation provenance remains
+-provider-installation.json and accepted run7 build/inspection evidence.
+-
+-The unchanged supported deployment path uses credential_sources
+-/home/sl/.baton/credential-sources.json, slot claude and operator-file/w64268-run1.
+-Owner149484 attests refresh of the configured source. New deployments resolve it
+-through normal credential delivery into RUN/credentials/<actor> for all eight
+-workers, including the integrator and three B-derived judges. The document check
+-verifies the provider/reference and eight distinct fresh homes without opening
+-credential contents. This does not independently validate login or predict model
+-success. Preserve run7 credentials exactly; do not copy or repair old deliveries,
+-read their payloads, bypass the registry or run an authentication/model probe.
+-
+-run.py/deployment.py change only fresh identity/time/ruling metadata. Posture and
+-supported-detail reader are byte-identical to run7. runner-helpers.json binds all
+-four helpers; final review must bind them all. Full A/B tasks and three independent
+-B-derived judgments remain. Whole integration instruction SHA256 is unchanged:
+-4b3160e825f6d4f166fc5fc8477f8d85f3190420ba402dcfb780f01df7be9f76.
+-It retains the full report contract and mandatory --no-optional-locks Git reads.
+-STATUS still uses the read-only observing factory and exact configuration;
+-first definitive required failure stays primary, and only actual completed stages
+-can satisfy terminal success. Useful fixed diagnostic detail and omissions remain.
+-
+-## Exact operator preparation commands
+-
+-After independent preparation review, Slawomir executes these three separate
+-commands in order, stopping on any failure and retaining exact stdout/stderr,
+-exit status and partial paths. Git/ownership work remains the operator's.
+-Do not blindly repeat a partial step or delete/repair its outputs.
+-
+-Fresh host preparation with supplementary gid1001:
+-
+-```text
+-/bin/bash /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149488/operator-prepare.sh
++```sh
++python3 -B work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149854/verify_offline.py
+ ```
+ 
+-The unchanged recipe requires absent run8 and clean original run1/source, uses
+-no-hardlink clones, prepares the fresh target 65532:1001 with required 0644 files and
+-2775 directories, and creates a bare integration workspace. Old dirty targets
+-are never baselines. Managed identity projection cannot establish host ownership.
+-
+-With cwd /home/sl/src/baton/v12/python, validate:
+-
+-```text
+-/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149488/deployment.py validate
+-```
+-
+-After validation succeeds, from the same cwd, render:
+-
+-```text
+-/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149488/deployment.py render
+-```
+-
+-Return host posture, validation.json and all 33 actual frozen-config files with the
+-printed configuration/submission hashes for final binding and independent
+-material-delta review. The earlier run7 missing-output history is preserved; verify
+-this exact package's __file__-relative output directory is present. Temporary
+-validation/schema fixtures are not rendered inputs. No validation/config or new
+-selection/execution marker exists yet. Do not invoke deployment.py prepare or
+-build_images.py; reviewed context/tasks/policies are already supplied and accepted
+-images are reused. Do not repeat login or broaden diagnosis absent a concrete
+-blocker.
+-
+-## Exact one-attempt execution after the review condition
+-
+-Owner149484 already supplies one operator-run authorization conditional on
+-independent review binding the new actual inputs. After that review and genuine
+-run8 selection/execution markers binding both accepted images, actual config and
+-all four helpers, use the real host with supplementary gid1001, scoped fresh run8
+-writes and ordinary engine access. Cwd /home/sl/src/baton/v12/python.
+-
+-Provision once:
+-
+-```text
+-/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149488/deployment.py provision
+-```
+-
+-Then one ordinary submit/serve:
+-
+-```text
+-/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149488/run.py
+-```
+-
+-This preparation review alone does not satisfy the actual-input review condition.
+-No run7 marker is copied and no new marker fabricated. Do not run these commands
+-in a managed agent turn, retry automatically, repair live state, change deadlines
+-or use manual ordinary transitions. operator-commands.json binds the exact argv
+-and the existing conditional authority; there is no new generic approval gate.
+-
+-Preserve 1200s whole/240s implementation/180s original review or derived judge/120s
+-integration, including B judges within integration 120s. Preserve 2 CPU/2 GiB/512 PIDs
+-per container,20 CPU/20 GiB capacity,22 GiB available/16 GiB free plus retained-storage
+-stop; 512 MiB declared workspace storage is not a quota. Every scratch, resource,
+-custody, target, source and success guard remains unchanged.
+-
+-## Run7 evidence and focused verification
+-
+-Run7 used owner M149462's one-attempt authorization and ended unsuccessfully in
+-9.106425506004598s. Required A implementation failure was detected at sample 5,
+-8.753998197993496s; the runner ended about 0.352427308s later. terminal_both:false;
+-no A/B settlement success is claimed. Supported supplementary diagnostic explicitly
+-reports OAuth session expiry and refresh failure, status 1/api-error, with HTTP
+-status and request ID unavailable. This is provider-reported run7 evidence, not
+-an attribution of discarded run6 causes. Owner149484 then reports login again.
+-Only bounded retained first-failure replay and safe published detail were checked;
+-no broader diagnostic investigation, credential read or provider execution.
+-
+-Owning evidence/run8-preparation-149488 preserves copies of run7 run-result,
+-first-failure, failure-diagnostic and all five samples. Original roots/evidence and
+-credential deliveries are untouched. Every 864-file accepted run7 freeze entry,
+-73-file preparation entry, both genuine run7 markers,45 provider-chain entries and
+-seven source bindings match. Original run1/source is clean at the recorded base.
+-
+-From repository root, offline checks:
+-
+-```text
+-python3 -B /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149488/verify_offline.py
+-```
+-
+-All 58 tests pass. Retained suite:
+-/tmp/w71879-149488-offline-verification-7ivefngv.
+-Real schemas/public temporary bootstrap, prompt/report/Git witness/observer,
+-early-failure/detail and image-custody cases run offline. Fixtures do not establish
+-host posture, real credential delivery or actual Job settlement. No test failed.
+-A new provenance utility initially omitted the Python source import path; the
+-utility was corrected without changing any accepted code/assertion. Its failed
+-script/output and untimed cost remain. Final provenance checks and Bash syntax/
+-Python AST/git diff --check pass.
+-
+-Copied tests changed only as scheduled: test_run8_preparation.py rebases four
+-run7 preparation cases; test_manifest_timestamp.py, test_report_instructions.py
+-and test_observed_status.py update fresh identity/time/fixture values;
+-test_early_failure.py updates only its explicitly synthetic runner namespace.
+-Original run6 replay bytes and identity remain exact. test_stats_observation.py,
+-test_provider_detail.py and test_image_preparation.py are unchanged. Standing
+-W71830 authority covers this exact copied scope; no old test file or product
+-source is edited. Complete task/policy/helper equality checks retain behavior.
+-
+-Current listed preparation 0.5419705809908919s; cumulative 42.20336665593286s plus untimed/host/login/
+-operator/billing uncertainty. Seven failed runtime walls total1350.217186488022s, including
+-run7; prior six 1341.1107609820174s remain separately recorded. No suite inner/outer
+-or earlier build/validation double count, reserve transfer or limit increase.
+-
+-Actual A settlement, B-derived judgments/coordinator import, causal merged
+-observations and both terminal Jobs remain owed. Run5 writer/coordinator-entry,
+-run6 discarded cause and prior render-history uncertainty remain. W144335/W144813/
+-W136578/W129838, fault-C/H7 and general resilience remain deferred. This advances
+-fresh inputs and the already-authorized conditional operator attempt.
++63 tests pass. Five focused product observation checks also pass, including the
++new two-producer real-account regression, unknown/foreign Job refusal, both bound
++producer selections, existing fresh-process read-only handle/disposal/nonmutation
++coverage and observation-only exchange behavior. Initial red regression retained.
++Full evidence, exact source delta/custody and spending are in
++../evidence/observation-correction-149854 and ../OBSERVATION-CORRECTION-149854.md.
++Run8 outcome remains failed/unconfirmed; no corrected read was run over its stores.
++Direct independent review; no retry, repair, broader hardening or new planning gate.
+--- prepared-149488/run.py
++++ prepared-149854/run.py
+@@ -40,7 +40,10 @@
+ def command(argv, *, seconds=10):
+     done = subprocess.run(argv, cwd=CWD, capture_output=True, text=True, timeout=seconds)
+     if done.returncode:
+-        raise RuntimeError('command failed: ' + repr(argv) + '\n' + done.stderr[:2000])
++        tail = done.stderr[-2000:]
++        if len(done.stderr) > 2000:
++            tail = '[stderr truncated to final 2000 of ' + str(len(done.stderr)) + ' characters]\n' + tail
++        raise RuntimeError('command failed (exit ' + str(done.returncode) + '): ' + repr(argv) + '\n' + tail)
+     return done.stdout
+ 
+ 
+--- prepared-149488/runner-helpers.json
++++ prepared-149854/runner-helpers.json
+@@ -1,6 +1,6 @@
+ {
+   "deployment.py": "sha256:47e8fd83573656d0bfeba9808f5b7d487b8f4d50d64a218c711ec7a1632b7c04",
+   "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+-  "run.py": "sha256:6cada83f9e8e99eef2865ffcfd823ec3995d59002e688cef00585da359e9bca9",
++  "run.py": "sha256:f1597051ebae22196dcd6a2e0553faca0577936c21eec0fe7542647b094d23b5",
+   "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+ }
+--- prepared-149488/test_run8_preparation.py
++++ prepared-149854/test_run8_preparation.py
+@@ -65,7 +65,9 @@
+         old = (PRIOR / 'deployment.py').read_text()
+         expected = old.replace('run7', 'run8').replace('c71879b1000000000000000000000001', 'c71879b2000000000000000000000001').replace('2026-09-12T02:23:07.032Z', CREATED).replace('M141636/return149049; run8 image and package preparation authorized; model execution not authorized', RULING).replace('w71879-149053-validation-', 'w71879-149488-validation-')
+         self.assertEqual(expected, (HERE / 'deployment.py').read_text())
+-        self.assertEqual((PRIOR / 'run.py').read_text().replace('w71879-run7', 'w71879-run8'), (HERE / 'run.py').read_text())
++        expected_runner = (PRIOR / 'run.py').read_text().replace('w71879-run7', 'w71879-run8')
++        expected_runner = expected_runner.replace("        raise RuntimeError('command failed: ' + repr(argv) + '\\n' + done.stderr[:2000])", "        tail = done.stderr[-2000:]\n        if len(done.stderr) > 2000:\n            tail = '[stderr truncated to final 2000 of ' + str(len(done.stderr)) + ' characters]\\n' + tail\n        raise RuntimeError('command failed (exit ' + str(done.returncode) + '): ' + repr(argv) + '\\n' + tail)")
++        self.assertEqual(expected_runner, (HERE / 'run.py').read_text())
+         for name in ('target_posture.py', 'failure_observation.py', 'test_stats_observation.py', 'test_provider_detail.py'):
+             self.assertEqual((PRIOR / name).read_bytes(), (HERE / name).read_bytes())
+         self.assertIn("(HERE / 'run.py', HERE / 'deployment.py', HERE / 'target_posture.py', HERE / 'failure_observation.py')", (HERE / 'run.py').read_text())

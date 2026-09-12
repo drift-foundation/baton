@@ -1,0 +1,34 @@
+{
+  "claim": 148964,
+  "candidate_files": 76,
+  "prior_files": 43,
+  "unchanged_successor_files": 41,
+  "unchanged_test_definitions": 27,
+  "native_sha256": "5fb321bf417ffc5cd4e3f36e7c9c7e029bf47aaa36d5621db979fcc5e6eabe15",
+  "source_slices": 10,
+  "extra_slices": [
+    {
+      "needle": "function xr(",
+      "offset": 202399549,
+      "bytes": 1750,
+      "sha256": "a7f2e79fb63e3b1d172bf23f72d81adf5342d868de537e59822412aa7f95bdc7",
+      "file": "source-extra-0.txt"
+    },
+    {
+      "needle": "reason:\"api_error\"",
+      "offset": 211804934,
+      "bytes": 1750,
+      "sha256": "4b6ee3971d28c95ef79c26f769095d61910fe2cd2c0f9fc3bba3d741387fe3da",
+      "file": "source-extra-1.txt"
+    },
+    {
+      "needle": "2.1.247",
+      "offset": 192844434,
+      "bytes": 1750,
+      "sha256": "cd4a0cecf11d5b07b00b5e70e2523373c688d16a3b4f2f4866441060c5e5a28e",
+      "file": "source-extra-2.txt"
+    }
+  ],
+  "seconds": 0.28137183698709123,
+  "scope": "Offline static custody only; no provider execution, credentials, streams, image build or model calls."
+}

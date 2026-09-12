@@ -1,0 +1,24 @@
+{
+  "product": {
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "tests.manager.test_store",
+      "tests.manager.test_workspaces",
+      "-v"
+    ],
+    "exit": 0,
+    "seconds": 0.7501522150123492
+  },
+  "proof": {
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-152563/verify_offline.py"
+    ],
+    "exit": 0,
+    "seconds": 5.520927338016918
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "actual_run2_readonly_posture_refusal": "/home/sl/.local/state/baton/v12/w71879-run2/target: gid 1000, expected workspace gid 1001",
+  "claim": 144859,
+  "five_task_behaviors": "unchanged; only future task IDs differ",
+  "future_run3_root_absent": true,
+  "helpers_ast": "pass",
+  "new_model_run_authorized": false,
+  "old_accepted_files_unchanged": 159,
+  "provider_entries_unchanged": 45,
+  "run2_target_root_metadata_unchanged": true,
+  "seven_policies": "unchanged behavior/limits; future run-root/scope and owner-ruling locator differ",
+  "validation_wall_seconds": 0.14364997200027574,
+  "work": "W71879"
+}

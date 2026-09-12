@@ -1,0 +1,17 @@
+{
+  "authentication_cause": "provider-reported-oauth-session-expired-refresh-failed",
+  "availability": "available",
+  "basis": "supplementary published adapter report; never raw provider output",
+  "detail": {
+    "classification": "authentication_failed",
+    "explanation": "Failed to authenticate: OAuth session expired and could not be refreshed",
+    "explanation_status": "supported-constant",
+    "http_status": null,
+    "request_id": null,
+    "request_id_status": "unavailable",
+    "schema": "baton.provider-diagnostic/1"
+  },
+  "next_action": "Provider reports an expired OAuth session that could not be refreshed. The credential owner should restore the supported login before any separately authorized retry.",
+  "provider_exit_status": 1,
+  "provider_reason": "api-error"
+}

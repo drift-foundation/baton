@@ -1,0 +1,5 @@
+{
+  "a": "sha256:868b8669c92d2e3308516473df93ab57562774b9c2e0d3631acfca5be950e0d5",
+  "b": "sha256:4368c7da5dbb10c65f28029dffeffc3f2e3338cbf061f7700f381e2e705b4711",
+  "judges": "complete scope embedded; judgment.json and read-only source only"
+}

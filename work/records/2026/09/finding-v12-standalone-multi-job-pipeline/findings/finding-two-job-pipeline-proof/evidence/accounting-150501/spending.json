@@ -1,0 +1,13 @@
+{
+  "prior": 50.231413905870525,
+  "current_checks": [
+    0.3458666389924474,
+    0.3405658950214274,
+    0.00021762499818578362,
+    0.010574988002190366
+  ],
+  "current_total": 0.697225147014251,
+  "cumulative": 50.928639052884776,
+  "nine_failed_runtime_walls": 2002.0388815780316,
+  "uncertainty": "Untimed source reads/writes/CLI operations, older failed-utility/host/model-billing/rounding uncertainty remain additional. No model runtime executed this claim."
+}

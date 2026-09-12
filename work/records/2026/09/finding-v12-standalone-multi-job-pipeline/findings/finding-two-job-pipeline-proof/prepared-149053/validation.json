@@ -1,0 +1,197 @@
+{
+  "documents": {
+    "configuration": "sha256:2631f9ed3c2c4f93cabc5174d96f92d4dac6f3cfbab76c563cacc7fe74f69ca5",
+    "submission": "sha256:e2f72270739f9dbf418ffc1095c9e89dc02c65e2c757a0d4809af3923de2bc69"
+  },
+  "historical_image_values_are_not_selected": true,
+  "kind": "static preparation validation; no factory/stage/runtime/submission",
+  "public_authority_facts": {
+    "authority_uuid": "c71879b1000000000000000000000001",
+    "grants": {
+      "approval": [
+        {
+          "capability": "approve",
+          "provenance": "direct",
+          "scope": "scope:w71879-run7"
+        }
+      ],
+      "impl-a": [],
+      "impl-b": [],
+      "integrator": [
+        {
+          "capability": "integrate",
+          "provenance": "direct",
+          "scope": "scope:w71879-run7"
+        }
+      ],
+      "observer": [],
+      "review": [
+        {
+          "capability": "review",
+          "provenance": "direct",
+          "scope": "scope:w71879-run7"
+        }
+      ],
+      "review-a": [],
+      "review-b": [],
+      "verification": [
+        {
+          "capability": "verify",
+          "provenance": "direct",
+          "scope": "scope:w71879-run7"
+        }
+      ]
+    },
+    "policy_generation": 24,
+    "principals": {
+      "approval": "principal:w71879-run7-approval",
+      "impl-a": "principal:w71879-run7-impl-a",
+      "impl-b": "principal:w71879-run7-impl-b",
+      "integrator": "principal:w71879-run7-integrator",
+      "observer": "principal:w71879-run7-observer",
+      "review": "principal:w71879-run7-review",
+      "review-a": "principal:w71879-run7-review-a",
+      "review-b": "principal:w71879-run7-review-b",
+      "verification": "principal:w71879-run7-verification"
+    },
+    "works": {
+      "a": {
+        "assignment": null,
+        "authority_uuid": "c71879b1000000000000000000000001",
+        "close_decision": null,
+        "contract": "v12-assignment-1",
+        "creation": {
+          "at": "2026-09-12T02:50:52.372Z",
+          "kind": "trusted-bootstrap",
+          "operation_id": "provision-job-a",
+          "scope": "scope:w71879-run7",
+          "work_id": "c71879b1-W1"
+        },
+        "fenced_generations": [],
+        "gate": null,
+        "generation_counter": 0,
+        "handler": null,
+        "labels": [],
+        "live_generation": null,
+        "outcome": null,
+        "phase": "queued",
+        "rationale": null,
+        "ready": true,
+        "route": "proof-impl-a",
+        "scope": "scope:w71879-run7",
+        "status": "open",
+        "work_id": "c71879b1-W1"
+      },
+      "approval": {
+        "assignment": null,
+        "authority_uuid": "c71879b1000000000000000000000001",
+        "close_decision": null,
+        "contract": "v12-assignment-1",
+        "creation": {
+          "at": "2026-09-12T02:50:52.373Z",
+          "kind": "trusted-bootstrap",
+          "operation_id": "provision-judge-approval",
+          "scope": "scope:w71879-run7",
+          "work_id": "c71879b1-W5"
+        },
+        "fenced_generations": [],
+        "gate": null,
+        "generation_counter": 0,
+        "handler": null,
+        "labels": [],
+        "live_generation": null,
+        "outcome": null,
+        "phase": "queued",
+        "rationale": null,
+        "ready": true,
+        "route": "proof-judge-approval",
+        "scope": "scope:w71879-run7",
+        "status": "open",
+        "work_id": "c71879b1-W5"
+      },
+      "b": {
+        "assignment": null,
+        "authority_uuid": "c71879b1000000000000000000000001",
+        "close_decision": null,
+        "contract": "v12-assignment-1",
+        "creation": {
+          "at": "2026-09-12T02:50:52.373Z",
+          "kind": "trusted-bootstrap",
+          "operation_id": "provision-job-b",
+          "scope": "scope:w71879-run7",
+          "work_id": "c71879b1-W2"
+        },
+        "fenced_generations": [],
+        "gate": null,
+        "generation_counter": 0,
+        "handler": null,
+        "labels": [],
+        "live_generation": null,
+        "outcome": null,
+        "phase": "queued",
+        "rationale": null,
+        "ready": true,
+        "route": "proof-impl-b",
+        "scope": "scope:w71879-run7",
+        "status": "open",
+        "work_id": "c71879b1-W2"
+      },
+      "review": {
+        "assignment": null,
+        "authority_uuid": "c71879b1000000000000000000000001",
+        "close_decision": null,
+        "contract": "v12-assignment-1",
+        "creation": {
+          "at": "2026-09-12T02:50:52.373Z",
+          "kind": "trusted-bootstrap",
+          "operation_id": "provision-judge-review",
+          "scope": "scope:w71879-run7",
+          "work_id": "c71879b1-W4"
+        },
+        "fenced_generations": [],
+        "gate": null,
+        "generation_counter": 0,
+        "handler": null,
+        "labels": [],
+        "live_generation": null,
+        "outcome": null,
+        "phase": "queued",
+        "rationale": null,
+        "ready": true,
+        "route": "proof-judge-review",
+        "scope": "scope:w71879-run7",
+        "status": "open",
+        "work_id": "c71879b1-W4"
+      },
+      "verification": {
+        "assignment": null,
+        "authority_uuid": "c71879b1000000000000000000000001",
+        "close_decision": null,
+        "contract": "v12-assignment-1",
+        "creation": {
+          "at": "2026-09-12T02:50:52.373Z",
+          "kind": "trusted-bootstrap",
+          "operation_id": "provision-judge-verification",
+          "scope": "scope:w71879-run7",
+          "work_id": "c71879b1-W3"
+        },
+        "fenced_generations": [],
+        "gate": null,
+        "generation_counter": 0,
+        "handler": null,
+        "labels": [],
+        "live_generation": null,
+        "outcome": null,
+        "phase": "queued",
+        "rationale": null,
+        "ready": true,
+        "route": "proof-judge-verification",
+        "scope": "scope:w71879-run7",
+        "status": "open",
+        "work_id": "c71879b1-W3"
+      }
+    }
+  },
+  "temporary_path_retained": "/tmp/w71879-149053-validation-7cqoy4kx",
+  "wall_seconds": 0.025083887012442574
+}

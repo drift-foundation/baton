@@ -1,0 +1,12 @@
+{
+  "prior_listed_seconds": 40.28066259492374,
+  "owner_build_static_inspection_seconds": 0.8677917640015949,
+  "owner_validation_seconds": 0.025083887012442574,
+  "failed_input_check_tool_wall_seconds": 0.068979523,
+  "failed_new_source_mode_check_tool_wall_seconds": 0.057862589,
+  "available_evidence_check_seconds": 0.027848276018630713,
+  "current_listed_seconds": 1.0475660390326682,
+  "cumulative_listed_seconds": 41.32822863395641,
+  "six_failed_runtime_walls_seconds": 1341.1107609820174,
+  "uncertainty": "Untimed reads/edits/CLI/hash/syntax work, operator host preparation/render reporting and prior host/billing uncertainty remain additional. Successful check uses internal elapsed; failed checks only have tool-reported walls. Build command sub-times not double-counted over whole helper wall. No reserve transfer or limit increase."
+}

@@ -1,0 +1,18 @@
+{
+  "work": "W71879",
+  "claim": 144952,
+  "candidate_manifest": "sha256:6b4121c4f36c3b881e4fd2d8edcc09ac358c6c28b5b98b787c1a7f1185aa9b33",
+  "candidate_files": 25,
+  "prior_candidate_files": 159,
+  "tasks": 5,
+  "policies": 7,
+  "syntax": "pass",
+  "focused_tests": 10,
+  "test_failures": 0,
+  "test_errors": 0,
+  "retained_fixture_root": "/tmp/w71879-target-posture-144859-n2vfw7c1",
+  "candidate_unchanged_after_tests": true,
+  "run3_absent": true,
+  "wall_seconds": 0.1481435300083831,
+  "scope": "Independent offline candidate checks and additive helper tests; fixture identity is current managed uid/gid, no actual future target, Git mutation or model execution."
+}

@@ -1,0 +1,29 @@
+# W71879 observation refresh correction 152750
+
+2026-09-12T13:22:28.611540+00:00; baton.tuner claim152750, owner152747, within owner152560 proof scope. Review-2026-09-12T13-08-55Z.md requested the ordinary import/read interleaving correction. The new candidate is prepared-152750; return directly to baton.feat Next baton.ops. Prior candidate152563 is preserved as changes-requested history.
+
+## What changed
+
+accounting.py brackets the initial public coordinator result read with Authority policy reads. Movement raises BudgetWake before binding, so a published snapshot cannot be compared to a generation advanced by an intervening successful import. bind_result consumes the observed generation rather than performing a new uncoordinated policy read. Only a public coordinator record already proven imported supplies its retained approval generation. A stable unfinished wrong-policy subject still raises AccountingError.
+
+After manager-owned judge observation, the helper re-reads the public result and policy. A changed record or generation discards that observation. Required public read refusals propagate normally, and detected required-attempt failures remain primary. No catch-all AccountingError conversion, presumed import or authorization waiver was added.
+
+run.py re-reads all claim histories/current assignments after successful judge observation and before evaluating timeout or both-terminal success. Any difference raises BudgetWake. Its existing loop then reads fresh claims, status, result, policy and judge facts. It never resumes an old terminal decision or old timeout calculation. Existing maximum three consecutive fresh retries and whole-run alarm remain; elapsed refresh time is charged and no claim timestamp or integration balance resets.
+
+Only the new copied helper/runner, test_joined_judges.py, test_stats_observation.py, runner-helpers.json, verify_offline.py and README differ from prepared-152563. Exact delta and unchanged inherited/product provenance are in evidence/accounting-152750. All product source/test bytes remain unchanged. No worker, image, protocol or deployment behavior changed.
+
+## Verification
+
+Final full copied package:95 tests, zero failures/errors,8.453982752020238s. Six added tests cover the real public result-read/import boundary, movement during manager observations, runner fresh-status/claim reads with elapsed charging, bounded repeated instability, changed claim history before evaluation, and stable refusal without retry. Existing wrong-policy binding/refusal tests remain. The ordinary import reproduction uses actual disposable Authority/coordinator/manager/report/intake/Job owners and simulated engine/provider answers, moves published policy15 to imported policy16, requires BudgetWake, then verifies a fresh read sees all three accepted reports and both Jobs completed. No owner response or policy record is falsified in that interleaving test.
+
+Initial95 run had three test setup failures, retained with8.378303206991404s: result interception was installed before the status read (which itself reads the coordinator), so the transition happened before the intended helper boundary; two runner fixtures still reported a live container at already-terminal status after a skipped observation. Interception now begins only around the helper read and container fixtures follow the represented status. Accepted product behavior and checks were not weakened. The fixture process now remains live for the explicitly bounded refresh iterations. Final output records every discovered test.
+
+The unchanged166 product tests already passed independently in review152676 and were not repeated for this proof-only correction. Preservation checks verify92 non-journal entries of the95-file152563 manifest,75 older partial files,198 accepted run9 files and19 reconciliation files, including unchanged product and historical execution bindings. Only the ongoing FINDING/PLAN/PROGRESS journals are excluded from the old manifest comparison; their current entries explicitly preserve prior history. New markers are absent. An initial custody utility assumed every old entry had a mode; its KeyError and untimed cost are recorded, and final verification checks modes where supplied plus all hashes/sizes.
+
+Current measured return cost16.858556787018s includes the two suite runs, custody check and owner-reported host read; cumulative94.168591629989s plus retained untimed/CLI/static/host/operator/billing/rounding uncertainty. Nine historical failed runtime walls remain2002.0388815780316s. No new model or live container proof attempt occurred.
+
+## Host evidence and remaining scope
+
+Canonical owner event152747 reports supported inspect_readers.py succeeded on the host: ControlStore configured_gid1001; IntegrationStore job-b result published, policy_generation null;0.004285491013433784s. evidence/accounting-152750/host-observation.json pins this attributed evidence. This resolves the outstanding host-command execution step in ACCOUNTING-152563.md; it does not establish why managed access refused or turn B into an imported result. Both historical managed refusals remain recorded. No managed re-probe, alternate store reader, sidecar manipulation or repair was attempted.
+
+Independent review of this exact correction remains due, then existing operational/fresh-proof routing continues. Actual all-three judgments, scoped receipts/current policy at admission, ordinary import/lease/causal checks, both terminal Jobs and final target tests/identity/cleanliness still define acceptance. Integration120 minus the clipped union of exactly bound judge claims, each judge180, implementation240, original review180 and whole1200 through final success remain unchanged. No execution markers, model retry or historical repair are authorized here. Existing fault-C/H7/general resilience and other campaign deferrals and prior uncertainties remain.

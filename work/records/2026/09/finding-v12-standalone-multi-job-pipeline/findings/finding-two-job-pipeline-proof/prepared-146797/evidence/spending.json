@@ -1,0 +1,16 @@
+{
+  "failed_runtime_walls_seconds": [
+    223.9077433210041,
+    300.8523036100087,
+    35.340723676010384,
+    272.6205856000015,
+    292.0414934099972
+  ],
+  "failed_runtime_total_seconds": 1124.7628496170219,
+  "prior_listed_preparation_diagnosis_seconds": 4.908113534991966,
+  "failed_offline_suite_seconds": 0.29345116300100926,
+  "successful_offline_suite_seconds": 0.29771348599751946,
+  "provenance_seconds": 0.012565880999318324,
+  "listed_preparation_diagnosis_total_seconds": 5.511844064989813,
+  "uncertainty": "Untimed source/CLI reads, edits, static/manifest checks, commands, previous failures, host/operator time and billing are additional. No double-counted test internal time or reserve transfer."
+}

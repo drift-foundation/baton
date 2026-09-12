@@ -1,0 +1,195 @@
+{
+  "schema": "w71879-run1-diagnostic-review/1",
+  "work": "W71879",
+  "claim": 144288,
+  "sample_count": 174,
+  "run": {
+    "exceptional_stops": [],
+    "failure": "TimeoutError: approved proof wall/active-attempt deadline reached",
+    "initial": {
+      "source": {
+        "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "path": "/home/sl/.local/state/baton/v12/w71879-run1/source",
+        "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+      },
+      "target": {
+        "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+        "path": "/home/sl/.local/state/baton/v12/w71879-run1/target",
+        "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+      }
+    },
+    "ordinary_operator_transitions": 0,
+    "started_at": "2026-09-11T12:02:28.168723+00:00",
+    "submitted": true,
+    "terminal_both": false,
+    "wall_seconds": 223.9077433210041
+  },
+  "evidence_files": [
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run1/evidence/run-result.json",
+      "bytes": 721,
+      "sha256": "d5b92080e75d6851b4c9db79d5984566641718f81ec15ddf4d5fb0525ed9f485"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run1/evidence/serve.log",
+      "bytes": 2308,
+      "sha256": "67b0a7b539117c40a491031304451553bfb65d154cbaef6f7afeba2872517ded"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run1/evidence/samples.jsonl",
+      "bytes": 3952130,
+      "sha256": "15410361f9d73e9d6ef266da410e44c96123dfbb8463a3137d44822fdd6b47ad"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run1/evidence/provisioning.json",
+      "bytes": 5832,
+      "sha256": "8a4d36af6ee696989d837497b999e032b22c5c8114e29ee127b1342fff90c391"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run1/evidence/submit.json",
+      "bytes": 2548,
+      "sha256": "52c601001ce0948fc2ee4f7f0c9392bb5960ba07dee47b23bc3ffc78781bbb3e"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run1/storage/.baton-review-lines/line-3728344dec39793706f7c0b7270036e3491a96db3e0d71b526868dc8f1236d1e/custody/attempt-9bb39811aeb143435c15407b76610d7584f86f3f3e3e9de16cea31d5efa41db2/proposal/result.json",
+      "bytes": 600,
+      "sha256": "88c716c8bc36bb7c3170ed786671d6ac1e4dcfc3e32875254df7eee73873a104"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run1/storage/.baton-review-lines/line-cce65d6948a363878cc569a6ab104d153a2612021a96b1a4cc772b00bf0b129c/custody/attempt-46f3a4437e3f24add9b593fe55d2367919e06124cd712af97821a0317d6e2ca9/proposal/result.json",
+      "bytes": 518,
+      "sha256": "358aa6882bfa945c09e588f3db784c5117537c9ed417c437f93fd4621445f87f"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run1/storage/attempt-a47eb35f6030bfae99987473563d0f880bad8c9ecfdf1cdf945fc1353c36326d/custody/attempt-a47eb35f6030bfae99987473563d0f880bad8c9ecfdf1cdf945fc1353c36326d/logs/review.json",
+      "bytes": 397,
+      "sha256": "ca1d217ee4caf1d11efc87e3540b0275aa3bb96a836fc0b2c9c775ecf94882c1"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run1/launch/impl-a/attempt-46f3a4437e3f24add9b593fe55d2367919e06124cd712af97821a0317d6e2ca9/events/terminal.json",
+      "bytes": 511,
+      "sha256": "a679050705c6429a672f2238655d86884a04af6c296efef0ad0d073670e128ac"
+    },
+    {
+      "path": "/home/sl/.local/state/baton/v12/w71879-run1/launch/review-b/attempt-a47eb35f6030bfae99987473563d0f880bad8c9ecfdf1cdf945fc1353c36326d/events/terminal.json",
+      "bytes": 511,
+      "sha256": "528f2fde1f7cc19c5994964563779dfc3053d62d87eb1627ac9431b4e4fefe43"
+    }
+  ],
+  "source_hashes": {
+    "v12/worker/claude_agent.py": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+    "v12/python/tools/stage_execution.py": "89d048c9ef0684f4e10859ffa5faf3d698e61b5e6d073689667e06e28aedd2e0",
+    "v12/python/src/baton_v12/job_manager/review_driver.py": "b5b22535ef105f786aa74f61ff894614a1e91bb8e2739f1051151fb893ebe10c",
+    "v12/python/src/baton_v12/worker_manager/intake.py": "d326fe41d0ad8ca90950be9735f4c05b1c537e70e6827f760867969830eae7b7",
+    "v12/python/src/baton_v12/integration/driver.py": "837483eb9fb8031dae2f8c73472a63a155efbee0b46bd1b5151c70ae35372db8"
+  },
+  "stage_transitions": [
+    {
+      "wall_seconds": 1.1652251219929894,
+      "stage": "job-a/implementation",
+      "state": "offered",
+      "runtime": null,
+      "has_custody_artifacts": false
+    },
+    {
+      "wall_seconds": 1.1652251219929894,
+      "stage": "job-a/review",
+      "state": "blocked",
+      "runtime": null,
+      "has_custody_artifacts": false
+    },
+    {
+      "wall_seconds": 1.1652251219929894,
+      "stage": "job-a/integration",
+      "state": "blocked",
+      "runtime": null,
+      "has_custody_artifacts": false
+    },
+    {
+      "wall_seconds": 1.1652251219929894,
+      "stage": "job-b/implementation",
+      "state": "offered",
+      "runtime": null,
+      "has_custody_artifacts": false
+    },
+    {
+      "wall_seconds": 1.1652251219929894,
+      "stage": "job-b/review",
+      "state": "blocked",
+      "runtime": null,
+      "has_custody_artifacts": false
+    },
+    {
+      "wall_seconds": 1.1652251219929894,
+      "stage": "job-b/integration",
+      "state": "blocked",
+      "runtime": null,
+      "has_custody_artifacts": false
+    },
+    {
+      "wall_seconds": 2.329303111997433,
+      "stage": "job-a/implementation",
+      "state": "starting",
+      "runtime": "running",
+      "has_custody_artifacts": false
+    },
+    {
+      "wall_seconds": 2.329303111997433,
+      "stage": "job-b/implementation",
+      "state": "starting",
+      "runtime": "running",
+      "has_custody_artifacts": false
+    },
+    {
+      "wall_seconds": 8.68900289600424,
+      "stage": "job-a/implementation",
+      "state": "answering",
+      "runtime": "quiescent",
+      "has_custody_artifacts": true
+    },
+    {
+      "wall_seconds": 41.29051426600199,
+      "stage": "job-b/implementation",
+      "state": "answering",
+      "runtime": "quiescent",
+      "has_custody_artifacts": true
+    },
+    {
+      "wall_seconds": 42.45290497600217,
+      "stage": "job-b/implementation",
+      "state": "completed",
+      "runtime": "destroyed",
+      "has_custody_artifacts": true
+    },
+    {
+      "wall_seconds": 42.45290497600217,
+      "stage": "job-b/review",
+      "state": "offered",
+      "runtime": null,
+      "has_custody_artifacts": false
+    },
+    {
+      "wall_seconds": 43.617048172003706,
+      "stage": "job-b/review",
+      "state": "starting",
+      "runtime": "running",
+      "has_custody_artifacts": false
+    },
+    {
+      "wall_seconds": 49.132436771003995,
+      "stage": "job-b/review",
+      "state": "answering",
+      "runtime": "quiescent",
+      "has_custody_artifacts": true
+    }
+  ],
+  "max_retained_bytes": 7165889,
+  "provider_cause": "unknown: only adapter-owned api-error classification retained; streams intentionally discarded",
+  "live_retry": false,
+  "store_repair": false,
+  "model_calls": 0,
+  "tests_run": 0,
+  "measured_validation_seconds": 0.015611637994879857,
+  "prior_measured_preparation_seconds": 0.80724953001253,
+  "unmeasured_spending": "All historical uncertainty plus this turn source/diagnostic reads, CLI commands and document edits; diagnostic commands were not independently wall-timed."
+}

@@ -1,0 +1,19 @@
+{
+  "custody": {
+    "accounting-152563": 95,
+    "accounting-150501": 75,
+    "run9-freeze-150125": 198,
+    "run9-budget-150384": 19
+  },
+  "test_methods": {
+    "v12/python/tests/manager/test_store.py": {
+      "unchanged": 65,
+      "added": 7
+    },
+    "v12/python/tests/manager/test_workspaces.py": {
+      "unchanged": 132,
+      "added": 3
+    }
+  },
+  "seconds": 0.0662978439941071
+}

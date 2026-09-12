@@ -1,0 +1,187 @@
+{
+  "authority_uuid": "c71879ad000000000000000000000001",
+  "grants": {
+    "approval": [
+      {
+        "capability": "approve",
+        "provenance": "direct",
+        "scope": "scope:w71879-run3"
+      }
+    ],
+    "impl-a": [],
+    "impl-b": [],
+    "integrator": [
+      {
+        "capability": "integrate",
+        "provenance": "direct",
+        "scope": "scope:w71879-run3"
+      }
+    ],
+    "observer": [],
+    "review": [
+      {
+        "capability": "review",
+        "provenance": "direct",
+        "scope": "scope:w71879-run3"
+      }
+    ],
+    "review-a": [],
+    "review-b": [],
+    "verification": [
+      {
+        "capability": "verify",
+        "provenance": "direct",
+        "scope": "scope:w71879-run3"
+      }
+    ]
+  },
+  "policy_generation": 24,
+  "principals": {
+    "approval": "principal:w71879-run3-approval",
+    "impl-a": "principal:w71879-run3-impl-a",
+    "impl-b": "principal:w71879-run3-impl-b",
+    "integrator": "principal:w71879-run3-integrator",
+    "observer": "principal:w71879-run3-observer",
+    "review": "principal:w71879-run3-review",
+    "review-a": "principal:w71879-run3-review-a",
+    "review-b": "principal:w71879-run3-review-b",
+    "verification": "principal:w71879-run3-verification"
+  },
+  "works": {
+    "a": {
+      "assignment": null,
+      "authority_uuid": "c71879ad000000000000000000000001",
+      "close_decision": null,
+      "contract": "v12-assignment-1",
+      "creation": {
+        "at": "2026-09-11T14:32:10.530Z",
+        "kind": "trusted-bootstrap",
+        "operation_id": "provision-job-a",
+        "scope": "scope:w71879-run3",
+        "work_id": "c71879ad-W1"
+      },
+      "fenced_generations": [],
+      "gate": null,
+      "generation_counter": 0,
+      "handler": null,
+      "labels": [],
+      "live_generation": null,
+      "outcome": null,
+      "phase": "queued",
+      "rationale": null,
+      "ready": true,
+      "route": "proof-impl-a",
+      "scope": "scope:w71879-run3",
+      "status": "open",
+      "work_id": "c71879ad-W1"
+    },
+    "approval": {
+      "assignment": null,
+      "authority_uuid": "c71879ad000000000000000000000001",
+      "close_decision": null,
+      "contract": "v12-assignment-1",
+      "creation": {
+        "at": "2026-09-11T14:32:10.530Z",
+        "kind": "trusted-bootstrap",
+        "operation_id": "provision-judge-approval",
+        "scope": "scope:w71879-run3",
+        "work_id": "c71879ad-W5"
+      },
+      "fenced_generations": [],
+      "gate": null,
+      "generation_counter": 0,
+      "handler": null,
+      "labels": [],
+      "live_generation": null,
+      "outcome": null,
+      "phase": "queued",
+      "rationale": null,
+      "ready": true,
+      "route": "proof-judge-approval",
+      "scope": "scope:w71879-run3",
+      "status": "open",
+      "work_id": "c71879ad-W5"
+    },
+    "b": {
+      "assignment": null,
+      "authority_uuid": "c71879ad000000000000000000000001",
+      "close_decision": null,
+      "contract": "v12-assignment-1",
+      "creation": {
+        "at": "2026-09-11T14:32:10.530Z",
+        "kind": "trusted-bootstrap",
+        "operation_id": "provision-job-b",
+        "scope": "scope:w71879-run3",
+        "work_id": "c71879ad-W2"
+      },
+      "fenced_generations": [],
+      "gate": null,
+      "generation_counter": 0,
+      "handler": null,
+      "labels": [],
+      "live_generation": null,
+      "outcome": null,
+      "phase": "queued",
+      "rationale": null,
+      "ready": true,
+      "route": "proof-impl-b",
+      "scope": "scope:w71879-run3",
+      "status": "open",
+      "work_id": "c71879ad-W2"
+    },
+    "review": {
+      "assignment": null,
+      "authority_uuid": "c71879ad000000000000000000000001",
+      "close_decision": null,
+      "contract": "v12-assignment-1",
+      "creation": {
+        "at": "2026-09-11T14:32:10.530Z",
+        "kind": "trusted-bootstrap",
+        "operation_id": "provision-judge-review",
+        "scope": "scope:w71879-run3",
+        "work_id": "c71879ad-W4"
+      },
+      "fenced_generations": [],
+      "gate": null,
+      "generation_counter": 0,
+      "handler": null,
+      "labels": [],
+      "live_generation": null,
+      "outcome": null,
+      "phase": "queued",
+      "rationale": null,
+      "ready": true,
+      "route": "proof-judge-review",
+      "scope": "scope:w71879-run3",
+      "status": "open",
+      "work_id": "c71879ad-W4"
+    },
+    "verification": {
+      "assignment": null,
+      "authority_uuid": "c71879ad000000000000000000000001",
+      "close_decision": null,
+      "contract": "v12-assignment-1",
+      "creation": {
+        "at": "2026-09-11T14:32:10.530Z",
+        "kind": "trusted-bootstrap",
+        "operation_id": "provision-judge-verification",
+        "scope": "scope:w71879-run3",
+        "work_id": "c71879ad-W3"
+      },
+      "fenced_generations": [],
+      "gate": null,
+      "generation_counter": 0,
+      "handler": null,
+      "labels": [],
+      "live_generation": null,
+      "outcome": null,
+      "phase": "queued",
+      "rationale": null,
+      "ready": true,
+      "route": "proof-judge-verification",
+      "scope": "scope:w71879-run3",
+      "status": "open",
+      "work_id": "c71879ad-W3"
+    }
+  }
+}

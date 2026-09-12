@@ -1,0 +1,8 @@
+{
+  "image_variants": {
+    "integration": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+    "provider": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13"
+  },
+  "provider_base_image": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+  "worker_source_manifest": "sha256:48d92332372204deb8d5e8190cbc8749f89118a0fe6626c4d3bb8ce2af143d3b"
+}

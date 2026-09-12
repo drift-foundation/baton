@@ -1,0 +1,60 @@
+{
+  "claim": 148686,
+  "recorded_at": "2026-09-12T01:18:50.215008+00:00",
+  "prior_manifest_sha256": "94d8b8e83b5d11a25edc8b91ae54e9bef98bc7a718cd8d17616784a00ea22cb2",
+  "prior_files_verified": 43,
+  "source_bindings": {
+    "AGENTS.md": {
+      "sha256": "a7323bbc227aabe8322f747d5750bc4823cbad2b56dce1f863ddd5921223eb7f",
+      "bytes": 20951
+    },
+    "docs/EFFECTIVE-BATON.md": {
+      "sha256": "fc0cc07bd335d910939bd498570d06306352246d98bd251b7b7395c3c8070b73",
+      "bytes": 26278
+    },
+    "docs/AGENTS-MAILBOX-PROTO.md": {
+      "sha256": "61b75e9fd7a7a257c5525aa13892e079efc51257e48fe661ab5189c4beea93e5",
+      "bytes": 12911
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+      "bytes": 166051
+    },
+    "v12/worker/Dockerfile.claude": {
+      "sha256": "8f88fc3bd366b76686d9cae0e5af019ba395a39d3afb9fd78dc5c3570556e55b",
+      "bytes": 11962
+    },
+    "v12/worker/Dockerfile.integration": {
+      "sha256": "afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+      "bytes": 5790
+    },
+    "v12/worker/integration_workload.py": {
+      "sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "bytes": 70815
+    },
+    "v12/python/tests/manager/test_claude_agent.py": {
+      "sha256": "a6c6e57ad38dd9c24c6ad864080ed02f0106ce27a509631b52436c1f9bbf5dd7",
+      "bytes": 154396
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/Dockerfile.provider": {
+      "sha256": "3550be4ff6040337bf3ae9bd1d3ab47dbcd40009655b02f29b9f0bac5056ee10",
+      "bytes": 469
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-build/provider.inspect.json": {
+      "sha256": "1cbb22756f2c1ab5a35b94887f50bf6f09e703f438cad5e1e32f9272e6935d6b",
+      "bytes": 4449
+    },
+    "work/records/2026/08/finding-provider-failure-reason-without-bearer/FINDING.md": {
+      "sha256": "801b70d7049f7c1cd2018badb045e8f2e6e3a9dd61aac17e0360a3ee5188664f",
+      "bytes": 12426
+    },
+    "work/records/2026/08/finding-provider-failure-reason-without-bearer/PLAN.md": {
+      "sha256": "19bed25dbb399f02b2ce42079e47f28de90fb566d59c2fe6b5b90f45762a9a91",
+      "bytes": 4393
+    }
+  },
+  "verification_wall_seconds": 0.00365550399874337,
+  "new_tests_run": 0,
+  "product_changes": false,
+  "model_or_image_execution": false
+}

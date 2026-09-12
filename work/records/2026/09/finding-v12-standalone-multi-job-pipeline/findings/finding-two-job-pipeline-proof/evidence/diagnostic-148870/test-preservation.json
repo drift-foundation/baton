@@ -1,0 +1,10 @@
+{
+  "all_preexisting_top_level_classes_and_functions_unchanged": true,
+  "count": 27,
+  "new_names": [
+    "SupportedLineProviderDetail",
+    "SupportedProviderDetail",
+    "SupportedReviewProviderDetail",
+    "_diagnostic_record"
+  ]
+}

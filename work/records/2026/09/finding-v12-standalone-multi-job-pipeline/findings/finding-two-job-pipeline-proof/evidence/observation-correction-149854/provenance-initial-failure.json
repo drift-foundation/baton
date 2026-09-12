@@ -1,0 +1,8 @@
+{
+  "kind": "review utility allowlist omission",
+  "exception": "AssertionError: v12/python/tests/tools/test_stage_execution.py",
+  "cause": "Provider continuity utility accounted for authorized product-source delta but initially omitted its equally authorized additive test delta.",
+  "correction": "Compare both changed paths to their exact retained accepted base hashes, retain current hashes separately; do not exempt any other source or weaken existing tests.",
+  "cost": "untimed uncertainty",
+  "candidate_changed_to_pass": false
+}

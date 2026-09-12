@@ -1,0 +1,297 @@
+{
+  "base": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+        "--format",
+        "{{.Id}}"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.00934172399865929
+    },
+    {
+      "argv": [
+        "docker",
+        "build",
+        "--pull=false",
+        "--no-cache",
+        "--network",
+        "none",
+        "--platform",
+        "linux/amd64",
+        "--iidfile",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-build/provider.iid",
+        "--tag",
+        "baton-w71879-provider:candidate-141676",
+        "--file",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/Dockerfile.provider",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.08794201999262441
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006515112996567041
+    },
+    {
+      "argv": [
+        "docker",
+        "create",
+        "--name",
+        "w71879-check-provider-141676",
+        "--network",
+        "none",
+        "--read-only",
+        "--entrypoint",
+        "/bin/true",
+        "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.012222064993693493
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "2520c906c8df5c59e1d80eb09332d1e1a71c47bb44ba1cb0458875f77f3960da:/opt/baton/source_profiles/__init__.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006184027995914221
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "2520c906c8df5c59e1d80eb09332d1e1a71c47bb44ba1cb0458875f77f3960da:/opt/baton/source_profiles/checkout.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006440544995712116
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "2520c906c8df5c59e1d80eb09332d1e1a71c47bb44ba1cb0458875f77f3960da:/opt/baton/baton_worker.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.0057348739937879145
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "2520c906c8df5c59e1d80eb09332d1e1a71c47bb44ba1cb0458875f77f3960da:/opt/baton/claude_agent.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006316073006018996
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "2520c906c8df5c59e1d80eb09332d1e1a71c47bb44ba1cb0458875f77f3960da:/opt/baton/dogfood_entry.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005138606007676572
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "2520c906c8df5c59e1d80eb09332d1e1a71c47bb44ba1cb0458875f77f3960da:/opt/baton/worker-control-1.0.schema.json",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.00495338199834805
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "2520c906c8df5c59e1d80eb09332d1e1a71c47bb44ba1cb0458875f77f3960da"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006652338008279912
+    },
+    {
+      "argv": [
+        "docker",
+        "build",
+        "--pull=false",
+        "--no-cache",
+        "--network",
+        "none",
+        "--platform",
+        "linux/amd64",
+        "--iidfile",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-build/integration.iid",
+        "--tag",
+        "baton-w71879-integration:candidate-141676",
+        "--file",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context/worker/Dockerfile.integration",
+        "--build-arg",
+        "PROVIDER_BASE=sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/image-context"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.10963533099857159
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.0051781999936793
+    },
+    {
+      "argv": [
+        "docker",
+        "create",
+        "--name",
+        "w71879-check-integration-141676",
+        "--network",
+        "none",
+        "--read-only",
+        "--entrypoint",
+        "/bin/true",
+        "sha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.012279552000109106
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "a9aac65167fece180b04dcda43758f4f5e5ee87c4ba8d3b62c7e04a0be9e7092:/opt/baton/source_profiles/__init__.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.0062808380025671795
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "a9aac65167fece180b04dcda43758f4f5e5ee87c4ba8d3b62c7e04a0be9e7092:/opt/baton/source_profiles/checkout.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006360756000503898
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "a9aac65167fece180b04dcda43758f4f5e5ee87c4ba8d3b62c7e04a0be9e7092:/opt/baton/baton_worker.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006344055000226945
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "a9aac65167fece180b04dcda43758f4f5e5ee87c4ba8d3b62c7e04a0be9e7092:/opt/baton/claude_agent.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005202725005801767
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "a9aac65167fece180b04dcda43758f4f5e5ee87c4ba8d3b62c7e04a0be9e7092:/opt/baton/integration_contract.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005067274003522471
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "a9aac65167fece180b04dcda43758f4f5e5ee87c4ba8d3b62c7e04a0be9e7092:/opt/baton/integration_entry.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005908987004659139
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "a9aac65167fece180b04dcda43758f4f5e5ee87c4ba8d3b62c7e04a0be9e7092:/opt/baton/integration_workload.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.00578323399531655
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "a9aac65167fece180b04dcda43758f4f5e5ee87c4ba8d3b62c7e04a0be9e7092:/opt/baton/worker-control-1.0.schema.json",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.004898779996437952
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "a9aac65167fece180b04dcda43758f4f5e5ee87c4ba8d3b62c7e04a0be9e7092"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005661988005158491
+    }
+  ],
+  "content_checks": {
+    "integration": {
+      "/opt/baton/baton_worker.py": "sha256:da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923",
+      "/opt/baton/claude_agent.py": "sha256:9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+      "/opt/baton/integration_contract.py": "sha256:74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "/opt/baton/integration_entry.py": "sha256:0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "/opt/baton/integration_workload.py": "sha256:b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+      "/opt/baton/source_profiles/__init__.py": "sha256:c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "/opt/baton/source_profiles/checkout.py": "sha256:037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "/opt/baton/worker-control-1.0.schema.json": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    },
+    "provider": {
+      "/opt/baton/baton_worker.py": "sha256:da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923",
+      "/opt/baton/claude_agent.py": "sha256:9a16f57c516660f2ccb2ad56fc404c91bc2c575bf3dd52970f64017b1ee29955",
+      "/opt/baton/dogfood_entry.py": "sha256:bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3",
+      "/opt/baton/source_profiles/__init__.py": "sha256:c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+      "/opt/baton/source_profiles/checkout.py": "sha256:037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+      "/opt/baton/worker-control-1.0.schema.json": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    }
+  },
+  "images": {
+    "integration": "sha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2",
+    "provider": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+  },
+  "selected": false,
+  "wall_seconds": 0.3397777770005632
+}

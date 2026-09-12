@@ -1,0 +1,6 @@
+{
+  "current_listed_seconds": 0.23769969202112406,
+  "cumulative_listed_preparation_seconds": 111.43528896497313,
+  "nine_failed_runtime_walls_seconds": 2002.0388815780316,
+  "uncertainty": "Prior untimed/CLI/static/host/operator/billing/rounding uncertainty retained. Prior product166 and proof95 results reused on accepted behavior; no host preparation, image build, credential probe or model run."
+}

@@ -1,0 +1,13 @@
+{
+  "automatic_retry": false,
+  "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+  "ordinary_operator_transitions": 0,
+  "review_before_execution": true,
+  "ruling": "M141636/M144306/return144411",
+  "scope": "scope:w71879-run2",
+  "submission": [
+    "job-a",
+    "job-b"
+  ],
+  "work": "W71879"
+}

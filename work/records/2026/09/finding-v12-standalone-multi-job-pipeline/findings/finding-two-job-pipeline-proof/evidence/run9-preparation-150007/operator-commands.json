@@ -1,0 +1,50 @@
+{
+  "work": "W71879",
+  "claim": 150007,
+  "owner_authorization_event": 150004,
+  "operator_attempts_authorized_after_checks_and_genuine_bindings": 1,
+  "agent_model_execution_authorized": false,
+  "automatic_retry": false,
+  "cwd_for_deployment_and_run": "/home/sl/src/baton/v12/python",
+  "host_preparation": [
+    "/bin/bash",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-150007/operator-prepare.sh"
+  ],
+  "validate": [
+    "/usr/bin/env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "PYTHONPATH=src:.",
+    "/usr/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-150007/deployment.py",
+    "validate"
+  ],
+  "render": [
+    "/usr/bin/env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "PYTHONPATH=src:.",
+    "/usr/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-150007/deployment.py",
+    "render"
+  ],
+  "provision": [
+    "/usr/bin/env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "PYTHONPATH=src:.",
+    "/usr/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-150007/deployment.py",
+    "provision"
+  ],
+  "run": [
+    "/usr/bin/env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "PYTHONPATH=src:.",
+    "/usr/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-150007/run.py"
+  ],
+  "remaining_preparation_requirements": [
+    "Host fresh Git/ownership preparation by operator",
+    "Validation and33 actual rendered inputs with config/submission digests",
+    "Required input verification and genuine fresh execution bindings, reusing accepted source/images/correction evidence"
+  ],
+  "authorization_note": "Owner150004 already authorizes exactly one operator attempt after stated checks/bindings. Do not request run permission again; no agent model execution, rebuild, automatic retry or historical repair."
+}

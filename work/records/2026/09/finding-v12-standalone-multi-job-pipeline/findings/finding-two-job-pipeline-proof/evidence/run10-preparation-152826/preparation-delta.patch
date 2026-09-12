@@ -1,0 +1,1047 @@
+--- prepared-152750/README.md
++++ prepared-152826/README.md
+@@ -1,9 +1,65 @@
+-# Observation refresh correction candidate 152750
++# Run10 preparation — W71879 claim152826
+ 
+-Independent review candidate under owner152747 and existing152560 scope. Read ../ACCOUNTING-152750.md, review-2026-09-12T13-08-55Z.md and evidence/accounting-152750/candidate-manifest.json. Product store and tests retain exact152563 bytes; only this copied proof helper/runner/tests and supporting documentation change.
++Owner152823 accepts review-2026-09-12T13-25-32Z.md and authorizes fresh run10 preparation from the accepted product and five helpers in prepared-152750. Exactly one OPERATOR attempt is already authorized after required actual input checks and genuine execution bindings. No additional run-permission request is needed. This package carries no agent model execution, rebuild, automatic retry, historical repair or broader hardening authority.
+ 
+-This is not a fresh execution namespace. Copied run9 deployment, tasks, image/configuration inputs and old package-local evidence are historical baselines, not current verification or permission to provision/launch. No selected-images.json or execution-review.json exists here. New execution needs its genuine fresh bindings through the ordinary reviewed preparation; no retry is authorized by this correction.
++Fresh root `/home/sl/.local/state/baton/v12/w71879-run10`; Authority `c71879b4000000000000000000000001`; creation `2026-09-12T13:29:54.919Z`. Run10 namespaces, principals, tasks, manifests, submission and incarnation are fresh. Source is the clean original run1 baseline commit `2fbb2d456638e5706218020aebfa47f0a82c8920`, tree `3492ba64448ab9d39bde53ee6456ce24e74ece2c`. Never clone an old changed target. Run10 was observed absent; actual host preparation has not occurred.
+ 
+-Run offline checks from this dossier with `python3 prepared-152750/verify_offline.py`. Current retained results are evidence/accounting-152750/final-verification.{json,txt}; temporary fixture paths are reported there. All engine/provider answers are simulated. Joined tests exercise actual disposable component owners and ordinary import while the observer is paused between public reads.
++## Accepted behavior, images and credentials
+ 
+-Five helpers are bound by runner-helpers.json. A moving result/policy or changed claim history causes a bounded fresh observation before timeout/success decisions. Stable wrong policy and required reader failures remain refusals. Whole and per-attempt clocks, independent judgments/receipts and final verification remain mandatory.
++Existing provider `sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13` and integration `sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533` are unchanged and available by direct image metadata inspection. Existing image source/installation evidence applies; no rebuild. Copied build_images.py/image-context only support inherited offline custody tests. Do not invoke the build helper or deployment.py prepare.
++
++The accepted ControlStore product bytes stay unchanged. run.py differs from accepted152750 only by run10 incarnation; deployment.py differs only by fresh run/Authority/time/ruling and validation temporary label. accounting.py, target_posture.py and failure_observation.py are byte-identical. All five exact digests are in runner-helpers.json and must be included in genuine execution bindings. The public read-only judge owner, import refresh, claim-history recheck, primary failure handling and final checks remain intact.
++
++Integration has120 seconds cumulative charge excluding only the clipped union of its exactly bound derived-judge claim intervals. Each judge180, implementation240, original review180 and whole1200 through all final success checks remain. Integration/whole clocks never reset; completed intervals remain accountable and required read refusal is not credit. All real verification/review/approval reports, scoped receipts/current policy, ordinary import/lease release, causal evidence, both terminal Jobs and final tests/identity/cleanliness are required. There are zero ordinary operator transitions after submission.
++
++Preserve2CPU/2GiB/512PIDs per container,20CPU/20GiB minimum capacity,22GiB available-memory/16GiB free-disk checks and16GiB retained-storage stop. Declared512MiB workspace capacity is not a quota. Existing source/target ownership, custody, provider report, command diagnostic and failure checks remain.
++
++Credential delivery continues through `/home/sl/.baton/credential-sources.json`, slot claude, operator-file/w64268-run1. Every one of the eight workers, including integration and all three derived judges, has its own fresh run10 credential/launch home. The supported provider resolves the existing configured source at delivery time. No payload read/copy, authentication probe or fresh login-health claim accompanies these offline configuration checks. Historical deliveries remain unchanged.
++
++## Exact host preparation commands
++
++After the existing preparation review, Slawomir runs these THREE SEPARATE commands in order with supplementary gid1001, stopping at the first failure and retaining stdout/stderr/exit status and partial outputs. Git clones, initial uid65532:gid1001 target ownership and scoped external writes are operator actions. The first script refuses an existing or symlinked run10 root, requires original clean source, uses no-hardlink clones, creates the bare integration workspace and validates exact target posture.
++
++**fresh host Git and ownership preparation** (cwd `/home/sl/src/baton`):
++
++```sh
++/bin/bash /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-152826/operator-prepare.sh
++```
++
++**actual baseline validation** (cwd `/home/sl/src/baton/v12/python`):
++
++```sh
++/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-152826/deployment.py validate
++```
++
++**actual immutable input rendering** (cwd `/home/sl/src/baton/v12/python`):
++
++```sh
++/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-152826/deployment.py render
++```
++
++Return posture output, actual validation.json and all33 files physically rendered under this package's frozen-config, with printed configuration/submission hashes, for required input checks and genuine selection/execution bindings. Offline documents under /tmp are not those actual inputs. This candidate deliberately has no validation.json, frozen-config, selected-images.json or execution-review.json. No historical marker is copied or new acceptance fabricated.
++
++## Exact authorized one-attempt execution
++
++After actual input checks and genuine run10 selection/execution bindings cover the accepted source/product/images, all33 actual inputs and all FIVE helpers, owner152823 already authorizes one operator attempt. No additional run-permission request. Both commands use cwd `/home/sl/src/baton/v12/python`, host supplementary gid1001, scoped external writes and ordinary engine access; run each separately and stop on failure.
++
++**provision once after actual input checks and genuine bindings**:
++
++```sh
++/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-152826/deployment.py provision
++```
++
++**exactly one submit/serve attempt after bindings**:
++
++```sh
++/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-152826/run.py
++```
++
++Do not repeat provisioning or a consumed attempt, repair historical state, extend deadlines, use synthetic receipts or silently remove a real judgment. Retain results for independent assessment; script completion alone does not close the proof.
++
++## Verification and history
++
++All95 offline checks pass. `evidence/run10-preparation-152826/verification.json` and .txt in the parent dossier retain results; fixture root `/tmp/w71879-152826-offline-verification-csl1yf7b`. Engine/provider are simulated. The copied fresh-preparation tests compare the exact allowed metadata delta against accepted152750, verify fresh Authority/principals/eight worker configurations and preserve all tasks/policies/integration instruction bytes apart from named metadata. Timestamp/report/status fixtures and the synthetic failure fixture use run10; historical run9 accounting and run6 replay remain unchanged. W71830 standing test authority covers these scheduled fixture updates, with no weakened requirements. The prior independent166 product pass applies to unchanged bytes and was not rerun.
++
++Current measured8.497155254954s; cumulative111.197589272952s plus retained CLI/static/host/operator/billing/rounding and untimed uncertainty. Nine failed live runtime walls stay2002.0388815780316s. Host152747 read run9 B as published, policy null; no B import or managed refusal cause is inferred. Preserve all old roots, credentials, packages, markers and evidence; run5/run6 uncertainties and W144335/W144813/W136578/W129838/fault-C/H7/resilience deferrals remain. The queued general OAuth recovery procedure is not claimed implemented here.
+--- prepared-152750/deployment.py
++++ prepared-152826/deployment.py
+@@ -1,4 +1,4 @@
+-"""W71879 future run9 preparation packaging and public-API provisioning; never submits a Job.
++"""W71879 future run10 preparation packaging and public-API provisioning; never submits a Job.
+ 
+ prepare writes review inputs beside this script. validate uses a fresh /tmp
+ Authority to validate the bootstrap/document logic without a runtime. provision
+@@ -26,14 +26,14 @@
+ DOSSIER = HERE.parent
+ CONFIG = HERE / 'frozen-config'
+ REPO = Path('/home/sl/src/baton')
+-RUN = Path('/home/sl/.local/state/baton/v12/w71879-run9')
+-UUID = 'c71879b3000000000000000000000001'
++RUN = Path('/home/sl/.local/state/baton/v12/w71879-run10')
++UUID = 'c71879b4000000000000000000000001'
+ BASE = '2fbb2d456638e5706218020aebfa47f0a82c8920'
+ TREE = '3492ba64448ab9d39bde53ee6456ce24e74ece2c'
+ PROVIDER_BASE = 'sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4'
+-CREATED = '2026-09-12T04:59:54.280Z'
+-SCOPE = 'scope:w71879-run9'
+-PROFILE = 'claude-w71879-run9'
++CREATED = '2026-09-12T13:29:54.919Z'
++SCOPE = 'scope:w71879-run10'
++PROFILE = 'claude-w71879-run10'
+ REGISTRY = '/home/sl/.baton/credential-sources.json'
+ CREDENTIAL = {'provider': 'operator-file', 'reference': 'w64268-run1'}
+ ACTORS = {name: 'baton.proof-' + name for name in
+@@ -90,7 +90,7 @@
+                         'Do not modify source or invent receipts.\n\n' + duty +
+                         '\n\nThe complete accepted task scope follows. A is already landed; B is being merged.\n\n' + a + '\n\n' + b)
+         requests[name] = (instructions, 'check_hours.py')
+-    return {name: {'schema': 'baton.dogfood-task/2', 'task_id': 'w71879-run9-' + name,
++    return {name: {'schema': 'baton.dogfood-task/2', 'task_id': 'w71879-run10-' + name,
+                    'instructions': instructions, 'source_root': 'source',
+                    'source_profile': 'git-line', 'declared_base': BASE,
+                    'verification': ['python3', check]}
+@@ -99,7 +99,7 @@
+ 
+ def policy_documents():
+     return {
+-        'policy': {'work': 'W71879', 'ruling': 'M141636/return150004; run9 preparation and exactly one operator attempt after required input checks and genuine execution bindings authorized; no agent model execution or automatic retry', 'base': BASE,
++        'policy': {'work': 'W71879', 'ruling': 'M141636/return150498/return152823; run10 preparation and exactly one operator attempt after required input checks and genuine execution bindings authorized; no agent model execution or automatic retry', 'base': BASE,
+                    'scope': SCOPE, 'automatic_retry': False, 'ordinary_operator_transitions': 0,
+                    'submission': ['job-a', 'job-b'], 'review_before_execution': True},
+         'resource_policy': {'wall_seconds': 1200, 'implementation_attempt_seconds': 240,
+@@ -129,7 +129,7 @@
+         authority.set_policy('canonical_target', BASE)
+         authority.certify_contract('v12-assignment-1', profile=PROFILE)
+         for name, actor in ACTORS.items():
+-            authority.bind_endpoint(actor, 'principal:w71879-run9-' + name)
++            authority.bind_endpoint(actor, 'principal:w71879-run10-' + name)
+         for name in ('a', 'b'):
+             authority.add_route_handler('proof-impl-' + name, ACTORS['impl-' + name])
+             authority.add_route_handler('proof-review-' + name, ACTORS['review-' + name])
+@@ -252,7 +252,7 @@
+         payload = task_path.read_bytes()
+         given = dogfood_operator.input_manifest(
+             work_ref={'authority_uuid': UUID, 'work_id': WORKS[name]}, staged=empty,
+-            created_at=CREATED, manifest_id='w71879-run9-' + name,
++            created_at=CREATED, manifest_id='w71879-run10-' + name,
+             assignment_contract='v12-assignment-1',
+             human_contract={'artifact_id': 'w71879-task-' + name, 'media_type': 'application/json',
+                             'bytes': len(payload), 'content_digest': digest_of_bytes(payload),
+@@ -337,7 +337,7 @@
+                      'stages': [{'kind': kind, 'work_id': WORKS[name], 'profile_name': PROFILE,
+                                  'profile_digest': profile_digest, 'depends_on': dep[kind]}
+                                 for kind in ('implementation', 'review', 'integration')]})
+-    submission = {'schema': 'baton.v12.job-submission/1', 'submission_id': 'w71879-run9', 'jobs': jobs}
++    submission = {'schema': 'baton.v12.job-submission/1', 'submission_id': 'w71879-run10', 'jobs': jobs}
+     owned_submission(submission)
+     write_json(destination / 'stage-execution.json', config)
+     write_json(destination / 'submission.json', submission)
+@@ -381,7 +381,7 @@
+ def validate():
+     baseline()
+     started = time.monotonic()
+-    destination = Path(tempfile.mkdtemp(prefix='w71879-150007-validation-'))
++    destination = Path(tempfile.mkdtemp(prefix='w71879-152826-validation-'))
+     print('Retained validation directory:', destination, flush=True)
+     facts = bootstrap(destination / 'authority.sqlite3')
+     # Historical image values exercise schema composition ONLY. They are
+--- prepared-152750/offline_fixture.py
++++ prepared-152826/offline_fixture.py
+@@ -11,6 +11,6 @@
+ def documents_in_fixture(destination, images, facts):
+     root = destination.parent / 'offline-run'
+     (root / 'source').mkdir(parents=True, exist_ok=True)
+-    (root / 'OFFLINE-ONLY.txt').write_text('Temporary source nomination only; not actual run9 inputs, Git baseline or host validation.\n')
++    (root / 'OFFLINE-ONLY.txt').write_text('Temporary source nomination only; not actual run10 inputs, Git baseline or host validation.\n')
+     with mock.patch.object(deployment, 'RUN', root):
+         return deployment.documents(destination, images, facts)
+--- prepared-152750/operator-prepare.sh
++++ prepared-152826/operator-prepare.sh
+@@ -3,14 +3,14 @@
+ set -euo pipefail
+ umask 0002
+ 
+-run9_root=/home/sl/.local/state/baton/v12/w71879-run9
++run10_root=/home/sl/.local/state/baton/v12/w71879-run10
+ run1_source=/home/sl/.local/state/baton/v12/w71879-run1/source
+-target="$run9_root/target"
++target="$run10_root/target"
+ expected_commit=2fbb2d456638e5706218020aebfa47f0a82c8920
+ expected_tree=3492ba64448ab9d39bde53ee6456ce24e74ece2c
+ 
+-test ! -e "$run9_root"
+-test ! -L "$run9_root"
++test ! -e "$run10_root"
++test ! -L "$run10_root"
+ case " $(id -G) " in
+     *' 1001 '*) ;;
+     *) printf '%s\n' 'Operator must already hold workspace gid1001.' >&2; exit 1 ;;
+@@ -19,22 +19,22 @@
+ test "$(git --no-optional-locks -C "$run1_source" symbolic-ref --short HEAD)" = main
+ test -z "$(git --no-optional-locks -C "$run1_source" status --porcelain)"
+ 
+-mkdir -m 700 "$run9_root"
+-git clone --no-hardlinks --single-branch --branch main "$run1_source" "$run9_root/source"
++mkdir -m 700 "$run10_root"
++git clone --no-hardlinks --single-branch --branch main "$run1_source" "$run10_root/source"
+ install -d -g 1001 -m 2775 "$target"
+-git clone --no-hardlinks --single-branch --branch main "$run9_root/source" "$target"
+-git init --bare "$run9_root/integration-workspace"
++git clone --no-hardlinks --single-branch --branch main "$run10_root/source" "$target"
++git init --bare "$run10_root/integration-workspace"
+ 
+ # Initial preparation only: the fresh target has never held a submitted Job.
+ # The unchanged worker requires its own uid and exact 100644 -> 0644 modes.
+ chmod 0644 "$target/demo/greeting.py" "$target/demo/units.py" "$target/tests/test_greeting.py"
+ sudo -- chown -R --no-dereference 65532:1001 "$target"
+ 
+-for checkout_path in "$run9_root/source" "$target"; do
++for checkout_path in "$run10_root/source" "$target"; do
+     test "$(git --no-optional-locks -c safe.directory="$target" -C "$checkout_path" show --no-patch --format='%H %T' HEAD)" = "$expected_commit $expected_tree"
+     test "$(git --no-optional-locks -c safe.directory="$target" -C "$checkout_path" symbolic-ref --short HEAD)" = main
+     test -z "$(git --no-optional-locks -c safe.directory="$target" -C "$checkout_path" status --porcelain)"
+ done
+-test "$(git -C "$run9_root/integration-workspace" rev-parse --is-bare-repository)" = true
+-/usr/bin/env PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-150007/target_posture.py "$target"
++test "$(git -C "$run10_root/integration-workspace" rev-parse --is-bare-repository)" = true
++/usr/bin/env PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-152826/target_posture.py "$target"
+ printf '%s\n' 'Fresh target preparation complete; no Authority provisioning or model run performed.'
+--- prepared-152750/policies/mount_policy.json
++++ prepared-152826/policies/mount_policy.json
+@@ -1,7 +1,7 @@
+ {
+-  "mutable_storage": "/home/sl/.local/state/baton/v12/w71879-run9/storage",
++  "mutable_storage": "/home/sl/.local/state/baton/v12/w71879-run10/storage",
+   "source": "read-only original source and manager-held private git-line",
+-  "target": "/home/sl/.local/state/baton/v12/w71879-run9/target",
++  "target": "/home/sl/.local/state/baton/v12/w71879-run10/target",
+   "target_reference": "refs/heads/main",
+   "workspace_group": 1001
+ }
+--- prepared-152750/policies/policy.json
++++ prepared-152826/policies/policy.json
+@@ -3,8 +3,8 @@
+   "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+   "ordinary_operator_transitions": 0,
+   "review_before_execution": true,
+-  "ruling": "M141636/return150004; run9 preparation and exactly one operator attempt after required input checks and genuine execution bindings authorized; no agent model execution or automatic retry",
+-  "scope": "scope:w71879-run9",
++  "ruling": "M141636/return150498/return152823; run10 preparation and exactly one operator attempt after required input checks and genuine execution bindings authorized; no agent model execution or automatic retry",
++  "scope": "scope:w71879-run10",
+   "submission": [
+     "job-a",
+     "job-b"
+--- prepared-152750/policies/retention_policy.json
++++ prepared-152826/policies/retention_policy.json
+@@ -1,5 +1,5 @@
+ {
+   "automatic_deletion": false,
+   "disposition": "retain",
+-  "root": "/home/sl/.local/state/baton/v12/w71879-run9"
++  "root": "/home/sl/.local/state/baton/v12/w71879-run10"
+ }
+--- prepared-152750/record-snapshot/FINDING.md
++++ prepared-152826/record-snapshot/FINDING.md
+@@ -2746,3 +2746,303 @@
+ 1593.8314001880208s and cumulative listed49.12045941689553s plus uncertainty remain
+ spent. Parent03:46:36Z recovery direction adds no planning gate; reuse accepted
+ evidence and do not claim a repeatable procedure already exists.
++
++
++## 2026-09-12T05:05:26.689616+00:00 — fresh run9 preparation ready, tuner150007
++
++RUN9-PREPARATION-150007.md and153-file manifestsha256:7c5ad3aeb64f845cc083ab9f25c6b857840f845f257b8591b8ac6ffb4f76f260
++bind accepted correction source/test, fresh package and evidence.63 offline tests
++pass; full helper/task/policy equality retains accepted observer/error handling
++with only fresh identities/time/ruling. Exact copied test scope/reasons above.
++Unchanged images/current metadata,79 correction files/989 old inputs/markers and
++45 provider/seven source bindings verify. No source/image/old-package mutation.
++Eight synthetic worker configurations preserve supported credential reference and
++distinct homes; no credential payload or actual delivery/login claim.
++
++Fresh run9 root, validation,33 actual files and execution markers remain absent.
++Direct feat review, Next ops for exact host prepare/validate/render commands in
++README/operator-commands.json. Required actual-input checks and genuine bindings
++then satisfy owner150004 one-operator-attempt condition; no new permission gate.
++No rebuild/agent model run/automatic retry/historical repair/broader hardening.
++Prior in-progress preparation superseded; all limits/guards/deferrals/history and
++real A/B proof requirements remain. Run8 A settlement remains unconfirmed.
++Current listed0.47603552098735236s, cumulative49.59649493788288s plus uncertainty; eight failed
++walls1593.8314001880208s spent. No new verification failure.
++
++## 2026-09-12T05:07:43Z — run9 preparation independently accepted, reviewer150048
++
++**Confirmed.** review-2026-09-12T05-07-43Z.md accepts153-file manifest
++7c5ad3aeb64f845cc083ab9f25c6b857840f845f257b8591b8ac6ffb4f76f260.
++Four independent fresh-preparation checks and exact custody/source/helper/image/
++credential-configuration checks pass; existing63 offline and product results
++reused. Fresh metadata preserves accepted observer/error corrections and guards.
++No product/test expectation weakening; copied test scope evaluated in review.
++Reviewer guessed verify_provenance.py filename was absent; enumeration resolved
++actual verify_preparation.py, fully read and verified. No missing required artifact.
++
++Pending preparation review superseded. Pass ops Next tune for exact three host
++steps in README/operator-commands.json and return actual posture/validation/33
++inputs/printed hashes for required checks/genuine bindings. Owner150004 already
++permits exactly one operator attempt afterward; no new permission/planning gate.
++No rebuild, agent execution, automatic retry, historical repair or fabricated
++markers. All old evidence/credentials, limits/guards/deferrals and actual A/B
++terminal proof remain. Parent03:46:36Z queued recovery procedure not claimed done.
++Current listed0.18438523201434873s; cumulative49.78088016989723s plus rounded/untimed/
++host/billing uncertainty; eight failed walls1593.8314001880208s remain spent.
++
++
++## 2026-09-12T05:19:51.950398+00:00 — actual run9 inputs supplied, owner150121 / tuner150125
++
++Owner150121 reports successful host preparation, validation and render. Current
++read confirms all33 files. Configuration381654827ce6eb290e31c21694837e8cf10c56d6d4d9641e92df2467cb0fdc87
++and submissiona4870e29847dcb18774e5d2136e8d4ccb606da11c32c0e5ac7fef056491e4fe9
++are hashes of actual bytes; owner handoff does not separately repeat literal
++stdout hashes. Verify exact constructor reconstruction and host posture, using
++accepted source/image evidence. Pending host preparation is superseded, not
++required input verification or genuine execution binding.
++
++Tuner owns RUN9-FREEZE-150125.md and evidence/run9-freeze-150125 plus current
++dossier entries only. No source/helper/test/package modification or repeated
++host preparation/render/build. Reuse63/four-preparation/five-product acceptance,
++check actual33 inputs and current provenance instead of rerunning unchanged tests.
++Owner150004 already authorizes one OPERATOR attempt afterward, reaffirmed150121;
++no new run-permission request. No agent model execution, automatic retry,
++historical-state repair or credential/store reads. Real host UID/GID remains
++operator attestation under managed projection. Preserve all limits/guards/history/
++deferrals/actual A-B proof obligations and existing recovery direction.
++
++
++## 2026-09-12T05:21:46.984375+00:00 — actual run9 freeze ready for final review, tuner150125
++
++RUN9-FREEZE-150125.md and198-file manifestsha256:aa78787caaf0796d303c703bc745e758d46e67dde671a6668d6e95de3b9ac5a2
++bind all33 actual inputs, accepted source/images/four helpers and host evidence.
++Exact constructor reconstruction,153 preparation files and accepted correction/
++old989 custody/source bindings pass. Clean baseline/target payloads/bare workspace
++and2775/0644 modes verify; real65532:1001 ownership remains operator attestation.
++Run9 unprovisioned; no source/test/helper/old-file mutation, credential/store read,
++repeated preparation or image build. No new verification failure; prior tests reused.
++
++Pending actual-input binding superseded. Direct final independent feat review,
++Next ops; genuine new bindings then exact provision/run commands in handoff.
++Owner150004 already authorizes one operator attempt, reaffirmed150121: no new
++run-permission request, agent model execution, automatic retry or historical repair.
++All guards/limits/deferrals/history and real A/B proof obligations remain.
++Current listed0.18739600997650996s incl operator validation once; cumulative49.96827617987374s plus
++uncertainty; eight failed runtime walls1593.8314001880208s remain spent.
++
++## 2026-09-12T05:23:46Z — final run9 inputs independently accepted, reviewer150148
++
++**Confirmed.** review-2026-09-12T05-23-46Z.md accepts198-file manifest
++aa78787caaf0796d303c703bc745e758d46e67dde671a6668d6e95de3b9ac5a2 and all33 actual
++inputs. Reconstruction, source/custody/helper/image continuity, clean baseline/
++payloads/bare workspace and target modes verify. Real ownership remains owner150121
++attestation; managed projection and missing separate stdout hash comparison disclosed.
++No unchanged suite rerun, product/helper/test edits or actual-state mutation.
++
++Genuine prepared-150007 markers created and verified: selected-images.json
++d0da4684accfa0cba16dc712d2456745de56ef3632f315a7c17a6649407a8f5f and
++execution-review.json a91d806c71c07e344698569dd44522f80775c888ac2d28606dc519ef448beeb9.
++199 reviewed-file bindings include manifest and all four helpers. Pending final
++review/bindings superseded. Owner150004/150121 already authorize exactly one
++OPERATOR attempt; pass ops Next tune with exact separate provision/run commands.
++No new permission request, preparation repetition/rebuild, agent execution,
++automatic retry, historical repair or ordinary manual transition.
++
++Actual A settlement/B independent judgments/coordinator import/causal merged
++observation/both terminal Jobs remain owed; run8 A settlement unconfirmed.
++All limits/guards/deferrals/old roots/evidence/credentials and parent03:46:36Z
++queued recovery direction preserved, no new planning gate.
++Evidence/review-150148 retains independent checks/markers/spending. Current listed
++0.17559250802150927s; cumulative50.14386868789525s plus untimed review/marker/CLI/
++host/billing uncertainty; eight failed runtime walls1593.8314001880208s remain spent.
++
++
++## 2026-09-12T06:08:16.473040+00:00 — run9 reconciliation and budget proposal, tuner claim150384
++
++Owner150381 reports A integration completed, B derived review/approval accepted, and verification interrupted by the enclosing B integration120s deadline; run wall408.2074813900108s. The one run9 attempt is consumed. Its pending-run instructions are superseded by this result-reconciliation assignment. Preserve actual state/evidence and inspect only safe retained reports/public observations. Propose the smallest accounting correction separating derived judgments from actual import, preserving whole-run1200s, every required judgment and success check. This authorizes a proposal, not source/helper implementation, blanket deadline increases, model retry or historical-state repair. Existing numeric/accounting rules remain historical run9 authority and no replacement is effective until accepted.
++
++
++### Claim150384 operational observations (before analysis adjustment)
++
++The public IntegrationStore.open_readonly on run9 integration.sqlite3 refused with ContractRefusal(refused, precondition), underlying OperationalError: unable to open database file. File metadata is0644 uid1000/gid1000; WAL/SHM sidecars absent. Cause is unconfirmed; no direct store reads, copy, sidecar creation or repair attempted. Current coordinator final state remains unverified; retained samples and reports support a qualified budget proposal independently. Operator can investigate this exact read-only failure.
++
++The evidence utility embedded docker ps returned exit1, whereas standalone direct docker ps/inspect are available. This is an execution-boundary restriction, not evidence of a Baton product defect. Retain direct read-only observations and consume that JSON in the analysis utility; no runtime mutation or privilege change. Two initial utility assertions incorrectly treated pre-created empty workspace/custody directories as absent; correct the analysis to check absence of output files/sealed report, retaining these initial failures as utility mistakes. These short failed reads were not timed internally and remain additional spending uncertainty.
++
++
++## 2026-09-12T06:17:11.897104+00:00 — run9 reconciled; bounded accounting proposal ready, tuner150384
++
++RUN9-BUDGET-150384.md and evidence/run9-budget-150384/ preserve actual408.2074813900108s failure,154 samples, A completed, B review/approval accepted and verification interrupted before its own180s allowance. The old B120s deadline was05:59:52.183Z; verification had60.158s remaining. Two exited containers remain, none running. No provider failure or hypothetical completion inferred.198 accepted files and both execution markers remain exact.
++
++Proposed change is integration claim time minus union of exactly bound derived-judge execution intervals, retaining120 nonjudge work, each judge180, whole1200 through final success checks, all required receipts/import/tests and fail-fast behavior. Proposed proof-side files/tests only; no product source authority inferred. This is a proposal for independent feat review and owner disposition, not a superseding live budget ruling or another model attempt. Current canonical coordinator state remains unverified because its read-only opener refused; the operational finding above is retained, with no workaround or repair.
++
++Reconciliation command passes; timed0.0418271119997371s, cumulative50.18569579989499s plus specified untimed/failed-utility/host/billing uncertainty. Nine runtime walls2002.0388815780316s. Previous in-progress reconciliation is complete; pending independent proposal review is current. Implementation PROGRESS remains the historical actual-input freeze; no source/helper implementation or model retry occurred in this claim.
++
++## 2026-09-12T06:20:23Z — run9 proposal independently reviewed, reviewer150461
++
++**Confirmed.** review-2026-09-12T06-20-23Z.md accepts retained reconciliation:
++19 proposal byte/size bindings,11 original evidence sources,154 samples,
++report/sealed/subject/assignment/timing checks,198 old inputs and2 markers verify.
++A completed; B review/approval reports accepted; verification interrupted with
++60.158s left on its own180 at B enclosing120 expiry. Review pass was6ms later than
++that expiry and later than last sample. Two exited containers, none running.
++No provider failure, eventual verification success or canonical B intake/import
++inferred. Public coordinator opener refusal remains unresolved, not bypassed.
++
++**Proposed, not effective.** Recommend exact bound judge-interval UNION subtraction
++from cumulative integration120, keeping each judge180/whole1200 and all success
++predicates. Review clarifies no-credit startup versus required-reader refusal,
++same-assignment historical endpoints, stale-alarm transitions, whole deadline
++through final checks and primary derived-judge failure. Proof-side new helper/
++runner/tests only after owner ruling/explicit assignment; product scope excluded.
++Pass ops Next tune for that concrete disposition and supported opener investigation.
++No model retry, historical repair, blanket limit increase or new planning gate.
++All guards/deferrals/evidence and actual B import/both-terminal obligations remain.
++
++Initial reviewer utility mode-field assumption failed; proposal manifest binds
++bytes/digests only. Corrected utility preserves regular no-follow checks; failure
++cost uncertainty retained. Evidence/review-150461 records independent verification.
++Successful analysis0.04571810597553849s; cumulative50.231413905870525s plus untimed/
++failed-utility/host/billing/rounding uncertainty; nine failed walls2002.0388815780316s.
++Pending independent proposal review superseded; existing budget is not silently
++rewritten and no implementation or retry is claimed.
++
++
++## 2026-09-12T06:25:47.338624+00:00 — owner150498 accounting ruling effective for new implementation, tuner150501
++
++Owner approves RUN9-BUDGET-150384.md plus review-2026-09-12T06-20-23Z.md clarifications. Prospectively integration charged time is claim elapsed minus clipped UNION of exactly bound derived-judge intervals; integration120 cumulative, judges180, implementation240, original review180, whole1200 through all success checks remain. This explicitly supersedes the old live accounting instruction charging judge intervals inside integration120 for the new proposal; it never rewrites historical run9 authority/results.
++
++Authorize new prepared-150501 proof runner/accounting helper and focused dossier tests, winning-clock evidence and prompt judge failure, supported read-only opener investigation. No product/protocol/worker/image change, model retry, historical repair or fresh execution binding. Tuner owns new package plus FINDING/PLAN/own PROGRESS and evidence/accounting-150501; preserve all accepted bytes. New test_accounting.py and copied bounded existing package tests are scheduled; existing accepted expectations remain unless exact accounting/guard fixture adaptation is required and recorded. Public result_of plus Authority assignment owners and public launch/exchange adoption are under inspection; missing product contracts return for exact scope.
++
++
++### Claim150501 implementation boundary finding
++
++Public launch.adopt/exchange.adopt require a WorkspaceGroup capability, not given workspace_group integer. Only configured_workspace_group(control_store) mints it; ControlStore has no public read-only opener, and ordinary open may initialize/change persistent journal mode. Existing StageObservation consumes a caller-owned control handle and its stage allocation selector does not expose the separate derived-judge Works. The proof cannot acquire this capability by a wholly read-only public composition presently. A supplied integer/private mint/raw connection/serving construction would bypass the contract; none is implemented. The new helper explicitly refuses missing capability before granting judge credit. This is the exact missing product contract owner150498 requested be returned for scope, and leaves live judge failure observation/complete integration pending.
++
++The partial package includes pure clocks, runner final-deadline/clock evidence wiring, and read-only coordinator binding; it is not a runnable or completed correction. Focused tests will verify those bounded parts and explicit refusal. New test_accounting.py is additive; copied test_stats_observation.py adapts the new judge-observer injection/fifth helper and alarm semantics; copied test_run9_preparation.py preserves historical equality against prepared-150007 while allowing the assigned runner change; copied test_image_preparation.py binds the fifth helper. No original test file was edited. Initial82-case run had two fixture issues (empty events accessed in the new fixture; old four-helper metadata) and one runner regression (missing docker_stats:null in primary failure sample); correct them without weakening failure evidence. Initial0.3458666389924474s and complete failed output retained at /tmp/w71879-150501-offline-verification-58ybz5as.
++
++
++## 2026-09-12T06:38:01.872521+00:00 — baton.tuner150501 partial accounting, required product contract
++
++ACCOUNTING-150501.md and prepared-150501 preserve implemented proof clocks/runner
++wiring and19 new tests;82 offline tests pass after retained initial failures.
++Current correction is incomplete: public launch/exchange adoption requires a
++manager-owned WorkspaceGroup, whose public acquisition lacks a non-writing
++ControlStore opener. New helper explicitly refuses instead of accepting an
++integer/private mint/raw connection. Coordinator open_readonly re-probe still
++refuses, no repair. Exact product/operational remaining scope in report.
++Return incomplete through bug Next ops per standing managed policy, not an
++acceptance handoff. No product/image/model/historical-state change or marker.
++198 old inputs,19 reconciliation files,2 markers exact. Current measured
++0.697225147014251s; cumulative50.928639052884776s plus recorded uncertainty;
++nine failed walls2002.0388815780316s unchanged.
++
++## 2026-09-12T06:48:48Z — missing manager read-only contract confirmed, reviewer150586
++
++review-2026-09-12T06-48-48Z.md independently confirms the limitation returned by
++tuner150584: ControlStore.open may initialize/change journal mode; no public
++non-writing opener/snapshot exists, while configured_workspace_group must mint
++the capability from agreeing committed configuration and metadata. Status also
++uses the ordinary opener. The partial BoundJudges path correctly refuses missing
++capability;82 author tests do not establish a complete live reader. No bypass.
++
++**Proposed exact reserved product assignment:** worker_manager/store.py public
++read-only recognized-store opener/coherent snapshot, mutation refusal before
++action, resource closure; tests/manager/test_store.py and test_workspaces.py
++focused owner/capability/refusal/non-mutation coverage. Complete proof judge
++observation/failure and joined clock/alarm tests afterward, then direct review.
++Owner150498 excluded product edits from the prior assignment, so ops supplies
++that bounded assignment at the existing handoff; no additional planning phase.
++The supported coordinator opener's retained SQLite refusal remains a separate
++operational issue; sidecar access is plausible, unconfirmed, and not repaired.
++
++This supersedes the pending triage state, not approved budgets or historical
++results. Independent custody75+198+19 files/2 old markers/six source contracts
++passed, new markers absent. No code/PROGRESS/historical evidence changed.
++Measured0.02246665401617065s, cumulative50.95110570690095s plus uncertainty;
++nine failed walls2002.0388815780316s. Actual A/B terminal proof remains owed;
++parked robustness/fault-C stays deferred and no new attempt is authorized.
++
++
++## 2026-09-12T12:45:23.972576+00:00 — owner152560 bounded product reader and completed proof correction, tuner152563
++
++Owner explicitly authorizes worker_manager/store.py, focused tests/manager/test_store.py and test_workspaces.py under v12/python: public existing-store read-only acquisition/coherent snapshot, same owner/schema checks, refuse action callbacks before execution, preserve ordinary serving behavior. This supersedes the prior product-scope exclusion only for these three paths. Complete proof runner/helper and joined tests in prepared-152563, preserving partial prepared-150501 and history; return combined exact implementation directly for independent review. New product tests additive, focused copied proof tests may change for the approved joined behavior under W71830 authority. Tuner owns these paths and this dossier/evidence/accounting-152563; bases captured before edits.
++
++Approved clipped judge interval union, cumulative integration120, judge180/impl240/original-review180/whole1200 through all final success checks remain. Investigate supported coordinator access and provide exact host command when needed. No protocol/worker/image expansion, model retry, execution marker or historical repair. Prior pending product assignment is now superseded; actual standalone A/B proof still owed.
++
++
++## 2026-09-12T13:03:18.877320+00:00 — tuner152563: combined reader implementation ready for review
++
++Owner152560 implemented at its exact three product paths and prepared-152563. ACCOUNTING-152563.md and evidence/accounting-152563 bind the change. The earlier missing-manager-capability finding is superseded for this new candidate by public existing-store read-only acquisition and coherent snapshots; independent review remains due. Joined import exposed an ordinary policy increment after terminal import, so imported observation binds the journal-proved approval generation while unfinished results require current policy.166 product and89 offline proof checks pass. Supported managed reads of both run9 stores still refuse; host command and exact qualification recorded. No live attempt or historical repair.
++
++## 2026-09-12T13:08:55Z — ordinary successful import can invalidate an in-flight observer snapshot, reviewer152676
++
++**Confirmed P1:** review-2026-09-12T13-08-55Z.md and reviewer evidence/review-152676/
++import-interleaving-confirmed.json show a real disposable-owner interleaving:
++BoundJudges reads published result at policy15; ordinary import completes both
++Jobs and advances policy16 before bind_result reads policy; accounting.py249-251
++raises AccountingError, so runner aborts rather than refreshing. No store answers
++or history were edited; engine/provider are simulated, no live proof claimed.
++The post-judge BudgetWake check is too late to handle this pre-judge comparison.
++
++**Required bounded correction within existing owner152560 proof scope:** refresh
++result/policy and dependent observation facts under existing bounded refresh;
++use committed generation only after public imported evidence, keep unfinished
++stable wrong-policy mismatches refusing. Add joined ordinary import interleaving
++coverage, preserve whole/attempt clocks and prompt real failures. This is needed
++for legitimate successful concurrent execution; parked resilience/fault-C remains
++deferred. No product change or new planning prerequisite is proposed.
++
++Supersedes pending combined review:95-file candidate152563 is changes-requested.
++Assigned product API has no blocking finding in this pass; independent166 product
++and89 supplied proof tests pass, all previous product test methods unchanged.
++95 current/75 partial/198 old input/19 reconciliation custody bindings exact.
++Measured9.370280127041042s, cumulative77.31003484297104s plus recorded
++uncertainty; nine failed live walls2002.0388815780316s unchanged. Initial reviewer
++setup/repro errors and their spending are retained. Ops host-read boundary is
++still outstanding; actual A/B proof and all genuine success evidence remain due.
++
++
++## 2026-09-12T13:17:55.314675+00:00 — owner152747 correction assignment and host observation, tuner152750
++
++Apply review-2026-09-12T13-08-55Z within existing owner152560 proof helper/runner/joined-test scope, preserving product bytes. Detect ordinary result/policy movement and refresh dependent facts under existing bounds; stable unfinished wrong-policy and required-read refusals remain fatal. New prepared-152750 and evidence/accounting-152750 belong to tuner152750. Prior candidate152563 remains changes-requested history. No live retry, repair, product or image changes.
++
++Owner152747 reports the exact supported host inspect_readers.py succeeded: control configured_gid1001; integration job-b result published, policy_generation null;0.004285491013433784s. This supersedes the outstanding host-command execution step only. It does not establish the managed refusal cause or B import. Preserve both managed refusals and host observation without another managed probe.
++
++
++## 2026-09-12T13:22:28.611540+00:00 — tuner152750: import/read correction awaits independent review
++
++ACCOUNTING-152750.md records bracketing policy around the public result, explicit observed-generation binding, result/policy recheck after judge reads and runner claim-history recheck before timeout/terminal decisions. Owner movement triggers existing bounded fresh observation; stable unfinished wrong-policy and required-read refusals remain fatal. Public imported custody alone selects committed approval generation. New95 offline cases pass; previous92 non-journal/75 partial/198 input/19 reconciliation bytes and all product paths unchanged. Initial fixture/custody utility mistakes and all costs retained. Prior queued/in-progress correction is superseded by awaiting review, not acceptance. Host successful public reads are attributed to152747; run9 B remains published, managed refusal cause unproven. No new live attempt.
++
++## 2026-09-12T13:25:32Z — combined correction accepted, reviewer152791
++
++review-2026-09-12T13-25-32Z.md accepts89-file manifest
++9ec9be1113ed88f170e038779ce10057714690d591e847045f804cdacd7aafc1 and
++its unchanged reviewed product bytes/five helpers for the existing preparation
++handoff. Independent95 offline tests pass, including the ordinary import/read
++interleaving, fresh accepted judge observation, bounded refresh/elapsed charging,
++claim changes and stable refusal. Previous166 product pass applies to unchanged
++bytes. This supersedes the P1 and pending review only for new prepared-152750;
++the failed predecessor and reproduction remain history. Live proof is not accepted.
++
++Custody89 current/92 prior non-journal/75 partial/198 input/19 reconciliation
++files verified. The current three journals were captured before this append;
++continuing journal history is explicit, no candidate/old evidence was rewritten.
++Owner host evidence152747 is reconciled without re-probe: gid1001, B published,
++policy null, managed refusal cause still unknown. Existing host-command step done.
++
++Pass ops Next tune for fresh-input preparation/operational disposition without
++new planning gates or implied image work. Fresh execution requires genuine input
++bindings and explicit owner attempt authorization; run9 authority is consumed.
++All real judgments, receipts/current policy, ordinary import/lease/causal evidence,
++both terminal Jobs/final checks, budgets and deferrals remain. Current measured
++8.531842388008954s, cumulative102.70043401799795s plus retained uncertainty;
++nine failed live runtime walls2002.0388815780316s unchanged. No live retry/repair.
++
++
++## 2026-09-12T13:30:47.299057+00:00 — owner152823 run10 preparation and one operator attempt, tuner152826
++
++Owner accepts review-2026-09-12T13-25-32Z and authorizes fresh run10 preparation from prepared-152750 accepted product/five helpers, unchanged images and supported credential delivery. Exactly one OPERATOR attempt is already authorized after required actual input checks and genuine execution bindings. Return exact host preparation/execution commands without another run-permission request. No rebuild, automatic retry, agent model execution, historical repair or broader hardening. This supersedes the prior run-authorization hold for this one fresh run10 only.
++
++Tuner owns new prepared-152826 and evidence/run10-preparation-152826. Run root /home/sl/.local/state/baton/v12/w71879-run10 observed absent; new Authority c71879b4000000000000000000000001, metadata time2026-09-12T13:29:54.919Z. Change only fresh namespace/time/ruling in accepted deployment/runner; accounting/target/failure helpers remain exact. Copied test_run10_preparation.py replaces copied run9 equality checks with run10/accepted152750 expectations; test_observed_status.py, test_manifest_timestamp.py, test_report_instructions.py and synthetic runner case in test_early_failure.py update fresh fixture identity only. Historical accounting/run6 replay tests unchanged. W71830 standing test authority covers this scheduled fixture scope.
++
++Preserve integration120 excluding clipped union of exactly bound judge claim intervals, judge180/implementation240/original review180/whole1200 through final checks, resources and every genuine judgment/receipt/current-policy/import/lease/causal/both-terminal requirement. All nine failed runs and costs persist; source run1 original baseline remains the operator clone source.
+--- prepared-152750/record-snapshot/PLAN.md
++++ prepared-152826/record-snapshot/PLAN.md
+@@ -1,3 +1,201 @@
++# Current action — fresh run10 preparation, tuner152826 — 2026-09-12T13:30:47.299057+00:00
++
++Owner152823 authorizes preparation and exactly one operator attempt after required inputs/genuine bindings, no new run-permission request. Prepare run10 at prepared-152826 from accepted152750 product/five helpers and unchanged images; exact host commands then direct feat review Next ops. Actual host roots/33 rendered files and genuine bindings still pending. Prior preparation routing superseded by this in-progress assignment. No agent model execution/rebuild/retry/repair.
++
++# Historical accepted correction
++
++# Current action — combined accounting correction accepted; existing preparation handoff, reviewer152791 — 2026-09-12T13:25:32Z
++
++review-2026-09-12T13-25-32Z.md accepts89-file manifest
++9ec9be1113ed88f170e038779ce10057714690d591e847045f804cdacd7aafc1,
++unchanged reviewed product bytes and five proof helpers. The ordinary import/read
++P1 is resolved for prepared-152750;95 offline checks pass independently, prior166
++product pass applies to unchanged bytes. Pass ops Next tune for existing fresh
++preparation/operational disposition, no new planning gate or implied image build.
++Host command succeeded per152747, B remains published; managed refusal cause unknown.
++New actual inputs still need fresh bindings and any model attempt explicit owner
++authorization; no run9 reuse, retry or repair. Actual A/B terminal proof remains owed.
++Current8.531842388008954s, cumulative102.70043401799795s plus uncertainty;
++nine failed live walls2002.0388815780316s unchanged. Prior pending review superseded.
++
++# Historical refresh handoff (accepted)
++
++# Current action — independent refresh correction review, tuner152750 — 2026-09-12T13:22:28.611540+00:00
++
++Review ACCOUNTING-152750.md and evidence/accounting-152750/candidate-manifest.json, prepared-152750;95 offline checks pass. Product bytes unchanged; owner152747 host reads succeeded with B published. Return feat Next ops. Prior in-progress correction below is complete pending review. Cumulative measured94.168591629989s plus uncertainty; historical failed runtime walls2002.0388815780316s unchanged. No retry/live repair.
++
++# Historical implementation assignment
++
++# Current action — implement bounded observation refresh, tuner152750 — 2026-09-12T13:17:55.314675+00:00
++
++Owner152747 confirms review152676 correction within proof scope and successful supported host reads (B published). Implement prepared-152750 with stable wrong-policy negative and joined runner refresh coverage, preserve all product/old candidate bytes and clocks. Return directly feat Next ops. Prior queued correction below is in progress.
++
++# Historical correction request
++
++# Current action — correct ordinary import/read interleaving, reviewer152676 — 2026-09-12T13:08:55Z
++
++review-2026-09-12T13-08-55Z.md requests one bounded proof correction: an ordinary
++import between coordinator-result and Authority-policy reads currently raises
++AccountingError despite both Jobs completing. Real disposable-owner reproduction
++records published/policy15 to imported/policy16; no live attempt. Refresh owner
++facts under existing bounds, accept retained generation only after public proof
++of import, preserve stable wrong-policy refusal. New candidate helper/runner/
++joined tests remain within owner152560; no product scope expansion/planning gate.
++Pass ops Next tune, then direct independent review of corrected bytes. Product166
++and supplied proof89 pass independently;95/75/198/19 custody bindings exact.
++Current9.370280127041042s, cumulative77.31003484297104s plus uncertainty;
++nine failed walls2002.0388815780316s unchanged. Host supported read access remains
++ops-owned; real A/B proof is still owed, no retry/repair/execution markers.
++This supersedes pending combined review below; candidate152563 is not accepted.
++
++# Historical combined handoff (changes requested)
++
++# Current action — independent combined review, tuner152563 — 2026-09-12T13:03:18.877320+00:00
++
++Review ACCOUNTING-152563.md and evidence/accounting-152563/candidate-manifest.json: completed read-only ControlStore/snapshot plus proof helper/runner/tests.166 product and89 offline checks pass. Return feat Next ops; ops owns supported host-read access before fresh execution. No model attempt. Prior in-progress block below is superseded. Cumulative measured checks67.939754715930s plus retained uncertainty; nine failed runtime walls2002.0388815780316s unchanged.
++
++# Historical implementation assignment (completed; review pending)
++
++# Current action — combined reader/accounting implementation, tuner152563 — 2026-09-12T12:45:23.972576+00:00
++
++Owner152560 explicitly assigns manager/store.py and additive manager/test_store.py, test_workspaces.py; complete proof accounting/reader/joined tests in new prepared-152563. Preserve partial/history and ordinary serving. Pin non-writing existing-store adoption/coherent snapshots/refusal before actions; acquire real configured WorkspaceGroup and observe separate judges without synthetic stages. Return combined bytes directly feat Next ops; provide supported host coordinator read command if managed access refuses. No model retry/live repair/protocol/worker/image scope. Cumulative50.95110570690095s plus recorded uncertainty; nine failed walls2002.0388815780316s. Prior reserved product gap assignment is superseded.
++
++# Historical missing reader assignment (authorized152560)
++
++# Current action — confirmed missing reader contract; exact assignment returned, reviewer150586 — 2026-09-12T06:48:48Z
++
++review-2026-09-12T06-48-48Z.md confirms the partial return and records the concrete
++product boundary reserved by owner150498: non-writing ControlStore acquisition
++and coherent snapshot for configured_workspace_group, bounded to worker_manager/
++store.py plus focused manager/test_store.py and test_workspaces.py coverage.
++Pass ops Next tune for explicit assignment and supported coordinator-read access
++disposition; no new planning prerequisite. Then complete proof judge observation,
++primary failure and joined accounting/alarm tests in a new candidate and return
++directly for independent review. No partial acceptance or retry authorization.
++75 current files/198 old inputs/19 reconciliation files/2 old markers verified;
++six source contracts unchanged, no new markers. Cumulative50.95110570690095s
++plus recorded uncertainty; nine failed walls2002.0388815780316s unchanged.
++The pending triage below is superseded by this confirmed result; accepted
++accounting limits and actual A/B terminal acceptance remain unchanged.
++
++# Historical partial return (triaged)
++
++# Current action — exact reader contract needed; partial implementation retained, tuner150501 — 2026-09-12T06:38:01.872521+00:00
++
++ACCOUNTING-150501.md names the missing public non-writing manager acquisition of
++WorkspaceGroup for separate derived-judge observation; coordinator supported
++read-only opener also still refuses operationally. Return incomplete bug Next ops
++for exact product/operational assignment under owner150498, without scope widening.
++prepared-150501 has clocks/runner wiring/19 new cases;82 offline pass, no live-ready
++reader or execution claim. Once public contract accepted, complete reader/failure
++and joined alarm tests, then direct independent review. No model retry/live repair.
++198 accepted files/19 prior evidence files/2 old markers exact; no new markers.
++Current0.697225147014251s, cumulative50.928639052884776s plus recorded uncertainty;
++nine failed walls2002.0388815780316s. Approved accounting remains in force for the
++new correction; prior in-progress implementation superseded by this exact gap.
++
++# Historical accounting assignment (partial work retained)
++
++# Current action — implement approved proof accounting, tuner150501 — 2026-09-12T06:25:47.338624+00:00
++
++Owner150498 accepts RUN9-BUDGET-150384.md and review-2026-09-12T06-20-23Z.md clarifications. Build new prepared-150501 runner/accounting helper/focused tests; investigate opener via supported reads, return missing public contract if any. Preserve integration120 excluding exact clipped judge union, judge180/impl240/review180/whole1200 and all success/primary-failure checks. New package/evidence only, product/worker/images/old inputs and model retry excluded. Return implemented bytes directly feat Next ops; no new planning gate. Prior pending ruling superseded. Cumulative50.231413905870525s plus uncertainty; nine runtime walls2002.0388815780316s.
++
++# Historical proposed ruling (accepted150498)
++
++# Current action — run9 reconciliation reviewed; bounded accounting ruling, reviewer150461 — 2026-09-12T06:20:23Z
++
++review-2026-09-12T06-20-23Z.md accepts retained reconciliation and recommends the concrete
++RUN9-BUDGET-150384.md proposal with its implementation clarifications. Pass ops
++Next tune for owner ruling/explicit proof-helper implementation assignment and
++supported read-only opener investigation. No replacement budget effective yet.
++Keep120 integration nonjudge time via exact interval union, each judge180 and
++whole1200 through final checks; all actual judgments/receipts/success remain.
++No retry/source implementation/historical repair authorized by this review.
++Current coordinator state remains unverified after recorded public opener refusal.
++Prior pending proposal review superseded; no new planning prerequisite.
++Cumulative50.231413905870525s plus uncertainty; nine failed walls2002.0388815780316s.
++
++# Historical proposal handoff (independently reviewed)
++
++# Current action — review run9 accounting proposal, tuner150384 — 2026-09-12T06:17:11.897104+00:00
++
++RUN9-BUDGET-150384.md and evidence/run9-budget-150384/ complete owner150381 reconciliation/proposal. Pass feat Next ops for independent review and owner accounting ruling/explicit bounded implementation assignment. A completed; B derived review/approval accepted; verification interrupted by enclosing120s at119.842s of its180s. No proof success/provider failure inferred. Proposal excludes only union of bound judge intervals from integration120, preserves each judge180/whole1200/all success checks. No implementation/retry/repair authorized. Coordinator read-only opener refusal remains an operational finding; inspect through supported boundary, never bypass it.
++
++198 accepted files/2 markers unchanged. New timed analysis0.0418271119997371s; cumulative50.18569579989499s plus recorded uncertainty. Nine runtime walls2002.0388815780316s. Prior in-progress reconciliation superseded; original120-including-judges remains historical run9 authority pending accepted replacement.
++
++# Historical reconciliation assignment (proposal ready)
++
++# Current action — reconcile run9 and propose bounded accounting correction, tuner150384 — 2026-09-12T06:08:16.473040+00:00
++
++Owner150381 consumes the run9 attempt and supersedes the pending operator-run instruction below. Inspect retained nonsecret reports and public timing evidence; record concrete findings and a narrow proposal separating derived-judgment wait from actual import. Return through feat Next ops for independent assessment/owner disposition. No implementation, new model attempt, blanket deadline increase or historical repair is authorized. Whole-run1200s, all required judges/success checks, prior evidence and cumulative spending remain.
++
++# Historical run9 authorization (attempt consumed)
++
++# Current action — run9 inputs accepted; one authorized operator attempt, reviewer150148 — 2026-09-12T05:23:46Z
++
++review-2026-09-12T05-23-46Z.md accepts198-file manifestaa78787caaf0796d303c703bc745e758d46e67dde671a6668d6e95de3b9ac5a2
++and all33 actual inputs. Genuine selection/execution markers bind199 files including
++manifest and all four helpers; verified. Pending final review/bindings superseded.
++Pass ops Next tune for exact separate provision/run commands in review and
++RUN9-FREEZE-150125.md. Owner150004/150121 already authorize exactly one operator
++attempt; no new permission request. No preparation repeat/rebuild/agent execution/
++auto retry/repair; all guards/limits/deferrals/history and actual A/B proof remain.
++Cumulative50.14386868789525s plus uncertainty; eight failed walls1593.8314001880208s.
++
++# Historical final input handoff (accepted)
++
++# Current action — final run9 execution binding review, tuner150125 — 2026-09-12T05:21:46.984375+00:00
++
++RUN9-FREEZE-150125.md and198-file manifestsha256:aa78787caaf0796d303c703bc745e758d46e67dde671a6668d6e95de3b9ac5a2
++bind33 actual inputs and unchanged accepted source/images/four helpers. All
++reconstruction/provenance/posture checks pass. Direct final feat review Next ops
++for genuine execution bindings, then owner150004's already-authorized one operator
++attempt. Exact commands supplied; no repeat permission or preparation/rebuild/
++agent execution/auto retry/repair. Prior pending actual binding superseded.
++All guards/limits/deferrals/history and actual A/B proof requirements remain.
++Cumulative49.96827617987374s plus uncertainty; eight failed walls1593.8314001880208s.
++
++# Historical binding (complete)
++
++# Current action — actual run9 input binding, tuner150125 — 2026-09-12T05:19:51.950398+00:00
++
++Owner150121 completed host preparation/validation/render; all33 actual files
++present. Bind exact inputs/posture and accepted source/images, then complete
++existing execution review/genuine bindings. Owner150004 already authorizes one
++operator attempt afterward, no new permission request. Prior pending host
++preparation superseded; no tests/source/helper changes or repeated preparation.
++All guards/limits/deferrals/history and actual A/B proof requirements remain.
++
++# Historical preparation acceptance (host steps completed150121)
++
++# Current action — run9 preparation accepted; operator host steps, reviewer150048 — 2026-09-12T05:07:43Z
++
++review-2026-09-12T05-07-43Z.md accepts153-file manifest7c5ad3aeb64f845cc083ab9f25c6b857840f845f257b8591b8ac6ffb4f76f260.
++Four independent fresh-preparation cases/custody pass; accepted63 offline/product
++results reused. Pass ops Next tune for exact README/operator-commands.json three
++host steps: operator-prepare.sh, deployment.py validate, render. Return posture,
++validation/all33 actual inputs/printed hashes for required checks/genuine bindings.
++Owner150004 already authorizes one operator attempt afterward; no repeat permission.
++Prior pending preparation review superseded. No rebuild/agent execution/automatic
++retry/historical repair; all guards/limits/deferrals and actual A/B proof remain.
++Cumulative49.78088016989723s plus uncertainty; failed walls1593.8314001880208s.
++
++# Historical preparation handoff (accepted)
++
++# Current action — run9 preparation review, tuner150007 — 2026-09-12T05:05:26.689616+00:00
++
++RUN9-PREPARATION-150007.md and153-file manifestsha256:7c5ad3aeb64f845cc083ab9f25c6b857840f845f257b8591b8ac6ffb4f76f260
++are ready.63 offline checks pass; accepted observer/runner behavior and images
++unchanged except fresh metadata. Direct feat review, Next ops for exact host
++prepare/validate/render. Actual33 input checks/genuine execution bindings remain;
++owner150004 already authorizes exactly one operator attempt after that condition,
++no new run permission request. No rebuild/agent execution/auto retry/repair.
++Prior in-progress preparation superseded. All limits/guards/deferrals/history and
++actual A/B terminal proof remain. Cumulative49.59649493788288s plus uncertainty; eight
++failed walls1593.8314001880208s remain spent.
++
++# Historical preparation (ready)
++
+ # Current action — fresh run9 preparation, tuner150007 — 2026-09-12T04:59:54.280Z
+ 
+ Owner150004 authorizes fresh inputs using accepted149919 correction and unchanged
+--- prepared-152750/run.py
++++ prepared-152826/run.py
+@@ -23,11 +23,11 @@
+ PYTHON = '/usr/bin/python3'
+ CWD = REPO / 'v12/python'
+ PREFIX = ['/usr/bin/env', 'PYTHONDONTWRITEBYTECODE=1', 'PYTHONPATH=src:.', PYTHON, '-m', 'tools.job_manager',
+-          '--store', str(RUN / 'jobs.sqlite3'), '--incarnation', 'w71879-run9', '--authority-uuid', UUID]
++          '--store', str(RUN / 'jobs.sqlite3'), '--incarnation', 'w71879-run10', '--authority-uuid', UUID]
+ SERVE = ['/usr/bin/env', 'PYTHONDONTWRITEBYTECODE=1', 'PYTHONPATH=src:.',
+          'BATON_V12_STAGE_EXECUTION_CONFIG=' + str(CONFIG / 'stage-execution.json'),
+          PYTHON, '-m', 'tools.job_manager', '--store', str(RUN / 'jobs.sqlite3'),
+-         '--incarnation', 'w71879-run9', '--authority-uuid', UUID, 'serve',
++         '--incarnation', 'w71879-run10', '--authority-uuid', UUID, 'serve',
+          '--control', str(RUN / 'control.sqlite3'), '--operations', 'tools.stage_execution:factory', '--interval', '1']
+ STATUS = PREFIX[:3] + ['BATON_V12_STAGE_EXECUTION_CONFIG=' + str(CONFIG / 'stage-execution.json')] + PREFIX[3:] + ['status', '--control', str(RUN / 'control.sqlite3'), '--observe', 'tools.stage_execution:observing_factory']
+ LIMITS = {ACTORS[name]: (240 if name.startswith('impl-') else 120 if name == 'integrator' else 180)
+--- prepared-152750/runner-helpers.json
++++ prepared-152826/runner-helpers.json
+@@ -1,7 +1,7 @@
+ {
+-  "run.py": "sha256:70d4432cf90270266364e07385b86bec0814d398ee5de0775d28b3990db2a1fe",
++  "run.py": "sha256:3050c82d6d00e880b91843a69d7fa933cd4221fca22f66011155ba518f4ca9a0",
+   "accounting.py": "sha256:30a984a316d76d379dde3e743037ca6d1f0bfc105ed365781b1d42fdf727c245",
+-  "deployment.py": "sha256:4c99557d5d780bc1fc2ea641dc524e3632e001851e785ab07e7ed3af31d69d64",
++  "deployment.py": "sha256:19a6a4a426807f65c09cdb37a27d496d9259059099b80a7df58660dfcfc5509c",
+   "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97",
+   "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9"
+ }
+--- prepared-152750/tasks/a.json
++++ prepared-152826/tasks/a.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run9-a",
++  "task_id": "w71879-run10-a",
+   "verification": [
+     "python3",
+     "check_greeting.py"
+--- prepared-152750/tasks/approval.json
++++ prepared-152826/tasks/approval.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run9-approval",
++  "task_id": "w71879-run10-approval",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-152750/tasks/b.json
++++ prepared-152826/tasks/b.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run9-b",
++  "task_id": "w71879-run10-b",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-152750/tasks/review.json
++++ prepared-152826/tasks/review.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run9-review",
++  "task_id": "w71879-run10-review",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-152750/tasks/verification.json
++++ prepared-152826/tasks/verification.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run9-verification",
++  "task_id": "w71879-run10-verification",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-152750/test_early_failure.py
++++ prepared-152826/test_early_failure.py
+@@ -96,7 +96,7 @@
+             fixtures.RunnerTests.setUpClass()
+         fixture = fixtures.RunnerTests('test_incomplete_jobs_do_not_become_terminal_from_gap')
+         # Relabel an explicit synthetic copy for the fresh runner; retained facts stay exact.
+-        synthetic = json.loads(json.dumps(FAILED).replace(HISTORICAL_UUID, runner.UUID).replace('c71879b0-', runner.UUID[:8] + '-').replace(INCARNATION, 'w71879-run9'))
++        synthetic = json.loads(json.dumps(FAILED).replace(HISTORICAL_UUID, runner.UUID).replace('c71879b0-', runner.UUID[:8] + '-').replace(INCARNATION, 'w71879-run10'))
+         with mock.patch.object(fixtures, 'jobs', return_value=synthetic):
+             return fixture.exercise(terminal=False, **kwargs)
+ 
+--- prepared-152750/test_manifest_timestamp.py
++++ prepared-152826/test_manifest_timestamp.py
+@@ -1,7 +1,7 @@
+ """Actual frozen-schema regressions; emitted files are offline fixtures only.
+ 
+ No Authority is opened or created. No host validate/render gate is bypassed:
+-only the document constructor receives explicitly synthetic run9-shaped facts.
++only the document constructor receives explicitly synthetic run10-shaped facts.
+ """
+ from copy import deepcopy
+ import json
+@@ -17,18 +17,18 @@
+ 
+ HERE = Path(__file__).resolve().parent
+ ORIGINAL = '2026-09-11T15:06:04Z'
+-CORRECTED = '2026-09-12T04:59:54.280Z'
++CORRECTED = '2026-09-12T13:29:54.919Z'
+ 
+ 
+ class ManifestTimestampTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.retained = Path(tempfile.mkdtemp(prefix='w71879-150007-schema-fixtures-'))
++        cls.retained = Path(tempfile.mkdtemp(prefix='w71879-152826-schema-fixtures-'))
+         print('Retained offline schema fixture root:', cls.retained, flush=True)
+         (cls.retained / 'FIXTURE-ONLY.txt').write_text('Synthetic constructor parameters and document outputs. Not host validation or final run inputs. No Authority/model/runtime created.\n')
+         cls.images = json.loads((HERE / 'offline-images.json').read_text())
+         cls.facts = {'authority_uuid': deployment.UUID, 'policy_generation': 24,
+-                     'principals': {actor: 'principal:w71879-run9-' + actor for actor in deployment.ACTORS},
++                     'principals': {actor: 'principal:w71879-run10-' + actor for actor in deployment.ACTORS},
+                      'fixture_scope': 'synthetic offline constructor parameters, not public Authority observations'}
+         cls.good = cls.retained / 'valid'
+         cls.hashes = documents_in_fixture(cls.good, cls.images, cls.facts)
+--- prepared-152750/test_observed_status.py
++++ prepared-152826/test_observed_status.py
+@@ -31,11 +31,11 @@
+ class ObservedStatusTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.root = Path(tempfile.mkdtemp(prefix='w71879-150007-correction-fixtures-'))
++        cls.root = Path(tempfile.mkdtemp(prefix='w71879-152826-correction-fixtures-'))
+         print('Retained bounded correction fixtures:', cls.root, flush=True)
+-        (cls.root / 'OFFLINE-ONLY.txt').write_text('Synthetic inputs and copied Git source. Not actual run9 inputs, provider attribution, owner settlement or host state.\n')
++        (cls.root / 'OFFLINE-ONLY.txt').write_text('Synthetic inputs and copied Git source. Not actual run10 inputs, provider attribution, owner settlement or host state.\n')
+         facts = {'authority_uuid': deployment.UUID, 'policy_generation': 24,
+-                 'principals': {actor: 'principal:w71879-run9-' + actor for actor in deployment.ACTORS},
++                 'principals': {actor: 'principal:w71879-run10-' + actor for actor in deployment.ACTORS},
+                  'fixture_scope': 'synthetic constructor parameters only'}
+         cls.config = cls.root / 'documents'
+         documents_in_fixture(cls.config, json.loads((HERE / 'offline-images.json').read_text()), facts)
+@@ -61,7 +61,7 @@
+     def test_instructed_git_reads_preserve_real_repository_witness(self):
+         # Copy ordinary existing source files without using git init/clone,
+         # staging or any mutable Git operation. Never touch a real run target.
+-        source = Path('/home/sl/.local/state/baton/v12/w71879-run1/source')  # Original retained baseline; fresh run9 does not exist.
++        source = Path('/home/sl/.local/state/baton/v12/w71879-run1/source')  # Original retained baseline; fresh run10 does not exist.
+         target = self.root / 'copied-source'
+         shutil.copytree(source, target)
+         index_before = (target / '.git/index').read_bytes()
+@@ -94,7 +94,7 @@
+         self.assertEqual(str(runner.RUN / 'control.sqlite3'), taken.control)
+         self.assertEqual('tools.stage_execution:observing_factory', taken.observe)
+         self.assertEqual(str(runner.RUN / 'jobs.sqlite3'), taken.store)
+-        self.assertEqual('w71879-run9', taken.incarnation)
++        self.assertEqual('w71879-run10', taken.incarnation)
+ 
+     def test_selected_real_factory_loads_config_and_has_no_serving_actions(self):
+         name = runner.STATUS[runner.STATUS.index('--observe') + 1]
+--- prepared-152750/test_report_instructions.py
++++ prepared-152826/test_report_instructions.py
+@@ -20,11 +20,11 @@
+ class ReportInstructionsTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.root = Path(tempfile.mkdtemp(prefix='w71879-150007-report-fixtures-'))
++        cls.root = Path(tempfile.mkdtemp(prefix='w71879-152826-report-fixtures-'))
+         print('Retained synthetic report fixture root:', cls.root, flush=True)
+         (cls.root / 'FIXTURE-ONLY.txt').write_text('Synthetic offline documents, prompts and reports. No actual result namespace or execution evidence.\n')
+         facts = {'authority_uuid': deployment.UUID, 'policy_generation': 24,
+-                 'principals': {actor: 'principal:w71879-run9-' + actor for actor in deployment.ACTORS},
++                 'principals': {actor: 'principal:w71879-run10-' + actor for actor in deployment.ACTORS},
+                  'fixture_scope': 'synthetic offline facts, not Authority observations'}
+         cls.config = cls.root / 'constructor'
+         documents_in_fixture(cls.config, json.loads((HERE / 'offline-images.json').read_text()), facts)
+--- prepared-152750/test_run9_preparation.py
++++ prepared-152826/test_run10_preparation.py
+@@ -10,15 +10,15 @@
+ import run as runner
+ 
+ HERE = Path(__file__).resolve().parent
+-PRIOR = HERE.parent / 'prepared-149854'
+-CREATED = '2026-09-12T04:59:54.280Z'
+-RULING = 'M141636/return150004; run9 preparation and exactly one operator attempt after required input checks and genuine execution bindings authorized; no agent model execution or automatic retry'
++PRIOR = HERE.parent / 'prepared-152750'
++CREATED = '2026-09-12T13:29:54.919Z'
++RULING = 'M141636/return150498/return152823; run10 preparation and exactly one operator attempt after required input checks and genuine execution bindings authorized; no agent model execution or automatic retry'
+ 
+ 
+-class Run9PreparationTests(unittest.TestCase):
++class Run10PreparationTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.root = Path(tempfile.mkdtemp(prefix='w71879-150007-public-bootstrap-'))
++        cls.root = Path(tempfile.mkdtemp(prefix='w71879-152826-public-bootstrap-'))
+         print('Retained offline public bootstrap:', cls.root, flush=True)
+         (cls.root / 'OFFLINE-ONLY.txt').write_text('Public bootstrap/schema tests only. Not host validation or execution.\n')
+         cls.facts = deployment.bootstrap(cls.root / 'authority.sqlite3')
+@@ -26,34 +26,34 @@
+         cls.hashes = documents_in_fixture(cls.config, json.loads((HERE / 'offline-images.json').read_text()), cls.facts)
+ 
+     def test_public_bootstrap_and_all_execution_bindings_use_fresh_namespace(self):
+-        self.assertEqual('c71879b3000000000000000000000001', self.facts['authority_uuid'])
++        self.assertEqual('c71879b4000000000000000000000001', self.facts['authority_uuid'])
+         self.assertEqual(24, self.facts['policy_generation'])
+         self.assertEqual(9, len(self.facts['principals']))
+         for actor, principal in self.facts['principals'].items():
+-            self.assertEqual('principal:w71879-run9-' + actor, principal)
+-        self.assertEqual({name: 'c71879b3-W' + str(i) for i, name in enumerate(('a', 'b', 'verification', 'review', 'approval'), 1)}, deployment.WORKS)
++            self.assertEqual('principal:w71879-run10-' + actor, principal)
++        self.assertEqual({name: 'c71879b4-W' + str(i) for i, name in enumerate(('a', 'b', 'verification', 'review', 'approval'), 1)}, deployment.WORKS)
+         config = json.loads((self.config / 'stage-execution.json').read_text())
+-        self.assertEqual('/home/sl/.local/state/baton/v12/w71879-run9', str(deployment.RUN))
++        self.assertEqual('/home/sl/.local/state/baton/v12/w71879-run10', str(deployment.RUN))
+         self.assertEqual(str(self.root / 'offline-run/target'), config['integration_target'])
+         self.assertEqual(str(self.root / 'offline-run/integration-workspace'), config['integration_workspace'])
+-        self.assertEqual('w71879-run9', json.loads((self.config / 'submission.json').read_text())['submission_id'])
++        self.assertEqual('w71879-run10', json.loads((self.config / 'submission.json').read_text())['submission_id'])
+         self.assertEqual(8, len(list((self.config / 'workers').glob('*.json'))))
+         for path in self.config.rglob('*'):
+             if path.is_file():
+-                self.assertNotIn('w71879-run8', path.read_text())
+-                self.assertNotIn('c71879b2', path.read_text())
++                self.assertNotIn('w71879-run9', path.read_text())
++                self.assertNotIn('c71879b3', path.read_text())
+         for argv in (runner.PREFIX, runner.SERVE, runner.STATUS):
+-            self.assertEqual('w71879-run9', argv[argv.index('--incarnation') + 1])
++            self.assertEqual('w71879-run10', argv[argv.index('--incarnation') + 1])
+         self.assertEqual(CREATED, deployment.CREATED)
+ 
+     def test_tasks_policies_and_report_contract_preserve_accepted_behavior(self):
+         for name, task in deployment.task_documents().items():
+             old = json.loads((PRIOR / 'tasks' / (name + '.json')).read_text())
+-            old['task_id'] = old['task_id'].replace('run8', 'run9')
++            old['task_id'] = old['task_id'].replace('run9', 'run10')
+             self.assertEqual(old, task)
+             self.assertEqual(task, json.loads((HERE / 'tasks' / (name + '.json')).read_text()))
+         for name, policy in deployment.policy_documents().items():
+-            old = json.loads((PRIOR / 'policies' / (name + '.json')).read_text().replace('w71879-run8', 'w71879-run9'))
++            old = json.loads((PRIOR / 'policies' / (name + '.json')).read_text().replace('w71879-run9', 'w71879-run10'))
+             if name == 'policy': old['ruling'] = RULING
+             self.assertEqual(old, policy)
+             self.assertEqual(policy, json.loads((HERE / 'policies' / (name + '.json')).read_text()))
+@@ -61,22 +61,22 @@
+         self.assertEqual('4b3160e825f6d4f166fc5fc8477f8d85f3190420ba402dcfb780f01df7be9f76', hashlib.sha256(instructions).hexdigest())
+         self.assertEqual((PRIOR / 'candidate-images.json').read_bytes(), (HERE / 'offline-images.json').read_bytes())
+ 
+-    def test_deployment_runner_and_all_four_helpers_preserve_accepted_behavior(self):
++    def test_deployment_runner_and_all_five_helpers_preserve_accepted_behavior(self):
+         old = (PRIOR / 'deployment.py').read_text()
+-        expected = old.replace('run8', 'run9').replace('c71879b2000000000000000000000001', 'c71879b3000000000000000000000001').replace('2026-09-12T03:32:20.835Z', CREATED).replace('M141636/return149484; run9 preparation and exactly one operator attempt after independent input review authorized; no agent model execution or automatic retry', RULING).replace('w71879-149488-validation-', 'w71879-150007-validation-')
++        expected = old.replace('M141636/return150004; run9 preparation and exactly one operator attempt after required input checks and genuine execution bindings authorized; no agent model execution or automatic retry', RULING).replace('run9', 'run10').replace('c71879b3000000000000000000000001', 'c71879b4000000000000000000000001').replace('2026-09-12T04:59:54.280Z', CREATED).replace('w71879-150007-validation-', 'w71879-152826-validation-')
+         self.assertEqual(expected, (HERE / 'deployment.py').read_text())
+-        expected_runner = (PRIOR / 'run.py').read_text().replace('w71879-run8', 'w71879-run9')
++        expected_runner = (PRIOR / 'run.py').read_text().replace('w71879-run9', 'w71879-run10')
+ 
+-        self.assertEqual(expected_runner, (HERE.parent / 'prepared-150007/run.py').read_text())
++        self.assertEqual(expected_runner, (HERE / 'run.py').read_text())
+         self.assertIn('evaluate(claims, exclusions', (HERE / 'run.py').read_text())
+-        for name in ('target_posture.py', 'failure_observation.py', 'test_provider_detail.py'):
++        for name in ('accounting.py', 'target_posture.py', 'failure_observation.py', 'test_provider_detail.py'):
+             self.assertEqual((PRIOR / name).read_bytes(), (HERE / name).read_bytes())
+         self.assertIn("(HERE / 'run.py', HERE / 'deployment.py', HERE / 'target_posture.py', HERE / 'failure_observation.py', HERE / 'accounting.py')", (HERE / 'run.py').read_text())
+ 
+     def test_operator_recipe_preserves_fresh_only_guards_and_fixed_host_posture(self):
+-        expected = (PRIOR / 'operator-prepare.sh').read_text().replace('run8', 'run9').replace('prepared-149488/target_posture.py', 'prepared-150007/target_posture.py')
++        expected = (PRIOR / 'operator-prepare.sh').read_text().replace('run9', 'run10').replace('prepared-150007/target_posture.py', 'prepared-152826/target_posture.py')
+         self.assertEqual(expected, (HERE / 'operator-prepare.sh').read_text())
+-        for guard in ('test ! -e "$run9_root"', 'test ! -L "$run9_root"', '65532:1001', 'chmod 0644', 'git clone --no-hardlinks', 'w71879-run1/source'):
++        for guard in ('test ! -e "$run10_root"', 'test ! -L "$run10_root"', '65532:1001', 'chmod 0644', 'git clone --no-hardlinks', 'w71879-run1/source'):
+             self.assertIn(guard, expected)
+ 
+ 
+--- prepared-152750/verify_offline.py
++++ prepared-152826/verify_offline.py
+@@ -12,7 +12,7 @@
+ HERE = Path(__file__).resolve().parent
+ REPO = next(parent for parent in HERE.parents if (parent / 'v12/python/src/baton_v12').is_dir())
+ sys.path[:0] = [str(HERE), str(REPO / 'v12/python/src'), str(REPO / 'v12/python'), str(REPO / 'v12/worker')]
+-retained = Path(tempfile.mkdtemp(prefix='w71879-152750-offline-verification-'))
++retained = Path(tempfile.mkdtemp(prefix='w71879-152826-offline-verification-'))
+ started = time.monotonic()
+ output = io.StringIO()
+ with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):

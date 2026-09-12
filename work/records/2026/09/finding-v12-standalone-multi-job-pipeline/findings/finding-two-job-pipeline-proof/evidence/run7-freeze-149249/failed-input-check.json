@@ -1,0 +1,14 @@
+{
+  "claim": 149249,
+  "command": "python3 -B work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run7-freeze-149249/check_inputs.py --output work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run7-freeze-149249/post-render.json",
+  "exit_code": 1,
+  "tool_reported_wall_seconds": 0.068979523,
+  "failure": "AssertionError: len(actual_names) == 33 and actual_names == expected_names",
+  "observed_actual_file_count": 0,
+  "observed_path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149053/frozen-config",
+  "directory_exists": false,
+  "symlink_exists": false,
+  "retained_temporary_reconstruction": "/tmp/w71879-149249-documents-ev1q7093",
+  "post_render_report_written": false,
+  "cause": "unknown; owner149242 reports all four commands succeeded, but actual rendered path is absent"
+}

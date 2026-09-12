@@ -1,0 +1,13 @@
+{
+  "checks_seconds": {
+    "offline_suite": 8.423604903975502,
+    "metadata_render_command_wall": 0.048186196,
+    "preservation": 0.02536415497888811
+  },
+  "this_claim_seconds": 8.49715525495439,
+  "previous_cumulative_seconds": 102.70043401799795,
+  "cumulative_seconds": 111.19758927295234,
+  "nine_failed_runtime_walls_seconds": 2002.0388815780316,
+  "new_model_attempts": 0,
+  "qualification": "Measured suite/render/preservation; CLI/static/host/operator/billing/rounding and prior untimed uncertainties retained. No duplicate inner/subprocess timing."
+}

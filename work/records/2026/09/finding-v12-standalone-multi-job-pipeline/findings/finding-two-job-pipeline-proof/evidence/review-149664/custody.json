@@ -1,0 +1,39 @@
+{
+  "claim": 149664,
+  "manifest": "sha256:81747c62cd9863f9c0899e1292d80fc82b1757501caa7628e6286b933ba1dd81",
+  "files": 989,
+  "posture": {
+    ".": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "tests": {
+      "mode": "0o2775",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo/greeting.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "demo/units.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    },
+    "tests/test_greeting.py": {
+      "mode": "0o644",
+      "projected_uid": 65534,
+      "projected_gid": 65534
+    }
+  },
+  "host_ownership_basis": "Owner149607 successful accepted host preparation/validation; managed UID/GID projection is not host ownership evidence.",
+  "custody_seconds": 0.03600872599054128
+}

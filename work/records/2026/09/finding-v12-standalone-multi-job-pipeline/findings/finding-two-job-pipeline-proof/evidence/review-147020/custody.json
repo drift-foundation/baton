@@ -1,0 +1,15 @@
+{
+  "manifest": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run6-freeze-146988/candidate-manifest.json",
+  "manifest_sha256": "sha256:87a320bdee36cfdca8e7d18372e65ff26eeb314eeda948db3402692b328dd0a9",
+  "files": 568,
+  "images_match": true,
+  "actual_documents": 33,
+  "helpers": {
+    "deployment.py": "sha256:29d8eecf8f7ea5dae5be5d83ffa5facf31c535acddfe3856caaf6560a37e57b4",
+    "run.py": "sha256:304d14c4c710c99259142879429ccbf0495d65cf4bb0e8cd9eb469c72b7eaee4",
+    "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+  },
+  "reconstruction": "/tmp/w71879-146988-documents-5cwqwn0l/verification.json",
+  "actual_input_seconds": 0.04437276200042106,
+  "custody_seconds": 0.01239506300771609
+}

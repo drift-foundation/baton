@@ -993,11 +993,9 @@ def _no_verdict(control, attempt_id):
 def _bound_id(deployment, stage, job=None):
     """This stage's Job id, or None when the answer is the global one.
 
-    W119405. Read-only observation and the accepted integration cases reach
-    these consumers through a deployment DOUBLE holding the configuration and
-    not this composition's readers, and through stages that carry no Job. Both
-    keep exactly the answer they were accepted with; only a real composition
-    asked about a real Job selects per Job.
+    Legacy integration doubles without binding readers and stages carrying no
+    Job keep their global answer. Serving and read-only observation both carry
+    the binding readers and select the actual Job.
     """
     if not hasattr(deployment, "binding_for"):
         return None
@@ -1007,11 +1005,8 @@ def _bound_id(deployment, stage, job=None):
 def _bound(deployment, stage):
     """This stage's integrator, bound Work and bound target.
 
-    W119405 review 2026-09-09T18:35Z [P1]. Read-only observation reaches this
-    through a deployment DOUBLE in the accepted integration cases, which holds
-    the configuration and not this composition's readers -- so when the per-Job
-    readers are absent the answer is exactly the one those cases accepted, and
-    only a real composition selects per Job.
+    Legacy deployment doubles without per-Job readers retain their global
+    operands. Both production serving and observation use the binding readers.
     """
     job_id = _bound_id(deployment, stage)
     if job_id is None:
@@ -4531,6 +4526,13 @@ class StageObservation:
 
     canonical = True
 
+    # Reuse only the configuration/allocation readers, without constructing a
+    # serving deployment. Integration.account needs the same per-Job operands.
+    binding_for = StageDeployment.binding_for
+    works_for = StageDeployment.works_for
+    target_for = StageDeployment.target_for
+    worker_for = StageDeployment.worker_for
+
     def __init__(self, given, workers, job_store, control_store):
         self.given = given
         self.control = control_store
@@ -4587,6 +4589,8 @@ class StageObservation:
                     incarnation=_incarnation(self.control), clock=_now) as coordinator:
                 context = SimpleNamespace(given=self.given, control=self.control,
                     authority=authority, integration=coordinator,
+                    binding_for=self.binding_for, works_for=self.works_for,
+                    target_for=self.target_for, worker_for=self.worker_for,
                     integration_profile=integration_from(self.given),
                     integration_root=os.path.join(self.given["state_root"], INTEGRATION_HOME),
                     workspace_group=configured_workspace_group(self.control))

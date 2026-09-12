@@ -1,0 +1,11 @@
+{
+  "owner_event": 152823,
+  "run_root": "/home/sl/.local/state/baton/v12/w71879-run10",
+  "root_observed_absent": true,
+  "authority_uuid": "c71879b4000000000000000000000001",
+  "created": "2026-09-12T13:29:54.919Z",
+  "operator_attempts_authorized_after_required_bindings": 1,
+  "agent_model_execution": false,
+  "actual_render": "pending host preparation",
+  "new_ruling": "M141636/return150498/return152823; run10 preparation and exactly one operator attempt after required input checks and genuine execution bindings authorized; no agent model execution or automatic retry"
+}

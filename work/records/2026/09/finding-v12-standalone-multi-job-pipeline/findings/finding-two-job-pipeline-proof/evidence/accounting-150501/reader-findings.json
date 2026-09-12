@@ -1,0 +1,31 @@
+{
+  "control_public_readonly_opener": false,
+  "metadata": {
+    "integration.sqlite3": {
+      "mode": "0o644",
+      "uid": 1000,
+      "gid": 1000,
+      "bytes": 139264
+    },
+    "integration.sqlite3-wal": {
+      "present": false
+    },
+    "integration.sqlite3-shm": {
+      "present": false
+    }
+  },
+  "coordinator": {
+    "opened": false,
+    "type": "ContractRefusal",
+    "category": "refused",
+    "code": "precondition",
+    "message": "the database at '/home/sl/.local/state/baton/v12/w71879-run9/integration.sql\u2026 could not be read by this coordinator (OperationalError: unable to open database file); a read-only open refuses an unreadable store and repairs nothing. Nothing was changed"
+  },
+  "caller_minted_workspace_group": {
+    "type": "ContractRefusal",
+    "category": "policy",
+    "code": "denied",
+    "message": "a configured workspace group is obtained from this manager's own record of what the deployment configured, and is not constructed; a group a caller can mint is a group a caller chose"
+  },
+  "seconds": 0.00021762499818578362
+}

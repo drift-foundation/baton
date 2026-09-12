@@ -1,0 +1,28 @@
+{
+  "final_verification": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-v"
+  ],
+  "model_selection": "provider default; no distinct-model guarantee",
+  "provider_arguments": [
+    "--print",
+    "--dangerously-skip-permissions",
+    "--output-format",
+    "json"
+  ],
+  "verification": [
+    [
+      "python3",
+      "check_greeting.py"
+    ],
+    [
+      "python3",
+      "check_hours.py"
+    ]
+  ]
+}

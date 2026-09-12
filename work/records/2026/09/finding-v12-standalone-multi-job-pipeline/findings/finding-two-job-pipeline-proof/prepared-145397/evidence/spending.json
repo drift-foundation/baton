@@ -1,0 +1,8 @@
+{
+  "prior_listed_preparation_diagnosis_seconds": 2.670276407029118,
+  "all_three_failed_runtime_wall_seconds": 560.1007706070232,
+  "actual_schema_and_stats_test_seconds": 0.19202788200345822,
+  "provenance_and_static_seconds": 0.009140584006672725,
+  "listed_preparation_before_manifest_seconds": 2.871444873039249,
+  "uncertainty": "Internal test/check timing counted once, not again as enclosing tool wall. Untimed reads/edits/CLI/packaging and failed host validate/render/operator/billing costs remain additional. No fourth model attempt or reserve transfer."
+}

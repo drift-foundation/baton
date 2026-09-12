@@ -1,0 +1,13 @@
+{
+  "automatic_retry": false,
+  "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+  "ordinary_operator_transitions": 0,
+  "review_before_execution": true,
+  "ruling": "M141636/return150498/return152823; run10 preparation and exactly one operator attempt after required input checks and genuine execution bindings authorized; no agent model execution or automatic retry",
+  "scope": "scope:w71879-run10",
+  "submission": [
+    "job-a",
+    "job-b"
+  ],
+  "work": "W71879"
+}

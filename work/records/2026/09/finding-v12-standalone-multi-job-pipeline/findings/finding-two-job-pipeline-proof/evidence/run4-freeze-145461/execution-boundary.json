@@ -1,0 +1,31 @@
+{
+  "work": "W71879",
+  "claim": 145461,
+  "cwd": "/home/sl/src/baton/v12/python",
+  "model_run_authorized": false,
+  "rule_files": [
+    "/home/sl/.codex/rules/default.rules",
+    "/home/sl/.codex/rules/baton.rules"
+  ],
+  "provision": {
+    "status": "fulfilled",
+    "value": {
+      "chunk_id": "65b612",
+      "wall_time_seconds": 0.000001142,
+      "exit_code": 0,
+      "original_token_count": 31,
+      "output": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n{\"matchedRules\":[]}\n"
+    }
+  },
+  "run": {
+    "status": "fulfilled",
+    "value": {
+      "chunk_id": "14de5c",
+      "wall_time_seconds": 0.000001403,
+      "exit_code": 0,
+      "original_token_count": 31,
+      "output": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n{\"matchedRules\":[]}\n"
+    }
+  },
+  "note": "Exact new-candidate provision/run commands have no matching rules; no operation attempted."
+}

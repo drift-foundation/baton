@@ -1,3 +1,63 @@
+# Localized fix/test loop — 2026-09-12T13:54:54Z
+
+Current owner ruling: for a simple localized experimental fix, implement the
+bounded change and give Slawomir the exact test command; use his reported result
+as the next feedback. No intervening reviewer model turn. The matching FINDING
+explicitly supersedes mandatory pre-test review for this scope, including the
+older routing/OAuth wording below. Record hypothesis, paths and evidence without
+another gate; retain actual pipeline judgments, existing limits and human Git
+ownership. Broader protocol/permission/acceptance changes need their own scope.
+
+Status: confirmed, apply at the next relevant handoff. Include any necessary
+truthful owner-test binding support in the bounded harness change; do not forge
+independent acceptance or make a new planning project. Existing run10 work and
+its authorized operator attempt continue; no agent model run or automatic retry
+is authorized by this policy. Required actual A/B judgments remain acceptance.
+
+# Prior OAuth recovery rule — qualified by 2026-09-12T13:54:54Z above
+
+Apply the matching FINDING ruling: review a bounded retry procedure once, then use
+deterministic checks for ordinary re-authentication and fresh attempt preparation.
+Another reviewer model turn is required for changes to code, permissions or
+execution behavior, not solely for routine regenerated identities and digests
+within that procedure. This supersedes the mandatory per-attempt model-review
+interpretation for those covered changes. Keep provenance, retained evidence,
+execution limits and owner attempt authorization; do not bypass current guards.
+
+Status: decision confirmed; supported reusable procedure queued for reconciliation
+at the next safe W71879 handoff. Run8 review was already active at snapshot149581;
+finish that existing handoff without restart or another gate solely for this
+decision. Do not claim the deterministic retry procedure already exists or expand
+this into general retry automation. Reuse owner149484's bounded run authorization.
+
+# Diagnostic detail requirement — 2026-09-12T01:12:52Z
+
+Apply the matching owner clarification in FINDING: preserve actionable nonsecret
+provider error detail, with attempt correlation and explicit omissions/uncertainty.
+A new coarse classification alone does not complete this requirement. Establish
+and independently review the concrete collection/credential-exclusion boundary;
+no indiscriminate raw logging, model probe or new A/B run is authorized here.
+
+# Current proof blocker — 2026-09-11T20:23:14Z
+
+Apply the matching FINDING direction: address prompt detection/reporting of
+definitive failed required attempts and actionable nonsecret provider diagnostics
+before proposing another model run. Keep the first failure primary, preserve
+evidence and guards, and do not mistake pending collection for failure. The
+narrow requirement supersedes its earlier blanket hardening deferral; generic
+resilience/recovery remain deferred. Use direct tuner then independent review
+for clear scoped corrections. No additional model execution is authorized.
+
+# Active routing rule — 2026-09-11T15:26:31Z
+
+Apply the matching owner ruling in FINDING at the next safe handoff. Clear,
+bounded corrections go directly to the configured implementer/tuner, then to
+independent review. Diagnose first only when cause or scope is uncertain.
+Within accepted scope, routine internal handoffs do not return to the operator
+for another disposition. Operator decisions, required host/Git operations and
+explicit run authorization remain with Slawomir. Preserve live claims, candidate
+provenance, budgets and hardening deferrals; no new run is authorized here.
+
 # Current finish sequence — 2026-09-11T01:47:13Z
 
 Owner reiterates completion through W71879; see the matching FINDING entry.

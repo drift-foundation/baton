@@ -1,0 +1,21 @@
+{
+  "prior_listed_preparation_seconds": 0.8228611680074099,
+  "run1_wall_seconds_spent": 223.9077433210041,
+  "run1_exact_provider_cause": "unproven; owner accepts uncertainty for one run2",
+  "this_claim_measured_seconds": {
+    "accepted_package_and_baseline_validation": 0.007775528996717185,
+    "failed_source_nomination_validation_command": 0.045287253,
+    "helper_task_policy_static_validation": 0.13649385400640313
+  },
+  "listed_preparation_seconds_so_far": 1.0124178040105303,
+  "run2_model_or_submission_seconds": 0,
+  "uncertainty": "Historical and current reads, source/CLI/grant diagnostics, edits and syntax checks are not comprehensively timed. Provider billing is unknown. Do not infer a complete elapsed total or a reset of prior spending. No provider reserve transfer.",
+  "retained_temporary_validation_path": "/tmp/w71879-144415-validation-yywyz7p8",
+  "runtime_limits_seconds": {
+    "wall": 1200,
+    "implementation": 240,
+    "review_or_judge": 180,
+    "integration_including_derived_judges": 120
+  },
+  "automatic_further_retry": false
+}

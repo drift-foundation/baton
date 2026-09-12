@@ -1,0 +1,95 @@
+{
+  "candidate_sha256": "d24b5349ed6a6e35b37fbc933eaa2550fea7233d2483123ba5ad985f3d1f7c37",
+  "counts": {
+    "candidate": 37,
+    "correction": 39,
+    "preparation": 37,
+    "freeze": 444
+  },
+  "provider_entries": 45,
+  "source_requirements": 4,
+  "observation_bindings": 3,
+  "unchanged_dependencies": 9,
+  "changed_dependencies": [
+    {
+      "path": "deployment.py",
+      "prior": "prepared-146797/deployment.py"
+    },
+    {
+      "path": "offline_fixture.py",
+      "prior": "prepared-146797/offline_fixture.py"
+    },
+    {
+      "path": "operator-prepare.sh",
+      "prior": "prepared-146797/operator-prepare.sh"
+    },
+    {
+      "path": "policies/mount_policy.json",
+      "prior": "prepared-146797/policies/mount_policy.json"
+    },
+    {
+      "path": "policies/policy.json",
+      "prior": "prepared-146797/policies/policy.json"
+    },
+    {
+      "path": "policies/retention_policy.json",
+      "prior": "prepared-146797/policies/retention_policy.json"
+    },
+    {
+      "path": "run.py",
+      "prior": "prepared-146797/run.py"
+    },
+    {
+      "path": "tasks/a.json",
+      "prior": "prepared-146797/tasks/a.json"
+    },
+    {
+      "path": "tasks/approval.json",
+      "prior": "prepared-146797/tasks/approval.json"
+    },
+    {
+      "path": "tasks/b.json",
+      "prior": "prepared-146797/tasks/b.json"
+    },
+    {
+      "path": "tasks/review.json",
+      "prior": "prepared-146797/tasks/review.json"
+    },
+    {
+      "path": "tasks/verification.json",
+      "prior": "prepared-146797/tasks/verification.json"
+    },
+    {
+      "path": "test_manifest_timestamp.py",
+      "prior": "prepared-146797/test_manifest_timestamp.py"
+    },
+    {
+      "path": "test_observed_status.py",
+      "prior": "prepared-146797/test_observed_status.py"
+    },
+    {
+      "path": "test_report_instructions.py",
+      "prior": "prepared-146797/test_report_instructions.py"
+    },
+    {
+      "path": "test_run6_preparation.py",
+      "prior": "prepared-146797/test_run5_preparation.py"
+    },
+    {
+      "path": "verify_offline.py",
+      "prior": "prepared-146797/verify_offline.py"
+    }
+  ],
+  "fresh_run6_absent": true,
+  "final_inputs_and_markers_absent": true,
+  "instruction_sha256": "4b3160e825f6d4f166fc5fc8477f8d85f3190420ba402dcfb780f01df7be9f76",
+  "suite": {
+    "scope": "offline synthetic fixtures only; not integration or host execution evidence",
+    "tests": 36,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 0.28981815799488686,
+    "retained": "/tmp/w71879-146897-offline-verification-6blji9oh"
+  },
+  "seconds": 0.016517948999535292
+}

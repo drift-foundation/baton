@@ -1,0 +1,9 @@
+{
+  "source": "canonical event152925, baton.slaw,2026-09-12T13:45:17Z",
+  "host_preparation_validation_render": "reported successful",
+  "physical_input_count_reported": 33,
+  "reported_configuration": "sha256:401f13768132ab7d47650f9afe8bec59068d31d017298c8ace0faf84dcace84e",
+  "reported_submission": "sha256:c9ef35157bf768aa09c481cda2fe6aa4b5aaf773ace34154e4db4301907d6e7d",
+  "qualification": "Actual host uid/gid posture follows successful reviewed operator script; no separate literal posture stdout supplied. Managed observed IDs are not host ownership proof.",
+  "operator_attempt_authority": 152823
+}

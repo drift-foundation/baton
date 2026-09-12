@@ -1,0 +1,9 @@
+{
+  "failed_runtime_wall_seconds": 524.7600469310128,
+  "prior_listed_preparation_diagnosis_seconds": 1.6680928130198172,
+  "operator_host_validation_seconds": 0.024825863001751713,
+  "current_continuity_schema_reconstruction_git_seconds": 0.16901675300323404,
+  "listed_preparation_diagnosis_before_manifest_seconds": 1.861935429024803,
+  "counting": "Use internal measured check duration; do not add enclosing tool wall again. Manifest generation measured separately in manifest.",
+  "uncertainty": "Host render/Git/preparation duration, rule checks, image inspect/comparison, CLI/source reads, imports/edits and unknown billing are not comprehensively timed; remain additional. Previous failed validation and namespace probes remain spent. No model run or reserve transfer."
+}

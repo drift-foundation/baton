@@ -1,0 +1,19 @@
+{
+  "claim": 145312,
+  "candidate_manifest": "sha256:7a3987abd1703a0de20db1c46f7d995d65c3d8182fafd53295c49f13e8f18b5c",
+  "candidate_files": 25,
+  "prior_candidate_files": 229,
+  "prior_execution_bindings": 230,
+  "provider_entries": 45,
+  "focused_tests": 17,
+  "failures": 0,
+  "errors": 0,
+  "temporary_fixture_root": "/tmp/w71879-145261-unit-runner-j8ht8y_c",
+  "candidate_unchanged_after_tests": true,
+  "mechanical_deployment_operator_delta": "exact after declared identity/time/ruling/path substitutions",
+  "strict_helper_asts": "identical",
+  "task_policy_behavior": "unchanged",
+  "run4_root_and_final_inputs_absent": true,
+  "wall_seconds": 0.16239149300963618,
+  "limits": "Offline mocked control-flow tests, not real stats-race or A/B completion proof; no live roots or Git/model/Authority execution."
+}

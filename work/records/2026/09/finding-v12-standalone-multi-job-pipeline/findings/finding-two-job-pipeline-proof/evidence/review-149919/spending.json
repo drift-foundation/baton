@@ -1,0 +1,10 @@
+{
+  "product_seconds_rounded": 2.078,
+  "offline_seconds": 0.34674481200636365,
+  "provenance_seconds": 0.12612535001244396,
+  "custody_seconds": 0.008140822988934815,
+  "current_listed_seconds": 2.5590109850077423,
+  "cumulative_listed_preparation_seconds": 49.12045941689553,
+  "eight_failed_runtime_walls_seconds": 1593.8314001880208,
+  "uncertainty": "Product test time rounded; untimed review, commands, reads and host/billing costs remain additional; no double counting or reserve transfer."
+}

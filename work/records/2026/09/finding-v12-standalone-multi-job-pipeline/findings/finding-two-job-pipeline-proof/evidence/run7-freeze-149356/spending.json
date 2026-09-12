@@ -1,0 +1,7 @@
+{
+  "previous_listed_seconds": 41.483650280937674,
+  "current_actual_input_verification_seconds": 0.07811482500983402,
+  "cumulative_listed_seconds": 41.56176510594751,
+  "six_failed_runtime_walls_seconds": 1341.1107609820174,
+  "uncertainty": "Untimed reads/edits/CLI/hash/static checks and operator render/host/billing uncertainty remain additional. Prior build/validation and failed checks remain spent and are not counted again. No successful-check outer wall double counting or reserve transfer."
+}

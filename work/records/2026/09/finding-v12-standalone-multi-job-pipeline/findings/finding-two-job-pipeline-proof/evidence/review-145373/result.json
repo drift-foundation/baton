@@ -1,0 +1,38 @@
+{
+  "claim": 145373,
+  "original": "2026-09-11T15:06:04Z",
+  "proposed": "2026-09-11T15:06:04.000Z",
+  "actual_manifest_schema": {
+    "2026-09-11T15:06:04Z": {
+      "accepted": false,
+      "exception": "ContractRefusal",
+      "message": "a manifest does not satisfy the frozen schema: 'created_at' breaks pattern; the document breaks unevaluatedProperties"
+    },
+    "2026-09-11T15:06:04.000Z": {
+      "accepted": true
+    }
+  },
+  "actual_renderer_original_refusal": {
+    "exception": "ContractRefusal",
+    "message": "a manifest does not satisfy the frozen schema: 'created_at' breaks pattern; the document breaks unevaluatedProperties"
+  },
+  "actual_renderer_corrected_document_count": 33,
+  "actual_renderer_corrected_manifests": 6,
+  "temporary_fixture_root": "/tmp/w71879-145373-schema-ffzun9b4",
+  "fixture_scope": "Constructor-only synthetic fact shape and test-local CREATED substitution; no Authority, runtime, model, Git or accepted candidate mutation. Not final run4 inputs.",
+  "candidate_manifest": "sha256:7a3987abd1703a0de20db1c46f7d995d65c3d8182fafd53295c49f13e8f18b5c",
+  "unchanged_candidate_files": 25,
+  "retained_operator_partial_validation": "/tmp/w71879-145261-validation-00nb1okq",
+  "run4_entries": [
+    "integration-workspace",
+    "source",
+    "target"
+  ],
+  "outputs_absent": [
+    "validation.json",
+    "frozen-config",
+    "execution-review.json",
+    "selected-images.json"
+  ],
+  "wall_seconds": 0.14833867899142206
+}

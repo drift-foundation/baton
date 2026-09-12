@@ -1,0 +1,42 @@
+{
+  "claim": 148686,
+  "container": "a2b00b62bdbb3f413b6e4e9539cf71190b237430a8856367567315b4f98ef5af",
+  "image": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+  "container_state": "exited",
+  "readonly_rootfs": true,
+  "mount_destinations": [
+    "/input",
+    "/output",
+    "/run/baton/credentials/claude",
+    "/run/baton/launch.json",
+    "/run/baton/exchange/command",
+    "/run/baton/exchange/events",
+    "/input/source"
+  ],
+  "failed_argv": [
+    "docker",
+    "cp",
+    "a2b00b62bdbb3f413b6e4e9539cf71190b237430a8856367567315b4f98ef5af:/usr/local/lib/node_modules/@anthropic-ai/claude-code/package.json",
+    "/tmp/w71879-148686-provider-package.json"
+  ],
+  "exit_code": 1,
+  "stderr": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock",
+  "provider_metadata_read": false,
+  "host_program": "/home/sl/.local/bin/claude",
+  "host_resolved": "/home/sl/.local/share/claude/versions/2.1.263",
+  "host_bytes": 215662064,
+  "host_sha256": "26d020351e8112f4006790f3cfce43b4c9df0c1bb1d0e542364d64151b81d5ba",
+  "host_installed_version_directories": [
+    "2.1.241",
+    "2.1.250",
+    "2.1.263"
+  ],
+  "image_recipe_version": "2.1.247",
+  "version_limit": "Recipe and historical version evidence do not attest the currently installed provider binary; host binary is a different version and was not executed or used to infer classifier behavior.",
+  "other_findings": [
+    "Guessed provider-image glob, /usr/local/lib/node_modules/@anthropic-ai/claude-code/package.json on host, worker README glob and finding-claude glob were absent. Actual repository adapter/policy/image records were readable.",
+    "Filename-only search under repository and /tmp found no 2.1.247/package source candidate; /tmp private service directories were unreadable and not retried. Search is not proof of global absence."
+  ],
+  "workaround_used": false,
+  "raw_credentials_or_provider_streams_read": false
+}

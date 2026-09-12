@@ -1,0 +1,464 @@
+--- prepared-149053/deployment.py
++++ prepared-149488/deployment.py
+@@ -1,4 +1,4 @@
+-"""W71879 future run7 preparation packaging and public-API provisioning; never submits a Job.
++"""W71879 future run8 preparation packaging and public-API provisioning; never submits a Job.
+ 
+ prepare writes review inputs beside this script. validate uses a fresh /tmp
+ Authority to validate the bootstrap/document logic without a runtime. provision
+@@ -26,14 +26,14 @@
+ DOSSIER = HERE.parent
+ CONFIG = HERE / 'frozen-config'
+ REPO = Path('/home/sl/src/baton')
+-RUN = Path('/home/sl/.local/state/baton/v12/w71879-run7')
+-UUID = 'c71879b1000000000000000000000001'
++RUN = Path('/home/sl/.local/state/baton/v12/w71879-run8')
++UUID = 'c71879b2000000000000000000000001'
+ BASE = '2fbb2d456638e5706218020aebfa47f0a82c8920'
+ TREE = '3492ba64448ab9d39bde53ee6456ce24e74ece2c'
+ PROVIDER_BASE = 'sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4'
+-CREATED = '2026-09-12T02:23:07.032Z'
+-SCOPE = 'scope:w71879-run7'
+-PROFILE = 'claude-w71879-run7'
++CREATED = '2026-09-12T03:32:20.835Z'
++SCOPE = 'scope:w71879-run8'
++PROFILE = 'claude-w71879-run8'
+ REGISTRY = '/home/sl/.baton/credential-sources.json'
+ CREDENTIAL = {'provider': 'operator-file', 'reference': 'w64268-run1'}
+ ACTORS = {name: 'baton.proof-' + name for name in
+@@ -90,7 +90,7 @@
+                         'Do not modify source or invent receipts.\n\n' + duty +
+                         '\n\nThe complete accepted task scope follows. A is already landed; B is being merged.\n\n' + a + '\n\n' + b)
+         requests[name] = (instructions, 'check_hours.py')
+-    return {name: {'schema': 'baton.dogfood-task/2', 'task_id': 'w71879-run7-' + name,
++    return {name: {'schema': 'baton.dogfood-task/2', 'task_id': 'w71879-run8-' + name,
+                    'instructions': instructions, 'source_root': 'source',
+                    'source_profile': 'git-line', 'declared_base': BASE,
+                    'verification': ['python3', check]}
+@@ -99,7 +99,7 @@
+ 
+ def policy_documents():
+     return {
+-        'policy': {'work': 'W71879', 'ruling': 'M141636/return149049; run7 image and package preparation authorized; model execution not authorized', 'base': BASE,
++        'policy': {'work': 'W71879', 'ruling': 'M141636/return149484; run8 preparation and exactly one operator attempt after independent input review authorized; no agent model execution or automatic retry', 'base': BASE,
+                    'scope': SCOPE, 'automatic_retry': False, 'ordinary_operator_transitions': 0,
+                    'submission': ['job-a', 'job-b'], 'review_before_execution': True},
+         'resource_policy': {'wall_seconds': 1200, 'implementation_attempt_seconds': 240,
+@@ -129,7 +129,7 @@
+         authority.set_policy('canonical_target', BASE)
+         authority.certify_contract('v12-assignment-1', profile=PROFILE)
+         for name, actor in ACTORS.items():
+-            authority.bind_endpoint(actor, 'principal:w71879-run7-' + name)
++            authority.bind_endpoint(actor, 'principal:w71879-run8-' + name)
+         for name in ('a', 'b'):
+             authority.add_route_handler('proof-impl-' + name, ACTORS['impl-' + name])
+             authority.add_route_handler('proof-review-' + name, ACTORS['review-' + name])
+@@ -252,7 +252,7 @@
+         payload = task_path.read_bytes()
+         given = dogfood_operator.input_manifest(
+             work_ref={'authority_uuid': UUID, 'work_id': WORKS[name]}, staged=empty,
+-            created_at=CREATED, manifest_id='w71879-run7-' + name,
++            created_at=CREATED, manifest_id='w71879-run8-' + name,
+             assignment_contract='v12-assignment-1',
+             human_contract={'artifact_id': 'w71879-task-' + name, 'media_type': 'application/json',
+                             'bytes': len(payload), 'content_digest': digest_of_bytes(payload),
+@@ -337,7 +337,7 @@
+                      'stages': [{'kind': kind, 'work_id': WORKS[name], 'profile_name': PROFILE,
+                                  'profile_digest': profile_digest, 'depends_on': dep[kind]}
+                                 for kind in ('implementation', 'review', 'integration')]})
+-    submission = {'schema': 'baton.v12.job-submission/1', 'submission_id': 'w71879-run7', 'jobs': jobs}
++    submission = {'schema': 'baton.v12.job-submission/1', 'submission_id': 'w71879-run8', 'jobs': jobs}
+     owned_submission(submission)
+     write_json(destination / 'stage-execution.json', config)
+     write_json(destination / 'submission.json', submission)
+@@ -381,7 +381,7 @@
+ def validate():
+     baseline()
+     started = time.monotonic()
+-    destination = Path(tempfile.mkdtemp(prefix='w71879-149053-validation-'))
++    destination = Path(tempfile.mkdtemp(prefix='w71879-149488-validation-'))
+     print('Retained validation directory:', destination, flush=True)
+     facts = bootstrap(destination / 'authority.sqlite3')
+     # Historical image values exercise schema composition ONLY. They are
+--- prepared-149053/offline-images.json
++++ prepared-149488/offline-images.json
+@@ -1,4 +1,4 @@
+ {
+-  "integration": "sha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2",
+-  "provider": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
++  "integration": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
++  "provider": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13"
+ }
+--- prepared-149053/offline_fixture.py
++++ prepared-149488/offline_fixture.py
+@@ -11,6 +11,6 @@
+ def documents_in_fixture(destination, images, facts):
+     root = destination.parent / 'offline-run'
+     (root / 'source').mkdir(parents=True, exist_ok=True)
+-    (root / 'OFFLINE-ONLY.txt').write_text('Temporary source nomination only; not actual run7 inputs, Git baseline or host validation.\n')
++    (root / 'OFFLINE-ONLY.txt').write_text('Temporary source nomination only; not actual run8 inputs, Git baseline or host validation.\n')
+     with mock.patch.object(deployment, 'RUN', root):
+         return deployment.documents(destination, images, facts)
+--- prepared-149053/operator-prepare.sh
++++ prepared-149488/operator-prepare.sh
+@@ -3,14 +3,14 @@
+ set -euo pipefail
+ umask 0002
+ 
+-run7_root=/home/sl/.local/state/baton/v12/w71879-run7
++run8_root=/home/sl/.local/state/baton/v12/w71879-run8
+ run1_source=/home/sl/.local/state/baton/v12/w71879-run1/source
+-target="$run7_root/target"
++target="$run8_root/target"
+ expected_commit=2fbb2d456638e5706218020aebfa47f0a82c8920
+ expected_tree=3492ba64448ab9d39bde53ee6456ce24e74ece2c
+ 
+-test ! -e "$run7_root"
+-test ! -L "$run7_root"
++test ! -e "$run8_root"
++test ! -L "$run8_root"
+ case " $(id -G) " in
+     *' 1001 '*) ;;
+     *) printf '%s\n' 'Operator must already hold workspace gid1001.' >&2; exit 1 ;;
+@@ -19,22 +19,22 @@
+ test "$(git --no-optional-locks -C "$run1_source" symbolic-ref --short HEAD)" = main
+ test -z "$(git --no-optional-locks -C "$run1_source" status --porcelain)"
+ 
+-mkdir -m 700 "$run7_root"
+-git clone --no-hardlinks --single-branch --branch main "$run1_source" "$run7_root/source"
++mkdir -m 700 "$run8_root"
++git clone --no-hardlinks --single-branch --branch main "$run1_source" "$run8_root/source"
+ install -d -g 1001 -m 2775 "$target"
+-git clone --no-hardlinks --single-branch --branch main "$run7_root/source" "$target"
+-git init --bare "$run7_root/integration-workspace"
++git clone --no-hardlinks --single-branch --branch main "$run8_root/source" "$target"
++git init --bare "$run8_root/integration-workspace"
+ 
+ # Initial preparation only: the fresh target has never held a submitted Job.
+ # The unchanged worker requires its own uid and exact 100644 -> 0644 modes.
+ chmod 0644 "$target/demo/greeting.py" "$target/demo/units.py" "$target/tests/test_greeting.py"
+ sudo -- chown -R --no-dereference 65532:1001 "$target"
+ 
+-for checkout_path in "$run7_root/source" "$target"; do
++for checkout_path in "$run8_root/source" "$target"; do
+     test "$(git --no-optional-locks -c safe.directory="$target" -C "$checkout_path" show --no-patch --format='%H %T' HEAD)" = "$expected_commit $expected_tree"
+     test "$(git --no-optional-locks -c safe.directory="$target" -C "$checkout_path" symbolic-ref --short HEAD)" = main
+     test -z "$(git --no-optional-locks -c safe.directory="$target" -C "$checkout_path" status --porcelain)"
+ done
+-test "$(git -C "$run7_root/integration-workspace" rev-parse --is-bare-repository)" = true
+-/usr/bin/env PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149053/target_posture.py "$target"
++test "$(git -C "$run8_root/integration-workspace" rev-parse --is-bare-repository)" = true
++/usr/bin/env PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149488/target_posture.py "$target"
+ printf '%s\n' 'Fresh target preparation complete; no Authority provisioning or model run performed.'
+--- prepared-149053/policies/mount_policy.json
++++ prepared-149488/policies/mount_policy.json
+@@ -1,7 +1,7 @@
+ {
+-  "mutable_storage": "/home/sl/.local/state/baton/v12/w71879-run7/storage",
++  "mutable_storage": "/home/sl/.local/state/baton/v12/w71879-run8/storage",
+   "source": "read-only original source and manager-held private git-line",
+-  "target": "/home/sl/.local/state/baton/v12/w71879-run7/target",
++  "target": "/home/sl/.local/state/baton/v12/w71879-run8/target",
+   "target_reference": "refs/heads/main",
+   "workspace_group": 1001
+ }
+--- prepared-149053/policies/policy.json
++++ prepared-149488/policies/policy.json
+@@ -3,8 +3,8 @@
+   "base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+   "ordinary_operator_transitions": 0,
+   "review_before_execution": true,
+-  "ruling": "M141636/return149049; run7 image and package preparation authorized; model execution not authorized",
+-  "scope": "scope:w71879-run7",
++  "ruling": "M141636/return149484; run8 preparation and exactly one operator attempt after independent input review authorized; no agent model execution or automatic retry",
++  "scope": "scope:w71879-run8",
+   "submission": [
+     "job-a",
+     "job-b"
+--- prepared-149053/policies/retention_policy.json
++++ prepared-149488/policies/retention_policy.json
+@@ -1,5 +1,5 @@
+ {
+   "automatic_deletion": false,
+   "disposition": "retain",
+-  "root": "/home/sl/.local/state/baton/v12/w71879-run7"
++  "root": "/home/sl/.local/state/baton/v12/w71879-run8"
+ }
+--- prepared-149053/run.py
++++ prepared-149488/run.py
+@@ -22,11 +22,11 @@
+ PYTHON = '/usr/bin/python3'
+ CWD = REPO / 'v12/python'
+ PREFIX = ['/usr/bin/env', 'PYTHONDONTWRITEBYTECODE=1', 'PYTHONPATH=src:.', PYTHON, '-m', 'tools.job_manager',
+-          '--store', str(RUN / 'jobs.sqlite3'), '--incarnation', 'w71879-run7', '--authority-uuid', UUID]
++          '--store', str(RUN / 'jobs.sqlite3'), '--incarnation', 'w71879-run8', '--authority-uuid', UUID]
+ SERVE = ['/usr/bin/env', 'PYTHONDONTWRITEBYTECODE=1', 'PYTHONPATH=src:.',
+          'BATON_V12_STAGE_EXECUTION_CONFIG=' + str(CONFIG / 'stage-execution.json'),
+          PYTHON, '-m', 'tools.job_manager', '--store', str(RUN / 'jobs.sqlite3'),
+-         '--incarnation', 'w71879-run7', '--authority-uuid', UUID, 'serve',
++         '--incarnation', 'w71879-run8', '--authority-uuid', UUID, 'serve',
+          '--control', str(RUN / 'control.sqlite3'), '--operations', 'tools.stage_execution:factory', '--interval', '1']
+ STATUS = PREFIX[:3] + ['BATON_V12_STAGE_EXECUTION_CONFIG=' + str(CONFIG / 'stage-execution.json')] + PREFIX[3:] + ['status', '--control', str(RUN / 'control.sqlite3'), '--observe', 'tools.stage_execution:observing_factory']
+ LIMITS = {ACTORS[name]: (240 if name.startswith('impl-') else 120 if name == 'integrator' else 180)
+--- prepared-149053/runner-helpers.json
++++ prepared-149488/runner-helpers.json
+@@ -1,6 +1,6 @@
+ {
+-  "deployment.py": "sha256:f0cbf8e54cbc9b62a0019c4c2fa9a9e96ca7cd59b4cc592c536db7cd0b97bc9b",
++  "deployment.py": "sha256:47e8fd83573656d0bfeba9808f5b7d487b8f4d50d64a218c711ec7a1632b7c04",
+   "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+-  "run.py": "sha256:f48cb792d80154758307e66c654fcd59b1f179396f166dc0c8bf0da13be55c1e",
++  "run.py": "sha256:6cada83f9e8e99eef2865ffcfd823ec3995d59002e688cef00585da359e9bca9",
+   "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+ }
+--- prepared-149053/tasks/a.json
++++ prepared-149488/tasks/a.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run7-a",
++  "task_id": "w71879-run8-a",
+   "verification": [
+     "python3",
+     "check_greeting.py"
+--- prepared-149053/tasks/approval.json
++++ prepared-149488/tasks/approval.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run7-approval",
++  "task_id": "w71879-run8-approval",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-149053/tasks/b.json
++++ prepared-149488/tasks/b.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run7-b",
++  "task_id": "w71879-run8-b",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-149053/tasks/review.json
++++ prepared-149488/tasks/review.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run7-review",
++  "task_id": "w71879-run8-review",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-149053/tasks/verification.json
++++ prepared-149488/tasks/verification.json
+@@ -4,7 +4,7 @@
+   "schema": "baton.dogfood-task/2",
+   "source_profile": "git-line",
+   "source_root": "source",
+-  "task_id": "w71879-run7-verification",
++  "task_id": "w71879-run8-verification",
+   "verification": [
+     "python3",
+     "check_hours.py"
+--- prepared-149053/test_early_failure.py
++++ prepared-149488/test_early_failure.py
+@@ -96,7 +96,7 @@
+             fixtures.RunnerTests.setUpClass()
+         fixture = fixtures.RunnerTests('test_incomplete_jobs_do_not_become_terminal_from_gap')
+         # Relabel an explicit synthetic copy for the fresh runner; retained facts stay exact.
+-        synthetic = json.loads(json.dumps(FAILED).replace(HISTORICAL_UUID, runner.UUID).replace('c71879b0-', runner.UUID[:8] + '-').replace(INCARNATION, 'w71879-run7'))
++        synthetic = json.loads(json.dumps(FAILED).replace(HISTORICAL_UUID, runner.UUID).replace('c71879b0-', runner.UUID[:8] + '-').replace(INCARNATION, 'w71879-run8'))
+         with mock.patch.object(fixtures, 'jobs', return_value=synthetic):
+             return fixture.exercise(terminal=False, **kwargs)
+ 
+--- prepared-149053/test_manifest_timestamp.py
++++ prepared-149488/test_manifest_timestamp.py
+@@ -1,7 +1,7 @@
+ """Actual frozen-schema regressions; emitted files are offline fixtures only.
+ 
+ No Authority is opened or created. No host validate/render gate is bypassed:
+-only the document constructor receives explicitly synthetic run7-shaped facts.
++only the document constructor receives explicitly synthetic run8-shaped facts.
+ """
+ from copy import deepcopy
+ import json
+@@ -17,18 +17,18 @@
+ 
+ HERE = Path(__file__).resolve().parent
+ ORIGINAL = '2026-09-11T15:06:04Z'
+-CORRECTED = '2026-09-12T02:23:07.032Z'
++CORRECTED = '2026-09-12T03:32:20.835Z'
+ 
+ 
+ class ManifestTimestampTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.retained = Path(tempfile.mkdtemp(prefix='w71879-149053-schema-fixtures-'))
++        cls.retained = Path(tempfile.mkdtemp(prefix='w71879-149488-schema-fixtures-'))
+         print('Retained offline schema fixture root:', cls.retained, flush=True)
+         (cls.retained / 'FIXTURE-ONLY.txt').write_text('Synthetic constructor parameters and document outputs. Not host validation or final run inputs. No Authority/model/runtime created.\n')
+         cls.images = json.loads((HERE / 'offline-images.json').read_text())
+         cls.facts = {'authority_uuid': deployment.UUID, 'policy_generation': 24,
+-                     'principals': {actor: 'principal:w71879-run7-' + actor for actor in deployment.ACTORS},
++                     'principals': {actor: 'principal:w71879-run8-' + actor for actor in deployment.ACTORS},
+                      'fixture_scope': 'synthetic offline constructor parameters, not public Authority observations'}
+         cls.good = cls.retained / 'valid'
+         cls.hashes = documents_in_fixture(cls.good, cls.images, cls.facts)
+--- prepared-149053/test_observed_status.py
++++ prepared-149488/test_observed_status.py
+@@ -31,11 +31,11 @@
+ class ObservedStatusTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.root = Path(tempfile.mkdtemp(prefix='w71879-149053-correction-fixtures-'))
++        cls.root = Path(tempfile.mkdtemp(prefix='w71879-149488-correction-fixtures-'))
+         print('Retained bounded correction fixtures:', cls.root, flush=True)
+-        (cls.root / 'OFFLINE-ONLY.txt').write_text('Synthetic inputs and copied Git source. Not actual run7 inputs, provider attribution, owner settlement or host state.\n')
++        (cls.root / 'OFFLINE-ONLY.txt').write_text('Synthetic inputs and copied Git source. Not actual run8 inputs, provider attribution, owner settlement or host state.\n')
+         facts = {'authority_uuid': deployment.UUID, 'policy_generation': 24,
+-                 'principals': {actor: 'principal:w71879-run7-' + actor for actor in deployment.ACTORS},
++                 'principals': {actor: 'principal:w71879-run8-' + actor for actor in deployment.ACTORS},
+                  'fixture_scope': 'synthetic constructor parameters only'}
+         cls.config = cls.root / 'documents'
+         documents_in_fixture(cls.config, json.loads((HERE / 'offline-images.json').read_text()), facts)
+@@ -61,7 +61,7 @@
+     def test_instructed_git_reads_preserve_real_repository_witness(self):
+         # Copy ordinary existing source files without using git init/clone,
+         # staging or any mutable Git operation. Never touch a real run target.
+-        source = Path('/home/sl/.local/state/baton/v12/w71879-run1/source')  # Original retained baseline; fresh run7 does not exist.
++        source = Path('/home/sl/.local/state/baton/v12/w71879-run1/source')  # Original retained baseline; fresh run8 does not exist.
+         target = self.root / 'copied-source'
+         shutil.copytree(source, target)
+         index_before = (target / '.git/index').read_bytes()
+@@ -94,7 +94,7 @@
+         self.assertEqual(str(runner.RUN / 'control.sqlite3'), taken.control)
+         self.assertEqual('tools.stage_execution:observing_factory', taken.observe)
+         self.assertEqual(str(runner.RUN / 'jobs.sqlite3'), taken.store)
+-        self.assertEqual('w71879-run7', taken.incarnation)
++        self.assertEqual('w71879-run8', taken.incarnation)
+ 
+     def test_selected_real_factory_loads_config_and_has_no_serving_actions(self):
+         name = runner.STATUS[runner.STATUS.index('--observe') + 1]
+--- prepared-149053/test_report_instructions.py
++++ prepared-149488/test_report_instructions.py
+@@ -20,11 +20,11 @@
+ class ReportInstructionsTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.root = Path(tempfile.mkdtemp(prefix='w71879-149053-report-fixtures-'))
++        cls.root = Path(tempfile.mkdtemp(prefix='w71879-149488-report-fixtures-'))
+         print('Retained synthetic report fixture root:', cls.root, flush=True)
+         (cls.root / 'FIXTURE-ONLY.txt').write_text('Synthetic offline documents, prompts and reports. No actual result namespace or execution evidence.\n')
+         facts = {'authority_uuid': deployment.UUID, 'policy_generation': 24,
+-                 'principals': {actor: 'principal:w71879-run7-' + actor for actor in deployment.ACTORS},
++                 'principals': {actor: 'principal:w71879-run8-' + actor for actor in deployment.ACTORS},
+                  'fixture_scope': 'synthetic offline facts, not Authority observations'}
+         cls.config = cls.root / 'constructor'
+         documents_in_fixture(cls.config, json.loads((HERE / 'offline-images.json').read_text()), facts)
+--- prepared-149053/test_run7_preparation.py
++++ prepared-149488/test_run8_preparation.py
+@@ -10,15 +10,15 @@
+ import run as runner
+ 
+ HERE = Path(__file__).resolve().parent
+-PRIOR = HERE.parent / 'prepared-148870'
+-CREATED = '2026-09-12T02:23:07.032Z'
+-RULING = 'M141636/return149049; run7 image and package preparation authorized; model execution not authorized'
++PRIOR = HERE.parent / 'prepared-149053'
++CREATED = '2026-09-12T03:32:20.835Z'
++RULING = 'M141636/return149484; run8 preparation and exactly one operator attempt after independent input review authorized; no agent model execution or automatic retry'
+ 
+ 
+-class Run7PreparationTests(unittest.TestCase):
++class Run8PreparationTests(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+-        cls.root = Path(tempfile.mkdtemp(prefix='w71879-149053-public-bootstrap-'))
++        cls.root = Path(tempfile.mkdtemp(prefix='w71879-149488-public-bootstrap-'))
+         print('Retained offline public bootstrap:', cls.root, flush=True)
+         (cls.root / 'OFFLINE-ONLY.txt').write_text('Public bootstrap/schema tests only. Not host validation or execution.\n')
+         cls.facts = deployment.bootstrap(cls.root / 'authority.sqlite3')
+@@ -26,34 +26,34 @@
+         cls.hashes = documents_in_fixture(cls.config, json.loads((HERE / 'offline-images.json').read_text()), cls.facts)
+ 
+     def test_public_bootstrap_and_all_execution_bindings_use_fresh_namespace(self):
+-        self.assertEqual('c71879b1000000000000000000000001', self.facts['authority_uuid'])
++        self.assertEqual('c71879b2000000000000000000000001', self.facts['authority_uuid'])
+         self.assertEqual(24, self.facts['policy_generation'])
+         self.assertEqual(9, len(self.facts['principals']))
+         for actor, principal in self.facts['principals'].items():
+-            self.assertEqual('principal:w71879-run7-' + actor, principal)
+-        self.assertEqual({name: 'c71879b1-W' + str(i) for i, name in enumerate(('a', 'b', 'verification', 'review', 'approval'), 1)}, deployment.WORKS)
++            self.assertEqual('principal:w71879-run8-' + actor, principal)
++        self.assertEqual({name: 'c71879b2-W' + str(i) for i, name in enumerate(('a', 'b', 'verification', 'review', 'approval'), 1)}, deployment.WORKS)
+         config = json.loads((self.config / 'stage-execution.json').read_text())
+-        self.assertEqual('/home/sl/.local/state/baton/v12/w71879-run7', str(deployment.RUN))
++        self.assertEqual('/home/sl/.local/state/baton/v12/w71879-run8', str(deployment.RUN))
+         self.assertEqual(str(self.root / 'offline-run/target'), config['integration_target'])
+         self.assertEqual(str(self.root / 'offline-run/integration-workspace'), config['integration_workspace'])
+-        self.assertEqual('w71879-run7', json.loads((self.config / 'submission.json').read_text())['submission_id'])
++        self.assertEqual('w71879-run8', json.loads((self.config / 'submission.json').read_text())['submission_id'])
+         self.assertEqual(8, len(list((self.config / 'workers').glob('*.json'))))
+         for path in self.config.rglob('*'):
+             if path.is_file():
+-                self.assertNotIn('w71879-run6', path.read_text())
+-                self.assertNotIn('c71879b0', path.read_text())
++                self.assertNotIn('w71879-run7', path.read_text())
++                self.assertNotIn('c71879b1', path.read_text())
+         for argv in (runner.PREFIX, runner.SERVE, runner.STATUS):
+-            self.assertEqual('w71879-run7', argv[argv.index('--incarnation') + 1])
++            self.assertEqual('w71879-run8', argv[argv.index('--incarnation') + 1])
+         self.assertEqual(CREATED, deployment.CREATED)
+ 
+     def test_tasks_policies_and_report_contract_preserve_accepted_behavior(self):
+         for name, task in deployment.task_documents().items():
+             old = json.loads((PRIOR / 'tasks' / (name + '.json')).read_text())
+-            old['task_id'] = old['task_id'].replace('run6', 'run7')
++            old['task_id'] = old['task_id'].replace('run7', 'run8')
+             self.assertEqual(old, task)
+             self.assertEqual(task, json.loads((HERE / 'tasks' / (name + '.json')).read_text()))
+         for name, policy in deployment.policy_documents().items():
+-            old = json.loads((PRIOR / 'policies' / (name + '.json')).read_text().replace('w71879-run6', 'w71879-run7'))
++            old = json.loads((PRIOR / 'policies' / (name + '.json')).read_text().replace('w71879-run7', 'w71879-run8'))
+             if name == 'policy': old['ruling'] = RULING
+             self.assertEqual(old, policy)
+             self.assertEqual(policy, json.loads((HERE / 'policies' / (name + '.json')).read_text()))
+@@ -63,17 +63,17 @@
+ 
+     def test_deployment_runner_and_all_four_helpers_preserve_accepted_behavior(self):
+         old = (PRIOR / 'deployment.py').read_text()
+-        expected = old.replace('run6', 'run7').replace('c71879b0000000000000000000000001', 'c71879b1000000000000000000000001').replace('2026-09-11T19:51:48.071Z', CREATED).replace('M141636/return146894; run7 preparation authorized; model execution not authorized', RULING).replace('w71879-146897-validation-', 'w71879-149053-validation-')
++        expected = old.replace('run7', 'run8').replace('c71879b1000000000000000000000001', 'c71879b2000000000000000000000001').replace('2026-09-12T02:23:07.032Z', CREATED).replace('M141636/return149049; run8 image and package preparation authorized; model execution not authorized', RULING).replace('w71879-149053-validation-', 'w71879-149488-validation-')
+         self.assertEqual(expected, (HERE / 'deployment.py').read_text())
+-        self.assertEqual((PRIOR / 'run.py').read_text().replace('w71879-run6', 'w71879-run7'), (HERE / 'run.py').read_text())
++        self.assertEqual((PRIOR / 'run.py').read_text().replace('w71879-run7', 'w71879-run8'), (HERE / 'run.py').read_text())
+         for name in ('target_posture.py', 'failure_observation.py', 'test_stats_observation.py', 'test_provider_detail.py'):
+             self.assertEqual((PRIOR / name).read_bytes(), (HERE / name).read_bytes())
+         self.assertIn("(HERE / 'run.py', HERE / 'deployment.py', HERE / 'target_posture.py', HERE / 'failure_observation.py')", (HERE / 'run.py').read_text())
+ 
+     def test_operator_recipe_preserves_fresh_only_guards_and_fixed_host_posture(self):
+-        expected = (PRIOR / 'operator-prepare.sh').read_text().replace('run6', 'run7').replace('prepared-146897/target_posture.py', 'prepared-149053/target_posture.py')
++        expected = (PRIOR / 'operator-prepare.sh').read_text().replace('run7', 'run8').replace('prepared-149053/target_posture.py', 'prepared-149488/target_posture.py')
+         self.assertEqual(expected, (HERE / 'operator-prepare.sh').read_text())
+-        for guard in ('test ! -e "$run7_root"', 'test ! -L "$run7_root"', '65532:1001', 'chmod 0644', 'git clone --no-hardlinks', 'w71879-run1/source'):
++        for guard in ('test ! -e "$run8_root"', 'test ! -L "$run8_root"', '65532:1001', 'chmod 0644', 'git clone --no-hardlinks', 'w71879-run1/source'):
+             self.assertIn(guard, expected)
+ 
+ 
+--- prepared-149053/verify_offline.py
++++ prepared-149488/verify_offline.py
+@@ -12,7 +12,7 @@
+ HERE = Path(__file__).resolve().parent
+ REPO = next(parent for parent in HERE.parents if (parent / 'v12/python/src/baton_v12').is_dir())
+ sys.path[:0] = [str(HERE), str(REPO / 'v12/python/src'), str(REPO / 'v12/python'), str(REPO / 'v12/worker')]
+-retained = Path(tempfile.mkdtemp(prefix='w71879-149053-offline-verification-'))
++retained = Path(tempfile.mkdtemp(prefix='w71879-149488-offline-verification-'))
+ started = time.monotonic()
+ output = io.StringIO()
+ with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):

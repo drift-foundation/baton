@@ -1,0 +1,12 @@
+test_readonly_integration_observation_keeps_the_bound_job (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_readonly_integration_observation_keeps_the_bound_job)
+The public observer reaches the real two-producer completion account. ... ok
+test_fresh_process_observes_owned_completion_after_serving_closes (tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_fresh_process_observes_owned_completion_after_serving_closes) ... ok
+test_a_stage_with_no_allocation_is_answered_by_no_worker (tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly.test_a_stage_with_no_allocation_is_answered_by_no_worker)
+The rule `PooledManagerOperations._reader` keeps, for the same ... ok
+test_it_carries_the_exchange_read_and_no_act (tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly.test_it_carries_the_exchange_read_and_no_act) ... ok
+test_it_reads_through_the_worker_the_scheduler_allocated (tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly.test_it_reads_through_the_worker_the_scheduler_allocated) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 2.078s
+
+OK

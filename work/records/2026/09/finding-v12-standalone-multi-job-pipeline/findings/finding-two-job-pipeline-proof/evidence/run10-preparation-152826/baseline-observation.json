@@ -1,0 +1,9 @@
+{
+  "scope": "read-only original run1 source, not run10 posture",
+  "source": "/home/sl/.local/state/baton/v12/w71879-run1/source",
+  "commit": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+  "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+  "status_porcelain": "",
+  "run10_root_observed_absent": true,
+  "operator_recipe_bash_syntax": "pass"
+}

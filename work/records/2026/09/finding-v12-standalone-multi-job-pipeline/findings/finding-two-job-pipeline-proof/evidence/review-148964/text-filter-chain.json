@@ -1,0 +1,24 @@
+{
+  "slices": [
+    {
+      "file": "text-filter-import.txt",
+      "offset": 208839950,
+      "bytes": 115,
+      "sha256": "2303be7dd7fd6154f687736a996e4e12b64aab6e7343d0e5c46c3ab51d0e3d76"
+    },
+    {
+      "file": "text-filter-export.txt",
+      "offset": 206662296,
+      "bytes": 90,
+      "sha256": "6a5cbbb085db2dbb6a892f8edc55cb3e05b4313111f005def1ff3d28547c3de3"
+    },
+    {
+      "file": "text-filter-constant.txt",
+      "offset": 206633889,
+      "bytes": 65,
+      "sha256": "8ea27d4d20328c35812b2859a426d4cad4a8dbd748c45b73dc1c0d27d96f2c16"
+    }
+  ],
+  "seconds": 0.0001249029883183539,
+  "conclusion": "GT resolves via r$b export of Jt to No response requested.; none of the five hgl text-filter constants is the OAuth explanation."
+}

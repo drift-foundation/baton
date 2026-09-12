@@ -1,0 +1,8 @@
+{
+  "all_three_failed_runtime_wall_seconds": 560.1007706070232,
+  "prior_listed_preparation_diagnosis_seconds": 3.0692377850286303,
+  "host_validation_seconds": 0.02424055901065003,
+  "current_schema_document_provenance_git_seconds": 0.16957663799985312,
+  "listed_preparation_before_manifest_seconds": 3.2630549820391335,
+  "uncertainty": "Internal durations counted once. Untimed image/rule/CLI/source reads, edits, host render/preparation/failed validation and billing uncertainty remain additional. No model attempt, budget reset or reserve transfer."
+}

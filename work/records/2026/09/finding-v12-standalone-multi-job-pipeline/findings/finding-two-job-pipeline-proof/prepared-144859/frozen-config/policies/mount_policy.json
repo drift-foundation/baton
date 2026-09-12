@@ -1,0 +1,7 @@
+{
+  "mutable_storage": "/home/sl/.local/state/baton/v12/w71879-run3/storage",
+  "source": "read-only original source and manager-held private git-line",
+  "target": "/home/sl/.local/state/baton/v12/w71879-run3/target",
+  "target_reference": "refs/heads/main",
+  "workspace_group": 1001
+}

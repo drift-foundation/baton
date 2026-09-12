@@ -1,0 +1,36 @@
+{
+  "work": "W71879",
+  "claim": 144546,
+  "render": {
+    "chunk_id": "59ff21",
+    "wall_time_seconds": 0.040798469,
+    "exit_code": 0,
+    "original_token_count": 46,
+    "output": "{\"configuration\": \"sha256:7081a6fe3e54563393ecb149f4b398a9cb1c918f2871f400fde3dbf267c1522f\", \"submission\": \"sha256:4b010820657b031ec222dd5825ff698b688da6266bc811c6f7b6143919a26694\"}\n"
+  },
+  "grants": [
+    {
+      "key": "provision",
+      "cmd": "codex execpolicy check --rules /home/sl/.codex/rules/default.rules --rules /home/sl/.codex/rules/baton.rules -- /usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-144415/deployment.py provision",
+      "result": {
+        "chunk_id": "3b6ce7",
+        "wall_time_seconds": 0.000002134,
+        "exit_code": 0,
+        "original_token_count": 31,
+        "output": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n{\"matchedRules\":[]}\n"
+      }
+    },
+    {
+      "key": "run",
+      "cmd": "codex execpolicy check --rules /home/sl/.codex/rules/default.rules --rules /home/sl/.codex/rules/baton.rules -- /usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-144415/run.py",
+      "result": {
+        "chunk_id": "6d111c",
+        "wall_time_seconds": 0.000001162,
+        "exit_code": 0,
+        "original_token_count": 31,
+        "output": "WARNING: proceeding, even though we could not create PATH aliases: Read-only file system (os error 30)\n{\"matchedRules\":[]}\n"
+      }
+    }
+  ],
+  "provision_or_run_executed": false
+}

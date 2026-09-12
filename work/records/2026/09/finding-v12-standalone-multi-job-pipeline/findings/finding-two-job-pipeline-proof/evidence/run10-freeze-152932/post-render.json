@@ -1,0 +1,155 @@
+{
+  "work": "W71879",
+  "claim": 152932,
+  "retained_reconstruction": "/tmp/w71879-152932-documents-34oljgtm",
+  "actual_documents": {
+    "authority-provisioning.json": "sha256:c823752cb08e2d64b08793b9d03dca588a0f1442709095d273ae90f15e2b8ab6",
+    "integration-instructions.txt": "sha256:4b3160e825f6d4f166fc5fc8477f8d85f3190420ba402dcfb780f01df7be9f76",
+    "manifests/a.json": "sha256:8344ddcf2f4a768c3581bf4e86147d35aceb7c04f5403c77397ff30870b3b536",
+    "manifests/approval.json": "sha256:e0b940a976d290581851dfbf22e22c1b9a8007b2da94e9528828881f1bb26cca",
+    "manifests/b.json": "sha256:a767615fa96259be7f3b3a4351fba32187328bbd4da970ac46cf1a9462dff479",
+    "manifests/integrator.json": "sha256:8dc7acd78d7174c137409267641a752160ac4b845be615eaf6e775e3a8918801",
+    "manifests/review.json": "sha256:6c39734c0c56912e8ff1bf48a1c4840f3faddf40a8076f089b57390d082bbe6c",
+    "manifests/verification.json": "sha256:8bb0a93f54768cf28c8d0ee228a26eaffb3dff63e6ae185c417a3debbf28f3ad",
+    "policies/credential_policy.json": "sha256:5367e2ae17e31ebb65e3617ef3fd2535030f7ff12d81e7a671408d2dc9ffbe1b",
+    "policies/mount_policy.json": "sha256:c9803203f2e8ff351bb9a03b5fa9f6edee89b315306045b6ef57e65821a92e59",
+    "policies/network_policy.json": "sha256:a14940241891a84e976d38f16fa111807cb9c5581e5229ccc91e746f61c14071",
+    "policies/policy.json": "sha256:c592d1ffdb55a08dfd5e432c4631661bd40f66e0fab0636f3ce36d48d8a6170b",
+    "policies/resource_policy.json": "sha256:8eeb3db84370b6882c214af5767c8f1dc6584d1b1d3f130f634cbdfd14fdc01f",
+    "policies/retention_policy.json": "sha256:c97f4e3dc5540ce407111c97a751cb17a6555470c619286e2aa6ce6f5a287c77",
+    "policies/tool_policy.json": "sha256:f7bc4929a448b26fa9916dfa898e97d5b96644023ee12ee5d629f233b6726134",
+    "role-instructions.json": "sha256:7c44b0c1554adda2e37e25943e3f40c85b6c6fe85e0a343f75bca5ee17518027",
+    "runtime-profile.json": "sha256:c8011d896ab7925521534ced9cce83fa22a6f1409ac327da862e2a7884f96be9",
+    "stage-execution.json": "sha256:401f13768132ab7d47650f9afe8bec59068d31d017298c8ace0faf84dcace84e",
+    "submission.json": "sha256:c9ef35157bf768aa09c481cda2fe6aa4b5aaf773ace34154e4db4301907d6e7d",
+    "tasks/a.json": "sha256:98ab2769b4434520c6de3b3c40bea8afb71cbbad8b0ccdcff18eb83c6dcef533",
+    "tasks/approval.json": "sha256:f811739752b26fd57dca2a392578578d389718ebd74b0df180ca0f0683a6d42c",
+    "tasks/b.json": "sha256:0a2993e0e5e79a549d3d6892061efa557663accdb05429bacd18e2d6833a570e",
+    "tasks/review.json": "sha256:0d92d4499d00b5cb6e40d35955b3a99f91a03daf34a1253d12e4e8becaadb38e",
+    "tasks/verification.json": "sha256:4bacde6d95d414019dbe5bb094bd82cf60284241904db0ec4702d106bb230904",
+    "toolchain.json": "sha256:47192127fff971d3b7631dfc612209d825e578cb8a38de176ff2660495f83fb9",
+    "workers/approval.json": "sha256:5010a2cd01c4fc2918b7aa3b42ef73ed93ca11b1acd9e9f92e418c1cb08d9d12",
+    "workers/impl-a.json": "sha256:814d1952c17930980871f9070f8e9e05911831f7721601c19011b2ee5defd06d",
+    "workers/impl-b.json": "sha256:42dbbfb9672fcb2188effa327d055038755464e0643c9e8131c7bb3db577ebf2",
+    "workers/integrator.json": "sha256:8cabf27e28682928aa8fae3ce494a44a2a399b90e30218678457aad9f392375f",
+    "workers/review-a.json": "sha256:be3b66b7b1d3dea20fc047f89289b7e7daed7ef5769a630a25a684a5b1c19069",
+    "workers/review-b.json": "sha256:23e219de096c15cb57192621d5d847a657616faf2600906f71759ad6a3943f64",
+    "workers/review.json": "sha256:434bb08373fd87de9d1e9b485010d6bb3107552235e8aee4c5ff51c2aca19bae",
+    "workers/verification.json": "sha256:3200f0319687f063296b5a1ab340da6ed41bf3b53083478314e1ff240fc8c220"
+  },
+  "scope": "Physical actual input equality, public schema, read-only source/image/custody. No store/model/credential payload or host mutation.",
+  "prior_custody": {
+    "run10-preparation-152826": {
+      "non_journal_files": 69,
+      "manifest": "sha256:63b84c6e3749787746894938117d44dcac326cf8291994195133479b9bec2c87"
+    },
+    "accounting-152750": {
+      "non_journal_files": 86,
+      "manifest": "sha256:9ec9be1113ed88f170e038779ce10057714690d591e847045f804cdacd7aafc1"
+    },
+    "accounting-152563": {
+      "non_journal_files": 92,
+      "manifest": "sha256:55f4bb56a338363072af0cb20ac81734276fe88f5548460830dc71bbe84860d5"
+    },
+    "accounting-150501": {
+      "non_journal_files": 75,
+      "manifest": "sha256:690fcb9a3a550508da903e85a49da68068f8b2be5641900098d040da4067472e"
+    },
+    "run9-freeze-150125": {
+      "non_journal_files": 198,
+      "manifest": "sha256:aa78787caaf0796d303c703bc745e758d46e67dde671a6668d6e95de3b9ac5a2"
+    },
+    "run9-budget-150384": {
+      "non_journal_files": 19,
+      "manifest": "sha256:ffdedc1de2a95502350f20147a6e3013627d0fe4a8b8da8dc69912637f915c19"
+    }
+  },
+  "image_checks": {
+    "provider": {
+      "id": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+      "static_files_and_launcher": 11,
+      "inspection_container": "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8",
+      "still_never_started": true
+    },
+    "integration": {
+      "id": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+      "static_files_and_launcher": 13,
+      "inspection_container": "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404",
+      "still_never_started": true
+    },
+    "exact_successful_commands": 33,
+    "host_build_and_static_inspection_seconds": 0.8677917640015949,
+    "scope": "Content from owner-executed accepted helper; direct current metadata independently matches. No static copy repeated, no provider execution.",
+    "five_helpers": {
+      "run.py": "sha256:3050c82d6d00e880b91843a69d7fa933cd4221fca22f66011155ba518f4ca9a0",
+      "accounting.py": "sha256:30a984a316d76d379dde3e743037ca6d1f0bfc105ed365781b1d42fdf727c245",
+      "deployment.py": "sha256:19a6a4a426807f65c09cdb37a27d496d9259059099b80a7df58660dfcfc5509c",
+      "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97",
+      "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9"
+    }
+  },
+  "baseline": {
+    "source": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "branch": "main",
+      "status": "",
+      "payloads": 10
+    },
+    "target": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "branch": "main",
+      "status": "",
+      "payloads": 10
+    }
+  },
+  "target_posture": {
+    ".": {
+      "mode": "0o2775",
+      "observed_uid": 65534,
+      "observed_gid": 65534
+    },
+    "demo": {
+      "mode": "0o2775",
+      "observed_uid": 65534,
+      "observed_gid": 65534
+    },
+    "tests": {
+      "mode": "0o2775",
+      "observed_uid": 65534,
+      "observed_gid": 65534
+    },
+    "demo/greeting.py": {
+      "mode": "0o644",
+      "observed_uid": 65534,
+      "observed_gid": 65534
+    },
+    "demo/units.py": {
+      "mode": "0o644",
+      "observed_uid": 65534,
+      "observed_gid": 65534
+    },
+    "tests/test_greeting.py": {
+      "mode": "0o644",
+      "observed_uid": 65534,
+      "observed_gid": 65534
+    }
+  },
+  "posture_qualification": "Observed managed IDs are not actual host ownership proof; owner152925 reports reviewed host preparation succeeded.",
+  "integration_workspace_bare": true,
+  "unprovisioned_absent": [
+    "authority.sqlite3",
+    "integration.sqlite3",
+    "jobs.sqlite3",
+    "control.sqlite3",
+    "state",
+    "storage",
+    "launch",
+    "credentials",
+    "evidence"
+  ],
+  "fresh_markers_absent": true,
+  "validation_file": "sha256:14c6926fbfc7144eb26c6155007a8ec1c8a394e29f4ad53dedcfe73b4fe597f5",
+  "host_validation_seconds": 0.024462229979690164,
+  "runtime_profile_digest": "sha256:34ff1ebdcec8ddc607109be4d6600595e650360b6d3773b95cf124ebef3b1f69",
+  "verification_seconds": 0.057846604991937056
+}

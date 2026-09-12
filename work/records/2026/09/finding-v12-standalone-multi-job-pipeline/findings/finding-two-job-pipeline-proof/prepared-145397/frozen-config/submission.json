@@ -1,0 +1,96 @@
+{
+  "jobs": [
+    {
+      "input_digest": "sha256:97f36da7214048d1a209f270909c23cbf5883963bd97de07340676b96c7e0bc6",
+      "job_id": "job-a",
+      "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+      "stages": [
+        {
+          "depends_on": [],
+          "kind": "implementation",
+          "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "profile_name": "claude-w71879-run4",
+          "work_id": "c71879ae-W1"
+        },
+        {
+          "depends_on": [
+            {
+              "job_id": "job-a",
+              "kind": "implementation"
+            }
+          ],
+          "kind": "review",
+          "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "profile_name": "claude-w71879-run4",
+          "work_id": "c71879ae-W1"
+        },
+        {
+          "depends_on": [
+            {
+              "job_id": "job-a",
+              "kind": "review"
+            },
+            {
+              "job_id": "job-b",
+              "kind": "review"
+            }
+          ],
+          "kind": "integration",
+          "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "profile_name": "claude-w71879-run4",
+          "work_id": "c71879ae-W1"
+        }
+      ],
+      "terminal_policy": "report-and-hold",
+      "test_scope": [
+        "tests/test_greeting.py"
+      ]
+    },
+    {
+      "input_digest": "sha256:78db2ac65de8419a2728cdbd98d82ec7e2fbc888741553750243c7ef3af6f401",
+      "job_id": "job-b",
+      "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+      "stages": [
+        {
+          "depends_on": [],
+          "kind": "implementation",
+          "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "profile_name": "claude-w71879-run4",
+          "work_id": "c71879ae-W2"
+        },
+        {
+          "depends_on": [
+            {
+              "job_id": "job-b",
+              "kind": "implementation"
+            }
+          ],
+          "kind": "review",
+          "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "profile_name": "claude-w71879-run4",
+          "work_id": "c71879ae-W2"
+        },
+        {
+          "depends_on": [
+            {
+              "job_id": "job-b",
+              "kind": "review"
+            },
+            {
+              "job_id": "job-a",
+              "kind": "integration"
+            }
+          ],
+          "kind": "integration",
+          "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "profile_name": "claude-w71879-run4",
+          "work_id": "c71879ae-W2"
+        }
+      ],
+      "terminal_policy": "report-and-hold",
+      "test_scope": []
+    }
+  ],
+  "schema": "baton.v12.job-submission/1",
+  "submission_id": "w71879-run4"
+}

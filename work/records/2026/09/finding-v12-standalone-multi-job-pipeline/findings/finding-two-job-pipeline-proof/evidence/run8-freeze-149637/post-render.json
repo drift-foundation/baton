@@ -1,0 +1,131 @@
+{
+  "work": "W71879",
+  "claim": 149637,
+  "retained_reconstruction": "/tmp/w71879-149637-documents-zjbwioj0",
+  "scope": "Actual host output comparison and read-only baseline/provenance. Not host UID/GID posture, model execution or terminal proof.",
+  "actual_documents": {
+    "authority-provisioning.json": "sha256:7cbdc50a320d45d07e965b713e256151922616f7b84323d06949a6b5d7de15e1",
+    "integration-instructions.txt": "sha256:4b3160e825f6d4f166fc5fc8477f8d85f3190420ba402dcfb780f01df7be9f76",
+    "manifests/a.json": "sha256:913b46803075b4cbd96a5a66bea9f48499a3666a91c8430f8efd466ab8934df0",
+    "manifests/approval.json": "sha256:976d1fa2ef07cf2d1b74553ec878139d3bef7c762e7316d3a3a9f89be0d507a9",
+    "manifests/b.json": "sha256:13bb748dbdf561dad4ecc4ab6800bc781a30a2a62e4861168091004bc285a02f",
+    "manifests/integrator.json": "sha256:9856398a079bd3df5c8bff1184c926334a50a07eb42273e7a2f6e424a7cb3431",
+    "manifests/review.json": "sha256:d98052deae991e46382c99ca6cb17a835342ff0c540edc6f881bf74e86768b68",
+    "manifests/verification.json": "sha256:99f24dc6055aa5d7fae1ce99a10457466ad491cc6aa0a0c16e7d6b1fc1378c5d",
+    "policies/credential_policy.json": "sha256:5367e2ae17e31ebb65e3617ef3fd2535030f7ff12d81e7a671408d2dc9ffbe1b",
+    "policies/mount_policy.json": "sha256:c64c5cdfa68cfb418b82c8a24f65a92236872c75c4b8b19e8f66cf3fcbf73ff2",
+    "policies/network_policy.json": "sha256:a14940241891a84e976d38f16fa111807cb9c5581e5229ccc91e746f61c14071",
+    "policies/policy.json": "sha256:15d96fb05a89ca2ec5e6338873ace3512fefa8fbbda2a68b0cd861fe937119cb",
+    "policies/resource_policy.json": "sha256:8eeb3db84370b6882c214af5767c8f1dc6584d1b1d3f130f634cbdfd14fdc01f",
+    "policies/retention_policy.json": "sha256:c2faa4c2caaefd0fb45273d484b8119d14b377992087d3b093d8eeea24cb6b31",
+    "policies/tool_policy.json": "sha256:f7bc4929a448b26fa9916dfa898e97d5b96644023ee12ee5d629f233b6726134",
+    "role-instructions.json": "sha256:7c44b0c1554adda2e37e25943e3f40c85b6c6fe85e0a343f75bca5ee17518027",
+    "runtime-profile.json": "sha256:abc2093734a60625d4d1a240c4e358133489651f6ae1a2bf9ce7ede628a74498",
+    "stage-execution.json": "sha256:3ba82de6d6de6caab7312402582cc6b99418b7d8e2b7dfcebcbc1248ab3c38d7",
+    "submission.json": "sha256:a2e2107eb0fcf6203d8d0e4e28c029fb2d0d1ff242d7a8ad787234ce33d08697",
+    "tasks/a.json": "sha256:712f7a4356921cdeefd1ae6f3bb06829fa5f2e4c3bdc68e4d5448bd58eee5ab2",
+    "tasks/approval.json": "sha256:3780905a6085f34fc76cde878d2457e1b4381a23b977d3eae33fa2f16219f425",
+    "tasks/b.json": "sha256:18c65cc5b71dae582a23c133ec4ba9895fbd7ab86c93b0f40f9cdf303a5a3d85",
+    "tasks/review.json": "sha256:26e02131af63a350571ff525a6ab416cdf47a864fb8788cdde584aa842fb3ced",
+    "tasks/verification.json": "sha256:d643a231892b9d1a2c17168d5f732ab0b184d9578c0d997f5d7132b662713a1d",
+    "toolchain.json": "sha256:47192127fff971d3b7631dfc612209d825e578cb8a38de176ff2660495f83fb9",
+    "workers/approval.json": "sha256:bcc5ebd238543e765be73be2179f42eba38497ce71506b044838824e02a0f5c7",
+    "workers/impl-a.json": "sha256:aea38fde5ef672a93fb3518c01f857d4b85b369bd487604bbf60075707437f7f",
+    "workers/impl-b.json": "sha256:d7133abb393b805efb68d1e61bceca827ee6b34b25ebd9a0e76df9995917f590",
+    "workers/integrator.json": "sha256:789ee988d21ee8a57cfbd90176cccaf494fcecc235cf303347c18e2a3f22281b",
+    "workers/review-a.json": "sha256:1196abb8ac16d90ecd8363219fc8cb16ddae5d030d547edda9fb77db65b11f19",
+    "workers/review-b.json": "sha256:589c9e294aece3653e3be6557c919b661508e906f40c1ecd068e283be391faa9",
+    "workers/review.json": "sha256:2d999db63bdef3d6803452c237e6982a69d1c280aa8ab6de938facc797b9bbbe",
+    "workers/verification.json": "sha256:f3c6290b16fe9b0e89eee89bbd70d0c89ce0aec7edc918afcbeb2a9502e1f0a8"
+  },
+  "prior_manifests_verified": [
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run8-preparation-149488/candidate-manifest.json",
+      "sha256": "sha256:d0c4aa3f674c72b90161d645009594f8ecbed6299c9bb13b70c2d4ea0692eab9",
+      "files": 944
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run7-freeze-149249/candidate-manifest.json",
+      "sha256": "sha256:dfe1c346ddf07c2b6bcd359a028e2a0f2eb4b6f61f10a97a21d0c707044d905b",
+      "files": 820
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/image-preparation-149053/candidate-manifest.json",
+      "sha256": "sha256:fa2f9526995166f66c195704b71bfb4504c3713d6820362565641b88246c9037",
+      "files": 73
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/diagnostic-148870/candidate-manifest.json",
+      "sha256": "sha256:0c13a9034aef59636214749876bb83960c18a457dc79a992cf1c6b2c15d0028f",
+      "files": 76
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-147109/candidate-manifest.json",
+      "sha256": "sha256:94d8b8e83b5d11a25edc8b91ae54e9bef98bc7a718cd8d17616784a00ea22cb2",
+      "files": 43
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run6-freeze-146988/candidate-manifest.json",
+      "sha256": "sha256:87a320bdee36cfdca8e7d18372e65ff26eeb314eeda948db3402692b328dd0a9",
+      "files": 568
+    }
+  ],
+  "provider_entries_verified": 45,
+  "source_requirements_verified": 4,
+  "observation_sources_verified": 3,
+  "image_checks": {
+    "provider": {
+      "id": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13",
+      "static_files_and_launcher": 11,
+      "inspection_container": "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8",
+      "still_never_started": true
+    },
+    "integration": {
+      "id": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+      "static_files_and_launcher": 13,
+      "inspection_container": "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404",
+      "still_never_started": true
+    },
+    "exact_successful_commands": 33,
+    "host_build_and_static_inspection_seconds": 0.8677917640015949,
+    "scope": "Content from owner-executed accepted helper; direct current metadata independently matches. No static copy repeated, no provider execution.",
+    "four_helpers": {
+      "deployment.py": "sha256:47e8fd83573656d0bfeba9808f5b7d487b8f4d50d64a218c711ec7a1632b7c04",
+      "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+      "run.py": "sha256:6cada83f9e8e99eef2865ffcfd823ec3995d59002e688cef00585da359e9bca9",
+      "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+    }
+  },
+  "baseline": {
+    "source": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "branch": "main",
+      "status": "",
+      "baseline_files": 10
+    },
+    "target": {
+      "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+      "branch": "main",
+      "status": "",
+      "baseline_files": 10
+    }
+  },
+  "integration_workspace_bare": true,
+  "run8_unprovisioned_names_absent": [
+    "authority.sqlite3",
+    "integration.sqlite3",
+    "jobs.sqlite3",
+    "control.sqlite3",
+    "state",
+    "storage",
+    "launch",
+    "credentials",
+    "evidence"
+  ],
+  "validation_file": "sha256:540d6aab5cc243f823489c9969b7c0f0e4bb4ca10027236edfccaa75d83f7881",
+  "actual_configuration": "sha256:3ba82de6d6de6caab7312402582cc6b99418b7d8e2b7dfcebcbc1248ab3c38d7",
+  "actual_submission": "sha256:a2e2107eb0fcf6203d8d0e4e28c029fb2d0d1ff242d7a8ad787234ce33d08697",
+  "runtime_profile_digest": "sha256:15929015622f1264fa7f8f500ba8435d5a2ef4c366dee45b3d3a43e14d59bf88",
+  "host_validation_seconds": 0.02553242098656483,
+  "verification_seconds": 0.10465844898135401
+}

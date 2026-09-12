@@ -1,0 +1,504 @@
+{
+  "base": "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005924061988480389
+    },
+    {
+      "argv": [
+        "docker",
+        "build",
+        "--pull=false",
+        "--no-cache",
+        "--network",
+        "none",
+        "--platform",
+        "linux/amd64",
+        "--iidfile",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149053/image-build/provider.iid",
+        "--tag",
+        "baton-w71879-provider:candidate-149053",
+        "--file",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149053/image-context/Dockerfile.provider",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149053/image-context"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.08356396300951019
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005489695002324879
+    },
+    {
+      "argv": [
+        "docker",
+        "create",
+        "--name",
+        "w71879-check-provider-149053",
+        "--network",
+        "none",
+        "--read-only",
+        "--entrypoint",
+        "/bin/true",
+        "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.011337494011968374
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8:/opt/baton/source_profiles/__init__.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005970679019810632
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8:/opt/baton/source_profiles/checkout.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005903843994019553
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8:/opt/baton/baton_worker.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005940452974755317
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8:/opt/baton/claude_agent.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005692771985195577
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8:/opt/baton/dogfood_entry.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005009291984606534
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8:/opt/baton/worker-control-1.0.schema.json",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005931946012424305
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8:/usr/local/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.10241217899601907
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8:/usr/local/lib/node_modules/@anthropic-ai/claude-code/cli-wrapper.cjs",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.008797383983619511
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8:/usr/local/lib/node_modules/@anthropic-ai/claude-code/install.cjs",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005357468005968258
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8:/usr/local/lib/node_modules/@anthropic-ai/claude-code/package.json",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.004324128007283434
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8:/usr/local/bin/claude",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.0052184599917382
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.004660823004087433
+    },
+    {
+      "argv": [
+        "docker",
+        "build",
+        "--pull=false",
+        "--no-cache",
+        "--network",
+        "none",
+        "--platform",
+        "linux/amd64",
+        "--iidfile",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149053/image-build/integration.iid",
+        "--tag",
+        "baton-w71879-integration:candidate-149053",
+        "--file",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149053/image-context/worker/Dockerfile.integration",
+        "--build-arg",
+        "PROVIDER_BASE=sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-149053/image-context"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.10591745402780361
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.004471121006645262
+    },
+    {
+      "argv": [
+        "docker",
+        "create",
+        "--name",
+        "w71879-check-integration-149053",
+        "--network",
+        "none",
+        "--read-only",
+        "--entrypoint",
+        "/bin/true",
+        "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.012157167977420613
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404:/opt/baton/source_profiles/__init__.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005235462012933567
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404:/opt/baton/source_profiles/checkout.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006198692979523912
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404:/opt/baton/baton_worker.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005916647991398349
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404:/opt/baton/claude_agent.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005789221002487466
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404:/opt/baton/integration_contract.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006220963987288997
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404:/opt/baton/integration_entry.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006496124988188967
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404:/opt/baton/integration_workload.py",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005337691982276738
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404:/opt/baton/worker-control-1.0.schema.json",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005747212999267504
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404:/usr/local/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.11378681199857965
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404:/usr/local/lib/node_modules/@anthropic-ai/claude-code/cli-wrapper.cjs",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.009671617997810245
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404:/usr/local/lib/node_modules/@anthropic-ai/claude-code/install.cjs",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.006096363009419292
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404:/usr/local/lib/node_modules/@anthropic-ai/claude-code/package.json",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005823595012770966
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404:/usr/local/bin/claude",
+        "-"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.005853982002008706
+    },
+    {
+      "argv": [
+        "docker",
+        "inspect",
+        "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.00516252699890174
+    }
+  ],
+  "complete": true,
+  "content_checks": {
+    "integration": {
+      "/opt/baton/baton_worker.py": {
+        "bytes": 98926,
+        "mode": 436,
+        "sha256": "sha256:da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923"
+      },
+      "/opt/baton/claude_agent.py": {
+        "bytes": 168520,
+        "mode": 436,
+        "sha256": "sha256:489399897c3f0ae94f06be9da47adde3f05210fa0ecfd7faad295daf6accfe2a"
+      },
+      "/opt/baton/integration_contract.py": {
+        "bytes": 57431,
+        "mode": 436,
+        "sha256": "sha256:74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92"
+      },
+      "/opt/baton/integration_entry.py": {
+        "bytes": 5287,
+        "mode": 436,
+        "sha256": "sha256:0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3"
+      },
+      "/opt/baton/integration_workload.py": {
+        "bytes": 70815,
+        "mode": 436,
+        "sha256": "sha256:b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394"
+      },
+      "/opt/baton/source_profiles/__init__.py": {
+        "bytes": 3367,
+        "mode": 436,
+        "sha256": "sha256:c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+      },
+      "/opt/baton/source_profiles/checkout.py": {
+        "bytes": 16345,
+        "mode": 436,
+        "sha256": "sha256:037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+      },
+      "/opt/baton/worker-control-1.0.schema.json": {
+        "bytes": 51419,
+        "mode": 436,
+        "sha256": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+      },
+      "/usr/local/bin/claude": {
+        "linkname": "../lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe",
+        "target": "/usr/local/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe"
+      },
+      "/usr/local/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe": {
+        "bytes": 250162696,
+        "mode": 493,
+        "sha256": "sha256:5fb321bf417ffc5cd4e3f36e7c9c7e029bf47aaa36d5621db979fcc5e6eabe15"
+      },
+      "/usr/local/lib/node_modules/@anthropic-ai/claude-code/cli-wrapper.cjs": {
+        "bytes": 4997,
+        "mode": 420,
+        "sha256": "sha256:61ad63033d9c8155d5e60a29f45dc4665afa07631c0b108e62cc83bf45ba490e"
+      },
+      "/usr/local/lib/node_modules/@anthropic-ai/claude-code/install.cjs": {
+        "bytes": 7196,
+        "mode": 420,
+        "sha256": "sha256:5cbab1670597f492cd4eeb946f3c344ebcb1fbd43c623ba192c9b33744461b85"
+      },
+      "/usr/local/lib/node_modules/@anthropic-ai/claude-code/package.json": {
+        "bytes": 1476,
+        "mode": 420,
+        "sha256": "sha256:204e690591b935992fff95f6d2af6aeac86be074719da7900f1c4e4056f37efe"
+      }
+    },
+    "provider": {
+      "/opt/baton/baton_worker.py": {
+        "bytes": 98926,
+        "mode": 436,
+        "sha256": "sha256:da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923"
+      },
+      "/opt/baton/claude_agent.py": {
+        "bytes": 168520,
+        "mode": 436,
+        "sha256": "sha256:489399897c3f0ae94f06be9da47adde3f05210fa0ecfd7faad295daf6accfe2a"
+      },
+      "/opt/baton/dogfood_entry.py": {
+        "bytes": 810,
+        "mode": 436,
+        "sha256": "sha256:bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3"
+      },
+      "/opt/baton/source_profiles/__init__.py": {
+        "bytes": 3367,
+        "mode": 436,
+        "sha256": "sha256:c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad"
+      },
+      "/opt/baton/source_profiles/checkout.py": {
+        "bytes": 16345,
+        "mode": 436,
+        "sha256": "sha256:037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7"
+      },
+      "/opt/baton/worker-control-1.0.schema.json": {
+        "bytes": 51419,
+        "mode": 436,
+        "sha256": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+      },
+      "/usr/local/bin/claude": {
+        "linkname": "../lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe",
+        "target": "/usr/local/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe"
+      },
+      "/usr/local/lib/node_modules/@anthropic-ai/claude-code/bin/claude.exe": {
+        "bytes": 250162696,
+        "mode": 493,
+        "sha256": "sha256:5fb321bf417ffc5cd4e3f36e7c9c7e029bf47aaa36d5621db979fcc5e6eabe15"
+      },
+      "/usr/local/lib/node_modules/@anthropic-ai/claude-code/cli-wrapper.cjs": {
+        "bytes": 4997,
+        "mode": 420,
+        "sha256": "sha256:61ad63033d9c8155d5e60a29f45dc4665afa07631c0b108e62cc83bf45ba490e"
+      },
+      "/usr/local/lib/node_modules/@anthropic-ai/claude-code/install.cjs": {
+        "bytes": 7196,
+        "mode": 420,
+        "sha256": "sha256:5cbab1670597f492cd4eeb946f3c344ebcb1fbd43c623ba192c9b33744461b85"
+      },
+      "/usr/local/lib/node_modules/@anthropic-ai/claude-code/package.json": {
+        "bytes": 1476,
+        "mode": 420,
+        "sha256": "sha256:204e690591b935992fff95f6d2af6aeac86be074719da7900f1c4e4056f37efe"
+      }
+    }
+  },
+  "images": {
+    "integration": "sha256:d739fefe6bf885db8ad79122611316f3fbe8b393fa4c821933388e8cd15e2533",
+    "provider": "sha256:2e222e4cf33ff7f52b2048ae1a9c0a2139707e36943328fdd8674b84937f2b13"
+  },
+  "inspection_containers": {
+    "integration": "bae22e7c4acbe3aa8100628ab89313e7bbdb501b87d0f96f93a65a6484b36404",
+    "provider": "33cb53c06c1ae6f32f30727637c83b5e715df6f4f4fc985c2a3ae0417de7a9c8"
+  },
+  "selected": false,
+  "wall_seconds": 0.8677917640015949
+}

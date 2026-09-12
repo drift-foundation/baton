@@ -1,0 +1,98 @@
+--- work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/deployment.py
++++ work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-144415/deployment.py
+@@ -1,4 +1,4 @@
+-"""W71879 run1 packaging and public-API provisioning; never submits a Job.
++"""W71879 run2 packaging and public-API provisioning; never submits a Job.
+ 
+ prepare writes review inputs beside this script. validate uses a fresh /tmp
+ Authority to validate the bootstrap/document logic without a runtime. provision
+@@ -25,14 +25,14 @@
+ DOSSIER = HERE.parent
+ CONFIG = HERE / 'frozen-config'
+ REPO = Path('/home/sl/src/baton')
+-RUN = Path('/home/sl/.local/state/baton/v12/w71879-run1')
+-UUID = 'c71879ab000000000000000000000001'
++RUN = Path('/home/sl/.local/state/baton/v12/w71879-run2')
++UUID = 'c71879ac000000000000000000000001'
+ BASE = '2fbb2d456638e5706218020aebfa47f0a82c8920'
+ TREE = '3492ba64448ab9d39bde53ee6456ce24e74ece2c'
+ PROVIDER_BASE = 'sha256:0697b6595aff0af2a39a81d492223bf33cf69877426ec859fe1abb90abd617e4'
+-CREATED = '2026-09-11T04:26:29.000Z'
+-SCOPE = 'scope:w71879-run1'
+-PROFILE = 'claude-w71879-run1'
++CREATED = '2026-09-11T12:44:23.512Z'
++SCOPE = 'scope:w71879-run2'
++PROFILE = 'claude-w71879-run2'
+ REGISTRY = '/home/sl/.baton/credential-sources.json'
+ CREDENTIAL = {'provider': 'operator-file', 'reference': 'w64268-run1'}
+ ACTORS = {name: 'baton.proof-' + name for name in
+@@ -88,7 +88,7 @@
+                         'Do not modify source or invent receipts.\n\n' + duty +
+                         '\n\nThe complete accepted task scope follows. A is already landed; B is being merged.\n\n' + a + '\n\n' + b)
+         requests[name] = (instructions, 'check_hours.py')
+-    return {name: {'schema': 'baton.dogfood-task/2', 'task_id': 'w71879-run1-' + name,
++    return {name: {'schema': 'baton.dogfood-task/2', 'task_id': 'w71879-run2-' + name,
+                    'instructions': instructions, 'source_root': 'source',
+                    'source_profile': 'git-line', 'declared_base': BASE,
+                    'verification': ['python3', check]}
+@@ -97,7 +97,7 @@
+ 
+ def policy_documents():
+     return {
+-        'policy': {'work': 'W71879', 'ruling': 'M141636/return141673', 'base': BASE,
++        'policy': {'work': 'W71879', 'ruling': 'M141636/M144306/return144411', 'base': BASE,
+                    'scope': SCOPE, 'automatic_retry': False, 'ordinary_operator_transitions': 0,
+                    'submission': ['job-a', 'job-b'], 'review_before_execution': True},
+         'resource_policy': {'wall_seconds': 1200, 'implementation_attempt_seconds': 240,
+@@ -127,7 +127,7 @@
+         authority.set_policy('canonical_target', BASE)
+         authority.certify_contract('v12-assignment-1', profile=PROFILE)
+         for name, actor in ACTORS.items():
+-            authority.bind_endpoint(actor, 'principal:w71879-run1-' + name)
++            authority.bind_endpoint(actor, 'principal:w71879-run2-' + name)
+         for name in ('a', 'b'):
+             authority.add_route_handler('proof-impl-' + name, ACTORS['impl-' + name])
+             authority.add_route_handler('proof-review-' + name, ACTORS['review-' + name])
+@@ -188,7 +188,7 @@
+         payload = task_path.read_bytes()
+         given = dogfood_operator.input_manifest(
+             work_ref={'authority_uuid': UUID, 'work_id': WORKS[name]}, staged=empty,
+-            created_at=CREATED, manifest_id='w71879-run1-' + name,
++            created_at=CREATED, manifest_id='w71879-run2-' + name,
+             assignment_contract='v12-assignment-1',
+             human_contract={'artifact_id': 'w71879-task-' + name, 'media_type': 'application/json',
+                             'bytes': len(payload), 'content_digest': digest_of_bytes(payload),
+@@ -273,7 +273,7 @@
+                      'stages': [{'kind': kind, 'work_id': WORKS[name], 'profile_name': PROFILE,
+                                  'profile_digest': profile_digest, 'depends_on': dep[kind]}
+                                 for kind in ('implementation', 'review', 'integration')]})
+-    submission = {'schema': 'baton.v12.job-submission/1', 'submission_id': 'w71879-run1', 'jobs': jobs}
++    submission = {'schema': 'baton.v12.job-submission/1', 'submission_id': 'w71879-run2', 'jobs': jobs}
+     owned_submission(submission)
+     write_json(destination / 'stage-execution.json', config)
+     write_json(destination / 'submission.json', submission)
+@@ -316,7 +316,7 @@
+ 
+ def validate():
+     started = time.monotonic()
+-    destination = Path(tempfile.mkdtemp(prefix='w71879-141676-validation-'))
++    destination = Path(tempfile.mkdtemp(prefix='w71879-144415-validation-'))
+     print('Retained validation directory:', destination, flush=True)
+     facts = bootstrap(destination / 'authority.sqlite3')
+     # Historical image values exercise schema composition ONLY. They are
+--- work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-141676/run.py
++++ work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-144415/run.py
+@@ -20,11 +20,11 @@
+ PYTHON = '/usr/bin/python3'
+ CWD = REPO / 'v12/python'
+ PREFIX = ['/usr/bin/env', 'PYTHONDONTWRITEBYTECODE=1', 'PYTHONPATH=src:.', PYTHON, '-m', 'tools.job_manager',
+-          '--store', str(RUN / 'jobs.sqlite3'), '--incarnation', 'w71879-run1', '--authority-uuid', UUID]
++          '--store', str(RUN / 'jobs.sqlite3'), '--incarnation', 'w71879-run2', '--authority-uuid', UUID]
+ SERVE = ['/usr/bin/env', 'PYTHONDONTWRITEBYTECODE=1', 'PYTHONPATH=src:.',
+          'BATON_V12_STAGE_EXECUTION_CONFIG=' + str(CONFIG / 'stage-execution.json'),
+          PYTHON, '-m', 'tools.job_manager', '--store', str(RUN / 'jobs.sqlite3'),
+-         '--incarnation', 'w71879-run1', '--authority-uuid', UUID, 'serve',
++         '--incarnation', 'w71879-run2', '--authority-uuid', UUID, 'serve',
+          '--control', str(RUN / 'control.sqlite3'), '--operations', 'tools.stage_execution:factory', '--interval', '1']
+ STATUS = PREFIX + ['status', '--control', str(RUN / 'control.sqlite3')]
+ LIMITS = {ACTORS[name]: (240 if name.startswith('impl-') else 120 if name == 'integrator' else 180)

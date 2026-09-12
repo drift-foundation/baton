@@ -1,0 +1,22 @@
+{
+  "owner_authorization": [
+    152823,
+    152925
+  ],
+  "operator_attempts": 1,
+  "required_remaining": "Independent final actual-input acceptance and genuine selected-images/execution-review bindings covering all33 inputs, accepted source/product/images and all five helpers. Reviewer owns the accepted verdict; no tuner-created acceptance marker.",
+  "commands": [
+    {
+      "step": "provision once after actual input checks and genuine bindings",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "command": "/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-152826/deployment.py provision"
+    },
+    {
+      "step": "exactly one submit/serve attempt after bindings",
+      "cwd": "/home/sl/src/baton/v12/python",
+      "command": "/usr/bin/env PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /usr/bin/python3 /home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-152826/run.py"
+    }
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "execution": "Two separate commands after bindings, stop at first failure; no new permission request, agent execution, automatic retry or repair."
+}

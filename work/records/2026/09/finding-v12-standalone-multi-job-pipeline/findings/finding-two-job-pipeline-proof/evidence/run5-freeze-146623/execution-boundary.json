@@ -1,0 +1,29 @@
+{
+  "work": "W71879",
+  "claim": 146623,
+  "cwd": "/home/sl/src/baton/v12/python",
+  "provision_argv": [
+    "/usr/bin/env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "PYTHONPATH=src:.",
+    "/usr/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146538/deployment.py",
+    "provision"
+  ],
+  "run_argv": [
+    "/usr/bin/env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "PYTHONPATH=src:.",
+    "/usr/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146538/run.py"
+  ],
+  "model_run_authorized": false,
+  "execution_attempted": false,
+  "requirements": [
+    "genuine final-input independent review and markers binding all three helpers and exact configuration",
+    "explicit owner authorization for one model attempt",
+    "host execution with real IDs/supplementary1001/scoped external writes and ordinary engine access"
+  ],
+  "current_scope": "Bind actual host outputs and supply exact execution commands only. No repeat operator preparation/validate/render or image build.",
+  "installed_execution_rules": "Not assessed in this claim; owner execution boundary required. No access grant is asserted by this evidence."
+}

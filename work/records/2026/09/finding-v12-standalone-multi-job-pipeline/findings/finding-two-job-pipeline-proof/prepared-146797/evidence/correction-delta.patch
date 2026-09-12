@@ -1,0 +1,71 @@
+--- prepared-146538/deployment.py
++++ prepared-146797/deployment.py
+@@ -229,6 +229,18 @@
+ report shape alone establishes neither import nor successful verification.
+ Bound the report to 65536 UTF-8 bytes. Write the private report and end the turn
+ promptly after this bounded task; do not wait for the manager's settlement.
++"""
++    instructions += """
++
++Integration Git reads: every Git read must use git --no-optional-locks (place
++--no-optional-locks before the subcommand). Ordinary git status or git diff may
++refresh the index even when nothing is staged, changing the repository witness.
++For example, use git --no-optional-locks status --porcelain and git
++--no-optional-locks diff. This permits reads only: do not stage, commit, reset,
++change refs/configuration, repair the index or otherwise mutate version-control
++state. Preserve every existing scope, review, target, verification and report
++requirement. If a required read cannot be performed under these constraints,
++stop and report the actual refusal/hold under the existing report contract.
+ """
+     (destination / 'integration-instructions.txt').write_text(instructions)
+     empty = {'entries': [], 'entry_count': 0, 'total_bytes': 0,
+--- prepared-146538/run.py
++++ prepared-146797/run.py
+@@ -27,7 +27,7 @@
+          PYTHON, '-m', 'tools.job_manager', '--store', str(RUN / 'jobs.sqlite3'),
+          '--incarnation', 'w71879-run5', '--authority-uuid', UUID, 'serve',
+          '--control', str(RUN / 'control.sqlite3'), '--operations', 'tools.stage_execution:factory', '--interval', '1']
+-STATUS = PREFIX + ['status', '--control', str(RUN / 'control.sqlite3')]
++STATUS = PREFIX[:3] + ['BATON_V12_STAGE_EXECUTION_CONFIG=' + str(CONFIG / 'stage-execution.json')] + PREFIX[3:] + ['status', '--control', str(RUN / 'control.sqlite3'), '--observe', 'tools.stage_execution:observing_factory']
+ LIMITS = {ACTORS[name]: (240 if name.startswith('impl-') else 120 if name == 'integrator' else 180)
+           for name in ACTORS if name != 'observer'}
+ 
+@@ -194,7 +194,8 @@
+                     raise RuntimeError('retained run storage reached16GiB stop threshold')
+                 # Before first serve initialization the control store can be
+                 # absent. That is startup, not a status command to run against
+-                # a made-up store. No observation factory or producer is used.
++                # a made-up store. Once present, use the existing read-only
++                # observation factory; no serving producer is constructed.
+                 status = json.loads(command(STATUS)) if (RUN / 'control.sqlite3').exists() else None
+                 stats = stats_observation(runtime_rows)
+                 sample = {'wall_seconds': elapsed, 'claims': claims, 'status': status,
+--- prepared-146538/test_run5_preparation.py
++++ prepared-146797/test_run5_preparation.py
+@@ -10,6 +10,7 @@
+ import unittest
+ 
+ import deployment
++from correction_expectations import GIT_READ_INSTRUCTIONS, corrected_runner
+ from offline_fixture import documents_in_fixture
+ import run as runner
+ 
+@@ -63,15 +64,16 @@
+                 old['ruling'] = RULING
+             self.assertEqual(old, policy)
+             self.assertEqual(policy, json.loads((HERE / 'policies' / (name + '.json')).read_text()))
+-        self.assertEqual((PRIOR / 'evidence/generated-integration-instructions.txt').read_bytes(), (self.config / 'integration-instructions.txt').read_bytes())
++        self.assertEqual((PRIOR / 'evidence/generated-integration-instructions.txt').read_bytes() + GIT_READ_INSTRUCTIONS.encode(), (self.config / 'integration-instructions.txt').read_bytes())
+         for name in ('candidate-images.json', 'image-context-manifest.json', 'target_posture.py', 'test_stats_observation.py'):
+             self.assertEqual((PRIOR / name).read_bytes(), (HERE / name).read_bytes())
+ 
+     def test_deployment_and_runner_differ_only_in_scheduled_identity_metadata(self):
+         old = (PRIOR / 'deployment.py').read_text()
+         expected = old.replace('run4', 'run5').replace('c71879ae000000000000000000000001', 'c71879af000000000000000000000001').replace('2026-09-11T15:06:04.000Z', CREATED).replace('M141636/return145258; another model run not yet authorized', RULING).replace('w71879-145261-validation-', 'w71879-146538-validation-')
++        expected = expected.replace("    (destination / 'integration-instructions.txt').write_text(instructions)", '    instructions += ' + repr(GIT_READ_INSTRUCTIONS) + '\n' + "    (destination / 'integration-instructions.txt').write_text(instructions)")
+         self.assertEqual(ast.dump(ast.parse(expected)), ast.dump(ast.parse((HERE / 'deployment.py').read_text())))
+-        self.assertEqual((PRIOR / 'run.py').read_text().replace('w71879-run4', 'w71879-run5'), (HERE / 'run.py').read_text())
++        self.assertEqual(corrected_runner((PRIOR / 'run.py').read_text().replace('w71879-run4', 'w71879-run5')), (HERE / 'run.py').read_text())
+ 
+     def test_operator_recipe_preserves_fresh_only_guards_and_fixed_host_posture(self):
+         expected = (PRIOR / 'operator-prepare.sh').read_text().replace('run4', 'run5').replace('prepared-145261/target_posture.py', 'prepared-146538/target_posture.py')

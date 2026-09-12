@@ -1,0 +1,8 @@
+{
+  "scope": "offline synthetic fixtures only; not integration or host execution evidence",
+  "tests": 86,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 5.473073577013565,
+  "retained": "/tmp/w71879-152563-offline-verification-6u_m3nwl"
+}

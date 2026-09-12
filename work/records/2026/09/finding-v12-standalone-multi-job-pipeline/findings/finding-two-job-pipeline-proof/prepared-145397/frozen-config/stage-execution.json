@@ -1,0 +1,1277 @@
+{
+  "authority_store": "/home/sl/.local/state/baton/v12/w71879-run4/authority.sqlite3",
+  "authority_uuid": "c71879ae000000000000000000000001",
+  "canonical_target_id": "w71879-target",
+  "checkpoint_profile": "git",
+  "integration_instructions": "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145397/frozen-config/integration-instructions.txt",
+  "integration_observer": "baton.proof-observer",
+  "integration_profile": {
+    "instructions_digest": "sha256:8dc2bf03482d8dd75ff6621aa2b5eafa0be99959c25143cecac3a30fe3c66fc2",
+    "integrator_participant": "baton.proof-integrator",
+    "profile_kind": "git",
+    "profile_version": 1
+  },
+  "integration_store": "/home/sl/.local/state/baton/v12/w71879-run4/integration.sqlite3",
+  "integration_target": "/home/sl/.local/state/baton/v12/w71879-run4/target",
+  "integration_target_reference": "refs/heads/main",
+  "integration_workspace": "/home/sl/.local/state/baton/v12/w71879-run4/integration-workspace",
+  "job_bindings": [
+    {
+      "canonical_target_id": "w71879-target",
+      "job_id": "job-a",
+      "job_work_id": "c71879ae-W1",
+      "line_declared_base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+      "review_work_id": "c71879ae-W1",
+      "source_worker_id": "impl-a"
+    },
+    {
+      "canonical_target_id": "w71879-target",
+      "job_id": "job-b",
+      "job_work_id": "c71879ae-W2",
+      "line_declared_base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+      "review_work_id": "c71879ae-W2",
+      "source_worker_id": "impl-b"
+    }
+  ],
+  "job_work_id": "c71879ae-W1",
+  "line_declared_base": "2fbb2d456638e5706218020aebfa47f0a82c8920",
+  "policy_generation": 24,
+  "pool_generation": 1,
+  "receipt_participants": {
+    "approval": "baton.proof-approval",
+    "review": "baton.proof-review",
+    "verification": "baton.proof-verification"
+  },
+  "result_judgment_workers": {
+    "job-b": {
+      "approval": {
+        "deployment": {
+          "adapter_digest": "sha256:68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+          "adapter_name": "docker-single-worker",
+          "authority_store": "/home/sl/.local/state/baton/v12/w71879-run4/authority.sqlite3",
+          "authority_uuid": "c71879ae000000000000000000000001",
+          "credential_home": "/home/sl/.local/state/baton/v12/w71879-run4/credentials/approval",
+          "credential_profile": {
+            "claude": {
+              "provider": "operator-file",
+              "reference": "w64268-run1"
+            }
+          },
+          "credential_slots": [
+            "claude"
+          ],
+          "credential_sources": "/home/sl/.baton/credential-sources.json",
+          "engine": "docker",
+          "image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+          "input_manifest": {
+            "assignment_contract": "v12-assignment-1",
+            "created_at": "2026-09-11T15:06:04.000Z",
+            "credential_policy_digest": "sha256:e0dbf821e4516455821d152aa78965a79a676dc250ab16c41452e0e0fb6cf44f",
+            "extensions": {},
+            "human_contract": {
+              "artifact_id": "w71879-task-approval",
+              "bytes": 3280,
+              "content_digest": "sha256:b9062da5e73a36b76f42abb3fcbd9e091ec6f6e594c9cc07e409b7c348cc9093",
+              "locator": "artifact://contracts/w71879-task-approval",
+              "media_type": "application/json"
+            },
+            "manifest_digest": "sha256:c1e31f44ca871876a4aeea951cfb78a35f685e8e59157a5b8912a8030834a7a4",
+            "manifest_id": "w71879-run4-approval",
+            "mount_policy_digest": "sha256:1cee7317a5dc8170c3c6e3a8597e19d14a2196919dad1e5860e290beb9deb297",
+            "network_policy_digest": "sha256:574bceb2a56b459e1c514d9f6c3a8c51c0af68eaecc4f0ffa88b7f61c12eb0e5",
+            "outputs": [
+              {
+                "constraints": {
+                  "allowed_media_types": [
+                    "application/octet-stream",
+                    "text/plain"
+                  ],
+                  "link_policy": "forbid",
+                  "max_bytes": 67108864,
+                  "max_entries": 2000,
+                  "validator_digest": null
+                },
+                "name": "proposal",
+                "path": "proposal",
+                "required": false,
+                "type": "git-change-proposal"
+              },
+              {
+                "constraints": {
+                  "allowed_media_types": [
+                    "application/octet-stream",
+                    "text/plain"
+                  ],
+                  "link_policy": "forbid",
+                  "max_bytes": 67108864,
+                  "max_entries": 2000,
+                  "validator_digest": null
+                },
+                "name": "findings",
+                "path": "findings",
+                "required": false,
+                "type": "directory-result"
+              },
+              {
+                "constraints": {
+                  "allowed_media_types": [
+                    "application/octet-stream",
+                    "text/plain"
+                  ],
+                  "link_policy": "forbid",
+                  "max_bytes": 67108864,
+                  "max_entries": 2000,
+                  "validator_digest": null
+                },
+                "name": "logs",
+                "path": "logs",
+                "required": false,
+                "type": "directory-result"
+              }
+            ],
+            "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+            "record_binding": {
+              "finding_digest": "sha256:ccb0584c1c8b88455b6ab06d58312bc4dc249a3201800c87b74c32aaaeca02df",
+              "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof",
+              "plan_digest": "sha256:bcb3e786ea11b1cbbc9cf8d94cc880940cde66044bdecdadfc541a61a6b06a08",
+              "root": "baton"
+            },
+            "resource_policy_digest": "sha256:52d6bd82e882256454be06e68a0f76bb1b1a61197268e32f63348f96b35ca04d",
+            "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+            "role_instructions_digest": "sha256:54b587b5b4ffafd5a0c90c47fb1c01ff344c8b063762e38cd6d86c5be9468d6d",
+            "runtime_profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+            "schema": "baton.worker-manifest/input",
+            "sources": [
+              {
+                "consumption": {
+                  "baton.source-boundary/1": {
+                    "delivery": "nominated-mount",
+                    "profile": "git-line",
+                    "workspace": "disk"
+                  }
+                },
+                "content_manifest": {
+                  "entries": [],
+                  "entry_count": 0,
+                  "total_bytes": 0,
+                  "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                },
+                "destination": "source",
+                "name": "source",
+                "required": true
+              }
+            ],
+            "tool_policy_digest": "sha256:f2b4d60d21c4116ea01458e03c1e827c5a4a38a3dd9cc557bea9ad93ebef0922",
+            "toolchain_digest": "sha256:11978339915fdb527184b04ea8063a0f567370968b180ae52f62d12791ba8caf",
+            "version": {
+              "major": 1,
+              "minor": 0
+            },
+            "work_ref": {
+              "authority_uuid": "c71879ae000000000000000000000001",
+              "work_id": "c71879ae-W5"
+            },
+            "worker_image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+          },
+          "launch_contract": "v12-assignment-1",
+          "launch_home": "/home/sl/.local/state/baton/v12/w71879-run4/launch/approval",
+          "launch_role": "review",
+          "network": "bridge",
+          "nominated_source": "/home/sl/.local/state/baton/v12/w71879-run4/source",
+          "participant": "baton.proof-approval",
+          "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+          "principal": "principal:w71879-run4-approval",
+          "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "profile_name": "claude-w71879-run4",
+          "retention_disposition": "retain",
+          "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+          "review_route": "proof-judge-approval",
+          "schema": "baton.v12.single-worker-deployment/4",
+          "task_document": "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145397/frozen-config/tasks/approval.json",
+          "workspace_capacity": {
+            "max_bytes": 536870912
+          },
+          "workspace_group": 1001,
+          "workspace_storage": "/home/sl/.local/state/baton/v12/w71879-run4/storage"
+        },
+        "worker_id": "judge-approval"
+      },
+      "review": {
+        "deployment": {
+          "adapter_digest": "sha256:68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+          "adapter_name": "docker-single-worker",
+          "authority_store": "/home/sl/.local/state/baton/v12/w71879-run4/authority.sqlite3",
+          "authority_uuid": "c71879ae000000000000000000000001",
+          "credential_home": "/home/sl/.local/state/baton/v12/w71879-run4/credentials/review",
+          "credential_profile": {
+            "claude": {
+              "provider": "operator-file",
+              "reference": "w64268-run1"
+            }
+          },
+          "credential_slots": [
+            "claude"
+          ],
+          "credential_sources": "/home/sl/.baton/credential-sources.json",
+          "engine": "docker",
+          "image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+          "input_manifest": {
+            "assignment_contract": "v12-assignment-1",
+            "created_at": "2026-09-11T15:06:04.000Z",
+            "credential_policy_digest": "sha256:e0dbf821e4516455821d152aa78965a79a676dc250ab16c41452e0e0fb6cf44f",
+            "extensions": {},
+            "human_contract": {
+              "artifact_id": "w71879-task-review",
+              "bytes": 3123,
+              "content_digest": "sha256:e376a8e2bd8cce076f954c4a9fa02d9eb0ef74f39dd8aeec71ecd5db855df993",
+              "locator": "artifact://contracts/w71879-task-review",
+              "media_type": "application/json"
+            },
+            "manifest_digest": "sha256:a5f84724b935e5c50c02aec16f264fd2e0b657c072ec06594e1ed0e8a53f9089",
+            "manifest_id": "w71879-run4-review",
+            "mount_policy_digest": "sha256:1cee7317a5dc8170c3c6e3a8597e19d14a2196919dad1e5860e290beb9deb297",
+            "network_policy_digest": "sha256:574bceb2a56b459e1c514d9f6c3a8c51c0af68eaecc4f0ffa88b7f61c12eb0e5",
+            "outputs": [
+              {
+                "constraints": {
+                  "allowed_media_types": [
+                    "application/octet-stream",
+                    "text/plain"
+                  ],
+                  "link_policy": "forbid",
+                  "max_bytes": 67108864,
+                  "max_entries": 2000,
+                  "validator_digest": null
+                },
+                "name": "proposal",
+                "path": "proposal",
+                "required": false,
+                "type": "git-change-proposal"
+              },
+              {
+                "constraints": {
+                  "allowed_media_types": [
+                    "application/octet-stream",
+                    "text/plain"
+                  ],
+                  "link_policy": "forbid",
+                  "max_bytes": 67108864,
+                  "max_entries": 2000,
+                  "validator_digest": null
+                },
+                "name": "findings",
+                "path": "findings",
+                "required": false,
+                "type": "directory-result"
+              },
+              {
+                "constraints": {
+                  "allowed_media_types": [
+                    "application/octet-stream",
+                    "text/plain"
+                  ],
+                  "link_policy": "forbid",
+                  "max_bytes": 67108864,
+                  "max_entries": 2000,
+                  "validator_digest": null
+                },
+                "name": "logs",
+                "path": "logs",
+                "required": false,
+                "type": "directory-result"
+              }
+            ],
+            "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+            "record_binding": {
+              "finding_digest": "sha256:ccb0584c1c8b88455b6ab06d58312bc4dc249a3201800c87b74c32aaaeca02df",
+              "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof",
+              "plan_digest": "sha256:bcb3e786ea11b1cbbc9cf8d94cc880940cde66044bdecdadfc541a61a6b06a08",
+              "root": "baton"
+            },
+            "resource_policy_digest": "sha256:52d6bd82e882256454be06e68a0f76bb1b1a61197268e32f63348f96b35ca04d",
+            "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+            "role_instructions_digest": "sha256:54b587b5b4ffafd5a0c90c47fb1c01ff344c8b063762e38cd6d86c5be9468d6d",
+            "runtime_profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+            "schema": "baton.worker-manifest/input",
+            "sources": [
+              {
+                "consumption": {
+                  "baton.source-boundary/1": {
+                    "delivery": "nominated-mount",
+                    "profile": "git-line",
+                    "workspace": "disk"
+                  }
+                },
+                "content_manifest": {
+                  "entries": [],
+                  "entry_count": 0,
+                  "total_bytes": 0,
+                  "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                },
+                "destination": "source",
+                "name": "source",
+                "required": true
+              }
+            ],
+            "tool_policy_digest": "sha256:f2b4d60d21c4116ea01458e03c1e827c5a4a38a3dd9cc557bea9ad93ebef0922",
+            "toolchain_digest": "sha256:11978339915fdb527184b04ea8063a0f567370968b180ae52f62d12791ba8caf",
+            "version": {
+              "major": 1,
+              "minor": 0
+            },
+            "work_ref": {
+              "authority_uuid": "c71879ae000000000000000000000001",
+              "work_id": "c71879ae-W4"
+            },
+            "worker_image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+          },
+          "launch_contract": "v12-assignment-1",
+          "launch_home": "/home/sl/.local/state/baton/v12/w71879-run4/launch/review",
+          "launch_role": "review",
+          "network": "bridge",
+          "nominated_source": "/home/sl/.local/state/baton/v12/w71879-run4/source",
+          "participant": "baton.proof-review",
+          "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+          "principal": "principal:w71879-run4-review",
+          "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "profile_name": "claude-w71879-run4",
+          "retention_disposition": "retain",
+          "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+          "review_route": "proof-judge-review",
+          "schema": "baton.v12.single-worker-deployment/4",
+          "task_document": "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145397/frozen-config/tasks/review.json",
+          "workspace_capacity": {
+            "max_bytes": 536870912
+          },
+          "workspace_group": 1001,
+          "workspace_storage": "/home/sl/.local/state/baton/v12/w71879-run4/storage"
+        },
+        "worker_id": "judge-review"
+      },
+      "verification": {
+        "deployment": {
+          "adapter_digest": "sha256:68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+          "adapter_name": "docker-single-worker",
+          "authority_store": "/home/sl/.local/state/baton/v12/w71879-run4/authority.sqlite3",
+          "authority_uuid": "c71879ae000000000000000000000001",
+          "credential_home": "/home/sl/.local/state/baton/v12/w71879-run4/credentials/verification",
+          "credential_profile": {
+            "claude": {
+              "provider": "operator-file",
+              "reference": "w64268-run1"
+            }
+          },
+          "credential_slots": [
+            "claude"
+          ],
+          "credential_sources": "/home/sl/.baton/credential-sources.json",
+          "engine": "docker",
+          "image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+          "input_manifest": {
+            "assignment_contract": "v12-assignment-1",
+            "created_at": "2026-09-11T15:06:04.000Z",
+            "credential_policy_digest": "sha256:e0dbf821e4516455821d152aa78965a79a676dc250ab16c41452e0e0fb6cf44f",
+            "extensions": {},
+            "human_contract": {
+              "artifact_id": "w71879-task-verification",
+              "bytes": 3189,
+              "content_digest": "sha256:8661afb5241bbc43e6ec1f5005e107214c33cf8e97ac4704e023f25fef831653",
+              "locator": "artifact://contracts/w71879-task-verification",
+              "media_type": "application/json"
+            },
+            "manifest_digest": "sha256:9f1d1cea298b5ed1a6d40a86d582753ec07b595194969d80bceb05e95816efe5",
+            "manifest_id": "w71879-run4-verification",
+            "mount_policy_digest": "sha256:1cee7317a5dc8170c3c6e3a8597e19d14a2196919dad1e5860e290beb9deb297",
+            "network_policy_digest": "sha256:574bceb2a56b459e1c514d9f6c3a8c51c0af68eaecc4f0ffa88b7f61c12eb0e5",
+            "outputs": [
+              {
+                "constraints": {
+                  "allowed_media_types": [
+                    "application/octet-stream",
+                    "text/plain"
+                  ],
+                  "link_policy": "forbid",
+                  "max_bytes": 67108864,
+                  "max_entries": 2000,
+                  "validator_digest": null
+                },
+                "name": "proposal",
+                "path": "proposal",
+                "required": false,
+                "type": "git-change-proposal"
+              },
+              {
+                "constraints": {
+                  "allowed_media_types": [
+                    "application/octet-stream",
+                    "text/plain"
+                  ],
+                  "link_policy": "forbid",
+                  "max_bytes": 67108864,
+                  "max_entries": 2000,
+                  "validator_digest": null
+                },
+                "name": "findings",
+                "path": "findings",
+                "required": false,
+                "type": "directory-result"
+              },
+              {
+                "constraints": {
+                  "allowed_media_types": [
+                    "application/octet-stream",
+                    "text/plain"
+                  ],
+                  "link_policy": "forbid",
+                  "max_bytes": 67108864,
+                  "max_entries": 2000,
+                  "validator_digest": null
+                },
+                "name": "logs",
+                "path": "logs",
+                "required": false,
+                "type": "directory-result"
+              }
+            ],
+            "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+            "record_binding": {
+              "finding_digest": "sha256:ccb0584c1c8b88455b6ab06d58312bc4dc249a3201800c87b74c32aaaeca02df",
+              "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof",
+              "plan_digest": "sha256:bcb3e786ea11b1cbbc9cf8d94cc880940cde66044bdecdadfc541a61a6b06a08",
+              "root": "baton"
+            },
+            "resource_policy_digest": "sha256:52d6bd82e882256454be06e68a0f76bb1b1a61197268e32f63348f96b35ca04d",
+            "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+            "role_instructions_digest": "sha256:54b587b5b4ffafd5a0c90c47fb1c01ff344c8b063762e38cd6d86c5be9468d6d",
+            "runtime_profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+            "schema": "baton.worker-manifest/input",
+            "sources": [
+              {
+                "consumption": {
+                  "baton.source-boundary/1": {
+                    "delivery": "nominated-mount",
+                    "profile": "git-line",
+                    "workspace": "disk"
+                  }
+                },
+                "content_manifest": {
+                  "entries": [],
+                  "entry_count": 0,
+                  "total_bytes": 0,
+                  "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                },
+                "destination": "source",
+                "name": "source",
+                "required": true
+              }
+            ],
+            "tool_policy_digest": "sha256:f2b4d60d21c4116ea01458e03c1e827c5a4a38a3dd9cc557bea9ad93ebef0922",
+            "toolchain_digest": "sha256:11978339915fdb527184b04ea8063a0f567370968b180ae52f62d12791ba8caf",
+            "version": {
+              "major": 1,
+              "minor": 0
+            },
+            "work_ref": {
+              "authority_uuid": "c71879ae000000000000000000000001",
+              "work_id": "c71879ae-W3"
+            },
+            "worker_image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+          },
+          "launch_contract": "v12-assignment-1",
+          "launch_home": "/home/sl/.local/state/baton/v12/w71879-run4/launch/verification",
+          "launch_role": "review",
+          "network": "bridge",
+          "nominated_source": "/home/sl/.local/state/baton/v12/w71879-run4/source",
+          "participant": "baton.proof-verification",
+          "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+          "principal": "principal:w71879-run4-verification",
+          "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "profile_name": "claude-w71879-run4",
+          "retention_disposition": "retain",
+          "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+          "review_route": "proof-judge-verification",
+          "schema": "baton.v12.single-worker-deployment/4",
+          "task_document": "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145397/frozen-config/tasks/verification.json",
+          "workspace_capacity": {
+            "max_bytes": 536870912
+          },
+          "workspace_group": 1001,
+          "workspace_storage": "/home/sl/.local/state/baton/v12/w71879-run4/storage"
+        },
+        "worker_id": "judge-verification"
+      }
+    }
+  },
+  "retention_disposition": "retain",
+  "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+  "review_work_id": "c71879ae-W1",
+  "schema": "baton.v12.stage-execution-deployment/2",
+  "state_root": "/home/sl/.local/state/baton/v12/w71879-run4/state",
+  "workers": [
+    {
+      "deployment": {
+        "adapter_digest": "sha256:68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+        "adapter_name": "docker-single-worker",
+        "authority_store": "/home/sl/.local/state/baton/v12/w71879-run4/authority.sqlite3",
+        "authority_uuid": "c71879ae000000000000000000000001",
+        "credential_home": "/home/sl/.local/state/baton/v12/w71879-run4/credentials/impl-a",
+        "credential_profile": {
+          "claude": {
+            "provider": "operator-file",
+            "reference": "w64268-run1"
+          }
+        },
+        "credential_slots": [
+          "claude"
+        ],
+        "credential_sources": "/home/sl/.baton/credential-sources.json",
+        "engine": "docker",
+        "image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+        "input_manifest": {
+          "assignment_contract": "v12-assignment-1",
+          "created_at": "2026-09-11T15:06:04.000Z",
+          "credential_policy_digest": "sha256:e0dbf821e4516455821d152aa78965a79a676dc250ab16c41452e0e0fb6cf44f",
+          "extensions": {},
+          "human_contract": {
+            "artifact_id": "w71879-task-a",
+            "bytes": 1252,
+            "content_digest": "sha256:5af8c6215c57ea4f4820895f99454902da2e057180d33df35dbb3c1e8a1cdb3a",
+            "locator": "artifact://contracts/w71879-task-a",
+            "media_type": "application/json"
+          },
+          "manifest_digest": "sha256:97f36da7214048d1a209f270909c23cbf5883963bd97de07340676b96c7e0bc6",
+          "manifest_id": "w71879-run4-a",
+          "mount_policy_digest": "sha256:1cee7317a5dc8170c3c6e3a8597e19d14a2196919dad1e5860e290beb9deb297",
+          "network_policy_digest": "sha256:574bceb2a56b459e1c514d9f6c3a8c51c0af68eaecc4f0ffa88b7f61c12eb0e5",
+          "outputs": [
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "proposal",
+              "path": "proposal",
+              "required": false,
+              "type": "git-change-proposal"
+            },
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "findings",
+              "path": "findings",
+              "required": false,
+              "type": "directory-result"
+            },
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "logs",
+              "path": "logs",
+              "required": false,
+              "type": "directory-result"
+            }
+          ],
+          "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+          "record_binding": {
+            "finding_digest": "sha256:ccb0584c1c8b88455b6ab06d58312bc4dc249a3201800c87b74c32aaaeca02df",
+            "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof",
+            "plan_digest": "sha256:bcb3e786ea11b1cbbc9cf8d94cc880940cde66044bdecdadfc541a61a6b06a08",
+            "root": "baton"
+          },
+          "resource_policy_digest": "sha256:52d6bd82e882256454be06e68a0f76bb1b1a61197268e32f63348f96b35ca04d",
+          "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+          "role_instructions_digest": "sha256:54b587b5b4ffafd5a0c90c47fb1c01ff344c8b063762e38cd6d86c5be9468d6d",
+          "runtime_profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "schema": "baton.worker-manifest/input",
+          "sources": [
+            {
+              "consumption": {
+                "baton.source-boundary/1": {
+                  "delivery": "nominated-mount",
+                  "profile": "git-line",
+                  "workspace": "disk"
+                }
+              },
+              "content_manifest": {
+                "entries": [],
+                "entry_count": 0,
+                "total_bytes": 0,
+                "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+              },
+              "destination": "source",
+              "name": "source",
+              "required": true
+            }
+          ],
+          "tool_policy_digest": "sha256:f2b4d60d21c4116ea01458e03c1e827c5a4a38a3dd9cc557bea9ad93ebef0922",
+          "toolchain_digest": "sha256:11978339915fdb527184b04ea8063a0f567370968b180ae52f62d12791ba8caf",
+          "version": {
+            "major": 1,
+            "minor": 0
+          },
+          "work_ref": {
+            "authority_uuid": "c71879ae000000000000000000000001",
+            "work_id": "c71879ae-W1"
+          },
+          "worker_image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+        },
+        "launch_contract": "v12-assignment-1",
+        "launch_home": "/home/sl/.local/state/baton/v12/w71879-run4/launch/impl-a",
+        "launch_role": "implementation",
+        "network": "bridge",
+        "nominated_source": "/home/sl/.local/state/baton/v12/w71879-run4/source",
+        "participant": "baton.proof-impl-a",
+        "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+        "principal": "principal:w71879-run4-impl-a",
+        "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+        "profile_name": "claude-w71879-run4",
+        "retention_disposition": "retain",
+        "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+        "review_route": "proof-review-a",
+        "schema": "baton.v12.single-worker-deployment/4",
+        "task_document": "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145397/frozen-config/tasks/a.json",
+        "workspace_capacity": {
+          "max_bytes": 536870912
+        },
+        "workspace_group": 1001,
+        "workspace_storage": "/home/sl/.local/state/baton/v12/w71879-run4/storage"
+      },
+      "role": "implementation",
+      "worker_id": "impl-a"
+    },
+    {
+      "deployment": {
+        "adapter_digest": "sha256:68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+        "adapter_name": "docker-single-worker",
+        "authority_store": "/home/sl/.local/state/baton/v12/w71879-run4/authority.sqlite3",
+        "authority_uuid": "c71879ae000000000000000000000001",
+        "credential_home": "/home/sl/.local/state/baton/v12/w71879-run4/credentials/review-a",
+        "credential_profile": {
+          "claude": {
+            "provider": "operator-file",
+            "reference": "w64268-run1"
+          }
+        },
+        "credential_slots": [
+          "claude"
+        ],
+        "credential_sources": "/home/sl/.baton/credential-sources.json",
+        "engine": "docker",
+        "image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+        "input_manifest": {
+          "assignment_contract": "v12-assignment-1",
+          "created_at": "2026-09-11T15:06:04.000Z",
+          "credential_policy_digest": "sha256:e0dbf821e4516455821d152aa78965a79a676dc250ab16c41452e0e0fb6cf44f",
+          "extensions": {},
+          "human_contract": {
+            "artifact_id": "w71879-task-a",
+            "bytes": 1252,
+            "content_digest": "sha256:5af8c6215c57ea4f4820895f99454902da2e057180d33df35dbb3c1e8a1cdb3a",
+            "locator": "artifact://contracts/w71879-task-a",
+            "media_type": "application/json"
+          },
+          "manifest_digest": "sha256:97f36da7214048d1a209f270909c23cbf5883963bd97de07340676b96c7e0bc6",
+          "manifest_id": "w71879-run4-a",
+          "mount_policy_digest": "sha256:1cee7317a5dc8170c3c6e3a8597e19d14a2196919dad1e5860e290beb9deb297",
+          "network_policy_digest": "sha256:574bceb2a56b459e1c514d9f6c3a8c51c0af68eaecc4f0ffa88b7f61c12eb0e5",
+          "outputs": [
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "proposal",
+              "path": "proposal",
+              "required": false,
+              "type": "git-change-proposal"
+            },
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "findings",
+              "path": "findings",
+              "required": false,
+              "type": "directory-result"
+            },
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "logs",
+              "path": "logs",
+              "required": false,
+              "type": "directory-result"
+            }
+          ],
+          "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+          "record_binding": {
+            "finding_digest": "sha256:ccb0584c1c8b88455b6ab06d58312bc4dc249a3201800c87b74c32aaaeca02df",
+            "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof",
+            "plan_digest": "sha256:bcb3e786ea11b1cbbc9cf8d94cc880940cde66044bdecdadfc541a61a6b06a08",
+            "root": "baton"
+          },
+          "resource_policy_digest": "sha256:52d6bd82e882256454be06e68a0f76bb1b1a61197268e32f63348f96b35ca04d",
+          "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+          "role_instructions_digest": "sha256:54b587b5b4ffafd5a0c90c47fb1c01ff344c8b063762e38cd6d86c5be9468d6d",
+          "runtime_profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "schema": "baton.worker-manifest/input",
+          "sources": [
+            {
+              "consumption": {
+                "baton.source-boundary/1": {
+                  "delivery": "nominated-mount",
+                  "profile": "git-line",
+                  "workspace": "disk"
+                }
+              },
+              "content_manifest": {
+                "entries": [],
+                "entry_count": 0,
+                "total_bytes": 0,
+                "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+              },
+              "destination": "source",
+              "name": "source",
+              "required": true
+            }
+          ],
+          "tool_policy_digest": "sha256:f2b4d60d21c4116ea01458e03c1e827c5a4a38a3dd9cc557bea9ad93ebef0922",
+          "toolchain_digest": "sha256:11978339915fdb527184b04ea8063a0f567370968b180ae52f62d12791ba8caf",
+          "version": {
+            "major": 1,
+            "minor": 0
+          },
+          "work_ref": {
+            "authority_uuid": "c71879ae000000000000000000000001",
+            "work_id": "c71879ae-W1"
+          },
+          "worker_image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+        },
+        "launch_contract": "v12-assignment-1",
+        "launch_home": "/home/sl/.local/state/baton/v12/w71879-run4/launch/review-a",
+        "launch_role": "review",
+        "network": "bridge",
+        "nominated_source": "/home/sl/.local/state/baton/v12/w71879-run4/source",
+        "participant": "baton.proof-review-a",
+        "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+        "principal": "principal:w71879-run4-review-a",
+        "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+        "profile_name": "claude-w71879-run4",
+        "retention_disposition": "retain",
+        "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+        "review_route": "proof-integration",
+        "schema": "baton.v12.single-worker-deployment/4",
+        "task_document": "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145397/frozen-config/tasks/a.json",
+        "workspace_capacity": {
+          "max_bytes": 536870912
+        },
+        "workspace_group": 1001,
+        "workspace_storage": "/home/sl/.local/state/baton/v12/w71879-run4/storage"
+      },
+      "role": "review",
+      "worker_id": "review-a"
+    },
+    {
+      "deployment": {
+        "adapter_digest": "sha256:68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+        "adapter_name": "docker-single-worker",
+        "authority_store": "/home/sl/.local/state/baton/v12/w71879-run4/authority.sqlite3",
+        "authority_uuid": "c71879ae000000000000000000000001",
+        "credential_home": "/home/sl/.local/state/baton/v12/w71879-run4/credentials/impl-b",
+        "credential_profile": {
+          "claude": {
+            "provider": "operator-file",
+            "reference": "w64268-run1"
+          }
+        },
+        "credential_slots": [
+          "claude"
+        ],
+        "credential_sources": "/home/sl/.baton/credential-sources.json",
+        "engine": "docker",
+        "image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+        "input_manifest": {
+          "assignment_contract": "v12-assignment-1",
+          "created_at": "2026-09-11T15:06:04.000Z",
+          "credential_policy_digest": "sha256:e0dbf821e4516455821d152aa78965a79a676dc250ab16c41452e0e0fb6cf44f",
+          "extensions": {},
+          "human_contract": {
+            "artifact_id": "w71879-task-b",
+            "bytes": 1543,
+            "content_digest": "sha256:b3f0077ba098249021fa6817cca256dec9b96c587378653a8f2be879e3c6c4d6",
+            "locator": "artifact://contracts/w71879-task-b",
+            "media_type": "application/json"
+          },
+          "manifest_digest": "sha256:78db2ac65de8419a2728cdbd98d82ec7e2fbc888741553750243c7ef3af6f401",
+          "manifest_id": "w71879-run4-b",
+          "mount_policy_digest": "sha256:1cee7317a5dc8170c3c6e3a8597e19d14a2196919dad1e5860e290beb9deb297",
+          "network_policy_digest": "sha256:574bceb2a56b459e1c514d9f6c3a8c51c0af68eaecc4f0ffa88b7f61c12eb0e5",
+          "outputs": [
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "proposal",
+              "path": "proposal",
+              "required": false,
+              "type": "git-change-proposal"
+            },
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "findings",
+              "path": "findings",
+              "required": false,
+              "type": "directory-result"
+            },
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "logs",
+              "path": "logs",
+              "required": false,
+              "type": "directory-result"
+            }
+          ],
+          "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+          "record_binding": {
+            "finding_digest": "sha256:ccb0584c1c8b88455b6ab06d58312bc4dc249a3201800c87b74c32aaaeca02df",
+            "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof",
+            "plan_digest": "sha256:bcb3e786ea11b1cbbc9cf8d94cc880940cde66044bdecdadfc541a61a6b06a08",
+            "root": "baton"
+          },
+          "resource_policy_digest": "sha256:52d6bd82e882256454be06e68a0f76bb1b1a61197268e32f63348f96b35ca04d",
+          "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+          "role_instructions_digest": "sha256:54b587b5b4ffafd5a0c90c47fb1c01ff344c8b063762e38cd6d86c5be9468d6d",
+          "runtime_profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "schema": "baton.worker-manifest/input",
+          "sources": [
+            {
+              "consumption": {
+                "baton.source-boundary/1": {
+                  "delivery": "nominated-mount",
+                  "profile": "git-line",
+                  "workspace": "disk"
+                }
+              },
+              "content_manifest": {
+                "entries": [],
+                "entry_count": 0,
+                "total_bytes": 0,
+                "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+              },
+              "destination": "source",
+              "name": "source",
+              "required": true
+            }
+          ],
+          "tool_policy_digest": "sha256:f2b4d60d21c4116ea01458e03c1e827c5a4a38a3dd9cc557bea9ad93ebef0922",
+          "toolchain_digest": "sha256:11978339915fdb527184b04ea8063a0f567370968b180ae52f62d12791ba8caf",
+          "version": {
+            "major": 1,
+            "minor": 0
+          },
+          "work_ref": {
+            "authority_uuid": "c71879ae000000000000000000000001",
+            "work_id": "c71879ae-W2"
+          },
+          "worker_image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+        },
+        "launch_contract": "v12-assignment-1",
+        "launch_home": "/home/sl/.local/state/baton/v12/w71879-run4/launch/impl-b",
+        "launch_role": "implementation",
+        "network": "bridge",
+        "nominated_source": "/home/sl/.local/state/baton/v12/w71879-run4/source",
+        "participant": "baton.proof-impl-b",
+        "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+        "principal": "principal:w71879-run4-impl-b",
+        "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+        "profile_name": "claude-w71879-run4",
+        "retention_disposition": "retain",
+        "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+        "review_route": "proof-review-b",
+        "schema": "baton.v12.single-worker-deployment/4",
+        "task_document": "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145397/frozen-config/tasks/b.json",
+        "workspace_capacity": {
+          "max_bytes": 536870912
+        },
+        "workspace_group": 1001,
+        "workspace_storage": "/home/sl/.local/state/baton/v12/w71879-run4/storage"
+      },
+      "role": "implementation",
+      "worker_id": "impl-b"
+    },
+    {
+      "deployment": {
+        "adapter_digest": "sha256:68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+        "adapter_name": "docker-single-worker",
+        "authority_store": "/home/sl/.local/state/baton/v12/w71879-run4/authority.sqlite3",
+        "authority_uuid": "c71879ae000000000000000000000001",
+        "credential_home": "/home/sl/.local/state/baton/v12/w71879-run4/credentials/review-b",
+        "credential_profile": {
+          "claude": {
+            "provider": "operator-file",
+            "reference": "w64268-run1"
+          }
+        },
+        "credential_slots": [
+          "claude"
+        ],
+        "credential_sources": "/home/sl/.baton/credential-sources.json",
+        "engine": "docker",
+        "image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+        "input_manifest": {
+          "assignment_contract": "v12-assignment-1",
+          "created_at": "2026-09-11T15:06:04.000Z",
+          "credential_policy_digest": "sha256:e0dbf821e4516455821d152aa78965a79a676dc250ab16c41452e0e0fb6cf44f",
+          "extensions": {},
+          "human_contract": {
+            "artifact_id": "w71879-task-b",
+            "bytes": 1543,
+            "content_digest": "sha256:b3f0077ba098249021fa6817cca256dec9b96c587378653a8f2be879e3c6c4d6",
+            "locator": "artifact://contracts/w71879-task-b",
+            "media_type": "application/json"
+          },
+          "manifest_digest": "sha256:78db2ac65de8419a2728cdbd98d82ec7e2fbc888741553750243c7ef3af6f401",
+          "manifest_id": "w71879-run4-b",
+          "mount_policy_digest": "sha256:1cee7317a5dc8170c3c6e3a8597e19d14a2196919dad1e5860e290beb9deb297",
+          "network_policy_digest": "sha256:574bceb2a56b459e1c514d9f6c3a8c51c0af68eaecc4f0ffa88b7f61c12eb0e5",
+          "outputs": [
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "proposal",
+              "path": "proposal",
+              "required": false,
+              "type": "git-change-proposal"
+            },
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "findings",
+              "path": "findings",
+              "required": false,
+              "type": "directory-result"
+            },
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "logs",
+              "path": "logs",
+              "required": false,
+              "type": "directory-result"
+            }
+          ],
+          "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+          "record_binding": {
+            "finding_digest": "sha256:ccb0584c1c8b88455b6ab06d58312bc4dc249a3201800c87b74c32aaaeca02df",
+            "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof",
+            "plan_digest": "sha256:bcb3e786ea11b1cbbc9cf8d94cc880940cde66044bdecdadfc541a61a6b06a08",
+            "root": "baton"
+          },
+          "resource_policy_digest": "sha256:52d6bd82e882256454be06e68a0f76bb1b1a61197268e32f63348f96b35ca04d",
+          "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+          "role_instructions_digest": "sha256:54b587b5b4ffafd5a0c90c47fb1c01ff344c8b063762e38cd6d86c5be9468d6d",
+          "runtime_profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "schema": "baton.worker-manifest/input",
+          "sources": [
+            {
+              "consumption": {
+                "baton.source-boundary/1": {
+                  "delivery": "nominated-mount",
+                  "profile": "git-line",
+                  "workspace": "disk"
+                }
+              },
+              "content_manifest": {
+                "entries": [],
+                "entry_count": 0,
+                "total_bytes": 0,
+                "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+              },
+              "destination": "source",
+              "name": "source",
+              "required": true
+            }
+          ],
+          "tool_policy_digest": "sha256:f2b4d60d21c4116ea01458e03c1e827c5a4a38a3dd9cc557bea9ad93ebef0922",
+          "toolchain_digest": "sha256:11978339915fdb527184b04ea8063a0f567370968b180ae52f62d12791ba8caf",
+          "version": {
+            "major": 1,
+            "minor": 0
+          },
+          "work_ref": {
+            "authority_uuid": "c71879ae000000000000000000000001",
+            "work_id": "c71879ae-W2"
+          },
+          "worker_image_digest": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99"
+        },
+        "launch_contract": "v12-assignment-1",
+        "launch_home": "/home/sl/.local/state/baton/v12/w71879-run4/launch/review-b",
+        "launch_role": "review",
+        "network": "bridge",
+        "nominated_source": "/home/sl/.local/state/baton/v12/w71879-run4/source",
+        "participant": "baton.proof-review-b",
+        "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+        "principal": "principal:w71879-run4-review-b",
+        "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+        "profile_name": "claude-w71879-run4",
+        "retention_disposition": "retain",
+        "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+        "review_route": "proof-integration",
+        "schema": "baton.v12.single-worker-deployment/4",
+        "task_document": "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145397/frozen-config/tasks/b.json",
+        "workspace_capacity": {
+          "max_bytes": 536870912
+        },
+        "workspace_group": 1001,
+        "workspace_storage": "/home/sl/.local/state/baton/v12/w71879-run4/storage"
+      },
+      "role": "review",
+      "worker_id": "review-b"
+    },
+    {
+      "deployment": {
+        "adapter_digest": "sha256:68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f",
+        "adapter_name": "docker-single-worker",
+        "authority_store": "/home/sl/.local/state/baton/v12/w71879-run4/authority.sqlite3",
+        "authority_uuid": "c71879ae000000000000000000000001",
+        "credential_home": "/home/sl/.local/state/baton/v12/w71879-run4/credentials/integrator",
+        "credential_profile": {
+          "claude": {
+            "provider": "operator-file",
+            "reference": "w64268-run1"
+          }
+        },
+        "credential_slots": [
+          "claude"
+        ],
+        "credential_sources": "/home/sl/.baton/credential-sources.json",
+        "engine": "docker",
+        "image_digest": "sha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2",
+        "input_manifest": {
+          "assignment_contract": "v12-assignment-1",
+          "created_at": "2026-09-11T15:06:04.000Z",
+          "credential_policy_digest": "sha256:e0dbf821e4516455821d152aa78965a79a676dc250ab16c41452e0e0fb6cf44f",
+          "extensions": {},
+          "human_contract": {
+            "artifact_id": "w71879-task-a",
+            "bytes": 1252,
+            "content_digest": "sha256:5af8c6215c57ea4f4820895f99454902da2e057180d33df35dbb3c1e8a1cdb3a",
+            "locator": "artifact://contracts/w71879-task-a",
+            "media_type": "application/json"
+          },
+          "manifest_digest": "sha256:26a1b79aaa0d2f06982456a521d395be7a2e6fc2f1e5b0b7f91e6ee27146ae9d",
+          "manifest_id": "w71879-run4-a",
+          "mount_policy_digest": "sha256:1cee7317a5dc8170c3c6e3a8597e19d14a2196919dad1e5860e290beb9deb297",
+          "network_policy_digest": "sha256:574bceb2a56b459e1c514d9f6c3a8c51c0af68eaecc4f0ffa88b7f61c12eb0e5",
+          "outputs": [
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "proposal",
+              "path": "proposal",
+              "required": false,
+              "type": "git-change-proposal"
+            },
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "findings",
+              "path": "findings",
+              "required": false,
+              "type": "directory-result"
+            },
+            {
+              "constraints": {
+                "allowed_media_types": [
+                  "application/octet-stream",
+                  "text/plain"
+                ],
+                "link_policy": "forbid",
+                "max_bytes": 67108864,
+                "max_entries": 2000,
+                "validator_digest": null
+              },
+              "name": "logs",
+              "path": "logs",
+              "required": false,
+              "type": "directory-result"
+            }
+          ],
+          "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+          "record_binding": {
+            "finding_digest": "sha256:ccb0584c1c8b88455b6ab06d58312bc4dc249a3201800c87b74c32aaaeca02df",
+            "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof",
+            "plan_digest": "sha256:bcb3e786ea11b1cbbc9cf8d94cc880940cde66044bdecdadfc541a61a6b06a08",
+            "root": "baton"
+          },
+          "resource_policy_digest": "sha256:52d6bd82e882256454be06e68a0f76bb1b1a61197268e32f63348f96b35ca04d",
+          "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+          "role_instructions_digest": "sha256:54b587b5b4ffafd5a0c90c47fb1c01ff344c8b063762e38cd6d86c5be9468d6d",
+          "runtime_profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+          "schema": "baton.worker-manifest/input",
+          "sources": [
+            {
+              "consumption": {
+                "baton.source-boundary/1": {
+                  "delivery": "nominated-mount",
+                  "profile": "git-line",
+                  "workspace": "disk"
+                }
+              },
+              "content_manifest": {
+                "entries": [],
+                "entry_count": 0,
+                "total_bytes": 0,
+                "tree_digest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+              },
+              "destination": "source",
+              "name": "source",
+              "required": true
+            }
+          ],
+          "tool_policy_digest": "sha256:f2b4d60d21c4116ea01458e03c1e827c5a4a38a3dd9cc557bea9ad93ebef0922",
+          "toolchain_digest": "sha256:11978339915fdb527184b04ea8063a0f567370968b180ae52f62d12791ba8caf",
+          "version": {
+            "major": 1,
+            "minor": 0
+          },
+          "work_ref": {
+            "authority_uuid": "c71879ae000000000000000000000001",
+            "work_id": "c71879ae-W1"
+          },
+          "worker_image_digest": "sha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2"
+        },
+        "launch_contract": "v12-assignment-1",
+        "launch_home": "/home/sl/.local/state/baton/v12/w71879-run4/launch/integrator",
+        "launch_role": "integration",
+        "network": "bridge",
+        "nominated_source": "/home/sl/.local/state/baton/v12/w71879-run4/source",
+        "participant": "baton.proof-integrator",
+        "policy_digest": "sha256:df0c4d4223fe5a1a527aaf6c0b0ce8a298905276554a9c5506ef66b0d714919e",
+        "principal": "principal:w71879-run4-integrator",
+        "profile_digest": "sha256:3171a44a69d849a3fd6b81ea46db7b7f092ebdfb77af646930541c6ab86795e7",
+        "profile_name": "claude-w71879-run4",
+        "retention_disposition": "retain",
+        "retention_policy_digest": "sha256:bbaaf83de05c9d51da3e0e6d1af071a0ee6a65922f072c41fc71aa4d3ec8ba09",
+        "review_route": "proof-integration",
+        "schema": "baton.v12.single-worker-deployment/4",
+        "task_document": "/home/sl/src/baton/work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-145397/frozen-config/tasks/a.json",
+        "workspace_capacity": {
+          "max_bytes": 536870912
+        },
+        "workspace_group": 1001,
+        "workspace_storage": "/home/sl/.local/state/baton/v12/w71879-run4/storage"
+      },
+      "role": "integration",
+      "worker_id": "integrator"
+    }
+  ]
+}

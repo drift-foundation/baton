@@ -1,0 +1,23 @@
+{
+  "work": "W71879",
+  "claim": 144468,
+  "manifest": "sha256:7ecaec5de234b28e92201e183f0732d3f3e7592f530b0562726d8d2dbdc6ef58",
+  "files_verified": 25,
+  "helper_delta": "exact identity/declaration/ruling substitutions plus introductory run label only",
+  "tasks_verified": 5,
+  "policies_verified": 7,
+  "images": "unchanged accepted IDs",
+  "shell_syntax": "pass, not executed",
+  "source": {
+    "identity": "2fbb2d456638e5706218020aebfa47f0a82c8920 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+    "branch": "main",
+    "status": ""
+  },
+  "run2_absent": true,
+  "operator_script_sha256": "sha256:9fe139ef9c70d3136393629f0b3165f1df59ff39f27b264028a15ee2077f22b7",
+  "measured_seconds": 0.006661940002231859,
+  "prior_listed_preparation_seconds": 1.0130230390032207,
+  "run1_wall_seconds_spent": 223.9077433210041,
+  "run2_models_submissions": 0,
+  "uncertainty": "Historical and current untimed source/CLI/document work and unknown provider billing remain additional. First offline comparison stopped on omitted introductory docstring run-label normalization; corrected reviewer harness, no candidate change; failed comparison and diagnosis untimed."
+}

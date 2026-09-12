@@ -1,0 +1,7 @@
+{
+  "prior_listed": 39.886439952919716,
+  "current_listed": 0.39422264200402424,
+  "cumulative_listed": 40.28066259492374,
+  "failed_run_walls": 1341.1107609820174,
+  "uncertainty": "Untimed reads/edits, shell/AST/diff checks, Docker/Git read observations and prior host/operator/billing uncertainty. Inner package suite time not added to process wall. No image build or model spending."
+}

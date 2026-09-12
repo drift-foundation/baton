@@ -1,0 +1,18 @@
+{
+  "checks_seconds": {
+    "product-first": 0.7524873949878383,
+    "product-final": 0.7064564829925075,
+    "proof-first": 3.0233669990266208,
+    "proof-second": 5.473073577013565,
+    "proof-final": 5.4804847589985,
+    "preservation": 0.013340701989363879,
+    "reader-findings": 0.00027831702027469873,
+    "joined_policy_diagnostic_command_wall": 1.539160777
+  },
+  "this_claim_seconds": 16.98864900902867,
+  "previous_cumulative_seconds": 50.95110570690095,
+  "cumulative_seconds": 67.93975471592961,
+  "runtime_failures_seconds": 2002.0388815780316,
+  "new_model_attempts": 0,
+  "qualification": "Measured checks only; prior untimed checks, host/provider billing uncertainty remain; diagnostic includes process wall while tests use retained internal timers."
+}

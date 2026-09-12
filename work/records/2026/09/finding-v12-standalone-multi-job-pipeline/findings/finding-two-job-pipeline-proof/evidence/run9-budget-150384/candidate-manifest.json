@@ -1,0 +1,83 @@
+{
+  "claim": 150384,
+  "files": {
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/RUN9-BUDGET-150384.md": {
+      "bytes": 12231,
+      "sha256": "sha256:d74e9b892c022c6a26e0920dfeb2edf7defa8f654cb2af1865a7aace5bda9b90"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/approval-report.json": {
+      "bytes": 5721,
+      "sha256": "sha256:91f93f9e2c748c707cd05a785bdbc22f133246554e4e899b9795cf6d669f106c"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/approval-sealed.json": {
+      "bytes": 3486,
+      "sha256": "sha256:8465de248f5c284bcc7dc79bac0eef8fc2bd36aa8263f48c9f37890a9d73b868"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/authority-assignments.json": {
+      "bytes": 11303,
+      "sha256": "sha256:258cc05e6ed86ed9628dd2380286b64a159c84e64b701d9059d7c6da7332b490"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/last-status.json": {
+      "bytes": 46114,
+      "sha256": "sha256:1bf4801fafab1bcc21adea4f225753740e7a23108751ba1e6988d1ca9aff8cb5"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/reconcile.py": {
+      "bytes": 10493,
+      "sha256": "sha256:8acd73a30fd6215c4a9ba75b8e2a120e69849e902dc9afad0808e2bbeea3b863"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/retained-containers.json": {
+      "bytes": 2418,
+      "sha256": "sha256:12c1ce8e86f5dce4e104a0f79672789d42cd7c4311c7351919bf599d15344b40"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/review-report.json": {
+      "bytes": 4308,
+      "sha256": "sha256:c16408008061a349b2c2c6d6ef551d410aeeb96527ce552ec91d86e9665bd0c9"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/review-sealed.json": {
+      "bytes": 3482,
+      "sha256": "sha256:e74609146f51e3f9d572ca0417b7cfb272f2f8893691ff181b9e59a754517286"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/run-result.json": {
+      "bytes": 1280,
+      "sha256": "sha256:6da6057e81422346a3d11e72cdd03e3c1f4e1cc25fa452c2743527a713c4746e"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/sample-transitions.json": {
+      "bytes": 4209,
+      "sha256": "sha256:565575f7f16a8abc935a59b807346d83f95f9efb7af0a49083f23ddf45c761b6"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/source-bindings.json": {
+      "bytes": 3122,
+      "sha256": "sha256:4cd5c95f9337f657c035f8065eb1ec39b51828c6ebe9af58bebdbf74119078bf"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/subject.json": {
+      "bytes": 2503,
+      "sha256": "sha256:9f87bbcebb666ef58aad69bb72b7f12e0b6b7a0c7123d28a6e1dbf46beaa996f"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/summary.json": {
+      "bytes": 1836,
+      "sha256": "sha256:31931a9c32b1fa3f5ad45058159b50cca8ac55b79ca02f31fc8f7e2d546bfd01"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/timing.json": {
+      "bytes": 726,
+      "sha256": "sha256:e4cd528bdcd77153ca29f6c8ffab1c4d5b97e40d707b646bf729fbc911ad59bf"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/verification-receipt.json": {
+      "bytes": 368,
+      "sha256": "sha256:c4a354429445e2c215e913c09b4dd5848ff599ee30d47e36cad2017b454340c9"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/verification-state-describe.json": {
+      "bytes": 467,
+      "sha256": "sha256:f0643d2366d95bec572de23e59e38b09a54c9c161606abc250fa6903bfed1511"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/verification-state-work.json": {
+      "bytes": 461,
+      "sha256": "sha256:04d7ab3b5aa0a594338c7d1cffa2eab9eaefd8fdea0e79a040e4145ee2ebc760"
+    },
+    "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/evidence/run9-budget-150384/verification-subject.json": {
+      "bytes": 2525,
+      "sha256": "sha256:13bfa0b2605da0992b9797f7fa9347764910f6c22cf8b31ae12774da97d5f321"
+    }
+  },
+  "scope": "Reconciliation and proposed budget accounting only; not execution authority. FINDING/PLAN remain chronological coordination records outside this evidence byte set.",
+  "work": "W71879"
+}

@@ -1,0 +1,24 @@
+{
+  "deadline_action": "exceptional stop; retain evidence; no retry or success repair",
+  "implementation_attempt_seconds": 240,
+  "integration_seconds": 120,
+  "review_or_judge_attempt_seconds": 180,
+  "run_storage_stop_bytes": 17179869184,
+  "runtime_cpus": 2,
+  "runtime_memory_bytes": 2147483648,
+  "runtime_pids": 512,
+  "sample_seconds": 1,
+  "scratch_mounts": [
+    [
+      "/tmp",
+      67108864
+    ],
+    [
+      "/dev/shm",
+      16777216
+    ]
+  ],
+  "wall_seconds": 1200,
+  "workspace_capacity_is_quota": false,
+  "workspace_declared_capacity_bytes": 536870912
+}

@@ -1,0 +1,7 @@
+{
+  "operation": "docker image inspect accepted provider/integration IDs via Python subprocess",
+  "exit_code": 1,
+  "stderr": "not emitted by failed capture wrapper; exact cause unknown",
+  "classification": "operational invocation finding; no Baton defect inferred",
+  "next": "same read-only inspection through directly authorized command boundary; no escalation or alternate engine"
+}

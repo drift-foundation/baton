@@ -1,0 +1,264 @@
+--- prepared-152563/README.md
++++ prepared-152750/README.md
+@@ -1,9 +1,9 @@
+-# Combined accounting correction candidate 152563
++# Observation refresh correction candidate 152750
+ 
+-For independent review under owner152560; read ../ACCOUNTING-152563.md and the exact evidence/accounting-152563/candidate-manifest.json. This completes the partial prepared-150501 reader using the simultaneously reviewed manager store API.
++Independent review candidate under owner152747 and existing152560 scope. Read ../ACCOUNTING-152750.md, review-2026-09-12T13-08-55Z.md and evidence/accounting-152750/candidate-manifest.json. Product store and tests retain exact152563 bytes; only this copied proof helper/runner/tests and supporting documentation change.
+ 
+-This is a correction package, not a fresh execution namespace. Copied deployment, task, image and frozen run9 configuration documents are historical baselines. Old package-local evidence and patches retain their original claim numbers and are not current verification. Current results are outside this package in evidence/accounting-152563. Do not launch these copied run9 paths, bootstrap them again, or reuse historical execution authorization for new bytes. No selected-images.json or execution-review.json is present. Ordinary preflight requires genuine fresh execution bindings after independent review and operational preparation.
++This is not a fresh execution namespace. Copied run9 deployment, tasks, image/configuration inputs and old package-local evidence are historical baselines, not current verification or permission to provision/launch. No selected-images.json or execution-review.json exists here. New execution needs its genuine fresh bindings through the ordinary reviewed preparation; no retry is authorized by this correction.
+ 
+-Run offline checks with `python3 prepared-152563/verify_offline.py` from the dossier. The script discovers all package tests and retains output under a labelled /tmp directory. Engine/provider answers are simulated; joined tests use actual disposable Authority, manager, Job, coordinator, frozen reports and intake owners.
++Run offline checks from this dossier with `python3 prepared-152750/verify_offline.py`. Current retained results are evidence/accounting-152750/final-verification.{json,txt}; temporary fixture paths are reported there. All engine/provider answers are simulated. Joined tests exercise actual disposable component owners and ordinary import while the observer is paused between public reads.
+ 
+-Five helpers are bound by runner-helpers.json. The accounting helper uses public read-only store acquisition and a real configured WorkspaceGroup; it does not acquire serving operations or synthesize judge stages. Actual all-three judgments, current policy at admission, ordinary receipts/import and both terminal Jobs remain execution acceptance requirements.
++Five helpers are bound by runner-helpers.json. A moving result/policy or changed claim history causes a bounded fresh observation before timeout/success decisions. Stable wrong policy and required reader failures remain refusals. Whole and per-attempt clocks, independent judgments/receipts and final verification remain mandatory.
+--- prepared-152563/accounting.py
++++ prepared-152750/accounting.py
+@@ -213,9 +213,11 @@
+             subject, _ = document(place)
+             if home.name != digest(subject['result_id'])[7:]:
+                 raise AccountingError('subject locator does not bind its result')
+-            with IntegrationStore.open_readonly(config['integration_store'], incarnation=self.incarnation, clock=self.clock) as owner:
+-                held = reconciliation.result_of(owner, subject['result_id'])
+-            fixed, configured = self.bind_result(status, claims, subject, held)
++            policy = self.authority.policy_generation()
++            held = self.result(subject['result_id'])
++            if self.authority.policy_generation() != policy:
++                raise BudgetWake()
++            fixed, configured = self.bind_result(status, claims, subject, held, policy)
+             with ControlStore.open_readonly(self.control_path, incarnation=self.incarnation, clock=self.clock) as manager:
+                 with manager.snapshot():
+                     group = configured_workspace_group(manager)
+@@ -235,18 +237,24 @@
+                         if observed.get('failure'):
+                             return exclusions, observations, observed
+                         exclusions[key(fixed)].append(row['assignment'])
+-            if held['state'] != 'imported' and subject['policy_generation'] != self.authority.policy_generation():
++            # A serving import can advance policy or custody while these owners
++            # are read. Discard every dependent fact; do not decide from a mix.
++            if self.result(subject['result_id']) != held or self.authority.policy_generation() != policy:
+                 raise BudgetWake()
+         return exclusions, observations, None
+ 
+-    def bind_result(self, status, claims, subject, held):
++    def result(self, result_id):
++        with IntegrationStore.open_readonly(self.config['integration_store'], incarnation=self.incarnation, clock=self.clock) as owner:
++            return reconciliation.result_of(owner, result_id)
++
++    def bind_result(self, status, claims, subject, held, observed_policy):
+         config = self.config
+         rows = intervals(claims, instant(self.clock()))
+         stages = {stage['job_id']: stage for job in status['jobs'] for stage in job['stages'] if stage['kind'] == 'integration'}
+         # Import releases the lease and can advance current policy. The public
+         # result reader proves its committed evidence/import chain; terminal
+         # observation binds that retained approval generation, not a new grant.
+-        policy = held['policy_generation'] if held['state'] == 'imported' else self.authority.policy_generation()
++        policy = held['policy_generation'] if held['state'] == 'imported' else observed_policy
+         if held['state'] not in ('published', 'authorized', 'imported') or subject != subject_of(held, policy):
+             raise AccountingError('derived subject/result/policy disagree')
+         stage = stages.get(held['job_id'])
+--- prepared-152563/run.py
++++ prepared-152750/run.py
+@@ -196,6 +196,10 @@
+                                                   'judgments': judge_observations, 'docker_stats': None, 'telemetry_skipped': 'definitive required-attempt failure'}) + '\n')
+                         samples.flush()
+                         raise RequiredAttemptFailure('definitive required attempt failed: ' + failed['stage_id'])
++                    # A completed/changed claim invalidates the whole observation,
++                    # including status and exclusions, before timeout or success.
++                    if read_claims(authority, WORKS) != claims:
++                        raise BudgetWake()
+                     chosen = evaluate(claims, exclusions, now=datetime.now(timezone.utc).timestamp(),
+                                       elapsed=time.monotonic() - started, limits=LIMITS)
+                     alarm.arm(chosen)
+--- prepared-152563/runner-helpers.json
++++ prepared-152750/runner-helpers.json
+@@ -1,6 +1,6 @@
+ {
+-  "run.py": "sha256:9453fa501db8dbd0a31d68bb9515f8d0584eceadc5de2ca5ab49d11f3fc0a513",
+-  "accounting.py": "sha256:4310b8543fa581602805a71d7da831fe5d2d4c7d7ad2ea25a2173d2dd0cdffb5",
++  "run.py": "sha256:70d4432cf90270266364e07385b86bec0814d398ee5de0775d28b3990db2a1fe",
++  "accounting.py": "sha256:30a984a316d76d379dde3e743037ca6d1f0bfc105ed365781b1d42fdf727c245",
+   "deployment.py": "sha256:4c99557d5d780bc1fc2ea641dc524e3632e001851e785ab07e7ed3af31d69d64",
+   "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97",
+   "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9"
+--- prepared-152563/test_joined_judges.py
++++ prepared-152750/test_joined_judges.py
+@@ -2,6 +2,7 @@
+ 
+ These are joined component checks, never evidence of a live model proof.
+ """
++from contextlib import nullcontext
+ from datetime import datetime, timezone
+ import unittest
+ from unittest import mock
+@@ -22,7 +23,7 @@
+         held, deployment, result_id, result = fixture.pending_judgments()
+         return fixture, held, deployment, result_id, result
+ 
+-    def observe(self, fixture, held, deployment):
++    def observe(self, fixture, held, deployment, *, result_reader=None):
+         config = deployment.given
+         projected = status(held.job, held.composed, observed_at='2026-09-12T00:00:00.000Z')
+         works = {binding['job_id'][-1]: binding['job_work_id'] for binding in config['job_bindings']}
+@@ -32,7 +33,7 @@
+             latest = max(a.instant(event['at']) for row in claims.values() for event in row['events']) + 1
+             now = datetime.fromtimestamp(latest, timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
+             reader = a.BoundJudges(config, incarnation=projected['incarnation'], authority=owner, clock=lambda: now, control_path=fixture.control_path)
+-            with mock.patch.object(a.ControlStore, 'open', side_effect=AssertionError('write-capable opener')), mock.patch.object(stage_execution, 'operations_from', side_effect=AssertionError('serving factory')):
++            with mock.patch.object(a.ControlStore, 'open', side_effect=AssertionError('write-capable opener')), mock.patch.object(stage_execution, 'operations_from', side_effect=AssertionError('serving factory')), mock.patch.object(a.reconciliation, 'result_of', side_effect=result_reader) if result_reader else nullcontext():
+                 return reader.read(projected, claims)
+ 
+     def test_pending_then_three_frozen_reports_and_both_imported_without_reader_actions(self):
+@@ -86,3 +87,44 @@
+             with self.subTest(bad=bad), mock.patch.object(a.exchange, 'observation', return_value={bad: True}):
+                 with self.assertRaisesRegex(a.AccountingError, 'unreadable/foreign'):
+                     self.observe(fixture, held, deployment)
++
++    def test_ordinary_import_between_result_and_policy_reads_refreshes_all_facts(self):
++        fixture, held, deployment, result_id, _ = self.pending()
++        for execution in deployment.judges.values(): fixture.judgment_turn(held, execution)
++        original = a.reconciliation.result_of
++        seen = []
++        def interleaved(store, key):
++            result = original(store, key)
++            if not seen:
++                seen.append((result['state'], deployment.authority.policy_generation()))
++                fixture.drive_job(held.job, held.composed, 'job-b', 'integration', 'completed', ticks=14)
++            return result
++        with self.assertRaises(a.BudgetWake):
++            self.observe(fixture, held, deployment, result_reader=interleaved)
++        self.assertEqual('published', seen[0][0])
++        self.assertGreater(deployment.authority.policy_generation(), seen[0][1])
++        self.assertEqual('imported', original(deployment.integration, result_id)['state'])
++        _, observations, failed = self.observe(fixture, held, deployment)
++        self.assertIsNone(failed)
++        self.assertEqual(3, len(observations))
++        self.assertTrue(all(one['verdict'] == 'accepted' for one in observations))
++        for job in ('job-a', 'job-b'): self.assertEqual('completed', fixture.states_for(held.job, held.composed, job)['integration'])
++
++    def test_movement_during_judge_reads_refreshes_before_returning_credit(self):
++        fixture, held, deployment, result_id, _ = self.pending()
++        original = a.BoundJudges.judge
++        moved = []
++        def interleaved(reader, *args):
++            observed = original(reader, *args)
++            if not moved:
++                moved.append(True)
++                for execution in deployment.judges.values(): fixture.judgment_turn(held, execution)
++                fixture.drive_job(held.job, held.composed, 'job-b', 'integration', 'completed', ticks=14)
++            return observed
++        # The old manager snapshot and removed launch may themselves request a
++        # fresh read; either path must discard the old claims and observations.
++        with mock.patch.object(a.BoundJudges, 'judge', new=interleaved):
++            with self.assertRaises(a.BudgetWake): self.observe(fixture, held, deployment)
++        _, observed, failed = self.observe(fixture, held, deployment)
++        self.assertIsNone(failed)
++        self.assertEqual(3, len(observed))
+--- prepared-152563/test_stats_observation.py
++++ prepared-152750/test_stats_observation.py
+@@ -101,7 +101,7 @@
+         cls.retained = Path(tempfile.mkdtemp(prefix='w71879-145261-unit-runner-'))
+         print('Retained offline fixture root:', cls.retained, flush=True)
+ 
+-    def exercise(self, *, stats=None, fault=None, final_exit=0, terminal=True, current=None, events=None, claim_age=None, stop_error=None, judges=None, required_failure=None, final_elapsed=None):
++    def exercise(self, *, stats=None, fault=None, final_exit=0, terminal=True, current=None, events=None, claim_age=None, stop_error=None, judges=None, required_failure=None, final_elapsed=None, judge_wakes=0):
+         root = self.retained / (self._testMethodName + '-' + str(len(list(self.retained.iterdir()))))
+         (root / 'evidence').mkdir(parents=True)
+         row = {'Id': 'unit-container', 'Config': {'Labels': {'baton.v12.authority_uuid': runner.UUID}},
+@@ -121,7 +121,8 @@
+         clock = SimpleNamespace(now=0)
+         def sleep(seconds): clock.now += seconds
+         serve = mock.Mock(pid=123456)
+-        serve.poll.side_effect = [None, None if terminal else 1]
++        serve.poll.side_effect = None if terminal else [None, 1]
++        serve.poll.return_value = None
+         owner = mock.Mock()
+         if claim_age is not None:
+             current = {'participant': runner.ACTORS['impl-a']}
+@@ -150,7 +151,7 @@
+             if len(container_calls) == 1: return []
+             if len(container_calls) == 2:
+                 if fault == 'inspect': raise RuntimeError('required inspect unavailable')
+-                return [row]
++                return [row] if len(status_calls) == 1 else []
+             return []
+         def process(argv, **kwargs):
+             if argv[:2] == ['docker', 'stats']:
+@@ -163,6 +164,14 @@
+             self.assertEqual([runner.PYTHON, '-B', '-m', 'unittest', 'discover', '-s', 'tests', '-v'], argv)
+             if final_elapsed is not None: clock.now = final_elapsed
+             return completed(final_exit, 'UNIT final tests', '')
++        judge_reads = []
++        def judge_answer(*args):
++            judge_reads.append(args)
++            if len(judge_reads) <= judge_wakes:
++                clock.now += 2
++                raise runner.BudgetWake()
++            if isinstance(judges, BaseException): raise judges
++            return judges if judges is not None else ({}, [{'kind': kind, 'verdict': 'accepted'} for kind in ('verification', 'review', 'approval')], None)
+         registered_alarm = []
+         def signal_handler(kind, callback):
+             registered_alarm.append(callback)
+@@ -178,7 +187,7 @@
+             patch(runner, 'baseline', return_value={'UNIT_fixture': True})
+             cmd = patch(runner, 'command', side_effect=command)
+             patch(runner, 'containers', side_effect=containers)
+-            judge_call = patch(runner, 'judge_observation', side_effect=judges if isinstance(judges, BaseException) else None, return_value=judges if judges is not None and not isinstance(judges, BaseException) else ({}, [{'kind': kind, 'verdict': 'accepted'} for kind in ('verification', 'review', 'approval')], None))
++            judge_call = patch(runner, 'judge_observation', side_effect=judge_answer)
+             if required_failure is not None: patch(runner, 'first_failure', return_value=required_failure)
+             patch(runner, 'retained_bytes', return_value=17179869184 if fault == 'storage' else 123)
+             patch(runner.Authority, 'open_readonly', return_value=owner)
+@@ -287,6 +296,39 @@
+         held.judge_call.assert_not_called()
+         self.assertEqual(failure, held.result['primary_failure'])
+ 
++    def test_import_refresh_rereads_status_and_claims_without_resetting_whole_clock(self):
++        with mock.patch.object(runner, 'evaluate', wraps=runner.evaluate) as evaluated:
++            held = self.exercise(judge_wakes=1)
++        self.assertIsNone(held.error)
++        self.assertEqual(2, held.judge_call.call_count)
++        self.assertEqual(2, sum(call.args[0] == runner.STATUS for call in held.command.call_args_list))
++        self.assertEqual(1, evaluated.call_count)
++        self.assertEqual(2, evaluated.call_args.kwargs['elapsed'])
++        self.assertEqual(1198, held.result['budget_clock']['remaining'])
++
++    def test_unstable_owner_refresh_is_bounded_and_never_runs_final_tests(self):
++        held = self.exercise(judge_wakes=4)
++        self.assertIn('did not stabilize', str(held.error))
++        self.assertEqual(4, held.judge_call.call_count)
++        self.assertFalse(held.result['terminal_both'])
++        held.process_call.assert_not_called()
++
++    def test_changed_claim_history_discards_pre_refresh_timeout_and_terminal_facts(self):
++        before = {}
++        after = {'unit-work': {'current': None, 'events': []}}
++        with mock.patch.object(runner, 'read_claims', side_effect=[before, after, after, after]), mock.patch.object(runner, 'evaluate', wraps=runner.evaluate) as evaluated:
++            held = self.exercise()
++        self.assertIsNone(held.error)
++        self.assertEqual(1, evaluated.call_count)
++        self.assertEqual(after, evaluated.call_args.args[0])
++        self.assertEqual(2, held.judge_call.call_count)
++
++    def test_stable_accounting_error_is_never_a_refresh(self):
++        held = self.exercise(judges=RuntimeError('stable wrong-policy refusal'))
++        self.assertIn('stable wrong-policy refusal', str(held.error))
++        self.assertEqual(1, held.judge_call.call_count)
++        held.process_call.assert_not_called()
++
+ 
+ if __name__ == '__main__':
+     began = time.monotonic()
+--- prepared-152563/verify_offline.py
++++ prepared-152750/verify_offline.py
+@@ -12,7 +12,7 @@
+ HERE = Path(__file__).resolve().parent
+ REPO = next(parent for parent in HERE.parents if (parent / 'v12/python/src/baton_v12').is_dir())
+ sys.path[:0] = [str(HERE), str(REPO / 'v12/python/src'), str(REPO / 'v12/python'), str(REPO / 'v12/worker')]
+-retained = Path(tempfile.mkdtemp(prefix='w71879-152563-offline-verification-'))
++retained = Path(tempfile.mkdtemp(prefix='w71879-152750-offline-verification-'))
+ started = time.monotonic()
+ output = io.StringIO()
+ with contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):

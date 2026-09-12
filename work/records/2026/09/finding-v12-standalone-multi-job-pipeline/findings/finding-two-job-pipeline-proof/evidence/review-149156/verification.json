@@ -1,0 +1,21 @@
+{
+  "claim": 149156,
+  "manifests": {
+    "evidence/image-preparation-149053/candidate-manifest.json": 73,
+    "evidence/diagnostic-148870/candidate-manifest.json": 76,
+    "prepared-147109/candidate-manifest.json": 43,
+    "evidence/run6-freeze-146988/candidate-manifest.json": 568
+  },
+  "provider_chain_entries": 45,
+  "composition_observer_bindings": 7,
+  "context_files": 11,
+  "helpers": {
+    "deployment.py": "sha256:f0cbf8e54cbc9b62a0019c4c2fa9a9e96ca7cd59b4cc592c536db7cd0b97bc9b",
+    "failure_observation.py": "sha256:9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+    "run.py": "sha256:f48cb792d80154758307e66c654fcd59b1f179396f166dc0c8bf0da13be55c1e",
+    "target_posture.py": "sha256:62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+  },
+  "actual_run_and_preparation_outputs_absent": true,
+  "seconds": 0.030672847002279013,
+  "scope": "Custody, continuity and syntax only; no Docker mutation, host/Git preparation, runtime or credential access."
+}

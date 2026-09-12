@@ -1,0 +1,165 @@
+--- work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146897/run.py
++++ work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-147109/run.py
+@@ -15,6 +15,7 @@
+ import time
+ 
+ from baton_v12.authority import Authority
++from failure_observation import first_failure, provider_diagnostic
+ from target_posture import manager_git_environment
+ from deployment import ACTORS, BASE, CONFIG, HERE, REPO, RUN, TREE, UUID, WORKS, baseline, git_read, sha, write_json
+ 
+@@ -30,6 +31,10 @@
+ STATUS = PREFIX[:3] + ['BATON_V12_STAGE_EXECUTION_CONFIG=' + str(CONFIG / 'stage-execution.json')] + PREFIX[3:] + ['status', '--control', str(RUN / 'control.sqlite3'), '--observe', 'tools.stage_execution:observing_factory']
+ LIMITS = {ACTORS[name]: (240 if name.startswith('impl-') else 120 if name == 'integrator' else 180)
+           for name in ACTORS if name != 'observer'}
++
++
++class RequiredAttemptFailure(RuntimeError):
++    """The current required attempt has a definitive failed owner answer."""
+ 
+ 
+ def command(argv, *, seconds=10):
+@@ -121,8 +126,8 @@
+     for path, expected in approval['reviewed_files'].items():
+         if sha(Path(path)) != expected:
+             raise RuntimeError('reviewed input or helper drift: ' + path)
+-    if any(str(path) not in approval['reviewed_files'] for path in (HERE / 'run.py', HERE / 'deployment.py', HERE / 'target_posture.py')):
+-        raise RuntimeError('the existing review must bind all three execution helpers')
++    if any(str(path) not in approval['reviewed_files'] for path in (HERE / 'run.py', HERE / 'deployment.py', HERE / 'target_posture.py', HERE / 'failure_observation.py')):
++        raise RuntimeError('the existing review must bind all four execution helpers')
+     if 1001 not in set(os.getgroups()):
+         raise RuntimeError('manager launch boundary lacks supplementary workspace gid1001')
+     if (RUN / 'jobs.sqlite3').exists() or containers():
+@@ -197,6 +202,18 @@
+                 # a made-up store. Once present, use the existing read-only
+                 # observation factory; no serving producer is constructed.
+                 status = json.loads(command(STATUS)) if (RUN / 'control.sqlite3').exists() else None
++                failed = first_failure(status, authority_uuid=UUID, incarnation=PREFIX[PREFIX.index('--incarnation') + 1], works=WORKS)
++                if failed is not None:
++                    # Set primary evidence before optional diagnostics/telemetry.
++                    # Pending collection and quiescence alone never reach here.
++                    failed.update(sample='samples.jsonl:' + str(sample_number + 1), wall_seconds=elapsed)
++                    record['primary_failure'] = failed
++                    samples.write(json.dumps({'wall_seconds': elapsed, 'claims': claims, 'status': status,
++                                              'runtime_observations': runtime_rows, 'docker_stats': None,
++                                              'telemetry_skipped': 'definitive required-attempt failure',
++                                              'retained_bytes': held_bytes}) + '\n')
++                    samples.flush()
++                    raise RequiredAttemptFailure('definitive required attempt failed: ' + failed['stage_id'])
+                 stats = stats_observation(runtime_rows)
+                 sample = {'wall_seconds': elapsed, 'claims': claims, 'status': status,
+                           'runtime_observations': runtime_rows, 'docker_stats': stats,
+@@ -238,9 +255,19 @@
+         record['result'] = 'both terminal; final verification passed; independent evidence assessment still owed'
+     except BaseException as failure:
+         signal.setitimer(signal.ITIMER_REAL, 0)
+-        record['failure'] = type(failure).__name__ + ': ' + str(failure)
++        primary = record.get('primary_failure')
++        if primary is not None:
++            record['failure'] = 'RequiredAttemptFailure: ' + primary['stage_id'] + '/' + primary['attempt_id'] + ' ' + (primary['disposition'] or primary['ending'])
++            if not isinstance(failure, RequiredAttemptFailure):
++                record['secondary_failure'] = type(failure).__name__
++            write_json(evidence / 'first-failure.json', primary)
++        else:
++            record['failure'] = type(failure).__name__ + ': ' + str(failure)
+         if serve is not None:
+-            stop_serving(serve)
++            try:
++                stop_serving(serve)
++            except BaseException as stop_failure:
++                record['serve_containment_failure'] = type(stop_failure).__name__
+         # Exceptional containment only. It cannot make a Job pass or clear a
+         # claim. Retain the exact acted-on runtime IDs and all manager state.
+         try:
+@@ -249,16 +276,34 @@
+                 record['exceptional_stops'].append({'argv': action, 'answer': command(action, seconds=5)})
+         except BaseException as stop_failure:
+             record['containment_failure'] = str(stop_failure)
++        if primary is not None:
++            # Contain first; a missing or invalid diagnostic cannot mask the
++            # owner failure or postpone it until another deadline.
++            diagnostic = provider_diagnostic(primary, run_root=RUN, incarnation=PREFIX[PREFIX.index('--incarnation') + 1])
++            record['provider_diagnostic'] = diagnostic
++            write_json(evidence / 'failure-diagnostic.json', diagnostic)
++            raise RequiredAttemptFailure(record['failure']) from None
+         raise
+     finally:
+         signal.setitimer(signal.ITIMER_REAL, 0)
+         signal.signal(signal.SIGALRM, previous_alarm)
+-        if serve is not None:
+-            stop_serving(serve)
+-        if authority is not None:
+-            authority.dispose()
++        cleanup_failure = None
++        for cleanup in ((lambda: stop_serving(serve)) if serve is not None else None,
++                        authority.dispose if authority is not None else None):
++            if cleanup is None:
++                continue
++            try:
++                cleanup()
++            except BaseException as cleanup_error:
++                record.setdefault('cleanup_failures', []).append(type(cleanup_error).__name__)
++                cleanup_failure = cleanup_error
+         record['wall_seconds'] = time.monotonic() - started
++        if cleanup_failure is not None and 'failure' not in record:
++            record['failure'] = 'cleanup failed: ' + type(cleanup_failure).__name__
++            record['terminal_both'] = False
+         write_json(evidence / 'run-result.json', record)
++        if cleanup_failure is not None and 'primary_failure' not in record:
++            raise cleanup_failure
+ 
+ 
+ if __name__ == '__main__':
+--- work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146897/test_run6_preparation.py
++++ work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-147109/test_run6_preparation.py
+@@ -64,18 +64,20 @@
+             self.assertEqual(old, policy)
+             self.assertEqual(policy, json.loads((HERE / 'policies' / (name + '.json')).read_text()))
+         self.assertEqual((PRIOR / 'evidence/generated-integration-instructions.txt').read_bytes(), (self.config / 'integration-instructions.txt').read_bytes())
+-        for name in ('candidate-images.json', 'image-context-manifest.json', 'target_posture.py', 'test_stats_observation.py'):
++        for name in ('candidate-images.json', 'image-context-manifest.json', 'target_posture.py'):
+             self.assertEqual((PRIOR / name).read_bytes(), (HERE / name).read_bytes())
+ 
+     def test_deployment_and_runner_differ_only_in_scheduled_identity_metadata(self):
+         old = (PRIOR / 'deployment.py').read_text()
+         expected = old.replace('run5', 'run6').replace('c71879af000000000000000000000001', 'c71879b0000000000000000000000001').replace('2026-09-11T18:51:56.074Z', CREATED).replace('M141636/return146531; run6 preparation authorized; model execution not authorized', RULING).replace('w71879-146538-validation-', 'w71879-146897-validation-')
+         self.assertEqual(expected, (HERE / 'deployment.py').read_text())
+-        self.assertEqual((PRIOR / 'run.py').read_text().replace('w71879-run5', 'w71879-run6'), (HERE / 'run.py').read_text())
++        self.assertEqual((HERE.parent / 'prepared-146897/run.py').read_text(), (PRIOR / 'run.py').read_text().replace('w71879-run5', 'w71879-run6'))
++        self.assertIn('from failure_observation import first_failure, provider_diagnostic', (HERE / 'run.py').read_text())
+ 
+     def test_operator_recipe_preserves_fresh_only_guards_and_fixed_host_posture(self):
+         expected = (PRIOR / 'operator-prepare.sh').read_text().replace('run5', 'run6').replace('prepared-146538/target_posture.py', 'prepared-146897/target_posture.py')
+         self.assertEqual(expected, (HERE / 'operator-prepare.sh').read_text())
++        self.assertEqual((HERE.parent / 'prepared-146897/test_stats_observation.py').read_text().replace("('run.py', 'deployment.py', 'target_posture.py')", "('run.py', 'deployment.py', 'target_posture.py', 'failure_observation.py')").replace('events=None, claim_age=None):', 'events=None, claim_age=None, stop_error=None):').replace("stopped = patch(runner, 'stop_serving')", "stopped = patch(runner, 'stop_serving', side_effect=stop_error)"), (HERE / 'test_stats_observation.py').read_text())
+         self.assertIn('test ! -e "$run6_root"', expected)
+         self.assertIn('test ! -L "$run6_root"', expected)
+         self.assertIn('65532:1001', expected)
+--- work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-146897/test_stats_observation.py
++++ work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/prepared-147109/test_stats_observation.py
+@@ -101,14 +101,14 @@
+         cls.retained = Path(tempfile.mkdtemp(prefix='w71879-145261-unit-runner-'))
+         print('Retained offline fixture root:', cls.retained, flush=True)
+ 
+-    def exercise(self, *, stats=None, fault=None, final_exit=0, terminal=True, current=None, events=None, claim_age=None):
++    def exercise(self, *, stats=None, fault=None, final_exit=0, terminal=True, current=None, events=None, claim_age=None, stop_error=None):
+         root = self.retained / (self._testMethodName + '-' + str(len(list(self.retained.iterdir()))))
+         (root / 'evidence').mkdir(parents=True)
+         row = {'Id': 'unit-container', 'Config': {'Labels': {'baton.v12.authority_uuid': runner.UUID}},
+                'HostConfig': {'NanoCpus': 2000000000, 'Memory': 2147483648, 'PidsLimit': 512}}
+         approval = {'verdict': 'accepted', 'review_locator': 'UNIT-ONLY mocked read; no marker file',
+                     'config_files': {'stage-execution.json': 'unit', 'submission.json': 'unit'},
+-                    'reviewed_files': {str(HERE / n): 'unit' for n in ('run.py', 'deployment.py', 'target_posture.py')}}
++                    'reviewed_files': {str(HERE / n): 'unit' for n in ('run.py', 'deployment.py', 'target_posture.py', 'failure_observation.py')}}
+         original_read = Path.read_text
+         original_exists = Path.exists
+         def read(path, *args, **kwargs):
+@@ -180,7 +180,7 @@
+             patch(runner.Authority, 'open_readonly', return_value=owner)
+             patch(runner.subprocess, 'Popen', return_value=serve)
+             process_call = patch(runner.subprocess, 'run', side_effect=process)
+-            stopped = patch(runner, 'stop_serving')
++            stopped = patch(runner, 'stop_serving', side_effect=stop_error)
+             patch(runner.signal, 'signal', side_effect=signal_handler)
+             timers = patch(runner.signal, 'setitimer')
+             patch(runner.time, 'monotonic', side_effect=lambda: clock.now)

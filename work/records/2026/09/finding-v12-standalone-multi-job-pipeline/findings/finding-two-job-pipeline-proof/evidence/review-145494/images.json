@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+    "Architecture": "amd64",
+    "Os": "linux",
+    "Config": {
+      "Entrypoint": [
+        "python3",
+        "/opt/baton/dogfood_entry.py"
+      ],
+      "Env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "NODE_VERSION=22.23.2",
+        "YARN_VERSION=1.22.22",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONUNBUFFERED=1",
+        "PYTHONPATH=/opt/baton",
+        "PYTHONHASHSEED=0",
+        "NODE_NO_WARNINGS=1"
+      ],
+      "User": "65532:65532"
+    },
+    "RootFS": {
+      "Layers": [
+        "sha256:411a86676185cb54d695a805b238194a64e9b77e0c723f3802fbb87d333ea0b3",
+        "sha256:cb8e24308fa9dfe5d100e9df89c8bf815d7fbf1bc2820a4df3e886a85b5af266",
+        "sha256:719ff9a705e2ab3113fb02e2b712b746ced7ba6e0c391e1d4732a74cb9a3e8e7",
+        "sha256:e7f3647533c8d394413ca75664e9778541700b2de74b1a911d549d88d67ca469",
+        "sha256:55bbdff9d54a38f8e67b2f30506ed492ebc2160ac1ffa34878578b11dd4fc44b",
+        "sha256:401f985d6391a1fa21a6e5e5ab1a03aa2dea7229e75506da45c9ac0e632e8098",
+        "sha256:d36c5f7069f60e267bbbbd068d95525f6a30e61b65afb12ec2e7926bbe6219cc",
+        "sha256:5e3fc97650dbe882e9ed9c32040d88e65ef88a2af53cd0b7262a86181d895f0c",
+        "sha256:7040ebb009b9f41e3831a61ec43e9d05d820f8152b56386f69601590f2c324bf",
+        "sha256:76e0c1fa78ca55f9d02cb51fa3b2ec3e688180b0a63f6a1ecac576dc3b869b76",
+        "sha256:2ef9b5915d0cdf902adf0bc066e7be723915cd16e3b38669cf020e958b6ffc58",
+        "sha256:498842fc6d881f710721c2e2e072cb397a5d3bc9948d6c6676c21461e1a4799a",
+        "sha256:6f203ef14ec679dfb8bb7accf43250091a7bf3870f1369214e9a604814644c98",
+        "sha256:7f5aaa6f9999dee1bf5741b832d4e1fffde8747de68fa56038dadc6bd02770f6",
+        "sha256:ae76fa2f2624364ba58b1c5ae100d11ed5d0c91c4785047af4075e50f8f06ad9",
+        "sha256:e91ce98ea400be915867e319952212641a28f2aee9132c13e6cdb9f16f05573e",
+        "sha256:db11d968afd04bb2cedf3a0873df69ec7050ab004d4ea746bb30b904da5c6c84",
+        "sha256:477f75e978fcf43f9b010683e053d5995f713c674c600efb63942af54e05fc23"
+      ],
+      "Type": "layers"
+    },
+    "Size": 627574121,
+    "Created": "2026-09-11T11:42:46.22648759Z"
+  },
+  {
+    "Id": "sha256:8e84757c898b15b98fce42ca2d5a3a4ba07e44c0c744978870bdf36a4aa2cdb2",
+    "Architecture": "amd64",
+    "Os": "linux",
+    "Config": {
+      "Entrypoint": [
+        "python3",
+        "/opt/baton/integration_entry.py"
+      ],
+      "Env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "NODE_VERSION=22.23.2",
+        "YARN_VERSION=1.22.22",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTHONUNBUFFERED=1",
+        "PYTHONPATH=/opt/baton",
+        "PYTHONHASHSEED=0",
+        "NODE_NO_WARNINGS=1"
+      ],
+      "User": "65532:65532"
+    },
+    "RootFS": {
+      "Layers": [
+        "sha256:411a86676185cb54d695a805b238194a64e9b77e0c723f3802fbb87d333ea0b3",
+        "sha256:cb8e24308fa9dfe5d100e9df89c8bf815d7fbf1bc2820a4df3e886a85b5af266",
+        "sha256:719ff9a705e2ab3113fb02e2b712b746ced7ba6e0c391e1d4732a74cb9a3e8e7",
+        "sha256:e7f3647533c8d394413ca75664e9778541700b2de74b1a911d549d88d67ca469",
+        "sha256:55bbdff9d54a38f8e67b2f30506ed492ebc2160ac1ffa34878578b11dd4fc44b",
+        "sha256:401f985d6391a1fa21a6e5e5ab1a03aa2dea7229e75506da45c9ac0e632e8098",
+        "sha256:d36c5f7069f60e267bbbbd068d95525f6a30e61b65afb12ec2e7926bbe6219cc",
+        "sha256:5e3fc97650dbe882e9ed9c32040d88e65ef88a2af53cd0b7262a86181d895f0c",
+        "sha256:7040ebb009b9f41e3831a61ec43e9d05d820f8152b56386f69601590f2c324bf",
+        "sha256:76e0c1fa78ca55f9d02cb51fa3b2ec3e688180b0a63f6a1ecac576dc3b869b76",
+        "sha256:2ef9b5915d0cdf902adf0bc066e7be723915cd16e3b38669cf020e958b6ffc58",
+        "sha256:498842fc6d881f710721c2e2e072cb397a5d3bc9948d6c6676c21461e1a4799a",
+        "sha256:6f203ef14ec679dfb8bb7accf43250091a7bf3870f1369214e9a604814644c98",
+        "sha256:7f5aaa6f9999dee1bf5741b832d4e1fffde8747de68fa56038dadc6bd02770f6",
+        "sha256:ae76fa2f2624364ba58b1c5ae100d11ed5d0c91c4785047af4075e50f8f06ad9",
+        "sha256:dccd09ebc01974520a3ed335927362ab8da149e1fb55622f16da006519ba7811",
+        "sha256:6d5a00aaf4fba50c3bc756b9ea914d94f5687b5c2f61c6d73c2e1e27588b6d7b",
+        "sha256:cfcd07acbd544c2d756a267a52014f6278b098929dc4723ddb7f460c7043a602",
+        "sha256:db11d968afd04bb2cedf3a0873df69ec7050ab004d4ea746bb30b904da5c6c84",
+        "sha256:477f75e978fcf43f9b010683e053d5995f713c674c600efb63942af54e05fc23"
+      ],
+      "Type": "layers"
+    },
+    "Size": 627706844,
+    "Created": "2026-09-11T11:42:46.398207815Z"
+  }
+]

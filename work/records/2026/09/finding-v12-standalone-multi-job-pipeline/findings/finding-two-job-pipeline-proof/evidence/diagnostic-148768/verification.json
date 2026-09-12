@@ -1,0 +1,32 @@
+{
+  "claim": 148768,
+  "owner_copy_event": 148760,
+  "source": "/tmp/w71879-148686-provider-package.json",
+  "metadata_sha256": "204e690591b935992fff95f6d2af6aeac86be074719da7900f1c4e4056f37efe",
+  "metadata_bytes": 1476,
+  "metadata_mode": "0o644",
+  "metadata_type": "non-symlink regular",
+  "container": "a2b00b62bdbb3f413b6e4e9539cf71190b237430a8856367567315b4f98ef5af",
+  "image": "sha256:26cdfe7df693d3cfad0190e879e93ba9f3fea2086ecb5c7f1f4c2fe598aced99",
+  "source_attestation": "owner148760 exact copy plus current independent read-only container/image/posture inspection; extraction itself not repeated",
+  "name": "@anthropic-ai/claude-code",
+  "version": "2.1.247",
+  "bin": {
+    "claude": "bin/claude.exe"
+  },
+  "postinstall": "node install.cjs",
+  "declared_next_files": [
+    "install.cjs",
+    "cli-wrapper.cjs",
+    "bin/claude.exe"
+  ],
+  "native_path_resolved": false,
+  "output_contract_established": false,
+  "prior_runner_files_verified": 43,
+  "verification_wall_seconds": 0.0032709279912523925,
+  "listed_prior_seconds": 8.027892207996441,
+  "listed_cumulative_seconds": 8.031163135987693,
+  "tests_run": 0,
+  "code_executed": false,
+  "limits": "No provider/package code, image execution, credential/stream capture, network/model probe, packaging or retry. Earlier Docker copy restriction was not retried or bypassed."
+}
