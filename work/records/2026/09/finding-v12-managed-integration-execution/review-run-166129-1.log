@@ -1,0 +1,48 @@
+test_failed_phase_is_not_listed_as_never_run (__main__.RequiredContracts.test_failed_phase_is_not_listed_as_never_run) ... FAIL
+test_measure_refuses_a_symlink_instead_of_silently_omitting_it (__main__.RequiredContracts.test_measure_refuses_a_symlink_instead_of_silently_omitting_it) ... FAIL
+test_worker_rejects_the_incomplete_request_rejected_by_its_owner (__main__.RequiredContracts.test_worker_rejects_the_incomplete_request_rejected_by_its_owner) ... FAIL
+
+======================================================================
+FAIL: test_failed_phase_is_not_listed_as_never_run (__main__.RequiredContracts.test_failed_phase_is_not_listed_as_never_run)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-166129.py", line 43, in test_failed_phase_is_not_listed_as_never_run
+    self.assertEqual(not_run, ['isolated'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['base', 'isolated'] != ['isolated']
+
+First differing element 0:
+'base'
+'isolated'
+
+First list contains 1 additional elements.
+First extra element 1:
+'isolated'
+
+- ['base', 'isolated']
+?  --------
+
++ ['isolated']
+
+======================================================================
+FAIL: test_measure_refuses_a_symlink_instead_of_silently_omitting_it (__main__.RequiredContracts.test_measure_refuses_a_symlink_instead_of_silently_omitting_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-166129.py", line 26, in test_measure_refuses_a_symlink_instead_of_silently_omitting_it
+    with self.assertRaises(task.PreparationRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_worker_rejects_the_incomplete_request_rejected_by_its_owner (__main__.RequiredContracts.test_worker_rejects_the_incomplete_request_rejected_by_its_owner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-166129.py", line 19, in test_worker_rejects_the_incomplete_request_rejected_by_its_owner
+    with self.assertRaises(task.PreparationRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+FAILED (failures=3)

@@ -1,0 +1,26 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits tests.integration.test_reconciliation tests.integration.test_execution
+..................................................................F.F................................................................................................................................................................................
+======================================================================
+FAIL: test_a_different_harness_at_the_same_revision_is_its_own_work (tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling.test_a_different_harness_at_the_same_revision_is_its_own_work)
+[P1], and the worst of the two. The causal owner runs the SAME
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1229, in test_a_different_harness_at_the_same_revision_is_its_own_work
+    with self.assertRaises(Exception):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: Exception not raised
+
+======================================================================
+FAIL: test_one_scope_never_speaks_for_another (tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling.test_one_scope_never_speaks_for_another)
+The retention is shared by a deployment, so a key that did not name
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1252, in test_one_scope_never_speaks_for_another
+    with self.assertRaises(Exception):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: Exception not raised
+
+----------------------------------------------------------------------
+Ran 245 tests in 27.045s
+
+FAILED (failures=2)

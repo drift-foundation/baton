@@ -1,0 +1,36 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_preparation
+......F..E
+======================================================================
+ERROR: test_the_worker_verifies_the_published_artifacts (tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds.test_the_worker_verifies_the_published_artifacts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 104, in test_the_worker_verifies_the_published_artifacts
+    measured = task.verify_input(self.place, answer["request"])
+  File "/home/sl/src/baton/v12/worker/reconciliation_task.py", line 309, in verify_input
+    _refuse("the published source artifacts are not the ones this request "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "was composed over: it names " + repr(published) + " and this "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "namespace measures " + repr(measured["tree_digest"]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/reconciliation_task.py", line 146, in _refuse
+    raise PreparationRefusal(message)
+reconciliation_task.PreparationRefusal: the published source artifacts are not the ones this request was composed over: it names 'sha256:cb28ee85345c94831c887732ee4a141d528ce6ce2e270dfe34418c11677bcf9a' and this namespace measures 'sha256:2d7a607f4b0805604959dd50e7ec60072bd0255b6f7db39d5473be1cff2880eb'
+
+======================================================================
+FAIL: test_the_producer_and_the_worker_measure_one_digest (tests.tools.test_managed_preparation.ThePublishedInputIsMeasuredTheSameWayAtBothEnds.test_the_producer_and_the_worker_measure_one_digest)
+Neither side is trusted to describe the other's measurement.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 63, in test_the_producer_and_the_worker_measure_one_digest
+    self.assertEqual(answer["input_digest"], measured["tree_digest"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'sha256:cb28ee85345c94831c887732ee4a141d528ce6ce2e270dfe34418c11677bcf9a' != 'sha256:2d7a607f4b0805604959dd50e7ec60072bd0255b6f7db39d5473be1cff2880eb'
+- sha256:cb28ee85345c94831c887732ee4a141d528ce6ce2e270dfe34418c11677bcf9a
++ sha256:2d7a607f4b0805604959dd50e7ec60072bd0255b6f7db39d5473be1cff2880eb
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.004s
+
+FAILED (failures=1, errors=1)

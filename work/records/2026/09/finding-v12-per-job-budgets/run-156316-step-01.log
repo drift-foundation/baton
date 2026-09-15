@@ -1,0 +1,41 @@
+$ env PYTHONPATH=src:tools:. python3 -c 
+from baton_v12.job_manager import documents, execution_limits, schema
+print('submission schemas', documents.SUBMISSION_SCHEMAS)
+print('status', documents.STATUS_SCHEMA, 'store version', schema.SCHEMA_VERSION)
+print('resolved none:')
+import json; print(json.dumps(execution_limits.resolved(None), sort_keys=True, indent=1))
+
+submission schemas ('baton.v12.job-submission/1', 'baton.v12.job-submission/2')
+status baton.v12.job-status/5 store version 5
+resolved none:
+{
+ "boundaries": {
+  "host_verification": {
+   "default_seconds": 300,
+   "origin": "compatibility",
+   "seconds": 300,
+   "setting": "verification_command_seconds"
+  },
+  "integration_verification": {
+   "default_seconds": 1800,
+   "origin": "compatibility",
+   "seconds": 1800,
+   "setting": "verification_command_seconds"
+  },
+  "ordinary_verification": {
+   "default_seconds": 900,
+   "origin": "compatibility",
+   "seconds": 900,
+   "setting": "verification_command_seconds"
+  },
+  "provider_turn": {
+   "default_seconds": 3600,
+   "origin": "compatibility",
+   "seconds": 3600,
+   "setting": "provider_turn_seconds"
+  }
+ },
+ "requested": {},
+ "scope": "per-invocation",
+ "units": "seconds"
+}

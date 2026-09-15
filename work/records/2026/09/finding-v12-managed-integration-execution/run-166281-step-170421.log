@@ -1,0 +1,15 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_managed_preparation.OneManagedPreparationCompletes
+F
+======================================================================
+FAIL: test_ordinary_sweeps_retain_and_adopt_one_real_preparation (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_ordinary_sweeps_retain_and_adopt_one_real_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1569, in test_ordinary_sweeps_retain_and_adopt_one_real_preparation
+    self.assertTrue(preparation.adopted, (failures[:3], failures[-1:], logs, last))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {} is not true : ([], [], [], {'observed_at': '2026-09-02T00:00:00.000Z', 'recovered': None, 'observed': 0, 'replaced': [], 'acts': [], 'started': [], 'spoken': [{'stage_id': 'job-a/review', 'episode': 1, 'attempt_id': 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'act': 'conclude', 'outcome': 'deferred', 'detail': {'category': 'policy', 'code': 'denied', 'message': "this line's source receipts are incomplete and the Authority has moved to policy generation 10 from the configured 1; a submission's own receipts are not written under a policy this deployment was never configured for"}}], 'refreshed': [{'stage_id': 'job-a/implementation', 'episode': 1, 'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'state': 'not-asked'}, {'stage_id': 'job-a/review', 'episode': 1, 'attempt_id': 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'state': 'not-asked'}, {'stage_id': 'job-a/integration', 'episode': 1, 'attempt_id': 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0', 'state': 'not-asked'}]})
+
+----------------------------------------------------------------------
+Ran 1 test in 5.732s
+
+FAILED (failures=1)

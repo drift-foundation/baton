@@ -1,0 +1,345 @@
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index 86c20d2..78310aa 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -61,7 +61,8 @@ from baton_v12.integration import git_profile
+ from baton_v12.integration import admission, driver
+ from baton_v12.integration.driver import admit_authorized_result
+ from baton_v12.integration.git_profile import GitIntegrationProfile
+-from baton_v12.job_manager import ending, review_driver, scheduler
++from baton_v12.job_manager import (ending, execution_limits, review_driver,
++                                   scheduler)
+ from baton_v12.job_manager.delegation import INTEGRATION_OBSERVATION_SCHEMA
+ from baton_v12.job_manager.scheduler import allocation_of
+ from baton_v12.job_manager.submission import job_of
+@@ -1735,6 +1736,64 @@ def _materialize(runner, repository, revision, into):
+     return into
+ 
+ 
++# W156162, review 2026-09-13T04:18:41Z. THE OWNER CONTRACT THIS DEPLOYMENT DOES
++# NOT HAVE, written down rather than worked around.
++#
++# `reconciliation._observation` requires an actual integer exit status, and
++# `execution._owned_post_import` requires one too. Neither has a representation
++# for "this observation COULD NOT BE MADE" -- a command that outlasted its
++# ceiling or could not be started supplies no status, and inventing one would be
++# fabricating evidence about a child that never ran to completion.
++#
++# WHAT IS MISSING, EXACTLY: an owner-recorded, DURABLE outcome for a required
++# test that produced no exit status, carrying the boundary that stopped it, the
++# reason, and enough identity for a later tick or a fresh process to recognise
++# the same failed work and decline to repeat it. A bounded extension would be a
++# `status: null` observation admitted ONLY with a `why` naming a closed reason
++# and the bound, settled as blocked and never authorizable -- which is a change
++# to `reconciliation` and `execution`, both outside this Work's finite scope.
++#
++# UNTIL THAT IS DISPOSED OF: this deployment refuses with the real diagnostic and
++# remembers the failure IN THIS PROCESS, which stops the observed twelve-runs-in-
++# four-ticks repeat. A fresh process or a reopen will attempt the command once
++# more, and that limitation is stated here and in DEPLOYMENT.md rather than
++# hidden.
++HOST_OBSERVATION_CONTRACT = (
++    "an owner-recorded durable outcome for a required test that produced no "
++    "exit status, carrying its boundary and reason")
++
++
++def _host_retention(deployment):
++    """The deployment's own memory of host observations that could not be made.
++
++    Composed lazily on the deployment because the owners above are built fresh
++    every tick; see `HOST_OBSERVATION_CONTRACT` for what would make it durable.
++    """
++    held = getattr(deployment, "_host_observation_failures", None)
++    if held is None:
++        held = {}
++        setattr(deployment, "_host_observation_failures", held)
++    return held
++
++
++def _host_seconds(deployment, stage):
++    """This stage's Job's host-verification ceiling, or the boundary default.
++
++    W156162. Asked of the JOB OWNER, which is what resolves a Job's admitted
++    settings under the generation it was admitted under; this assembly holds no
++    table of its own. A stage with no Job -- the one-binding deployments whose
++    stages carry a name nothing bound -- gets the boundary's own default, which
++    is the number this line already ran under.
++    """
++    from baton_v12.job_manager import submission as job_submission
++
++    job_id = stage.get("job_id") if type(stage) is dict else None
++    if job_id is None or getattr(deployment, "jobs", None) is None:
++        return execution_limits.boundary_default("host_verification")
++    return job_submission.boundary_seconds(deployment.jobs, job_id,
++                                           "host_verification")
++
++
+ class _ConfiguredExecution:
+     """What both reconciled owners do: run THE DEPLOYMENT'S OWN required test.
+ 
+@@ -1744,11 +1803,61 @@ class _ConfiguredExecution:
+     these run exactly that against content materialized from a real repository.
+     """
+ 
+-    def __init__(self, participant, argv, runner, root):
++    def __init__(self, participant, argv, runner, root, *, seconds=None,
++                 retention=None, scope=None):
+         self.participant = participant
+         self._argv = list(argv)
+         self._runner = runner
+         self._root = root
++        # W156162: THE JOB'S `host_verification` CEILING, and the reason it is
++        # not `GIT_SECONDS`. These owners do two different things with a clock:
++        # `_materialize` asks GIT for content, which is this deployment's own
++        # tooling over its own repository, and then CANDIDATE CODE RUNS. Only
++        # the second is a Job's to bound, and binding them to one number would
++        # mean a Job that shortened its own tests had also shortened this
++        # deployment's archive. The default is the boundary's own, which is the
++        # same 300 this line has always used.
++        self._seconds = (execution_limits.boundary_default("host_verification")
++                         if seconds is None else seconds)
++        # WHERE A FAILED OBSERVATION IS REMEMBERED. These owners are composed
++        # fresh on every tick, so the retention belongs to the DEPLOYMENT and is
++        # handed in; a per-instance memo would forget between ticks, which is
++        # precisely the repeat this exists to stop.
++        self._retention = {} if retention is None else retention
++        # AND WHOSE WORK THIS IS. A retention shared by a deployment must not
++        # let one result's failure speak for another's, so the owning scope --
++        # the Job, the result and the phase this owner was composed for -- is
++        # part of every key. `None` is a composition with no owning scope, and
++        # it keys under that rather than under somebody else's.
++        self._scope = scope
++
++    def _failure_key(self, revision, adding):
++        """WHAT MAKES ONE RETAINED FAILURE THE SAME WORK AS ANOTHER.
++
++        Review 2026-09-13T04:31:29Z [P1]: the first key was
++        `(argv, revision, seconds)`, and the causal owner runs the SAME command
++        at the SAME revision with a DIFFERENT harness -- that is what `adding`
++        is for, and `harness_added` is the observation member that exists to
++        keep it honest. So a memo from one harness refused another harness's
++        run without ever attempting it.
++        
++        EVERY VARYING OPERAND IS IN THE KEY NOW: the owning scope this observer
++        was composed for -- its Job, its result and which phase it is -- the
++        command, the revision, the bound, and a digest of the harness content
++        that would be added. Two runs that differ in any of those are different
++        work and neither speaks for the other.
++        """
++        import hashlib
++
++        harness = "" if adding is None else hashlib.sha256(
++            adding.encode("utf-8")).hexdigest()
++        return (self._scope, tuple(self._argv), revision, self._seconds,
++                harness)
++
++    def _retain(self, revision, adding, message):
++        """Record why this command cannot be observed, and refuse with it."""
++        self._retention[self._failure_key(revision, adding)] = message
++        _refuse(message, category="refused", code="precondition")
+ 
+     def _run(self, repository, revision, *, adding=None):
+         import hashlib
+@@ -1756,6 +1865,14 @@ class _ConfiguredExecution:
+         import subprocess
+         import tempfile
+ 
++        # THE RETAINED FAILURE IS CHECKED FIRST, BEFORE ANYTHING IS
++        # MATERIALIZED. Review 2026-09-13T04:31:29Z [P2]: the first form
++        # checked after `mkdtemp` and `_materialize`, so three memo hits made
++        # three scratch trees for one child that never ran. A run this
++        # composition already knows it cannot observe costs nothing now.
++        held_failure = self._retention.get(self._failure_key(revision, adding))
++        if held_failure is not None:
++            _refuse(held_failure, category="refused", code="precondition")
+         where = tempfile.mkdtemp(dir=self._root)
+         _materialize(self._runner, repository, revision, where)
+         named = self._argv[-1]
+@@ -1777,8 +1894,42 @@ class _ConfiguredExecution:
+             _refuse(f"the configured required test {named!r} is not in the "
+                     f"content at {revision!r}",
+                     category="refused", code="precondition")
+-        answered = subprocess.run(self._argv, cwd=where, capture_output=True,
+-                                  text=True, timeout=GIT_SECONDS)
++        # W156162: A COMMAND THAT OUTLASTS ITS CEILING, and this is the second
++        # form of the handling. Review 2026-09-13T04:18:41Z [P1]: the first one
++        # answered `status: None`, and `reconciliation._observation` REQUIRES an
++        # actual integer exit status -- it refuses the document before retaining
++        # anything -- so every ordinary tick re-ran the timed-out command and
++        # the public cause was a schema diagnostic instead of the timeout. The
++        # measured shape was three host commands per tick, twelve over four,
++        # forever.
++        #
++        # SO NOTHING IS FABRICATED AND NOTHING IS REPEATED. A child that
++        # supplied no exit status does not get one invented for it; the refusal
++        # carries the bound and the actual reason, and it is RETAINED so a later
++        # tick re-refuses from the record rather than running the command again.
++        #
++        # WHAT THIS DOES NOT DO is make that retention DURABLE. There is no
++        # owner API for "this observation could not be made" -- see
++        # `HOST_OBSERVATION_CONTRACT` -- so a fresh process or a reopen will
++        # attempt the command once more. That missing contract is written down
++        # for disposition rather than worked around by changing an owner outside
++        # this Work's scope.
++        try:
++            answered = subprocess.run(self._argv, cwd=where,
++                                      capture_output=True, text=True,
++                                      timeout=self._seconds)
++        except subprocess.TimeoutExpired:
++            self._retain(revision, adding,
++                         f"the configured required test {named!r} did not "
++                         f"finish within this Job's {self._seconds}s "
++                         f"host_verification ceiling at {revision!r}; no exit "
++                         f"status was observed and none is invented")
++        except OSError as failed:
++            self._retain(revision, adding,
++                         f"the configured required test {named!r} could not be "
++                         f"started at {revision!r} "
++                         f"({type(failed).__name__}); no exit status was "
++                         f"observed and none is invented")
+         tail = answered.stderr.strip().splitlines()[-1:]
+         # W133129, measured at step55: the causal owner refused every tick with
+         # "the base causal observation names the command that produced it"
+@@ -1809,8 +1960,10 @@ class _CausalObserver(_ConfiguredExecution):
+     """
+ 
+     def __init__(self, participant, argv, runner, root, *, workspace,
+-                 line_root, base, candidate, identity):
+-        super().__init__(participant, argv, runner, root)
++                 line_root, base, candidate, identity, seconds=None,
++                 retention=None, scope=None):
++        super().__init__(participant, argv, runner, root, seconds=seconds,
++                         retention=retention, scope=scope)
+         self._workspace = workspace
+         # BOTH SOURCE OBSERVATIONS COME OUT OF THE PRODUCER'S OWN LINE, and
+         # review 2026-09-10T15:07:43Z is why that is stated rather than
+@@ -1876,8 +2029,10 @@ class _ImportedVerifier(_ConfiguredExecution):
+     runs before the reference CAS and a non-zero status holds the target.
+     """
+ 
+-    def __init__(self, participant, argv, runner, root, *, identity):
+-        super().__init__(participant, argv, runner, root)
++    def __init__(self, participant, argv, runner, root, *, identity,
++                 seconds=None, retention=None, scope=None):
++        super().__init__(participant, argv, runner, root, seconds=seconds,
++                         retention=retention, scope=scope)
+         self._identity = identity
+         self.asked = []
+ 
+@@ -2443,7 +2598,10 @@ class Integration:
+                 line_root=line_place,
+                 base=held["source_base"],
+                 candidate=held["source_candidate"],
+-                identity=operands["required_tests"]["task_id"])
++                identity=operands["required_tests"]["task_id"],
++                seconds=_host_seconds(deployment, stage),
++                retention=_host_retention(deployment),
++                scope=(stage.get("job_id"), held["result_id"], "causal"))
+             held = reconciliation.record_causal_observations(
+                 deployment.integration, observer,
+                 result_id=held["result_id"])
+@@ -2484,7 +2642,10 @@ class Integration:
+             deployment.observer_participant(),
+             operands["required_tests"]["argv"], _git_run,
+             deployment.integration_root,
+-            identity=operands["required_tests"]["task_id"])
++            identity=operands["required_tests"]["task_id"],
++            seconds=_host_seconds(deployment, stage),
++            retention=_host_retention(deployment),
++            scope=(stage.get("job_id"), held["result_id"], "post-import"))
+         return admit_authorized_result(
+             deployment.integration, profile, _git_run, deployment.control,
+             deployment.jobs, deployment.authority,
+@@ -3308,7 +3469,13 @@ class StageDeployment:
+                 self.judges[key] = single_worker.JudgmentExecution(
+                     one["deployment"], self.control, self.authority,
+                     self.judgment_providers[one["worker_id"]], worker_id=one["worker_id"],
+-                    subject=dict(subject, kind=kind), source=source, engine_run=self._engine_run, clock=self.judgment_clock)
++                    subject=dict(subject, kind=kind), source=source, engine_run=self._engine_run, clock=self.judgment_clock,
++                    # W156162: THE SAME NARROW READER the pooled workers and the
++                    # integration port are composed with. A derived judgment
++                    # runs a real container over a real candidate, and it was
++                    # the one execution in this deployment that received no Job
++                    # context at all.
++                    execution_context=single_worker.job_execution_reader(self.jobs))
+             answers[kind] = self.judges[key].poll()
+         if any(answer is None for answer in answers.values()):
+             _refuse("the derived candidate awaits its configured judges' frozen reports",
+@@ -3500,7 +3667,13 @@ class StageDeployment:
+             # view over it is composed rather than borrowed.
+             credential_home=credentials.CredentialHome(
+                 given["credential_home"]),
+-            credential_provider=self._credential_provider)
++            credential_provider=self._credential_provider,
++            # W156162: THE SAME NARROW READER THE POOLED WORKERS ARE COMPOSED
++            # WITH, over the Job store this deployment already holds. It answers
++            # one Job's execution context and carries no way back to the store,
++            # which is why an integration port -- a composition that opens
++            # containers over somebody else's writable target -- may hold it.
++            execution_context=single_worker.job_execution_reader(self.jobs))
+ 
+     @property
+     def reconciliation_profile(self):
+@@ -4095,7 +4268,7 @@ def _integration_ports(given, supplied):
+ 
+ 
+ def _integration_operations(given, worker, provider, control_store, authority,
+-                            *, engine_run, clock, checkpoint):
++                            *, engine_run, clock, checkpoint, job_store):
+     """The integration worker's operations, one held operand set per Job.
+ 
+     ONE BINDING COMPOSES EXACTLY WHAT IT ALWAYS DID. The one-Job document
+@@ -4115,7 +4288,14 @@ def _integration_operations(given, worker, provider, control_store, authority,
+             composed.append((binding["job_id"], single_worker.worker_operations(
+                 _served_deployment(given, worker, binding), control_store,
+                 authority, provider, engine_run=engine_run, clock=clock,
+-                checkpoint=checkpoint, dispose=lambda: None)))
++                checkpoint=checkpoint, dispose=lambda: None,
++                # W156162: EVERY JOB-BOUND FACTORY GETS THE READER. Review
++                # 2026-09-13T02:10:47Z: a default of `None` is a composition
++                # with no Job behind it, and reading that as "this Job
++                # configured nothing" would be a silent legacy fallback for a
++                # Job that configured a ceiling.
++                execution_context=single_worker.job_execution_reader(
++                    job_store))))
+     except BaseException:
+         for _job_id, one in composed:
+             one.close()
+@@ -4299,7 +4479,8 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+                 # same answer so admission and this provider cannot disagree.
+                 operations = _integration_operations(
+                     given, one, provider, control_store, composed.authority,
+-                    engine_run=engine_run, clock=clock, checkpoint=checkpoint)
++                    engine_run=engine_run, clock=clock, checkpoint=checkpoint,
++                    job_store=job_store)
+                 # W103068: AND THE DEPLOYMENT LEARNS ITS INTEGRATION CAPACITY.
+                 # An integration runtime port is composed over this worker's own
+                 # held operands, and it cannot be composed until an accepted
+@@ -4313,6 +4494,9 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+                     checkpoint=checkpoint,
+                     stage=StageComposition(deployment, role=one["role"],
+                                            worker_id=one["worker_id"]),
++                    # W156162: the same reader every Job-bound factory gets.
++                    execution_context=single_worker.job_execution_reader(
++                        job_store),
+                     # ONE AUTHORITY, RELEASED ONCE. A worker that disposed the
+                     # shared handle would take the other two down with it.
+                     dispose=lambda: None)
+@@ -4573,15 +4757,13 @@ class StageObservation:
+     def observe_integration(self, stage):
+         """Use the same owned completion account as serving, through ro handles.
+ 
+-        A generic or not-yet-activated stage needs neither owner opened.
++        A generic stage needs neither owner opened. Integration.account selects
++        reconciled completion before checking direct-runtime prerequisites.
+         Handles are local to the read, including all refusal paths, so the
+         observation object carries no serving capability or disposal obligation.
+         """
+         if stage.get("kind") != "integration":
+             return None
+-        row = attempt_runtime_of(self.control, stage["attempt_id"])
+-        if row is None or row["assignment"] is None:
+-            return None
+         authority = _authority_read("read-only integration Authority", lambda: Authority.open_readonly(
+             self.given["authority_store"], expected_authority_uuid=self.given["authority_uuid"]))
+         with authority:

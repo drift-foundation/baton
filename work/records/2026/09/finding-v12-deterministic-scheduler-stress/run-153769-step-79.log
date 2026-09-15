@@ -1,0 +1,39 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace
+.....F..............F.................................................................
+======================================================================
+FAIL: test_a_full_positive_authorization_chain_passes (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_full_positive_authorization_chain_passes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2082, in test_a_full_positive_authorization_chain_passes
+    self.assertEqual(self.referenced(self.authorized_chain()), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['undeclared-observation'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'undeclared-observation'
+
+- ['undeclared-observation']
++ []
+
+======================================================================
+FAIL: test_legitimately_differing_generations_are_accepted (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_legitimately_differing_generations_are_accepted)
+And no all-generations-equal rule is invented: policy legitimately
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2187, in test_legitimately_differing_generations_are_accepted
+    self.assertEqual(self.referenced(held), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['undeclared-observation'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'undeclared-observation'
+
+- ['undeclared-observation']
++ []
+
+----------------------------------------------------------------------
+Ran 86 tests in 3.307s
+
+FAILED (failures=2)

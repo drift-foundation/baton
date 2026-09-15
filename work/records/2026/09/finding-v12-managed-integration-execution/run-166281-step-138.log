@@ -1,0 +1,269 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle
+................................................................................................................................................E.EEEEE.EE.EE..........................................................................................................................................E.......................................................................................................................
+======================================================================
+ERROR: test_a_committed_intent_with_no_published_input_refuses (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_a_committed_intent_with_no_published_input_refuses)
+THE CASE THAT REPLACED TWO OF MINE, and the reason is the point.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2874, in test_a_committed_intent_with_no_published_input_refuses
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2577, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<4 lines>...
+        policy_digest=self.POLICY, profile_name="reference",
+        accept=self.accepting(), contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1491, in prepare
+    accept(issued if isinstance(issued, dict) else {"offer_id": offer_id})
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2617, in accept
+    return accepted(offer_id)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2599, in accepted
+    decision="accept", bearer="bearer-" + offer_id,
+                              ~~~~~~~~~~^~~~~~~~~~
+TypeError: can only concatenate str (not "dict") to str
+
+======================================================================
+ERROR: test_a_resumed_creation_does_not_mint_a_second_child_work (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_a_resumed_creation_does_not_mint_a_second_child_work)
+The intent carries the operation id `create_work` is called with,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2740, in test_a_resumed_creation_does_not_mint_a_second_child_work
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2577, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<4 lines>...
+        policy_digest=self.POLICY, profile_name="reference",
+        accept=self.accepting(), contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1491, in prepare
+    accept(issued if isinstance(issued, dict) else {"offer_id": offer_id})
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2617, in accept
+    return accepted(offer_id)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2599, in accepted
+    decision="accept", bearer="bearer-" + offer_id,
+                              ~~~~~~~~~~^~~~~~~~~~
+TypeError: can only concatenate str (not "dict") to str
+
+======================================================================
+ERROR: test_admission_is_committed_before_anything_starts (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_admission_is_committed_before_anything_starts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2716, in test_admission_is_committed_before_anything_starts
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2577, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<4 lines>...
+        policy_digest=self.POLICY, profile_name="reference",
+        accept=self.accepting(), contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1491, in prepare
+    accept(issued if isinstance(issued, dict) else {"offer_id": offer_id})
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2617, in accept
+    return accepted(offer_id)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2599, in accepted
+    decision="accept", bearer="bearer-" + offer_id,
+                              ~~~~~~~~~~^~~~~~~~~~
+TypeError: can only concatenate str (not "dict") to str
+
+======================================================================
+ERROR: test_an_absent_intent_carries_no_constraint (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_an_absent_intent_carries_no_constraint)
+NAMED FOR WHAT IT PROVES, which review claim169416 caught me getting
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2888, in test_an_absent_intent_carries_no_constraint
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2577, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<4 lines>...
+        policy_digest=self.POLICY, profile_name="reference",
+        accept=self.accepting(), contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1491, in prepare
+    accept(issued if isinstance(issued, dict) else {"offer_id": offer_id})
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2617, in accept
+    return accepted(offer_id)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2599, in accepted
+    decision="accept", bearer="bearer-" + offer_id,
+                              ~~~~~~~~~~^~~~~~~~~~
+TypeError: can only concatenate str (not "dict") to str
+
+======================================================================
+ERROR: test_the_actor_holds_one_live_claim_and_the_preparation_takes_it (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_actor_holds_one_live_claim_and_the_preparation_takes_it)
+WHY THIS FIXTURE PRE-CLAIMS NOTHING, asserted rather than asserted
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2655, in test_the_actor_holds_one_live_claim_and_the_preparation_takes_it
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2577, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<4 lines>...
+        policy_digest=self.POLICY, profile_name="reference",
+        accept=self.accepting(), contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1491, in prepare
+    accept(issued if isinstance(issued, dict) else {"offer_id": offer_id})
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2617, in accept
+    return accepted(offer_id)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2599, in accepted
+    decision="accept", bearer="bearer-" + offer_id,
+                              ~~~~~~~~~~^~~~~~~~~~
+TypeError: can only concatenate str (not "dict") to str
+
+======================================================================
+ERROR: test_the_claim_carries_the_authoritys_own_authorization (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_claim_carries_the_authoritys_own_authorization)
+The assignment is not the whole of what a claim answers.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2688, in test_the_claim_carries_the_authoritys_own_authorization
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2577, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<4 lines>...
+        policy_digest=self.POLICY, profile_name="reference",
+        accept=self.accepting(), contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1491, in prepare
+    accept(issued if isinstance(issued, dict) else {"offer_id": offer_id})
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2617, in accept
+    return accepted(offer_id)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2599, in accepted
+    decision="accept", bearer="bearer-" + offer_id,
+                              ~~~~~~~~~~^~~~~~~~~~
+TypeError: can only concatenate str (not "dict") to str
+
+======================================================================
+ERROR: test_the_offer_is_the_one_the_plan_registered (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_offer_is_the_one_the_plan_registered)
+Admission compares the membership against the registered plan, so a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2708, in test_the_offer_is_the_one_the_plan_registered
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2577, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<4 lines>...
+        policy_digest=self.POLICY, profile_name="reference",
+        accept=self.accepting(), contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1491, in prepare
+    accept(issued if isinstance(issued, dict) else {"offer_id": offer_id})
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2617, in accept
+    return accepted(offer_id)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2599, in accepted
+    decision="accept", bearer="bearer-" + offer_id,
+                              ~~~~~~~~~~^~~~~~~~~~
+TypeError: can only concatenate str (not "dict") to str
+
+======================================================================
+ERROR: test_the_parent_keeps_its_one_reserved_root (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_parent_keeps_its_one_reserved_root)
+The same actor holds the parent while it prepares: one root, one
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2760, in test_the_parent_keeps_its_one_reserved_root
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2577, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<4 lines>...
+        policy_digest=self.POLICY, profile_name="reference",
+        accept=self.accepting(), contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1491, in prepare
+    accept(issued if isinstance(issued, dict) else {"offer_id": offer_id})
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2617, in accept
+    return accepted(offer_id)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2599, in accepted
+    decision="accept", bearer="bearer-" + offer_id,
+                              ~~~~~~~~~~^~~~~~~~~~
+TypeError: can only concatenate str (not "dict") to str
+
+======================================================================
+ERROR: test_the_whole_sequence_runs_against_real_owners (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_whole_sequence_runs_against_real_owners)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2621, in test_the_whole_sequence_runs_against_real_owners
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2577, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<4 lines>...
+        policy_digest=self.POLICY, profile_name="reference",
+        accept=self.accepting(), contract=self.CONTRACT)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1491, in prepare
+    accept(issued if isinstance(issued, dict) else {"offer_id": offer_id})
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2617, in accept
+    return accepted(offer_id)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2599, in accepted
+    decision="accept", bearer="bearer-" + offer_id,
+                              ~~~~~~~~~~^~~~~~~~~~
+TypeError: can only concatenate str (not "dict") to str
+
+======================================================================
+ERROR: test_the_wrapper_admits_preparation_and_defers_the_parent (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_wrapper_admits_preparation_and_defers_the_parent)
+THE SELECTED SEAM, END TO END, and the deferral actually reached.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2825, in test_the_wrapper_admits_preparation_and_defers_the_parent
+    wrapper.admit(stage, {"input_digest": request["input_digest"]})
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1123, in admit
+    return self._preparation.admit(self._operations, stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1215, in admit
+    answered = execution.prepare(
+        orchestration_id=held["orchestration_id"],
+    ...<5 lines>...
+        profile_name=held["profile_name"],
+        accept=held["accept"], contract=held.get("contract"))
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1491, in prepare
+    accept(issued if isinstance(issued, dict) else {"offer_id": offer_id})
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2617, in accept
+    return accepted(offer_id)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2599, in accepted
+    decision="accept", bearer="bearer-" + offer_id,
+                              ~~~~~~~~~~^~~~~~~~~~
+TypeError: can only concatenate str (not "dict") to str
+
+======================================================================
+ERROR: test_a_resumed_sweep_reads_no_owner_but_its_own_intent (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_a_resumed_sweep_reads_no_owner_but_its_own_intent)
+"Resolves nothing" was FALSE of my first form -- line, checkpoint
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 936, in test_a_resumed_sweep_reads_no_owner_but_its_own_intent
+    answer = held({"attempt_id": "attempt-1"}, None, intent)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4730, in __call__
+    return self.resumed(intent, place)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4869, in resumed
+    "accept": self.accepting(intent["orchestration_id"], None,
+              ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             held=held,
+                             ^^^^^^^^^^
+                             work_id=intent["execution_work_id"]),
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4814, in accepting
+    control=self._deployment.control, port=self._port(),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'StageDeployment' object has no attribute 'control'
+
+----------------------------------------------------------------------
+Ran 415 tests in 21.399s
+
+FAILED (errors=11)

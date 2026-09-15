@@ -1,0 +1,34 @@
+{
+  "work": "W161230",
+  "claim": 164484,
+  "authority": "M161614",
+  "cap_seconds": 300.0,
+  "prior_ledger": "review-ledger-164484.json",
+  "prior_reviewer_seconds": 5.411611034978705,
+  "runs": [
+    {
+      "argv": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-164484-2.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "status": "finished",
+      "guard": {
+        "cap_seconds": 300.0,
+        "spent_seconds_before": 5.411611034978705,
+        "remaining_seconds_before": 294.5883889650213,
+        "expected_seconds": 10.0,
+        "margin_seconds": 3.0,
+        "timeout_seconds": 30.0
+      },
+      "log": "review-run-164484-2.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.2136735740059521
+    }
+  ],
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "jsonschema": "4.26.0",
+  "qualification": "Pinned4.26.0 focused storage/contracts plus independent defect observations; not full slice acceptance",
+  "reviewer_spent_seconds": 5.625284608984657,
+  "reviewer_remaining_seconds": 294.37471539101534
+}

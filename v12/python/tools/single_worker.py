@@ -903,8 +903,26 @@ class _SingleWorker:
 
     def __init__(self, given, control, port, *, credential_provider,
                  engine_run, session=None, clock=None, checkpoint=None,
-                 stage=None, judgment_document=None):
+                 stage=None, judgment_document=None,
+                 execution_context=None):
         self.given = given
+        # W156162: THE ONE THING THIS WORKER LEARNS ABOUT A JOB, and it is a
+        # CALLABLE rather than a store.
+        #
+        # A Job may configure the seconds one provider turn and one verification
+        # command may take, and the launch delivery is what carries them into a
+        # container -- so this composition has to be able to ask. Handing it the
+        # Job store would make every launch composition a Job-store reader,
+        # which is the separation the factory keeps; the pinned decision of
+        # 2026-09-13T01:58:25Z is a narrow injected reader instead. It answers
+        # one question over the factory's already-open owner and exposes no
+        # write, no migration, no Authority session, no engine and no
+        # credentials.
+        #
+        # `None` is a composition with no Job behind it -- the bootstrap
+        # deployment and focused verification -- and those keep the legacy
+        # launch shapes they already had.
+        self.execution_context = execution_context
         # W103083: THE TWO PLACES A STAGE DIFFERS, AND THERE ARE ONLY TWO.
         # What a worker MOUNTS and how its attempt ENDS are the whole of the
         # difference between an implementation, a review and an integration
@@ -1531,7 +1549,7 @@ class _SingleWorker:
         self.checkpoint("manifest")
         state = attempt_runtime_of(self.control, attempt_id)
         fresh = state["execution_runtime"] == "not-started"
-        launched = self._launch_document(attempt_id, state)
+        launched = self._launch_document(stage, state)
         self.checkpoint("launch")
         delivery = None
         adapter = None
@@ -1655,7 +1673,7 @@ class _SingleWorker:
         status document.
         """
         try:
-            launched = self._adopted(stage["attempt_id"])
+            launched = self._adopted(stage)
             if launched is None or launched.exchange is None:
                 return None
             return exchange.observation(launched.exchange)
@@ -1777,7 +1795,7 @@ class _SingleWorker:
         """
         self._matches(stage, job)
         attempt_id = stage["attempt_id"]
-        launched = self._adopted(attempt_id)
+        launched = self._adopted(stage)
         if launched is None or launched.exchange is None:
             _refuse(f"attempt {attempt_id!r} has no exchange delivery to "
                     f"publish a command into; a command nothing mounts is a "
@@ -1887,7 +1905,7 @@ class _SingleWorker:
                     historical,
                     adapter=_RecordedRuntime(self.given["image_digest"]),
                     roots=None))
-        launched = self._adopted(attempt_id)
+        launched = self._adopted(stage)
         if launched is None or launched.exchange is None:
             _refuse(f"attempt {attempt_id!r} has no exchange delivery to end",
                     category="refused", code="precondition")
@@ -2160,7 +2178,42 @@ class _SingleWorker:
         """
         return "session-" + digest(attempt_id)[7:31]
 
-    def _adopted(self, attempt_id):
+    def _job_execution(self, stage):
+        """This stage's Job execution context, or `None` when there is no Job.
+
+        W156162. The Job half is RE-RESOLVED through its own owner every time,
+        never read back out of the launch being checked -- adoption compares
+        canonical bytes, and a Job half taken from disk would make the document
+        prove itself.
+
+        THE RUNTIME HALF IS THIS DEPLOYMENT'S OWN. The Job's submitted input and
+        policy identities are the Job owner's; what this runtime was actually
+        given is the configured manifest and policy this worker mounts and that
+        `_claim` compares the claimed offer against. They are two facts and both
+        are stated.
+        """
+        if self.execution_context is None or stage is None:
+            return None
+        # W156162: AND A COMPOSITION THAT RESOLVES JOBS WILL NOT COMPOSE A
+        # LAUNCH FOR AN EXECUTION THAT NAMES NONE. An ordinary stage row always
+        # carries its Job; a derived judgment's intent carries the Job its own
+        # OWNING RESULT names. Answering `None` here would hand a Job-bound
+        # deployment the image defaults under an execution that has an owner,
+        # which is the legacy-delivery confusion this Work refuses everywhere
+        # else.
+        job_id = stage.get("job_id")
+        if not job_id:
+            _refuse("this execution names no Job and this deployment resolves "
+                    "a Job's configured ceilings; a launch composed now would "
+                    "state defaults nothing chose",
+                    category="refused", code="precondition")
+        given = self.given
+        return self.execution_context(
+            job_id=job_id, attempt_id=stage["attempt_id"],
+            runtime_input_digest=given["input_manifest"]["manifest_digest"],
+            runtime_policy_digest=given["policy_digest"])
+
+    def _adopted(self, stage):
         """This attempt's launch and exchange delivery, from durable state.
 
         ADOPTION AND NOT MATERIALIZATION. A delivery that is absent here is one
@@ -2170,14 +2223,17 @@ class _SingleWorker:
         document and which applies with more force to a namespace the worker
         writes.
         """
+        attempt_id = stage["attempt_id"]
         return launch.adopt(
             self.given["launch_home"], attempt_id=attempt_id,
             session=self._session_of(attempt_id),
             contract=self.given["launch_contract"],
             role=self.given["launch_role"],
-            transport=exchange.EXCHANGE_TRANSPORT, workspace_group=self.group)
+            transport=exchange.EXCHANGE_TRANSPORT,
+            job_execution=self._job_execution(stage),
+            workspace_group=self.group)
 
-    def _launch_document(self, attempt_id, state):
+    def _launch_document(self, stage, state):
         """Adopt this attempt's exact launch delivery; author one ONLY before
         a start.
 
@@ -2199,7 +2255,8 @@ class _SingleWorker:
         ending for every boundary alike.
         """
         given = self.given
-        launched = self._adopted(attempt_id)
+        attempt_id = stage["attempt_id"]
+        launched = self._adopted(stage)
         if launched is not None:
             return launched
         if state["execution_runtime"] != "not-started":
@@ -2217,7 +2274,9 @@ class _SingleWorker:
             given["launch_home"], attempt_id=attempt_id,
             session=self._session_of(attempt_id),
             contract=given["launch_contract"], role=given["launch_role"],
-            transport=exchange.EXCHANGE_TRANSPORT, workspace_group=self.group)
+            transport=exchange.EXCHANGE_TRANSPORT,
+            job_execution=self._job_execution(stage),
+            workspace_group=self.group)
 
 # What this deployment says when it hands an implementation result on. The
 # authority records it beside the transition, so it is written once here rather
@@ -2306,10 +2365,44 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
         return worker_operations(given, control_store, authority, provider,
                                  engine_run=engine_run, clock=clock,
                                  checkpoint=checkpoint,
-                                 dispose=authority.dispose)
+                                 dispose=authority.dispose,
+                                 execution_context=job_execution_reader(
+                                     job_store))
     except BaseException:
         authority.dispose()
         raise
+
+
+def job_execution_reader(job_store):
+    """A NARROW, READ-ONLY reader over an already-open Job owner.
+
+    W156162, pinned 2026-09-13T01:58:25Z. The launch delivery carries a Job's
+    configured ceilings, so the composition that authors it has to be able to
+    ask which Job it is serving. Handing a worker the Job store would make every
+    launch composition -- including the read-only observation the projection
+    runs on every tick -- a Job-store reader, which is the separation the
+    factory keeps.
+
+    SO WHAT IS HANDED OVER IS THIS ONE QUESTION. The closure holds the store the
+    factory already opened and answers `job_execution_context` and nothing else:
+    no write, no migration, no Authority session, no engine, no credentials, and
+    no way to reach the store itself. A caller can learn what a Job configured;
+    it cannot learn anything else and it cannot change anything.
+
+    It is a FUNCTION rather than a cached answer on purpose: a fresh process
+    must obtain the same expected context, and a value remembered from admission
+    would be a second account of a fact the Job owner holds.
+    """
+    def reader(*, job_id, attempt_id, runtime_input_digest,
+               runtime_policy_digest):
+        from baton_v12.job_manager import submission as job_submission
+
+        return job_submission.job_execution_context(
+            job_store, job_id, attempt_id=attempt_id,
+            runtime_input_digest=runtime_input_digest,
+            runtime_policy_digest=runtime_policy_digest)
+
+    return reader
 
 
 def effective_engine_run(engine_run=None):
@@ -2390,7 +2483,8 @@ def worker_preflight(given, control_store, *, credential_provider=None,
 
 def worker_operations(given, control_store, authority, provider, *,
                       engine_run=None, clock=None, checkpoint=None,
-                      dispose=None, stage=None, judgment_document=None):
+                      dispose=None, stage=None, judgment_document=None,
+                      execution_context=None):
     """The half that needs an Authority, over one the CALLER owns.
 
     `dispose` is what makes this reusable by a pool. A single-worker
@@ -2431,7 +2525,9 @@ def worker_operations(given, control_store, authority, provider, *,
         runtime, control_store, port, credential_provider=provider,
         engine_run=effective_engine_run(engine_run), session=session,
         clock=clock,
-        checkpoint=checkpoint, stage=stage, judgment_document=judgment_document)
+        checkpoint=checkpoint, stage=stage,
+        judgment_document=judgment_document,
+        execution_context=execution_context)
     return _Operations(
         control_store, port, mint_bearer=_bearer,
         deliver_bearer=worker.delivered, start_runtime=worker.start,
@@ -2452,6 +2548,22 @@ def worker_operations(given, control_store, authority, provider, *,
         dispose=dispose if dispose is not None else authority.dispose)
 
 
+def _judged_job(subject):
+    """The Job that owns the result this judgment is about.
+
+    W156162, review 2026-09-13T03:50:23Z. Read from the OWNER'S OWN SUBJECT --
+    `Integration` composes it from the reconciled result account -- and not
+    inferred from an ordinary stage allocation this execution does not have, nor
+    taken from a carrier, which a judgment is never handed.
+    """
+    held = subject.get("job_id")
+    if type(held) is not str or not held:
+        _refuse("a derived judgment names the Job its own judged result "
+                "belongs to; this subject names none",
+                category="refused", code="precondition")
+    return held
+
+
 class JudgmentExecution:
     """One configured judge, using the ordinary worker lifecycle end to end.
 
@@ -2460,7 +2572,8 @@ class JudgmentExecution:
     """
 
     def __init__(self, given, control, authority, provider, *, worker_id,
-                 subject, source, engine_run=None, clock=None):
+                 subject, source, engine_run=None, clock=None,
+                 execution_context=None):
         self.control = control
         self.subject = dict(subject)
         self.given = dict(given, source_nomination=source_boundary.nominate_source(source))
@@ -2475,12 +2588,27 @@ class JudgmentExecution:
                        "offer_id": "judgment-offer-" + identity,
                        "kind": "review", "work_id": given["input_manifest"]["work_ref"]["work_id"],
                        "profile_name": given["profile_name"],
-                       "profile_digest": given["profile_digest"]}
+                       "profile_digest": given["profile_digest"],
+                       # W156162: THE JOB THIS JUDGMENT'S OWN SUBJECT NAMES. A
+                       # derived judgment has no ordinary stage row and no pool
+                       # allocation to read a Job from, and it is handed no
+                       # carrier -- the owning Job is the one the RESULT this
+                       # judgment is about belongs to, which is what
+                       # `Integration`'s own subject states. It rides on the
+                       # intent because the intent is what this execution's
+                       # launch is composed from.
+                       "job_id": _judged_job(subject)}
+        # THE RETAINED INTENT, and it is what the launch states as the runtime
+        # half: not the Job's submitted identities, but what THIS judge was
+        # actually given -- the configured manifest this execution mounts and
+        # the policy it runs under, which `_claim` compares its claimed offer
+        # against. Two facts, both stated, neither invented.
         self.input = {"input_digest": given["input_manifest"]["manifest_digest"],
                       "policy_digest": given["policy_digest"]}
         self.operations = worker_operations(
             self.given, control, authority, provider, engine_run=engine_run,
-            dispose=lambda: None, judgment_document=self.document, clock=clock)
+            dispose=lambda: None, judgment_document=self.document, clock=clock,
+            execution_context=execution_context)
 
     def poll(self):
         operations, intent = self.operations, self.intent
@@ -2653,7 +2781,27 @@ class _Observation:
         # stranger's terminal. Refusing here as well is a design decision that
         # belongs to a pinned ruling and an independent review, not to a
         # rebase.
-        del job_store
+        # W156162, pinned 2026-09-13T01:58:25Z: THE STORE IS STILL NOT HELD,
+        # AND ONE NARROW READ OVER IT NOW IS.
+        #
+        # The paragraph above is about an EXTRA Authority-mismatch REFUSAL in
+        # observation, and it stands unchanged: that decision still belongs to a
+        # pinned ruling and an independent review, and this composition still
+        # does not make it. What it did not establish is a universal ban on
+        # reading Job data -- `StageObservation` already holds the Job store and
+        # asks `scheduler.allocation_of` about every observed attempt.
+        #
+        # WHY THIS ONE IS NEEDED. Adoption proves a launch delivery by
+        # re-authoring it and comparing canonical bytes, and a Job-bound
+        # delivery carries that Job's configured ceilings. An observation that
+        # could not ask which Job it was looking at could not reproduce those
+        # bytes, so every launch would be reported unreadable on every status
+        # pass. The callable answers that one question over the read-only owner
+        # the factory already opened: no write, no migration, no runtime
+        # refresh, no serving factory, no Authority session, no engine and no
+        # credentials.
+        self.execution_context = (job_execution_reader(job_store)
+                                  if job_store is not None else None)
         self.given = given
         self.control = control_store
         self.launch_home = given["launch_home"]
@@ -2672,6 +2820,31 @@ class _Observation:
         """
         return "session-" + digest(attempt_id)[7:31]
 
+    def _job_execution(self, stage):
+        """The same Job context the serving deployment composes, read-only.
+
+        Identical inputs produce identical bytes, which is exactly what lets
+        this observation adopt a delivery the serving composition materialized
+        -- and what would otherwise report every Job-bound launch unreadable on
+        every status pass.
+        """
+        if self.execution_context is None or stage is None:
+            return None
+        # THE SAME REFUSAL THE SERVING READER MAKES, for the same reason: two
+        # compositions that disagreed about whether an unbound execution takes
+        # the defaults would disagree about the BYTES, and this one exists to
+        # reproduce them exactly.
+        job_id = stage.get("job_id")
+        if not job_id:
+            _refuse("this execution names no Job and this observation "
+                    "reproduces a Job-bound launch; there is nothing here to "
+                    "resolve", category="refused", code="precondition")
+        given = self.given
+        return self.execution_context(
+            job_id=job_id, attempt_id=stage["attempt_id"],
+            runtime_input_digest=given["input_manifest"]["manifest_digest"],
+            runtime_policy_digest=given["policy_digest"])
+
     def observe_exchange(self, stage):
         """The same reconstruction the serving deployment performs.
 
@@ -2689,6 +2862,7 @@ class _Observation:
                 contract=self.given["launch_contract"],
                 role=self.given["launch_role"],
                 transport=exchange.EXCHANGE_TRANSPORT,
+                job_execution=self._job_execution(stage),
                 workspace_group=self.group)
             if launched is None or launched.exchange is None:
                 return None

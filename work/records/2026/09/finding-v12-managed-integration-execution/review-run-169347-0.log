@@ -1,0 +1,11 @@
+test_the_published_request_is_recoverable (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_published_request_is_recoverable)
+THE BUNDLE IS THE DURABLE RECORD OF WHAT WAS ASKED. ... ok
+test_an_absent_publication_is_an_answer_rather_than_an_empty_request (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_an_absent_publication_is_an_answer_rather_than_an_empty_request)
+A published input that is not there is not an empty request: it ... ok
+test_a_tampered_published_request_does_not_survive_its_composer (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_tampered_published_request_does_not_survive_its_composer)
+Recovery is not a trusting read. The document is adopted through ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.053s
+
+OK

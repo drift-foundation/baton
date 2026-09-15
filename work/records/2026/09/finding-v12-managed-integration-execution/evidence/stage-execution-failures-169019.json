@@ -1,0 +1,59 @@
+{
+ "claim": 169019,
+ "command": "env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_stage_execution",
+ "concrete_defect": {
+  "byte_identity_to_head": {
+   "AFreshPortReentersANeverStartedDelivery": "identical to HEAD, 0 diff lines",
+   "Integration._run": "AST-extracted source identical to HEAD, 0 diff lines",
+   "TheIntegrationStageConsumesTheAcceptedPort": "identical to HEAD, 0 diff lines"
+  },
+  "fixture": "tests/tools/test_stage_execution.py TheIntegrationStageConsumesTheAcceptedPort.deployment() builds a SimpleNamespace stand-in providing no `reconciles` member",
+  "production_call": "tools/stage_execution.py Integration._run -> deployment.reconciles(), on the DIRECT branch after the port is constructed",
+  "raised": "AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'"
+ },
+ "coordination": "Reported for the owner of the Integration._run / deployment stand-in pair rather than repaired here. No unrelated fixture repair was made; W161230 changed neither the call nor the stand-in.",
+ "cwd": "/home/sl/src/baton/v12/python",
+ "failing_set": [
+  "ERROR: test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick) (delivery=False)",
+  "ERROR: test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick) (delivery=True)",
+  "ERROR: test_a_delivery_with_no_started_runtime_is_not_refreshed (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed)",
+  "ERROR: test_a_fresh_port_prepares_that_delivery_and_then_starts_it (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_fresh_port_prepares_that_delivery_and_then_starts_it)",
+  "ERROR: test_a_later_tick_refreshes_before_it_continues (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_later_tick_refreshes_before_it_continues)",
+  "ERROR: test_a_lost_marker_falls_through_to_admission (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_lost_marker_falls_through_to_admission)",
+  "ERROR: test_a_runtime_this_execution_did_not_start_is_still_held (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_runtime_this_execution_did_not_start_is_still_held)",
+  "ERROR: test_a_second_tick_in_the_same_execution_starts_nothing_again (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_second_tick_in_the_same_execution_starts_nothing_again)",
+  "ERROR: test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here) (runtime='running')",
+  "ERROR: test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here) (runtime='uncertain')",
+  "ERROR: test_an_integration_without_a_runtime_port_refuses_as_that (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_an_integration_without_a_runtime_port_refuses_as_that)",
+  "ERROR: test_an_ordinary_first_tick_prepares_and_starts_exactly_once (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_ordinary_first_tick_prepares_and_starts_exactly_once)",
+  "ERROR: test_the_first_tick_prepares_and_then_admits (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits)"
+ ],
+ "failing_set_identical": true,
+ "runs": [
+  {
+   "errors": 13,
+   "exit": 1,
+   "label": "with the PreparationAdmission wrapper composed",
+   "log": "baton:work/records/2026/09/finding-v12-managed-integration-execution/evidence/stage-execution-with-wrapper-168895.log",
+   "log_sha256": "7a92c4d6abfc95c082592b82e7f0f8d98d6547e81e40e58953a9bfef6fb44a0d",
+   "ran": 266,
+   "seconds_reported": 53.312,
+   "stage_execution_sha256": "63fd8c59b62beffdae3f4474c8f788a1d80fa35fea94c41d4c04bea174e52d67"
+  },
+  {
+   "errors": 13,
+   "exit": 1,
+   "label": "with the wrapper composition removed, nothing else changed",
+   "log": "baton:work/records/2026/09/finding-v12-managed-integration-execution/evidence/stage-execution-without-wrapper-168895.log",
+   "log_sha256": "37c8a3e5c78f08fac3d38c5bcf21d22ed84a3b9f89ad97d0cdf0133bd3e1a88b",
+   "ran": 266,
+   "stage_execution_sha256": "b1f1a9c8096abed57347ff5cdc188d2a06548cfdf5c296239a1326a4c80eeeb5"
+  }
+ ],
+ "what": "The 13 tests.tools.test_stage_execution errors: exact commands, compared bytes, paired logs and the limit of what they attribute.",
+ "what_this_does_and_does_not_establish": {
+  "established": "Independence from this Work's wrapper: the failing set is identical across the toggle, from two runs whose only difference is the two stage_execution.py digests above.",
+  "not_established": "ATTRIBUTION TO ANOTHER WORK. The reviewer is right that toggle independence is not attribution, and the earlier 'pre-existing from other in-flight Works' phrasing is withdrawn.",
+  "why_no_committed_baseline": "a clean `git archive HEAD v12/python` export does not import at all: tests/tools/test_integration_bundle.py imports `integration_contract`, an UNTRACKED working-tree module. So no committed-bytes baseline can be produced from this tree, and these failures cannot be attributed by comparison against HEAD until that module is committed. That limit is itself the finding."
+ }
+}

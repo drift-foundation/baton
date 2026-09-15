@@ -1,0 +1,15 @@
+................................F.........................................
+======================================================================
+FAIL: test_a_stale_start_pre_read_loses_to_the_cancellation_axis (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_stale_start_pre_read_loses_to_the_cancellation_axis)
+ORDER ONE, AT THE REAL WINDOW. The start read `not-started`, the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 202, in test_a_stale_start_pre_read_loses_to_the_cancellation_axis
+    self.assertIn("cancel-requested", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cancel-requested' not found in 'runtime deadline pin requires the same unstarted assignment'
+
+----------------------------------------------------------------------
+Ran 74 tests in 0.379s
+
+FAILED (failures=1)

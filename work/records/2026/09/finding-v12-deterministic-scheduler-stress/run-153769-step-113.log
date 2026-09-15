@@ -1,0 +1,24 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-156029.py
+integration_turn exit 0
+job-a {"implementation": "completed", "integration": "completed", "review": "completed"}
+tick 1 job-b acts [{"act": "admit", "episode": 1, "operation_id": "offer.issue:offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "performed", "stage_id": "job-b/integration"}]
+tick 1 job-b {"implementation": "completed", "integration": "offered", "review": "completed"}
+tick 2 job-b acts [{"act": "claim", "episode": 1, "operation_id": "offer.settle:offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "performed", "stage_id": "job-b/integration"}]
+tick 2 job-b {"implementation": "completed", "integration": "claimed", "review": "completed"}
+tick 3 job-b {"implementation": "completed", "integration": "claimed", "review": "completed"}
+tick 4 job-b {"implementation": "completed", "integration": "claimed", "review": "completed"}
+tick 5 job-b {"implementation": "completed", "integration": "claimed", "review": "completed"}
+tick 6 job-b {"implementation": "completed", "integration": "claimed", "review": "completed"}
+tick 7 job-b {"implementation": "completed", "integration": "claimed", "review": "completed"}
+tick 8 job-b {"implementation": "completed", "integration": "claimed", "review": "completed"}
+tick 9 job-b {"implementation": "completed", "integration": "claimed", "review": "completed"}
+tick 10 job-b {"implementation": "completed", "integration": "claimed", "review": "completed"}
+tick 11 job-b {"implementation": "completed", "integration": "claimed", "review": "completed"}
+tick 12 job-b {"implementation": "completed", "integration": "claimed", "review": "completed"}
+job-b final {"implementation": "completed", "integration": "claimed", "review": "completed"}
+job-b allocated integration-worker
+job-b live {"attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "ended_at": null, "ended_revision": null, "ended_state": null, "episode": 1, "incarnation": "stage-composed", "offer_id": "offer-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "opened_at": "2026-09-02T00:00:00.000Z", "stage_id": "job-b/integration"}
+--- second question ---
+job-b before its turn {"implementation": "completed", "integration": "claimed", "review": "completed"}
+job-b integration_turn AttributeError: 'NoneType' object has no attribute 'place'
+job-b final {"implementation": "completed", "integration": "claimed", "review": "completed"}

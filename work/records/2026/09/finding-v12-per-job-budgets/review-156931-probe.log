@@ -1,0 +1,209 @@
+{
+  "reader_observations": [
+    {
+      "case": "unknown transport",
+      "accepted": true,
+      "provider_seconds": 60
+    },
+    {
+      "case": "missing provider boundary",
+      "accepted": true,
+      "provider_seconds": 3600
+    },
+    {
+      "case": "non-text job identity",
+      "accepted": true,
+      "provider_seconds": 60
+    },
+    {
+      "case": "wrong units",
+      "accepted": true,
+      "provider_seconds": 60
+    }
+  ]
+}
+{
+  "production_runner_seam_outcomes": [
+    {
+      "settings": {
+        "provider_turn_seconds": 60,
+        "verification_command_seconds": 45
+      },
+      "mode": "success",
+      "timeouts": [
+        60,
+        45
+      ],
+      "provider": {
+        "ok": true,
+        "status": 0,
+        "failure_reason": null,
+        "why": null
+      },
+      "verification": {
+        "status": 0,
+        "text": "$ fake-verification\nexit: 0\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {
+        "provider_turn_seconds": 60,
+        "verification_command_seconds": 45
+      },
+      "mode": "timeout",
+      "timeouts": [
+        60,
+        45
+      ],
+      "provider": {
+        "ok": false,
+        "status": null,
+        "failure_reason": "timeout",
+        "why": "the provider did not finish within 60s"
+      },
+      "verification": {
+        "status": null,
+        "text": "$ fake-verification\ndid not finish within 45s\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {
+        "provider_turn_seconds": 60,
+        "verification_command_seconds": 45
+      },
+      "mode": "start-error",
+      "timeouts": [
+        60,
+        45
+      ],
+      "provider": {
+        "ok": false,
+        "status": null,
+        "failure_reason": "start-error",
+        "why": "the provider could not be started: FileNotFoundError"
+      },
+      "verification": {
+        "status": null,
+        "text": "$ fake-verification\ncould not be started (FileNotFoundError)\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {
+        "provider_turn_seconds": 17,
+        "verification_command_seconds": 23
+      },
+      "mode": "success",
+      "timeouts": [
+        17,
+        23
+      ],
+      "provider": {
+        "ok": true,
+        "status": 0,
+        "failure_reason": null,
+        "why": null
+      },
+      "verification": {
+        "status": 0,
+        "text": "$ fake-verification\nexit: 0\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {
+        "provider_turn_seconds": 17,
+        "verification_command_seconds": 23
+      },
+      "mode": "timeout",
+      "timeouts": [
+        17,
+        23
+      ],
+      "provider": {
+        "ok": false,
+        "status": null,
+        "failure_reason": "timeout",
+        "why": "the provider did not finish within 17s"
+      },
+      "verification": {
+        "status": null,
+        "text": "$ fake-verification\ndid not finish within 23s\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {
+        "provider_turn_seconds": 17,
+        "verification_command_seconds": 23
+      },
+      "mode": "start-error",
+      "timeouts": [
+        17,
+        23
+      ],
+      "provider": {
+        "ok": false,
+        "status": null,
+        "failure_reason": "start-error",
+        "why": "the provider could not be started: FileNotFoundError"
+      },
+      "verification": {
+        "status": null,
+        "text": "$ fake-verification\ncould not be started (FileNotFoundError)\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {},
+      "mode": "success",
+      "timeouts": [
+        3600,
+        900
+      ],
+      "provider": {
+        "ok": true,
+        "status": 0,
+        "failure_reason": null,
+        "why": null
+      },
+      "verification": {
+        "status": 0,
+        "text": "$ fake-verification\nexit: 0\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {},
+      "mode": "timeout",
+      "timeouts": [
+        3600,
+        900
+      ],
+      "provider": {
+        "ok": false,
+        "status": null,
+        "failure_reason": "timeout",
+        "why": "the provider did not finish within 3600s"
+      },
+      "verification": {
+        "status": null,
+        "text": "$ fake-verification\ndid not finish within 900s\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {},
+      "mode": "start-error",
+      "timeouts": [
+        3600,
+        900
+      ],
+      "provider": {
+        "ok": false,
+        "status": null,
+        "failure_reason": "start-error",
+        "why": "the provider could not be started: FileNotFoundError"
+      },
+      "verification": {
+        "status": null,
+        "text": "$ fake-verification\ncould not be started (FileNotFoundError)\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    }
+  ],
+  "captured_calls": 18
+}

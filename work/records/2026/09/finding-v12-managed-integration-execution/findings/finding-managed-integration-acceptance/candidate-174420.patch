@@ -1,0 +1,254 @@
+--- a/v12/python/DEPLOYMENT.md
++++ b/v12/python/DEPLOYMENT.md
+@@ -536,17 +536,20 @@
+ | `provider_turn` | 3600 s | one provider invocation |
+ | `ordinary_verification` | 900 s | the task's verification command |
+ | `integration_verification` | 1800 s | imported-target verification |
+-| `host_verification` | 300 s | host composition verification |
++| `host_verification` | 300 s | legacy host or managed preparation/apply verification |
+ 
+ One explicit `verification_command_seconds` reaches **all three** verification
+ boundaries. A Job that wants them to differ is asking for the per-role pools
+ that are deliberately deferred. WHICH setting moves a boundary is fixed by the
+ build and is not something a delivery can restate.
+ 
+-`host_verification` bounds the required test the host composition runs directly,
+-outside any container. This deployment's **Git** deadline stays at its own 300 s
+-and is never moved by a Job: archiving a revision is this deployment's tooling
+-over its own repository, and only what runs afterwards is the Job's to bound.
++`host_verification` bounds the required test run directly on the host by the
++legacy composition, or in the managed preparation/apply execution when that path
++is selected. Relocation preserves the original Job's boundary: 300 s by default,
++or its explicit `verification_command_seconds`. This deployment's **Git** deadline
++stays at its own 300 s and is never moved by a Job: archiving a revision is this
++deployment's tooling over its own repository, and only what runs afterwards is
++the Job's to bound.
+ 
+ ### Effective values, and why a later default cannot move an old Job
+ 
+@@ -603,9 +606,11 @@
+ - **`provider_turn` in an integrator** — the integration entry passes the launch
+   it has already proved to the provider turn, so an integrator's provider runs
+   under its Job's ceiling and not only the ordinary worker's does.
+-- **`host_verification`** — the host-side reconciled owners (the causal observer
+-  and the imported verifier) run the required test under the Job's number,
+-  resolved through the Job owner. A stage with no Job keeps 300 s.
++- **`host_verification`** — the legacy host-side causal observer and imported
++  verifier run the required test under the Job's number. Managed preparation
++  and private apply carry that same Job-owned boundary to their worker commands:
++  300 s by default, with an explicit `verification_command_seconds` override
++  resolved through the Job owner. A legacy stage with no Job keeps 300 s.
+ - **A derived judgment** — the judges that run over a reconciled result are not
+   ordinary stages: they have no stage row and no pool allocation. Each one
+   carries the Job that owns the **result it is judging**, read from the owner's
+@@ -684,18 +689,21 @@
+ rather than given the defaults — a fallback there would run somebody's work under
+ ceilings nobody chose.
+ 
+-**What an operator cannot do to a host hold.** Explicit recovery
++**What an operator cannot do to a host hold.** In the legacy direct host
++reconciliation account, explicit recovery
+ (`recovery.abandon_held_lease`) is a runtime-interruption leaf: it is reached
+ through the assignment a runtime was launched with and it checks that assignment
+-against the account the target is blocked under. A post-import hold has no such
+-assignment, because the reconciled branch starts no integration runtime — so both
++against the account the target is blocked under. A legacy post-import hold has no such
++assignment, because that direct branch starts no integration runtime — so both
+ that verb and `held_status` refuse it as another account, and the blocked account
+ cannot be turned back into a grant either, since a blocked target is not open at
+ its fence. The hold, its entries, the result and the host counters are unchanged
+ by all of it. The queue owner's own readers do expose the hold, and the lower
+ trusted `abandon_lease` exists at the account boundary; what is absent is a
+ host-aware operator entrypoint, and its quiescence authority and exact scope are
+-for its owner to define rather than something this Work relabels.
++for its owner to define rather than something this interface relabels. Managed preparation and apply do have
++ordinary attempts and fixed assignments; see [Managed integration](#managed-integration)
++for their retained cleanup, replay and unresolved-hold boundaries.
+ 
+ ### What is not delivered yet
+ 
+@@ -1230,16 +1238,78 @@
+ Evidence for all three: `work/records/2026/08/finding-v12-worker-workspace-
+ writable/evidence/w33936-podman-2026-08-29.txt`.
+ 
+-## Managed integration: what exists so far (W161230 slice 1)
+-
+-**Nothing here is a deployed managed execution, and this section deliberately
+-does not tell you how to run one.** Slice 1 delivered foundations: the
+-accounting that makes a managed integration's executions visible to the
+-scheduler, the owner contracts a portable phase is described by, and the
+-coordinator storage those results live in. Actual preparation delivery, the
+-managed runtime itself and the derived apply are later slices with their own
+-bounded selection. If you are looking for a switch to turn this on, there
+-isn't one.
++## Managed integration
++
++Managed integration carries an ordinary child preparation through retained
++candidate custody, independent judgments, private apply and final settlement.
++The target repository remains under its local owner's control. A worker answer
++alone establishes neither an accepted candidate nor a successful integration.
++
++### Selecting the managed path
++
++Set the boolean `"integration_preparation": true` in the stage-serving document
++to select this path. Omission or `false` keeps the direct path; strings such as
++`"false"` refuse. The selection requires a serving deployment, its integrator and
++configured integration worker, including the actual Authority route/handler and
++ordinary runtime, input and output configuration. An already-claimed legacy
++parent cannot be converted into a concurrently claimed preparation child.
++
++`v12/worker/Dockerfile.reconciliation` supplies the preparation recipe. It requires
++an explicit selected `PROVIDER_BASE` with compatible Python and Git, copies the
++ordinary worker and preparation entry/workload, and uses UID/GID 65532 with an
++exec-form Python entrypoint. Select a base digest through the deployment's own
++qualification process. There is no certified managed-flow image digest supplied
++here: configuration selects behavior and does not prove an image is provisioned.
++
++### From preparation to an honest final result
++
++The scheduler reserves one integration actor. The composition registers one root
++and planned prepare/apply memberships, commits immutable preparation intent and
++creates the child Work with its replay identity. That child receives an ordinary
++offer, claim, attempt, fixed assignment and committed admission before runtime
++start. The parent's apply remains planned and unclaimed during preparation.
++
++Read-only accepted inputs and the measured immutable request travel through the
++ordinary worker boundary. Separate worker and harness processes derive the
++combined, base and isolated trees and run the configured causal sequence. The
++coordinator does not run the merge or candidate harness. The measured outputs
++include the exact derived Git objects and modes needed for later materialization.
++An older collection missing that output cannot be repaired by silently rerunning
++candidate code on the coordinator.
++
++Positive quiescence, output freeze, accepted intake, retained custody and ordinary
++cleanup precede adoption. Adoption binds the retained report, candidate, request,
++task, assignment, source and harness; it survives removal of the execution root.
++Frozen output alone is insufficient. The child relinquishes its claim before
++the parent claims. The retained derived proposal then becomes the subject of
++three configured independent `JudgmentExecution` instances with ordinary scoped
++receipts. Preparation success does not substitute for these judgments.
++
++After approval and grant-bound admission, managed apply runs the pinned harness
++against the approved candidate in a private checkout. The worker receives the
++original Job's inputs and limits, with neither a target mount nor Authority
++sessions. After the command, the worker checks the same revision, tree and index,
++then compares actual file bytes, types and executable modes with the approved
++Git objects, including extra or missing files. A clean checkout of another
++revision or a change hidden from Git status fails this proof.
++
++Both preparation and private apply preserve the original Job's per-command
++`host_verification` default of 300 s and explicit `verification_command_seconds`
++override. Relocation does not substitute the distinct `integration_verification`
++default of 1800 s or `provider_turn` default of 3600 s. Git tooling retains its
++separate deployment deadline of 300 s. Managed commands use a dedicated process
++group with bounded termination; signal exits retain the observed shell-compatible
++status (128 plus the signal number). Missing status is neither success nor a
++command that never ran.
++
++The manager collects and retains apply output and proves cleanup/exclusion. The
++local target owner imports verified objects, rechecks the live grant and
++atomically updates the configured Git ref together with its exact publication
++receipt ref. Coordinator settlement, the Authority integration receipt, lease
++release and fenced parent handoff/gate discharge precede root closure and
++capacity release. Only that completed owner chain produces a successful final
++result. Automatic scheduler release waits for the integration root's ending;
++the transactional release guard and quarantine remain in force.
+ 
+ ### Capacity is named, not duplicated
+ 
+@@ -1540,12 +1610,12 @@
+ observe, and saying otherwise would be exactly the unfounded certainty those
+ branches exist to avoid.
+ 
+-**Slice-1 status of that owner.** The tests drive a deliberately fake target
+-owner: it performs the real reference advance through the real profile, so the
+-compare-and-swap under test is the actual one, and returns a receipt of its
+-own. **That receipt is not Git publication evidence and nothing here claims it
+-is.** It stands for the operation-bound receipt a real target-side producer
+-would write atomically with its effect, which this slice does not build.
++**The local target owner.** The managed composition uses real Git target and
++publication-receipt operations. The ref advance and its operation-bound receipt
++are one atomic target-side update. Recovery uses that receipt to identify the
++effect; a ref pointing at the desired commit is insufficient. Deterministic
++qualification exercises this owner against disposable local Git repositories;
++it does not certify a remote target backend.
+ 
+ **A recorded swap is never performed a second time.** If the swap is recorded
+ and the target has since moved, the call refuses rather than advancing again or
+@@ -1555,19 +1625,63 @@
+ is read: the intent act signed over exactly these operands, each effect act the
+ state claims, and no effect act the state does not claim.
+ 
+-### Current limitations, stated plainly
+-
+-- There is no managed runtime to launch and no command that runs one. The
+-  contracts above describe a phase; nothing in this slice executes it.
+-- The target owner behind the placement is a contract and a composition, not a
+-  producer: nothing in this slice writes a target-side receipt atomically with
+-  its effect, and the deterministic owner the tests drive is a fake.
+-- Managed execution is local. Cross-machine relocation, a new transport and
+-  multi-host certification are not part of this slice.
+-- Managed execution's focused checks have been run under the project-pinned
+-  `jsonschema==4.26.0` on Python 3.13.7 (`/home/sl/src/baton/.venv/bin/python3`),
+-  which is the interpreter a deployment should use for them. Earlier qualifying
+-  runs were made on 4.19.2 before that pin was available.
++### Failure, restart and operator recovery
++
++Reopening replays committed identities and owner evidence. Accepted cutpoints
++include retained preparation adoption and derived publication, a target effect
++before coordination settlement, an Authority receipt or recorded failure before
++root closure, and reopening an already completed result. These continuations
++finish the missing owner acts without repeating the target update. A mismatching
++request or owner record refuses instead of obtaining replacement identities.
++
++A known failed start with an identified runtime uses the actual manager's
++cancellation, fence and failed-start cleanup owners. Membership ends only after
++ordinary retained cleanup completes; unfinished teardown remains available for
++retry with the root held. Final known preparation failure cancels planned apply
++and produces an exceptional parent result without inventing a parent runtime.
++
++A measured apply harness failure retains its report and cleanup evidence. A zero
++exit with a changed checkout is also a verification failure; its measured zero
++stays zero. The failure owner checks the report against sealed bytes and accepted
++custody, binds the actual phase and candidate, and journals the reason. It refuses
++its own target entry and releases its lease/capacity without a publication.
++Success-dependent gates remain closed; the known apply-failure path preserves
++its parent fence and Authority gate rather than reporting a successful handoff.
++Forged or non-owned failure reports cannot authorize that settlement.
++
++**Unknown runtime means human inspection is required.** When the initial failed
++start identified no runtime, the ordinary sweep reports that a worker may still
++exist and that human inspection and cleanup are required. Its action detail names
++the exact Job, Work, attempt and start-operation identities, and the current
++runtime identity or an explicit unknown. Inspect those identities through the
++deployment's authorized owner/runtime surfaces and preserve the report. Unknown
++does not mean absent. Restart preserves the report and capacity/apply holds.
++Later runtime visibility does not rewrite the original receipt or authorize a
++second launch. There is no automatic late-runtime attachment, cleanup convergence
++or release command supplied here; human cleanup and subsequent release require
++their existing operational authority.
++
++**Uncertain target effects remain held.** The target is blocked with the live
++lease and root retained, exact publication/result/attempt identities and a human
++inspection instruction. The composition does not issue a second compare-and-swap,
++roll back, invent a not-applied receipt or automatically repair the unknown effect.
++
++### Qualification and remaining limits
++
++The complete managed flow is qualified with deterministic providers and engine
++simulation at their normal boundaries, real local worker/harness processes,
++ordinary disposable Authority/Job/Control owners, retained custody, scoped
++judgments and actual disposable Git target/receipt operations. This establishes
++the selected local behavior, not actual OCI/runtime, live-provider, image or
++remote-backend qualification. Other bounded OCI evidence in this manual retains
++its own scope; it does not certify this combined managed flow.
++
++General partial-delivery recovery remains unproved. Expanded adversarial
++identity/artifact/custody cases, causal/timeout/limit permutations, two-Job
++combinations and uncertain-ending/leader-first/TERM-resistant shutdown coverage
++are deferred to v13 and unproved. Existing integrity and cleanup checks remain;
++deferral neither passes an omitted case nor fixes a known defect. The selected
++evidence is not exhaustive recovery or a suite-wide pass.
+ 
+ ## Runtime-attempt deadlines
+ 

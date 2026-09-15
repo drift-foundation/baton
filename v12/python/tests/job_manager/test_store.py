@@ -704,6 +704,14 @@ class MigratingPinsTheAuthorityWithoutRenamingAnything(MigratingFromSchemaOne):
         held.close()
         connection = sqlite3.connect(self.job_path, isolation_level=None)
         self.addCleanup(connection.close)
+        # W156162: AND THE TABLE THE 4 -> 5 STEP CREATES. This fixture builds a
+        # store with the CURRENT build and subtracts what came after the
+        # version it is impersonating, so every later migration's object has to
+        # be subtracted too -- otherwise a "schema 2" store carries an object
+        # schema 2 never had, and the schema-3 check correctly says so.
+        connection.execute("DROP TABLE integration_capacity_members")
+        connection.execute("DROP TABLE integration_capacity_roots")
+        connection.execute("DROP TABLE job_execution_limits")
         connection.execute("DROP TABLE worker_affinity")
         connection.execute("DROP TABLE stage_allocations")
         connection.execute("DROP TABLE pool_workers")

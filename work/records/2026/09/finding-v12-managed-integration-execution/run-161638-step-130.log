@@ -1,0 +1,29 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+...E.........................................
+======================================================================
+ERROR: test_an_intent_is_committed_before_the_swap (tests.tools.test_managed_integration.APublicationKeepsItsOwnDurableAccount.test_an_intent_is_committed_before_the_swap)
+A crash between the two is answerable, which is the whole reason
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 1067, in test_an_intent_is_committed_before_the_swap
+    resumed = self.publish()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 361, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 511, in publish_collected_integration
+    _refuse(f"this publication committed its intent to import "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(recorded['imported_revision'])} and the target "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+            f"settle it. Nothing was changed",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="refused", code="precondition")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 106, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: this publication committed its intent to import '27d2dad5b5eba7c087750d6f18fd40d5d1b1a65b' and the target stands at '27d2dad5b5eba7c087750d6f18fd40d5d1b1a65b' with no recorded swap; whether this publication's own advance committed cannot be decided from the reference alone, and an operation-bound recovery receipt from the target owner is what would settle it. Nothing was changed
+
+----------------------------------------------------------------------
+Ran 45 tests in 1.199s
+
+FAILED (errors=1)

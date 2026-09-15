@@ -1,0 +1,427 @@
+{"case": "foreign-source", "violations": [{"code": "missing-prerequisite", "detail": "complete for attempt attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e has no recorded start", "record": {"act": "complete", "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "authorization": null, "cause": null, "completion": {"execution_runtime": "absent", "integration_receipt_id": "integration-driver.integration-receipt:a3ffc67f336264f639c5ccd1b5355fae4edb83d1a76db1fa0deb232e6c99fdaf", "proposal_id": "proposal-result-7f75e1ab550ad8dbc8c1d176a12731b16b5c4e63739981c47a92e6d48a93de67", "result_id": "result-7f75e1ab550ad8dbc8c1d176a12731b16b5c4e63739981c47a92e6d48a93de67", "runtime_id": null, "source_proposal_id": "proposal-of-another-job"}, "correction": null, "episode": 1, "evidence": "stage_states:job-b/integration", "job_id": "job-b", "operation_id": "stage.completed:attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "performed", "participant": null, "principal": null, "recorded_at": null, "runtime_id": null, "session": null, "session_id": null, "stage_id": "job-b/integration", "tick": 13, "worker_id": null}}, {"code": "completion-contradicts-its-evidence", "detail": "job-b/integration is recorded completed and its completion names result 'result-7f75e1ab550ad8dbc8c1d176a12731b16b5c4e63739981c47a92e6d48a93de67', which its owner derived from 'integration-driver.proposal:d4e58865830c0087a57dc8f8f85fd48c824ad25de36dcf3f14151087e9822c73', and says it imported from 'proposal-of-another-job'", "record": {"act": "complete", "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "authorization": null, "cause": null, "completion": {"execution_runtime": "absent", "integration_receipt_id": "integration-driver.integration-receipt:a3ffc67f336264f639c5ccd1b5355fae4edb83d1a76db1fa0deb232e6c99fdaf", "proposal_id": "proposal-result-7f75e1ab550ad8dbc8c1d176a12731b16b5c4e63739981c47a92e6d48a93de67", "result_id": "result-7f75e1ab550ad8dbc8c1d176a12731b16b5c4e63739981c47a92e6d48a93de67", "runtime_id": null, "source_proposal_id": "proposal-of-another-job"}, "correction": null, "episode": 1, "evidence": "stage_states:job-b/integration", "job_id": "job-b", "operation_id": "stage.completed:attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "performed", "participant": null, "principal": null, "recorded_at": null, "runtime_id": null, "session": null, "session_id": null, "stage_id": "job-b/integration", "tick": 13, "worker_id": null}}]}
+{"case": "published-owner-result", "violations": [{"code": "missing-prerequisite", "detail": "complete for attempt attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e has no recorded start", "record": {"act": "complete", "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "authorization": null, "cause": null, "completion": {"execution_runtime": "absent", "integration_receipt_id": "integration-driver.integration-receipt:a3ffc67f336264f639c5ccd1b5355fae4edb83d1a76db1fa0deb232e6c99fdaf", "proposal_id": "proposal-result-7f75e1ab550ad8dbc8c1d176a12731b16b5c4e63739981c47a92e6d48a93de67", "result_id": "result-7f75e1ab550ad8dbc8c1d176a12731b16b5c4e63739981c47a92e6d48a93de67", "runtime_id": null, "source_proposal_id": "integration-driver.proposal:d4e58865830c0087a57dc8f8f85fd48c824ad25de36dcf3f14151087e9822c73"}, "correction": null, "episode": 1, "evidence": "stage_states:job-b/integration", "job_id": "job-b", "operation_id": "stage.completed:attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "performed", "participant": null, "principal": null, "recorded_at": null, "runtime_id": null, "session": null, "session_id": null, "stage_id": "job-b/integration", "tick": 13, "worker_id": null}}, {"code": "completion-contradicts-its-evidence", "detail": "job-b/integration is recorded completed and its completion discharges a completed import with result 'result-7f75e1ab550ad8dbc8c1d176a12731b16b5c4e63739981c47a92e6d48a93de67', whose owner reports it 'published'; a reference offered as final proof of an import is the one that says 'imported'", "record": {"act": "complete", "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "authorization": null, "cause": null, "completion": {"execution_runtime": "absent", "integration_receipt_id": "integration-driver.integration-receipt:a3ffc67f336264f639c5ccd1b5355fae4edb83d1a76db1fa0deb232e6c99fdaf", "proposal_id": "proposal-result-7f75e1ab550ad8dbc8c1d176a12731b16b5c4e63739981c47a92e6d48a93de67", "result_id": "result-7f75e1ab550ad8dbc8c1d176a12731b16b5c4e63739981c47a92e6d48a93de67", "runtime_id": null, "source_proposal_id": "integration-driver.proposal:d4e58865830c0087a57dc8f8f85fd48c824ad25de36dcf3f14151087e9822c73"}, "correction": null, "episode": 1, "evidence": "stage_states:job-b/integration", "job_id": "job-b", "operation_id": "stage.completed:attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "outcome": "performed", "participant": null, "principal": null, "recorded_at": null, "runtime_id": null, "session": null, "session_id": null, "stage_id": "job-b/integration", "tick": 13, "worker_id": null}}]}
+{
+  "four_job_artifact_keys": [
+    "assignment_references",
+    "authorization_references",
+    "environment",
+    "gaps",
+    "records",
+    "result_references",
+    "scenario",
+    "scenario_digest",
+    "schema"
+  ],
+  "scenario": {
+    "completions": {},
+    "jobs": [
+      {
+        "job_id": "job-a",
+        "stages": [
+          {
+            "depends_on": [],
+            "kind": "implementation",
+            "work_id": "0000000a-W1"
+          },
+          {
+            "depends_on": [
+              {
+                "job_id": "job-a",
+                "kind": "implementation"
+              }
+            ],
+            "kind": "review",
+            "work_id": "0000000a-W1"
+          },
+          {
+            "depends_on": [
+              {
+                "job_id": "job-a",
+                "kind": "review"
+              }
+            ],
+            "kind": "integration",
+            "work_id": "0000000a-W1"
+          }
+        ]
+      },
+      {
+        "job_id": "job-b",
+        "stages": [
+          {
+            "depends_on": [
+              {
+                "job_id": "job-a",
+                "kind": "review"
+              }
+            ],
+            "kind": "implementation",
+            "work_id": "0000000a-W2"
+          },
+          {
+            "depends_on": [
+              {
+                "job_id": "job-b",
+                "kind": "implementation"
+              }
+            ],
+            "kind": "review",
+            "work_id": "0000000a-W2"
+          }
+        ]
+      },
+      {
+        "job_id": "job-c",
+        "stages": [
+          {
+            "depends_on": [],
+            "kind": "implementation",
+            "work_id": "0000000a-W3"
+          },
+          {
+            "depends_on": [
+              {
+                "job_id": "job-c",
+                "kind": "implementation"
+              }
+            ],
+            "kind": "review",
+            "work_id": "0000000a-W3"
+          }
+        ]
+      },
+      {
+        "job_id": "job-d",
+        "stages": [
+          {
+            "depends_on": [],
+            "kind": "implementation",
+            "work_id": "0000000a-W4"
+          },
+          {
+            "depends_on": [
+              {
+                "job_id": "job-d",
+                "kind": "implementation"
+              }
+            ],
+            "kind": "review",
+            "work_id": "0000000a-W4"
+          }
+        ]
+      }
+    ],
+    "name": "four-jobs-two-teams-two-repositories",
+    "note": {
+      "bindings": [
+        {
+          "canonical_target_id": "target-a",
+          "job_id": "job-a",
+          "job_work_id": "0000000a-W1",
+          "source_worker_id": "implementation-worker"
+        },
+        {
+          "canonical_target_id": "target-a",
+          "job_id": "job-b",
+          "job_work_id": "0000000a-W2",
+          "source_worker_id": "implementation-worker-b"
+        },
+        {
+          "canonical_target_id": "target-a",
+          "job_id": "job-c",
+          "job_work_id": "0000000a-W3",
+          "source_worker_id": "implementation-worker-c"
+        },
+        {
+          "canonical_target_id": "target-b",
+          "job_id": "job-d",
+          "job_work_id": "0000000a-W4",
+          "source_worker_id": "implementation-worker-d"
+        }
+      ],
+      "edge": "one cross-Job dependency, job-b/implementation on job-a/review; job-c and job-d independent",
+      "fixture": "composed: real Authority, four Works, four producers and four reviewers over two repositories, one integrator; scripted engine seam only",
+      "slots": "four producer records, NOT the two the PLAN names -- see the gap carried in this artifact"
+    },
+    "order": [
+      "job-a/implementation",
+      "job-c/implementation",
+      "job-d/implementation",
+      "job-b/implementation"
+    ],
+    "reopen_at": null,
+    "resolved_principals": {
+      "baton.claude": "principal:baton.claude",
+      "baton.fourth": "principal:baton.fourth",
+      "baton.integrator": "principal:baton.integrator",
+      "baton.reviewer": "principal:baton.reviewer",
+      "baton.reviewer-2": "principal:baton.reviewer-2",
+      "baton.reviewer-c": "principal:baton.reviewer-c",
+      "baton.reviewer-d": "principal:baton.reviewer-d",
+      "baton.second": "principal:baton.second",
+      "baton.third": "principal:baton.third"
+    },
+    "schema": "baton.v12.scheduler-trace-scenario/1",
+    "ticks": 100,
+    "workers": [
+      {
+        "participant": "baton.claude",
+        "principal": "principal:baton.claude",
+        "role": "implementation",
+        "worker_id": "implementation-worker"
+      },
+      {
+        "participant": "baton.reviewer",
+        "principal": "principal:baton.reviewer",
+        "role": "review",
+        "worker_id": "review-worker"
+      },
+      {
+        "participant": "baton.integrator",
+        "principal": "principal:baton.integrator",
+        "role": "integration",
+        "worker_id": "integration-worker"
+      },
+      {
+        "participant": "baton.second",
+        "principal": "principal:baton.second",
+        "role": "implementation",
+        "worker_id": "implementation-worker-b"
+      },
+      {
+        "participant": "baton.reviewer-2",
+        "principal": "principal:baton.reviewer-2",
+        "role": "review",
+        "worker_id": "review-worker-b"
+      },
+      {
+        "participant": "baton.third",
+        "principal": "principal:baton.third",
+        "role": "implementation",
+        "worker_id": "implementation-worker-c"
+      },
+      {
+        "participant": "baton.reviewer-c",
+        "principal": "principal:baton.reviewer-c",
+        "role": "review",
+        "worker_id": "review-worker-c"
+      },
+      {
+        "participant": "baton.fourth",
+        "principal": "principal:baton.fourth",
+        "role": "implementation",
+        "worker_id": "implementation-worker-d"
+      },
+      {
+        "participant": "baton.reviewer-d",
+        "principal": "principal:baton.reviewer-d",
+        "role": "review",
+        "worker_id": "review-worker-d"
+      }
+    ]
+  },
+  "performed": [
+    [
+      "job-a",
+      "reserve"
+    ],
+    [
+      "job-c",
+      "reserve"
+    ],
+    [
+      "job-d",
+      "reserve"
+    ],
+    [
+      "job-a",
+      "accept"
+    ],
+    [
+      "job-a",
+      "offer"
+    ],
+    [
+      "job-a",
+      "claim"
+    ],
+    [
+      "job-c",
+      "offer"
+    ],
+    [
+      "job-d",
+      "offer"
+    ],
+    [
+      "job-a",
+      "start"
+    ]
+  ],
+  "violations": []
+}
+{
+  "continued_ticks": 4,
+  "last_report": {
+    "observed_at": "2026-09-02T00:00:00.000Z",
+    "recovered": null,
+    "observed": 0,
+    "replaced": [],
+    "acts": [
+      {
+        "stage_id": "job-c/implementation",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "deferred",
+        "operation_id": "offer.settle:offer-8c68c2357e217301463c1cf3381945be8e11e7d6d5eaa5276d068f9a8beb6e2e",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "the authority refused this claim: route 'baton.impl' does not resolve to 'baton.third'"
+        }
+      },
+      {
+        "stage_id": "job-d/implementation",
+        "episode": 1,
+        "act": "claim",
+        "outcome": "deferred",
+        "operation_id": "offer.settle:offer-e72e9aef28d172e2a75d569adb8219c4dfa0b60c70aeec7ab9017f9e6a050746",
+        "detail": {
+          "category": "refused",
+          "code": "precondition",
+          "message": "the authority refused this claim: route 'baton.impl' does not resolve to 'baton.fourth'"
+        }
+      }
+    ],
+    "started": [],
+    "spoken": [],
+    "refreshed": [
+      {
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "state": "running"
+      },
+      {
+        "stage_id": "job-a/review",
+        "episode": 1,
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-b/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-c/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-8c68c2357e217301463c1cf3381945be8e11e7d6d5eaa5276d068f9a8beb6e2e",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-c/review",
+        "episode": 1,
+        "attempt_id": "attempt-f9b537ba4bfd72e89b84bce9444acc10ab76ffa455dd6a52206412637654e524",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-d/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-e72e9aef28d172e2a75d569adb8219c4dfa0b60c70aeec7ab9017f9e6a050746",
+        "state": "not-asked"
+      },
+      {
+        "stage_id": "job-d/review",
+        "episode": 1,
+        "attempt_id": "attempt-0d7a58ed0952974bab050fd312b4684de01f043af78f56d3a34878b1eb6820af",
+        "state": "not-asked"
+      }
+    ]
+  },
+  "extra_job_owners": [
+    {
+      "stage": {
+        "stage_id": "job-c/implementation",
+        "job_id": "job-c",
+        "ordinal": 0,
+        "kind": "implementation",
+        "work_id": "0000000a-W3",
+        "profile_name": "reference",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "depends_on": "[]"
+      },
+      "live": {
+        "stage_id": "job-c/implementation",
+        "episode": 1,
+        "offer_id": "offer-8c68c2357e217301463c1cf3381945be8e11e7d6d5eaa5276d068f9a8beb6e2e",
+        "attempt_id": "attempt-8c68c2357e217301463c1cf3381945be8e11e7d6d5eaa5276d068f9a8beb6e2e",
+        "opened_at": "2026-09-02T00:00:00.000Z",
+        "incarnation": "stage-composed",
+        "ended_state": null,
+        "ended_revision": null,
+        "ended_at": null
+      },
+      "receipts": {
+        "admit": {
+          "stage_id": "job-c/implementation",
+          "episode": 1,
+          "act": "admit",
+          "operation_id": "offer.issue:offer-8c68c2357e217301463c1cf3381945be8e11e7d6d5eaa5276d068f9a8beb6e2e",
+          "state": "performed",
+          "detail": "{\"canonical_state\": \"committed\", \"refusal\": null, \"result\": {\"expires_at\": \"2026-09-02T00:02:00.000Z\", \"issued_at\": \"2026-09-02T00:00:00.000Z\", \"offer_id\": \"offer-8c68c2357e217301463c1cf3381945be8e11e7d6d5eaa5276d068f9a8beb6e2e\", \"participant\": \"baton.third\", \"runtime_attempt_id\": \"attempt-8c68c2357e217301463c1cf3381945be8e11e7d6d5eaa5276d068f9a8beb6e2e\", \"verifier\": \"sha256:e34ff4b30ae88c9d3b7a2f0a2abfdd3a1ec2fa32ab628406e14b42256380e168\", \"work_id\": \"0000000a-W3\"}, \"settled_at\": \"2026-09-02T00:00:00.000Z\"}",
+          "recorded_at": "2026-09-02T00:00:00.000Z",
+          "incarnation": "stage-composed"
+        }
+      }
+    },
+    {
+      "stage": {
+        "stage_id": "job-d/implementation",
+        "job_id": "job-d",
+        "ordinal": 0,
+        "kind": "implementation",
+        "work_id": "0000000a-W4",
+        "profile_name": "reference",
+        "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "depends_on": "[]"
+      },
+      "live": {
+        "stage_id": "job-d/implementation",
+        "episode": 1,
+        "offer_id": "offer-e72e9aef28d172e2a75d569adb8219c4dfa0b60c70aeec7ab9017f9e6a050746",
+        "attempt_id": "attempt-e72e9aef28d172e2a75d569adb8219c4dfa0b60c70aeec7ab9017f9e6a050746",
+        "opened_at": "2026-09-02T00:00:00.000Z",
+        "incarnation": "stage-composed",
+        "ended_state": null,
+        "ended_revision": null,
+        "ended_at": null
+      },
+      "receipts": {
+        "admit": {
+          "stage_id": "job-d/implementation",
+          "episode": 1,
+          "act": "admit",
+          "operation_id": "offer.issue:offer-e72e9aef28d172e2a75d569adb8219c4dfa0b60c70aeec7ab9017f9e6a050746",
+          "state": "performed",
+          "detail": "{\"canonical_state\": \"committed\", \"refusal\": null, \"result\": {\"expires_at\": \"2026-09-02T00:02:00.000Z\", \"issued_at\": \"2026-09-02T00:00:00.000Z\", \"offer_id\": \"offer-e72e9aef28d172e2a75d569adb8219c4dfa0b60c70aeec7ab9017f9e6a050746\", \"participant\": \"baton.fourth\", \"runtime_attempt_id\": \"attempt-e72e9aef28d172e2a75d569adb8219c4dfa0b60c70aeec7ab9017f9e6a050746\", \"verifier\": \"sha256:fdda16af0e6fd7d5dabc55fb57426694639c90148143e50246a14de90e817d68\", \"work_id\": \"0000000a-W4\"}, \"settled_at\": \"2026-09-02T00:00:00.000Z\"}",
+          "recorded_at": "2026-09-02T00:00:00.000Z",
+          "incarnation": "stage-composed"
+        }
+      }
+    }
+  ]
+}

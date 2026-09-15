@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_window_1_before_registration_commits_nothing",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_window_2_after_registration_has_a_plan_and_no_intent",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_window_3_after_intent_resumes_its_own_child_creation",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_window_4_after_child_creation_resumes_before_its_offer",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_restart_in_window_1_registers_one_plan",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_restart_in_window_2_commits_one_intent",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_restart_in_window_3_creates_one_child_work",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_restart_in_window_4_issues_one_offer",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_window_3_refuses_a_changed_child_work_before_any_effect"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "seconds": 6.3701299270032905,
+  "exit": 0,
+  "timed_out": false,
+  "signals": [],
+  "limits_seconds": [
+    60,
+    5,
+    5
+  ]
+}

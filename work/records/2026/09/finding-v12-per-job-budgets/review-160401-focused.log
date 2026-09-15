@@ -1,0 +1,11 @@
+test_three_jobs_bind_three_ceilings_and_three_tasks (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_three_jobs_bind_three_ceilings_and_three_tasks)
+THE SCENARIO ITSELF, before anything is asked to fail. ... ok
+test_a_blocked_result_holds_the_only_integrator_and_job_c_waits (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_result_holds_the_only_integrator_and_job_c_waits)
+WHY THE SECOND FAILURE IS NOT REACHABLE HERE, measured. ... ok
+test_the_retained_failure_is_keyed_by_the_work_it_is_about (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_retained_failure_is_keyed_by_the_work_it_is_about)
+WHOSE WORK A RETAINED FAILURE IS, from the key the owner made. ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 5.097s
+
+OK

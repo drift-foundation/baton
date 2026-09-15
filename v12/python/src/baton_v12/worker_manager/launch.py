@@ -59,10 +59,12 @@ from ..contracts.errors import name_value
 from . import boundaries
 from . import exchange
 
-__all__ = ["EXCHANGE_MEMBERS", "EXCHANGE_SCHEMA", "LAUNCH_MEMBERS",
+__all__ = ["EXCHANGE_MEMBERS", "EXCHANGE_SCHEMA", "JOB_EXECUTION_MEMBERS",
+           "JOB_MEMBERS", "JOB_SCHEMA", "LAUNCH_MEMBERS",
            "LAUNCH_SCHEMA", "LAUNCH_TARGET",
            "MAX_LAUNCH_BYTES", "MAX_LAUNCH_VALUE", "MAX_SESSION",
-           "READ_ONLY_DIR", "READ_ONLY_FILE", "TRANSPORTS", "LaunchDelivery",
+           "READ_ONLY_DIR", "READ_ONLY_FILE", "SCHEMAS", "TRANSPORTS",
+           "LaunchDelivery",
            "adopt", "launch_document", "materialize", "members_for"]
 
 # THE FIXED CONTAINER PATH, a constant of the contract at BOTH ends. A path a
@@ -105,11 +107,48 @@ LAUNCH_MEMBERS = ("schema", "session", "contract", "role")
 EXCHANGE_SCHEMA = "baton.worker-launch/2"
 EXCHANGE_MEMBERS = LAUNCH_MEMBERS + ("transport",)
 
+# W156162: /3 CARRIES THE JOB'S OWN EXECUTION CONTEXT.
+#
+# A Job may configure the seconds one provider turn and one verification
+# command may take, and the container is where those ceilings are actually
+# handed to a command -- so the delivery that tells a worker what it is has to
+# carry them. `/1` and `/2` are UNCHANGED and still read: a deployment that
+# configures nothing keeps the exact delivery it had.
+#
+# THE TRANSPORT IS EXPLICIT HERE, including when it is absent. `/1` says "no
+# transport" by having no member and `/2` says "this transport" by having one;
+# a version that carries a Job context must be able to say either, and a reader
+# that had to infer absence from a missing member would be guessing at the one
+# fact that decides which channel is authoritative.
+JOB_SCHEMA = "baton.worker-launch/3"
+JOB_MEMBERS = LAUNCH_MEMBERS + ("transport", "job_execution")
+
+# WHAT THE JOB CONTEXT NAMES, closed. The Job and the attempt it is running,
+# the identities the JOB was submitted with, the identities this RUNTIME was
+# actually given, and the effective configuration with its own canonical digest.
+#
+# JOB INPUTS AND RUNTIME INPUTS ARE DIFFERENT FACTS and are both carried rather
+# than compared: a review or a derived judgment legitimately consumes a frozen
+# input that is not the Job's original one, so requiring them equal would refuse
+# the ordinary case. What is required is that each is stated.
+JOB_EXECUTION_MEMBERS = ("job_id", "attempt_id", "job_input_digest",
+                         "job_policy_digest", "runtime_input_digest",
+                         "runtime_policy_digest", "execution_limits",
+                         "execution_limits_digest")
+
 # schema -> the closed member set that schema carries. Both ends read this
 # relationship the same way: the version decides the shape, and there is no
 # document that is valid under two of them.
 TRANSPORTS = {LAUNCH_SCHEMA: None,
               EXCHANGE_SCHEMA: exchange.EXCHANGE_TRANSPORT}
+
+# EVERY LAUNCH SCHEMA THIS BUILD AUTHORS, which is a different question from
+# `TRANSPORTS` and is why it is a second name. `TRANSPORTS` says which transport
+# a schema FIXES, and `/3` fixes none -- it carries the transport as a member,
+# so a reader asking "is this one of ours" cannot ask it there. W156162: it was
+# asked there, and the composed integration bundle refused the `/3` its own port
+# had just authored.
+SCHEMAS = (LAUNCH_SCHEMA, EXCHANGE_SCHEMA, JOB_SCHEMA)
 
 
 def members_for(document):
@@ -122,6 +161,8 @@ def members_for(document):
     disagreeing silently about which channel is authoritative.
     """
     schema = document.get("schema") if type(document) is dict else None
+    if schema == JOB_SCHEMA:
+        return JOB_MEMBERS
     if schema == EXCHANGE_SCHEMA:
         return EXCHANGE_MEMBERS
     return LAUNCH_MEMBERS
@@ -204,7 +245,139 @@ def _value(given, name, ceiling):
     return value
 
 
-def launch_document(*, session, contract, role, transport=None):
+def _same_attempt(attempt, job_execution):
+    """The Job context names THE ATTEMPT THIS DELIVERY IS FOR.
+
+    R5: `materialize(attempt_id="attempt-1", job_execution={"attempt_id":
+    "attempt-other", ...})` succeeded, and `adopt` with the same contradictory
+    operands succeeded too, so exact-byte replay faithfully preserved the
+    contradiction. A launch root named for one attempt whose document describes
+    another is the delivery mix-up this component is built to prevent, arriving
+    inside the document instead of across it.
+
+    Refused BEFORE anything is written, which is where every other launch
+    refusal in this module lives.
+    """
+    if job_execution is None:
+        return
+    named = job_execution.get("attempt_id") \
+        if type(job_execution) is dict else None
+    if named != attempt:
+        _refuse(f"a launch delivery for attempt {name_value(attempt)} carries "
+                f"a job execution naming {name_value(named)}; one delivery is "
+                f"one attempt's, and a document describing another is the "
+                f"mix-up this root's naming exists to prevent")
+
+
+def _job_execution(given):
+    """One Job execution context, owned exactly as this build will write it.
+
+    W156162. Every member is required: an absent one is a fact the worker would
+    have to guess, and the whole reason this document exists is that guessing a
+    ceiling is what the Work is removing.
+
+    THE DIGEST IS OVER THE CONFIGURATION AND EXCLUDES ITSELF, which is the same
+    rule every sealed document in this build follows -- a digest that covered
+    its own member could never be recomputed by the reader checking it.
+    """
+    taken = boundaries.document(given, "a launch document's job execution",
+                                required=JOB_EXECUTION_MEMBERS)
+    held = {"job_id": boundaries.identity(taken["job_id"], "a Job id"),
+            "attempt_id": boundaries.identity(taken["attempt_id"],
+                                              "a runtime attempt id")}
+    for name in ("job_input_digest", "job_policy_digest",
+                 "runtime_input_digest", "runtime_policy_digest"):
+        held[name] = boundaries.text(taken[name], f"a launch document's {name}")
+    limits = _configuration(taken["execution_limits"])
+    sealed = _digest(limits)
+    declared = boundaries.text(taken["execution_limits_digest"],
+                               "a launch document's execution limit digest")
+    if declared != sealed:
+        _refuse(f"a launch document declares execution limit digest "
+                f"{name_value(declared)} and its configuration digests to "
+                f"{name_value(sealed)}; a worker handed a ceiling whose seal "
+                f"does not match has been handed a number nobody agreed to")
+    held["execution_limits"] = limits
+    held["execution_limits_digest"] = declared
+    return held
+
+
+def _configuration(given):
+    """The effective configuration, held to the Job owner's OWN rules.
+
+    Review 2026-09-13T01:36:01Z R5: this took any document at all and checked
+    only that its digest matched, so a correctly sealed `{}` was accepted, and
+    so was a sealed object stating `units: minutes`, `scope: cumulative`,
+    generation 999 and a provider ceiling of -1. A MATCHING SEAL PROVES BYTE
+    CORRESPONDENCE, NOT THAT ANYBODY AGREED TO THE CONTENT.
+
+    THE RULE IS THE JOB MANAGER'S, IMPORTED RATHER THAN RESTATED, which is
+    `schema.check_authority`'s own pattern in this build: a second, looser
+    spelling of what a ceiling may be is exactly the drift that stays invisible
+    until two components disagree about one number. The import is a RULE and not
+    a capability -- it opens no store, holds no session and grants nothing --
+    and it is late because the Job manager builds on this package.
+
+    AND THE CHECK IS A RECOMPUTATION, NOT A CHECKLIST. What a Job is delivered
+    is whatever that owner resolves from the Job's own requested settings under
+    the generation it was admitted with, so this re-resolves exactly that and
+    requires equality. Units, scope, origins, defaults, the supported range and
+    the requested-versus-effective agreement are all caught by the one
+    comparison, and a rule added over there is carried here without an edit.
+    """
+    from ..contracts import ContractRefusal as _Refusal
+    from ..job_manager import execution_limits as rules
+
+    held = boundaries.document(given, "a launch document's execution limits",
+                               required=("units", "scope",
+                                         "compatibility_generation",
+                                         "requested", "boundaries"))
+    try:
+        expected = rules.resolved(
+            rules.owned_execution_limits(held["requested"]),
+            held["compatibility_generation"])
+    except _Refusal as refused:
+        _refuse(f"a launch document's execution limits are not ones the Job "
+                f"owner accepts: {refused}")
+    # COMPARED AS CANONICAL TEXT, NOT AS DICTS. Review 2026-09-13T01:44:11Z:
+    # `True == 1` in Python, so a configuration whose effective provider seconds
+    # were replaced by `true` -- and correctly resealed -- compared EQUAL to the
+    # resolution of a Job requesting 1 second, and the carrier returned
+    # `seconds: true`. The owner's own rules reject a bool precisely because it
+    # is not a whole number of seconds; a comparison that cannot tell them apart
+    # discards that. The canonical text a reader will actually parse is what is
+    # compared, and a valid integer 1 stays accepted.
+    if _canonical(held) != _canonical(expected):
+        _refuse("a launch document's execution limits are not what the Job "
+                "owner resolves from their own requested settings and "
+                "generation; a worker handed a configuration nobody resolved "
+                "has been handed numbers nobody agreed to")
+    return held
+
+
+def _canonical(document):
+    """One document as the exact text a reader will parse.
+
+    `json.dumps` writes `true` for a bool and `1` for an integer, so two values
+    Python's `==` cannot separate are two different documents here -- which is
+    what the comparison above needs and what dict equality could not give it.
+    """
+    return json.dumps(document, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False, allow_nan=False)
+
+
+def _digest(document):
+    """The canonical digest of one document, in this build's one spelling."""
+    import hashlib
+
+    return "sha256:" + hashlib.sha256(
+        json.dumps(document, sort_keys=True, separators=(",", ":"),
+                   ensure_ascii=False, allow_nan=False)
+        .encode("utf-8")).hexdigest()
+
+
+def launch_document(*, session, contract, role, transport=None,
+                    job_execution=None):
     """The complete document for the version this transport selects.
 
     AUTHORED HERE RATHER THAN ASSEMBLED BY A CALLER, and rebuilt over
@@ -234,6 +407,15 @@ def launch_document(*, session, contract, role, transport=None):
         document["schema"] = EXCHANGE_SCHEMA
         document["transport"] = _value(transport, "transport",
                                        MAX_LAUNCH_VALUE)
+    if job_execution is not None:
+        # W156162: AND THE VERSION MOVES WITH THIS MEMBER TOO, for the same
+        # reason. `/3` states the transport explicitly -- the value for an
+        # exchange worker, `None` for the one-shot integration path -- so a
+        # reader is told which channel is authoritative rather than inferring
+        # it from a member that is missing.
+        document["schema"] = JOB_SCHEMA
+        document["transport"] = document.get("transport")
+        document["job_execution"] = _job_execution(job_execution)
     check_no_durable_secret(document, what="a worker launch document")
     return document
 
@@ -319,7 +501,7 @@ class LaunchDelivery:
 
 
 def materialize(storage, *, attempt_id, session, contract, role,
-                transport=None, workspace_group=None):
+                transport=None, job_execution=None, workspace_group=None):
     """Author one launch document and put it on disk as this manager's own.
 
     `storage` is the manager's own launch storage, NOT an assignment root. The
@@ -336,13 +518,15 @@ def materialize(storage, *, attempt_id, session, contract, role,
     contract.
     """
     attempt = boundaries.identity(attempt_id, "a launch attempt id")
+    _same_attempt(attempt, job_execution)
     home = boundaries.text(storage, "the manager's launch storage")
     if not os.path.isabs(home):
         _refuse(f"the manager's launch storage is not an absolute path; a "
                 f"root this build cannot name exactly is not a root",
                 code="path")
     document = launch_document(session=session, contract=contract,
-                               role=role, transport=transport)
+                               role=role, transport=transport,
+                               job_execution=job_execution)
     payload = _bytes(document)
     root = os.path.join(os.path.realpath(home), attempt)
     if os.path.lexists(root):
@@ -415,7 +599,17 @@ def _exchange_materialized(root, attempt, document, workspace_group):
     no namespaces is a container that cannot answer, and namespaces created
     beside a `/1` document are host state nothing will ever mount.
     """
-    if document["schema"] != EXCHANGE_SCHEMA:
+    # W156162: THE TRANSPORT DECIDES THIS, NOT THE VERSION.
+    #
+    # Comparing the schema was a proxy for "this document selects the exchange"
+    # and it was exact while /2 was the only version that could. /3 carries a
+    # Job context AND states its transport explicitly, so the proxy stopped
+    # being exact the moment it existed: a /3 exchange delivery composed NO
+    # namespaces, the worker had no delivery to read, and every such stage
+    # projected `unreadable` and then `exceptional` -- a container running with
+    # nothing to say to it. Measured, not reasoned about: 54 cases in the
+    # one-worker pipeline failed exactly this way.
+    if document.get("transport") != exchange.EXCHANGE_TRANSPORT:
         return None
     if workspace_group is None:
         _denied(f"attempt {name_value(attempt)}'s launch document selects "
@@ -429,7 +623,7 @@ def _exchange_materialized(root, attempt, document, workspace_group):
 
 
 def adopt(storage, *, attempt_id, session, contract, role,
-          transport=None, workspace_group=None):
+          transport=None, job_execution=None, workspace_group=None):
     """Recover the delivery THIS MANAGER already made, or FAIL CLOSED.
 
     W47225. `materialize` refuses an existing root and `discard` removes one,
@@ -478,6 +672,7 @@ def adopt(storage, *, attempt_id, session, contract, role,
     it.
     """
     attempt = boundaries.identity(attempt_id, "a launch attempt id")
+    _same_attempt(attempt, job_execution)
     home = boundaries.text(storage, "the manager's launch storage")
     if not os.path.isabs(home):
         _refuse(f"the manager's launch storage is not an absolute path; a "
@@ -488,7 +683,8 @@ def adopt(storage, *, attempt_id, session, contract, role,
     # deriving the expectation before touching the disk is what makes the
     # comparison below a comparison rather than a second rule set.
     expected = _bytes(launch_document(session=session, contract=contract,
-                                      role=role, transport=transport))
+                                      role=role, transport=transport,
+                                      job_execution=job_execution))
     root = os.path.join(os.path.realpath(home), attempt)
     if not os.path.lexists(root):
         return None
@@ -568,10 +764,10 @@ def adopt(storage, *, attempt_id, session, contract, role,
                     f"absent; a replacement authored now would be mounted by "
                     f"nothing that exists")
     return LaunchDelivery(attempt_id=attempt, root=root, place=place,
-                          document=launch_document(session=session,
-                                                   contract=contract,
-                                                   role=role,
-                                                   transport=transport),
+                          document=launch_document(
+                              session=session, contract=contract, role=role,
+                              transport=transport,
+                              job_execution=job_execution),
                           delivery=delivery)
 
 

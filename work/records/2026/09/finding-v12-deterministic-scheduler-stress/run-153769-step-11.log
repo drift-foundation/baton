@@ -1,0 +1,34 @@
+### label: r1-review-and-gap
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace"]
+### exit: 1
+### elapsed_seconds: 0.247573
+### STDOUT
+
+### STDERR
+..F.................................
+======================================================================
+FAIL: test_an_unrelated_review_reserves_while_implementation_is_full (tests.tools.test_scheduler_trace.TheEligibilityAndAliasBoundaries.test_an_unrelated_review_reserves_while_implementation_is_full)
+A capacity miss on one lane is not a stall of another.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 531, in test_an_unrelated_review_reserves_while_implementation_is_full
+    self.assertEqual([one["stage_id"] for one in refused],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ["job-a/implementation"])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['job-a/implementation', 'job-d/review'] != ['job-a/implementation']
+
+First list contains 1 additional elements.
+First extra element 1:
+'job-d/review'
+
+- ['job-a/implementation', 'job-d/review']
+?                        ----------------
+
++ ['job-a/implementation']
+
+----------------------------------------------------------------------
+Ran 36 tests in 0.093s
+
+FAILED (failures=1)

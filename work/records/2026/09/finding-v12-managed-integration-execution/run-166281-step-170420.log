@@ -1,0 +1,15 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_managed_preparation.OneManagedPreparationCompletes
+F
+======================================================================
+FAIL: test_ordinary_sweeps_retain_and_adopt_one_real_preparation (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_ordinary_sweeps_retain_and_adopt_one_real_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1569, in test_ordinary_sweeps_retain_and_adopt_one_real_preparation
+    self.assertTrue(preparation.adopted, (failures[:3], failures[-1:], logs))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {} is not true : ([], [], [])
+
+----------------------------------------------------------------------
+Ran 1 test in 5.735s
+
+FAILED (failures=1)

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_managed_integration_capacity.ThePreparationIsAdmittedBeforeTheParentOffer",
+    "tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_wrapper_admits_preparation_and_defers_the_parent"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "timeout_seconds": 30,
+  "timed_out": false,
+  "exit_code": 1,
+  "measured_seconds": 0.0636182349990122,
+  "boundary": "five focused disposable-owner tests; no worker process, engine or model"
+}

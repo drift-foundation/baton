@@ -1,0 +1,34 @@
+{
+  "work": "W161230",
+  "claim": 165948,
+  "authority": "owner165830",
+  "cap_seconds": 300.0,
+  "prior_ledger": "review-ledger-165182.json",
+  "prior_reviewer_seconds": 21.403079563991923,
+  "runs": [
+    {
+      "argv": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-165948.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "status": "finished",
+      "guard": {
+        "cap_seconds": 300.0,
+        "spent_seconds_before": 21.403079563991923,
+        "remaining_seconds_before": 278.5969204360081,
+        "expected_seconds": 10.0,
+        "margin_seconds": 3.0,
+        "timeout_seconds": 30.0
+      },
+      "log": "review-run-165948-1.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.2136894519935595
+    }
+  ],
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "jsonschema": "4.26.0",
+  "qualification": "Two independent intake identity/continuation checks; simulated custodian with real disposable owners; partial slice only",
+  "reviewer_spent_seconds": 21.616769015985483,
+  "reviewer_remaining_seconds": 278.3832309840145
+}

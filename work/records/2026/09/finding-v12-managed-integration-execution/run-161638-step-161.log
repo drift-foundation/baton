@@ -1,0 +1,710 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity
+EE.EEEEEEEEEEEEE..E..E...F........................E..........................
+======================================================================
+ERROR: test_a_grant_this_coordinator_does_not_hold_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_a_grant_this_coordinator_does_not_hold_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1728, in test_a_grant_this_coordinator_does_not_hold_is_refused
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_a_malformed_grant_never_reaches_an_identity (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_a_malformed_grant_never_reaches_an_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1817, in test_a_malformed_grant_never_reaches_an_identity
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_a_released_grant_refuses_the_admission (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_a_released_grant_refuses_the_admission)
+The grant is read at the moment of admission, not presented.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1740, in test_a_released_grant_refuses_the_admission
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_a_retry_after_the_collected_content_changed_collides (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_a_retry_after_the_collected_content_changed_collides)
+[P2] The identity carried the candidate and not the content it was
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1864, in test_a_retry_after_the_collected_content_changed_collides
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_a_retry_over_another_candidate_collides (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_a_retry_over_another_candidate_collides)
+[P1] The identity signed the grant and not the candidate, so an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1804, in test_a_retry_over_another_candidate_collides
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_an_admission_under_another_grant_collides (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_admission_under_another_grant_collides)
+The grant rides the signature, so an admission under a different
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1753, in test_an_admission_under_another_grant_collides
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_an_apply_is_admitted_with_both (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_apply_is_admitted_with_both)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1665, in test_an_apply_is_admitted_with_both
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_an_apply_without_its_grant_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_apply_without_its_grant_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1681, in test_an_apply_without_its_grant_is_refused
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_an_authorization_about_other_content_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_authorization_about_other_content_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1720, in test_an_authorization_about_other_content_is_refused
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_an_unapproved_candidate_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_unapproved_candidate_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1704, in test_an_unapproved_candidate_is_refused
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_an_unavailable_authorization_owner_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_unavailable_authorization_owner_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1712, in test_an_unavailable_authorization_owner_is_refused
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_an_unchanged_admission_still_replays (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_unchanged_admission_still_replays)
+The correction does not make an ordinary retry into a collision.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1880, in test_an_unchanged_admission_still_replays
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_collected_content_moving_between_the_two_reads_refuses (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_collected_content_moving_between_the_two_reads_refuses)
+The owner is asked outside the transaction and the authoritative
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1835, in test_collected_content_moving_between_the_two_reads_refuses
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_the_authorized_candidate_is_retained (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_the_authorized_candidate_is_retained)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1788, in test_the_authorized_candidate_is_retained
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_the_grant_is_proved_after_the_authorization_owner_is_asked (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_the_grant_is_proved_after_the_authorization_owner_is_asked)
+[P1] Review 2026-09-14T00:55:37Z: asking the owner is a call that
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1767, in test_the_grant_is_proved_after_the_authorization_owner_is_asked
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1658, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_the_same_branch_releases_once_after_every_member_ended (tests.job_manager.test_managed_integration_capacity.TheCompletionBranchDoesNotSpeakForTheExecutions.test_the_same_branch_releases_once_after_every_member_ended)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1297, in test_the_same_branch_releases_once_after_every_member_ended
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_a_destroyed_runtime_ends_on_the_observed_axis (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_destroyed_runtime_ends_on_the_observed_axis)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 792, in test_a_destroyed_runtime_ends_on_the_observed_axis
+    answer = capacity.end_integration_execution(
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        outcome="succeeded", exclusion="runtime-destroyed")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+ERROR: test_the_apply_phase_is_admitted_after_preparation_ends (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_the_apply_phase_is_admitted_after_preparation_ends)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 570, in test_the_apply_phase_is_admitted_after_preparation_ends
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 355, in prepared
+    return capacity.end_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, execution_attempt_id="prepare-attempt-1",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        outcome=outcome, exclusion="runtime-destroyed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1104, in end_integration_execution
+    return store.transact(operation_id, "integration-capacity.end",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 1089, in perform
+    collected = _collected_content(control, member, outcome)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 978, in _collected_content
+    _refuse(f"preparation {name_value(attempt_id)} froze its output and "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager holds no intake for it; a freeze is a receipt "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"over a tree that stopped changing, not a statement that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"anything was taken into custody")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody
+
+======================================================================
+FAIL: test_a_quiescent_runtime_is_not_a_destroyed_one (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_quiescent_runtime_is_not_a_destroyed_one)
+A runtime that stopped executing STILL EXISTS. Reading `quiescent`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 835, in test_a_quiescent_runtime_is_not_a_destroyed_one
+    self.assertIn("quiescent", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'quiescent' not found in "preparation 'prepare-attempt-1' froze its output and this manager holds no intake for it; a freeze is a receipt over a tree that stopped changing, not a statement that anything was taken into custody"
+
+----------------------------------------------------------------------
+Ran 77 tests in 0.696s
+
+FAILED (failures=1, errors=18)

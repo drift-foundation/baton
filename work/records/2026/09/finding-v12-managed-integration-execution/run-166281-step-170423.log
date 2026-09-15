@@ -1,0 +1,150 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_managed_preparation tests.job_manager.test_managed_integration_capacity tests.integration.test_managed_storage
+..........................................................F......................................................................................................F.........................................................E.F.F...EEFEE...........................
+======================================================================
+ERROR: test_a_foreign_task_digest_refuses_and_writes_nothing (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_a_foreign_task_digest_refuses_and_writes_nothing)
+Review [P2]: the task's own identity was not compared to the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1694, in test_a_foreign_task_digest_refuses_and_writes_nothing
+    held = self.adopt(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1622, in adopt
+    return adoption.adopt_prepared_candidate(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.coordinated(), store, self._control, **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2966, in adopt_prepared_candidate
+    _refuse("the retained preparation output needs exactly one report.json")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 165, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the retained preparation output needs exactly one report.json
+
+======================================================================
+ERROR: test_the_collected_preparation_is_adopted_end_to_end (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_the_collected_preparation_is_adopted_end_to_end)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1629, in test_the_collected_preparation_is_adopted_end_to_end
+    held = self.adopt(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1622, in adopt
+    return adoption.adopt_prepared_candidate(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.coordinated(), store, self._control, **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2966, in adopt_prepared_candidate
+    _refuse("the retained preparation output needs exactly one report.json")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 165, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the retained preparation output needs exactly one report.json
+
+======================================================================
+ERROR: test_the_phase_is_retained_through_its_own_owner (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_the_phase_is_retained_through_its_own_owner)
+The adoption does not write rows: it drives `record_managed_result`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1658, in test_the_phase_is_retained_through_its_own_owner
+    held = self.adopt(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1622, in adopt
+    return adoption.adopt_prepared_candidate(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.coordinated(), store, self._control, **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2966, in adopt_prepared_candidate
+    _refuse("the retained preparation output needs exactly one report.json")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 165, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the retained preparation output needs exactly one report.json
+
+======================================================================
+ERROR: test_the_root_is_still_held_and_the_apply_still_planned (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_the_root_is_still_held_and_the_apply_still_planned)
+Slice2 finishes with the preparation ended, the apply NOT run and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1852, in test_the_root_is_still_held_and_the_apply_still_planned
+    self.adopt(store)
+    ~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1622, in adopt
+    return adoption.adopt_prepared_candidate(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.coordinated(), store, self._control, **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2966, in adopt_prepared_candidate
+    _refuse("the retained preparation output needs exactly one report.json")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 165, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the retained preparation output needs exactly one report.json
+
+======================================================================
+ERROR: test_the_submission_is_resolved_from_owners_not_supplied (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_the_submission_is_resolved_from_owners_not_supplied)
+Review [P1]: the submission was a caller operand handed straight to
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1718, in test_the_submission_is_resolved_from_owners_not_supplied
+    held = self.adopt(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1622, in adopt
+    return adoption.adopt_prepared_candidate(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.coordinated(), store, self._control, **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2966, in adopt_prepared_candidate
+    _refuse("the retained preparation output needs exactly one report.json")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 165, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the retained preparation output needs exactly one report.json
+
+======================================================================
+FAIL: test_a_plan_that_disagrees_with_the_request_is_refused (tests.job_manager.test_managed_integration_capacity.ADecisionIsJournalledBeforeTheWorkExists.test_a_plan_that_disagrees_with_the_request_is_refused) (member='input_digest')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2191, in test_a_plan_that_disagrees_with_the_request_is_refused
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_plan_that_disagrees_with_the_request_is_refused (tests.job_manager.test_managed_integration_capacity.TheStartIsBehindTheAdmission.test_a_plan_that_disagrees_with_the_request_is_refused) (member='input_digest')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2191, in test_a_plan_that_disagrees_with_the_request_is_refused
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_preparation_that_ran_another_harness_refuses (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_a_preparation_that_ran_another_harness_refuses)
+The workload reports the harness it was ASKED for and the harness
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1807, in test_a_preparation_that_ran_another_harness_refuses
+    self.assertIn("measures a different test", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'measures a different test' not found in 'the retained preparation output needs exactly one report.json'
+
+======================================================================
+FAIL: test_a_report_about_another_snapshot_refuses (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_a_report_about_another_snapshot_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1815, in test_a_report_about_another_snapshot_refuses
+    self.assertIn("preparation is about the snapshot",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'preparation is about the snapshot' not found in 'the retained preparation output needs exactly one report.json'
+
+======================================================================
+FAIL: test_the_report_bytes_are_weighed_against_custody (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_the_report_bytes_are_weighed_against_custody)
+A JSON report is not trusted custody. What makes this document the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1787, in test_the_report_bytes_are_weighed_against_custody
+    self.assertIn("bytes and this manager measured", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'bytes and this manager measured' not found in 'the retained preparation output needs exactly one report.json'
+
+----------------------------------------------------------------------
+Ran 259 tests in 4.035s
+
+FAILED (failures=5, errors=5)

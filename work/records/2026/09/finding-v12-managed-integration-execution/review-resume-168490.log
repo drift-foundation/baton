@@ -1,0 +1,58 @@
+test_exact_retry_of_prepared_sequence (__main__.ResumeBoundary.test_exact_retry_of_prepared_sequence) ... ContractRefusal: '00000000-W2' is 'open'/'active' with handler 'baton.impl-a' and gate none; an offer is issued only against open, queued, unclaimed, ungated Work
+ERROR
+test_a_bare_session_is_not_a_port_and_the_adapter_is_why (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_a_bare_session_is_not_a_port_and_the_adapter_is_why)
+THE TRUE HALF OF THE SUPERSEDED BLOCKER, kept as a boundary fact. ... ok
+test_a_plan_without_a_preparation_phase_refuses (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_a_plan_without_a_preparation_phase_refuses) ... ok
+test_a_resumed_creation_does_not_mint_a_second_child_work (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_a_resumed_creation_does_not_mint_a_second_child_work)
+The intent carries the operation id `create_work` is called with, ... ok
+test_admission_is_committed_before_anything_starts (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_admission_is_committed_before_anything_starts) ... ok
+test_the_actor_holds_one_live_claim_and_the_preparation_takes_it (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_actor_holds_one_live_claim_and_the_preparation_takes_it)
+WHY THIS FIXTURE PRE-CLAIMS NOTHING, asserted rather than asserted ... ok
+test_the_claim_carries_the_authoritys_own_authorization (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_claim_carries_the_authoritys_own_authorization)
+The assignment is not the whole of what a claim answers. ... ok
+test_the_offer_is_the_one_the_plan_registered (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_offer_is_the_one_the_plan_registered)
+Admission compares the membership against the registered plan, so a ... ok
+test_the_parent_keeps_its_one_reserved_root (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_parent_keeps_its_one_reserved_root)
+The same actor holds the parent while it prepares: one root, one ... ok
+test_the_port_is_bound_to_the_authoritys_own_participant (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_port_is_bound_to_the_authoritys_own_participant)
+The manager supplies no claimant: the session takes it from its ... ok
+test_the_whole_sequence_runs_against_real_owners (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_whole_sequence_runs_against_real_owners) ... ok
+
+======================================================================
+ERROR: test_exact_retry_of_prepared_sequence (__main__.ResumeBoundary.test_exact_retry_of_prepared_sequence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-resume-168490.py", line 13, in test_exact_retry_of_prepared_sequence
+    execution.prepare(
+    ~~~~~~~~~~~~~~~~~^
+        orchestration_id=fixture.ORCHESTRATION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        policy_digest=fixture.POLICY, profile_name="reference",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        accept=fixture.accepting(), contract=fixture.CONTRACT)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 985, in prepare
+    offer_id = self.offer(intent, planned, policy_digest=policy_digest,
+                          profile_name=profile_name,
+                          runtime_attempt_id=runtime_attempt_id)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1044, in offer
+    issue_offer(self._manager, self._port, offer_id=offer_id,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                work_id=intent["execution_work_id"],
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+                profile_name=profile_name,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                mint_bearer=self._mint)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/offers.py", line 333, in issue_offer
+    raise ContractRefusal(
+    ...<5 lines>...
+        f"open, queued, unclaimed, ungated Work")
+baton_v12.contracts.errors.ContractRefusal: '00000000-W2' is 'open'/'active' with handler 'baton.impl-a' and gate none; an offer is issued only against open, queued, unclaimed, ungated Work
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.090s
+
+FAILED (errors=1)

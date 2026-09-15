@@ -84,10 +84,20 @@ STORE_KIND = "baton.v12.python.integration-coordinator"
 # import from a reconciled one after the fact, so the standing fresh-store
 # boundary applies exactly as it did at four: a database at another version is
 # refused rather than guessed across, and no migration is invented.
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 TABLES = ("meta", "operations", "targets", "entries", "leases",
-          "integration_results")
+          "integration_results", "managed_integration_results",
+          "managed_integration_phases", "managed_publications")
+
+# W161230 slice1 condition 4. THE RESULT KEY THAT IS SHARED ACROSS BOTH
+# REPRESENTATIONS, written down once because it is the one rule SQLite cannot
+# enforce for us: a UNIQUE constraint is per table, and this key has to hold
+# over `integration_results` AND `managed_integration_results` together. Both
+# writers claim it through `reconciliation`, inside the one target-global
+# transaction, and the two per-table UNIQUEs below remain so that neither table
+# can break it alone.
+RESULT_KEY = ("canonical_target_id", "source_proposal_id", "target_revision")
 
 # WHAT A RESULT IS FOR, as states rather than prose.
 #
@@ -133,6 +143,184 @@ LEASE_STATES = ("live", "released", "abandoned")
 # is no "degraded": a target whose last import left an account this build
 # cannot reconcile is one nothing may be imported into until somebody says so.
 TARGET_STATES = ("open", "blocked")
+
+# W161230 slice1 condition 4: THE PORTABLE MANAGED RESULT, and the phase
+# accounts bound to it.
+#
+# REVIEW 2026-09-13T18:51:48Z [P1]: the first form made the ROW a phase account
+# -- one per execution -- and said in as many words that neither phase is an
+# integration result. That is the wrong granularity, and the accepted design v2
+# section B says so: there is ONE portable result, carrying the existing result
+# state semantics, its rejected and blocked history and publication before
+# independent authorization, and the phase accounts are REFERENCES bound to it.
+#
+# The cost of the wrong granularity was not stylistic. The shared
+# (target, proposal, revision) key belongs to a RESULT, so putting phases in
+# rows that carry it made two phases of ONE result collide -- and the case that
+# claimed to show both phases working only passed because it moved the second
+# phase to another target revision. That proves two snapshots; it does not
+# prove a two-phase result against one admitted revision.
+#
+# SO THERE ARE TWO RELATIONS. `managed_integration_results` IS a result: same
+# state vocabulary, same relationship between state and what a row may carry,
+# same shared key. `managed_integration_phases` holds the preparation and the
+# apply that produced it, one row each, bound by foreign key.
+#
+# WHAT THE COLUMNS HOLD IS CONTENT-ADDRESSED. Digests, declared logical
+# locators and closed portable documents -- never a coordinator absolute path,
+# an inode or a container id, which is what makes a result portable to the node
+# that will apply it.
+MANAGED_RESULTS = """
+CREATE TABLE managed_integration_results (
+  managed_result_id TEXT PRIMARY KEY,
+  operation_id TEXT NOT NULL,
+  canonical_target_id TEXT NOT NULL REFERENCES targets(canonical_target_id),
+  -- THE CAPACITY THIS RESULT WAS PRODUCED UNDER. The Job Manager owns the
+  -- membership; this names it so a target-side reader can say which
+  -- orchestration produced the content in front of it.
+  orchestration_id TEXT NOT NULL,
+  authority_uuid TEXT NOT NULL,
+  work_id TEXT NOT NULL,
+  job_id TEXT NOT NULL,
+  line_id TEXT NOT NULL,
+  -- THE SUBMISSION THIS IS A RESULT FOR, in the same identities the legacy
+  -- relation names it by, so one submission reads the same either side.
+  source_checkpoint_id TEXT NOT NULL,
+  source_verdict_id TEXT NOT NULL,
+  source_proposal_id TEXT NOT NULL,
+  source_result_id TEXT NOT NULL,
+  source_result_digest TEXT NOT NULL,
+  source_checkpoint_digest TEXT NOT NULL,
+  source_base TEXT NOT NULL,
+  source_candidate TEXT NOT NULL,
+  target_revision TEXT NOT NULL,
+  -- THE EXISTING RESULT STATES, not a second vocabulary. A managed result is a
+  -- distinct admitted REPRESENTATION of the same thing, so an operator reading
+  -- one state machine is reading both.
+  state TEXT NOT NULL CHECK (state IN
+    ('preparing', 'prepared', 'awaiting-evidence', 'authorized', 'published',
+     'held', 'blocked', 'imported')),
+  reason TEXT,
+  prepared TEXT,
+  content_digest TEXT,
+  evidence TEXT,
+  causal_observations TEXT,
+  observed_by TEXT,
+  policy_generation INTEGER CHECK (policy_generation IS NULL
+                                   OR policy_generation >= 1),
+  derived_proposal_id TEXT,
+  derived_result_id TEXT,
+  derived_result_digest TEXT,
+  entry_id TEXT REFERENCES entries(entry_id),
+  recorded_at TEXT NOT NULL,
+  -- EVERY RELATIONSHIP THE LEGACY RESULT IS UNDER, in the same words. A
+  -- reason belongs to a stopped record and to nothing else; prepared content
+  -- is absent until there is some; observations are retained whether or not
+  -- they passed, and `blocked` HAS them and can never be authorized; a
+  -- published result names its own derived proposal; authorization is
+  -- evidence-bound; an imported result names the entry it came through.
+  CHECK ((state IN ('held', 'blocked') AND reason IS NOT NULL)
+      OR (state NOT IN ('held', 'blocked') AND reason IS NULL)),
+  CHECK ((state IN ('preparing', 'held') AND prepared IS NULL
+          AND content_digest IS NULL)
+      OR (state NOT IN ('preparing', 'held') AND prepared IS NOT NULL
+          AND content_digest IS NOT NULL)),
+  CHECK ((state IN ('awaiting-evidence', 'blocked', 'authorized', 'published',
+                    'imported')
+          AND causal_observations IS NOT NULL AND observed_by IS NOT NULL)
+      OR (state NOT IN ('awaiting-evidence', 'blocked', 'authorized',
+                        'published', 'imported')
+          AND causal_observations IS NULL AND observed_by IS NULL)),
+  CHECK ((state IN ('published', 'authorized', 'imported')
+          AND derived_proposal_id IS NOT NULL
+          AND derived_result_id IS NOT NULL
+          AND derived_result_digest IS NOT NULL)
+      OR (state NOT IN ('published', 'authorized', 'imported')
+          AND derived_proposal_id IS NULL
+          AND derived_result_id IS NULL
+          AND derived_result_digest IS NULL)),
+  CHECK ((state IN ('authorized', 'imported')
+          AND evidence IS NOT NULL AND policy_generation IS NOT NULL)
+      OR (state NOT IN ('authorized', 'imported')
+          AND evidence IS NULL AND policy_generation IS NULL)),
+  CHECK ((state = 'imported' AND entry_id IS NOT NULL)
+      OR (state != 'imported')),
+  -- ONE MANAGED RESULT PER ORCHESTRATION: the capacity root runs one
+  -- integration, and a second result under it would be a second answer.
+  UNIQUE (orchestration_id),
+  -- AND THE SHARED KEY, see RESULT_KEY. One live result per submission per
+  -- target snapshot, and this constraint stops THIS table breaking it alone.
+  UNIQUE (canonical_target_id, source_proposal_id, target_revision)
+) STRICT;
+
+CREATE TABLE managed_integration_phases (
+  -- ONE PHASE ACCOUNT, BOUND TO THE RESULT IT PRODUCED. Two of these belong to
+  -- one result and they do not compete for its key, which is exactly what the
+  -- phase-as-row form got wrong.
+  managed_result_id TEXT NOT NULL
+    REFERENCES managed_integration_results(managed_result_id),
+  phase TEXT NOT NULL CHECK (phase IN ('prepare', 'apply')),
+  execution_attempt_id TEXT NOT NULL,
+  operation_id TEXT NOT NULL,
+  -- THE CLOSED PORTABLE DOCUMENTS, stored as what they are. A reader on
+  -- another machine reassembling a report from columns would be a second
+  -- author of it.
+  assignment TEXT NOT NULL,
+  task TEXT NOT NULL,
+  report TEXT NOT NULL,
+  -- WHAT THE PHASE COLLECTED, when it collected anything. Absent is an ANSWER
+  -- and not a gap: the report itself says which of the three answers this was.
+  collected TEXT,
+  recorded_at TEXT NOT NULL,
+  PRIMARY KEY (managed_result_id, phase),
+  -- ONE EXECUTION PRODUCES ONE PHASE ACCOUNT, anywhere in this store.
+  UNIQUE (execution_attempt_id)
+) STRICT;
+
+CREATE TABLE managed_publications (
+  -- W161230 slice1 condition 5. ONE PUBLICATION'S DURABLE ACCOUNT: what it was
+  -- asked to do, what it actually did to the target, and how far it got.
+  --
+  -- WHY THIS EXISTS RATHER THAN AN INFERENCE. Review 2026-09-14T00:04:25Z: the
+  -- placement decided "this is my own swap" by comparing the target's current
+  -- revision with the one this content materializes to -- so a FOREIGN move
+  -- that happened to land on the same revision was adopted as an owned swap,
+  -- and an exact retry after later movement reported that foreign revision as
+  -- its own imported outcome. A materializer mapping proves what content IS;
+  -- it cannot say who moved a reference. Only a record written before the
+  -- mutation can.
+  --
+  -- THE INTENT CARRIES THE REVISION IT WILL IMPORT, which is what makes the
+  -- restart decision exact: a target standing at that revision is this
+  -- publication's own committed swap, and a target standing anywhere else but
+  -- the admitted old revision is somebody else's.
+  publication_id TEXT PRIMARY KEY,
+  operation_id TEXT NOT NULL,
+  managed_result_id TEXT NOT NULL
+    REFERENCES managed_integration_results(managed_result_id),
+  phase TEXT NOT NULL CHECK (phase IN ('prepare', 'apply')),
+  canonical_target_id TEXT NOT NULL REFERENCES targets(canonical_target_id),
+  entry_id TEXT NOT NULL REFERENCES entries(entry_id),
+  lease_id TEXT NOT NULL,
+  fence INTEGER NOT NULL CHECK (fence >= 1),
+  admitted_old_revision TEXT NOT NULL,
+  imported_revision TEXT NOT NULL,
+  content_digest TEXT NOT NULL,
+  derived_proposal_id TEXT NOT NULL,
+  settlement TEXT NOT NULL,
+  -- HOW FAR IT GOT. `intended` is committed BEFORE the swap, so a crash in the
+  -- window is answerable; `swapped` records the compare-and-swap that
+  -- committed; `settled` records the second cutpoint. A CAS that committed is
+  -- not undoable here, and these states say so rather than implying a rollback.
+  state TEXT NOT NULL CHECK (state IN ('intended', 'swapped', 'settled')),
+  recorded_at TEXT NOT NULL,
+  -- ONE PUBLICATION PER PHASE OF ONE MANAGED RESULT.
+  UNIQUE (managed_result_id, phase)
+) STRICT;
+
+CREATE INDEX managed_results_by_orchestration
+  ON managed_integration_results (orchestration_id);
+"""
 
 SCHEMA = """
 CREATE TABLE meta (
@@ -437,9 +625,9 @@ CREATE INDEX results_by_target_state
   ON integration_results (canonical_target_id, state);
 CREATE INDEX results_by_submission
   ON integration_results (authority_uuid, work_id, source_proposal_id);
-"""
+""" + MANAGED_RESULTS
 
-MIGRATIONS = {}
+MIGRATIONS = {5: MANAGED_RESULTS}
 
 # THE JOURNAL IS EVIDENCE, SO IT IS ADOPTED LIKE ANY OTHER ROW. The review of
 # 2026-09-06T03:22 made the operation record the durable history the

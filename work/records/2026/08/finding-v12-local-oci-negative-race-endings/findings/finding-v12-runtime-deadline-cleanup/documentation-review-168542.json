@@ -1,0 +1,18 @@
+{
+  "claim": 168542,
+  "utc": "2026-09-14T10:43:29.039049+00:00",
+  "documentation_sha256": "48a3268e456765c02696c897558f1aed9511c39a4188480a8d194b21ac50077f",
+  "preserved_base_bytes": 88436,
+  "added_lines": 109,
+  "exact_patch": true,
+  "unchanged_source_test_supervisor_protected_paths": 16,
+  "prior_acceptance_bindings": 5,
+  "parsed_examples": 2,
+  "checked_calls": [
+    "request_runtime_start",
+    "observe_deadline",
+    "advance_deadline"
+  ],
+  "elapsed_static_seconds": 0.008950860996264964,
+  "product_test_engine_rerun": false
+}

@@ -1,0 +1,82 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+.............................................................................EEE
+======================================================================
+ERROR: test_a_turn_with_no_delivery_between_two_bound_ones (tests.tools.test_execution_limits.TwoJobsCeilingsDoNotLeakIntoEachOther.test_a_turn_with_no_delivery_between_two_bound_ones)
+The legacy delivery keeps the image default and does not inherit the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1504, in test_a_turn_with_no_delivery_between_two_bound_ones
+    captured, _held = self.interleave(
+                      ~~~~~~~~~~~~~~~^
+        self.delivery("job-a", provider_turn_seconds=60),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        None,
+        ^^^^^
+        self.delivery("job-b", provider_turn_seconds=1200))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1491, in interleave
+    held.invoke_provider(prompt="a prompt", room=room, seen=one)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 594, in invoke_provider
+    environments = self._child_environments(scratch)
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1551, in _child_environments
+    provider_home = self._prepared_home(scratch)
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1957, in _prepared_home
+    raise TaskRefusal(
+    ...<2 lines>...
+        f"has no home-directory or ambient fallback")
+claude_agent.TaskRefusal: this container has no credential at /run/baton/credentials/claude; the operator authorizes the exact credential source and this adapter has no home-directory or ambient fallback
+
+======================================================================
+ERROR: test_each_turn_is_bound_by_its_own_delivery (tests.tools.test_execution_limits.TwoJobsCeilingsDoNotLeakIntoEachOther.test_each_turn_is_bound_by_its_own_delivery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1495, in test_each_turn_is_bound_by_its_own_delivery
+    captured, _held = self.interleave(
+                      ~~~~~~~~~~~~~~~^
+        self.delivery("job-a", provider_turn_seconds=60),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.delivery("job-b", provider_turn_seconds=1200),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.delivery("job-a", provider_turn_seconds=60))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1491, in interleave
+    held.invoke_provider(prompt="a prompt", room=room, seen=one)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 594, in invoke_provider
+    environments = self._child_environments(scratch)
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1551, in _child_environments
+    provider_home = self._prepared_home(scratch)
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1957, in _prepared_home
+    raise TaskRefusal(
+    ...<2 lines>...
+        f"has no home-directory or ambient fallback")
+claude_agent.TaskRefusal: this container has no credential at /run/baton/credentials/claude; the operator authorizes the exact credential source and this adapter has no home-directory or ambient fallback
+
+======================================================================
+ERROR: test_the_adapter_holds_nothing_after_the_last_turn (tests.tools.test_execution_limits.TwoJobsCeilingsDoNotLeakIntoEachOther.test_the_adapter_holds_nothing_after_the_last_turn)
+And it keeps nothing afterwards: a turn's delivery is restored, so a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1514, in test_the_adapter_holds_nothing_after_the_last_turn
+    _captured, held = self.interleave(
+                      ~~~~~~~~~~~~~~~^
+        self.delivery("job-a", provider_turn_seconds=60))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1491, in interleave
+    held.invoke_provider(prompt="a prompt", room=room, seen=one)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 594, in invoke_provider
+    environments = self._child_environments(scratch)
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1551, in _child_environments
+    provider_home = self._prepared_home(scratch)
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1957, in _prepared_home
+    raise TaskRefusal(
+    ...<2 lines>...
+        f"has no home-directory or ambient fallback")
+claude_agent.TaskRefusal: this container has no credential at /run/baton/credentials/claude; the operator authorizes the exact credential source and this adapter has no home-directory or ambient fallback
+
+----------------------------------------------------------------------
+Ran 80 tests in 7.069s
+
+FAILED (errors=3)

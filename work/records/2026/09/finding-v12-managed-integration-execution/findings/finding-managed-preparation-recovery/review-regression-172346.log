@@ -1,0 +1,7 @@
+.........................................................................................................................................
+----------------------------------------------------------------------
+Ran 137 tests in 2.554s
+
+OK
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:51d5e04a65f060b0282404d7a30469a192208f179e00ada4b45bc08e74c4e61e", "root": "open", "runtime": "destroyed", "worker_exit": 0}
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": "unexpected-decide", "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:c365efab80efebb269a1ab2ae98c71782e668ca6422d41db15af197c13b901ae", "root": "open", "runtime": "destroyed", "worker_exit": 0}

@@ -1,0 +1,20 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_preparation
+..E................
+======================================================================
+ERROR: test_a_second_materialization_into_the_same_scratch_refuses (tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_a_second_materialization_into_the_same_scratch_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 305, in test_a_second_materialization_into_the_same_scratch_refuses
+    task.materialize(self.input, self.published["request"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     self.scratch)
+                     ^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/reconciliation_task.py", line 353, in materialize
+    os.mkdir(place, 0o700)
+    ~~~~~~~~^^^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: '/tmp/v12-preparation-run-1863xxfh/scratch/combined'
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.131s
+
+FAILED (errors=1)

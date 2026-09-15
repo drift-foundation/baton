@@ -1,0 +1,124 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_storage
+.E.........E.FFFFF..F..F..............
+======================================================================
+ERROR: test_a_read_only_handle_records_nothing (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_a_read_only_handle_records_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 463, in test_a_read_only_handle_records_nothing
+    record_managed_result(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        reader, submission(), orchestration_id=ORCHESTRATION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        canonical_target_id=fixtures.TARGET,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_revision=REVISION, phases=self.phases())
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: record_managed_result() got an unexpected keyword argument 'phases'
+
+======================================================================
+ERROR: test_another_snapshot_of_the_same_submission_is_ordinary (tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable.test_another_snapshot_of_the_same_submission_is_ordinary)
+A later target advance needs a NEW result from the same submission;
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 791, in test_another_snapshot_of_the_same_submission_is_ordinary
+    recorded = self.record(
+        store, orchestration_id="integration-capacity-2",
+    ...<2 lines>...
+            orchestration_id="integration-capacity-2",
+            execution_attempt_id="prepare-attempt-2"))})
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 146, in record
+    answer = attach_managed_phase(
+        store, managed_result_id=held["orchestration_id"],
+        task=account["task"], result=account["result"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2450, in attach_managed_phase
+    return store.transact(operation_id, MANAGED_KIND, signature, attach,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2398, in attach
+    _refuse(f"this {phase} task names orchestration "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(owned['orchestration_id'])} on target "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+            f"{name_value(row['canonical_target_id'])}",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="integrity", code="schema")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 160, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: this prepare task names orchestration 'integration-capacity-1' on target 'target:mainline' and the result is 'integration-capacity-2' on 'target:mainline'
+
+======================================================================
+FAIL: test_a_recorded_managed_act_is_refused_by_the_queue_history (tests.integration.test_managed_storage.TheJournalVocabularyIsQueueOwned.test_a_recorded_managed_act_is_refused_by_the_queue_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 827, in test_a_recorded_managed_act_is_refused_by_the_queue_history
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_the_queue_reads_normally_until_one_is_recorded (tests.integration.test_managed_storage.TheJournalVocabularyIsQueueOwned.test_the_queue_reads_normally_until_one_is_recorded)
+The gap is the new KIND and nothing else: the same store, the same
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 848, in test_the_queue_reads_normally_until_one_is_recorded
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_changed_immutable_task_operand_collides (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_changed_immutable_task_operand_collides) (member='harness_digest')
+[P1] The operation identity omitted the TASKS it stored, so a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 617, in test_a_changed_immutable_task_operand_collides
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_changed_immutable_task_operand_collides (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_changed_immutable_task_operand_collides) (member='task_digest')
+[P1] The operation identity omitted the TASKS it stored, so a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 617, in test_a_changed_immutable_task_operand_collides
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_changed_immutable_task_operand_collides (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_changed_immutable_task_operand_collides) (member='input_digest')
+[P1] The operation identity omitted the TASKS it stored, so a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 617, in test_a_changed_immutable_task_operand_collides
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_result_that_does_not_answer_its_task_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_result_that_does_not_answer_its_task_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 638, in test_a_result_that_does_not_answer_its_task_is_refused
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_task_for_another_orchestration_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_task_for_another_orchestration_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 645, in test_a_task_for_another_orchestration_is_refused
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 36 tests in 0.151s
+
+FAILED (failures=7, errors=2)

@@ -1,0 +1,71 @@
+test_exact_committed_start_replay_still_refuses_proof (__main__.ProjectionReview.test_exact_committed_start_replay_still_refuses_proof) ... ok
+test_foreign_work_projection_refuses (__main__.ProjectionReview.test_foreign_work_projection_refuses) ... FAIL
+test_malformed_fences_refuse_through_contract_boundary (__main__.ProjectionReview.test_malformed_fences_refuse_through_contract_boundary) ... 
+  test_malformed_fences_refuse_through_contract_boundary (__main__.ProjectionReview.test_malformed_fences_refuse_through_contract_boundary) (fences=[{'generation': '7'}, {'generation': 8}]) ... ERROR
+  test_malformed_fences_refuse_through_contract_boundary (__main__.ProjectionReview.test_malformed_fences_refuse_through_contract_boundary) (fences=[{'generation': 1, 'cause': 'cancelled'}]) ... FAIL
+  test_malformed_fences_refuse_through_contract_boundary (__main__.ProjectionReview.test_malformed_fences_refuse_through_contract_boundary) (fences=[{'generation': 1, 'cause': 'cancelled', 'reason': None}, {'generation': 1, 'cause': 'cancelled', 'reason': None}]) ... FAIL
+test_missing_work_identity_refuses (__main__.ProjectionReview.test_missing_work_identity_refuses) ... FAIL
+test_noninteger_generation_refuses (__main__.ProjectionReview.test_noninteger_generation_refuses) ... 
+  test_noninteger_generation_refuses (__main__.ProjectionReview.test_noninteger_generation_refuses) (generation='True') ... FAIL
+
+======================================================================
+ERROR: test_malformed_fences_refuse_through_contract_boundary (__main__.ProjectionReview.test_malformed_fences_refuse_through_contract_boundary) (fences=[{'generation': '7'}, {'generation': 8}])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-161769.py", line 45, in test_malformed_fences_refuse_through_contract_boundary
+    owner.unstarted_cancellation_of(self.store, self.port, ATTEMPT)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 3021, in unstarted_cancellation_of
+    f"{name_value(sorted(one.get('generation') for one in fenced if type(one) is dict))}")
+                  ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: '<' not supported between instances of 'int' and 'str'
+
+======================================================================
+FAIL: test_foreign_work_projection_refuses (__main__.ProjectionReview.test_foreign_work_projection_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-161769.py", line 17, in test_foreign_work_projection_refuses
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_malformed_fences_refuse_through_contract_boundary (__main__.ProjectionReview.test_malformed_fences_refuse_through_contract_boundary) (fences=[{'generation': 1, 'cause': 'cancelled'}])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-161769.py", line 44, in test_malformed_fences_refuse_through_contract_boundary
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_malformed_fences_refuse_through_contract_boundary (__main__.ProjectionReview.test_malformed_fences_refuse_through_contract_boundary) (fences=[{'generation': 1, 'cause': 'cancelled', 'reason': None}, {'generation': 1, 'cause': 'cancelled', 'reason': None}])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-161769.py", line 44, in test_malformed_fences_refuse_through_contract_boundary
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_missing_work_identity_refuses (__main__.ProjectionReview.test_missing_work_identity_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-161769.py", line 23, in test_missing_work_identity_refuses
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_noninteger_generation_refuses (__main__.ProjectionReview.test_noninteger_generation_refuses) (generation='True')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-161769.py", line 32, in test_noninteger_generation_refuses
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.024s
+
+FAILED (failures=5, errors=1)

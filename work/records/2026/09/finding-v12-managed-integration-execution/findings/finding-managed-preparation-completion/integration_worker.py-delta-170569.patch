@@ -1,0 +1,67 @@
+--- baton:v12/python/tools/integration_worker.py@170415
++++ baton:v12/python/tools/integration_worker.py@170569
+@@ -1199,7 +1199,8 @@
+ 
+     def admit(self, operations, stage, job):
+         from baton_v12.job_manager.integration_capacity import (
+-            preparation_intent_of, register_integration_capacity)
++            preparation_intent_of, register_integration_capacity,
++            recover_preparation_reservation)
+         from baton_v12.job_manager.scheduler import allocation_of
+ 
+         allocation = allocation_of(self._jobs, stage["attempt_id"])
+@@ -1221,6 +1222,10 @@
+         if self._runtime is not None:
+             held = self._runtime.configure(held)
+         plan = self.planned(stage, held)
++        if intent is None and allocation["allocation_state"] == "recovery-required":
++            recover_preparation_reservation(
++                self._jobs, self._control, self._authority,
++                orchestration_id=held["orchestration_id"])
+         register_integration_capacity(
+             self._jobs, orchestration_id=held["orchestration_id"],
+             root_assignment_id=allocation["assignment_id"],
+@@ -1238,7 +1243,9 @@
+             policy_digest=held["policy_digest"],
+             profile_name=held["profile_name"],
+             accept=held["accept"], identity=held["identity"],
+-            contract=held.get("contract"))
++            contract=held.get("contract"),
++            admit=(None if self._runtime is None else
++                   lambda: self._runtime.admit(held)))
+         self.started.append(answered)
+         if self._runtime is not None:
+             result = self._runtime.poll(held, stage, job, execution)
+@@ -1477,7 +1484,7 @@
+ 
+     def prepare(self, *, orchestration_id, root_assignment_id, request, plan,
+                 execution_work_id, execution_route, policy_digest,
+-                profile_name, accept, identity, contract=None):
++                profile_name, accept, identity, contract=None, admit=None):
+         """Decide, create, offer, claim, admit -- and answer what was fixed.
+ 
+         THE ATTEMPT AND THE OFFER COME FROM THE REGISTERED PLAN, not from
+@@ -1519,12 +1526,17 @@
+                 if state is not None:
+                     _denied("the preparation offer has no recoverable acceptance; "
+                             "its owner's recovery must settle the outstanding offer")
+-                issued = self.offer(intent, planned, policy_digest=policy_digest,
+-                                    profile_name=profile_name,
+-                                    runtime_attempt_id=runtime_attempt_id)
+-                if accept is None:
+-                    _denied("an offer is claimed after the worker accepts it")
+-                accept(issued)
++                if admit is not None:
++                    # The configured child owns the expected-offer window and
++                    # bearer delivery. Its ordinary admission issues/accepts.
++                    admit()
++                else:
++                    issued = self.offer(intent, planned, policy_digest=policy_digest,
++                                        profile_name=profile_name,
++                                        runtime_attempt_id=runtime_attempt_id)
++                    if accept is None:
++                        _denied("an offer is claimed after the worker accepts it")
++                    accept(issued)
+             claimed = submit_claim(self._manager, self._port, offer_id=offer_id)
+         # ACTIVATION IS WHAT FIXES THE ASSIGNMENT, and it is expected against
+         # THE CLAIM'S OWN ANSWER rather than a document written here: a

@@ -1,0 +1,85 @@
+### label: oracle-corrected
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace"]
+### exit: 1
+### elapsed_seconds: 0.235885
+### STDOUT
+
+### STDERR
+........F.....FF.......F.
+======================================================================
+FAIL: test_the_artifact_is_versioned_and_carries_its_environment (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_the_artifact_is_versioned_and_carries_its_environment)
+Every export names its schema, its scenario digest and the exact
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 254, in test_the_artifact_is_versioned_and_carries_its_environment
+    self.assertEqual(sorted(held["sources"]),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ["scheduler_trace.py", "test_scheduler_trace.py"])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['v12/python/src/baton_v12/job_manager/mana[354 chars].py'] != ['scheduler_trace.py', 'test_scheduler_trace.py']
+
+First differing element 0:
+'v12/python/src/baton_v12/job_manager/manager.py'
+'scheduler_trace.py'
+
+First list contains 6 additional elements.
+First extra element 2:
+'v12/python/src/baton_v12/job_manager/scheduler.py'
+
++ ['scheduler_trace.py', 'test_scheduler_trace.py']
+- ['v12/python/src/baton_v12/job_manager/manager.py',
+-  'v12/python/src/baton_v12/job_manager/projection.py',
+-  'v12/python/src/baton_v12/job_manager/scheduler.py',
+-  'v12/python/src/baton_v12/job_manager/submission.py',
+-  'v12/python/tests/job_manager/fixtures.py',
+-  'v12/python/tests/job_manager/test_scheduling.py',
+-  'v12/python/tests/tools/scheduler_trace.py',
+-  'v12/python/tests/tools/test_scheduler_trace.py']
+
+======================================================================
+FAIL: test_a_claim_before_its_reserve_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_claim_before_its_reserve_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 548, in test_a_claim_before_its_reserve_is_refused
+    self.assertIn("out-of-order", self.codes([
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.record(act="claim", attempt_id="attempt-1"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.record(act="reserve", attempt_id="attempt-1")]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'out-of-order' not found in ['missing-prerequisite']
+
+======================================================================
+FAIL: test_a_completion_with_no_claim_is_unprovable (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_completion_with_no_claim_is_unprovable)
+Its own statement, and a true one: a trace whose driver never drove
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 613, in test_a_completion_with_no_claim_is_unprovable
+    self.assertIn("unproven-completion", self.codes([
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.record(attempt_id="attempt-1"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.record(act="complete", attempt_id="attempt-1")]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unproven-completion' not found in ['missing-prerequisite']
+
+======================================================================
+FAIL: test_an_out_of_order_act_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_an_out_of_order_act_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 553, in test_an_out_of_order_act_is_refused
+    self.assertIn("out-of-order", self.codes([
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.record(attempt_id="attempt-1"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.record(act="offer", attempt_id="attempt-1"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.record(act="reserve", attempt_id="attempt-1")]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'out-of-order' not found in ['duplicate-act']
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.084s
+
+FAILED (failures=4)

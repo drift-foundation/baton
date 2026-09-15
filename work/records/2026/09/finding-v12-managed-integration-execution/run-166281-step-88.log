@@ -1,0 +1,65 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation
+............................................................................................................................................................................................................................................................E.E..........
+======================================================================
+ERROR: test_the_declared_read_only_export_runs_inside_the_trap (tests.tools.test_managed_preparation.TheCoordinatorHostNeverPrepares.test_the_declared_read_only_export_runs_inside_the_trap)
+THE ONE COORDINATOR ACT THE DESIGN ALLOWS, proved to survive.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 650, in test_the_declared_read_only_export_runs_inside_the_trap
+    self.stage_execution._git_run(("merge",))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4190, in _git_run
+    answer = subprocess.run(list(argv), capture_output=True, check=False,
+                            timeout=GIT_SECONDS)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1972, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'merge'
+
+======================================================================
+ERROR: test_the_trap_catches_an_intentionally_invoked_boundary (tests.tools.test_managed_preparation.TheCoordinatorHostNeverPrepares.test_the_trap_catches_an_intentionally_invoked_boundary) (boundary='stage_execution._git_run')
+THE TRAP IS SHOWN TO WORK, which is the half a trap usually skips.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 593, in test_the_trap_catches_an_intentionally_invoked_boundary
+    invoke()
+    ~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 588, in <lambda>
+    lambda: self.stage_execution._git_run(("merge",)))):
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4190, in _git_run
+    answer = subprocess.run(list(argv), capture_output=True, check=False,
+                            timeout=GIT_SECONDS)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1972, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'merge'
+
+----------------------------------------------------------------------
+Ran 265 tests in 12.969s
+
+FAILED (errors=2)

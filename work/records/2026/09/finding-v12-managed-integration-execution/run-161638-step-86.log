@@ -1,0 +1,30 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_storage
+....................................EF........
+======================================================================
+ERROR: test_a_real_result_and_its_history_survive_the_upgrade (tests.integration.test_managed_storage.TheUpgradeCarriesAGenuineLegacyResult.test_a_real_result_and_its_history_survive_the_upgrade)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1038, in test_a_real_result_and_its_history_survive_the_upgrade
+    rows = self.contents(kept)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1024, in contents
+    beside = sqlite3.connect(self.path, isolation_level=None)
+                             ^^^^^^^^^
+AttributeError: 'TheUpgradeCarriesAGenuineLegacyResult' object has no attribute 'path'
+
+======================================================================
+FAIL: test_the_legacy_writer_refuses_a_key_the_managed_side_holds (tests.integration.test_managed_storage.TheUpgradeCarriesAGenuineLegacyResult.test_the_legacy_writer_refuses_a_key_the_managed_side_holds)
+THE REVERSE WRITE ORDER, through `prepare_result` itself rather
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1069, in test_the_legacy_writer_refuses_a_key_the_managed_side_holds
+    self.assertEqual(caught.exception.code, "operation-collision")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'precondition' != 'operation-collision'
+- precondition
++ operation-collision
+
+
+----------------------------------------------------------------------
+Ran 46 tests in 0.257s
+
+FAILED (failures=1, errors=1)

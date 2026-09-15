@@ -1,0 +1,80 @@
+{
+ "author": "baton.claude",
+ "claim": 169019,
+ "composition_not_advanced": "This incarnation's context ended before the operand resolver could be built and measured. Stated as an observed limit of this incarnation, not a policy about turn size.",
+ "concrete_defect_filed": "Integration._run calls deployment.reconciles() on the direct branch; TheIntegrationStageConsumesTheAcceptedPort.deployment() builds a SimpleNamespace stand-in with no such member. All three sites are AST byte-identical to HEAD, so W161230 changed neither side.",
+ "corrections_accepted": {
+  "accounting": "The ledger sums 746.1117171389226s over 94 rows, not the approximate 719.3s I quoted; I estimated instead of reading the file. Step 94 cost 13.40232002097764s by the ledger; 13.219s is unittest's self-report, not the cost.",
+  "attribution": "Identical failing sets across a wrapper toggle establish INDEPENDENCE FROM THIS WRAPPER and nothing about whose the failures are. The earlier 'pre-existing from other in-flight Works' phrasing is withdrawn."
+ },
+ "evidence_added": [
+  {
+   "bytes": 5748,
+   "mode": "0o644",
+   "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/evidence/stage-execution-failures-169019.json",
+   "sha256": "d7205f2ecdc5bd709855debbee7ec60f0eac71a892431d8bde7aa84010c6241a"
+  },
+  {
+   "bytes": 35063,
+   "mode": "0o644",
+   "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/evidence/stage-execution-with-wrapper-168895.log",
+   "sha256": "7a92c4d6abfc95c082592b82e7f0f8d98d6547e81e40e58953a9bfef6fb44a0d"
+  },
+  {
+   "bytes": 35063,
+   "mode": "0o644",
+   "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/evidence/stage-execution-without-wrapper-168895.log",
+   "sha256": "37c8a3e5c78f08fac3d38c5bcf21d22ed84a3b9f89ad97d0cdf0133bd3e1a88b"
+  }
+ ],
+ "next": "resolve real operands in stage_execution -- the request from review_cycles.integration_checkpoint, the published proposal, the canonical target and the Job's execution_limits, plus the child identities and the worker's acceptance -- then the ordinary child launch and ending, the member ended on its real exclusion proof, then adopt_prepared_candidate. Then A.5, then B.",
+ "no_committed_baseline": "A clean HEAD export of v12/python does not import: tests/tools/test_integration_bundle.py imports `integration_contract`, an UNTRACKED working-tree module. No committed-bytes baseline is obtainable from this tree, so these failures cannot be attributed by comparison against HEAD until that module is committed.",
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "product_and_test_source_unchanged": [
+  {
+   "bytes": 70627,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "eb86c310365a7f083544b6488883f5f3ba0459a7635d9654e1349792180cf221"
+  },
+  {
+   "bytes": 278874,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "63fd8c59b62beffdae3f4474c8f788a1d80fa35fea94c41d4c04bea174e52d67"
+  },
+  {
+   "bytes": 158551,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "88aace0104a6ef77e25e3a497bddc0d08666f746a8559e0f6bf8c42909828bf9"
+  },
+  {
+   "bytes": 32310,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "8067e75137b59be373c1d20eb5d0649b70e3d134c737c367f427950d06d31807"
+  },
+  {
+   "bytes": 191339,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+  },
+  {
+   "bytes": 94098,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+   "sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a"
+  }
+ ],
+ "what": "The requested evidence packet for the 13 test_stage_execution failures, plus the accounting correction. NO product or test source changed this round.",
+ "work": "2b077949-W161230"
+}

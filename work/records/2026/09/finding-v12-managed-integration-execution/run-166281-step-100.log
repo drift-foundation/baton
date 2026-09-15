@@ -1,0 +1,166 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation
+....................................................................................................................................................................................................................................................................FEFEEFEE..........
+======================================================================
+ERROR: test_a_moved_target_is_a_different_preparation (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_moved_target_is_a_different_preparation)
+The target revision is PINNED at intent time. A preparation is about
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 923, in test_a_moved_target_is_a_different_preparation
+    first = self.resolved()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 785, in resolved
+    return self.worker.preparation_operands(**held)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 957, in preparation_operands
+    request = managed_execution.preparation_request(
+        orchestration_id=orchestration_id,
+    ...<8 lines>...
+        input_digest=published["input_digest"],
+        execution_limits=limits, commands=list(CAUSAL_COMMANDS))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 340, in preparation_request
+    boundaries.text(accepted[name], f"the accepted {name}")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 93, in text
+    _refuse(f"{what} is durable text; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the accepted path_set_digest is durable text; this is none
+
+======================================================================
+ERROR: test_the_child_identities_are_derived_and_not_minted (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_child_identities_are_derived_and_not_minted)
+A restart must reach the SAME three. Identities minted on a second
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 898, in test_the_child_identities_are_derived_and_not_minted
+    first = self.resolved()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 785, in resolved
+    return self.worker.preparation_operands(**held)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 957, in preparation_operands
+    request = managed_execution.preparation_request(
+        orchestration_id=orchestration_id,
+    ...<8 lines>...
+        input_digest=published["input_digest"],
+        execution_limits=limits, commands=list(CAUSAL_COMMANDS))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 340, in preparation_request
+    boundaries.text(accepted[name], f"the accepted {name}")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 93, in text
+    _refuse(f"{what} is durable text; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the accepted path_set_digest is durable text; this is none
+
+======================================================================
+ERROR: test_the_input_digest_is_the_producers_measurement (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_input_digest_is_the_producers_measurement)
+`compose_preparation_input` measures the bundle it wrote; a caller
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 877, in test_the_input_digest_is_the_producers_measurement
+    held = self.resolved(published=published)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 785, in resolved
+    return self.worker.preparation_operands(**held)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 957, in preparation_operands
+    request = managed_execution.preparation_request(
+        orchestration_id=orchestration_id,
+    ...<8 lines>...
+        input_digest=published["input_digest"],
+        execution_limits=limits, commands=list(CAUSAL_COMMANDS))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 340, in preparation_request
+    boundaries.text(accepted[name], f"the accepted {name}")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 93, in text
+    _refuse(f"{what} is durable text; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the accepted path_set_digest is durable text; this is none
+
+======================================================================
+ERROR: test_the_source_is_the_accepted_checkpoints_own_evidence (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_source_is_the_accepted_checkpoints_own_evidence)
+The base and the candidate are the checkpoint's, not this
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 862, in test_the_source_is_the_accepted_checkpoints_own_evidence
+    held = self.resolved()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 785, in resolved
+    return self.worker.preparation_operands(**held)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 957, in preparation_operands
+    request = managed_execution.preparation_request(
+        orchestration_id=orchestration_id,
+    ...<8 lines>...
+        input_digest=published["input_digest"],
+        execution_limits=limits, commands=list(CAUSAL_COMMANDS))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 340, in preparation_request
+    boundaries.text(accepted[name], f"the accepted {name}")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 93, in text
+    _refuse(f"{what} is durable text; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the accepted path_set_digest is durable text; this is none
+
+======================================================================
+ERROR: test_the_task_digest_is_the_requests_own_name (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_task_digest_is_the_requests_own_name)
+A membership's task digest is what a later adoption compares the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 913, in test_the_task_digest_is_the_requests_own_name
+    held = self.resolved()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 785, in resolved
+    return self.worker.preparation_operands(**held)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 957, in preparation_operands
+    request = managed_execution.preparation_request(
+        orchestration_id=orchestration_id,
+    ...<8 lines>...
+        input_digest=published["input_digest"],
+        execution_limits=limits, commands=list(CAUSAL_COMMANDS))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 340, in preparation_request
+    boundaries.text(accepted[name], f"the accepted {name}")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 93, in text
+    _refuse(f"{what} is durable text; this is {name_value(value)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the accepted path_set_digest is durable text; this is none
+
+======================================================================
+FAIL: test_a_checkpoint_without_evidence_paths_refuses (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_checkpoint_without_evidence_paths_refuses)
+A preparation runs the paths an accepted verdict authorized. A
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 856, in test_a_checkpoint_without_evidence_paths_refuses
+    self.assertIn("no evidence path set", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'no evidence path set' not found in 'the accepted path_set_digest is durable text; this is none'
+
+======================================================================
+FAIL: test_a_published_bundle_for_another_request_refuses (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_published_bundle_for_another_request_refuses)
+THE BUNDLE A WORKER READS AND THE REQUEST ITS INTENT COMMITS ARE ONE
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 889, in test_a_published_bundle_for_another_request_refuses
+    self.assertIn("one document", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'one document' not found in 'the accepted path_set_digest is durable text; this is none'
+
+======================================================================
+FAIL: test_the_resolver_consumes_the_real_readers_answer (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_resolver_consumes_the_real_readers_answer)
+THE ACTUAL OWNER, not my idea of it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 832, in test_the_resolver_consumes_the_real_readers_answer
+    self.assertIn("one document", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'one document' not found in 'the accepted path_set_digest is durable text; this is none'
+
+----------------------------------------------------------------------
+Ran 278 tests in 13.371s
+
+FAILED (failures=3, errors=5)

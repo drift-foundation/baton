@@ -1,0 +1,30 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_storage
+......................E....E..
+======================================================================
+ERROR: test_a_concurrent_shape_change_is_caught_under_the_lock (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_a_concurrent_shape_change_is_caught_under_the_lock)
+[P2] Review 2026-09-13T18:51:48Z: the preflight ran BEFORE the lock
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 326, in test_a_concurrent_shape_change_is_caught_under_the_lock
+    store, _entry, _lease = self.populated()
+                            ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 269, in populated
+    entry = enqueue(store, fixtures.eligibility())
+TypeError: enqueue() takes 1 positional argument but 2 were given
+
+======================================================================
+ERROR: test_the_step_preserves_the_records_and_leases_it_found (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_step_preserves_the_records_and_leases_it_found)
+WHAT IT PRESERVES IT PRESERVES BY NOT TOUCHING -- and this compares
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 290, in test_the_step_preserves_the_records_and_leases_it_found
+    store, entry, lease = self.populated()
+                          ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 269, in populated
+    entry = enqueue(store, fixtures.eligibility())
+TypeError: enqueue() takes 1 positional argument but 2 were given
+
+----------------------------------------------------------------------
+Ran 30 tests in 0.084s
+
+FAILED (errors=2)

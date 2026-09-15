@@ -1,0 +1,15 @@
+test_empty_name (test_greeting.GreetingTest.test_empty_name) ... ok
+test_name (test_greeting.GreetingTest.test_name) ... ok
+test_surrounding_spaces (test_greeting.GreetingTest.test_surrounding_spaces) ... ok
+test_whitespace_only_name (test_greeting.GreetingTest.test_whitespace_only_name) ... ok
+test_sentinel (test_guard.GuardTest.test_sentinel) ... ok
+test_one (test_hours.HoursTest.test_one) ... ok
+test_two (test_hours.HoursTest.test_two) ... ok
+test_zero (test_hours.HoursTest.test_zero) ... ok
+test_two (test_units.MinutesTest.test_two) ... ok
+test_zero (test_units.MinutesTest.test_zero) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.000s
+
+OK

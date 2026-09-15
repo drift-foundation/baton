@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity
+..................................................................................................................
+----------------------------------------------------------------------
+Ran 114 tests in 1.117s
+
+OK

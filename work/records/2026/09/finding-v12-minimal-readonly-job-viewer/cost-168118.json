@@ -1,0 +1,19 @@
+{
+ "scope": "viewer refresh adapter + parse + staleness + render, children included; EXCLUDES canonical status production",
+ "host": "slryzen",
+ "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+ "python": "3.13.7",
+ "jobs": 20,
+ "input_bytes": 39129,
+ "interval_seconds": 1.0,
+ "wall_seconds": 60.0,
+ "cpu_seconds_including_children": 0.025,
+ "child_cpu_seconds": 0.0,
+ "target_cpu_seconds": 0.6,
+ "percent_of_one_core": 0.0409,
+ "refreshes": 60,
+ "failures": 0,
+ "source_read_seconds_max": 0.0004,
+ "source_read_seconds_total": 0.0165,
+ "meets_target": true
+}

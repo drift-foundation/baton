@@ -1,0 +1,550 @@
+[
+  {
+    "phase": "causal",
+    "failure": "timeout",
+    "host_calls": [
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77,
+        "cwd": "/home/sl/src/baton/v12/python/v12-w71917-mipul0ft/state/integration/tmpnvhyp5f7"
+      }
+    ],
+    "owners": [
+      {
+        "owner": "_CausalObserver",
+        "scope": [
+          "job-b",
+          "result-ba131e1a94234324adcd1d155eb43ac943fa5762630e0e50ac07d6e7ffb04973",
+          "causal"
+        ]
+      },
+      {
+        "owner": "_CausalObserver",
+        "scope": [
+          "job-b",
+          "result-ba131e1a94234324adcd1d155eb43ac943fa5762630e0e50ac07d6e7ffb04973",
+          "causal"
+        ]
+      },
+      {
+        "owner": "_CausalObserver",
+        "scope": [
+          "job-b",
+          "result-ba131e1a94234324adcd1d155eb43ac943fa5762630e0e50ac07d6e7ffb04973",
+          "causal"
+        ]
+      },
+      {
+        "owner": "_CausalObserver",
+        "scope": [
+          "job-b",
+          "result-ba131e1a94234324adcd1d155eb43ac943fa5762630e0e50ac07d6e7ffb04973",
+          "causal"
+        ]
+      }
+    ],
+    "scratch_created": [
+      "/home/sl/src/baton/v12/python/v12-w71917-mipul0ft/state/integration/tmpnvhyp5f7"
+    ],
+    "scratch_after_composition_close": [
+      "/home/sl/src/baton/v12/python/v12-w71917-mipul0ft/state/integration/tmpnvhyp5f7"
+    ],
+    "target_unchanged": true,
+    "job_b_stages": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "claimed"
+    },
+    "post_import_result_state": null,
+    "retention": [
+      {
+        "scope": [
+          "job-b",
+          "result-ba131e1a94234324adcd1d155eb43ac943fa5762630e0e50ac07d6e7ffb04973",
+          "causal"
+        ],
+        "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at 'c97a55661b53b53404e5e78fbdc8ea15047b000d'; no exit status was observed and none is invented"
+      }
+    ],
+    "reports": [
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at 'c97a55661b53b53404e5e78fbdc8ea15047b000d'; no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      },
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at 'c97a55661b53b53404e5e78fbdc8ea15047b000d'; no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      },
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at 'c97a55661b53b53404e5e78fbdc8ea15047b000d'; no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      },
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at 'c97a55661b53b53404e5e78fbdc8ea15047b000d'; no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      }
+    ]
+  },
+  {
+    "phase": "causal",
+    "failure": "start-failure",
+    "host_calls": [
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77,
+        "cwd": "/home/sl/src/baton/v12/python/v12-w71917-o9ti97ri/state/integration/tmp23423ybc"
+      }
+    ],
+    "owners": [
+      {
+        "owner": "_CausalObserver",
+        "scope": [
+          "job-b",
+          "result-9ec387926e45cec77e8e39ffa470f3c5e8a13c8fd617a909564ff7f1cc1de13e",
+          "causal"
+        ]
+      },
+      {
+        "owner": "_CausalObserver",
+        "scope": [
+          "job-b",
+          "result-9ec387926e45cec77e8e39ffa470f3c5e8a13c8fd617a909564ff7f1cc1de13e",
+          "causal"
+        ]
+      },
+      {
+        "owner": "_CausalObserver",
+        "scope": [
+          "job-b",
+          "result-9ec387926e45cec77e8e39ffa470f3c5e8a13c8fd617a909564ff7f1cc1de13e",
+          "causal"
+        ]
+      },
+      {
+        "owner": "_CausalObserver",
+        "scope": [
+          "job-b",
+          "result-9ec387926e45cec77e8e39ffa470f3c5e8a13c8fd617a909564ff7f1cc1de13e",
+          "causal"
+        ]
+      }
+    ],
+    "scratch_created": [
+      "/home/sl/src/baton/v12/python/v12-w71917-o9ti97ri/state/integration/tmp23423ybc"
+    ],
+    "scratch_after_composition_close": [
+      "/home/sl/src/baton/v12/python/v12-w71917-o9ti97ri/state/integration/tmp23423ybc"
+    ],
+    "target_unchanged": true,
+    "job_b_stages": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "claimed"
+    },
+    "post_import_result_state": null,
+    "retention": [
+      {
+        "scope": [
+          "job-b",
+          "result-9ec387926e45cec77e8e39ffa470f3c5e8a13c8fd617a909564ff7f1cc1de13e",
+          "causal"
+        ],
+        "message": "the configured required test 'feature_check.py' could not be started at '82d118cbd0e9dc32c6624f31008a96fbd85ceb27' (FileNotFoundError); no exit status was observed and none is invented"
+      }
+    ],
+    "reports": [
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' could not be started at '82d118cbd0e9dc32c6624f31008a96fbd85ceb27' (FileNotFoundError); no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      },
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' could not be started at '82d118cbd0e9dc32c6624f31008a96fbd85ceb27' (FileNotFoundError); no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      },
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' could not be started at '82d118cbd0e9dc32c6624f31008a96fbd85ceb27' (FileNotFoundError); no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      },
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' could not be started at '82d118cbd0e9dc32c6624f31008a96fbd85ceb27' (FileNotFoundError); no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      }
+    ]
+  },
+  {
+    "phase": "post-import",
+    "failure": "timeout",
+    "host_calls": [
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77,
+        "cwd": "/home/sl/src/baton/v12/python/v12-w71917-9zs1v0ly/state/integration/tmpurm2beni"
+      }
+    ],
+    "owners": [
+      {
+        "owner": "_ImportedVerifier",
+        "scope": [
+          "job-b",
+          "result-cfc4585e46aa44cd8c22099ea4efd09207d4c0341482fb539cb92c420231506a",
+          "post-import"
+        ]
+      },
+      {
+        "owner": "_ImportedVerifier",
+        "scope": [
+          "job-b",
+          "result-cfc4585e46aa44cd8c22099ea4efd09207d4c0341482fb539cb92c420231506a",
+          "post-import"
+        ]
+      },
+      {
+        "owner": "_ImportedVerifier",
+        "scope": [
+          "job-b",
+          "result-cfc4585e46aa44cd8c22099ea4efd09207d4c0341482fb539cb92c420231506a",
+          "post-import"
+        ]
+      },
+      {
+        "owner": "_ImportedVerifier",
+        "scope": [
+          "job-b",
+          "result-cfc4585e46aa44cd8c22099ea4efd09207d4c0341482fb539cb92c420231506a",
+          "post-import"
+        ]
+      }
+    ],
+    "scratch_created": [
+      "/home/sl/src/baton/v12/python/v12-w71917-9zs1v0ly/state/integration/tmpurm2beni"
+    ],
+    "scratch_after_composition_close": [
+      "/home/sl/src/baton/v12/python/v12-w71917-9zs1v0ly/state/integration/tmpurm2beni"
+    ],
+    "target_unchanged": true,
+    "job_b_stages": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "claimed"
+    },
+    "post_import_result_state": "authorized",
+    "retention": [
+      {
+        "scope": [
+          "job-b",
+          "result-cfc4585e46aa44cd8c22099ea4efd09207d4c0341482fb539cb92c420231506a",
+          "post-import"
+        ],
+        "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '5e502e8601e65b48c8a18d6ed432ecb27f2876be'; no exit status was observed and none is invented"
+      }
+    ],
+    "reports": [
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '5e502e8601e65b48c8a18d6ed432ecb27f2876be'; no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      },
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '5e502e8601e65b48c8a18d6ed432ecb27f2876be'; no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      },
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '5e502e8601e65b48c8a18d6ed432ecb27f2876be'; no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      },
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '5e502e8601e65b48c8a18d6ed432ecb27f2876be'; no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      }
+    ]
+  },
+  {
+    "phase": "post-import",
+    "failure": "start-failure",
+    "host_calls": [
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77,
+        "cwd": "/home/sl/src/baton/v12/python/v12-w71917-jdou8ia8/state/integration/tmp2425qetr"
+      }
+    ],
+    "owners": [
+      {
+        "owner": "_ImportedVerifier",
+        "scope": [
+          "job-b",
+          "result-f433c78017e95f54ba147998e380bdd2043ca7f603cfdb97d68a1450e7f1f506",
+          "post-import"
+        ]
+      },
+      {
+        "owner": "_ImportedVerifier",
+        "scope": [
+          "job-b",
+          "result-f433c78017e95f54ba147998e380bdd2043ca7f603cfdb97d68a1450e7f1f506",
+          "post-import"
+        ]
+      },
+      {
+        "owner": "_ImportedVerifier",
+        "scope": [
+          "job-b",
+          "result-f433c78017e95f54ba147998e380bdd2043ca7f603cfdb97d68a1450e7f1f506",
+          "post-import"
+        ]
+      },
+      {
+        "owner": "_ImportedVerifier",
+        "scope": [
+          "job-b",
+          "result-f433c78017e95f54ba147998e380bdd2043ca7f603cfdb97d68a1450e7f1f506",
+          "post-import"
+        ]
+      }
+    ],
+    "scratch_created": [
+      "/home/sl/src/baton/v12/python/v12-w71917-jdou8ia8/state/integration/tmp2425qetr"
+    ],
+    "scratch_after_composition_close": [
+      "/home/sl/src/baton/v12/python/v12-w71917-jdou8ia8/state/integration/tmp2425qetr"
+    ],
+    "target_unchanged": true,
+    "job_b_stages": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "claimed"
+    },
+    "post_import_result_state": "authorized",
+    "retention": [
+      {
+        "scope": [
+          "job-b",
+          "result-f433c78017e95f54ba147998e380bdd2043ca7f603cfdb97d68a1450e7f1f506",
+          "post-import"
+        ],
+        "message": "the configured required test 'feature_check.py' could not be started at 'fb72948abf61a2763d941fe813c9cd62f8e9e037' (FileNotFoundError); no exit status was observed and none is invented"
+      }
+    ],
+    "reports": [
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' could not be started at 'fb72948abf61a2763d941fe813c9cd62f8e9e037' (FileNotFoundError); no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      },
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' could not be started at 'fb72948abf61a2763d941fe813c9cd62f8e9e037' (FileNotFoundError); no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      },
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' could not be started at 'fb72948abf61a2763d941fe813c9cd62f8e9e037' (FileNotFoundError); no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      },
+      {
+        "started": [
+          {
+            "stage_id": "job-b/integration",
+            "episode": 1,
+            "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+            "outcome": "deferred",
+            "detail": {
+              "category": "refused",
+              "code": "precondition",
+              "message": "the configured required test 'feature_check.py' could not be started at 'fb72948abf61a2763d941fe813c9cd62f8e9e037' (FileNotFoundError); no exit status was observed and none is invented"
+            }
+          }
+        ],
+        "spoken": []
+      }
+    ]
+  }
+]

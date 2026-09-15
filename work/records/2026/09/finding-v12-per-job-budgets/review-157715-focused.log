@@ -1,0 +1,23 @@
+test_a_different_harness_at_the_same_revision_is_its_own_work (tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling.test_a_different_harness_at_the_same_revision_is_its_own_work)
+[P1], and the worst of the two. The causal owner runs the SAME ... ok
+test_an_unconfigured_owner_runs_under_the_boundarys_own_default (tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling.test_an_unconfigured_owner_runs_under_the_boundarys_own_default)
+And that default is the number this line already used, so a ... ok
+test_one_scope_never_speaks_for_another (tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling.test_one_scope_never_speaks_for_another)
+The retention is shared by a deployment, so a key that did not name ... ok
+test_the_configured_seconds_are_what_the_command_is_given (tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling.test_the_configured_seconds_are_what_the_command_is_given)
+Through the production `_run`, at the NORMAL SUBPROCESS BOUNDARY. ... ok
+test_the_git_clock_is_untouched_by_a_jobs_ceiling (tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling.test_the_git_clock_is_untouched_by_a_jobs_ceiling)
+The separation stated as a fact rather than as a comment: nothing a ... ok
+test_a_host_verification_that_exceeds_it_defers_and_repeats_nothing (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_host_verification_that_exceeds_it_defers_and_repeats_nothing)
+THE BOUNDED FAILURE, through the composed owners, and its REPEAT. ... ok
+test_a_repeated_tick_after_that_runs_no_second_command (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_repeated_tick_after_that_runs_no_second_command)
+NO DUPLICATE WORK after observation. The causal observations are ... ok
+test_the_composed_causal_owner_runs_under_the_jobs_ceiling (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_composed_causal_owner_runs_under_the_jobs_ceiling)
+The reconciled path drives the causal observer over three content ... ok
+test_the_retained_failure_is_this_processs_and_says_so (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_retained_failure_is_this_processs_and_says_so)
+The limitation, asserted rather than described. The retention lives ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 5.034s
+
+OK

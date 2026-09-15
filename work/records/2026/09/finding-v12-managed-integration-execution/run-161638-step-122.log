@@ -1,0 +1,196 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+FEEE...........FFFE..F...........E...
+======================================================================
+ERROR: test_a_retry_under_a_different_settlement_refuses (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_a_retry_under_a_different_settlement_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 795, in test_a_retry_under_a_different_settlement_refuses
+    self.published()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 780, in published
+    return self.publish()
+           ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 326, in _eligible
+    _denied(f"entry {name_value(entry['entry_id'])} is queued for "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{theirs} {name_value(account.get(theirs))} and this "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"managed result is for {name_value(held[mine])}; a live "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"grant says this node may write the target, not which "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"queued work these bytes answer")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 110, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: entry 'entry-1' is queued for work_id '0000000a-W1' and this managed result is for '00000000-W7'; a live grant says this node may write the target, not which queued work these bytes answer
+
+======================================================================
+ERROR: test_an_exact_retry_replays_without_materializing_or_swapping (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_an_exact_retry_replays_without_materializing_or_swapping)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 783, in test_an_exact_retry_replays_without_materializing_or_swapping
+    first = self.published()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 780, in published
+    return self.publish()
+           ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 326, in _eligible
+    _denied(f"entry {name_value(entry['entry_id'])} is queued for "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{theirs} {name_value(account.get(theirs))} and this "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"managed result is for {name_value(held[mine])}; a live "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"grant says this node may write the target, not which "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"queued work these bytes answer")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 110, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: entry 'entry-1' is queued for work_id '0000000a-W1' and this managed result is for '00000000-W7'; a live grant says this node may write the target, not which queued work these bytes answer
+
+======================================================================
+ERROR: test_an_interrupted_publication_resumes_without_swapping_twice (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_an_interrupted_publication_resumes_without_swapping_twice)
+The swap committed and the settlement did not. A resume finishes
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 818, in test_an_interrupted_publication_resumes_without_swapping_twice
+    self.publish()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 326, in _eligible
+    _denied(f"entry {name_value(entry['entry_id'])} is queued for "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{theirs} {name_value(account.get(theirs))} and this "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"managed result is for {name_value(held[mine])}; a live "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"grant says this node may write the target, not which "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"queued work these bytes answer")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 110, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: entry 'entry-1' is queued for work_id '0000000a-W1' and this managed result is for '00000000-W7'; a live grant says this node may write the target, not which queued work these bytes answer
+
+======================================================================
+ERROR: test_a_collected_apply_reaches_the_target (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_collected_apply_reaches_the_target)
+THE POSITIVE, and it names everything it rested on.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 342, in test_a_collected_apply_reaches_the_target
+    answer = self.publish()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 326, in _eligible
+    _denied(f"entry {name_value(entry['entry_id'])} is queued for "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{theirs} {name_value(account.get(theirs))} and this "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"managed result is for {name_value(held[mine])}; a live "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"grant says this node may write the target, not which "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"queued work these bytes answer")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 110, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: entry 'entry-1' is queued for work_id '0000000a-W1' and this managed result is for '00000000-W7'; a live grant says this node may write the target, not which queued work these bytes answer
+
+======================================================================
+ERROR: test_the_positive_binds_every_required_fact (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_the_positive_binds_every_required_fact)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 574, in test_the_positive_binds_every_required_fact
+    answer = self.publish()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 326, in _eligible
+    _denied(f"entry {name_value(entry['entry_id'])} is queued for "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{theirs} {name_value(account.get(theirs))} and this "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"managed result is for {name_value(held[mine])}; a live "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"grant says this node may write the target, not which "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"queued work these bytes answer")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 110, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: entry 'entry-1' is queued for work_id '0000000a-W1' and this managed result is for '00000000-W7'; a live grant says this node may write the target, not which queued work these bytes answer
+
+======================================================================
+FAIL: test_a_foreign_revision_is_never_adopted_as_our_own (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_a_foreign_revision_is_never_adopted_as_our_own)
+Merely finding the target somewhere other than the admitted
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 837, in test_a_foreign_revision_is_never_adopted_as_our_own
+    self.assertIn("something else moved the target", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'something else moved the target' not found in "entry 'entry-1' is queued for work_id '0000000a-W1' and this managed result is for '00000000-W7'; a live grant says this node may write the target, not which queued work these bytes answer"
+
+======================================================================
+FAIL: test_a_stale_fence_refuses_before_the_swap (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_stale_fence_refuses_before_the_swap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 496, in test_a_stale_fence_refuses_before_the_swap
+    self.assertEqual(len(self.materializer.asked), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_content_this_node_does_not_hold_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_content_this_node_does_not_hold_refuses)
+A publication imports bytes this node actually has. The grant has
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 513, in test_content_this_node_does_not_hold_refuses
+    self.assertIn("holds no collected content", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'holds no collected content' not found in "entry 'entry-1' is queued for work_id '0000000a-W1' and this managed result is for '00000000-W7'; a live grant says this node may write the target, not which queued work these bytes answer"
+
+======================================================================
+FAIL: test_a_grant_lost_while_content_resolves_stops_the_swap (tests.tools.test_managed_integration.TheGrantIsProvedAtTheMutationBoundary.test_a_grant_lost_while_content_resolves_stops_the_swap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 731, in test_a_grant_lost_while_content_resolves_stops_the_swap
+    self.assertEqual(len(self.materializer.asked), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_the_swap_is_against_the_admitted_revision (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_the_swap_is_against_the_admitted_revision)
+NOT against whatever the reference says now. Those are the same
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 368, in test_the_swap_is_against_the_admitted_revision
+    self.assertIn("something else moved the target",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'something else moved the target' not found in "entry 'entry-1' is queued for work_id '0000000a-W1' and this managed result is for '00000000-W7'; a live grant says this node may write the target, not which queued work these bytes answer"
+
+----------------------------------------------------------------------
+Ran 37 tests in 0.784s
+
+FAILED (failures=5, errors=5)

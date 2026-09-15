@@ -1,0 +1,15 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_managed_preparation.OneManagedPreparationCompletes
+F
+======================================================================
+FAIL: test_ordinary_sweeps_retain_and_adopt_one_real_preparation (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_ordinary_sweeps_retain_and_adopt_one_real_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1569, in test_ordinary_sweeps_retain_and_adopt_one_real_preparation
+    self.assertTrue(preparation.adopted, (failures[-3:], logs))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {} is not true : (['ContractRefusal("the preparation is planned with input_digest \'sha256:0ffa4a0c80e6312870914d08a6cbea51c8b852e463b69b47a3a9… and the request names \'sha256:1447dbe7a9004789485799d75d01618e3809605b6e7cbeb01322…")', 'ContractRefusal("the preparation is planned with input_digest \'sha256:0ffa4a0c80e6312870914d08a6cbea51c8b852e463b69b47a3a9… and the request names \'sha256:1447dbe7a9004789485799d75d01618e3809605b6e7cbeb01322…")', 'ContractRefusal("the preparation is planned with input_digest \'sha256:0ffa4a0c80e6312870914d08a6cbea51c8b852e463b69b47a3a9… and the request names \'sha256:1447dbe7a9004789485799d75d01618e3809605b6e7cbeb01322…")'], [])
+
+----------------------------------------------------------------------
+Ran 1 test in 4.564s
+
+FAILED (failures=1)

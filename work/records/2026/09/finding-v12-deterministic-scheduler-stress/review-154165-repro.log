@@ -1,0 +1,27 @@
+{
+  "no_grant": {
+    "composed": false,
+    "category": "policy",
+    "code": "denied",
+    "message": "'other.reviewer' writes this deployment's review receipt and holds no review capability in scope:deployment; a receipt is written by the configured actor and the actor is authorized here rather than with somebody's candidate already published",
+    "principal": "principal:other.reviewer",
+    "scope": "scope:deployment",
+    "holds_capability": false
+  },
+  "wrong_scope": {
+    "composed": false,
+    "category": "policy",
+    "code": "denied",
+    "message": "'other.reviewer' writes this deployment's review receipt and holds no review capability in scope:deployment; a receipt is written by the configured actor and the actor is authorized here rather than with somebody's candidate already published",
+    "principal": "principal:other.reviewer",
+    "scope": "scope:deployment",
+    "holds_capability": false
+  },
+  "correct_scope": {
+    "composed": true,
+    "participant": "other.reviewer",
+    "principal": "principal:other.reviewer",
+    "scope": "scope:deployment",
+    "holds_capability": true
+  }
+}

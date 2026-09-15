@@ -1,0 +1,55 @@
+test_unexpected_pre_intent_interruption_recovers (__main__.RealInterruption.test_unexpected_pre_intent_interruption_recovers) ... ERROR
+
+======================================================================
+ERROR: test_unexpected_pre_intent_interruption_recovers (__main__.RealInterruption.test_unexpected_pre_intent_interruption_recovers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/probe-real-cut-170533.py", line 17, in test_unexpected_pre_intent_interruption_recovers
+    self.complete()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1611, in complete
+    last = sweep(held.job, held.composed, now=fixtures.NOW)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 153, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 762, in _delegate
+    _perform(operations, owed["act"], stage, job)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 805, in _perform
+    return operations.admit(stage, job)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4078, in admit
+    else self.pooled.admit(stage, job))
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py", line 812, in admit
+    return worker.admit(stage, job)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1130, in admit
+    return self._preparation.admit(self._operations, stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1582, in traced
+    return original_admit(*args)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1232, in admit
+    answered = execution.prepare(
+        orchestration_id=held["orchestration_id"],
+    ...<6 lines>...
+        accept=held["accept"], identity=held["identity"],
+        contract=held.get("contract"))
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1491, in prepare
+    intent = self.decide(
+        orchestration_id=orchestration_id,
+        root_assignment_id=root_assignment_id, request=request, plan=plan,
+        execution_work_id=execution_work_id,
+        execution_route=execution_route)
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/probe-real-cut-170533.py", line 14, in interrupted
+    raise RuntimeError('independent unexpected pre-intent interruption')
+RuntimeError: independent unexpected pre-intent interruption
+
+----------------------------------------------------------------------
+Ran 1 test in 0.366s
+
+FAILED (errors=1)

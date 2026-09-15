@@ -1,0 +1,9 @@
+test_a_resumed_sweep_naming_another_child_work_still_refuses (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_resumed_sweep_naming_another_child_work_still_refuses)
+A DISTINCT INVARIANT FROM RECOVERY, and review claim169416 caught me ... ok
+test_an_agreeing_resumed_sweep_passes_through (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_an_agreeing_resumed_sweep_passes_through)
+RESUME AGREEMENT, which is the case that has to keep working. ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.043s
+
+OK

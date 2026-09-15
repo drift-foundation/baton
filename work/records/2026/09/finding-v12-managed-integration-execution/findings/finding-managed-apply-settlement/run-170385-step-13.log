@@ -1,0 +1,49 @@
+E
+======================================================================
+ERROR: test_preparation_judgments_apply_and_target_settle (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_preparation_judgments_apply_and_target_settle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 19, in test_preparation_judgments_apply_and_target_settle
+    self.complete()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 136, in complete
+    case.complete(configured=configure, completed=adopted)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2264, in complete
+    held = case.reviewed()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3490, in reviewed
+    held = self.implemented()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2859, in implemented
+    job, control, composed = self.serving()
+                             ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2259, in serving
+    return super().serving(integration_preparation=True, policy_generation=generation, **members)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2592, in serving
+    composed = stage_execution.operations_from(
+        self.composed_document(line_declared_base=self.base, **members),
+        job, control, engine_run=self.engine,
+        credential_provider=lambda provider, reference: self.secret,
+        clock=lambda: fixtures.NOW, checkout=self.checkout)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 5433, in operations_from
+    given = held_configuration(document, checkout=checkout)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 479, in held_configuration
+    given["result_judgment_workers"] = _held_judgments(given, here)
+                                       ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 510, in _held_judgments
+    _refuse(f"result_judgment_workers names Jobs {unknown} that this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"deployment binds nothing for; a derived result belongs to one "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"Job's line and target", category="refused",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            code="precondition")
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 295, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: result_judgment_workers names Jobs ['job-a'] that this deployment binds nothing for; a derived result belongs to one Job's line and target
+
+----------------------------------------------------------------------
+Ran 1 test in 0.057s
+
+FAILED (errors=1)

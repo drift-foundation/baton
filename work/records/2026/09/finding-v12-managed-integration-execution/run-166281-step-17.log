@@ -1,0 +1,26 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.manager.test_reconciliation_task
+F..F.....................................
+======================================================================
+FAIL: test_a_TERM_resistant_descendant_is_still_excluded (tests.manager.test_reconciliation_task.ATimeoutIsNotAnExitCode.test_a_TERM_resistant_descendant_is_still_excluded)
+A descendant that ignores SIGTERM broke the old sequence before
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 419, in test_a_TERM_resistant_descendant_is_still_excluded
+    self.assertIsNone(answered["status"])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 is not None
+
+======================================================================
+FAIL: test_a_leader_that_exits_first_does_not_end_the_group (tests.manager.test_reconciliation_task.ATimeoutIsNotAnExitCode.test_a_leader_that_exits_first_does_not_end_the_group)
+REVIEW claim166368 [P1]. The leader exits immediately, so
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 404, in test_a_leader_that_exits_first_does_not_end_the_group
+    self.assertIsNone(answered["status"])
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 is not None
+
+----------------------------------------------------------------------
+Ran 41 tests in 10.278s
+
+FAILED (failures=2)

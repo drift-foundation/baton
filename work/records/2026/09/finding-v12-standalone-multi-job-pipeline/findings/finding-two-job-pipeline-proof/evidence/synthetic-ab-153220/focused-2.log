@@ -1,0 +1,12 @@
+test_B_check_fails_original_and_passes_isolated_and_merged (tests.tools.test_standalone_ab.SyntheticProvider.test_B_check_fails_original_and_passes_isolated_and_merged) ... ok
+test_derived_judges_bind_current_candidate_and_causal_checks (tests.tools.test_standalone_ab.SyntheticProvider.test_derived_judges_bind_current_candidate_and_causal_checks) ... ok
+test_integration_copies_exact_blobs_and_reports_current_operands (tests.tools.test_standalone_ab.SyntheticProvider.test_integration_copies_exact_blobs_and_reports_current_operands) ... ok
+test_original_review_checks_actual_tree_and_writes_ordinary_report (tests.tools.test_standalone_ab.SyntheticProvider.test_original_review_checks_actual_tree_and_writes_ordinary_report) ... ok
+test_real_provider_subprocess_writes_only_A_scope_and_tests_pass (tests.tools.test_standalone_ab.SyntheticProvider.test_real_provider_subprocess_writes_only_A_scope_and_tests_pass) ... ok
+test_rendered_configuration_is_real_isolated_and_networkless (tests.tools.test_standalone_ab.SyntheticProvider.test_rendered_configuration_is_real_isolated_and_networkless) ... ok
+test_unknown_task_or_drift_refuses_before_writes (tests.tools.test_standalone_ab.SyntheticProvider.test_unknown_task_or_drift_refuses_before_writes) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.452s
+
+OK

@@ -1,0 +1,29 @@
+{
+  "results": [
+    {
+      "job_id": "job-c",
+      "result_id": "result-ca23e1667c2173e7417edfef0cd423b3f913bdb9c8ece0e0038e2936e8676181",
+      "state": "published",
+      "task": "w103525-job_c-regression",
+      "harness_digest": "sha256:2d471554bdd930c3c4f478c0dfc6640c5158850fb609075685227d43390b333a"
+    },
+    {
+      "job_id": "job-b",
+      "result_id": "result-e87694852a3ac1e36d8015c89d62b28d183744d78ad8e700950d0082dada3434",
+      "state": "imported",
+      "task": "w130224-second-line-of-one-target",
+      "harness_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40"
+    }
+  ],
+  "public_setup_helpers": [
+    "four_works",
+    "current_policy",
+    "four_jobs",
+    "four_submission",
+    "four_job_deployment"
+  ],
+  "scope": "two genuine derived results; successful causal evidence, not the missing failure-isolation matrix",
+  "fixtures": {
+    "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py": "774ac94d804fdd07561ace33468c0e1ddeb533a27fd86cc84670aff8158069a9"
+  }
+}

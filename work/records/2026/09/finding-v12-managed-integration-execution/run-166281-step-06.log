@@ -1,0 +1,77 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.manager.test_reconciliation_task
+...................F......FF..E...FF....
+======================================================================
+ERROR: test_an_input_root_that_is_not_a_directory_refuses (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_an_input_root_that_is_not_a_directory_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 350, in test_an_input_root_that_is_not_a_directory_refuses
+    task.read_request(place)
+    ~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/worker/reconciliation_task.py", line 370, in read_request
+    directory = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+NotADirectoryError: [Errno 20] Not a directory: '/tmp/v12-preparation-4e65p5uu/not-a-directory'
+
+======================================================================
+FAIL: test_a_boundary_that_claims_the_request_must_match_it (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_boundary_that_claims_the_request_must_match_it)
+The other direction of the same self-consistency rule: a boundary
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 270, in test_a_boundary_that_claims_the_request_must_match_it
+    with self.assertRaises(task.PreparationRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_a_symlinked_ANCESTOR_of_the_input_root_refuses (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_symlinked_ANCESTOR_of_the_input_root_refuses)
+An ancestor link is the same defect one level further up, and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 341, in test_a_symlinked_ANCESTOR_of_the_input_root_refuses
+    with self.assertRaises(task.PreparationRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_a_symlinked_input_ROOT_refuses (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_symlinked_input_ROOT_refuses)
+REVIEW claim166235 DEFECT 2. Checking `islink` on the final
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 326, in test_a_symlinked_input_ROOT_refuses
+    with self.assertRaises(task.PreparationRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_semantic_limits_corruption_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_semantic_limits_corruption_refuses_in_both) (broken='units are not seconds')
+REVIEW claim166235 DEFECT 1, the three corruptions it reproduced.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 258, in test_semantic_limits_corruption_refuses_in_both
+    self.assertBothRefuse(_corrupted(execution_limits=broken),
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          label)
+                          ^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 154, in assertBothRefuse
+    with self.assertRaises(task.PreparationRefusal) as worker_said:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_semantic_limits_corruption_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_semantic_limits_corruption_refuses_in_both) (broken='a resolved boundary was moved by one')
+REVIEW claim166235 DEFECT 1, the three corruptions it reproduced.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 258, in test_semantic_limits_corruption_refuses_in_both
+    self.assertBothRefuse(_corrupted(execution_limits=broken),
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          label)
+                          ^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 154, in assertBothRefuse
+    with self.assertRaises(task.PreparationRefusal) as worker_said:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+----------------------------------------------------------------------
+Ran 39 tests in 2.117s
+
+FAILED (failures=5, errors=1)

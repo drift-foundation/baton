@@ -1,0 +1,34 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_managed_integration_capacity
+..................................E.................
+======================================================================
+ERROR: test_an_exact_repeat_replays_and_changed_operands_collide (tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation.test_an_exact_repeat_replays_and_changed_operands_collide)
+Every operation here is journalled under an identity derived from
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1142, in test_an_exact_repeat_replays_and_changed_operands_collide
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1",
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               store),
+               ^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 199, in admit
+    control = self.claimed(attempt_id, offer_id)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 136, in claimed
+    issue_offer(control, self.port, offer_id=offer_id,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                work_id=self.EXECUTION_WORK,
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+                profile_digest=self.PROFILE, profile_name="reference",
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                mint_bearer=lambda: "bearer-" + offer_id)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/offers.py", line 411, in issue_offer
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"derive the stored verifier")
+baton_v12.contracts.errors.ContractRefusal: offer 'prepare-offer-1' is already issued; its bearer existed only in the process that minted it, so this call cannot reproduce one and will not answer with a bearer that does not derive the stored verifier
+
+----------------------------------------------------------------------
+Ran 52 tests in 0.285s
+
+FAILED (errors=1)

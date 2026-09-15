@@ -1,0 +1,15 @@
+{
+  "author_reopen_and_continuation_assertions": "passed",
+  "provider_calls_including_sweeps": [
+    {
+      "job_id": "job-a",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "bound": 31
+    },
+    {
+      "job_id": "job-b",
+      "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+      "bound": 67
+    }
+  ]
+}

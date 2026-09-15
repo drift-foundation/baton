@@ -1,0 +1,50 @@
+FF.
+======================================================================
+FAIL: test_an_initially_unknown_start_reports_required_human_cleanup (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_an_initially_unknown_start_reports_required_human_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1698, in test_an_initially_unknown_start_reports_required_human_cleanup
+    self.manual_recovery()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1772, in manual_recovery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2461, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1755, in unresolved
+    self.assertIn(text, report)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 'prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0' not found in '{"observed_at": "2026-09-02T00:00:00.000Z", "recovered": null, "observed": 0, "replaced": [], "acts": [{"stage_id": "job-a/integration", "episode": 1, "act": "admit", "outcome": "deferred", "operation_id": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "detail": {"category": "policy", "code": "denied", "message": "managed preparation for Job \'job-a\', Work \'0000000a-W47984398722361\', attempt \'prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6f\\u2026, start \'runtime.start:34c434b9436d24d88de123f3f8720ee21bf0f9916624f\\u2026: the failed start initially identified no runtime; a worker may still exist. Current runtime identity is unknown (uncertain); automatic cleanup is unresolved. Human inspection and cleanup are required. Preparation and root remain held, apply remains planned; no automatic restart or capacity release is authorized by this report."}}], "started": [], "spoken": [], "refreshed": [{"stage_id": "job-a/implementation", "episode": 1, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "state": "not-asked"}, {"stage_id": "job-a/review", "episode": 1, "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c", "state": "not-asked"}, {"stage_id": "job-a/integration", "episode": 1, "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "state": "not-asked"}]}'
+
+======================================================================
+FAIL: test_an_initially_unknown_start_reports_and_holds_across_restart (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_an_initially_unknown_start_reports_and_holds_across_restart)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1701, in test_an_initially_unknown_start_reports_and_holds_across_restart
+    self.manual_recovery(restart=True)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1772, in manual_recovery
+    self.complete(uncertain=True, restart=restart)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2461, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1755, in unresolved
+    self.assertIn(text, report)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: 'prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0' not found in '{"observed_at": "2026-09-02T00:00:00.000Z", "recovered": null, "observed": 0, "replaced": [], "acts": [{"stage_id": "job-a/integration", "episode": 1, "act": "admit", "outcome": "deferred", "operation_id": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "detail": {"category": "policy", "code": "denied", "message": "managed preparation for Job \'job-a\', Work \'0000000a-W47984398722361\', attempt \'prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6f\\u2026, start \'runtime.start:34c434b9436d24d88de123f3f8720ee21bf0f9916624f\\u2026: the failed start initially identified no runtime; a worker may still exist. Current runtime identity is unknown (uncertain); automatic cleanup is unresolved. Human inspection and cleanup are required. Preparation and root remain held, apply remains planned; no automatic restart or capacity release is authorized by this report."}}], "started": [], "spoken": [], "refreshed": [{"stage_id": "job-a/implementation", "episode": 1, "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "state": "not-asked"}, {"stage_id": "job-a/review", "episode": 1, "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c", "state": "not-asked"}, {"stage_id": "job-a/integration", "episode": 1, "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "state": "not-asked"}]}'
+
+----------------------------------------------------------------------
+Ran 3 tests in 10.132s
+
+FAILED (failures=2)
+{"adopted": false, "allocation": "recovery-required", "apply": "planned", "cleanup": "retained", "credential_root": false, "fixture_processes": 1, "launch_root": false, "parent": "queued-unclaimed", "prepare": "ended", "proof": "known-failed-start-is-ended", "root": "open", "runtime": "destroyed"}

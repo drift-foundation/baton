@@ -1,0 +1,43 @@
+{
+  "work": "W32577",
+  "owner_selection": 164398,
+  "executor": "owner host terminal",
+  "command": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=1s",
+    "177s",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-W",
+    "error",
+    "/home/sl/src/baton/work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
+    "--python",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "--run-dir",
+    "/home/sl/src/baton/work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-164414/run"
+  ],
+  "cwd": "/home/sl/src/baton",
+  "candidate_manifest_sha256": "ecd8e311806a2b781f682a75adf396c888c31411bf931030b3c8ba1fad82b896",
+  "image": "sha256:9b8c98820877e33d38d33352d86cc3810e5b72d4935a181b82b512b4d3291de8",
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "jsonschema": "4.26.0",
+  "cap_seconds": 180.0,
+  "spent_seconds_before": 0.0,
+  "expected_seconds": 30.0,
+  "margin_seconds": 10.0,
+  "watchdog_seconds": 177.0,
+  "kill_grace_seconds": 1.0,
+  "supervisor_phase_seconds": [
+    120,
+    5,
+    50,
+    5
+  ],
+  "status": "exited",
+  "independent_acceptance": false,
+  "returncode": 1,
+  "elapsed_seconds": 30.81015891599236,
+  "remaining_seconds": 149.18984108400764,
+  "candidate_pass": false,
+  "cleanup_claim": "requires inspection of reviewed supervisor evidence; timeout/interruption is not cleanup proof"
+}

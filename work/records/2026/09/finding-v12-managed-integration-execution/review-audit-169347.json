@@ -1,0 +1,51 @@
+[
+  {
+    "path": "baton:v12/python/tools/integration_worker.py",
+    "sha256": "fbc4925d97af13819b1a783691ea5496174a95174588667a3b585ba0c2081ab0",
+    "bytes": 82772,
+    "mode": "0o644",
+    "match": true
+  },
+  {
+    "path": "baton:v12/python/tools/integration_bundle.py",
+    "sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad",
+    "bytes": 73429,
+    "mode": "0o644",
+    "match": true
+  },
+  {
+    "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+    "sha256": "866016d2881a2b665569dda444d2068c56128cae0e2f1c7d6594c87ad32f6a10",
+    "bytes": 48733,
+    "mode": "0o644",
+    "match": true
+  },
+  {
+    "path": "baton:v12/python/tools/stage_execution.py",
+    "sha256": "63fd8c59b62beffdae3f4474c8f788a1d80fa35fea94c41d4c04bea174e52d67",
+    "bytes": 278874,
+    "mode": "0o664",
+    "match": true
+  },
+  {
+    "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+    "sha256": "7cf0542e55eb0064bef55f4f12d3837c6f427793925b0d5e4120d90585a80f55",
+    "bytes": 162659,
+    "mode": "0o644",
+    "match": true
+  },
+  {
+    "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+    "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c",
+    "bytes": 191339,
+    "mode": "0o664",
+    "match": true
+  },
+  {
+    "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+    "sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a",
+    "bytes": 94098,
+    "mode": "0o644",
+    "match": true
+  }
+]

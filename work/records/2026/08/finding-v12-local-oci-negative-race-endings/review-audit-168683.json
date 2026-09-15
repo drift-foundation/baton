@@ -1,0 +1,135 @@
+{
+  "claim": 168683,
+  "utc": "2026-09-14T11:07:59.605129+00:00",
+  "candidate": {
+    "path": "v12/python/tests/manager/test_negative_race_endings.py",
+    "sha256": "93ab889ad2d9b119a2124e2b8f93aece58b9e4feb1c4d1d408db2e72980f7e75",
+    "bytes": 28910,
+    "mode": "0o664"
+  },
+  "runner_sha256": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+  "missing_count": 20,
+  "unregistered": [
+    "tests.integration.test_managed_execution",
+    "tests.integration.test_managed_storage",
+    "tests.integration.test_reconciliation",
+    "tests.job_manager.test_execution_limits",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_execution_limits",
+    "tests.manager.test_reconciliation_task",
+    "tests.manager.test_reconciliation_worker",
+    "tests.manager.test_runtime_deadline_engine",
+    "tests.manager.test_runtime_deadline_engine_budget",
+    "tests.manager.test_runtime_deadlines",
+    "tests.tools.test_execution_limits",
+    "tests.tools.test_job_viewer",
+    "tests.tools.test_live_ab",
+    "tests.tools.test_managed_integration",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_scheduler_trace",
+    "tests.tools.test_stage_execution_hardening",
+    "tests.tools.test_stage_execution_status_hardening",
+    "tests.tools.test_standalone_ab"
+  ],
+  "registry_refusal": "these test modules belong to no registry; add each to the parallel or serial list in tools/parallel_test.py after deciding what it owns: ['tests.integration.test_managed_execution', 'tests.integration.test_managed_storage', 'tests.integration.test_reconciliation', 'tests.job_manager.test_execution_limits', 'tests.job_manager.test_managed_integration_capacity', 'tests.manager.test_execution_limits', 'tests.manager.test_reconciliation_task', 'tests.manager.test_reconciliation_worker', 'tests.manager.test_runtime_deadline_engine', 'tests.manager.test_runtime_deadline_engine_budget', 'tests.manager.test_runtime_deadlines', 'tests.tools.test_execution_limits', 'tests.tools.test_job_viewer', 'tests.tools.test_live_ab', 'tests.tools.test_managed_integration', 'tests.tools.test_managed_preparation', 'tests.tools.test_scheduler_trace', 'tests.tools.test_stage_execution_hardening', 'tests.tools.test_stage_execution_status_hardening', 'tests.tools.test_standalone_ab']",
+  "static_seconds": 0.015659008000511676,
+  "execution": "Only Suite.discovered/check_registry; no test imports/collection, subprocess, image build or engine operations",
+  "unchanged_accepted_deadline_and_protected_files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/deadlines.py",
+      "sha256": "536789e1a2947cf601ca191f675c24252078aa5ecddcf4243314c0d59d5855ae"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "sha256": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/documents.py",
+      "sha256": "5f31654f699448a8e52d076f6ba517e9acfef201ada30dea0559051af474b014"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "a16143a7709a842fd40369e4eafbaaa8b86fde9873648373f639739e53012a75"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/__init__.py",
+      "sha256": "cd783420d73f237b9c8a01d63fbb1783a697efb3d87d211ed970a9994f0d5834"
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadlines.py",
+      "sha256": "0caf835093a0fd14663d99ca2a73e27767da259c2ac513c549005c6fe97389d1"
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadline_engine.py",
+      "sha256": "6a7156689506266c948572a3e7de0f4fc161b12beed55c0aaf9ffdcf8affad1d"
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "690cf35122814e731e4f8da7a08c8f97c99d2c975ab90997df978e18bfba5416"
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadline_engine_budget.py",
+      "sha256": "06fc7a3366dcb985cda5db548de699618042185c6edadafd51c741bd1012c34d"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
+      "sha256": "980911451d33acfae889a09c4ec519b355267e6466b0138e60575587bfb77a8e"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/store.py",
+      "sha256": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/lanes.py",
+      "sha256": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c"
+    },
+    {
+      "path": "v12/python/tests/manager/test_reconciliation_worker.py",
+      "sha256": "c0d7f2d1f90a1a5d024c034c83ef71fdc161888f37817e198fd318b08c67bd98"
+    },
+    {
+      "path": "v12/python/tests/manager/test_lifecycle_composition.py",
+      "sha256": "3828c5bb34a2cfa81a8356af3d9f52c949770e82013d1e7e3abde5d6152be5d7"
+    }
+  ],
+  "reused_child_reviews": [
+    {
+      "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-handshake-refusal-runtime-cleanup/review-2026-08-29T07-48-13Z.md",
+      "sha256": "8c2daf1e17f99e57462923ff084283543cd1cf8589f2bad7f390712b8216fed0"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-post-create-start-failure-cleanup/review-2026-08-29T05-54-53Z.md",
+      "sha256": "107d97383c99c852a9a4ead8648676878d00eb0bdcafc52c1763639e8757db19"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-cross-attempt-lane-capacity/review-2026-08-29T08-03-21Z.md",
+      "sha256": "8b8a52e2ea0e16bf6a9bf019358af1a61fd600da053ad164069fff190ac68520"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/review-2026-09-14T10-31-10Z.md",
+      "sha256": "29ef1aaba0fe45518b6bb2f072d0fe241ceb28c6a1c2162123259d388845f3a9"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/review-2026-09-14T10-44-34Z.md",
+      "sha256": "d7f20174a4cf986d5cdeb631896ceddab509cebae7738784cb64c8bfa96e1c52"
+    }
+  ],
+  "candidate_python_parses": true,
+  "methods": [
+    "test_an_expired_offer_creates_no_runtime_and_no_runtime_delivery",
+    "test_a_post_create_failure_leaves_no_duplicate_and_no_container",
+    "test_plan_rejected_takes_the_same_cleanup_crossing",
+    "test_a_reached_deadline_takes_the_same_cleanup_crossing",
+    "test_no_ending_settles_before_every_required_one_is_established"
+  ],
+  "author_engine_reports": "M168679 and return168680; no raw fresh engine log is bound in this dossier. Attributed reports, not independently rerun by this reviewer.",
+  "registry_followup": "W168703"
+}

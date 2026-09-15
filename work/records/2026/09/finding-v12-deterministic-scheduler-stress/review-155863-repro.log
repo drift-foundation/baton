@@ -1,0 +1,119 @@
+{
+  "checks": {
+    "correction_foreign_review_assignment_generation": [],
+    "correction_foreign_reviewer_participant": [],
+    "correction_foreign_reviewer_principal": [],
+    "foreign_provider_component": [
+      {
+        "code": "session-attempt-mismatch",
+        "detail": "session attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/consent/1/foreign-provider-id is recorded about attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', posture 'consent', epoch 1 and provider 'provider-session-consent-1'",
+        "record": {
+          "act": "observe",
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "authorization": null,
+          "cause": null,
+          "correction": null,
+          "episode": 1,
+          "evidence": "agent_sessions:attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "job_id": "job-a",
+          "operation_id": null,
+          "outcome": "performed",
+          "participant": null,
+          "principal": null,
+          "recorded_at": "2026-09-02T00:00:00.000Z",
+          "runtime_id": null,
+          "session": {
+            "generation": null,
+            "pinned_policy": "sha256:c00ee95358872b969ee3dcbaea9bb0c33b6d9cb59239fd73f43b8f6681aca3df",
+            "posture": "consent",
+            "provider_session_id": "provider-session-consent-1",
+            "session_epoch": 1,
+            "state": "not-started",
+            "work_id": "0000000a-W1"
+          },
+          "session_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/consent/1/foreign-provider-id",
+          "stage_id": "job-a/implementation",
+          "tick": 1,
+          "worker_id": null
+        }
+      }
+    ],
+    "foreign_session_participant": [
+      {
+        "code": "session-contradicts-its-assignment",
+        "detail": "session attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/execution/1/provider-session-review-1 names participant 'other.unassigned' against 'baton.reviewer'",
+        "record": {
+          "act": "observe",
+          "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "authorization": null,
+          "cause": null,
+          "correction": null,
+          "episode": 1,
+          "evidence": "agent_sessions:attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "job_id": "job-a",
+          "operation_id": null,
+          "outcome": "performed",
+          "participant": "other.unassigned",
+          "principal": null,
+          "recorded_at": "2026-09-02T00:00:00.000Z",
+          "runtime_id": null,
+          "session": {
+            "generation": 2,
+            "pinned_policy": "sha256:2eea10ec4af53aac6ff4c5579e61cc8c2e46ca741df9f8f03b18f5b9ae7a191b",
+            "posture": "execution",
+            "provider_session_id": "provider-session-review-1",
+            "session_epoch": 1,
+            "state": "not-started",
+            "work_id": "0000000a-W1"
+          },
+          "session_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/execution/1/provider-session-review-1",
+          "stage_id": "job-a/review",
+          "tick": 4,
+          "worker_id": null
+        }
+      }
+    ],
+    "original_correction": [],
+    "original_sessions": [],
+    "review_attempt_belongs_to_other_job": [],
+    "review_reservation_only": [
+      {
+        "code": "unreviewed-correction",
+        "detail": "a correction of job-a cites a judgment of attempt 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c' and this trace records no earlier claimed review of it; a reservation is not a verdict, and a restart is not a requested correction",
+        "record": {
+          "act": "correct",
+          "attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+          "authorization": null,
+          "cause": null,
+          "correction": {
+            "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+            "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+            "disposition": "changes-requested",
+            "outcome": "correction",
+            "review_assignment_generation": 2,
+            "reviewer_participant": "baton.reviewer",
+            "reviewer_principal": "principal:baton.reviewer",
+            "routed_attempt_id": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+            "subject_attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+            "verdict_id": "verdict-b6cc9560f4074b3c99582006c24ffba11f02133cd42c425e0a02cc1901bbec9a"
+          },
+          "episode": 2,
+          "evidence": "checkpoint_verdicts:verdict-b6cc9560f4074b3c99582006c24ffba11f02133cd42c425e0a02cc1901bbec9a",
+          "job_id": "job-a",
+          "operation_id": null,
+          "outcome": "performed",
+          "participant": "baton.reviewer",
+          "principal": "principal:baton.reviewer",
+          "recorded_at": "2026-09-02T00:00:00.000Z",
+          "runtime_id": null,
+          "session": null,
+          "session_id": null,
+          "stage_id": "job-a/implementation",
+          "tick": 7,
+          "worker_id": null
+        }
+      }
+    ]
+  },
+  "label": "Synthetic single-boundary mutations of retained real artifacts"
+}

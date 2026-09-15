@@ -1,0 +1,374 @@
+{
+  "reader_observations": [
+    {
+      "case": "unknown transport",
+      "accepted": false,
+      "error": "/run/baton/launch.json selects transport 'unknown/channel' and this worker speaks 'baton.worker-exchange/1' or none; a transport this program cannot name is a channel nothing is listening to"
+    },
+    {
+      "case": "missing provider boundary",
+      "accepted": false,
+      "error": "/run/baton/launch.json's execution limits name exactly provider_turn, ordinary_verification, integration_verification, host_verification; missing provider_turn"
+    },
+    {
+      "case": "non-text job identity",
+      "accepted": false,
+      "error": "/run/baton/launch.json's job execution carries a job_id that is not bounded non-empty text"
+    },
+    {
+      "case": "wrong units",
+      "accepted": false,
+      "error": "/run/baton/launch.json's execution limits are 'minutes' at 'per-invocation' and this worker hands a command 'seconds' 'per-invocation'"
+    }
+  ]
+}
+{
+  "production_runner_seam_outcomes": [
+    {
+      "settings": {
+        "provider_turn_seconds": 60,
+        "verification_command_seconds": 45
+      },
+      "mode": "success",
+      "timeouts": [
+        60,
+        45
+      ],
+      "provider": {
+        "ok": true,
+        "status": 0,
+        "failure_reason": null,
+        "why": null
+      },
+      "verification": {
+        "status": 0,
+        "text": "$ fake-verification\nexit: 0\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {
+        "provider_turn_seconds": 60,
+        "verification_command_seconds": 45
+      },
+      "mode": "timeout",
+      "timeouts": [
+        60,
+        45
+      ],
+      "provider": {
+        "ok": false,
+        "status": null,
+        "failure_reason": "timeout",
+        "why": "the provider did not finish within 60s"
+      },
+      "verification": {
+        "status": null,
+        "text": "$ fake-verification\ndid not finish within 45s\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {
+        "provider_turn_seconds": 60,
+        "verification_command_seconds": 45
+      },
+      "mode": "start-error",
+      "timeouts": [
+        60,
+        45
+      ],
+      "provider": {
+        "ok": false,
+        "status": null,
+        "failure_reason": "start-error",
+        "why": "the provider could not be started: FileNotFoundError"
+      },
+      "verification": {
+        "status": null,
+        "text": "$ fake-verification\ncould not be started (FileNotFoundError)\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {
+        "provider_turn_seconds": 17,
+        "verification_command_seconds": 23
+      },
+      "mode": "success",
+      "timeouts": [
+        17,
+        23
+      ],
+      "provider": {
+        "ok": true,
+        "status": 0,
+        "failure_reason": null,
+        "why": null
+      },
+      "verification": {
+        "status": 0,
+        "text": "$ fake-verification\nexit: 0\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {
+        "provider_turn_seconds": 17,
+        "verification_command_seconds": 23
+      },
+      "mode": "timeout",
+      "timeouts": [
+        17,
+        23
+      ],
+      "provider": {
+        "ok": false,
+        "status": null,
+        "failure_reason": "timeout",
+        "why": "the provider did not finish within 17s"
+      },
+      "verification": {
+        "status": null,
+        "text": "$ fake-verification\ndid not finish within 23s\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {
+        "provider_turn_seconds": 17,
+        "verification_command_seconds": 23
+      },
+      "mode": "start-error",
+      "timeouts": [
+        17,
+        23
+      ],
+      "provider": {
+        "ok": false,
+        "status": null,
+        "failure_reason": "start-error",
+        "why": "the provider could not be started: FileNotFoundError"
+      },
+      "verification": {
+        "status": null,
+        "text": "$ fake-verification\ncould not be started (FileNotFoundError)\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {},
+      "mode": "success",
+      "timeouts": [
+        3600,
+        900
+      ],
+      "provider": {
+        "ok": true,
+        "status": 0,
+        "failure_reason": null,
+        "why": null
+      },
+      "verification": {
+        "status": 0,
+        "text": "$ fake-verification\nexit: 0\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {},
+      "mode": "timeout",
+      "timeouts": [
+        3600,
+        900
+      ],
+      "provider": {
+        "ok": false,
+        "status": null,
+        "failure_reason": "timeout",
+        "why": "the provider did not finish within 3600s"
+      },
+      "verification": {
+        "status": null,
+        "text": "$ fake-verification\ndid not finish within 900s\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    },
+    {
+      "settings": {},
+      "mode": "start-error",
+      "timeouts": [
+        3600,
+        900
+      ],
+      "provider": {
+        "ok": false,
+        "status": null,
+        "failure_reason": "start-error",
+        "why": "the provider could not be started: FileNotFoundError"
+      },
+      "verification": {
+        "status": null,
+        "text": "$ fake-verification\ncould not be started (FileNotFoundError)\n\nThe command's own stdout and stderr are deliberately not\nreproduced here. It is code from the candidate tree this turn's\nprovider edited, and it runs with the attempt's credential mount\nreadable -- so its output is exactly the content this proposal\nmust not carry, and nothing here can tell one of its bytes from\nanother without reading the bearer.\n\nRerun the command yourself, from the collected candidate tree,\noutside the worker. The acceptance already says that rerun and\nnot this file is what an operator trusts.\n"
+      }
+    }
+  ],
+  "captured_calls": 18
+}
+{
+  "nested_configuration_observations": [
+    {
+      "case": "missing boundary origin",
+      "accepted": false,
+      "error": "/run/baton/launch.json's provider_turn bound is exactly seconds, origin, setting, default_seconds; missing origin"
+    },
+    {
+      "case": "unknown boundary member",
+      "accepted": false,
+      "error": "/run/baton/launch.json's provider_turn bound is exactly seconds, origin, setting, default_seconds; unexpected unknown"
+    },
+    {
+      "case": "boolean requested bound",
+      "accepted": false,
+      "error": "/run/baton/launch.json requests provider_turn_seconds True; a requested setting is a whole number of seconds between 1 and 86400"
+    },
+    {
+      "case": "unknown requested member",
+      "accepted": false,
+      "error": "/run/baton/launch.json requests unknown, which this worker does not name; a setting nobody here reads is one nobody here honours"
+    }
+  ]
+}
+{
+  "association_observations": [
+    {
+      "case": "provider bound names verification setting",
+      "accepted": false,
+      "error": "/run/baton/launch.json's provider_turn names setting 'verification_command_seconds' and this boundary answers to 'provider_turn_seconds'; which setting moves a boundary is not something a delivery gets to say"
+    },
+    {
+      "case": "provider effective30 contradicts requested60",
+      "accepted": false,
+      "error": "/run/baton/launch.json's provider_turn reports 30 from 'job' and its own requested settings make that 60 from 'job'; a configuration that contradicts itself is not one this container can act on"
+    },
+    {
+      "case": "provider origin compatibility contradicts explicit request",
+      "accepted": false,
+      "error": "/run/baton/launch.json's provider_turn reports 60 from 'compatibility' and its own requested settings make that 60 from 'job'; a configuration that contradicts itself is not one this container can act on"
+    }
+  ]
+}
+{
+  "imported_verification_runner_seam": [
+    {
+      "requested": {
+        "verification_command_seconds": 120
+      },
+      "mode": "success",
+      "timeout": [
+        120
+      ],
+      "result": {
+        "argv": [
+          "fake-verification"
+        ],
+        "status": 0,
+        "why": null
+      }
+    },
+    {
+      "requested": {
+        "verification_command_seconds": 120
+      },
+      "mode": "timeout",
+      "timeout": [
+        120
+      ],
+      "result": {
+        "argv": [
+          "fake-verification"
+        ],
+        "status": null,
+        "why": "the verification did not finish within 120s"
+      }
+    },
+    {
+      "requested": {
+        "verification_command_seconds": 120
+      },
+      "mode": "start-error",
+      "timeout": [
+        120
+      ],
+      "result": {
+        "argv": [
+          "fake-verification"
+        ],
+        "status": null,
+        "why": "the verification could not be started (FileNotFoundError)"
+      }
+    },
+    {
+      "requested": {},
+      "mode": "success",
+      "timeout": [
+        1800
+      ],
+      "result": {
+        "argv": [
+          "fake-verification"
+        ],
+        "status": 0,
+        "why": null
+      }
+    },
+    {
+      "requested": {},
+      "mode": "timeout",
+      "timeout": [
+        1800
+      ],
+      "result": {
+        "argv": [
+          "fake-verification"
+        ],
+        "status": null,
+        "why": "the verification did not finish within 1800s"
+      }
+    },
+    {
+      "requested": {},
+      "mode": "start-error",
+      "timeout": [
+        1800
+      ],
+      "result": {
+        "argv": [
+          "fake-verification"
+        ],
+        "status": null,
+        "why": "the verification could not be started (FileNotFoundError)"
+      }
+    }
+  ]
+}
+{
+  "carrier_admission": "running",
+  "launch_job_id": "ceiling-job-a",
+  "bundle_authority_job_id": "job-a",
+  "requested_provider_seconds": 60
+}
+{
+  "entry_exit": 0,
+  "captured_provider_timeouts": [
+    3600
+  ],
+  "result": {
+    "attempt_id": "integrator-attempt",
+    "canonical_target_id": "target:ordinary-admission",
+    "detail": {
+      "detail": {
+        "observed": "the provider turn did not complete (timeout)"
+      },
+      "reason": "provider-failed"
+    },
+    "entry_id": "integration-driver.entry:c3d4a66b1e6d953b8e5f0670f1a98c3af0127572105be5bd8accb74780c76f01",
+    "fence": 1,
+    "lease_id": "integration-driver.lease:e6a7aaedf5ac35295f4d3af08ee44968f6f4ff41d9111f4d4f7b42601ebfd940",
+    "outcome": "held",
+    "schema": "baton.v12.integration-result/1"
+  }
+}
+{"unknown_job_host_seconds": 300}

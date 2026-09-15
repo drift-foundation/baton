@@ -1,0 +1,821 @@
+{
+  "claim": 174004,
+  "at": "2026-09-15T02:14:40.405154+00:00",
+  "files": [
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788.json",
+      "sha256": "0a1d0a4addc88d83bc9fd580dc216ca47110a0cb8a8ef53da101715ed2ff144d",
+      "expected": "0a1d0a4addc88d83bc9fd580dc216ca47110a0cb8a8ef53da101715ed2ff144d",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tools/integration_bundle.py",
+      "sha256": "5e67f1a64043ce46325669caaca6c35410fe6e6ac0473c65d474bfdd7fe71942",
+      "expected": "5e67f1a64043ce46325669caaca6c35410fe6e6ac0473c65d474bfdd7fe71942",
+      "matches": true,
+      "regular": true,
+      "mode": "0o644",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tools/integration_bundle.py",
+      "sha256": "5e67f1a64043ce46325669caaca6c35410fe6e6ac0473c65d474bfdd7fe71942",
+      "expected": "5e67f1a64043ce46325669caaca6c35410fe6e6ac0473c65d474bfdd7fe71942",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tools/integration_bundle.py",
+      "sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad",
+      "expected": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "sha256": "e6cf57eb6033022fc8b307b75148183f5ffb804744897c315ac8f7fcdfda6295",
+      "expected": "e6cf57eb6033022fc8b307b75148183f5ffb804744897c315ac8f7fcdfda6295",
+      "matches": true,
+      "regular": true,
+      "mode": "0o644",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tools/integration_worker.py",
+      "sha256": "e6cf57eb6033022fc8b307b75148183f5ffb804744897c315ac8f7fcdfda6295",
+      "expected": "e6cf57eb6033022fc8b307b75148183f5ffb804744897c315ac8f7fcdfda6295",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tools/integration_worker.py",
+      "sha256": "dad962f38746640081d6e55a46017edb09645bae4d6354196f04ed552993a566",
+      "expected": "dad962f38746640081d6e55a46017edb09645bae4d6354196f04ed552993a566",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "sha256": "abf0bb2d89aee0398f8428221a0282b52c69cdb5074736150a0259f2281dd8b2",
+      "expected": "abf0bb2d89aee0398f8428221a0282b52c69cdb5074736150a0259f2281dd8b2",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tools/stage_execution.py",
+      "sha256": "abf0bb2d89aee0398f8428221a0282b52c69cdb5074736150a0259f2281dd8b2",
+      "expected": "abf0bb2d89aee0398f8428221a0282b52c69cdb5074736150a0259f2281dd8b2",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tools/stage_execution.py",
+      "sha256": "41a626f1cc52f45121e2c1c1424fd3fa3cf5fac6d6f2154924ca58974f8d61fe",
+      "expected": "41a626f1cc52f45121e2c1c1424fd3fa3cf5fac6d6f2154924ca58974f8d61fe",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tools/integration_placement.py",
+      "sha256": "f38486931e1bdefb893f0b0222ba351ca8cf3f129f8ceda79afe6e46b8404161",
+      "expected": "f38486931e1bdefb893f0b0222ba351ca8cf3f129f8ceda79afe6e46b8404161",
+      "matches": true,
+      "regular": true,
+      "mode": "0o644",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tools/integration_placement.py",
+      "sha256": "f38486931e1bdefb893f0b0222ba351ca8cf3f129f8ceda79afe6e46b8404161",
+      "expected": "f38486931e1bdefb893f0b0222ba351ca8cf3f129f8ceda79afe6e46b8404161",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tools/integration_placement.py",
+      "sha256": "db24decb3305d5b82663e77e1a3e8fb24a045dffee8e75f81d253679fb80a863",
+      "expected": "db24decb3305d5b82663e77e1a3e8fb24a045dffee8e75f81d253679fb80a863",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/managed_execution.py",
+      "sha256": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936",
+      "expected": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936",
+      "matches": true,
+      "regular": true,
+      "mode": "0o644",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/src/baton_v12/integration/managed_execution.py",
+      "sha256": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936",
+      "expected": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/src/baton_v12/integration/managed_execution.py",
+      "sha256": "b61f77993862ef9925c7f4a2113da3c3f84a6c3dcc129d36938f604d5f9b2cae",
+      "expected": "b61f77993862ef9925c7f4a2113da3c3f84a6c3dcc129d36938f604d5f9b2cae",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "61918096a7d203d368fcfbcb25beec56631fa1977bfa5806cb12d519fb304d77",
+      "expected": "61918096a7d203d368fcfbcb25beec56631fa1977bfa5806cb12d519fb304d77",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "61918096a7d203d368fcfbcb25beec56631fa1977bfa5806cb12d519fb304d77",
+      "expected": "61918096a7d203d368fcfbcb25beec56631fa1977bfa5806cb12d519fb304d77",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "b7c0bafd45a3d8f858936728f2a9173a57a5b625533fa21b6f95185e9ac54011",
+      "expected": "b7c0bafd45a3d8f858936728f2a9173a57a5b625533fa21b6f95185e9ac54011",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/execution.py",
+      "sha256": "d928395f8f6620dcc41692274dd3fe92eb336b7a249925b41e5695427a14c77e",
+      "expected": "d928395f8f6620dcc41692274dd3fe92eb336b7a249925b41e5695427a14c77e",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/src/baton_v12/integration/execution.py",
+      "sha256": "d928395f8f6620dcc41692274dd3fe92eb336b7a249925b41e5695427a14c77e",
+      "expected": "d928395f8f6620dcc41692274dd3fe92eb336b7a249925b41e5695427a14c77e",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/src/baton_v12/integration/execution.py",
+      "sha256": "abba31d87a7e1250e6045f85c8a749890a54b681e148e13144fcde66b525b4dc",
+      "expected": "abba31d87a7e1250e6045f85c8a749890a54b681e148e13144fcde66b525b4dc",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/queue.py",
+      "sha256": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+      "expected": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/src/baton_v12/integration/queue.py",
+      "sha256": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+      "expected": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/src/baton_v12/integration/queue.py",
+      "sha256": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+      "expected": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/git_profile.py",
+      "sha256": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+      "expected": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/src/baton_v12/integration/git_profile.py",
+      "sha256": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+      "expected": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/src/baton_v12/integration/git_profile.py",
+      "sha256": "ccd0b048ae039df779cbb2ae468c63b8c5f43f73346b4643dd9cefdde89b7902",
+      "expected": "ccd0b048ae039df779cbb2ae468c63b8c5f43f73346b4643dd9cefdde89b7902",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "sha256": "5a8dc40cd4ef10379880c1b31b52a38efc99f460320de86326d49a4b51b97459",
+      "expected": "5a8dc40cd4ef10379880c1b31b52a38efc99f460320de86326d49a4b51b97459",
+      "matches": true,
+      "regular": true,
+      "mode": "0o644",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "sha256": "5a8dc40cd4ef10379880c1b31b52a38efc99f460320de86326d49a4b51b97459",
+      "expected": "5a8dc40cd4ef10379880c1b31b52a38efc99f460320de86326d49a4b51b97459",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "sha256": "05a30a305f20e6ff12c2d455fb1bb2f55ac51ae9c60165021baf621e03f06360",
+      "expected": "05a30a305f20e6ff12c2d455fb1bb2f55ac51ae9c60165021baf621e03f06360",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/delegation.py",
+      "sha256": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8",
+      "expected": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/src/baton_v12/job_manager/delegation.py",
+      "sha256": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8",
+      "expected": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/src/baton_v12/job_manager/delegation.py",
+      "sha256": "3019d7ea94db2fdd3b0e9c3933f0d2b10241fdaf64c2550129c7bbb81ecfadf6",
+      "expected": "3019d7ea94db2fdd3b0e9c3933f0d2b10241fdaf64c2550129c7bbb81ecfadf6",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "f979b60a86bf3d80ec11ae05d673616f95c925b2967778757ad0c3eeb121f9db",
+      "expected": "f979b60a86bf3d80ec11ae05d673616f95c925b2967778757ad0c3eeb121f9db",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "f979b60a86bf3d80ec11ae05d673616f95c925b2967778757ad0c3eeb121f9db",
+      "expected": "f979b60a86bf3d80ec11ae05d673616f95c925b2967778757ad0c3eeb121f9db",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "db9b3f55fc09625a2f8394ed06313a29f02699ae39440dbbf1e3c5b3faa71641",
+      "expected": "db9b3f55fc09625a2f8394ed06313a29f02699ae39440dbbf1e3c5b3faa71641",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/worker/integration_contract.py",
+      "sha256": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+      "expected": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/worker/integration_contract.py",
+      "sha256": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+      "expected": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/worker/integration_contract.py",
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "expected": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/worker/integration_workload.py",
+      "sha256": "fd5deaedcb130e0dcf126b0a2796ef3b253d8d6c21e101ae83f36f06f4567855",
+      "expected": "fd5deaedcb130e0dcf126b0a2796ef3b253d8d6c21e101ae83f36f06f4567855",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/worker/integration_workload.py",
+      "sha256": "fd5deaedcb130e0dcf126b0a2796ef3b253d8d6c21e101ae83f36f06f4567855",
+      "expected": "fd5deaedcb130e0dcf126b0a2796ef3b253d8d6c21e101ae83f36f06f4567855",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/worker/integration_workload.py",
+      "sha256": "eb9bb61929304a605b5c1ba4c8087738b5c4de3b0fbaad976b1dd3cbc004ff42",
+      "expected": "eb9bb61929304a605b5c1ba4c8087738b5c4de3b0fbaad976b1dd3cbc004ff42",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/worker/integration_entry.py",
+      "sha256": "23cc2608732e885bda617c470f84de417b2f016c5a3bd3edf8e782097e81de66",
+      "expected": "23cc2608732e885bda617c470f84de417b2f016c5a3bd3edf8e782097e81de66",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/worker/integration_entry.py",
+      "sha256": "23cc2608732e885bda617c470f84de417b2f016c5a3bd3edf8e782097e81de66",
+      "expected": "23cc2608732e885bda617c470f84de417b2f016c5a3bd3edf8e782097e81de66",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/worker/integration_entry.py",
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "expected": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "d43cf9afa9074b26f049a6ca65c5561ab2b684c46078ca37af4c02b312e67b8d",
+      "expected": "d43cf9afa9074b26f049a6ca65c5561ab2b684c46078ca37af4c02b312e67b8d",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "d43cf9afa9074b26f049a6ca65c5561ab2b684c46078ca37af4c02b312e67b8d",
+      "expected": "d43cf9afa9074b26f049a6ca65c5561ab2b684c46078ca37af4c02b312e67b8d",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+      "expected": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+      "matches": true,
+      "regular": true,
+      "mode": "0o644",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+      "expected": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "6d2c8e8d16efd17e6cbf815b86ef2316091d40dd28afdf50ee41a2bd3289bdbc",
+      "expected": "6d2c8e8d16efd17e6cbf815b86ef2316091d40dd28afdf50ee41a2bd3289bdbc",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "expected": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "expected": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "expected": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_integration_worker.py",
+      "sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "expected": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tests/tools/test_integration_worker.py",
+      "sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "expected": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tests/tools/test_integration_worker.py",
+      "sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "expected": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_integration_bundle.py",
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "expected": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tests/tools/test_integration_bundle.py",
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "expected": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tests/tools/test_integration_bundle.py",
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "expected": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_integration.py",
+      "sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "expected": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "matches": true,
+      "regular": true,
+      "mode": "0o644",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tests/tools/test_managed_integration.py",
+      "sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "expected": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tests/tools/test_managed_integration.py",
+      "sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "expected": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_execution_limits.py",
+      "sha256": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "expected": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tests/tools/test_execution_limits.py",
+      "sha256": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "expected": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tests/tools/test_execution_limits.py",
+      "sha256": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "expected": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_execution.py",
+      "sha256": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "expected": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "matches": true,
+      "regular": true,
+      "mode": "0o644",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tests/integration/test_managed_execution.py",
+      "sha256": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "expected": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tests/integration/test_managed_execution.py",
+      "sha256": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "expected": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "79ae10e06ee474f5d5d68d3eb6d97a24331545b3d5955d8f862f17826d383bd5",
+      "expected": "79ae10e06ee474f5d5d68d3eb6d97a24331545b3d5955d8f862f17826d383bd5",
+      "matches": true,
+      "regular": true,
+      "mode": "0o644",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "79ae10e06ee474f5d5d68d3eb6d97a24331545b3d5955d8f862f17826d383bd5",
+      "expected": "79ae10e06ee474f5d5d68d3eb6d97a24331545b3d5955d8f862f17826d383bd5",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "282d16cb5d7d4407db2dd47811db38f52e897b3c720d8bb259af360193fbbace",
+      "expected": "282d16cb5d7d4407db2dd47811db38f52e897b3c720d8bb259af360193fbbace",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_execution.py",
+      "sha256": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "expected": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tests/integration/test_execution.py",
+      "sha256": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "expected": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tests/integration/test_execution.py",
+      "sha256": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "expected": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "sha256": "3bdd3ffa1349c56a99d65c6eb3f1280752a5a55563deeff5ef729d4eb3edab86",
+      "expected": "3bdd3ffa1349c56a99d65c6eb3f1280752a5a55563deeff5ef729d4eb3edab86",
+      "matches": true,
+      "regular": true,
+      "mode": "0o644",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "sha256": "3bdd3ffa1349c56a99d65c6eb3f1280752a5a55563deeff5ef729d4eb3edab86",
+      "expected": "3bdd3ffa1349c56a99d65c6eb3f1280752a5a55563deeff5ef729d4eb3edab86",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "sha256": "c4461810b38c9bdee0c67e59d55fb14846624f1cd6db920f23a127ce284ad0dd",
+      "expected": "c4461810b38c9bdee0c67e59d55fb14846624f1cd6db920f23a127ce284ad0dd",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_delegation.py",
+      "sha256": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "expected": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tests/job_manager/test_delegation.py",
+      "sha256": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "expected": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tests/job_manager/test_delegation.py",
+      "sha256": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "expected": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_integration_worker.py",
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "expected": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/tests/manager/test_integration_worker.py",
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "expected": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988/v12/python/tests/manager/test_integration_worker.py",
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "expected": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_task.py",
+      "sha256": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2",
+      "expected": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2",
+      "matches": true,
+      "regular": true,
+      "mode": "0o644",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/worker/reconciliation_task.py",
+      "sha256": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2",
+      "expected": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-173130/v12/worker/reconciliation_task.py",
+      "sha256": "69860bdfdc63e5144db973ddd70c7b101bde707ba97c8c99779b3ae6ce992eb6",
+      "expected": "69860bdfdc63e5144db973ddd70c7b101bde707ba97c8c99779b3ae6ce992eb6",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_entry.py",
+      "sha256": "e595b44ba2c77a4b0b6b4f3c5eab5c2f0567f01ffe1f80140b41d5b8e16c03d4",
+      "expected": "e595b44ba2c77a4b0b6b4f3c5eab5c2f0567f01ffe1f80140b41d5b8e16c03d4",
+      "matches": true,
+      "regular": true,
+      "mode": "0o644",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/worker/reconciliation_entry.py",
+      "sha256": "e595b44ba2c77a4b0b6b4f3c5eab5c2f0567f01ffe1f80140b41d5b8e16c03d4",
+      "expected": "e595b44ba2c77a4b0b6b4f3c5eab5c2f0567f01ffe1f80140b41d5b8e16c03d4",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-173130/v12/worker/reconciliation_entry.py",
+      "sha256": "5b9abe961c1551b2754c173611f5b3d1815dee32e7bf0881630e0ec4b05f7075",
+      "expected": "5b9abe961c1551b2754c173611f5b3d1815dee32e7bf0881630e0ec4b05f7075",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/scheduler.py",
+      "sha256": "4a315a23dc368e8b39fdb07c63868c29578f32be409912ffc762078f17bda0e1",
+      "expected": "4a315a23dc368e8b39fdb07c63868c29578f32be409912ffc762078f17bda0e1",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664",
+      "mode_matches": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/candidate-173788/files/v12/python/src/baton_v12/job_manager/scheduler.py",
+      "sha256": "4a315a23dc368e8b39fdb07c63868c29578f32be409912ffc762078f17bda0e1",
+      "expected": "4a315a23dc368e8b39fdb07c63868c29578f32be409912ffc762078f17bda0e1",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-173788/v12/python/src/baton_v12/job_manager/scheduler.py",
+      "sha256": "f2066c9614a9d7511547d5ce4446bfbbf350f00df8c71ab2d8d0cfb99d6434ad",
+      "expected": "f2066c9614a9d7511547d5ce4446bfbbf350f00df8c71ab2d8d0cfb99d6434ad",
+      "matches": true,
+      "regular": true,
+      "mode": "0o444"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/SLICE3-SCOPE-172905.md",
+      "sha256": "51ad7027da60d0a6260e01516a7d304daf8dc96828e416b581d8b5494f1d2f6c",
+      "expected": "51ad7027da60d0a6260e01516a7d304daf8dc96828e416b581d8b5494f1d2f6c",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/PREPARATION-OUTPUT-AMENDMENT-172988.md",
+      "sha256": "4a5bc5118b49aec6ed132c63dd3d7e1cbd9d2e1335e2e132760ff1b84233395f",
+      "expected": "4a5bc5118b49aec6ed132c63dd3d7e1cbd9d2e1335e2e132760ff1b84233395f",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/SCHEDULER-COMPOSITION-AMENDMENT-173130.md",
+      "sha256": "05026d4f8bc8e709f5271549799643ebf094fa168795a81899a74ba43ecbdf45",
+      "expected": "05026d4f8bc8e709f5271549799643ebf094fa168795a81899a74ba43ecbdf45",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/review-2026-09-15T00-40-22Z.md",
+      "sha256": "562e0ba0686ad1c0931710dab587178ba76f3707ae552afa459c449e09c9bff1",
+      "expected": "562e0ba0686ad1c0931710dab587178ba76f3707ae552afa459c449e09c9bff1",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/DEPLOYMENT-DRAFT-173788.md",
+      "sha256": "26428b942dcdd46c03373a98166efd03505b23692fa3a527c70c962b1781640a",
+      "expected": "26428b942dcdd46c03373a98166efd03505b23692fa3a527c70c962b1781640a",
+      "matches": true,
+      "regular": true,
+      "mode": "0o664"
+    }
+  ]
+}

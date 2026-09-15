@@ -1,0 +1,24 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens
+F
+======================================================================
+FAIL: test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens)
+THE FIRST BOUNDED SCHEDULE, A BEFORE C, driven end to end.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2279, in test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens
+    states = self.four_job_schedule(trace, held,
+                                    order=("job-a", "job-c", "job-d"))
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2255, in four_job_schedule
+    self.observing(held, trace, job_id, "review", "completed",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   job_ids=self.FOUR, ticks=10)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1725, in observing
+    self.fail(f"{job_id}'s {kind} never reached {want!r}")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-a's review never reached 'completed'
+
+----------------------------------------------------------------------
+Ran 1 test in 1.515s
+
+FAILED (failures=1)

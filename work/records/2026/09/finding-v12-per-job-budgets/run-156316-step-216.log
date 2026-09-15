@@ -1,0 +1,30 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_result_is_refused_by_the_composed_judgment_owners tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_scratch_that_survives_disposal_is_the_deployments_to_release tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_scratch_that_survives_the_release_too_is_reported
+.FF
+======================================================================
+FAIL: test_a_scratch_that_survives_disposal_is_the_deployments_to_release (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_scratch_that_survives_disposal_is_the_deployments_to_release)
+STEP 5 OF THE HOST-FAILURE PROPOSAL, through the real runtime.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2003, in test_a_scratch_that_survives_disposal_is_the_deployments_to_release
+    self.assertFalse(os.path.exists(where),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+                     "the deployment released without disposing of the "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "scratch it retained")
+                     ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false : the deployment released without disposing of the scratch it retained
+
+======================================================================
+FAIL: test_a_scratch_that_survives_the_release_too_is_reported (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_scratch_that_survives_the_release_too_is_reported)
+AND IT IS NOT QUIETLY ABANDONED A SECOND TIME.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2030, in test_a_scratch_that_survives_the_release_too_is_reported
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.485s
+
+FAILED (failures=2)

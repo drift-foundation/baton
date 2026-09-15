@@ -1,0 +1,132 @@
+{
+  "checks": {
+    "correction_original": [],
+    "correction_review_reservation_only": [],
+    "review_session_foreign_assignment_participant": [],
+    "session_original": [],
+    "session_reference_foreign_provider_component": []
+  },
+  "label": "Synthetic mutations of retained real artifacts; owners unchanged"
+}
+{
+  "ending_settlement": {
+    "assignment": {
+      "generation": 2,
+      "participant": "baton.reviewer",
+      "work_ref": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1"
+      }
+    },
+    "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "episode": 1,
+    "evidence": {
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "gate_discharge": "runtime-quiescence:2",
+      "manifest_digest": "sha256:5e67cf2cce9038b228b2beb13b68da1c0346690b9634e2a4678b5cc182fe6f3e",
+      "outcome": "correction",
+      "receipt_digest": "sha256:d8c2378e0ccfee54996ea616fd5e3fcd58cf53f28596f4c6f2d1c2c372c910b2",
+      "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "routed": "attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa",
+      "verdict_id": "verdict-b6cc9560f4074b3c99582006c24ffba11f02133cd42c425e0a02cc1901bbec9a"
+    },
+    "intent": "ending.intent:job-a/review:1",
+    "job_id": "job-a",
+    "kind": "review",
+    "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "stage_id": "job-a/review",
+    "work_id": "0000000a-W1"
+  },
+  "frozen_review_claim": {
+    "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+    "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "base": "fb6820653ba9880bb9c998a1e3845e4b3042e069",
+    "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+    "head": "08a4eb9d52734af94db9ceb4fc5837e17172496a",
+    "result_digest": "sha256:5e67cf2cce9038b228b2beb13b68da1c0346690b9634e2a4678b5cc182fe6f3e",
+    "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+    "tree": "f79817df468ba93c6d7cb4d73c5380ce6a3350dc",
+    "verdict": "changes-requested"
+  },
+  "label": "Real composed owners, scripted engine; public reads only",
+  "verdict": {
+    "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b",
+    "authority_uuid": "0000000a000000000000000000000000",
+    "base_object": "fb6820653ba9880bb9c998a1e3845e4b3042e069",
+    "checkpoint_digest": "sha256:8c73c90b50dd39a7d82eaa03aa9b60b8bc27e8bc25ba778f7416b41500d9a238",
+    "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+    "disposition": "changes-requested",
+    "head_object": "08a4eb9d52734af94db9ceb4fc5837e17172496a",
+    "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+    "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+    "recorded_at": "2026-09-02T00:00:00.000Z",
+    "review_assignment_generation": 2,
+    "review_fence": {
+      "fenced": {
+        "assignment": {
+          "generation": 2,
+          "participant": "baton.reviewer",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "cause": "cancelled",
+        "fenced": true,
+        "gate": "runtime-quiescence:2",
+        "phase": "block"
+      },
+      "intent": {
+        "assignment": {
+          "generation": 2,
+          "participant": "baton.reviewer",
+          "work_ref": {
+            "authority_uuid": "0000000a000000000000000000000000",
+            "work_id": "0000000a-W1"
+          }
+        },
+        "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+        "authority_operation_id": "authority.finalize-quiescent:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+        "decision": "finalized",
+        "reason": "independent checkpoint review completed",
+        "runtime_id": "runtime-single-3",
+        "worker_disposition": "completed"
+      }
+    },
+    "review_fence_digest": "sha256:096259b8a14254ad6ac36ea41f6474c6bd03687337fbf57cd0402a91631f9ade",
+    "review_result": {
+      "artifacts": [
+        {
+          "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:findings",
+          "bytes": 156,
+          "content_digest": "sha256:f17457694bfc29f2e3cb4819b015205e5acc992ad815e50a1c91699e2e0849c8",
+          "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-m2o8rxaw/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/findings",
+          "media_type": "application/octet-stream",
+          "output_name": "findings"
+        },
+        {
+          "artifact_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:logs",
+          "bytes": 419,
+          "content_digest": "sha256:373e2b83ee881b5bcc21099c559e59639e99213d464a0057a81e64d1af3f7afb",
+          "locator": "file:///home/sl/src/baton/v12/python/v12-w71917-m2o8rxaw/storage/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/custody/attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c/logs",
+          "media_type": "application/octet-stream",
+          "output_name": "logs"
+        }
+      ],
+      "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+      "disposition": "completed",
+      "freeze_operation_id": "output.freeze:d1035e241fc97ed621f2aafcdc88b33c9e219fffbfb073ad4abcb2dc968be3da",
+      "frozen_at": "2026-09-02T00:00:00.000Z",
+      "manifest_digest": "sha256:5e67cf2cce9038b228b2beb13b68da1c0346690b9634e2a4678b5cc182fe6f3e",
+      "result_id": "result-attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c"
+    },
+    "review_result_digest": "sha256:b800f63d0a9f91e8b7135262d5681923d8e7cbb9191ec42643e63ee25e0a6d2f",
+    "reviewer_participant": "baton.reviewer",
+    "reviewer_principal": "principal:baton.reviewer",
+    "reviewer_worker_id": "review-worker",
+    "revision": 1,
+    "tree_object": "f79817df468ba93c6d7cb4d73c5380ce6a3350dc",
+    "verdict_id": "verdict-b6cc9560f4074b3c99582006c24ffba11f02133cd42c425e0a02cc1901bbec9a",
+    "work_id": "0000000a-W1"
+  }
+}

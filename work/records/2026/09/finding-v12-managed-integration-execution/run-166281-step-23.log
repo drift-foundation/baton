@@ -1,0 +1,85 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.manager.test_reconciliation_task
+.....................................F.FFFFFF....
+======================================================================
+FAIL: test_an_unknown_generation_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_an_unknown_generation_refuses_in_both)
+THE DEFECT IS CLOSED, NOT FROZEN.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 243, in test_an_unknown_generation_refuses_in_both
+    self.assertBothRefuse(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        _corrupted(execution_limits=dict(_limits(),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                         compatibility_generation=999)),
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "a generation this build cannot reproduce")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 175, in assertBothRefuse
+    with self.assertRaises(task.PreparationRefusal) as worker_said:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_the_launch_decides_and_the_request_does_not (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_the_launch_decides_and_the_request_does_not) (broken='units')
+Equality against the launch's sealed document, so EVERY semantic
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 266, in test_the_launch_decides_and_the_request_does_not
+    with self.assertRaises(task.PreparationRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_the_launch_decides_and_the_request_does_not (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_the_launch_decides_and_the_request_does_not) (broken='scope')
+Equality against the launch's sealed document, so EVERY semantic
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 266, in test_the_launch_decides_and_the_request_does_not
+    with self.assertRaises(task.PreparationRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_the_launch_decides_and_the_request_does_not (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_the_launch_decides_and_the_request_does_not) (broken='generation')
+Equality against the launch's sealed document, so EVERY semantic
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 266, in test_the_launch_decides_and_the_request_does_not
+    with self.assertRaises(task.PreparationRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_the_launch_decides_and_the_request_does_not (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_the_launch_decides_and_the_request_does_not) (broken='one boundary second')
+Equality against the launch's sealed document, so EVERY semantic
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 266, in test_the_launch_decides_and_the_request_does_not
+    with self.assertRaises(task.PreparationRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_the_launch_decides_and_the_request_does_not (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_the_launch_decides_and_the_request_does_not) (broken='a dropped member')
+Equality against the launch's sealed document, so EVERY semantic
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 266, in test_the_launch_decides_and_the_request_does_not
+    with self.assertRaises(task.PreparationRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_the_launch_decides_and_the_request_does_not (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_the_launch_decides_and_the_request_does_not) (broken='a surplus member')
+Equality against the launch's sealed document, so EVERY semantic
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 266, in test_the_launch_decides_and_the_request_does_not
+    with self.assertRaises(task.PreparationRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+----------------------------------------------------------------------
+Ran 44 tests in 10.278s
+
+FAILED (failures=7)

@@ -1,0 +1,81 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_managed_preparation.OneManagedPreparationCompletes
+FFFFF
+======================================================================
+FAIL: test_accepted_offer_recovers_without_a_second_bearer (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_accepted_offer_recovers_without_a_second_bearer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1484, in test_accepted_offer_recovers_without_a_second_bearer
+    self.complete("submit_claim")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1633, in complete
+    self.assertEqual(case.states(held.job, held.composed)["integration"], "pending")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'queued' != 'pending'
+- queued
++ pending
+
+
+======================================================================
+FAIL: test_admitted_capacity_recovers_before_runtime_start (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_admitted_capacity_recovers_before_runtime_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1490, in test_admitted_capacity_recovers_before_runtime_start
+    self.complete("start")
+    ~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1633, in complete
+    self.assertEqual(case.states(held.job, held.composed)["integration"], "pending")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'queued' != 'pending'
+- queued
++ pending
+
+
+======================================================================
+FAIL: test_committed_claim_recovers_before_attempt_recording (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_committed_claim_recovers_before_attempt_recording)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1487, in test_committed_claim_recovers_before_attempt_recording
+    self.complete("record_attempt")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1633, in complete
+    self.assertEqual(case.states(held.job, held.composed)["integration"], "pending")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'queued' != 'pending'
+- queued
++ pending
+
+
+======================================================================
+FAIL: test_ordinary_sweeps_retain_and_adopt_one_real_preparation (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_ordinary_sweeps_retain_and_adopt_one_real_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1478, in test_ordinary_sweeps_retain_and_adopt_one_real_preparation
+    self.complete()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1633, in complete
+    self.assertEqual(case.states(held.job, held.composed)["integration"], "pending")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'queued' != 'pending'
+- queued
++ pending
+
+
+======================================================================
+FAIL: test_publication_before_intent_recovers_the_same_request (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_publication_before_intent_recovers_the_same_request)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1481, in test_publication_before_intent_recovers_the_same_request
+    self.complete("decide")
+    ~~~~~~~~~~~~~^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1633, in complete
+    self.assertEqual(case.states(held.job, held.composed)["integration"], "pending")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'queued' != 'pending'
+- queued
++ pending
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 3.257s
+
+FAILED (failures=5)

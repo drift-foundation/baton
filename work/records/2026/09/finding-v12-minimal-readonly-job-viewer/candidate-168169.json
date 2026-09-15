@@ -1,0 +1,23 @@
+{
+  "claim": 168169,
+  "files": [
+    {
+      "path": "v12/python/tools/job_viewer.py",
+      "bytes": 31899,
+      "sha256": "de60d8c9d75fdd7cbd3256b305b28b60dfff0ef6c7b292167144ce9be7f3d7c8",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/tools/test_job_viewer.py",
+      "bytes": 34124,
+      "sha256": "03e509ac497f7c595f70ad798fe54ed2dbad1260dbe289c7ad20771f461e1841",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/JOB-VIEWER.md",
+      "bytes": 7934,
+      "sha256": "af44aa23bb43ea3537857d00c213ae9ec35b616630ee513070106c33301f73ec",
+      "mode": "0o644"
+    }
+  ]
+}

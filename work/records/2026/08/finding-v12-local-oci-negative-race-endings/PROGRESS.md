@@ -284,3 +284,106 @@ on the ledger and readiness walked past it; the remedy is the same each time.
 everything this Work itself owns.** W32576 is with the reviewer; W32577,
 W32648 and W32649 are queued to `baton.impl`. The acceptance and the two
 relabelled cases are untouched.
+
+## 2026-09-14 - the four providers landed, so the two deferred claims are now real
+
+Claimed W32382 at seq 168624. The Work woke because its last blocker, W32577,
+closed; all four children are closed `satisfying`. Revalidated each seam
+against the current tree before touching anything. No repository history or
+index was mutated, and **no production source was changed by this round** --
+`lanes.py` was edited only to run two reversals and restored byte-identically
+(verified by `diff`, and it does not appear as modified in the working tree).
+
+### What was deferred, and is deferred no longer
+
+Two things in this module were true when written and became FALSE the moment
+the children landed. Leaving them would have been the exact defect this Work
+has corrected in my cases repeatedly -- a case that reads as more, or less,
+than it measures.
+
+**1. The successor's order was voluntary; now it is enforced.** The case said
+so plainly: `posture_slots` is keyed `(attempt_id, posture)`, no manager
+precondition consulted an unsettled predecessor, and a case asserting a
+refusal would have been asserting a guard that did not exist. W32649 landed
+that owner. The successor is now a real attempt -- offered, claimed, activated
+-- whose start is **refused while the predecessor's ending is unproved**, which
+is this Work's own carried acceptance: *no negative ending releases or reuses
+the lane before every required ending is positively established*. It creates
+nothing, the lane still names the predecessor, and only after the predecessor
+settles does the successor take it.
+
+**A measurement worth recording, because it changed the assertion.** My first
+version asserted `"runtime lane"` in the refusal, and a reversal that neutered
+`_no_predecessor_holds` **left the case passing** -- the table's own primary
+key refused instead, since a successor on the same assignment shares all four
+lane parts. Two guards overlap here and they are different facts: one says a
+predecessor's ending is unsettled, the other says two callers raced for one
+lane. The case now pins the exact predecessor sentence, and the same reversal
+fails it.
+
+**2. The runtime deadline had no ending in this module at all.** W32577 ruled
+it and composed it, and its own real-engine gate
+(`test_runtime_deadline_engine`) proves the crossing -- but under a separately
+authorized, environment-supervised supervisor that **the ordinary serial
+registry does not run** (it is not in `SERIAL_MODULES`). This Work's acceptance
+is that the deadline takes the *same* crossing as the completed arc, so it is
+now asserted here beside `plan-rejected`, in the ordinary registry, against the
+same daemon, the same built image and the same seams: the container really
+running when its deadline arrives, the observation alone touching nothing, then
+fence, exact force-removal, positive absence, **both** provider teardowns,
+settlement, lane release, and a replaying proof. Nothing is fabricated -- the
+worker disposition stays `none`, the output stays `open` and there is no
+intake row.
+
+### unsupported-version: satisfied by the child, not duplicated here
+
+W32576's `test_refused_session_engine` is in the **same serial registry**, uses
+the **same** `Lifecycle` fixture, and proves the whole crossing on a real
+daemon: a refusal derived from the session's own certified profile after the
+container exists, exact removal, positive absence, launch-root teardown, lane
+released only after the daemon agrees, sibling preservation, and restart
+replay. Writing a second copy here would add coverage and no evidence, so this
+round revalidated it by running it rather than duplicating it. The module
+docstring now points a reader at where that ending lives.
+
+### Gates
+
+- `tests.manager.test_negative_race_endings`: **5 cases, OK**, one narrow
+  Podman skip (podman is not on PATH), against Docker 29.1.3.
+- **Reversal (predecessor lane guard neutered):** failed exactly
+  `test_no_ending_settles_before_every_required_one_is_established`.
+- **Reversal (`_release_lane` made a no-op):** failed exactly
+  `test_a_reached_deadline_takes_the_same_cleanup_crossing` and
+  `test_no_ending_settles_before_every_required_one_is_established`.
+  Restored to OK after each.
+- Child-seam revalidation: `test_refused_session_engine`,
+  `test_failed_start_destroy_engine`, `test_runtime_lane`,
+  `test_runtime_deadlines` -- **108 tests, OK**, one unrelated skip.
+- Fixture neighbour: `test_lifecycle_composition` with this module --
+  **37 tests, OK**, two skips.
+- The repository whitespace check on the changed file: clean.
+
+**OPERATIONAL FINDING -- the whole-registry gate is not runnable in this tree,
+and it is not this Work's doing.** `tools/parallel_test.py` refuses to start:
+twenty modules belonging to other in-flight Works (W161230's
+`test_managed_*`/`test_stage_execution_*`, W32577's own
+`test_runtime_deadline_engine*`, and others) are in no registry, and the
+runner's guard is that every module must be registered. Prior rounds of this
+Work ran the full parallel and serial phases; I could not, so I ran the focused
+module, its fixture neighbour and every child seam instead, and I am reporting
+the gap rather than describing a gate I did not run. Registering those modules
+belongs to the Works that own them.
+
+### Changed file
+
+- `v12/python/tests/manager/test_negative_race_endings.py` -- 28910 b, mode
+  `0o664` (unchanged; the mode it already carried),
+  `sha256:93ab889ad2d9b119a2124e2b8f93aece58b9e4feb1c4d1d408db2e72980f7e75`
+
+It is the ONLY file this round changed.
+
+### State
+
+Everything this Work itself owns is now implemented and measured, and all four
+mandatory providers are closed `satisfying`. Passed back for independent
+review; I am not closing it.

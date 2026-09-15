@@ -134,6 +134,73 @@ LAUNCH_MEMBERS = ("schema", "session", "contract", "role")
 # which is what the retired environment channel was.
 EXCHANGE_LAUNCH_SCHEMA = "baton.worker-launch/2"
 EXCHANGE_LAUNCH_MEMBERS = LAUNCH_MEMBERS + ("transport",)
+
+# W156162: THE THIRD VERSION, AND WHAT IT ADDS.
+#
+# A Job may configure how many seconds one provider turn and one verification
+# command get, and this container is where those ceilings are actually handed to
+# a command -- so the delivery has to carry them. `/1` and `/2` are read exactly
+# as before; a deployment that configures nothing is unaffected.
+#
+# `/3` STATES ITS TRANSPORT EXPLICITLY, including as null for the one-shot
+# integration launch, because a version that carries a Job context must be able
+# to say either and a reader inferring absence from a missing member would be
+# guessing at the one fact that decides which channel is authoritative.
+JOB_LAUNCH_SCHEMA = "baton.worker-launch/3"
+JOB_LAUNCH_MEMBERS = EXCHANGE_LAUNCH_MEMBERS + ("job_execution",)
+
+# The members of that context, closed, and the two that are NOT text: the
+# configuration is a document and the transport may be null.
+JOB_EXECUTION_MEMBERS = ("job_id", "attempt_id", "job_input_digest",
+                         "job_policy_digest", "runtime_input_digest",
+                         "runtime_policy_digest", "execution_limits",
+                         "execution_limits_digest")
+
+# The one range this container will hand to a command, the same one the Job
+# owner admits. Stated here as well because this program is what a mis-composed
+# delivery lands on, and a bound it cannot honour is refused rather than clamped.
+MIN_LAUNCH_SECONDS = 1
+MAX_LAUNCH_SECONDS = 86400
+
+# EVERY BOUNDARY A COMPLETE CONFIGURATION NAMES, and the metadata it carries.
+#
+# W156162 review 2026-09-13T02:41:57Z [P1]: the first check accepted any nonempty
+# boundary map and validated only what was present, so a delivery whose
+# `provider_turn` had been DELETED and whose configuration was then resealed was
+# accepted -- and the adapter fell back to 3600 for a Job that had asked for 60.
+# A partial configuration is not a smaller configuration; it is a delivery that
+# cannot say what this container was told to do.
+LAUNCH_BOUNDARIES = ("provider_turn", "ordinary_verification",
+                     "integration_verification", "host_verification")
+LAUNCH_LIMIT_MEMBERS = ("units", "scope", "compatibility_generation",
+                        "requested", "boundaries")
+LAUNCH_UNITS = "seconds"
+LAUNCH_SCOPE = "per-invocation"
+
+# AND THE NESTED SHAPES, closed as well. Review 2026-09-13T02:51:29Z: a resealed
+# `requested` carrying a Boolean or a setting nobody named was accepted, and so
+# was a boundary missing its `origin` or carrying a member this program does not
+# know. A seal proves the bytes were not changed after somebody wrote them; it
+# says nothing about whether what they wrote is a configuration this container
+# can act on, and every member below is one a reader here actually uses or
+# reports.
+LAUNCH_SETTINGS = ("provider_turn_seconds", "verification_command_seconds")
+
+# WHICH SETTING EACH BOUNDARY IS, fixed. Review 2026-09-13T02:59:22Z: a resealed
+# `provider_turn` naming `verification_command_seconds` was accepted, so the
+# document could say a Job's verification setting had moved its provider turn --
+# an association nothing checked. One explicit verification setting reaching all
+# three verification boundaries is the owner's decision; WHICH setting a boundary
+# answers to is not negotiable, and this container states it rather than reading
+# whatever the file claims.
+LAUNCH_BOUNDARY_SETTING = {
+    "provider_turn": "provider_turn_seconds",
+    "ordinary_verification": "verification_command_seconds",
+    "integration_verification": "verification_command_seconds",
+    "host_verification": "verification_command_seconds",
+}
+LAUNCH_BOUNDARY_MEMBERS = ("seconds", "origin", "setting", "default_seconds")
+LAUNCH_ORIGINS = ("job", "compatibility")
 EXCHANGE_TRANSPORT = "baton.worker-exchange/1"
 
 # THE TWO FIXED EXCHANGE ROOTS, constants of the contract at both ends and
@@ -547,6 +614,186 @@ def session_of(document):
     return given
 
 
+def _job_execution(document, place):
+    """`/3`'s Job context, held at the boundary the container reads it.
+
+    W156162. THE WORKER IS THE UNTRUSTED SIDE and this is a manager-authored
+    file it is handed; the manager proves the same things before it writes, and
+    this proves them again because a container that trusts a delivery it cannot
+    check is a container that will run a command for however long somebody put
+    in a file.
+
+    WHAT IS CHECKED HERE: the closed member set, the seal over the configuration
+    -- recomputed, not compared to itself -- and that every effective ceiling is
+    a whole number of seconds in a range this program will actually hand to a
+    command. `True` is refused before the numeric tests, because it is an `int`
+    in Python and would otherwise become a one-second bound nobody wrote.
+
+    WHAT IS NOT RE-DERIVED HERE: which Job resolved to which numbers. That is
+    the Job owner's answer and this program has no Job store; what it can do is
+    refuse a document whose seal does not cover its own contents.
+    """
+    held = document.get("job_execution")
+    if type(held) is not dict:
+        raise WorkerFault(
+            "launch", f"{place} carries a job execution that is not a document")
+    missing = sorted(one for one in JOB_EXECUTION_MEMBERS if one not in held)
+    extra = sorted(one for one in held if one not in JOB_EXECUTION_MEMBERS)
+    if missing or extra:
+        raise WorkerFault(
+            "launch",
+            f"{place}'s job execution is exactly "
+            f"{', '.join(JOB_EXECUTION_MEMBERS)}"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    limits = held["execution_limits"]
+    if type(limits) is not dict:
+        raise WorkerFault(
+            "launch",
+            f"{place}'s execution limits are not a document")
+    sealed = "sha256:" + hashlib.sha256(
+        json.dumps(limits, sort_keys=True, separators=(",", ":"),
+                   ensure_ascii=False, allow_nan=False)
+        .encode("utf-8")).hexdigest()
+    if held["execution_limits_digest"] != sealed:
+        raise WorkerFault(
+            "launch",
+            f"{place}'s execution limits do not match their own seal; a bound "
+            f"this container cannot verify is a bound nobody agreed to")
+    missing = sorted(one for one in LAUNCH_LIMIT_MEMBERS if one not in limits)
+    extra = sorted(one for one in limits if one not in LAUNCH_LIMIT_MEMBERS)
+    if missing or extra:
+        raise WorkerFault(
+            "launch",
+            f"{place}'s execution limits are exactly "
+            f"{', '.join(LAUNCH_LIMIT_MEMBERS)}"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    # THE UNITS AND THE SCOPE ARE COMPARED, NOT CARRIED. [P2]: a resealed
+    # document stating `minutes` was accepted, and a container that reads
+    # somebody else's units hands a command sixty times the bound they wrote.
+    if limits["units"] != LAUNCH_UNITS or limits["scope"] != LAUNCH_SCOPE:
+        raise WorkerFault(
+            "launch",
+            f"{place}'s execution limits are {limits['units']!r} at "
+            f"{limits['scope']!r} and this worker hands a command "
+            f"{LAUNCH_UNITS!r} {LAUNCH_SCOPE!r}")
+    generation = limits["compatibility_generation"]
+    if type(generation) is not int or type(generation) is bool \
+            or generation < 0:
+        raise WorkerFault(
+            "launch",
+            f"{place} names compatibility generation {generation!r}, which is "
+            f"not one")
+    requested = limits["requested"]
+    if type(requested) is not dict:
+        raise WorkerFault(
+            "launch", f"{place}'s requested settings are not a document")
+    unknown = sorted(one for one in requested if one not in LAUNCH_SETTINGS)
+    if unknown:
+        raise WorkerFault(
+            "launch",
+            f"{place} requests {', '.join(unknown)}, which this worker does "
+            f"not name; a setting nobody here reads is one nobody here honours")
+    for name, value in sorted(requested.items()):
+        if type(value) is not int or type(value) is bool \
+                or value < MIN_LAUNCH_SECONDS or value > MAX_LAUNCH_SECONDS:
+            raise WorkerFault(
+                "launch",
+                f"{place} requests {name} {value!r}; a requested setting is a "
+                f"whole number of seconds between {MIN_LAUNCH_SECONDS} and "
+                f"{MAX_LAUNCH_SECONDS}")
+    boundaries = limits["boundaries"]
+    if type(boundaries) is not dict:
+        raise WorkerFault(
+            "launch", f"{place}'s execution limits name no boundaries")
+    # THE COMPLETE SET, [P1]. A missing boundary is not a boundary this
+    # container may quietly give its own default to.
+    missing = sorted(one for one in LAUNCH_BOUNDARIES
+                     if one not in boundaries)
+    extra = sorted(one for one in boundaries if one not in LAUNCH_BOUNDARIES)
+    if missing or extra:
+        raise WorkerFault(
+            "launch",
+            f"{place}'s execution limits name exactly "
+            f"{', '.join(LAUNCH_BOUNDARIES)}"
+            + (f"; missing {', '.join(missing)}" if missing else "")
+            + (f"; unexpected {', '.join(extra)}" if extra else ""))
+    for name in LAUNCH_BOUNDARIES:
+        one = boundaries[name]
+        if type(one) is not dict:
+            raise WorkerFault(
+                "launch", f"{place}'s {name} bound is not a document")
+        missing = sorted(other for other in LAUNCH_BOUNDARY_MEMBERS
+                         if other not in one)
+        extra = sorted(other for other in one
+                       if other not in LAUNCH_BOUNDARY_MEMBERS)
+        if missing or extra:
+            raise WorkerFault(
+                "launch",
+                f"{place}'s {name} bound is exactly "
+                f"{', '.join(LAUNCH_BOUNDARY_MEMBERS)}"
+                + (f"; missing {', '.join(missing)}" if missing else "")
+                + (f"; unexpected {', '.join(extra)}" if extra else ""))
+        for member in ("seconds", "default_seconds"):
+            value = one[member]
+            if type(value) is not int or type(value) is bool \
+                    or value < MIN_LAUNCH_SECONDS \
+                    or value > MAX_LAUNCH_SECONDS:
+                raise WorkerFault(
+                    "launch",
+                    f"{place}'s {name} {member} is {value!r}; this worker "
+                    f"hands a command a whole number of seconds between "
+                    f"{MIN_LAUNCH_SECONDS} and {MAX_LAUNCH_SECONDS}")
+        # THE ORIGIN AND THE SETTING ARE REPORTED, so they are held too: a
+        # bound whose origin this program cannot name is one it cannot explain
+        # to whoever reads a failure it caused.
+        if one["origin"] not in LAUNCH_ORIGINS:
+            raise WorkerFault(
+                "launch",
+                f"{place}'s {name} origin is {one['origin']!r} and this "
+                f"worker names {', '.join(LAUNCH_ORIGINS)}")
+        setting = LAUNCH_BOUNDARY_SETTING[name]
+        if one["setting"] != setting:
+            raise WorkerFault(
+                "launch",
+                f"{place}'s {name} names setting {one['setting']!r} and this "
+                f"boundary answers to {setting!r}; which setting moves a "
+                f"boundary is not something a delivery gets to say")
+        # AND THE THREE ANSWERS MUST AGREE WITH EACH OTHER. A boundary whose
+        # setting the Job REQUESTED is the Job's, at the requested number; one
+        # it did not request is the preserved default, at the default number.
+        # Anything else is a document contradicting itself -- `seconds: 30`
+        # beside a requested 60, or `compatibility` beside an explicit request --
+        # and this is checked from the document's OWN members rather than by
+        # re-resolving anything, because this container has no Job store and the
+        # current defaults are not the ones this Job was admitted under.
+        if setting in requested:
+            expected, origin = requested[setting], "job"
+        else:
+            expected, origin = one["default_seconds"], "compatibility"
+        if one["seconds"] != expected or one["origin"] != origin:
+            raise WorkerFault(
+                "launch",
+                f"{place}'s {name} reports {one['seconds']!r} from "
+                f"{one['origin']!r} and its own requested settings make that "
+                f"{expected!r} from {origin!r}; a configuration that "
+                f"contradicts itself is not one this container can act on")
+    # AND THE IDENTITIES ARE BOUNDED TEXT. [P2]: `job_id=False` was accepted,
+    # and an identity that is not one names nothing.
+    for name in ("job_id", "attempt_id", "job_input_digest",
+                 "job_policy_digest", "runtime_input_digest",
+                 "runtime_policy_digest", "execution_limits_digest"):
+        value = held[name]
+        if type(value) is not str or not value \
+                or len(value) > MAX_LAUNCH_VALUE:
+            raise WorkerFault(
+                "launch",
+                f"{place}'s job execution carries a {name} that is not "
+                f"bounded non-empty text")
+    return held
+
+
 def launched(document, place=LAUNCH_DOCUMENT):
     """The launch document held to its own closed contract.
 
@@ -579,8 +826,9 @@ def launched(document, place=LAUNCH_DOCUMENT):
     # authoritative. An unknown schema is held to `/1`'s set so the refusal
     # names the version rather than the members.
     given = document.get("schema")
-    members = (EXCHANGE_LAUNCH_MEMBERS if given == EXCHANGE_LAUNCH_SCHEMA
-               else LAUNCH_MEMBERS)
+    members = (JOB_LAUNCH_MEMBERS if given == JOB_LAUNCH_SCHEMA
+               else EXCHANGE_LAUNCH_MEMBERS
+               if given == EXCHANGE_LAUNCH_SCHEMA else LAUNCH_MEMBERS)
     missing = sorted(name for name in members if name not in document)
     extra = sorted(name for name in document if name not in members)
     if missing or extra:
@@ -589,13 +837,26 @@ def launched(document, place=LAUNCH_DOCUMENT):
             f"{place} is exactly {', '.join(members)}"
             + (f"; missing {', '.join(missing)}" if missing else "")
             + (f"; unexpected {', '.join(extra)}" if extra else ""))
-    if given not in (LAUNCH_SCHEMA, EXCHANGE_LAUNCH_SCHEMA):
+    if given not in (LAUNCH_SCHEMA, EXCHANGE_LAUNCH_SCHEMA,
+                     JOB_LAUNCH_SCHEMA):
         raise WorkerFault(
             "launch",
             f"{place} says it is {document['schema']!r} and this worker reads "
-            f"{LAUNCH_SCHEMA!r} and {EXCHANGE_LAUNCH_SCHEMA!r}; a launch "
-            f"document from another generation is not one to read the "
-            f"recognised parts out of")
+            f"{LAUNCH_SCHEMA!r}, {EXCHANGE_LAUNCH_SCHEMA!r} and "
+            f"{JOB_LAUNCH_SCHEMA!r}; a launch document from another "
+            f"generation is not one to read the recognised parts out of")
+    # W156162 [P2]: `/3`'S TRANSPORT IS EXCHANGE OR NULL, AND NOTHING ELSE.
+    # It was unchecked, so `transport='unknown/channel'` was accepted and
+    # `main` then treated it as a one-shot launch -- a container told to speak
+    # something nothing is listening to, deciding for itself that it had been
+    # told nothing.
+    if given == JOB_LAUNCH_SCHEMA \
+            and document.get("transport") not in (None, EXCHANGE_TRANSPORT):
+        raise WorkerFault(
+            "launch",
+            f"{place} selects transport {document.get('transport')!r} and "
+            f"this worker speaks {EXCHANGE_TRANSPORT!r} or none; a transport "
+            f"this program cannot name is a channel nothing is listening to")
     if given == EXCHANGE_LAUNCH_SCHEMA \
             and document.get("transport") != EXCHANGE_TRANSPORT:
         raise WorkerFault(
@@ -603,7 +864,17 @@ def launched(document, place=LAUNCH_DOCUMENT):
             f"{place} selects transport {document.get('transport')!r} and "
             f"this worker speaks {EXCHANGE_TRANSPORT!r}; a transport this "
             f"program cannot name is a channel nothing is listening to")
+    if given == JOB_LAUNCH_SCHEMA:
+        _job_execution(document, place)
     for name in members:
+        # THE TWO MEMBERS THAT ARE NOT BOUNDED TEXT. `/3`'s transport is
+        # deliberately null for a one-shot launch and its job execution is a
+        # document; both are proved above by their own rules, so holding them
+        # to the text bound here would refuse the shapes this version exists
+        # to carry.
+        if given == JOB_LAUNCH_SCHEMA and name in ("transport",
+                                                   "job_execution"):
+            continue
         value = document[name]
         if type(value) is not str or not value:
             raise WorkerFault(

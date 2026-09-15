@@ -1,0 +1,44 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling
+F..
+======================================================================
+FAIL: test_a_host_verification_that_exceeds_it_is_held_not_published (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_host_verification_that_exceeds_it_is_held_not_published)
+The bounded failure, through the composed owners.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1281, in test_a_host_verification_that_exceeds_it_is_held_not_published
+    self.case.pending_judgments()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7203, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8939, in integrating
+    held = self.both_accepted(**members)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8156, in both_accepted
+    held.second_review = self.accepted(
+                         ~~~~~~~~~~~~~^
+        held, "job-b", "implementation-worker-b", "review-worker-b",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        held.second, "print('the second job answered')\n",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        edits={"feature.py": self.B_FEATURE,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               "feature_check.py": self.B_CHECK})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7041, in accepted
+    self.produced(held, job_id, attempt_id, body, edits=edits)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7025, in produced
+    return self.drive_job(held.job, held.composed, job_id,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "implementation", "completed")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6931, in drive_job
+    self.fail(f"{job_id}'s {kind} stage never reached {want!r}: "
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              f"{self.states_for(job, composed, job_id)}")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: job-b's implementation stage never reached 'completed': {'implementation': 'answering', 'review': 'blocked', 'integration': 'blocked'}
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.621s
+
+FAILED (failures=1)

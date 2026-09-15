@@ -1,0 +1,21 @@
+[
+ {
+  "step": "review-173441",
+  "label": "scheduler-restart-amendment",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_target_effect_before_coordinator_settlement"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 60.0,
+  "elapsed_seconds": 1.5667393250041641,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/run-170385-step-review-173441.log"
+ }
+]

@@ -1,0 +1,19 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+......................................F.......
+======================================================================
+FAIL: test_the_same_command_under_the_image_default_is_not_held (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_same_command_under_the_image_default_is_not_held)
+THE CONTROL, and without it the case above proves only that a slow
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 699, in test_the_same_command_under_the_image_default_is_not_held
+    self.assertEqual(self._result()["outcome"], "complete")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'integrated' != 'complete'
+- integrated
++ complete
+
+
+----------------------------------------------------------------------
+Ran 46 tests in 5.114s
+
+FAILED (failures=1)

@@ -1,0 +1,8 @@
+{"terminal_artifact": {"acts": ["accept", "claim", "complete", "offer", "release", "reserve", "start"], "authorization_references": {}, "violations": []}}
+{"same_tick_release": []}
+{"foreign_release_identity": []}
+{"release_after_reservation_owner_instants": []}
+{"synthetic_extra_job_b_engine_start": true}
+{"candidate_reopen_assertions_accept_duplicate_start": true}
+{"job_b_sweep": {"acts": [], "refreshed": [{"attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "episode": 1, "stage_id": "job-b/integration", "state": "not-asked"}], "replaced": [], "spoken": [], "started": [{"attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "episode": 1, "outcome": "started", "runtime_id": null, "stage_id": "job-b/integration"}]}, "scripted_engine_stopped": true}
+{"job_b_sweep": {"acts": [], "refreshed": [{"attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "episode": 1, "stage_id": "job-b/integration", "state": "not-asked"}], "replaced": [], "spoken": [], "started": [{"attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e", "episode": 1, "outcome": "started", "runtime_id": null, "stage_id": "job-b/integration"}]}, "scripted_engine_stopped": false}

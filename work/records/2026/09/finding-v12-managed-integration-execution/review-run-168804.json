@@ -1,0 +1,20 @@
+{
+  "claim": 168804,
+  "utc": "2026-09-14T11:24:56.754947+00:00",
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-W",
+    "error",
+    "-c",
+    "import runpy, unittest, sys\nns=runpy.run_path(sys.argv[1], run_name=\"review_probe\")\nsuite=unittest.defaultTestLoader.loadTestsFromTestCase(ns[\"AdoptionBindings\"])\nsuite.addTests(unittest.defaultTestLoader.loadTestsFromName(\"tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_a_foreign_task_digest_refuses_and_writes_nothing\"))\nresult=unittest.TextTestRunner(verbosity=2).run(suite)\nsys.exit(not result.wasSuccessful())\n",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-adoption-168686.py"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "/home/sl/src/baton/v12/python/src:/home/sl/src/baton/v12/python",
+  "timeout_seconds": 30,
+  "elapsed_seconds": 0.28352203899703454,
+  "exit_code": 0,
+  "reviewer_previous_seconds": 25.48138067099353,
+  "reviewer_cumulative_seconds": 25.764902709990565,
+  "scope": "Six focused deterministic adoption identity cases using disposable Job/Control/coordinator owners and existing fixture session; no real Authority claim, worker process, engine, provider or image."
+}

@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle
+...........................................................................................................................................................................................................................................................................F..................................................................................................................................
+======================================================================
+FAIL: test_a_tampered_published_request_does_not_survive_its_composer (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_tampered_published_request_does_not_survive_its_composer)
+Recovery is not a trusting read. The document is adopted through
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 905, in test_a_tampered_published_request_does_not_survive_its_composer
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 398 tests in 21.105s
+
+FAILED (failures=1)

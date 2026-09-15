@@ -1,0 +1,17 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-slots.py
+WORKS CREATED ['baton.impl', 'baton.impl']
+SUBMITTED four jobs
+TICK 0 ok
+TICK 1 ok
+TICK 2 ok
+STAGE job-a/implementation implementation worker= implementation-worker
+STAGE job-a/review review worker= None
+STAGE job-a/integration integration worker= None
+STAGE job-b/implementation implementation worker= implementation-worker-b
+STAGE job-b/review review worker= None
+STAGE job-b/integration integration worker= None
+STAGE job-c/implementation implementation worker= None
+STAGE job-c/review review worker= None
+STAGE job-d/implementation implementation worker= None
+STAGE job-d/review review worker= None
+STATES {"job-a/implementation": {"stage": {"stage_id": "job-a/implementation", "job_id": "job-a", "ordinal": 0, "kind": "implementation", "work_id": "0000000a-W1", "profile_name": "reference", "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "depends_on": "[]"}, "episode": {"stage_id": "job-a/implementation", "episode": 1, "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "opened_at": "2026-09-02T00:00:00.000Z", "incarnation": "stage-composed", "ended_state": null, "ended_revision": null, "ended_at": null}, "attempt": {"stage_id": "job-a/implementation", "job_id": "job-a", "ordinal": 0, "kind": "implementation", "work_id": "0000000a-W1", "profile_name": "reference", "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "depends_on": "[]", "episode": 1, "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571"}, "history": [{"stage_id": "job-a/implementation", "episode": 1, "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "opened_at": "2026-

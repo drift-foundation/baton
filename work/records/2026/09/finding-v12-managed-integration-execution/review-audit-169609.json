@@ -1,0 +1,61 @@
+{
+  "candidate": [
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "sha256": "a8e5c4632c561fe99cd86b72c7e278ab8053cc6ebd4fadf1f02e6f2324a4e9db",
+      "bytes": 291820,
+      "mode": "0o664",
+      "match": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "3c597b7820b513be920009a76fa9eabdfea73322e28021b3146df1b9435f7de8",
+      "bytes": 62971,
+      "mode": "0o644",
+      "match": true
+    },
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "sha256": "45c840b1ab07ae9cf51d814f2c22e6524c0b1920571a22a45265d9c003740b76",
+      "bytes": 85232,
+      "mode": "0o644",
+      "match": true
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "sha256": "1996f8fdc3df90cf67dc9f6636bcd079ff047e8bb2d96d873551a7bb903aefaf",
+      "bytes": 162808,
+      "mode": "0o644",
+      "match": true
+    },
+    {
+      "path": "baton:v12/python/tools/integration_bundle.py",
+      "sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad",
+      "bytes": 73429,
+      "mode": "0o644",
+      "match": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c",
+      "bytes": 191339,
+      "mode": "0o664",
+      "match": true
+    }
+  ],
+  "runner": {
+    "path": "/tmp/w166281_run.py",
+    "sha256": "3d6399683221b24f52ce94a1f8ce2126e2168bdfb09f39374ae2b12bbb69397a",
+    "cumulative_gate": "Removed in read source",
+    "per_run_timeout_default": 300,
+    "process_cleanup": "subprocess.run timeout manages direct child; no new session/process-group TERM/KILL or independent descendant exclusion."
+  },
+  "ledger": {
+    "rows": 120,
+    "measured_sum_seconds": 1261.8719327218307,
+    "first116_measured_sum_seconds": 1175.6573671388498,
+    "historical_rows_unchanged": "Not independently established from a prior complete snapshot"
+  },
+  "runtime_tests_run": 0,
+  "reviewer_cumulative_seconds": 29.080372639036796
+}

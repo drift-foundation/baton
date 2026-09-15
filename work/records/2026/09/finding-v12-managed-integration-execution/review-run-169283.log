@@ -1,0 +1,13 @@
+test_a_resumed_sweep_that_moved_the_target_refuses (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_a_resumed_sweep_that_moved_the_target_refuses)
+WHAT A LATER SWEEP MAY NOT QUIETLY CHANGE. ... ok
+test_a_resumed_sweep_naming_a_second_child_work_refuses (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_a_resumed_sweep_naming_a_second_child_work_refuses)
+The child Work is composed, not derived, so a sweep that named ... ok
+test_an_unchanged_resumed_sweep_is_preserved (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_an_unchanged_resumed_sweep_is_preserved)
+Agreement is the ordinary case and carries no penalty: operands that ... ok
+test_the_first_sweep_carries_no_constraint (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_first_sweep_carries_no_constraint)
+An absent intent means nothing has been decided yet, so there is ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.038s
+
+OK

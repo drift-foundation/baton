@@ -1,0 +1,94 @@
+{
+  "work": "W170380",
+  "claim": 170415,
+  "files": [
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "baseline_sha256": "c14e72096ccf8d2401847d6a7c2c2c05f3f622b785535b57dada7787506ee6a5",
+      "sha256": "ab4a71aefc2593bf43198f56fadecbcaad6d41c42203cc891bcbf2b96d4d5171",
+      "bytes": 91968,
+      "target_mode": "0o644",
+      "candidate": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/candidate-170415/v12/python/tools/integration_worker.py"
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "baseline_sha256": "b2270c362902559e95109755864c03c76cc17376b98a32873da969b912b1840b",
+      "sha256": "ca9459aa445009edca50239220ff45ed4cf152acd117227a5355c1bd3c7d7bd1",
+      "bytes": 313335,
+      "target_mode": "0o664",
+      "candidate": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/candidate-170415/v12/python/tools/stage_execution.py"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "baseline_sha256": "d7e03914f8c30ebb0c7e1ca15e1bd1686295386573547b4be30a5b5432ab48a4",
+      "sha256": "e341cdba1f5c0cf7d6558138ebe2b789a1e1762322dd57ada07d2eb993e805ff",
+      "bytes": 80493,
+      "target_mode": "0o644",
+      "candidate": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/candidate-170415/v12/python/src/baton_v12/job_manager/integration_capacity.py"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "baseline_sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c",
+      "sha256": "b7c0bafd45a3d8f858936728f2a9173a57a5b625533fa21b6f95185e9ac54011",
+      "bytes": 192879,
+      "target_mode": "0o664",
+      "candidate": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/candidate-170415/v12/python/src/baton_v12/integration/reconciliation.py"
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "baseline_sha256": "aff15f263046746e3f1a32280d1c0192fccd0a2dc5cfc29bdda243fb0ec61bca",
+      "sha256": "c4461810b38c9bdee0c67e59d55fb14846624f1cd6db920f23a127ce284ad0dd",
+      "bytes": 166328,
+      "target_mode": "0o644",
+      "candidate": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/candidate-170415/v12/python/tests/job_manager/test_managed_integration_capacity.py"
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+      "baseline_sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a",
+      "sha256": "282d16cb5d7d4407db2dd47811db38f52e897b3c720d8bb259af360193fbbace",
+      "bytes": 94086,
+      "target_mode": "0o644",
+      "candidate": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/candidate-170415/v12/python/tests/integration/test_managed_storage.py"
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_entry.py",
+      "baseline_sha256": "4b4e43879d76250b7745ff89e9df1eb9d7656cc0c096f1adf1feaf56c3114fc0",
+      "sha256": "b3ebb8a5488e3cc361beb3c04527bad10a7bd81a98d3949b1fd75b58ae9b5620",
+      "bytes": 10466,
+      "target_mode": "0o644",
+      "candidate": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/candidate-170415/v12/worker/reconciliation_entry.py"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "baseline_sha256": "b6eefad9232cd3a26548603fefb663b1017acd684cef93c811391f1dc1dfbe9b",
+      "sha256": "1fe0f937d73262fedaeb0946cd5aab825630d0795f43864750e8b04ecbcb565c",
+      "bytes": 84239,
+      "target_mode": "0o644",
+      "candidate": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/candidate-170415/v12/python/tests/tools/test_managed_preparation.py"
+    }
+  ],
+  "unchanged_baseline_paths": [
+    "baton:v12/python/tools/integration_bundle.py",
+    "baton:v12/python/src/baton_v12/integration/managed_execution.py",
+    "baton:v12/python/tests/tools/test_integration_bundle.py",
+    "baton:v12/python/tests/tools/test_stage_execution.py",
+    "baton:v12/python/tests/tools/test_execution_limits.py",
+    "baton:v12/python/tests/integration/test_managed_execution.py",
+    "baton:v12/python/tools/single_worker.py",
+    "baton:v12/python/src/baton_v12/job_manager/delegation.py",
+    "baton:v12/python/src/baton_v12/job_manager/scheduler.py",
+    "baton:v12/python/src/baton_v12/job_manager/manager.py",
+    "baton:v12/python/src/baton_v12/job_manager/store.py",
+    "baton:v12/python/src/baton_v12/worker_manager/output.py",
+    "baton:v12/python/src/baton_v12/worker_manager/intake.py",
+    "baton:v12/python/src/baton_v12/worker_manager/exchange.py",
+    "baton:v12/python/src/baton_v12/worker_manager/attempts.py",
+    "baton:v12/python/src/baton_v12/integration/git_profile.py",
+    "baton:v12/worker/baton_worker.py",
+    "baton:v12/worker/worker-control-1.0.schema.json",
+    "baton:v12/python/DEPLOYMENT.md",
+    "baton:v12/worker/reconciliation_task.py",
+    "baton:v12/worker/Dockerfile.reconciliation",
+    "baton:v12/python/tests/manager/test_reconciliation_task.py"
+  ]
+}

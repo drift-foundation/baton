@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions
+.......................................
+----------------------------------------------------------------------
+Ran 39 tests in 13.754s
+
+OK

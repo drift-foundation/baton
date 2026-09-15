@@ -1,0 +1,164 @@
+{
+  "case": "causal-timeout-retries",
+  "ticks": [
+    {
+      "tick": 1,
+      "host_calls_added": 3,
+      "deferred": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "integrity",
+            "code": "schema",
+            "message": "the base causal observation carries the actual exit status it observed"
+          }
+        }
+      ]
+    },
+    {
+      "tick": 2,
+      "host_calls_added": 3,
+      "deferred": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "integrity",
+            "code": "schema",
+            "message": "the base causal observation carries the actual exit status it observed"
+          }
+        }
+      ]
+    },
+    {
+      "tick": 3,
+      "host_calls_added": 3,
+      "deferred": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "integrity",
+            "code": "schema",
+            "message": "the base causal observation carries the actual exit status it observed"
+          }
+        }
+      ]
+    },
+    {
+      "tick": 4,
+      "host_calls_added": 3,
+      "deferred": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "integrity",
+            "code": "schema",
+            "message": "the base causal observation carries the actual exit status it observed"
+          }
+        }
+      ]
+    }
+  ],
+  "total_host_calls": 12,
+  "judges": 0
+}
+{
+  "case": "post-import-timeout",
+  "calls": [
+    {
+      "argv": [
+        "python3",
+        "feature_check.py"
+      ],
+      "seconds": 77,
+      "where": "/home/sl/src/baton/v12/python/v12-w71917-i0fypq6b/state/integration/tmpxqjvqzgi"
+    }
+  ],
+  "reports": [
+    {
+      "tick": 1,
+      "started": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "started",
+          "runtime_id": null
+        }
+      ],
+      "spoken": []
+    },
+    {
+      "tick": 2,
+      "started": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "policy",
+            "code": "denied",
+            "message": "target 'target-a' is not open at fence 2; the grant this caller holds has been superseded or the target is blocked"
+          }
+        }
+      ],
+      "spoken": []
+    },
+    {
+      "tick": 3,
+      "started": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "policy",
+            "code": "denied",
+            "message": "target 'target-a' is not open at fence 2; the grant this caller holds has been superseded or the target is blocked"
+          }
+        }
+      ],
+      "spoken": []
+    },
+    {
+      "tick": 4,
+      "started": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "policy",
+            "code": "denied",
+            "message": "target 'target-a' is not open at fence 2; the grant this caller holds has been superseded or the target is blocked"
+          }
+        }
+      ],
+      "spoken": []
+    }
+  ],
+  "result_state": "authorized",
+  "target_unchanged": true,
+  "stage": {
+    "implementation": "completed",
+    "review": "completed",
+    "integration": "claimed"
+  },
+  "temporary_directories_remaining": [
+    "/home/sl/src/baton/v12/python/v12-w71917-i0fypq6b/state/integration/tmpxqjvqzgi"
+  ]
+}

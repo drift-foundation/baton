@@ -1,0 +1,73 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout
+.FFFF...........F.....
+======================================================================
+FAIL: test_a_bound_this_deployment_did_not_apply_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_bound_this_deployment_did_not_apply_is_refused) (seconds=999999)
+THE REVIEWER'S OWN PROBE, as a case. Changing ONLY the seconds --
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2647, in test_a_bound_this_deployment_did_not_apply_is_refused
+    self.refused_against_configuration(seconds=seconds))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2630, in refused_against_configuration
+    with self.assertRaises(Exception) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: Exception not raised
+
+======================================================================
+FAIL: test_a_bound_this_deployment_did_not_apply_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_bound_this_deployment_did_not_apply_is_refused) (seconds=78)
+THE REVIEWER'S OWN PROBE, as a case. Changing ONLY the seconds --
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2647, in test_a_bound_this_deployment_did_not_apply_is_refused
+    self.refused_against_configuration(seconds=seconds))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2630, in refused_against_configuration
+    with self.assertRaises(Exception) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: Exception not raised
+
+======================================================================
+FAIL: test_a_bound_this_deployment_did_not_apply_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_bound_this_deployment_did_not_apply_is_refused) (seconds=1)
+THE REVIEWER'S OWN PROBE, as a case. Changing ONLY the seconds --
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2647, in test_a_bound_this_deployment_did_not_apply_is_refused
+    self.refused_against_configuration(seconds=seconds))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2630, in refused_against_configuration
+    with self.assertRaises(Exception) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: Exception not raised
+
+======================================================================
+FAIL: test_a_command_this_deployment_did_not_configure_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_command_this_deployment_did_not_configure_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2651, in test_a_command_this_deployment_did_not_configure_is_refused
+    self.refused_against_configuration(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        command=["python3", "somebody-elses.py"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2630, in refused_against_configuration
+    with self.assertRaises(Exception) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: Exception not raised
+
+======================================================================
+FAIL: test_a_task_this_deployment_did_not_configure_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_task_this_deployment_did_not_configure_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2656, in test_a_task_this_deployment_did_not_configure_is_refused
+    self.refused_against_configuration(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        test_identity="some-other-task"))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2630, in refused_against_configuration
+    with self.assertRaises(Exception) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+AssertionError: Exception not raised
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.005s
+
+FAILED (failures=5)

@@ -1,0 +1,78 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.manager.test_execution_limits tests.job_manager.test_execution_limits
+FFFFFF..................................................
+======================================================================
+FAIL: test_a_ceiling_outside_the_supported_range_is_refused (tests.manager.test_execution_limits.TheConfigurationIsHeldToTheJobOwnersOwnRules.test_a_ceiling_outside_the_supported_range_is_refused)
+The Job owner's own range, reached rather than restated: a negative
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 180, in test_a_ceiling_outside_the_supported_range_is_refused
+    held = self.sealed(configuration)
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 155, in sealed
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_correctly_sealed_empty_configuration_is_refused (tests.manager.test_execution_limits.TheConfigurationIsHeldToTheJobOwnersOwnRules.test_a_correctly_sealed_empty_configuration_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 161, in test_a_correctly_sealed_empty_configuration_is_refused
+    self.sealed({})
+    ~~~~~~~~~~~^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 155, in sealed
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_forged_origin_is_refused (tests.manager.test_execution_limits.TheConfigurationIsHeldToTheJobOwnersOwnRules.test_a_forged_origin_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 195, in test_a_forged_origin_is_refused
+    self.sealed(configuration)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 155, in sealed
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_generation_this_build_does_not_hold_is_refused (tests.manager.test_execution_limits.TheConfigurationIsHeldToTheJobOwnersOwnRules.test_a_generation_this_build_does_not_hold_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 173, in test_a_generation_this_build_does_not_hold_is_refused
+    self.sealed(configuration)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 155, in sealed
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_an_effective_value_that_no_resolution_produces_is_refused (tests.manager.test_execution_limits.TheConfigurationIsHeldToTheJobOwnersOwnRules.test_an_effective_value_that_no_resolution_produces_is_refused)
+The seconds and the requested settings must agree: a document whose
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 190, in test_an_effective_value_that_no_resolution_produces_is_refused
+    self.sealed(configuration)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 155, in sealed
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_foreign_units_and_scope_are_refused (tests.manager.test_execution_limits.TheConfigurationIsHeldToTheJobOwnersOwnRules.test_foreign_units_and_scope_are_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 167, in test_foreign_units_and_scope_are_refused
+    held = self.sealed(configuration)
+  File "/home/sl/src/baton/v12/python/tests/manager/test_execution_limits.py", line 155, in sealed
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 56 tests in 0.030s
+
+FAILED (failures=6)

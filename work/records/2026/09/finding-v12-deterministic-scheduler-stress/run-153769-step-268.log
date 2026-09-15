@@ -1,0 +1,28 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs
+E
+======================================================================
+ERROR: test_the_opened_edge_and_one_integrator_serialize_four_jobs (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs)
+THE CONTINUATION, and the integration capacity the PLAN asks for.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2762, in test_the_opened_edge_and_one_integrator_serialize_four_jobs
+    self.b_and_terminal(held, trace)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2946, in b_and_terminal
+    second = self.reconciled_next(held, trace, {integrated})
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 3037, in reconciled_next
+    self.assertEqual(execution.result()["verdict"], "accepted")
+                     ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 2653, in result
+    _refuse("a judgment needs a completed frozen result in accepted custody",
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="refused", code="precondition")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 144, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: a judgment needs a completed frozen result in accepted custody
+
+----------------------------------------------------------------------
+Ran 1 test in 3.050s
+
+FAILED (errors=1)

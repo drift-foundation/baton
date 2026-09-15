@@ -1,0 +1,13 @@
+### label: d1-instants
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace"]
+### exit: 0
+### elapsed_seconds: 1.087022
+### STDOUT
+
+### STDERR
+..............................................
+----------------------------------------------------------------------
+Ran 46 tests in 0.907s
+
+OK

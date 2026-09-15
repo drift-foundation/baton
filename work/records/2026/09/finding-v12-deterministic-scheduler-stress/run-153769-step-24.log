@@ -1,0 +1,45 @@
+### label: c1-c3-fourth
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace"]
+### exit: 1
+### elapsed_seconds: 1.428262
+### STDOUT
+
+### STDERR
+FF....................................
+======================================================================
+FAIL: test_a_correction_opens_a_second_episode_on_the_same_line (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_correction_opens_a_second_episode_on_the_same_line)
+A requested correction is a real authorized transition too, and it
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1097, in test_a_correction_opens_a_second_episode_on_the_same_line
+    self.assertEqual(scheduler_trace.validate(artifact), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'code': 'overlapping-occupancy', 'detail[3634 chars]ne}}] != []
+
+First list contains 5 additional elements.
+First extra element 0:
+{'code': 'overlapping-occupancy', 'detail': 'worker_id implementation-worker was reserved for attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa while still holding attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'record': {'tick': 11, 'job_id': 'job-a', 'stage_id': 'job-a/implementation', 'episode': 2, 'attempt_id': 'attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa', 'act': 'reserve', 'outcome': 'performed', 'worker_id': 'implementation-worker', 'participant': None, 'principal': 'principal:baton.claude', 'operation_id': 'allocation.reserve:attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa', 'runtime_id': None, 'session_id': None, 'evidence': 'allocations:attempt-965a8ab887c7ad695594841e7bcfa101adaca7f42f72cbff9691f55f3a2157aa', 'cause': None}}
+
+Diff is 4995 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_an_accepted_review_is_a_real_authorized_transition (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_accepted_review_is_a_real_authorized_transition)
+Job A reaches a genuinely accepted review, and its trace validates.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1055, in test_an_accepted_review_is_a_real_authorized_transition
+    self.assertEqual(scheduler_trace.validate(artifact), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'code': 'duplicate-operation', 'detail':[1926 chars]ne}}] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+{'code': 'duplicate-operation', 'detail': 'operation offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571 was performed at ticks 7 and 10', 'record': {'tick': 10, 'job_id': 'job-a', 'stage_id': 'job-a/implementation', 'episode': 1, 'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'act': 'claim', 'outcome': 'performed', 'worker_id': None, 'participant': None, 'principal': None, 'operation_id': 'offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'runtime_id': None, 'session_id': None, 'evidence': 'receipts:job-a/implementation:1:claim', 'cause': None}}
+
+Diff is 2743 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 38 tests in 1.247s
+
+FAILED (failures=2)

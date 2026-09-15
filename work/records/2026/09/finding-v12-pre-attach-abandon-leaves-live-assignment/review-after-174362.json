@@ -1,0 +1,29 @@
+{
+  "at": "2026-09-15T03:03:18.085074+00:00",
+  "checks": [
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "c6ffbd87c98c8f730961f5d01d02aaa01db7be512d00b3ecf9094173eac05c3b",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/__init__.py",
+      "sha256": "cce4b68650b5f73c0fa1b17f8ddb16f354c45c35df8e6f983594834307b36f29",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/dogfood_operator.py",
+      "sha256": "335033111fffba338cc606cebbfe2470279b7786228e04f121610f0ceec1ba6b",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_dogfood_operator.py",
+      "sha256": "bfdb8bc7535e75be99ed49880bc33c9e087486becfc673e94552d84cbcd75068",
+      "matches": true
+    }
+  ],
+  "ledger_sha256": "92476ea560254494a5fb948fcb8fcefcadc6654baf95ed333aa5e83d3ab60774",
+  "log_sha256": "3bb387f56b6116509bcda183fccfbbaed66e1f31ddac2177f2cbea2db282a21a",
+  "reviewer_seconds": 8.220771550986683,
+  "author_seconds_separate": 65.02430466201622
+}

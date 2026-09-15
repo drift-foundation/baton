@@ -1,0 +1,47 @@
+{
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 303998,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "0a61711870d0bbddfffb6fea464cc93d38947fb43210b704759bf63f3b41237c"
+  }
+ ],
+ "claim": 170031,
+ "evidence_added": [
+  {
+   "bytes": 2087,
+   "mode": "0o644",
+   "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/evidence/traversal-probe-170031.py",
+   "sha256": "dad1cd81d0cd98f929d6b3828bc6391758dd04cd98ef688d37516bb37cee89df"
+  }
+ ],
+ "measured_probe": "evidence/traversal-probe-170031.py is bounded, runnable and self-measuring as the review asked: it registers the child route as a DEPLOYMENT act, drives the real sweep, prints where it stops and reports its own seconds -- 0.604501s for this run.",
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "owed_from_this_review": [
+  "recover exact owner receipts/claim settlement/assignment on later sweeps rather than reissuing accepted/claimed offers or reclaiming",
+  "the held-capacity recovery when a pre-intent interruption leaves the allocation recovery-required while the intent writer accepts only reserved -- with positive evidence, preserving holds, no reset or forced release",
+  "ChildAcceptance reusing the ACTUAL _SingleWorker.delivered / child worker_operations rather than repeating its checks",
+  "the ordinary child lifecycle, custody, adoption and the intended task material"
+ ],
+ "p1_fixed": "operands omitted the assignment contract, so create_work took contract=None and the Authority committed a claim WITH NO GENERATION. The port owns a CLOSED claim result -- assignment, immutable claim event, authorization decision -- and a v11 tuple mints no such event. Bound from baton_v12.authority.identity on the first sweep AND on recovery, since a resumed creation must replay under the same contract and a differing one is an operation collision.",
+ "the_question_i_did_not_guess": "nothing records the child's runtime attempt. In the ordinary path record_attempt belongs to the LAUNCH -- _SingleWorker.start records and activates before composing input and starting -- not to acceptance. So either PreparationExecution.prepare activates too early and activation belongs with the child's launch, or the child's record_attempt is a further part of the worker's act. Guessing this late is how the last several defects got in.",
+ "traversal_now": "creates the real child Work, issues the offer, the worker's acceptance SUCCEEDS, THE CLAIM COMMITS WITH ITS GENERATION, and it stops at activate_assignment: 'no runtime attempt'.",
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 143 child-contract-bound /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle",
+  "ledger": "145 rows, 1636.4170138338407s",
+  "no": "no engine, model, image build or destructive cleanup",
+  "result": "OK, 415 cases"
+ },
+ "what": "The child assignment contract is bound; the claim now commits with its generation and the traversal stops at activation with a question I did not guess at.",
+ "work": "2b077949-W161230"
+}

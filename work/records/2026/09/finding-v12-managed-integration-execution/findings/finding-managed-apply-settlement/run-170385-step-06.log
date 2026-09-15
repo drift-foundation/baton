@@ -1,0 +1,6 @@
+...............
+----------------------------------------------------------------------
+Ran 15 tests in 1.122s
+
+OK
+{"derived_revision": "f8086793358c7878ec08a0eee4350376846df5dc", "derived_tree": "e75b85b6c985a0cf4eacad6cfff393915e79c11e", "git_mode": "100755", "proof": "exact-preparation-object-export", "scratch_gone": true}

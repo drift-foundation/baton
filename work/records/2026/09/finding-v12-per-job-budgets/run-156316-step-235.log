@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_three_jobs_bind_three_ceilings_and_three_tasks
+.
+----------------------------------------------------------------------
+Ran 1 test in 1.302s
+
+OK

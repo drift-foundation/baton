@@ -1,0 +1,23 @@
+{
+  "validated_exports": 18,
+  "continued_completions": {
+    "job-a/implementation": 1,
+    "job-c/implementation": 1,
+    "job-d/implementation": 1,
+    "job-a/review": 1,
+    "job-c/review": 1,
+    "job-d/review": 1,
+    "job-b/implementation": 1,
+    "job-b/review": 1
+  },
+  "alternate_completions": {
+    "job-c/implementation": 1,
+    "job-d/implementation": 1,
+    "job-a/implementation": 1,
+    "job-c/review": 1,
+    "job-d/review": 1,
+    "job-a/review": 1
+  },
+  "max_continued_tick": 22,
+  "integration_completions": 0
+}

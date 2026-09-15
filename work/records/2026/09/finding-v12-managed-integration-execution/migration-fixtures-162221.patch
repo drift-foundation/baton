@@ -1,0 +1,36 @@
+--- a/v12/python/tests/job_manager/test_scheduling.py
++++ b/v12/python/tests/job_manager/test_scheduling.py
+@@ -104,7 +104,8 @@
+         # W156162: `job_execution_limits` is the 4 -> 5 step's object and was
+         # never in schema 3 either, so a fixture impersonating 3 by subtracting
+         # later objects has to subtract it too.
+-        for table in ("job_execution_limits", "worker_affinity",
++        for table in ("integration_capacity_members", "integration_capacity_roots",
++                      "job_execution_limits", "worker_affinity",
+                       "stage_allocations", "pool_workers",
+                       "pool_generations"):
+             connection.execute(f"DROP TABLE {table}")
+@@ -426,7 +427,8 @@
+         connection = sqlite3.connect(self.job_path, isolation_level=None)
+         try:
+             # W156162: and the 4 -> 5 step's object, for the same reason.
+-            for table in ("job_execution_limits", "worker_affinity",
++            for table in ("integration_capacity_members", "integration_capacity_roots",
++                          "job_execution_limits", "worker_affinity",
+                           "stage_allocations", "pool_workers",
+                           "pool_generations"):
+                 connection.execute(f"DROP TABLE {table}")
+--- a/v12/python/tests/job_manager/test_execution_limits.py
++++ b/v12/python/tests/job_manager/test_execution_limits.py
+@@ -520,7 +520,10 @@
+             # not always the first word. The table this build's 4 -> 5 step
+             # creates is named, and everything else is installed unchanged.
+             for statement in _statements(schema.SCHEMA):
+-                if "CREATE TABLE job_execution_limits" in statement:
++                if any(created in statement for created in (
++                        "CREATE TABLE job_execution_limits", "CREATE TABLE integration_capacity_roots",
++                        "CREATE TABLE integration_capacity_members",
++                        "CREATE UNIQUE INDEX capacity_one_active_member")):
+                     continue
+                 connection.execute(statement)
+             connection.execute(

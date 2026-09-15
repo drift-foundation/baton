@@ -1,0 +1,87 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+..................................E.EE.......
+======================================================================
+ERROR: test_a_port_with_no_job_owner_composes_exactly_what_it_always_did (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_a_port_with_no_job_owner_composes_exactly_what_it_always_did)
+The unchanged deployment. A port composed without the reader is not
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 639, in test_a_port_with_no_job_owner_composes_exactly_what_it_always_did
+    launch.adopt(self.fixture.place("launch-home"),
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 attempt_id=self.attempt,
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+                 session="integration-session",
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 contract="baton.worker-control/1",
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 role="integration")["schema"],
+                 ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 747, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 223, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'integrator-attempt''s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_the_configured_ceiling_decides_a_real_verification (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_configured_ceiling_decides_a_real_verification)
+THE WHOLE CHAIN, and no injected runner in it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 666, in test_the_configured_ceiling_decides_a_real_verification
+    answer = self._turn()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 709, in _turn
+    json.dump(self._materialized(), handle)
+              ~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 616, in _materialized
+    job_execution=self._port()._job_execution(self.attempt))
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 628, in _job_execution
+    _refuse(f"attempt {name_value(attempt_id)} names no Job from this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"execution's own preparation and this port resolves a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"Job's configured ceilings; a launch composed now would "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"state defaults this deployment never chose",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="refused", code="precondition")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 94, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'integrator-attempt' names no Job from this execution's own preparation and this port resolves a Job's configured ceilings; a launch composed now would state defaults this deployment never chose
+
+======================================================================
+ERROR: test_the_port_materializes_a_third_version_carrying_the_job (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_port_materializes_a_third_version_carrying_the_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 621, in test_the_port_materializes_a_third_version_carrying_the_job
+    held = self._materialized()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 616, in _materialized
+    job_execution=self._port()._job_execution(self.attempt))
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 628, in _job_execution
+    _refuse(f"attempt {name_value(attempt_id)} names no Job from this "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"execution's own preparation and this port resolves a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"Job's configured ceilings; a launch composed now would "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"state defaults this deployment never chose",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="refused", code="precondition")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 94, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'integrator-attempt' names no Job from this execution's own preparation and this port resolves a Job's configured ceilings; a launch composed now would state defaults this deployment never chose
+
+----------------------------------------------------------------------
+Ran 45 tests in 0.861s
+
+FAILED (errors=3)

@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_this_deployment_can_admit_only_one_derived_result
+.
+----------------------------------------------------------------------
+Ran 1 test in 1.509s
+
+OK

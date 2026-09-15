@@ -1,0 +1,41 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched
+FFF
+======================================================================
+FAIL: test_a_reopened_serving_adopts_the_same_two_deliveries (tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched.test_a_reopened_serving_adopts_the_same_two_deliveries) (job='job-a')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2085, in test_a_reopened_serving_adopts_the_same_two_deliveries
+    self.assertEqual(len(self.starts_naming(one["attempt_id"])),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     before[job_id])
+                     ^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_a_reopened_serving_adopts_the_same_two_deliveries (tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched.test_a_reopened_serving_adopts_the_same_two_deliveries) (job='job-b')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2085, in test_a_reopened_serving_adopts_the_same_two_deliveries
+    self.assertEqual(len(self.starts_naming(one["attempt_id"])),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     before[job_id])
+                     ^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_a_reopened_serving_adopts_the_same_two_deliveries (tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched.test_a_reopened_serving_adopts_the_same_two_deliveries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2091, in test_a_reopened_serving_adopts_the_same_two_deliveries
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        sum(len(self.starts_naming(one["attempt_id"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            for one in stages.values()), sum(before.values()))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2
+
+----------------------------------------------------------------------
+Ran 1 test in 0.206s
+
+FAILED (failures=3)

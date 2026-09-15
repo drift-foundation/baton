@@ -35,7 +35,11 @@ class SubmissionShape(unittest.TestCase):
 
     def test_the_default_submission_is_owned_whole(self):
         owned = owned_submission(submission())
-        self.assertEqual(owned["schema"], SUBMISSION_SCHEMA)
+        # W156162: THE DOCUMENT KEEPS ITS OWN VERSION. This fixture submits /1
+        # and /1 is still read, so the normalized document is /1 -- comparing
+        # it to `SUBMISSION_SCHEMA`, which now names /2, would assert that this
+        # build rewrites a caller's version and give one intent two identities.
+        self.assertEqual(owned["schema"], "baton.v12.job-submission/1")
         self.assertEqual([one["job_id"] for one in owned["jobs"]],
                          ["job-a", "job-b"])
         self.assertEqual([one["kind"] for one in owned["jobs"][0]["stages"]],
@@ -43,7 +47,10 @@ class SubmissionShape(unittest.TestCase):
 
     def test_an_unrecognised_schema_is_refused_rather_than_read_as_ours(self):
         document = submission()
-        document["schema"] = "baton.v12.job-submission/2"
+        # W156162 made /2 a version this build DOES read, so the unrecognised
+        # one this case is about moved on. The rule it asserts is unchanged:
+        # a version outside the set is refused rather than read as ours.
+        document["schema"] = "baton.v12.job-submission/9"
         refusal = self.refusal(document)
         self.assertEqual((refusal.category, refusal.code),
                          ("integrity", "schema"))

@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_storage
+....................................F........
+======================================================================
+FAIL: test_the_legacy_writer_refuses_a_key_the_managed_side_holds (tests.integration.test_managed_storage.TheUpgradeCarriesAGenuineLegacyResult.test_the_legacy_writer_refuses_a_key_the_managed_side_holds)
+THE REVERSE WRITE ORDER, through `prepare_result` itself rather
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1057, in test_the_legacy_writer_refuses_a_key_the_managed_side_holds
+    self.assertIn("managed_integration_results", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'managed_integration_results' not found in "the submission is already based on '2ce7706a6a71b97129f5954a038e236d7afae910'; a reconciliation answers a target that moved and there is nothing here to re-express"
+
+----------------------------------------------------------------------
+Ran 45 tests in 0.235s
+
+FAILED (failures=1)

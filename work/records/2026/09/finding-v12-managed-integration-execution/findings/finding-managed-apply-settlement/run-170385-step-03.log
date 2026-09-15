@@ -1,0 +1,38 @@
+E
+======================================================================
+ERROR: test_the_current_output_omits_the_derived_commit_and_executable_mode (tests.tools.test_managed_apply.ThePreparationHandoffNeedsItsGitObjects.test_the_current_output_omits_the_derived_commit_and_executable_mode)
+Observed scope blocker, not a passing managed-apply acceptance case.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 32, in test_the_current_output_omits_the_derived_commit_and_executable_mode
+    case.setUp()
+    ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 236, in setUp
+    self.published = bundle.compose_preparation_input(
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.input, request=self.request(), runner=_runner,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        repository=self.line.place)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_bundle.py", line 1414, in compose_preparation_input
+    _run(runner, export,
+    ~~~~^^^^^^^^^^^^^^^^
+         ("git", "-C", export, "update-ref",
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          "refs/accepted/" + name, revision),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         f"naming the accepted {name}")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_bundle.py", line 274, in _run
+    _gap(f"the retained line cannot answer {what}" +
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         (f": {detail}" if detail else ""))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_bundle.py", line 212, in _gap
+    raise ContractRefusal("refused", "precondition", message)
+baton_v12.contracts.errors.ContractRefusal: the retained line cannot answer naming the accepted candidate: fatal: update_ref failed for ref 'refs/accepted/candidate': cannot update ref 'refs/accepted/candidate': trying to write ref 'refs/accepted/candidate' with nonexistent object 4af3c0cbb5053fa85c25cc0c986e703e766cff79
+
+----------------------------------------------------------------------
+Ran 1 test in 0.023s
+
+FAILED (errors=1)

@@ -1,0 +1,85 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+.............................................................................EE.
+======================================================================
+ERROR: test_a_turn_with_no_delivery_between_two_bound_ones (tests.tools.test_execution_limits.TwoJobsCeilingsDoNotLeakIntoEachOther.test_a_turn_with_no_delivery_between_two_bound_ones)
+The legacy delivery keeps the image default and does not inherit the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1534, in _new_directory
+    os.mkdir(made, 0o700)
+    ~~~~~~~~^^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: '/tmp/v12-w156162-ab-s3h5cz1q/provider-ephemera'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1515, in test_a_turn_with_no_delivery_between_two_bound_ones
+    captured, _held = self.interleave(
+                      ~~~~~~~~~~~~~~~^
+        self.delivery("job-a", provider_turn_seconds=60),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        None,
+        ^^^^^
+        self.delivery("job-b", provider_turn_seconds=1200))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1502, in interleave
+    held.invoke_provider(prompt="a prompt", room=room, seen=one)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 594, in invoke_provider
+    environments = self._child_environments(scratch)
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1552, in _child_environments
+    _provider_root, provider_roots = self._new_ephemera(
+                                     ~~~~~~~~~~~~~~~~~~^
+        scratch, PROVIDER_EPHEMERA)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1543, in _new_ephemera
+    made = self._new_directory(scratch, name)
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1536, in _new_directory
+    raise TaskRefusal(
+        f"the private child root {made} already exists; predictable "
+        f"runtime paths are created exclusively and never repaired") from failed
+claude_agent.TaskRefusal: the private child root /tmp/v12-w156162-ab-s3h5cz1q/provider-ephemera already exists; predictable runtime paths are created exclusively and never repaired
+
+======================================================================
+ERROR: test_each_turn_is_bound_by_its_own_delivery (tests.tools.test_execution_limits.TwoJobsCeilingsDoNotLeakIntoEachOther.test_each_turn_is_bound_by_its_own_delivery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1534, in _new_directory
+    os.mkdir(made, 0o700)
+    ~~~~~~~~^^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: '/tmp/v12-w156162-ab-zzl07tyq/provider-ephemera'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1506, in test_each_turn_is_bound_by_its_own_delivery
+    captured, _held = self.interleave(
+                      ~~~~~~~~~~~~~~~^
+        self.delivery("job-a", provider_turn_seconds=60),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.delivery("job-b", provider_turn_seconds=1200),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.delivery("job-a", provider_turn_seconds=60))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1502, in interleave
+    held.invoke_provider(prompt="a prompt", room=room, seen=one)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 594, in invoke_provider
+    environments = self._child_environments(scratch)
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1552, in _child_environments
+    _provider_root, provider_roots = self._new_ephemera(
+                                     ~~~~~~~~~~~~~~~~~~^
+        scratch, PROVIDER_EPHEMERA)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1543, in _new_ephemera
+    made = self._new_directory(scratch, name)
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 1536, in _new_directory
+    raise TaskRefusal(
+        f"the private child root {made} already exists; predictable "
+        f"runtime paths are created exclusively and never repaired") from failed
+claude_agent.TaskRefusal: the private child root /tmp/v12-w156162-ab-zzl07tyq/provider-ephemera already exists; predictable runtime paths are created exclusively and never repaired
+
+----------------------------------------------------------------------
+Ran 80 tests in 7.070s
+
+FAILED (errors=2)

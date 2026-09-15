@@ -187,3 +187,112 @@ isolation, identity, credential, output, cleanup, restart, retry, race and
 failure-containment expectations may not be weakened or deleted. Any product
 runtime change beyond selecting and validating the parallel 1.1 schemas must
 return for scope review.
+
+## 2026-09-14 — correction under reviewer claim 168727
+
+**Confirmed:** the latest independent review,
+`review-2026-09-04T14-40-59Z.md`, requested four planning corrections, not a
+certification run. Revalidation confirms Worker Control §2.2 requires a major
+version; W151 still owns the consent-runtime axis; Python/worker consumers
+still select 1.0 and assignment-1; and control-store schema 18 expressly
+refuses cross-version migration. These are current observations, not merely
+historical review assertions.
+
+**Explicit supersession:** the September 4 proposed 1.1 transition and its
+schema-selection-only runtime path boundary above are withdrawn. The currently
+actionable proposal is `PLAN-CORRECTION-168727.md`: explicit Worker Control,
+Agent Session and Conformance 2.0 with assignment-2, W151 owner participation,
+bounded Authority/manager/worker adoption, fresh-store compatibility and a
+precise fail-closed equivalence comparison. It is a proposal for independent
+review and expanded scope selection, not a newly approved protocol ruling.
+Historical normative bytes remain untouched. Frozen SPEC supersessions will
+be recorded in owner FINDING/new-version SPEC, avoiding the contradictory old
+plan instruction to edit a frozen SPEC while preserving its bytes.
+
+**Provider state correction:** W32382 closed satisfying at 168717, with final
+review `work/records/2026/08/finding-v12-local-oci-negative-race-endings/review-2026-09-14T11-10-46Z.md`.
+All four children are closed, including W32577 at 168561 with final review
+`work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/review-2026-09-14T10-44-34Z.md`.
+The earlier open/unpinned-deadline statement above is superseded. The retained
+W32382 dependency is now satisfied. Provider acceptance supports planning;
+it does not supply new W33755 certification observations.
+
+**Policy correction:** September 13 standing test authority supersedes this
+record's older per-path test permission gate. September 14 removed cumulative
+development stopwatch admission gates. Neither authorizes an unselected
+protocol/product expansion or an unsupervised engine run. No tests, image
+builds, live providers or engine runs occurred in this planning correction.
+
+**Proposed release classification:** reference-only exhaustive certification
+remains later capability Work, outside the original W6/W3 finish line. The
+September 14 W2 release boundary makes it a candidate for v13 execution, not
+an automatically deferred or closed Work. Request explicit classification
+after independent plan review; preserve W33755's identity, dossier and v11
+authority. No dependency/containment change is made. Known correctness defects
+invalidating v12 delivery cannot be deferred under this recommendation.
+
+**Operational locator finding, resolved:** initial reads using shortened
+top-level Worker Control/Agent Session paths failed with ENOENT. A repository
+file search resolved both to the canonical worker-contract descendants listed
+in the proposal; the required source sections were then readable. The old
+review also uses a shortened Worker Control locator. This is a stale/shortened
+documentation locator, not evidence of a missing contract or a Baton defect.
+
+Current PLAN names the replacement proposal and its remaining gates. No
+PROGRESS, normative artifact, test source, application source or Git state was
+changed by this planning correction. Prior 74-test evidence belongs to the
+earlier planning handoff; no elapsed duration was reconstructed for it here.
+
+## 2026-09-14 — independent planning disposition, tuner claim168902
+
+Technical plan accepted for concrete expanded-scope selection in
+review-2026-09-14T11-39-30Z.md. All four September4 planning findings are resolved
+by PLAN-CORRECTION-168727.md, whose SHA256 remains
+eb11029fa8dc358567fbec63fa8136e838547a17595b4652cd36ddbb2fb062e9.
+This is not implementation/candidate acceptance or local-OCI certification.
+The expanded2.0/assignment-2 normative and product scope still needs recorded
+selection before implementation; the current PLAN separates that decision.
+
+**Explicit limited supersession of release-selection wording:** M168850 and
+independent reading confirm W2 FINDING2026-09-14T09:04:44Z already adopted the
+W33755 v13-hardening row in RELEASE-CLASSIFICATION-165799.md, repeated in
+RELEASE-CHECKLIST-167877.md. The preceding proposed-release paragraph and the
+proposal/author review's requests to select that classification are superseded.
+Do not request the same release strategy again. Preserve the digest-bound
+proposal and prior reviews unchanged. The row's older1.1 label is not authority
+to violate the major-version rule or to implement the new expanded scope.
+No v13 execution, authority migration or graph/containment change follows.
+
+Canonical provider snapshot168914 confirms W32382 and all four children closed
+satisfying; its retained dependency is satisfied. Static review independently
+matches author-bound inputs, all136 current case digests and bidirectional links
+for79 obligations, with135 local-OCI cases. review-audit-168902.json preserves
+the pre-review input identities. Measured static checks0.00541068401071243s;
+other reads unmeasured, runtime/tests0s. No fresh certification observation,
+product/test/normative/PROGRESS edit or Git mutation occurred. Return to
+baton.feat for concrete expanded-scope selection only.
+
+## 2026-09-14 — scope decision packet, reviewer claim168961
+
+Read the complete returned handoff and discussion, current dossier, unchanged
+proposal and independent acceptance review. SCOPE-SELECTION-168961.md packages
+the remaining concrete decision for baton.decide: adopt the independently
+reviewed 2.0/assignment-2 normative and enumerated runtime-adoption scope for
+the already selected v13 outcome. This recommendation is not an owner ruling.
+No further technical planning correction is requested by the independent review.
+
+The W2 owner ruling09:04:44Z already selects classification and keeps v13
+execution parked until readiness. Scope adoption and permission to start
+implementation are distinct. Do not reopen release strategy or automatically
+dispatch implementation after this planning handoff. Preserve W33755's identity,
+open outcome, v11 authority and satisfied W32382 dependency; no graph edit or
+new Work is needed. Later execution requires current ownership coordination,
+candidate/equivalence review and separately prepared supervised proof.
+
+selection-audit-168961.json finds all 28 rechecked proposal/historical/source
+inputs unchanged, measured0.0010344820038881153s. No tests or runtime execution
+occurred. Earlier static costs and unknown historical test duration remain
+attributed in the packet. Only dossier planning/decision evidence changed;
+the frozen proposal digest, prior reviews, PROGRESS and product/normative/test
+bytes remain preserved. Current PLAN now routes this concrete decision packet
+to baton.decide rather than another planning-review loop.

@@ -1,0 +1,105 @@
+{
+  "configured_derived_launches": [
+    {
+      "kind": "verification",
+      "job_id": "job-b",
+      "attempt_id": "judgment-7688466e38f3c22e016f8357ed2277454b9d66708153b9b30c3ea0a061c36b39",
+      "runtime_input_digest": "sha256:73ea96a41330f16c6bfb33667feac09bd5d5870d2cac48887fdd59da00aa2e19",
+      "job_input_digest": "sha256:bb592c96522b6672a96df59672e0cb66a7797be56859ba2ebbc363af74d06bb8",
+      "boundaries": {
+        "host_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 300
+        },
+        "integration_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 1800
+        },
+        "ordinary_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 900
+        },
+        "provider_turn": {
+          "seconds": 67,
+          "origin": "job",
+          "setting": "provider_turn_seconds",
+          "default_seconds": 3600
+        }
+      }
+    },
+    {
+      "kind": "review",
+      "job_id": "job-b",
+      "attempt_id": "judgment-cb7e8e5abc98460d13b901803544de432f82bd61768a9bfa4609e5c6b1de449e",
+      "runtime_input_digest": "sha256:71f6df2638d0d7265a036189a4545320137db0b4cf4f1468aa73bbca333c74ab",
+      "job_input_digest": "sha256:bb592c96522b6672a96df59672e0cb66a7797be56859ba2ebbc363af74d06bb8",
+      "boundaries": {
+        "host_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 300
+        },
+        "integration_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 1800
+        },
+        "ordinary_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 900
+        },
+        "provider_turn": {
+          "seconds": 67,
+          "origin": "job",
+          "setting": "provider_turn_seconds",
+          "default_seconds": 3600
+        }
+      }
+    },
+    {
+      "kind": "approval",
+      "job_id": "job-b",
+      "attempt_id": "judgment-9bd7f5b527c595390e3c66eba9547bb2a371acc9548c474e750d55dba9bbfe5e",
+      "runtime_input_digest": "sha256:9a60a8a213605410bd234f603cb997e49ecc511f01a5f0de166868ba45806994",
+      "job_input_digest": "sha256:bb592c96522b6672a96df59672e0cb66a7797be56859ba2ebbc363af74d06bb8",
+      "boundaries": {
+        "host_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 300
+        },
+        "integration_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 1800
+        },
+        "ordinary_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 900
+        },
+        "provider_turn": {
+          "seconds": 67,
+          "origin": "job",
+          "setting": "provider_turn_seconds",
+          "default_seconds": 3600
+        }
+      }
+    }
+  ]
+}
+W103068 genuine consumer evidence {"derived_proposal": "proposal-result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "derived_result": "result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "jobs": {"job-a": {"implementation": "completed", "integration": "completed", "review": "completed"}, "job-b": {"implementation": "completed", "integration": "completed", "review": "completed"}}, "judgments": [{"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.verifier", "principal": "principal:baton.verifier", "runtime_attempt_id": "judgment-7688466e38f3c22e016f8357ed2277454b9d66708153b9b30c3ea0a061c36b39", "work_id": "0000000a-W3"}, "attempt_id": "judgment-7688466e38f3c22e016f8357ed2277454b9d66708153b9b30c3ea0a061c36b39", "receipt_digest": "sha256:15567bf15597831cb7a8c09f2556d49ee672f32ea53d3ba6b884b59487583b0c", "result_digest": "sha256:abea12e09bf9d66945c56b5e94db84d196ad175cc696d44a2b7149b5ddc2e91a", "result_id": "result-judgment-7688466e38f3c22e016f8357ed2277454b9d66708153b9b30c3ea0a061c36b39", "subject": {"candidate": "c8daf6005c65a3b363d6da8638930829308c8831", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "4131a6a1f6f8ace070442595aa3ee7220a4bfe93", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "c8daf6005c65a3b363d6da8638930829308c8831", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "08ce2c6fbf77b06bb940524bcb0ecc3e13524eb3", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "derived_result_digest": "sha256:143e985da9d49c84005ae87c04d8c3b8037a77791afe94129e30ab9eae22c37f", "derived_result_id": "derived-result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "job_id": "job-b", "kind": "verification", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "source_base": "4131a6a1f6f8ace070442595aa3ee7220a4bfe93", "source_candidate": "08ce2c6fbf77b06bb940524bcb0ecc3e13524eb3", "source_proposal_id": "integration-driver.proposal:fd451154428a2339f9d01d4d924c4fd6820eb74a0eb65275e62b4195c8f2c015", "target_revision": "815cc5015a5d292bf426e2b58bc40ddc2bce428b", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver-review", "principal": "principal:baton.approver-review", "runtime_attempt_id": "judgment-cb7e8e5abc98460d13b901803544de432f82bd61768a9bfa4609e5c6b1de449e", "work_id": "0000000a-W4"}, "attempt_id": "judgment-cb7e8e5abc98460d13b901803544de432f82bd61768a9bfa4609e5c6b1de449e", "receipt_digest": "sha256:c207e235be3b54350f562e5ee6c323beeab26fae052dd52ca0a78bd057c3f6ea", "result_digest": "sha256:0f37e4a596ff99574521740ece919b7b5b86e0da03f866edbfa2f3ad3d187b0e", "result_id": "result-judgment-cb7e8e5abc98460d13b901803544de432f82bd61768a9bfa4609e5c6b1de449e", "subject": {"candidate": "c8daf6005c65a3b363d6da8638930829308c8831", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "4131a6a1f6f8ace070442595aa3ee7220a4bfe93", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "c8daf6005c65a3b363d6da8638930829308c8831", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "08ce2c6fbf77b06bb940524bcb0ecc3e13524eb3", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "derived_result_digest": "sha256:143e985da9d49c84005ae87c04d8c3b8037a77791afe94129e30ab9eae22c37f", "derived_result_id": "derived-result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "job_id": "job-b", "kind": "review", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "source_base": "4131a6a1f6f8ace070442595aa3ee7220a4bfe93", "source_candidate": "08ce2c6fbf77b06bb940524bcb0ecc3e13524eb3", "source_proposal_id": "integration-driver.proposal:fd451154428a2339f9d01d4d924c4fd6820eb74a0eb65275e62b4195c8f2c015", "target_revision": "815cc5015a5d292bf426e2b58bc40ddc2bce428b", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver", "principal": "principal:baton.approver", "runtime_attempt_id": "judgment-9bd7f5b527c595390e3c66eba9547bb2a371acc9548c474e750d55dba9bbfe5e", "work_id": "0000000a-W5"}, "attempt_id": "judgment-9bd7f5b527c595390e3c66eba9547bb2a371acc9548c474e750d55dba9bbfe5e", "receipt_digest": "sha256:53145fae832e72639295dfed376171d6d469fb447e43ae8f852d2e695b2f67c2", "result_digest": "sha256:16732aa93708d67d3839e848c788da942a364d0d3ed039ab01cac6c1044bf900", "result_id": "result-judgment-9bd7f5b527c595390e3c66eba9547bb2a371acc9548c474e750d55dba9bbfe5e", "subject": {"candidate": "c8daf6005c65a3b363d6da8638930829308c8831", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "4131a6a1f6f8ace070442595aa3ee7220a4bfe93", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "c8daf6005c65a3b363d6da8638930829308c8831", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "08ce2c6fbf77b06bb940524bcb0ecc3e13524eb3", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "derived_result_digest": "sha256:143e985da9d49c84005ae87c04d8c3b8037a77791afe94129e30ab9eae22c37f", "derived_result_id": "derived-result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "job_id": "job-b", "kind": "approval", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "source_base": "4131a6a1f6f8ace070442595aa3ee7220a4bfe93", "source_candidate": "08ce2c6fbf77b06bb940524bcb0ecc3e13524eb3", "source_proposal_id": "integration-driver.proposal:fd451154428a2339f9d01d4d924c4fd6820eb74a0eb65275e62b4195c8f2c015", "target_revision": "815cc5015a5d292bf426e2b58bc40ddc2bce428b", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}], "receipts": [{"actor": "baton.approver-review", "candidate_digest": "c8daf6005c65a3b363d6da8638930829308c8831", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver-review", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver-review", "role": "review"}, "disposition": "accepted", "kind": "review", "policy_generation": null, "proposal_id": "proposal-result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "receipt_id": "judgment-4b29b356f4cbae9521135a06da3c495753dee4c6a68839aac9c8c1ce3fcae971", "recorded_at": "2026-09-13T04:03:00.495Z", "target": "815cc5015a5d292bf426e2b58bc40ddc2bce428b"}, {"actor": "baton.verifier", "candidate_digest": "c8daf6005c65a3b363d6da8638930829308c8831", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.verifier", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.verifier", "role": "verify"}, "disposition": "passed", "kind": "verification", "policy_generation": null, "proposal_id": "proposal-result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "receipt_id": "judgment-90392a4e261143b8996df782fc5c5a3bc7b0159b561ccc89564f195096bc21af", "recorded_at": "2026-09-13T04:03:00.495Z", "target": "815cc5015a5d292bf426e2b58bc40ddc2bce428b"}, {"actor": "baton.approver", "candidate_digest": "c8daf6005c65a3b363d6da8638930829308c8831", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver", "role": "approve"}, "disposition": "approved", "kind": "approval", "policy_generation": 15, "proposal_id": "proposal-result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "receipt_id": "judgment-a149afab31bb76cc764a46c579d9d708bcfd6161cd43bb7af48b937f7ea92708", "recorded_at": "2026-09-13T04:03:00.496Z", "target": "815cc5015a5d292bf426e2b58bc40ddc2bce428b"}, {"actor": "baton.integrator", "candidate_digest": "c8daf6005c65a3b363d6da8638930829308c8831", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.integrator", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.integrator", "role": "integrate"}, "disposition": "integrated", "kind": "integration", "policy_generation": null, "proposal_id": "proposal-result-bf219cdd011b63a0a4dbbfedeef6647e070d67dbebfc0aa89f737141922d0daf", "receipt_id": "integration-driver.integration-receipt:5d432acb0a5cf3edfb7cbc97ac8ca4ea45461a30d3a1a591784c4d43de936c95", "recorded_at": "2026-09-13T04:03:00.569Z", "target": "815cc5015a5d292bf426e2b58bc40ddc2bce428b"}], "target": "c8daf6005c65a3b363d6da8638930829308c8831"}
+Configured derived lifecycle: three judged results, both integrations complete, replay/cleanup assertions passed.

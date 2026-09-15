@@ -1,5 +1,14 @@
 # Current hardening sequence
 
+**Release assignment: v13 hardening, confirmed by Slawomir 2026-09-14.**
+W103950 is not a v12 delivery prerequisite despite its historical V12 title.
+W2's release-boundary ruling and this record's dated clarification supersede
+older current-release scheduling interpretations. W165782 owns queue
+classification and proposed explicit relationship changes. Preserve all evidence
+and assess actual correctness children separately; the expanded hardening matrix
+must not be swept into v12. The sequence below describes the retained technical
+work when scheduled, not an instruction to resume it now.
+
 First test-only slice independently assessed in review-2026-09-09T18-09-01Z.md: valid3-case
 reproduction,2 pass/1 confirmed failure, exact candidate retained. Parent full
 acceptance remains pending; the red assertion stays intact.

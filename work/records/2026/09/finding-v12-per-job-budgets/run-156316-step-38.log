@@ -1,0 +1,15 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+...........F.
+======================================================================
+FAIL: test_an_unknown_version_is_still_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_an_unknown_version_is_still_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 136, in test_an_unknown_version_is_still_refused
+    self.assertIn("another generation", self.refused(held))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'another generation' not found in '/run/baton/launch.json is exactly schema, session, contract, role; unexpected job_execution, transport'
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.001s
+
+FAILED (failures=1)

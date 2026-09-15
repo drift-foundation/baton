@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_managed_integration_capacity
+.............................................................
+----------------------------------------------------------------------
+Ran 61 tests in 0.507s
+
+OK

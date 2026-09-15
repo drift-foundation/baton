@@ -1,0 +1,19 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157442-turns.py
+PRODUCERS {'job-a/implementation': 'implementation-worker', 'job-b/implementation': None, 'job-c/implementation': 'implementation-worker-c', 'job-d/implementation': 'implementation-worker-d'}
+PRODUCED job-a {'implementation': 'completed', 'review': 'queued', 'integration': 'blocked'}
+PRODUCED job-c {'implementation': 'completed', 'review': 'queued', 'integration': 'blocked'}
+PRODUCED job-d {'implementation': 'completed', 'review': 'queued', 'integration': 'blocked'}
+STATES job-a {'implementation': 'completed', 'review': 'waiting', 'integration': 'blocked'}
+STATES job-b {'implementation': 'blocked', 'review': 'blocked', 'integration': 'blocked'}
+STATES job-c {'implementation': 'completed', 'review': 'offered', 'integration': 'blocked'}
+STATES job-d {'implementation': 'completed', 'review': 'queued', 'integration': 'blocked'}
+REVIEWED job-a attempt-9e961a44d61d
+REVIEWED job-c attempt-f9b537ba4bfd
+REVIEWED job-d attempt-0d7a58ed0952
+AFTER job-a {'implementation': 'completed', 'review': 'answering', 'integration': 'blocked'}
+AFTER job-b {'implementation': 'blocked', 'review': 'blocked', 'integration': 'blocked'}
+AFTER job-c {'implementation': 'completed', 'review': 'answering', 'integration': 'blocked'}
+AFTER job-d {'implementation': 'completed', 'review': 'answering', 'integration': 'blocked'}
+A/REVIEW state "answering"
+A/REVIEW ending {"intent": {"stage_id": "job-a/review", "job_id": "job-a", "kind": "review", "episode": 1, "offer_id": "offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c", "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c", "work_id": "0000000a-W1", "assignment": {"work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}
+A/REVIEW KEYS ['attempt', 'ending', 'episode', 'history', 'observed', 'receipts', 'stage', 'state']

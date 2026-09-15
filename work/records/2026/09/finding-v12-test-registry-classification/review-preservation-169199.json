@@ -1,0 +1,163 @@
+{
+  "leaf_fixture_checks": [
+    {
+      "path": "v12/python/tests/integration/test_managed_execution.py",
+      "candidate_revalidation_sha256": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "current_sha256": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/integration/test_managed_storage.py",
+      "candidate_revalidation_sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a",
+      "current_sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/integration/test_reconciliation.py",
+      "candidate_revalidation_sha256": "213520989b628f414d3f0ad27fce2d1f4131cf48435f2ed6af1c5f4c29b77a72",
+      "current_sha256": "213520989b628f414d3f0ad27fce2d1f4131cf48435f2ed6af1c5f4c29b77a72",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_execution_limits.py",
+      "candidate_revalidation_sha256": "9df0c9078bfa7a0d47c95cb4c5be7349569875579bfabd90457d0620a186e465",
+      "current_sha256": "9df0c9078bfa7a0d47c95cb4c5be7349569875579bfabd90457d0620a186e465",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "candidate_revalidation_sha256": "88aace0104a6ef77e25e3a497bddc0d08666f746a8559e0f6bf8c42909828bf9",
+      "current_sha256": "88aace0104a6ef77e25e3a497bddc0d08666f746a8559e0f6bf8c42909828bf9",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_execution_limits.py",
+      "candidate_revalidation_sha256": "95087d91d67b89b4b022a6a2a085e52ec001a24104ba20d3748b9ade76fa1afd",
+      "current_sha256": "95087d91d67b89b4b022a6a2a085e52ec001a24104ba20d3748b9ade76fa1afd",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_reconciliation_task.py",
+      "candidate_revalidation_sha256": "aba97240578c840c1af40e5a0661d6f04e4a54b87de0d236afc53477444a9654",
+      "current_sha256": "aba97240578c840c1af40e5a0661d6f04e4a54b87de0d236afc53477444a9654",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_reconciliation_worker.py",
+      "candidate_revalidation_sha256": "c0d7f2d1f90a1a5d024c034c83ef71fdc161888f37817e198fd318b08c67bd98",
+      "current_sha256": "c0d7f2d1f90a1a5d024c034c83ef71fdc161888f37817e198fd318b08c67bd98",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadline_engine.py",
+      "candidate_revalidation_sha256": "6a7156689506266c948572a3e7de0f4fc161b12beed55c0aaf9ffdcf8affad1d",
+      "current_sha256": "6a7156689506266c948572a3e7de0f4fc161b12beed55c0aaf9ffdcf8affad1d",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadline_engine_budget.py",
+      "candidate_revalidation_sha256": "06fc7a3366dcb985cda5db548de699618042185c6edadafd51c741bd1012c34d",
+      "current_sha256": "06fc7a3366dcb985cda5db548de699618042185c6edadafd51c741bd1012c34d",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadlines.py",
+      "candidate_revalidation_sha256": "0caf835093a0fd14663d99ca2a73e27767da259c2ac513c549005c6fe97389d1",
+      "current_sha256": "0caf835093a0fd14663d99ca2a73e27767da259c2ac513c549005c6fe97389d1",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_execution_limits.py",
+      "candidate_revalidation_sha256": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "current_sha256": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_job_viewer.py",
+      "candidate_revalidation_sha256": "bbbc6be5ffc35774654336a41f9d0c36182f013ae53feb3b14203ce0245b476b",
+      "current_sha256": "bbbc6be5ffc35774654336a41f9d0c36182f013ae53feb3b14203ce0245b476b",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_live_ab.py",
+      "candidate_revalidation_sha256": "1528a2ed8fcb98ed059421b7f0b2a1de9de370b8f2e4fd3fba6b5ea5a2a42279",
+      "current_sha256": "1528a2ed8fcb98ed059421b7f0b2a1de9de370b8f2e4fd3fba6b5ea5a2a42279",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_integration.py",
+      "candidate_revalidation_sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "current_sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_preparation.py",
+      "candidate_revalidation_sha256": "690629e9b8e98e93737a3807bada30e49e90f48136cf02f4a9f263f4cd9ad71c",
+      "current_sha256": "1e1d847aacd4b4d3222ac3c8e88b66ec0d02421d6476f6984c3fc76233f4a9fe",
+      "matches": false
+    },
+    {
+      "path": "v12/python/tests/tools/test_scheduler_trace.py",
+      "candidate_revalidation_sha256": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+      "current_sha256": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution_hardening.py",
+      "candidate_revalidation_sha256": "92e7478e8ba97b104955715eb14d81b28d6279756bb78860b77a76ea8a32ebd3",
+      "current_sha256": "92e7478e8ba97b104955715eb14d81b28d6279756bb78860b77a76ea8a32ebd3",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution_status_hardening.py",
+      "candidate_revalidation_sha256": "acdd44ae69d6ad2ba78567cd607ca5efb711364af544024a80de59ba2fa020af",
+      "current_sha256": "acdd44ae69d6ad2ba78567cd607ca5efb711364af544024a80de59ba2fa020af",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_standalone_ab.py",
+      "candidate_revalidation_sha256": "15a6bcdd4f8a3516912d8c084dac829e1927d374156eed10f0e0c350b66b4dd0",
+      "current_sha256": "15a6bcdd4f8a3516912d8c084dac829e1927d374156eed10f0e0c350b66b4dd0",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/integration/fixtures.py",
+      "candidate_revalidation_sha256": "4cd22c4ce19e77aa42992d8f7f93528e391fc00d80931ad5acc335f776acea9d",
+      "current_sha256": "4cd22c4ce19e77aa42992d8f7f93528e391fc00d80931ad5acc335f776acea9d",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/job_manager/fixtures.py",
+      "candidate_revalidation_sha256": "439a21f71a859bd4aa00092aa6bc8018d6c614825acd0a886c1e0853f91fc434",
+      "current_sha256": "439a21f71a859bd4aa00092aa6bc8018d6c614825acd0a886c1e0853f91fc434",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/test_attempts.py",
+      "candidate_revalidation_sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0",
+      "current_sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/manager/disk_roots.py",
+      "candidate_revalidation_sha256": "53dc1fa9b99697c8b6ea0597579ba05135a6a7707f798d15d9a8da2b5dd85c08",
+      "current_sha256": "53dc1fa9b99697c8b6ea0597579ba05135a6a7707f798d15d9a8da2b5dd85c08",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "candidate_revalidation_sha256": "409cb7b771e902cea0a28bce5635b422f92110a5a5491eb461c8982817b027f9",
+      "current_sha256": "409cb7b771e902cea0a28bce5635b422f92110a5a5491eb461c8982817b027f9",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "candidate_revalidation_sha256": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "current_sha256": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "matches": true
+    }
+  ],
+  "candidate_still_matches": true,
+  "justfile_sha256": "e141dca0cbf80dab6dc300eeef34b0b02a2b834df398c37e64fb44e5b3822e9a",
+  "justfile_matches_author": true
+}

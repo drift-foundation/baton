@@ -65,6 +65,7 @@ stage is identified by its Job and its kind, which is why one Job carries at
 most one stage of each kind and why a dependency names exactly that pair.
 """
 
+from . import execution_limits
 from ..contracts import (ContractRefusal, canonical_text,
                          check_relative_path, own)
 from ..contracts.errors import name_value, sample_of
@@ -77,7 +78,9 @@ __all__ = ["ACTS", "CONTRACTS", "CORRECTION_ENDINGS", "DEPENDENCY_MEMBERS",
            "JOB_MEMBERS",
            "MAX_JOBS", "MAX_STAGES", "REPLACEABLE_ENDINGS", "STAGE_KINDS",
            "STAGE_MEMBERS", "STAGE_STATES", "STATUS_SCHEMA",
-           "SUBMISSION_MEMBERS", "SUBMISSION_SCHEMA", "TERMINAL_POLICIES",
+           "SUBMISSION_LIMITS_SCHEMAS",
+           "SUBMISSION_MEMBERS", "SUBMISSION_SCHEMA", "SUBMISSION_SCHEMAS",
+           "TERMINAL_POLICIES",
            "TERMINAL_STAGE_STATES", "act", "correction", "dependency_gate",
            "job_status",
            "owned_submission", "read_submission", "receipt", "reconciliation",
@@ -85,7 +88,20 @@ __all__ = ["ACTS", "CONTRACTS", "CORRECTION_ENDINGS", "DEPENDENCY_MEMBERS",
            "status",
            "submission_recorded", "submission_signature", "sweep_report"]
 
-SUBMISSION_SCHEMA = "baton.v12.job-submission/1"
+# W156162 moved this to /2. A Job may now carry `execution_limits`, and a
+# reader written against /1 would see a Job whose provider turn and verification
+# commands have ceilings it does not know were configured. The version is in the
+# name so that reader is told rather than left to find out.
+#
+# /1 IS STILL READ, AND THAT IS THE POINT. The owner's decision preserves every
+# runner default for a Job that states nothing, and a /1 submission states
+# nothing -- so it resolves to exactly the behaviour it had before this Work.
+# Refusing /1 would have made a compatibility promise into a migration.
+SUBMISSION_SCHEMA = "baton.v12.job-submission/2"
+SUBMISSION_SCHEMAS = ("baton.v12.job-submission/1", SUBMISSION_SCHEMA)
+# Which submitted members each version admits. `execution_limits` is optional
+# even in /2: a Job that configures nothing is the ordinary case.
+SUBMISSION_LIMITS_SCHEMAS = (SUBMISSION_SCHEMA,)
 # W73629 moved this to /2. A stage now reports the EPISODES it has been through
 # and its offer/attempt identities name the current one, so a reader written
 # against /1 would see one stage's history as the stage itself. The version is
@@ -99,7 +115,10 @@ SUBMISSION_SCHEMA = "baton.v12.job-submission/1"
 # out.
 # W71877 moved this to /4. A stage now reports its scheduler allocation
 # history beside the Worker Manager's assignment and runtime identities.
-STATUS_SCHEMA = "baton.v12.job-status/4"
+# W156162 moved this to /5. A Job now reports its requested and EFFECTIVE
+# execution limits with their units, scope and origins, and a reader written
+# against /4 would not know a ceiling had been configured at all.
+STATUS_SCHEMA = "baton.v12.job-status/5"
 
 # The three stages this milestone's vertical slice has. They are a CLOSED
 # vocabulary rather than free text because the projection below maps each one
@@ -255,6 +274,9 @@ MAX_STAGES = len(STAGE_KINDS)
 SUBMISSION_MEMBERS = ("schema", "submission_id", "jobs")
 JOB_MEMBERS = ("job_id", "input_digest", "policy_digest", "test_scope",
                "terminal_policy", "stages")
+# W156162: and the one OPTIONAL member, admitted only by the version that names
+# it. A /1 document carrying it is refused as the unknown member it is there.
+JOB_LIMIT_MEMBER = "execution_limits"
 STAGE_MEMBERS = ("kind", "work_id", "profile_name", "profile_digest",
                  "depends_on")
 DEPENDENCY_MEMBERS = ("job_id", "kind")
@@ -298,18 +320,24 @@ def owned_submission(document):
     """
     taken = boundaries.document(document, "a job submission",
                                 required=SUBMISSION_MEMBERS)
-    if taken["schema"] != SUBMISSION_SCHEMA:
-        _refuse(f"a job submission is {name_value(SUBMISSION_SCHEMA)}; this is "
-                f"{name_value(taken['schema'])}. The version is IN the schema "
-                f"name because a control plane that reads an unrecognised "
-                f"document as its own turns an old operator into a wrong one")
+    if taken["schema"] not in SUBMISSION_SCHEMAS:
+        _refuse(f"a job submission is one of "
+                f"{', '.join(name_value(one) for one in SUBMISSION_SCHEMAS)}; "
+                f"this is {name_value(taken['schema'])}. The version is IN the "
+                f"schema name because a control plane that reads an "
+                f"unrecognised document as its own turns an old operator into "
+                f"a wrong one")
     submission_id = boundaries.identity(taken["submission_id"],
                                         "a submission id")
     jobs = _sequence(taken["jobs"], "a job submission's jobs", MAX_JOBS)
-    owned = [_job(entry) for entry in jobs]
+    owned = [_job(entry, taken["schema"]) for entry in jobs]
     _unique([one["job_id"] for one in owned], "job id", "a job submission")
     _resolvable(owned)
-    return {"schema": SUBMISSION_SCHEMA, "submission_id": submission_id,
+    # THE DOCUMENT KEEPS ITS OWN VERSION. The normalized text is the durable
+    # identity a resubmission is compared against, so rewriting a /1 caller's
+    # document as /2 would give one intent two identities -- and would make an
+    # old signed operation unreplayable after this build shipped.
+    return {"schema": taken["schema"], "submission_id": submission_id,
             "jobs": owned}
 
 
@@ -337,8 +365,11 @@ def _unique(values, what, where):
                 f"plane refuses rather than resolves")
 
 
-def _job(entry):
-    taken = boundaries.document(entry, "a submitted Job", required=JOB_MEMBERS)
+def _job(entry, schema=SUBMISSION_SCHEMA):
+    optional = ((JOB_LIMIT_MEMBER,) if schema in SUBMISSION_LIMITS_SCHEMAS
+                else ())
+    taken = boundaries.document(entry, "a submitted Job", required=JOB_MEMBERS,
+                                optional=optional)
     job_id = boundaries.identity(taken["job_id"], "a Job id")
     input_digest = boundaries.text(taken["input_digest"],
                                    "a Job's input digest")
@@ -358,9 +389,27 @@ def _job(entry):
     stages = _sequence(taken["stages"], f"Job {job_id}'s stages", MAX_STAGES)
     owned = [_stage(job_id, one) for one in stages]
     _unique([one["kind"] for one in owned], "stage kind", f"Job {job_id}")
-    return {"job_id": job_id, "input_digest": input_digest,
+    held = {"job_id": job_id, "input_digest": input_digest,
             "policy_digest": policy_digest, "test_scope": scope,
             "terminal_policy": taken["terminal_policy"], "stages": owned}
+    # W156162: PRESENT ONLY WHEN THE JOB STATED IT. An absent member and an
+    # empty object are different intents and both are admitted; what is not
+    # admitted is this build inventing the member for a Job that never wrote
+    # it, which would give every /1 Job a /2 identity.
+    if JOB_LIMIT_MEMBER in taken:
+        # AND A PRESENT NULL IS NOT AN OPTIONAL OBJECT. Review
+        # 2026-09-13T01:13:49Z R2: `owned_execution_limits(None)` is an
+        # INTERNAL convenience for a Job that stated nothing, and calling it for
+        # a member the document really carries admitted `execution_limits: null`
+        # and preserved that null as normalized intent. The contract is omit the
+        # member or provide an object; the empty object stays admitted.
+        if taken[JOB_LIMIT_MEMBER] is None:
+            _refuse(f"a Job's {JOB_LIMIT_MEMBER} is an object of settings, "
+                    f"omitted entirely when the Job configures nothing; this "
+                    f"is {name_value(None)}, which is neither")
+        held[JOB_LIMIT_MEMBER] = execution_limits.owned_execution_limits(
+            taken[JOB_LIMIT_MEMBER])
+    return held
 
 
 def _paths(value, job_id):
@@ -543,9 +592,10 @@ CONTRACTS = {
                       "attempt_id", "episodes", "corrections", "allocation",
                       "allocations", "gates", "receipts",
                       "runtime", "exchange", "artifacts"), ()),
+    # W156162 added `execution_limits`, which is why STATUS_SCHEMA moved to /5.
     "job.status": (("job_id", "submission_id", "input_digest",
                     "policy_digest", "test_scope", "terminal_policy",
-                    "stages"), ()),
+                    "execution_limits", "stages"), ()),
     "status": (("schema", "observed_at", "incarnation", "canonical",
                 "jobs"), ()),
     "reconciliation": (("stage_id", "episode", "act", "outcome",

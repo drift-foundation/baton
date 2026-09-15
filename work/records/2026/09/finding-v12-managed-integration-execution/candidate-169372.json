@@ -1,0 +1,86 @@
+{
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 84325,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "6bfdc3f513086d2c2970f11efb9b1c665197ae0260c33c784f11279b049eabc3"
+  },
+  {
+   "bytes": 53116,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "28131e48e4196e8a684ce181264101d64a101a879a37c8e627cc304e0fec8cf2"
+  },
+  {
+   "bytes": 162600,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "f685f1b7b856bb2e3f699346221229d7d1f942c1f4d0670a60614ac1fc226cc2"
+  }
+ ],
+ "claim": 169372,
+ "gaps_fixed": [
+  "preparation_operands answers the durable published_root it wrote to",
+  "ManagedPreparation takes a cheap `orchestration` answer, reads the committed intent FIRST, and hands it to the operands resolver -- so a resumed sweep recovers instead of resolving a fresh target it would then be refused for",
+  "a committed intent whose operands name no published root REFUSES"
+ ],
+ "my_own_cases_replaced": "..._moved_the_target_refuses and ..._naming_a_second_child_work_refuses drove _preserved with no published root, which the review showed is the defect rather than the guard. The recovery path now lives where a real bundle exists and asserts the OPPOSITE: a resumed sweep with a moved target RECOVERS, its request and derived task digest replaced by the published ones. The capacity file keeps the one case needing no bundle.",
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "operational_finding_self_caused_and_repaired": {
+  "limits": "no tracked file outside scope was touched and no history was mutated, but it could have landed in another owner's directory",
+  "repair": "removed; root tools/ confirmed clean; every patch this round now uses absolute paths",
+  "verified": "created today, byte-identical to my own claim169253 integration_worker.py, untracked",
+  "what": "A patch script used the relative path tools/integration_worker.py while the shell cwd had reset to the repository root, writing a STRAY UNTRACKED FILE at baton:tools/integration_worker.py -- the ROOT tools/ directory, which holds unrelated deployment infrastructure and is outside this Work's scope entirely."
+ },
+ "still_next": "No deployment constructs ManagedPreparation; _integration_operations passes preparation=None. Then the ordinary child launch and ending, the member ended on its real exclusion proof, and adoption. The whole-prepare admitted-child replay gap remains open.",
+ "two_absences_kept_apart": "a publication directory that is GONE refuses at the bundle owner's own reachability boundary; one PRESENT AND EMPTY is the missing durable record this composition refuses in its own words",
+ "unchanged": [
+  {
+   "bytes": 73429,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_bundle.py",
+   "sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad"
+  },
+  {
+   "bytes": 278874,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "63fd8c59b62beffdae3f4474c8f788a1d80fa35fea94c41d4c04bea174e52d67"
+  },
+  {
+   "bytes": 191339,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+  },
+  {
+   "bytes": 94098,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+   "sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a"
+  }
+ ],
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 112 restored /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle",
+  "ledger": "112 rows, 1036.5115612778638s, quoted from the file",
+  "no": "no engine, model, image build, broad suite or destructive cleanup",
+  "steps": {
+   "110": "first green, OK 400 cases, ledger 21.3840957559878s",
+   "111": "REVERSAL -- recovery verifies but does not replace; failed exactly test_a_resumed_sweep_RECOVERS_rather_than_being_refused",
+   "112": "restored, OK 400 cases, ledger 21.454338018986164s"
+  },
+  "whitespace": "clean on all changed files"
+ },
+ "what": "The two composition gaps fixed: the committed intent is read FIRST and the durable published root is carried, so a resumed sweep recovers instead of being refused forever.",
+ "work": "2b077949-W161230"
+}

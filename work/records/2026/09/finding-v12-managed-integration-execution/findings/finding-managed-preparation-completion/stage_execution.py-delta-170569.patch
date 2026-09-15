@@ -1,0 +1,135 @@
+--- baton:v12/python/tools/stage_execution.py@170415
++++ baton:v12/python/tools/stage_execution.py@170569
+@@ -4833,65 +4833,8 @@
+             apply_task_digest=self.apply_task_digest(),
+             limits=self.limits(stage, job, job_id), published=published,
+             published_root=place,
+-            accept=self.accepting(orchestration_id, stage),
++            accept=None,
+             identity=self.identity(required), contract=self.contract())
+-
+-    def accepting(self, orchestration_id, stage, held=None, work_id=None):
+-        """The child's own fenced acceptance, through the ordinary owner.
+-
+-        `PreparationExecution` refuses to accept on a worker's behalf, and it
+-        is right to: a coordinator that minted the other side of its own
+-        handshake would be producing the fabricated receipt this composition is
+-        forbidden to produce. What this supplies is the WORKER's act, fenced to
+-        the four identities its own admission bound and carrying the bearer
+-        only that offer minted -- exactly what `_SingleWorker.delivered` does
+-        for an ordinary stage.
+-        """
+-        from . import integration_worker
+-
+-        del stage
+-        identities = (held if held is not None
+-                      else integration_worker.preparation_identities(
+-                          orchestration_id))
+-        # THE RESUMED PATH ASKS NO OWNER. It is handed the intent's own child
+-        # Work; re-reading it from the Job store would make "a resumed sweep
+-        # reads no owner but its own intent" false, which is exactly what that
+-        # case measured when I did.
+-        if work_id is None:
+-            work_id = integration_worker.preparation_child_work(
+-                self._deployment.jobs.authority_uuid, orchestration_id)
+-        # BUILT WHEN IT IS USED, not when the operands are resolved. A resumed
+-        # sweep resolves nothing and must touch no owner; constructing the port
+-        # and reaching the control store here would make that false, which is
+-        # what `test_a_resumed_sweep_reads_no_owner_but_its_own_intent`
+-        # measured the moment I did it.
+-        def accept(issued):
+-            return integration_worker.ChildAcceptance(
+-                control=self._deployment.control, port=self._port(),
+-                expected={
+-                    "offer_id": identities["execution_offer_id"],
+-                    "runtime_attempt_id":
+-                        identities["execution_attempt_id"],
+-                    "work_id": work_id,
+-                    "participant": self._worker["participant"]},
+-                work_ref={
+-                    "authority_uuid": self._deployment.jobs.authority_uuid,
+-                    "work_id": work_id},
+-            # THE DEPLOYMENT'S OWN CLOCK, exactly as `_SingleWorker.delivered`
+-            # uses `self.clock()`. Measured: the wall clock tried to accept an
+-            # offer the deployment's clock had already expired -- "offer …
+-            # expired at '2026-09-02T00:02:00.000Z'" -- because a composition
+-            # running on a different clock from the manager that issued the
+-            # offer is two accounts of when now is.
+-                now=self._clock)(issued)
+-
+-        return accept
+-
+-    def _port(self):
+-        from . import integration_worker
+-
+-        return integration_worker.authority_port(self._deployment.authority,
+-                                                 self._worker["participant"])
+ 
+     def resumed(self, intent, place):
+         """The operands a RESUMED sweep admits with, from the intent alone.
+@@ -4925,9 +4868,7 @@
+                 "policy_digest": self._worker["policy_digest"],
+                 "profile_name": self._worker["profile_name"],
+                 "published_root": place,
+-                "accept": self.accepting(intent["orchestration_id"], None,
+-                                         held=held,
+-                                         work_id=intent["execution_work_id"]),
++                "accept": None,
+                 "identity": self.identity(None),
+                 # AND ON RECOVERY TOO. A resumed sweep whose creation replays
+                 # must replay under the SAME contract; a differing one is an
+@@ -4978,12 +4919,7 @@
+             operations.close()
+         self.operations.clear()
+ 
+-    def poll(self, held, parent, job, execution):
+-        from baton_v12.integration import managed_execution, reconciliation
+-        from baton_v12.job_manager.integration_capacity import end_integration_execution
+-        from baton_v12.worker_manager import assignment_of
+-        from . import integration_worker
+-
++    def _operations(self, held):
+         attempt = held["execution_attempt_id"]
+         operations = self.operations.get(attempt)
+         if operations is None:
+@@ -4993,13 +4929,33 @@
+                 clock=self.clock, dispose=lambda: None,
+                 execution_context=single_worker.job_execution_reader(self.deployment.jobs))
+             self.operations[attempt] = operations
+-        stage = {"stage_id": attempt, "attempt_id": attempt,
+-                 "offer_id": held["execution_offer_id"], "kind": "integration",
+-                 "work_id": held["execution_work_id"],
+-                 "profile_name": held["profile_name"],
+-                 "profile_digest": held["profile_digest"],
+-                 "job_id": held["request"]["job_id"]}
+-        inputs = {"input_digest": held["input_digest"], "policy_digest": held["policy_digest"]}
++        return operations
++
++    def _stage(self, held):
++        attempt = held["execution_attempt_id"]
++        return {"stage_id": attempt, "attempt_id": attempt,
++                "offer_id": held["execution_offer_id"],
++                "kind": held["runtime_configuration"]["launch_role"],
++                "work_id": held["execution_work_id"],
++                "profile_name": held["profile_name"],
++                "profile_digest": held["profile_digest"],
++                "job_id": held["request"]["job_id"]}
++
++    def _inputs(self, held):
++        return {"input_digest": held["input_digest"], "policy_digest": held["policy_digest"]}
++
++    def admit(self, held):
++        return self._operations(held).admit(self._stage(held), self._inputs(held))
++
++    def poll(self, held, parent, job, execution):
++        from baton_v12.integration import managed_execution, reconciliation
++        from baton_v12.job_manager.integration_capacity import end_integration_execution
++        from baton_v12.worker_manager import assignment_of
++        from . import integration_worker
++
++        attempt = held["execution_attempt_id"]
++        operations = self._operations(held)
++        stage, inputs = self._stage(held), self._inputs(held)
+         view = operations.observe(stage)
+         state = view["runtime"]
+         if state is None or state["cleanup"] not in ("complete", "retained"):

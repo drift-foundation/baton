@@ -1,0 +1,42 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity
+E.....EEE.............................................................
+======================================================================
+ERROR: test_a_grant_this_coordinator_does_not_hold_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_a_grant_this_coordinator_does_not_hold_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1711, in test_a_grant_this_coordinator_does_not_hold_is_refused
+    ("fence", self.grant["fence"] + 7),
+              ^^^^^^^^^^
+AttributeError: 'TheApplyBringsItsGrantAndItsAuthorization' object has no attribute 'grant'
+
+======================================================================
+ERROR: test_an_authorization_about_other_content_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_authorization_about_other_content_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1702, in test_an_authorization_about_other_content_is_refused
+    self.authorization.answer["content_digest"] = "sha256:" + "9" * 64
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'TheApplyBringsItsGrantAndItsAuthorization' object has no attribute 'authorization'
+
+======================================================================
+ERROR: test_an_unapproved_candidate_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_unapproved_candidate_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1686, in test_an_unapproved_candidate_is_refused
+    self.authorization.answer["approved"] = False
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'TheApplyBringsItsGrantAndItsAuthorization' object has no attribute 'authorization'
+
+======================================================================
+ERROR: test_an_unavailable_authorization_owner_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_unavailable_authorization_owner_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in test_an_unavailable_authorization_owner_is_refused
+    self.authorization.absent = True
+    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'TheApplyBringsItsGrantAndItsAuthorization' object has no attribute 'authorization'
+
+----------------------------------------------------------------------
+Ran 70 tests in 0.640s
+
+FAILED (errors=4)

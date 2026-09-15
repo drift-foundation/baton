@@ -1,0 +1,19 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling
+E.........
+======================================================================
+ERROR: test_a_blocked_failure_can_never_be_published_or_authorized (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_failure_can_never_be_published_or_authorized) (owner='publish_result')
+BLOCKED PUBLICATION, EVIDENCE AND IMPORT, asked of the PUBLIC OWNERS.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1553, in test_a_blocked_failure_can_never_be_published_or_authorized
+    call()
+    ~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1542, in <lambda>
+    input_digest=before["input_digest"],
+                 ~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'input_digest'
+
+----------------------------------------------------------------------
+Ran 10 tests in 14.721s
+
+FAILED (errors=1)

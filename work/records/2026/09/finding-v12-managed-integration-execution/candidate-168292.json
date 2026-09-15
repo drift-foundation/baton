@@ -1,0 +1,47 @@
+{
+  "claim": 168292,
+  "files": [
+    {
+      "path": "v12/python/tools/integration_worker.py",
+      "bytes": 59448,
+      "sha256": "76c18c39d84ba4e7f07fd8e60bedb6ef7d8b6c35ae44c72019b94c19ff05bb39",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "bytes": 134361,
+      "sha256": "7f47bd2e0b8d304236e18c2f88ba1fcdfacbf61403384265201a744bc5b2fb69",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/worker/reconciliation_task.py",
+      "sha256": "69860bdfdc63e5144db973ddd70c7b101bde707ba97c8c99779b3ae6ce992eb6",
+      "bytes": 50721,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/worker/reconciliation_entry.py",
+      "sha256": "4b4e43879d76250b7745ff89e9df1eb9d7656cc0c096f1adf1feaf56c3114fc0",
+      "bytes": 10442,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tools/integration_bundle.py",
+      "sha256": "c0e21cd6b335db084e64499f508a7cc19fd45807d3bd4a81108239806c106a93",
+      "bytes": 71269,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "96c622d96855fc4aa81001563d99cfb4b131439baaf58d8bae0e2452073786bb",
+      "bytes": 23259,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/worker/Dockerfile.reconciliation",
+      "sha256": "35279f5dcaa6c2c3b44df7e10aa491a35f92e1933d0b3d06bb6e61bc87f021d3",
+      "bytes": 4725,
+      "mode": "0o644"
+    }
+  ]
+}

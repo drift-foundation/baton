@@ -1,0 +1,46 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace
+..................................................EE.........................................
+======================================================================
+ERROR: test_a_correction_of_no_earlier_episode_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_correction_of_no_earlier_episode_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1093, in test_a_correction_of_no_earlier_episode_is_refused
+    self.codes(self.corrected(episode=1)))
+               ~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1081, in corrected
+    held.append(self.record(
+                ~~~~~~~~~~~^
+        act="correct", tick=3, job_id="job-a",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        stage_id="job-a/implementation", episode=2,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        attempt_id="attempt-3", participant="baton.two",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        evidence="review_attachments:review-1", **changed))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.record() got multiple values for keyword argument 'episode'
+
+======================================================================
+ERROR: test_a_correction_read_from_nothing_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_correction_read_from_nothing_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1097, in test_a_correction_read_from_nothing_is_refused
+    self.codes(self.corrected(evidence=None)))
+               ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1081, in corrected
+    held.append(self.record(
+                ~~~~~~~~~~~^
+        act="correct", tick=3, job_id="job-a",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        stage_id="job-a/implementation", episode=2,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        attempt_id="attempt-3", participant="baton.two",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        evidence="review_attachments:review-1", **changed))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.record() got multiple values for keyword argument 'evidence'
+
+----------------------------------------------------------------------
+Ran 93 tests in 3.909s
+
+FAILED (errors=2)

@@ -1,0 +1,104 @@
+{
+  "work": "W32577",
+  "author": "baton.tuner",
+  "claim": 163413,
+  "predecessor_manifest_sha256": "f96cf65d7c201e0a7dda2f69d73fab0b7418fb9cd8da73144368c266cef9bcc7",
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/deadlines.py",
+      "sha256": "536789e1a2947cf601ca191f675c24252078aa5ecddcf4243314c0d59d5855ae",
+      "bytes": 24013,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "sha256": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6",
+      "bytes": 184541,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/documents.py",
+      "sha256": "5f31654f699448a8e52d076f6ba517e9acfef201ada30dea0559051af474b014",
+      "bytes": 49020,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "a16143a7709a842fd40369e4eafbaaa8b86fde9873648373f639739e53012a75",
+      "bytes": 224839,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1",
+      "bytes": 200495,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/__init__.py",
+      "sha256": "cd783420d73f237b9c8a01d63fbb1783a697efb3d87d211ed970a9994f0d5834",
+      "bytes": 14457,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadlines.py",
+      "sha256": "0caf835093a0fd14663d99ca2a73e27767da259c2ac513c549005c6fe97389d1",
+      "bytes": 41358,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadline_engine.py",
+      "sha256": "6a7156689506266c948572a3e7de0f4fc161b12beed55c0aaf9ffdcf8affad1d",
+      "bytes": 9037,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "690cf35122814e731e4f8da7a08c8f97c99d2c975ab90997df978e18bfba5416",
+      "bytes": 761749,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadline_engine_budget.py",
+      "sha256": "52ead756e9b964e92af21d81e06ca137053de652117202045b0c01a6aeb1f6cc",
+      "bytes": 27890,
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
+      "sha256": "a729a7ce7b086444d54a9b73f4ea375c1ee9f4f637a3953033fa23251d244bc2",
+      "bytes": 19911,
+      "mode": "0o664"
+    }
+  ],
+  "changed_from_predecessor": [
+    "v12/python/tests/manager/test_runtime_deadline_engine_budget.py",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py"
+  ],
+  "protected": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/store.py",
+      "sha256": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/lanes.py",
+      "sha256": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c"
+    },
+    {
+      "path": "v12/python/tests/manager/test_reconciliation_worker.py",
+      "sha256": "c0d7f2d1f90a1a5d024c034c83ef71fdc161888f37817e198fd318b08c67bd98"
+    },
+    {
+      "path": "v12/python/tests/manager/test_lifecycle_composition.py",
+      "sha256": "3828c5bb34a2cfa81a8356af3d9f52c949770e82013d1e7e3abde5d6152be5d7"
+    },
+    {
+      "path": "v12/python/DEPLOYMENT.md",
+      "sha256": "b6bfb940fe9186629b1c083608b26d8195ccf58abe0854deac59d1d87cb5b2e0"
+    }
+  ]
+}

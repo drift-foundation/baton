@@ -1,0 +1,9 @@
+test_this_deployment_can_admit_only_one_derived_result (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_this_deployment_can_admit_only_one_derived_result)
+THE SETUP SEAM, measured rather than asserted. ... ok
+test_the_retention_key_distinguishes_its_operands_at_the_unit (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_retention_key_distinguishes_its_operands_at_the_unit)
+THE KEY'S OWN OPERANDS, at real attempts -- UNIT COVERAGE ONLY. ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.765s
+
+OK

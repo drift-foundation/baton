@@ -1,0 +1,10 @@
+test_B_check_fails_original_and_passes_isolated_and_merged (tests.tools.test_standalone_ab.SyntheticProvider.test_B_check_fails_original_and_passes_isolated_and_merged) ... ok
+test_original_review_checks_actual_tree_and_writes_ordinary_report (tests.tools.test_standalone_ab.SyntheticProvider.test_original_review_checks_actual_tree_and_writes_ordinary_report) ... ok
+test_real_provider_subprocess_writes_only_A_scope_and_tests_pass (tests.tools.test_standalone_ab.SyntheticProvider.test_real_provider_subprocess_writes_only_A_scope_and_tests_pass) ... ok
+test_rendered_configuration_is_real_isolated_and_networkless (tests.tools.test_standalone_ab.SyntheticProvider.test_rendered_configuration_is_real_isolated_and_networkless) ... ok
+test_unknown_task_or_drift_refuses_before_writes (tests.tools.test_standalone_ab.SyntheticProvider.test_unknown_task_or_drift_refuses_before_writes) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.366s
+
+OK

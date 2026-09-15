@@ -1,0 +1,32 @@
+[
+  {
+    "case": "empty_configuration_control",
+    "accepted": false,
+    "message": "a launch document's execution limits needs units, scope, compatibility_generation, requested, boundaries"
+  },
+  {
+    "case": "effective_float",
+    "accepted": false,
+    "message": "a launch document's job execution carries a float, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour"
+  },
+  {
+    "case": "effective_boolean",
+    "accepted": false,
+    "message": "a launch document's execution limits are not what the Job owner resolves from their own requested settings and generation; a worker handed a configuration nobody resolved has been handed numbers nobody agreed to"
+  },
+  {
+    "case": "default_float",
+    "accepted": false,
+    "message": "a launch document's job execution carries a float, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour"
+  },
+  {
+    "case": "materialize_foreign_attempt",
+    "refused": true,
+    "storage_exists": false
+  },
+  {
+    "case": "adopt_foreign_attempt",
+    "refused": true,
+    "storage_exists": false
+  }
+]

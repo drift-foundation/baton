@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_managed_integration_capacity
+.................F..........................
+======================================================================
+FAIL: test_a_refused_record_configured_nothing (tests.job_manager.test_managed_integration_capacity.ThePersistedEvidenceIsOwnedEndToEnd.test_a_refused_record_configured_nothing)
+MEASURED, step 42: `operations.state` is CHECKed to `committed` or
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 868, in test_a_refused_record_configured_nothing
+    self.assertIn("committed configured nothing", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'committed configured nothing' not found in "a persisted operation's refusal needs durable"
+
+----------------------------------------------------------------------
+Ran 44 tests in 0.239s
+
+FAILED (failures=1)

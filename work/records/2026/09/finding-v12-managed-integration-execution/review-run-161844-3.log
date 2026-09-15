@@ -1,0 +1,15 @@
+test_unknown_fence_member_refuses (__main__.FenceShapeReview.test_unknown_fence_member_refuses) ... FAIL
+
+======================================================================
+FAIL: test_unknown_fence_member_refuses (__main__.FenceShapeReview.test_unknown_fence_member_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-161844.py", line 16, in test_unknown_fence_member_refuses
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.006s
+
+FAILED (failures=1)

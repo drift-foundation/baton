@@ -1,0 +1,89 @@
+{
+  "changed_this_claim": [
+    {
+      "bytes": 117693,
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "c54a5ed03889fe4eb3d2c652e68884b9ce03645b505f832bed81c15a7e4841a1",
+      "target_mode": "0o644"
+    }
+  ],
+  "claim": 172112,
+  "dropped_not_shipped": [
+    "changed request_digest at window 4 advanced instead of refusing; cause not established"
+  ],
+  "false_positives_caught": [
+    "assertRaises around sweep never fires; the delegation absorbs the refused admit",
+    "counting failures accepted a normally advancing sweep, because failures collects the ordinary deferral too"
+  ],
+  "owner_decision": "M172097 early planned-capacity registration",
+  "pinned": "REGISTRATION-ORDER-PROPOSAL-170867.md",
+  "prior_candidate": "candidate-170804.json",
+  "prior_verified_unchanged": true,
+  "reversals": [
+    {
+      "failed": 2,
+      "reversal": "window 4 claims the offer is already issued"
+    },
+    {
+      "failed": 2,
+      "reversal": "the offered fact is not read"
+    },
+    {
+      "failed": 2,
+      "reversal": "window 4 moved onto window 3 owner"
+    },
+    {
+      "failed": 1,
+      "reversal": "perturbed operands agree with the intent"
+    }
+  ],
+  "runs": [
+    {
+      "checks": 448,
+      "label": "windows-and-identity-refusal",
+      "result": "OK",
+      "step": "07",
+      "supervisor_seconds": 40.78281987001537,
+      "unittest_seconds": 40.59
+    }
+  ],
+  "sources_changed": [],
+  "spending": {
+    "ledger_rows": 7,
+    "ledger_seconds": 217.5390968899883,
+    "unknown": "reversal and experiment runs across all three claims ran outside the supervisor; preserved as unknown"
+  },
+  "windows": [
+    {
+      "owner": "integration_capacity.register_integration_capacity",
+      "prefix": [],
+      "window": 1
+    },
+    {
+      "owner": "PreparationExecution.decide",
+      "prefix": [
+        "plan"
+      ],
+      "window": 2
+    },
+    {
+      "owner": "PreparationExecution.create",
+      "prefix": [
+        "plan",
+        "intent"
+      ],
+      "window": 3
+    },
+    {
+      "note": "NOT PreparationExecution.offer, which is unreached on the selected path",
+      "owner": "PreparationRuntime.admit",
+      "prefix": [
+        "plan",
+        "intent",
+        "work"
+      ],
+      "window": 4
+    }
+  ],
+  "work": "W170382"
+}

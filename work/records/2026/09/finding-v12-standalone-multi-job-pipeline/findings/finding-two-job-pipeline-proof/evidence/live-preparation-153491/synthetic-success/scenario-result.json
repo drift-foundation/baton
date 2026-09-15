@@ -1,0 +1,8 @@
+{
+  "live_provider": false,
+  "provider": "synthetic standalone-ab-v1",
+  "result": "simulated-provider coordination passed",
+  "root": "/home/sl/.local/state/baton/v12/synthetic-ab-tuapjtog",
+  "setup_seconds": 2.015744584990898,
+  "total_seconds": 19.506483848002972
+}

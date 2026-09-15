@@ -160,7 +160,7 @@ class Reading(ToolCase):
                                "--authority-uuid", UUID,
                                "--incarnation", "jobs-1", "status")
         self.assertFalse(answer["canonical"])
-        self.assertEqual(answer["schema"], "baton.v12.job-status/4")
+        self.assertEqual(answer["schema"], "baton.v12.job-status/5")
         self.assertEqual([one["job_id"] for one in answer["jobs"]],
                          ["job-a", "job-b"])
 
@@ -220,7 +220,7 @@ class Reading(ToolCase):
             "--control", self.control_path,
             "--observe", "tests.job_manager.test_tool:observing")
         self.assertTrue(answer["canonical"])
-        self.assertEqual(answer["schema"], "baton.v12.job-status/4")
+        self.assertEqual(answer["schema"], "baton.v12.job-status/5")
         self.assertEqual([one["job_id"] for one in answer["jobs"]],
                          ["job-a", "job-b"])
         # THE READER WAS ASKED FOR EVERY STAGE, which is what the projection

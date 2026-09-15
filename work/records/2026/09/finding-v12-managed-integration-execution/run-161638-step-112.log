@@ -1,0 +1,417 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+EEEEEEEE.E.EEEEEE
+======================================================================
+ERROR: test_a_quiescent_runtime_is_not_a_stopped_one (tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution.test_a_quiescent_runtime_is_not_a_stopped_one)
+A runtime that stopped EXECUTING still exists.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 312, in test_a_quiescent_runtime_is_not_a_stopped_one
+    self.assertEqual(self.standing(), self.base)
+                     ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 232, in standing
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_an_attempt_this_manager_never_recorded_refuses (tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution.test_an_attempt_this_manager_never_recorded_refuses)
+Absence of a record is not absence of a runtime.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 322, in test_an_attempt_this_manager_never_recorded_refuses
+    self.assertEqual(self.standing(), self.base)
+                     ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 232, in standing
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_an_unobserved_runtime_refuses (tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution.test_an_unobserved_runtime_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 299, in test_an_unobserved_runtime_refuses
+    self.assertEqual(self.standing(), self.base)
+                     ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 232, in standing
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_a_measured_failure_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_a_measured_failure_cannot_publish)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 362, in test_a_measured_failure_cannot_publish
+    self.assertEqual(self.standing(), self.base)
+                     ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 232, in standing
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_a_report_collected_without_a_status_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_a_report_collected_without_a_status_cannot_publish)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 339, in test_a_report_collected_without_a_status_cannot_publish
+    self.assertEqual(self.standing(), self.base)
+                     ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 232, in standing
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_a_sequence_that_stopped_partway_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_a_sequence_that_stopped_partway_cannot_publish)
+A completed prefix with a zero status is not a passing run: the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 376, in test_a_sequence_that_stopped_partway_cannot_publish
+    self.assertEqual(self.standing(), self.base)
+                     ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 232, in standing
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_no_collected_report_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_no_collected_report_cannot_publish)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 350, in test_no_collected_report_cannot_publish
+    self.assertEqual(self.standing(), self.base)
+                     ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 232, in standing
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_a_lease_this_node_does_not_hold_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_lease_this_node_does_not_hold_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 394, in test_a_lease_this_node_does_not_hold_refuses
+    self.publish(lease_id="lease-somebody-elses")
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 229, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 202, in publish_collected_integration
+    standing = placement.configured()
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 103, in configured
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_a_phase_this_result_does_not_retain_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_phase_this_result_does_not_retain_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 442, in test_a_phase_this_result_does_not_retain_refuses
+    self.assertEqual(self.standing(), self.base)
+                     ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 232, in standing
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_a_stale_fence_refuses_before_the_swap (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_stale_fence_refuses_before_the_swap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 385, in test_a_stale_fence_refuses_before_the_swap
+    self.publish(fence=self.fence + 1)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 229, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 202, in publish_collected_integration
+    standing = placement.configured()
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 103, in configured
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_content_this_node_does_not_hold_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_content_this_node_does_not_hold_refuses)
+A publication imports bytes this node actually has. The grant has
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 405, in test_content_this_node_does_not_hold_refuses
+    self.publish()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 229, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 202, in publish_collected_integration
+    standing = placement.configured()
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 103, in configured
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_a_collected_apply_reaches_the_target (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_collected_apply_reaches_the_target)
+THE POSITIVE, and it names everything it rested on.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 241, in test_a_collected_apply_reaches_the_target
+    answer = self.publish()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 229, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 202, in publish_collected_integration
+    standing = placement.configured()
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 103, in configured
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_a_result_for_another_target_is_refused (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_result_for_another_target_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 286, in test_a_result_for_another_target_is_refused
+    self.assertEqual(self.standing(), self.base)
+                     ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 232, in standing
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_a_result_reconciled_against_another_revision_is_refused (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_result_reconciled_against_another_revision_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 278, in test_a_result_reconciled_against_another_revision_is_refused
+    self.assertEqual(self.standing(), self.base)
+                     ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 232, in standing
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+======================================================================
+ERROR: test_the_swap_is_against_the_admitted_revision (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_the_swap_is_against_the_admitted_revision)
+NOT against whatever the reference says now. Those are the same
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 264, in test_the_swap_is_against_the_admitted_revision
+    self.assertEqual(self.standing(), moved)
+                     ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 232, in standing
+    return self.profile.revision(self.repository, self.reference)
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 502, in revision
+    self._run(read_ref_vector(repository, reference),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision read").strip(),
+              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 284, in _run
+    answer = self._answer(argv, what)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 274, in _answer
+    _refuse(f"the Git runner's {what} answer has the closed "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"command-result shape")
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the Git runner's target revision read answer has the closed command-result shape
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.309s
+
+FAILED (errors=15)

@@ -1,0 +1,400 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_store
+.........EEEEEE.EEEEEEEEEEEEE...................
+======================================================================
+ERROR: test_a_migrated_store_still_derives_and_projects (tests.job_manager.test_store.MigratingFromSchemaOne.test_a_migrated_store_still_derives_and_projects)
+The pipeline survives the migration rather than merely the rows.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 579, in test_a_migrated_store_still_derives_and_projects
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_a_schema_one_store_opens_at_the_current_version (tests.job_manager.test_store.MigratingFromSchemaOne.test_a_schema_one_store_opens_at_the_current_version)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 527, in test_a_schema_one_store_opens_at_the_current_version
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_every_migrated_stage_keeps_the_identities_it_already_had (tests.job_manager.test_store.MigratingFromSchemaOne.test_every_migrated_stage_keeps_the_identities_it_already_had)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 535, in test_every_migrated_stage_keeps_the_identities_it_already_had
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_reopening_a_migrated_store_migrates_nothing_further (tests.job_manager.test_store.MigratingFromSchemaOne.test_reopening_a_migrated_store_migrates_nothing_further)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 591, in test_reopening_a_migrated_store_migrates_nothing_further
+    self.store().close()
+    ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_the_migrated_receipt_belongs_to_episode_one (tests.job_manager.test_store.MigratingFromSchemaOne.test_the_migrated_receipt_belongs_to_episode_one)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 554, in test_the_migrated_receipt_belongs_to_episode_one
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_the_migrated_stage_row_drops_the_moved_columns (tests.job_manager.test_store.MigratingFromSchemaOne.test_the_migrated_stage_row_drops_the_moved_columns)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 564, in test_the_migrated_stage_row_drops_the_moved_columns
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_a_failed_migration_rolls_the_uuid_and_the_version_back (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_a_failed_migration_rolls_the_uuid_and_the_version_back)
+W83781 review [P1]: the promised atomicity, exercised.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 808, in test_a_failed_migration_rolls_the_uuid_and_the_version_back
+    self.write_schema_2()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 702, in write_schema_2
+    held = JobStore.open(self.job_path, authority_uuid=UUID,
+                         incarnation="jobs-2", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_a_migrated_store_keeps_every_identity_and_receipt (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_a_migrated_store_keeps_every_identity_and_receipt) (from_schema='write_schema_1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 735, in test_a_migrated_store_keeps_every_identity_and_receipt
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_a_migrated_store_keeps_every_identity_and_receipt (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_a_migrated_store_keeps_every_identity_and_receipt) (from_schema='write_schema_2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 734, in test_a_migrated_store_keeps_every_identity_and_receipt
+    write()
+    ~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 702, in write_schema_2
+    held = JobStore.open(self.job_path, authority_uuid=UUID,
+                         incarnation="jobs-2", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_a_migrated_store_still_derives_and_projects (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_a_migrated_store_still_derives_and_projects)
+The pipeline survives the migration rather than merely the rows.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 579, in test_a_migrated_store_still_derives_and_projects
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_a_migration_under_another_authority_pins_that_one (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_a_migration_under_another_authority_pins_that_one)
+The binding is the OPENER's, because a legacy store carries none.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 778, in test_a_migration_under_another_authority_pins_that_one
+    self.write_schema_2()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 702, in write_schema_2
+    held = JobStore.open(self.job_path, authority_uuid=UUID,
+                         incarnation="jobs-2", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_a_schema_one_store_opens_at_the_current_version (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_a_schema_one_store_opens_at_the_current_version)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 527, in test_a_schema_one_store_opens_at_the_current_version
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_a_schema_two_store_is_pinned_by_the_migration (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_a_schema_two_store_is_pinned_by_the_migration)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 723, in test_a_schema_two_store_is_pinned_by_the_migration
+    self.write_schema_2()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 702, in write_schema_2
+    held = JobStore.open(self.job_path, authority_uuid=UUID,
+                         incarnation="jobs-2", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_a_stale_opener_cannot_rebind_the_winners_authority (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_a_stale_opener_cannot_rebind_the_winners_authority)
+W83781 review [P0], deterministically.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 860, in test_a_stale_opener_cannot_rebind_the_winners_authority
+    self.write_schema_2()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 702, in write_schema_2
+    held = JobStore.open(self.job_path, authority_uuid=UUID,
+                         incarnation="jobs-2", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_every_migrated_stage_keeps_the_identities_it_already_had (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_every_migrated_stage_keeps_the_identities_it_already_had)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 535, in test_every_migrated_stage_keeps_the_identities_it_already_had
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_reopening_a_migrated_store_migrates_nothing_further (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_reopening_a_migrated_store_migrates_nothing_further)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 591, in test_reopening_a_migrated_store_migrates_nothing_further
+    self.store().close()
+    ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_the_migrated_receipt_belongs_to_episode_one (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_the_migrated_receipt_belongs_to_episode_one)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 554, in test_the_migrated_receipt_belongs_to_episode_one
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_the_migrated_stage_row_drops_the_moved_columns (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_the_migrated_stage_row_drops_the_moved_columns)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 564, in test_the_migrated_stage_row_drops_the_moved_columns
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+======================================================================
+ERROR: test_the_namespace_applies_only_after_the_migration (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_the_namespace_applies_only_after_the_migration)
+An episode opened AFTER the pin is namespaced; episode 1 is not.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 755, in test_the_namespace_applies_only_after_the_migration
+    self.write_schema_2()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 702, in write_schema_2
+    held = JobStore.open(self.job_path, authority_uuid=UUID,
+                         incarnation="jobs-2", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table integration_capacity_roots already exists
+
+----------------------------------------------------------------------
+Ran 47 tests in 0.075s
+
+FAILED (errors=19)

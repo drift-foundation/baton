@@ -1,0 +1,168 @@
+{
+  "case": "causal-timeout-retries",
+  "ticks": [
+    {
+      "tick": 1,
+      "host_calls_added": 1,
+      "deferred": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '6d337e61b692d02d39922e65c3b216cbf452f910'; no exit status was observed and none is invented"
+          }
+        }
+      ]
+    },
+    {
+      "tick": 2,
+      "host_calls_added": 0,
+      "deferred": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '6d337e61b692d02d39922e65c3b216cbf452f910'; no exit status was observed and none is invented"
+          }
+        }
+      ]
+    },
+    {
+      "tick": 3,
+      "host_calls_added": 0,
+      "deferred": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '6d337e61b692d02d39922e65c3b216cbf452f910'; no exit status was observed and none is invented"
+          }
+        }
+      ]
+    },
+    {
+      "tick": 4,
+      "host_calls_added": 0,
+      "deferred": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '6d337e61b692d02d39922e65c3b216cbf452f910'; no exit status was observed and none is invented"
+          }
+        }
+      ]
+    }
+  ],
+  "total_host_calls": 1,
+  "judges": 0
+}
+{
+  "case": "post-import-timeout",
+  "calls": [
+    {
+      "argv": [
+        "python3",
+        "feature_check.py"
+      ],
+      "seconds": 77,
+      "where": "/home/sl/src/baton/v12/python/v12-w71917-9acw1hjr/state/integration/tmp392yw4u7"
+    }
+  ],
+  "reports": [
+    {
+      "tick": 1,
+      "started": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at 'c66eeefb993eff439d49c63ccbb14c396584f36c'; no exit status was observed and none is invented"
+          }
+        }
+      ],
+      "spoken": []
+    },
+    {
+      "tick": 2,
+      "started": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at 'c66eeefb993eff439d49c63ccbb14c396584f36c'; no exit status was observed and none is invented"
+          }
+        }
+      ],
+      "spoken": []
+    },
+    {
+      "tick": 3,
+      "started": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at 'c66eeefb993eff439d49c63ccbb14c396584f36c'; no exit status was observed and none is invented"
+          }
+        }
+      ],
+      "spoken": []
+    },
+    {
+      "tick": 4,
+      "started": [
+        {
+          "stage_id": "job-b/integration",
+          "episode": 1,
+          "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+          "outcome": "deferred",
+          "detail": {
+            "category": "refused",
+            "code": "precondition",
+            "message": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at 'c66eeefb993eff439d49c63ccbb14c396584f36c'; no exit status was observed and none is invented"
+          }
+        }
+      ],
+      "spoken": []
+    }
+  ],
+  "result_state": "authorized",
+  "target_unchanged": true,
+  "stage": {
+    "implementation": "completed",
+    "review": "completed",
+    "integration": "claimed"
+  },
+  "temporary_directories_remaining": [
+    "/home/sl/src/baton/v12/python/v12-w71917-9acw1hjr/state/integration/tmp392yw4u7"
+  ]
+}

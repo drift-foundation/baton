@@ -1,0 +1,45 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_job_viewer
+....................................E..E........./home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:627: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:700: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=4, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:636: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.
+======================================================================
+ERROR: test_a_reservation_without_a_runtime_still_shows_its_worker (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_a_reservation_without_a_runtime_still_shows_its_worker)
+An assignment before a runtime exists is exactly the case an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 565, in test_a_reservation_without_a_runtime_still_shows_its_worker
+    allocation = self.reserved()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 520, in reserved
+    from test_scheduling import pool, principals
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 17, in <module>
+    from .fixtures import (NOW, PROFILE, UUID, FakeSession, JobManagerCase,
+                           _unobserved, fake_claim_signature, job, stage,
+                           submission)
+ImportError: attempted relative import with no known parent package
+
+======================================================================
+ERROR: test_the_real_scheduler_reservation_is_displayed (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_the_real_scheduler_reservation_is_displayed)
+The reservation exists BEFORE any runtime does, so its worker and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 550, in test_the_real_scheduler_reservation_is_displayed
+    allocation = self.reserved()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 520, in reserved
+    from test_scheduling import pool, principals
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 17, in <module>
+    from .fixtures import (NOW, PROFILE, UUID, FakeSession, JobManagerCase,
+                           _unobserved, fake_claim_signature, job, stage,
+                           submission)
+ImportError: attempted relative import with no known parent package
+
+----------------------------------------------------------------------
+Ran 53 tests in 0.113s
+
+FAILED (errors=2)

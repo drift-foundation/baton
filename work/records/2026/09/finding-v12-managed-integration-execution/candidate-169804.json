@@ -1,0 +1,90 @@
+{
+ "author": "baton.claude",
+ "claim": 169804,
+ "defect": "`communicate` returning BROKE the escalation loop, so a TERM-resistant descendant outliving its leader -- leader dies, pipes close, communicate returns -- was polled for 30s and NEVER KILLed. The direct child's exit is not the group's exit, which is the whole reason this signals a group.",
+ "evidence_added": [
+  {
+   "bytes": 1501,
+   "mode": "0o644",
+   "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/evidence/term-resistant-escalation-proof-169804.py",
+   "sha256": "237e034d8928ebff969450ae2c3615e00460d6d04cd76a8b47a36cdbc13bb31b"
+  }
+ ],
+ "fix": "escalation is driven by the GROUP's own liveness: each signal is followed by a bounded wait on killpg(pid, 0), the standing 'does this exist' question that sends nothing, and only that decides whether to escalate. The pipes are still drained in short slices, but communicate returning is no longer a decision. PermissionError answers None and is NOT recorded as gone -- 'I may not ask' and 'it is gone' are different facts.",
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "product_source_unchanged": [
+  {
+   "bytes": 296527,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "cc69d5d7c783b949bbaf0d7f6e9e427a4ecbb8abdc21b92825a414cfddbe85c0"
+  },
+  {
+   "bytes": 69284,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "1ae01893d7a5af1faf36cf85a0ead334a4e5f84a03d655b1fdbb4c2058133687"
+  },
+  {
+   "bytes": 85232,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "45c840b1ab07ae9cf51d814f2c22e6524c0b1920571a22a45265d9c003740b76"
+  },
+  {
+   "bytes": 162808,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "1996f8fdc3df90cf67dc9f6636bcd079ff047e8bb2d96d873551a7bb903aefaf"
+  }
+ ],
+ "proofs": [
+  {
+   "elapsed": 3.1,
+   "group_proved_gone": true,
+   "ledger_step": 997,
+   "shape": "ordinary descendant",
+   "signalled": [
+    "SIGTERM"
+   ],
+   "why_it_matters": "a runner that ALWAYS escalated to KILL would pass 998 and be wrong; an ordinary shutdown is what a bounded run should ask for first, and this is the evidence it still does"
+  },
+  {
+   "elapsed": 13.11,
+   "group_proved_gone": true,
+   "ledger_step": 998,
+   "shape": "grandchild that IGNORES SIGTERM and CLOSES ITS OWN PIPES, under a leader that dies first -- the exact shape named",
+   "signalled": [
+    "SIGTERM",
+    "SIGKILL"
+   ]
+  },
+  {
+   "elapsed": 3.2,
+   "group_proved_gone": true,
+   "ledger_step": 999,
+   "shape": "earlier ordinary proof",
+   "signalled": [
+    "SIGTERM"
+   ]
+  }
+ ],
+ "scope_note": "The repair was entirely in the measurement harness /tmp/w166281_run.py, which is not repository source; the four product and test paths above are bit-identical to claim169753.",
+ "unchanged_and_owed": "no deployment configures the selection, so the managed path has no end-to-end coverage; the apply digest is measured against fixture bytes; the worker's acceptance, the child launch and ending, the exclusion proof and adoption are unwritten; the whole-prepare replay gap is open. The supervisor is now sound enough to run the worker-process proof those need, which was the point of fixing it.",
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 134 restored /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle",
+  "ledger": "137 rows, 1463.5995004548342s, including all three proofs",
+  "no": "no engine, model, image build or destructive cleanup",
+  "result": "OK, 412 cases"
+ },
+ "what": "The bounded escalation defect fixed and proved on the exact shape the review named. NO product source changed.",
+ "work": "2b077949-W161230"
+}

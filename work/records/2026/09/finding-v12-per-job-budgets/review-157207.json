@@ -1,0 +1,267 @@
+{
+  "work": "W156162",
+  "claim": 157207,
+  "author_spent_seconds": 663.5290292359932,
+  "author_unmeasured_activities": [
+    "original baseline",
+    "golden generation",
+    "isolated-copy attribution attempt",
+    "in-place injection-removal attribution experiment"
+  ],
+  "prior_review_seconds": 7.126665509995291,
+  "candidate_before": {
+    "v12/python/src/baton_v12/job_manager/execution_limits.py": {
+      "sha256": "073ea7104df1aa4cf097cf12e7c7371a2cc918c95e2dd0c7de9225b734230442",
+      "bytes": 11558
+    },
+    "v12/python/src/baton_v12/job_manager/documents.py": {
+      "sha256": "372495aa6a29060ca22e2f693e9390d9c0b53ea630ad6db42519dd7e37dd5a1d",
+      "bytes": 37047
+    },
+    "v12/python/src/baton_v12/job_manager/schema.py": {
+      "sha256": "3f2afdb4f302cc929eb47aa5e73e4547d56ebaa8d69669f73df97dedde1fc452",
+      "bytes": 25036
+    },
+    "v12/python/src/baton_v12/job_manager/store.py": {
+      "sha256": "f35eb9878c7bfbcd592bc5afc816acf1a67ee01a1529fc123e2b0f89fda33c91",
+      "bytes": 41531
+    },
+    "v12/python/src/baton_v12/job_manager/submission.py": {
+      "sha256": "3cf8d0ea8d7aeaa08e6ca47999a0b1622e9a558651d346484eee1a7f7012c32b",
+      "bytes": 16928
+    },
+    "v12/python/src/baton_v12/job_manager/projection.py": {
+      "sha256": "db9b3f55fc09625a2f8394ed06313a29f02699ae39440dbbf1e3c5b3faa71641",
+      "bytes": 36658
+    },
+    "v12/python/tests/job_manager/test_execution_limits.py": {
+      "sha256": "2271ef93151b5a331008f2a1fcad5974ae3daa539cb6d9696eac56715074f215",
+      "bytes": 32824
+    },
+    "v12/python/tests/job_manager/test_documents.py": {
+      "sha256": "1a8c151ae2f88a47ec8b26110fdea2a5ba0cb4197ef8c76cd8d2a46c744d82f8",
+      "bytes": 14367
+    },
+    "v12/python/tests/job_manager/test_tool.py": {
+      "sha256": "bade475f9eef10e4c3b1de3cf91989e77dfafcdcc6bd13ddbbaa9de10ca64d9b",
+      "bytes": 25026
+    },
+    "v12/python/tests/job_manager/test_exchange.py": {
+      "sha256": "f6d426f9fa9d59a30b80587751dde2e98a537c95fd4f28610411a7d5808f949e",
+      "bytes": 31991
+    },
+    "v12/python/tests/job_manager/test_store.py": {
+      "sha256": "d6c9e17b5f5c5afb7f0be820533fda8e469f6b4eb566d59d524dbaeef2fc035b",
+      "bytes": 42907
+    },
+    "v12/python/tests/job_manager/test_scheduling.py": {
+      "sha256": "5780dc171e4b791d0488f78b3b531c7d31e04f833878523f2f38bf518b57f0ea",
+      "bytes": 72345
+    },
+    "v12/python/src/baton_v12/worker_manager/launch.py": {
+      "sha256": "d89159a36a40c383ba3e838b70e31eaa836b4e2d37b919e2020ef7b41e70e508",
+      "bytes": 42657
+    },
+    "v12/python/tests/manager/test_execution_limits.py": {
+      "sha256": "95087d91d67b89b4b022a6a2a085e52ec001a24104ba20d3748b9ade76fa1afd",
+      "bytes": 17180
+    },
+    "v12/python/tests/job_manager/execution_limits_fixtures/golden-schema4.sqlite3": {
+      "sha256": "bb9fa3aba268f461f46cc38098faed7bbe8699d0da5918f62f0fc9c44a6b7866",
+      "bytes": 135168
+    },
+    "v12/python/tests/job_manager/execution_limits_fixtures/PROVENANCE.md": {
+      "sha256": "4a6cf1ca5c4a165b7d6094c1e89edb8ce06a97de5a61a67df0d711b6a3111475",
+      "bytes": 2994
+    },
+    "v12/python/tools/single_worker.py": {
+      "sha256": "229333868ca1d54f8c19b7babf5ba8465aacff5118b4bcb8e4381c7dc3c7a558",
+      "bytes": 156235
+    },
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "2bcbfdd48401b67ea235f144416969bd0baf9f6a51209cb89ac6c3eac4722986",
+      "bytes": 256572
+    },
+    "v12/python/tests/tools/test_single_worker.py": {
+      "sha256": "409cb7b771e902cea0a28bce5635b422f92110a5a5491eb461c8982817b027f9",
+      "bytes": 185257
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "a877a7f724c88185bd5232aeb356fa0995846b7a0c4e875115ef3c35038d4fa1",
+      "bytes": 463875
+    },
+    "v12/worker/baton_worker.py": {
+      "sha256": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+      "bytes": 113422
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "04ac6bd1533e086a60df0630b19f9e181da52373409d2adf80742a3bc6373ae9",
+      "bytes": 171174
+    },
+    "v12/python/tests/tools/test_execution_limits.py": {
+      "sha256": "230290308407e1465e1fb4b421b8ce6a5c8d5d78d267663d80af5042c87455bc",
+      "bytes": 43486
+    },
+    "v12/python/DEPLOYMENT.md": {
+      "sha256": "df2568ba603ed7419ea8e7d270de0a9a13d3357d2f1a88b9934f2a8f0d57b514",
+      "bytes": 61982
+    },
+    "v12/worker/integration_workload.py": {
+      "sha256": "329f3d9aba82cf609b5a63e1080290f51b14ab768b225c5e4205758b0901309b",
+      "bytes": 74630
+    },
+    "v12/python/tools/integration_worker.py": {
+      "sha256": "99809ef438f25fd01dd092329f53427a5e0bb2733f8d609d4ff1f11cb823f556",
+      "bytes": 46374
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "7d312ed8424d5eb5601d3ef9a825fa3202ba84afed5f533d1879d71724fdbe8f",
+      "bytes": 62206
+    }
+  },
+  "runs": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion",
+        "tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured",
+        "tests.tools.test_execution_limits.TheImportedVerificationUsesItsOwnBoundary",
+        "tests.tools.test_execution_limits.TheJobOwnerAnswersOneBoundaryWithoutADelivery",
+        "tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_port_materializes_a_third_version_carrying_the_job",
+        "tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_a_port_with_no_job_owner_composes_exactly_what_it_always_did",
+        "tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_an_attempt_this_execution_never_prepared_is_refused",
+        "tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling.test_an_unconfigured_owner_runs_under_the_boundarys_own_default",
+        "tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling.test_the_git_clock_is_untouched_by_a_jobs_ceiling"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.8142713970009936,
+      "log": "review-157207-focused.log"
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/repro-157207.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.4640264980007487,
+      "log": "review-157207-probe.log"
+    }
+  ],
+  "review_spent_seconds": 8.404963404997034,
+  "candidate_after": {
+    "v12/python/src/baton_v12/job_manager/execution_limits.py": {
+      "sha256": "073ea7104df1aa4cf097cf12e7c7371a2cc918c95e2dd0c7de9225b734230442",
+      "bytes": 11558
+    },
+    "v12/python/src/baton_v12/job_manager/documents.py": {
+      "sha256": "372495aa6a29060ca22e2f693e9390d9c0b53ea630ad6db42519dd7e37dd5a1d",
+      "bytes": 37047
+    },
+    "v12/python/src/baton_v12/job_manager/schema.py": {
+      "sha256": "3f2afdb4f302cc929eb47aa5e73e4547d56ebaa8d69669f73df97dedde1fc452",
+      "bytes": 25036
+    },
+    "v12/python/src/baton_v12/job_manager/store.py": {
+      "sha256": "f35eb9878c7bfbcd592bc5afc816acf1a67ee01a1529fc123e2b0f89fda33c91",
+      "bytes": 41531
+    },
+    "v12/python/src/baton_v12/job_manager/submission.py": {
+      "sha256": "3cf8d0ea8d7aeaa08e6ca47999a0b1622e9a558651d346484eee1a7f7012c32b",
+      "bytes": 16928
+    },
+    "v12/python/src/baton_v12/job_manager/projection.py": {
+      "sha256": "db9b3f55fc09625a2f8394ed06313a29f02699ae39440dbbf1e3c5b3faa71641",
+      "bytes": 36658
+    },
+    "v12/python/tests/job_manager/test_execution_limits.py": {
+      "sha256": "2271ef93151b5a331008f2a1fcad5974ae3daa539cb6d9696eac56715074f215",
+      "bytes": 32824
+    },
+    "v12/python/tests/job_manager/test_documents.py": {
+      "sha256": "1a8c151ae2f88a47ec8b26110fdea2a5ba0cb4197ef8c76cd8d2a46c744d82f8",
+      "bytes": 14367
+    },
+    "v12/python/tests/job_manager/test_tool.py": {
+      "sha256": "bade475f9eef10e4c3b1de3cf91989e77dfafcdcc6bd13ddbbaa9de10ca64d9b",
+      "bytes": 25026
+    },
+    "v12/python/tests/job_manager/test_exchange.py": {
+      "sha256": "f6d426f9fa9d59a30b80587751dde2e98a537c95fd4f28610411a7d5808f949e",
+      "bytes": 31991
+    },
+    "v12/python/tests/job_manager/test_store.py": {
+      "sha256": "d6c9e17b5f5c5afb7f0be820533fda8e469f6b4eb566d59d524dbaeef2fc035b",
+      "bytes": 42907
+    },
+    "v12/python/tests/job_manager/test_scheduling.py": {
+      "sha256": "5780dc171e4b791d0488f78b3b531c7d31e04f833878523f2f38bf518b57f0ea",
+      "bytes": 72345
+    },
+    "v12/python/src/baton_v12/worker_manager/launch.py": {
+      "sha256": "d89159a36a40c383ba3e838b70e31eaa836b4e2d37b919e2020ef7b41e70e508",
+      "bytes": 42657
+    },
+    "v12/python/tests/manager/test_execution_limits.py": {
+      "sha256": "95087d91d67b89b4b022a6a2a085e52ec001a24104ba20d3748b9ade76fa1afd",
+      "bytes": 17180
+    },
+    "v12/python/tests/job_manager/execution_limits_fixtures/golden-schema4.sqlite3": {
+      "sha256": "bb9fa3aba268f461f46cc38098faed7bbe8699d0da5918f62f0fc9c44a6b7866",
+      "bytes": 135168
+    },
+    "v12/python/tests/job_manager/execution_limits_fixtures/PROVENANCE.md": {
+      "sha256": "4a6cf1ca5c4a165b7d6094c1e89edb8ce06a97de5a61a67df0d711b6a3111475",
+      "bytes": 2994
+    },
+    "v12/python/tools/single_worker.py": {
+      "sha256": "229333868ca1d54f8c19b7babf5ba8465aacff5118b4bcb8e4381c7dc3c7a558",
+      "bytes": 156235
+    },
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "2bcbfdd48401b67ea235f144416969bd0baf9f6a51209cb89ac6c3eac4722986",
+      "bytes": 256572
+    },
+    "v12/python/tests/tools/test_single_worker.py": {
+      "sha256": "409cb7b771e902cea0a28bce5635b422f92110a5a5491eb461c8982817b027f9",
+      "bytes": 185257
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "a877a7f724c88185bd5232aeb356fa0995846b7a0c4e875115ef3c35038d4fa1",
+      "bytes": 463875
+    },
+    "v12/worker/baton_worker.py": {
+      "sha256": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+      "bytes": 113422
+    },
+    "v12/worker/claude_agent.py": {
+      "sha256": "04ac6bd1533e086a60df0630b19f9e181da52373409d2adf80742a3bc6373ae9",
+      "bytes": 171174
+    },
+    "v12/python/tests/tools/test_execution_limits.py": {
+      "sha256": "230290308407e1465e1fb4b421b8ce6a5c8d5d78d267663d80af5042c87455bc",
+      "bytes": 43486
+    },
+    "v12/python/DEPLOYMENT.md": {
+      "sha256": "df2568ba603ed7419ea8e7d270de0a9a13d3357d2f1a88b9934f2a8f0d57b514",
+      "bytes": 61982
+    },
+    "v12/worker/integration_workload.py": {
+      "sha256": "329f3d9aba82cf609b5a63e1080290f51b14ab768b225c5e4205758b0901309b",
+      "bytes": 74630
+    },
+    "v12/python/tools/integration_worker.py": {
+      "sha256": "99809ef438f25fd01dd092329f53427a5e0bb2733f8d609d4ff1f11cb823f556",
+      "bytes": 46374
+    },
+    "v12/python/tools/integration_bundle.py": {
+      "sha256": "7d312ed8424d5eb5601d3ef9a825fa3202ba84afed5f533d1879d71724fdbe8f",
+      "bytes": 62206
+    }
+  },
+  "candidate_unchanged": true
+}

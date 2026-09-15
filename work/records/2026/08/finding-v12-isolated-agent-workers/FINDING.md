@@ -2291,3 +2291,286 @@ retained evidence. W110772's FINDING/PLAN own the immediate scope correction at
 `work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-standalone-stage-composition/findings/finding-review-verdict-channel/`.
 Recorded by baton.prompt; implementation and any acceptance change still need
 their concrete bounded disposition.
+
+## V12 parallel delivery enables v13 hardening — confirmed 2026-09-14
+
+Recorded by baton.prompt at 2026-09-14T02:53:42Z from Slawomir's interactive
+confirmation. The owner proposed moving broader hardening into v13, explicitly
+clarified that the purpose is to use v12 parallelism to expedite v13 delivery,
+and agreed to pin and classify the release boundary in the current v11 ledger
+before moving selected execution to v12. A basic view-only TUI remains part of
+v12 so the owner can monitor the concurrent Jobs.
+
+**Confirmed release objective:** v12 must reliably execute multiple independent
+development Jobs concurrently, let the operator monitor them, and collect reviewed
+results with explicit recovery on failure. That capability is used to build v13;
+finishing the entire hardening roadmap first would delay the parallelism intended
+to accelerate that same work. This is an operational delivery criterion, not a
+claim that the current candidate has already met it.
+
+**V12 required outcomes:** correct managed preparation/apply execution through
+the existing worker input/output model; isolation, content/result identity and
+review/integration correctness; cancellation, restart/recovery and preservation
+of work; context reuse for correction speed and cached-token benefit; and a
+lightweight read-only Job monitor. W161230's remaining execution slices and the
+necessary correction/restart/context proof belong to this minimum delivery.
+Ordinary focused verification remains required. Deterministic fake/replay
+providers remain the development default under the standing repository ruling.
+
+**V12 monitor scope:** Job status, current stage and worker, elapsed time and
+last activity/progress, blocked/failed reasons and pending operator actions,
+drill-down to permitted logs/results, and conspicuous connection/freshness state.
+The display must be cheap enough to leave open, with low idle CPU and inexpensive
+refreshes. Existing provider-safe log boundaries remain in force; unknown facts
+must remain unknown. This does not require mutation controls, new raw telemetry,
+or a full TUI redesign. Reuse existing observability projections and Work where
+applicable; the exact implementation and measurable checks remain to be scoped.
+
+**V13 hardening:** broader stress/random/race campaigns beyond the necessary
+correctness coverage, performance optimization, advanced priority scheduling,
+shared worker capacity, distributed execution/transport and richer TUI behavior.
+These can run as independent v13 Jobs on v12 when inputs and file ownership allow.
+The minimum monitor's idle cost is a usability requirement in v12, even though
+broader TUI performance work is deferred. No fixed shared-slot architecture,
+automatic provider fallback or cross-machine execution requirement is introduced.
+
+Known defects that lose work, duplicate effects, break isolation or falsely
+report success still require correction where they invalidate the v12 delivery
+claim. Reclassifying an item as hardening cannot waive such a defect, rewrite a
+failed receipt, or turn simulated evidence into actual-provider coverage.
+
+**Supersession:** this ruling supersedes earlier umbrella scheduling that treats
+completion of broad M4/M5/M6 hardening, full TUI work or remote/farm certification
+as prerequisites for this v12 release. It refines the 2026-08-28/29 early-dogfood
+and parallel-hardening strategy, the 2026-09-01 read-only TUI clarification and
+the 2026-09-07 minimal-safe-critical-path ruling into an explicit v12/v13 release
+split. Their technical decisions and accepted historical outcomes remain intact.
+The old serialized adoption pilot does not impose permanent serial execution on
+the new parallel-delivery readiness objective. No prior failed execution is
+retroactively accepted and no live Work contract is silently changed.
+
+**Coordination now:** retain v11 as the current authority and preserve existing
+Work IDs, canonical dossiers, evidence and recorded relationships. Classify the
+remaining queue by existing Work ID into v12 delivery, v13 hardening or unresolved
+placement, with rationale and concrete dependency/containment amendments for
+later application. Do not recreate, close, detach or bulk-migrate the backlog
+merely to relabel the release. A parent still cannot close with open contained
+children; reclassification must therefore explicitly reconcile the graph.
+After readiness, carry selected tasks and their decisions/acceptance criteria
+into v12 execution with traceable correlation. No interim synchronization layer,
+second authority or wholesale ledger cutover is selected by this ruling.
+
+### W103950 exclusion and classification ownership — confirmed 2026-09-14
+
+Slawomir explicitly cautioned that Jobs such as W103950 must not be pulled into
+v12 delivery. W103950, Extend stage composition hardening coverage, is assigned
+to v13 hardening. Its historical V12 title is not release authority. The current
+ledger shows it outside containment, blocking no consumers; preserve that
+separation. Its concrete correctness descendants must be assessed individually
+against the v12 readiness claim, without importing the expanded matrix or all
+prerequisites of deferred hardening into v12. Known defect evidence is retained.
+
+W165782 owns the bounded current-queue classification and proposed relationship
+changes. It is standalone lightweight planning Work referencing this ruling;
+creation with parent W2 was refused because baton.prompt is not W2's route
+handler, and the successful standalone creation adds no containment. No live
+claim or dependency was changed. The report must name existing Work IDs and
+actual required capabilities rather than infer release scope from old prefixes,
+ancestry or a broad hardening label. No duplicated implementation backlog.
+
+### V13 umbrella — confirmed 2026-09-14
+
+The owner requested a v13 Job containing existing work classified for that
+release. W165786 now owns the v13 hardening umbrella, bound to
+work/records/2026/09/finding-v13-parallel-hardening/. W103950 is the first
+selected existing member; the authorized handler must apply its containment.
+W165782 prepares the remaining membership and actual dependency corrections.
+This is organization in the current v11 ledger, not backlog migration or an
+execution/authority cutover. Existing Work IDs and dossiers stay unchanged.
+
+Implementation of that organization exposed a v11 CLI limitation: parent= is
+available at creation, but there is no existing-Work reparent operation in the
+deployed help surface. The v13 FINDING records the operational finding and
+supersedes the preceding assumption of immediate authorized-handler attachment.
+Until a supported transition is selected, W165786 PLAN explicitly lists selected
+release members while leaving actual containment unchanged. W103950 remains
+standalone in the ledger and assigned v13 in the release plan; no raw store edit
+or replacement Work is permitted to fake a move.
+
+## 2026-09-14 — W165782 release classification prepared, claim165799
+
+baton.codex prepared RELEASE-CLASSIFICATION-165799.md and retained the complete
+canonical open graph in RELEASE-GRAPH-165799.json (snapshot165832). Every one
+of65 open Work is classified once: proposed9 v12-required,42 v13-hardening,
+14 unresolved placements with concrete remaining questions. These are reviewer
+proposals under the confirmed release boundary, except the already selected
+W103950 and approved W165786 membership-table stopgap.
+
+The packet identifies existing status/progress/observation owners and a missing
+bounded minimum viewer; it does not duplicate their implementation backlog.
+It proposes replacing W2's broad W3 release gate with actual minimum providers,
+and removing W3's optional Podman gate, while preserving valid hardening
+dependencies. No graph change occurred. W2 cannot close with open historical
+children; delivery readiness and historical umbrella closure remain distinct.
+
+The containment limitation already has lightweight Work W106052 and owner
+M106724. This clarifies the later setup observation above without creating
+another limitation or requiring a v11 implementation. W165786 PLAN extends
+the approved documentary stopgap with explicitly unselected proposed members.
+
+W129838 is assessed separately from W103950: its confirmed close-interface
+mismatch has no proved resource leak and remains proposed v13. Known false
+pre-attach recovery W63255 requires correction or positive current-path
+supersession evidence. Mixed restart/observer Work is not wholesale deferred
+or imported: the packet names narrow revalidation questions, reuses accepted
+later providers, and preserves all failures/unknown costs.
+
+W161230 owner165830 selected the existing slice2 packet during this audit;
+its implementation handoff remains next under its own claim and cap1200/300
+with prior spend preserved. This audit changes no source/test scope or
+W32577 documentation ownership. No source/test/runtime/model execution,
+verification spending, Work creation or Git mutation occurred.
+
+## 2026-09-14T09:04:44Z — owner selects release classification follow-through
+
+Slawomir asked whether W165782, W165786 and W166292 need handling and accepted
+the recommendation with "lets do it": handle release classification now, park
+the v13 umbrella until v12 readiness, and assign one bounded read-only resource
+assessment to tuner. This entry owns W165782's selected continuation.
+
+Adopt RELEASE-CLASSIFICATION-165799.md's proposed release division, including
+its explicit unresolved category and bounded current-consumer triage. The
+snapshot counts are historical, not a claim about today's complete inventory.
+Finalize classifications against current accepted providers and commission the
+missing minimal read-only viewer with disjoint ownership, reusing existing
+status/progress/input-output interfaces. Do not duplicate existing implementation
+Work or wait for W161230 merely to finish independent planning. Preserve its
+source scope and W32577's documentation ownership.
+
+The audit's exact gate dispositions are selected subject to its stated current
+scope conditions and live route authority: replace broad minimum-release gates
+with actual required providers, retain true technical dependencies, and do not
+make unresolved placements automatic gates. W61599 must first have its minimum
+subset pinned; known false recovery such as W63255 requires correction or
+positive supported-path supersession/exclusion evidence. Retain historic umbrella
+containment and the W106052 documentary membership stopgap. No parent closure,
+waiver of failed evidence, broad certification or v13 execution is selected.
+
+This supersedes the audit's awaiting-owner-selection state. The current global
+M166331 policy supersedes its historical cumulative verification caps. The
+viewer proposal's cost figures should be made concrete in its bounded plan,
+without adding an unrelated performance campaign. Return only genuinely missing
+product decisions or exact authority-blocked commands; do not request the same
+release strategy again. W165782 may close its planning outcome once the selected
+classification, narrow follow-up ownership and actionable release checklist are
+recorded; it need not wait for the resulting implementation Jobs to finish.
+
+## 2026-09-14 — selected release follow-through, claim167877
+
+Owner selection09:04:44Z/reroute167871 adopts the audit division and explicit
+unresolved triage. Current canonical snapshot167877 has66 open Work; all65
+prior open IDs remain and W166292 adds separate operational assessment, not a
+v12 implementation gate. RELEASE-GRAPH-167877.json preserves that graph.
+
+Current-consumer research: StageObservation.observe_integration now carries
+per-Job binding methods and reaches Integration.observe before direct-runtime
+checks; the current two-Job/model-free observation tests cover the old H-7
+shape. Do not duplicate its old global-fallback implementation. New viewer
+acceptance will exercise the current reader; broader W136578 remains deferred.
+W61599 positive-activity subset is pinned in its own FINDING/PLAN, with raw
+transcripts and rich stream UX deferred. Current dogfood_operator pre-attach
+recovery still has no Authority fence and sets resolved=True after resource
+cleanup. W63255 remains correction-or-explicit-supported-surface-exclusion;
+no passing/closed claim or automatic broad hardening gate follows.
+
+Commissioned standalone W167896 for the bounded read-only Job viewer, bound to
+work/records/2026/09/finding-v12-minimal-readonly-job-viewer. W2 route is ops,
+so reviewer lacks create-child authority; preserve standalone identity and
+record release membership rather than fabricate containment. The three new
+viewer files are disjoint from W161230/W61599/shared DEPLOYMENT. Existing public
+status/progress/observation owners are reused. Cost targets are selected focused
+20-Job60s idle/1s refresh checks with90s outer limit, not broad performance work.
+
+Scope conditions for selected gate changes are met: Podman is optional v13;
+W61599 minimum subset is now separately pinned; W2 release checklist is distinct
+from historical umbrella closure. Remove W3-on-W32391 through W3 route-handler
+planning authority. W2 is owned by baton.ops; give exact canonical owner commands
+to add required providers before removing W2-on-W3. Do not mutate unauthorized
+W2 relationships or infer raw-store access. Preserve all other valid edges and
+open-child closure rules. W165786 membership updates are serialized here;
+its own parking-only turn changes no membership/source scope.
+
+Operational research note: guessed paths tools/supervised_job.py,
+tools/supervised_dogfood.py, src/baton_v12/manager and v12/DEPLOYMENT.md were not
+readable because they do not exist. These were search assumptions, not missing
+required evidence: actual owners are tools/dogfood_operator.py,
+src/baton_v12/worker_manager and v12/python/DEPLOYMENT.md. No implementation
+conclusion relies on the absent paths. No tests/model/engine runs in this planning.
+
+
+### 2026-09-14T09:20:32Z — W165782 planning completion, claim167877
+
+**Confirmed:** RELEASE-CHECKLIST-167877.md covers exactly all 66 open Work
+IDs in retained canonical snapshot167877: 9 minimum-required, 42 v13, and
+15 explicit unresolved/mixed/operational rows. The W165786 membership table
+matches all 42 selected v13 IDs. Newly commissioned W167896 is an additional
+minimum viewer deliverable, outside that snapshot. Planning is complete; this
+is not release acceptance or a claim that implementation has finished.
+
+**Applied:** viewer creation167896 and W3-on-W32391 removal167914. W61599
+minimum terminal outcome and rich-feature deferral are pinned in its record.
+No other dependency, containment, product source, test, Git state or PROGRESS
+was changed by this planning claim. No test suite, live model or engine ran.
+Metadata consistency checks verified exact graph coverage and v13 membership.
+
+**Coordination:** T2 M167951 carries the remaining owner commands in
+RELEASE-GATE-COMMANDS-167877.md. A directed obligation on W2 was refused
+because baton.codex is not a handler of its ops route; this is expected route
+authority enforcement, not a Baton defect. The ordinary discussion handoff
+succeeded and does not claim those owner acts happened. W61599 M167952 pins
+the minimum; W161234 M167954 carries current-consumer reconciliation; W136578
+M167959 records the changed H-7 source shape without claiming a new test pass;
+W63255 M167960 preserves the supported-recovery correction/exclusion boundary.
+
+**Remaining:** authorized owner executes the provider-first W2 gate changes
+and scheduling, resolves the conditional recovery surface, and each existing
+implementation/review owner supplies its checklist evidence. W165786 separately
+owns its parking-only act; membership editing is finished. None of these
+remaining delivery actions requires repeating W165782 strategy selection.
+
+### 2026-09-14T11:40:26Z — retain supported abandonment; require W63255
+
+Slawomir selected keeping `--abandon` supported and implementing W63255's
+approved exact pre-attach assignment fence. This supersedes the conditional
+correction-or-supported-surface-exclusion choice above and in
+RELEASE-CHECKLIST-167877.md / RELEASE-GATE-COMMANDS-167877.md. W63255 is now a
+required minimum v12 release provider; exclusion is not selected. Exact scope
+and serial implementation/review continuation are pinned in
+`work/records/2026/09/finding-v12-pre-attach-abandon-leaves-live-assignment/FINDING.md`
+and PLAN.md. Preserve W161230's active assignment. The owner must add the W2
+dependency and unpark W63255; this decision record does not claim those acts.
+
+### 2026-09-14T12:23:19Z — notifier Work reminders belong to the v12 ecosystem
+
+Slawomir states: "v12 ecosystem will implement notifier reminders". Context:
+W3's operator advisory was delivered at11:31:10Z, but it remained queued and
+overdue without another advisory. The current notifier repeats pending response
+obligations only; unchanged operator Work is deduplicated by its saved hash.
+The live cursor retains W3 as seen. This is the recorded reminder limitation,
+not evidence of an app-server delivery failure.
+
+Assign the follow-up for reminders about unresolved operator Work to the v12
+ecosystem. Do not implement or deploy a current v11 notifier patch under this
+decision, and do not make the enhancement a new minimum-v12 delivery gate.
+Reminder interval, eligible Work states, acknowledgment/delivery semantics and
+bounded fair batching still need a concrete reviewed plan when that work is
+scheduled. Preserve current advisory-only behavior and canonical revalidation.
+This selects the future execution home, not an implementation or restart now.
+
+### 2026-09-15 — parallel preparation organized around W2 release
+
+Slawomir emphasized that it is crucial to pave the way toward W2 with useful parallel pre-work/research. Continue the existing managed participant contexts and preserve canonical Work identities and v11 authority. Use separate, nonblocking design dossiers and concrete recommendations to reduce future discovery while active implementation/review proceeds. Do not duplicate original implementation, inflate missing evidence into new gates or repeat already-covered tests as invented work.
+
+Current execution and next actions are in RELEASE-NEXT-ACTIONS-2026-09-15.md. W170385 is closed satisfying; W170387 runtime assessment has passed to a bounded documentation step at174358. W63255's release dependency is recorded and its implementation awaits independent review. W61599 design is active with Claude. Tuner's W174289 prepares W161234 context reuse; additional W174357 prepares the existing operator-designated replacement question for W103525 after current and ready completion work. The original W2 gate graph is unchanged by these design tasks.
+
+This supersedes historical pending-unpark and conditional-exclusion descriptions for W63255, not its acceptance requirements. Retain all prior decisions/evidence. Original provider dispositions and the final W2 readiness/release decision remain explicit; no deployment, backlog copy or extra v13 work is authorized here.

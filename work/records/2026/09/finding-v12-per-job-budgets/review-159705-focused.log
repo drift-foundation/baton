@@ -1,0 +1,24 @@
+test_a_failure_answer_is_not_read_as_the_success_shape (tests.tools.test_execution_limits.TheAdmittedFailureMatrix.test_a_failure_answer_is_not_read_as_the_success_shape) ... ok
+test_a_malformed_answer_is_refused_member_by_member (tests.tools.test_execution_limits.TheAdmittedFailureMatrix.test_a_malformed_answer_is_refused_member_by_member)
+MALFORMED. A member missing, an unknown member, and a member of the ... ok
+test_a_member_this_build_does_not_name_is_refused (tests.tools.test_execution_limits.TheAdmittedFailureMatrix.test_a_member_this_build_does_not_name_is_refused) ... ok
+test_a_missing_member_is_refused_as_missing (tests.tools.test_execution_limits.TheAdmittedFailureMatrix.test_a_missing_member_is_refused_as_missing) ... ok
+test_a_post_import_answer_is_not_a_causal_one (tests.tools.test_execution_limits.TheAdmittedFailureMatrix.test_a_post_import_answer_is_not_a_causal_one)
+RESULT AND PHASE ISOLATION across the two host boundaries. ... ok
+test_a_retained_failure_reads_back_under_its_own_signature (tests.tools.test_execution_limits.TheAdmittedFailureMatrix.test_a_retained_failure_reads_back_under_its_own_signature)
+SIGNATURE AND READBACK. `_observation_signature` re-derives what the ... ok
+test_each_causal_phase_fails_for_each_closed_reason (tests.tools.test_execution_limits.TheAdmittedFailureMatrix.test_each_causal_phase_fails_for_each_closed_reason)
+ALL-PHASE AND ALL-REASON. The owner runs three phases and a command ... ok
+test_one_phases_failure_never_stands_for_another (tests.tools.test_execution_limits.TheAdmittedFailureMatrix.test_one_phases_failure_never_stands_for_another)
+PHASE ISOLATION. A `base` failure carrying `combined`'s content, or ... ok
+test_the_integer_observations_are_untouched (tests.tools.test_execution_limits.TheAdmittedFailureMatrix.test_the_integer_observations_are_untouched)
+LEGACY SUCCESS. The three-observation shape is what it always was: ... ok
+test_a_closed_and_reopened_owner_repeats_no_command (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_closed_and_reopened_owner_repeats_no_command)
+CLOSED AND REOPENED, with zero command and zero materialization. ... ok
+test_a_disposal_that_fails_is_named_and_not_raised (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_disposal_that_fails_is_named_and_not_raised)
+CLEANUP FAILURE. `rmtree(ignore_errors=True)` would report a clean ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 1.191s
+
+OK

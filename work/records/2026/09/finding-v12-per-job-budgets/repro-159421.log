@@ -1,0 +1,136 @@
+[
+  {
+    "case": "actual-causal-tree-is-commit",
+    "state": "blocked",
+    "prepared": {
+      "base": "55cd392ecc0da858e348b04a7d8195efd5eb7ec0",
+      "content": {
+        "feature.py": {
+          "mode": "100644",
+          "object": "203f796e67731f851f817ab43845bebb80308cd3"
+        },
+        "feature_check.py": {
+          "mode": "100644",
+          "object": "72cd58019e2e7be96c4aa2297a754743f4eef4f4"
+        },
+        "harness.py": {
+          "mode": "100644",
+          "object": "8f04e31fd1fdc3fe54da2480f53419b76107cf2e"
+        },
+        "worker-task.txt": {
+          "mode": "100644",
+          "object": "f64c781e749ead4a4bd94e7c08c69bcffba3d58b"
+        }
+      },
+      "head": "1734f9a7f13997a701f0c4225598bf8d158afea5",
+      "profile": "git-integration",
+      "reference": "refs/baton/integration/prepared/result-6da0e9dbb91aa101fdab2e443ab07aa0d6dc75789e49f2b2d1184755db73445b",
+      "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+      "version": 1
+    },
+    "failure": {
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "completed": {},
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '1734f9a7f13997a701f0c4225598bf8d158afea5'; no exit status was observed and none is invented",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "1734f9a7f13997a701f0c4225598bf8d158afea5",
+      "input_tree": "1734f9a7f13997a701f0c4225598bf8d158afea5",
+      "not_run": [
+        "base",
+        "isolated"
+      ],
+      "phase": "combined",
+      "reason": "timeout",
+      "schema": "baton.v12.host-verification-failure/1",
+      "seconds": 77,
+      "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+      "test_identity": "w130224-second-line-of-one-target"
+    },
+    "actual_subprocess_seconds": [
+      77
+    ]
+  },
+  {
+    "case": "corrupt-causal-accepted",
+    "state": "blocked",
+    "prepared": {
+      "base": "b1ec93453349117663e07c078c80db5bd1289d5e",
+      "content": {
+        "feature.py": {
+          "mode": "100644",
+          "object": "203f796e67731f851f817ab43845bebb80308cd3"
+        },
+        "feature_check.py": {
+          "mode": "100644",
+          "object": "72cd58019e2e7be96c4aa2297a754743f4eef4f4"
+        },
+        "harness.py": {
+          "mode": "100644",
+          "object": "8f04e31fd1fdc3fe54da2480f53419b76107cf2e"
+        },
+        "worker-task.txt": {
+          "mode": "100644",
+          "object": "f64c781e749ead4a4bd94e7c08c69bcffba3d58b"
+        }
+      },
+      "head": "c5401abe7567bc2749a9e5d14ce922a69202d386",
+      "profile": "git-integration",
+      "reference": "refs/baton/integration/prepared/result-14e2fc40c6ae79a9011a11b1f3a6dd41f6dbe4651b82946df3675f089eada069",
+      "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+      "version": 1
+    },
+    "failure": {
+      "command": [
+        "foreign-command"
+      ],
+      "completed": {},
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at 'c5401abe7567bc2749a9e5d14ce922a69202d386'; no exit status was observed and none is invented",
+      "environment": "foreign-environment",
+      "execution": "baton.result-observer",
+      "input_commit": "foreign-commit",
+      "input_tree": "foreign-tree",
+      "not_run": [
+        "base",
+        "isolated"
+      ],
+      "phase": "combined",
+      "reason": "timeout",
+      "schema": "baton.v12.host-verification-failure/1",
+      "seconds": 999999,
+      "test_digest": "foreign-digest",
+      "test_identity": "foreign-task"
+    },
+    "actual_subprocess_seconds": [
+      77
+    ]
+  },
+  {
+    "case": "corrupt-post-import-accepted",
+    "adopted_failure": {
+      "schema": "baton.v12.host-verification-failure/1",
+      "phase": "post-import",
+      "reason": "timeout",
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '1423a68dd07abfb0a121d0349d184d6400b1e7da'; no exit status was observed and none is invented",
+      "seconds": 999999,
+      "command": [
+        "foreign-command"
+      ],
+      "test_identity": "foreign-task",
+      "test_digest": "foreign-digest",
+      "environment": "foreign-environment",
+      "execution": "baton.result-observer",
+      "input_commit": "1423a68dd07abfb0a121d0349d184d6400b1e7da",
+      "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+      "completed": {},
+      "not_run": []
+    },
+    "actual_subprocess_seconds": [
+      77
+    ],
+    "failed_host_verification_reader": null
+  }
+]

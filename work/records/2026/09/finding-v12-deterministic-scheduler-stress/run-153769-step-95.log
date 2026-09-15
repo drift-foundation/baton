@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_correction_opens_a_second_episode_on_the_same_line
+...................................................................
+----------------------------------------------------------------------
+Ran 67 tests in 0.479s
+
+OK

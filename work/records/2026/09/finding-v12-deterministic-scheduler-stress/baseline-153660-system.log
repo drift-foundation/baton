@@ -1,0 +1,33 @@
+test_capacity_miss_does_not_hide_an_unrelated_review_slot (tests.job_manager.test_scheduling.Capacity.test_capacity_miss_does_not_hide_an_unrelated_review_slot) ... ok
+test_one_stage_episode_wins_a_two_connection_reservation_race (tests.job_manager.test_scheduling.Capacity.test_one_stage_episode_wins_a_two_connection_reservation_race) ... ok
+test_participant_aliases_contribute_one_effective_capacity (tests.job_manager.test_scheduling.Capacity.test_participant_aliases_contribute_one_effective_capacity) ... ok
+test_two_implementation_and_two_review_capacities_are_live_together (tests.job_manager.test_scheduling.Capacity.test_two_implementation_and_two_review_capacities_are_live_together) ... ok
+test_affinity_is_soft_and_fallback_does_not_rewrite_it (tests.job_manager.test_scheduling.SelectionAndSettlement.test_affinity_is_soft_and_fallback_does_not_rewrite_it) ... ok
+test_an_abandoned_offer_releases_only_its_allocation (tests.job_manager.test_scheduling.SelectionAndSettlement.test_an_abandoned_offer_releases_only_its_allocation) ... ok
+test_completed_cleanup_releases_capacity (tests.job_manager.test_scheduling.SelectionAndSettlement.test_completed_cleanup_releases_capacity) ... ok
+test_every_no_assignment_ending_releases_capacity (tests.job_manager.test_scheduling.SelectionAndSettlement.test_every_no_assignment_ending_releases_capacity) ... ok
+test_external_opinion_exclusions_compare_all_three_identities (tests.job_manager.test_scheduling.SelectionAndSettlement.test_external_opinion_exclusions_compare_all_three_identities) ... ok
+test_no_static_eligible_worker_is_exceptional_not_forever_deferred (tests.job_manager.test_scheduling.SelectionAndSettlement.test_no_static_eligible_worker_is_exceptional_not_forever_deferred) ... ok
+test_review_excludes_the_producers_canonical_principal (tests.job_manager.test_scheduling.SelectionAndSettlement.test_review_excludes_the_producers_canonical_principal) ... ok
+test_status_exposes_all_three_scheduler_identities (tests.job_manager.test_scheduling.SelectionAndSettlement.test_status_exposes_all_three_scheduler_identities) ... ok
+test_uncertain_runtime_quarantines_one_allocation (tests.job_manager.test_scheduling.SelectionAndSettlement.test_uncertain_runtime_quarantines_one_allocation) ... ok
+test_four_distinct_principals_hold_four_live_claims (tests.job_manager.test_scheduling.FourEffectiveClaimsAreLiveTogether.test_four_distinct_principals_hold_four_live_claims) ... ok
+test_one_worker_failing_to_claim_settles_only_its_own_slot (tests.job_manager.test_scheduling.FourEffectiveClaimsAreLiveTogether.test_one_worker_failing_to_claim_settles_only_its_own_slot)
+Failure isolation AND the settlement the scheduler owes for it. ... ok
+test_two_participants_on_one_principal_collapse_at_the_seam (tests.job_manager.test_scheduling.FourEffectiveClaimsAreLiveTogether.test_two_participants_on_one_principal_collapse_at_the_seam)
+The alias collapse driven through the scheduler, in the shape that ... ok
+test_adoption_refuses_an_offer_signed_by_another_participant (tests.job_manager.test_scheduling.PoolComposition.test_adoption_refuses_an_offer_signed_by_another_participant) ... ok
+test_live_allocation_keeps_its_generation_after_pool_change (tests.job_manager.test_scheduling.PoolComposition.test_live_allocation_keeps_its_generation_after_pool_change) ... ok
+test_sweep_reserves_before_issuing_each_offer (tests.job_manager.test_scheduling.PoolComposition.test_sweep_reserves_before_issuing_each_offer) ... ok
+test_a_changes_requested_predecessor_leaves_its_successor_blocked (tests.job_manager.test_sweep.Eligibility.test_a_changes_requested_predecessor_leaves_its_successor_blocked) ... ok
+test_a_gate_opens_only_on_a_completed_predecessor (tests.job_manager.test_sweep.Eligibility.test_a_gate_opens_only_on_a_completed_predecessor) ... ok
+test_an_empty_store_owes_nothing (tests.job_manager.test_sweep.Eligibility.test_an_empty_store_owes_nothing) ... ok
+test_an_unable_predecessor_leaves_its_successor_blocked (tests.job_manager.test_sweep.Eligibility.test_an_unable_predecessor_leaves_its_successor_blocked) ... ok
+test_only_ungated_stages_are_admitted_on_the_first_sweep (tests.job_manager.test_sweep.Eligibility.test_only_ungated_stages_are_admitted_on_the_first_sweep) ... ok
+test_two_independent_jobs_are_admitted_from_one_submission (tests.job_manager.test_sweep.Eligibility.test_two_independent_jobs_are_admitted_from_one_submission) ... ok
+test_the_owed_act_survives_the_process_that_derived_it (tests.job_manager.test_sweep.Persistence.test_the_owed_act_survives_the_process_that_derived_it) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 0.100s
+
+OK

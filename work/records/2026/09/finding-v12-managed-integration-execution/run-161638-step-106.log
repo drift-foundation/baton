@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage
+.......................................................
+----------------------------------------------------------------------
+Ran 55 tests in 0.275s
+
+OK

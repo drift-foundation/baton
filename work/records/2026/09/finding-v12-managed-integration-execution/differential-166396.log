@@ -1,0 +1,5 @@
+step 26 exit=0 0.151545s spent=237.712959 remaining=962.287041
+  units->minutes                     manager=refuses  worker=refuses  AGREE
+  generation->999                    manager=refuses  worker=refuses  AGREE
+  one resolved seconds +1            manager=refuses  worker=refuses  AGREE
+  the unmodified real document       manager=ACCEPTS  worker=ACCEPTS  AGREE

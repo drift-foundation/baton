@@ -1,0 +1,3 @@
+{"branch": "causal-retry", "second_public_close": "passed", "host_calls": 1, "materializations": 1}
+{"branch": "post-import-timeout", "public_close": "passed", "durable_result_and_target_unchanged": true, "host_calls": 1, "materializations": 1}
+{"branch": "post-import-start-failed", "public_close": "passed", "durable_result_and_target_unchanged": true, "host_calls": 1, "materializations": 1}

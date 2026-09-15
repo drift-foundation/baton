@@ -1,0 +1,18 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits tests.integration.test_reconciliation tests.integration.test_execution
+.....................................................................F...............................................................................................................................................................................
+======================================================================
+FAIL: test_the_configured_seconds_are_what_the_command_is_given (tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling.test_the_configured_seconds_are_what_the_command_is_given)
+Through the production `_run`, at the NORMAL SUBPROCESS BOUNDARY.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1203, in test_the_configured_seconds_are_what_the_command_is_given
+    self.assertIn("did not finish within this Job's 1s",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "did not finish within this Job's 1s" not found in "'_ConfiguredExecution' object has no attribute '_identity'"
+
+----------------------------------------------------------------------
+Ran 245 tests in 26.973s
+
+FAILED (failures=1)

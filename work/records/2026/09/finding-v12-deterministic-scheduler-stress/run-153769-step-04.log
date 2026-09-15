@@ -1,0 +1,13 @@
+### label: trace-suite-4
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace"]
+### exit: 0
+### elapsed_seconds: 0.231472
+### STDOUT
+
+### STDERR
+.........................
+----------------------------------------------------------------------
+Ran 25 tests in 0.079s
+
+OK

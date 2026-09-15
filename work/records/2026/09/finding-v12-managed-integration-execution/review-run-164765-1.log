@@ -1,0 +1,60 @@
+test_a_foreign_revision_is_never_adopted_as_our_own (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_a_foreign_revision_is_never_adopted_as_our_own)
+Merely finding the target somewhere other than the admitted ... ok
+test_a_retry_under_a_different_settlement_refuses (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_a_retry_under_a_different_settlement_refuses) ... ok
+test_an_exact_retry_replays_without_materializing_or_swapping (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_an_exact_retry_replays_without_materializing_or_swapping) ... ok
+test_an_interrupted_publication_resumes_without_swapping_twice (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_an_interrupted_publication_resumes_without_swapping_twice)
+The swap committed and the settlement did not. A resume finishes ... ok
+test_a_quiescent_runtime_is_not_a_stopped_one (tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution.test_a_quiescent_runtime_is_not_a_stopped_one)
+A runtime that stopped EXECUTING still exists. ... ok
+test_an_attempt_this_manager_never_recorded_refuses (tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution.test_an_attempt_this_manager_never_recorded_refuses)
+Absence of a record is not absence of a runtime. ... ok
+test_an_unobserved_runtime_refuses (tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution.test_an_unobserved_runtime_refuses) ... ok
+test_a_measured_failure_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_a_measured_failure_cannot_publish) ... ok
+test_a_report_collected_without_a_status_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_a_report_collected_without_a_status_cannot_publish) ... ok
+test_a_sequence_that_stopped_partway_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_a_sequence_that_stopped_partway_cannot_publish)
+A completed prefix with a zero status is not a passing run: the ... ok
+test_no_collected_report_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_no_collected_report_cannot_publish) ... ok
+test_a_lease_this_node_does_not_hold_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_lease_this_node_does_not_hold_refuses) ... ok
+test_a_node_with_no_target_repository_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_node_with_no_target_repository_refuses) ... ok
+test_a_phase_this_result_does_not_retain_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_phase_this_result_does_not_retain_refuses) ... ok
+test_a_placement_without_a_materializer_is_refused_at_composition (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_placement_without_a_materializer_is_refused_at_composition)
+A location operand would be the worker choosing where the bytes ... ok
+test_a_stale_fence_refuses_before_the_swap (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_stale_fence_refuses_before_the_swap) ... ok
+test_content_this_node_does_not_hold_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_content_this_node_does_not_hold_refuses)
+A publication imports bytes this node actually has. The grant has ... ok
+test_a_grant_lost_while_content_resolves_stops_the_swap (tests.tools.test_managed_integration.TheGrantIsProvedAtTheMutationBoundary.test_a_grant_lost_while_content_resolves_stops_the_swap) ... ok
+test_a_collected_apply_reaches_the_target (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_collected_apply_reaches_the_target)
+THE POSITIVE, and it names everything it rested on. ... ok
+test_a_result_for_another_target_is_refused (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_result_for_another_target_is_refused) ... ok
+test_a_result_reconciled_against_another_revision_is_refused (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_result_reconciled_against_another_revision_is_refused) ... ok
+test_the_swap_is_against_the_admitted_revision (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_the_swap_is_against_the_admitted_revision)
+NOT against whatever the reference says now. Those are the same ... ok
+test_a_foreign_runtime_identity_refuses (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_a_foreign_runtime_identity_refuses)
+The owner's answer and this manager's row must name ONE runtime. ... ok
+test_a_negative_exclusion_refuses (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_a_negative_exclusion_refuses)
+A forged stopped report is not an exclusion: the owner says so. ... ok
+test_a_placement_missing_either_owner_is_refused_at_composition (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_a_placement_missing_either_owner_is_refused_at_composition) ... ok
+test_a_start_operation_this_manager_never_committed_refuses (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_a_start_operation_this_manager_never_committed_refuses)
+A runtime identity with no start behind it is a runtime nobody in ... ok
+test_an_attempt_with_no_attached_runtime_refuses (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_an_attempt_with_no_attached_runtime_refuses)
+The shape a publication follows is a runtime that EXISTED. An ... ok
+test_an_authorization_for_another_result_refuses (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_an_authorization_for_another_result_refuses) ... ok
+test_an_authorization_for_other_content_refuses (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_an_authorization_for_other_content_refuses) ... ok
+test_an_exclusion_about_another_phase_refuses (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_an_exclusion_about_another_phase_refuses) ... ok
+test_an_unapproved_candidate_refuses (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_an_unapproved_candidate_refuses)
+A measured worker report says the harness passed. It does not say ... ok
+test_an_unavailable_authorization_owner_refuses (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_an_unavailable_authorization_owner_refuses) ... ok
+test_an_unavailable_execution_owner_refuses (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_an_unavailable_execution_owner_refuses) ... ok
+test_the_positive_binds_every_required_fact (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_the_positive_binds_every_required_fact) ... ok
+test_a_settlement_of_the_wrong_variant_refuses (tests.tools.test_managed_integration.TheWholeRequestIsOwnedBeforeAnyEffect.test_a_settlement_of_the_wrong_variant_refuses) ... ok
+test_a_settlement_whose_members_are_wrong_refuses (tests.tools.test_managed_integration.TheWholeRequestIsOwnedBeforeAnyEffect.test_a_settlement_whose_members_are_wrong_refuses) ... ok
+test_an_empty_settlement_refuses_with_the_target_unchanged (tests.tools.test_managed_integration.TheWholeRequestIsOwnedBeforeAnyEffect.test_an_empty_settlement_refuses_with_the_target_unchanged) ... ok
+test_authorized_content_settles_unrelated_entry (__main__.Observations.test_authorized_content_settles_unrelated_entry) ... ok
+test_completed_retry_accepts_changed_grant (__main__.Observations.test_completed_retry_accepts_changed_grant) ... ok
+test_completed_retry_returns_foreign_current_revision (__main__.Observations.test_completed_retry_returns_foreign_current_revision) ... ok
+test_foreign_same_revision_is_adopted_as_own_swap (__main__.Observations.test_foreign_same_revision_is_adopted_as_own_swap) ... ok
+
+----------------------------------------------------------------------
+Ran 41 tests in 0.918s
+
+OK

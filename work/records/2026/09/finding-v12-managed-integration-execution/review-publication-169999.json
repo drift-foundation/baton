@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-publication-169999.py"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "exit_code": 1,
+  "seconds": 0.514052824000828,
+  "limits_seconds": [
+    45,
+    5,
+    5
+  ],
+  "signals": [],
+  "prior_reviewer_seconds": 32.49202423700626,
+  "cumulative_reviewer_seconds": 33.00607706100709,
+  "meaning": "Injected cut before intent then ordinary retry, checks immutable publication bytes; normal fake engine/provider upstream fixtures."
+}

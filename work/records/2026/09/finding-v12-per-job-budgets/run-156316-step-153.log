@@ -1,0 +1,66 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling
+.FF..FF.
+======================================================================
+FAIL: test_a_post_import_overrun_runs_once_and_defers (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_overrun_runs_once_and_defers)
+The overrun at this boundary: ONE call across four ordinary ticks,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1540, in test_a_post_import_overrun_runs_once_and_defers
+    self.assertEqual([seconds for _argv, seconds in self.seen],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     [self.CEILING])
+                     ^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [77]
+
+Second list contains 1 additional elements.
+First extra element 0:
+77
+
+- []
++ [77]
+
+======================================================================
+FAIL: test_a_post_import_start_failure_is_the_same_shape (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_start_failure_is_the_same_shape)
+The OTHER way a host command produces no exit status: the child
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1552, in test_a_post_import_start_failure_is_the_same_shape
+    self.assertEqual([seconds for _argv, seconds in self.seen],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     [self.CEILING])
+                     ^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [77]
+
+Second list contains 1 additional elements.
+First extra element 0:
+77
+
+- []
++ [77]
+
+======================================================================
+FAIL: test_the_failed_scratch_is_retained_and_this_is_a_limitation (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_failed_scratch_is_retained_and_this_is_a_limitation)
+WHAT HAPPENS TO THE TREE THE FAILED ATTEMPT MATERIALIZED.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1581, in test_the_failed_scratch_is_retained_and_this_is_a_limitation
+    self.assertEqual(after - before, 1,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+                     "the one real attempt left exactly one tree")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : the one real attempt left exactly one tree
+
+======================================================================
+FAIL: test_the_post_import_verification_uses_the_jobs_ceiling (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_post_import_verification_uses_the_jobs_ceiling)
+THE SECOND HOST BOUNDARY, reachable at last.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1530, in test_the_post_import_verification_uses_the_jobs_ceiling
+    self.assertTrue(self.seen, "the post-import verifier ran no command")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true : the post-import verifier ran no command
+
+----------------------------------------------------------------------
+Ran 8 tests in 11.451s
+
+FAILED (failures=4)

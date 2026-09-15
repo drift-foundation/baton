@@ -1,0 +1,28 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches
+.E.
+======================================================================
+ERROR: test_an_absent_delivery_is_answered_and_never_repaired (tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches.test_an_absent_delivery_is_answered_and_never_repaired)
+ABSENT ARTIFACT: an attempt whose launch root does not exist is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1804, in test_an_absent_delivery_is_answered_and_never_repaired
+    shutil.rmtree(root)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.13/shutil.py", line 763, in rmtree
+    _rmtree_safe_fd(stack, onexc)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/shutil.py", line 707, in _rmtree_safe_fd
+    onexc(func, path, err)
+    ~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/shutil.py", line 700, in _rmtree_safe_fd
+    onexc(os.unlink, fullname, err)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/shutil.py", line 696, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: '/home/sl/src/baton/v12/python/v12-w71917-w_fg5iuv/launch/attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/command'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.474s
+
+FAILED (errors=1)

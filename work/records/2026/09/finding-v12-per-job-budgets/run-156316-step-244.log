@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_retained_failure_is_keyed_by_the_work_it_is_about tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_this_deployment_can_admit_only_one_derived_result tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_result_holds_the_only_integrator_and_job_c_waits
+...
+----------------------------------------------------------------------
+Ran 3 tests in 5.280s
+
+OK

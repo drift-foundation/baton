@@ -1,0 +1,106 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_store tests.job_manager.test_scheduling tests.manager.test_reconciliation_worker
+...............................................................................E..............EFEF..................................
+======================================================================
+ERROR: test_schema_three_migrates_atomically_to_empty_scheduler_relations (tests.job_manager.test_scheduling.PoolDocuments.test_schema_three_migrates_atomically_to_empty_scheduler_relations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 114, in test_schema_three_migrates_atomically_to_empty_scheduler_relations
+    migrated = JobStore.open(self.job_path, authority_uuid=UUID,
+                             incarnation="jobs-migrated", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 603, in _migrate
+    cls._exactly_schema_three(connection, path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 324, in _exactly_schema_three
+    raise ContractRefusal(
+    ...<6 lines>...
+        + ". Nothing was changed")
+baton_v12.contracts.errors.ContractRefusal: the Job store at '/tmp/v12-job-manager-_59abljg/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots. Nothing was changed
+
+======================================================================
+ERROR: test_a_whole_schema_three_store_migrates (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_whole_schema_three_store_migrates)
+The positive case, so the refusals below are about the spoiling.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 462, in test_a_whole_schema_three_store_migrates
+    migrated = self.reopen()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 441, in reopen
+    store = JobStore.open(self.job_path, authority_uuid=UUID,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 603, in _migrate
+    cls._exactly_schema_three(connection, path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 324, in _exactly_schema_three
+    raise ContractRefusal(
+    ...<6 lines>...
+        + ". Nothing was changed")
+baton_v12.contracts.errors.ContractRefusal: the Job store at '/tmp/v12-job-manager-3id4ndoy/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots. Nothing was changed
+
+======================================================================
+ERROR: test_the_two_legitimate_spellings_of_one_schema_both_migrate (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_the_two_legitimate_spellings_of_one_schema_both_migrate)
+The comparison is about CONTENT, and this is what protects that.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 579, in test_the_two_legitimate_spellings_of_one_schema_both_migrate
+    self.reopen()
+    ~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 441, in reopen
+    store = JobStore.open(self.job_path, authority_uuid=UUID,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 603, in _migrate
+    cls._exactly_schema_three(connection, path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 324, in _exactly_schema_three
+    raise ContractRefusal(
+    ...<6 lines>...
+        + ". Nothing was changed")
+baton_v12.contracts.errors.ContractRefusal: the Job store at '/tmp/v12-job-manager-y1z7z3nn/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots. Nothing was changed
+
+======================================================================
+FAIL: test_an_extra_object_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_an_extra_object_refuses_and_changes_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 587, in test_an_extra_object_refuses_and_changes_nothing
+    self.assertIn("unexpected somebody_elses", caught.exception.message)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unexpected somebody_elses' not found in "the Job store at '/tmp/v12-job-manager-2cj5_gkr/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots, somebody_elses. Nothing was changed"
+
+======================================================================
+FAIL: test_two_concurrent_migrations_leave_one_store (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_two_concurrent_migrations_leave_one_store)
+Both openers see schema 3; the lock decides and the loser adopts.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 633, in test_two_concurrent_migrations_leave_one_store
+    self.assertEqual(answers, [[], []], answers)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [ContractRefusal("the Job store at '/tmp/v[463 chars]ed")] != [[], []]
+
+First differing element 0:
+ContractRefusal("the Job store at '/tmp/v[207 chars]ged")
+[]
+
++ [[], []]
+- [ContractRefusal("the Job store at '/tmp/v12-job-manager-bxrdhpgg/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots. Nothing was changed"),
+-  ContractRefusal("the Job store at '/tmp/v12-job-manager-bxrdhpgg/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots. Nothing was changed")] : [ContractRefusal("the Job store at '/tmp/v12-job-manager-bxrdhpgg/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots. Nothing was changed"), ContractRefusal("the Job store at '/tmp/v12-job-manager-bxrdhpgg/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots. Nothing was changed")]
+
+----------------------------------------------------------------------
+Ran 132 tests in 0.365s
+
+FAILED (failures=2, errors=3)

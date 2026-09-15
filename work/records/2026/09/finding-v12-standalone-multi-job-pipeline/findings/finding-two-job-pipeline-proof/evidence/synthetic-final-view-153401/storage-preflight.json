@@ -1,0 +1,16 @@
+{
+  "paths": {
+    "/home/sl/.local/state/baton/v12": {
+      "filesystem": "ext4",
+      "answer": "accepted"
+    },
+    "/tmp": {
+      "filesystem": "tmpfs",
+      "answer": {
+        "category": "policy",
+        "code": "denied"
+      }
+    }
+  },
+  "seconds": 0.0003842440200969577
+}

@@ -1,0 +1,8 @@
+test_a_start_that_failed_after_creating_a_runtime_is_ended (__main__.Binding.test_a_start_that_failed_after_creating_a_runtime_is_ended)
+THE COMMITTED START whose adapter call fails after the runtime ... {"proof": "late-runtime-binding-versus-immutable-failed-start-receipt", "receipt_runtime_id": null, "receipt_unchanged": true, "reconciled_execution_runtime": "running", "reconciled_runtime_id": "runtime-single-3", "refusal": "the failed-start record for attempt 'prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6f\u2026 names runtime_id none and this attempt now carries 'runtime-single-3'; the record is what authorizes this removal, and one that describes another act cannot authorize this one", "worker_returncodes": [null]}
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.583s
+
+OK

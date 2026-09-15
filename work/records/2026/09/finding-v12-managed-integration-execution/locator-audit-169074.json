@@ -1,0 +1,12 @@
+{
+  "path": "v12/worker/integration_contract.py",
+  "HEAD_present": true,
+  "HEAD_sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+  "working_sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+  "matches_HEAD": true,
+  "importer": "v12/python/tests/tools/test_integration_bundle.py",
+  "resolved_import_root": "v12/worker",
+  "export_scope_reported_by_author": "v12/python",
+  "conclusion": "The reported export omits a tracked sibling dependency. No commit or product fix is required to include it in a complete diagnostic export. No export or test was run here.",
+  "static_seconds": 0.037703704001614824
+}

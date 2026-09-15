@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation
+..............................F.......................................................................................................................................................................................................................................
+======================================================================
+FAIL: test_a_foreign_task_digest_refuses_and_writes_nothing (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_a_foreign_task_digest_refuses_and_writes_nothing)
+Review [P2]: the task's own identity was not compared to the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1688, in test_a_foreign_task_digest_refuses_and_writes_nothing
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 262 tests in 13.019s
+
+FAILED (failures=1)

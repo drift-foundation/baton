@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_storage
+.....E.......................
+======================================================================
+ERROR: test_the_legacy_writer_refuses_a_key_the_managed_side_holds (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_legacy_writer_refuses_a_key_the_managed_side_holds)
+THE REVERSE WRITE ORDER, through `prepare_result` itself rather
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 747, in test_the_legacy_writer_refuses_a_key_the_managed_side_holds
+    target_revision=self.base)
+                    ^^^^^^^^^
+AttributeError: 'NeitherReaderAnswersADoubleRepresentation' object has no attribute 'base'
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.103s
+
+FAILED (errors=1)

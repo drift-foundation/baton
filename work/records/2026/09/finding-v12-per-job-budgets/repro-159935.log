@@ -1,0 +1,18 @@
+{
+  "result_id": "result-60676d76565f420fb82d962ba6e8e7a1aaad91b5263f010b6c8e3c94fe6600d4",
+  "state": "blocked",
+  "actual_journal_replay_calls": [
+    "result.observed:result-60676d76565f420fb82d962ba6e8e7a1aaad91b5263f010b6c8e3c94fe6600d4"
+  ],
+  "transact_calls": [],
+  "replay_observer_calls": 2,
+  "command_materialization_counts": [
+    1,
+    1
+  ],
+  "conflict": {
+    "category": "refused",
+    "code": "operation-collision",
+    "message": "result 'result-60676d76565f420fb82d962ba6e8e7a1aaad91b5263f010b6c8e\u2026 is already 'blocked' under other observations; a witnessed result is not re-observed in place"
+  }
+}

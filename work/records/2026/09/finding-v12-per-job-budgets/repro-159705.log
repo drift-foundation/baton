@@ -1,0 +1,274 @@
+[
+  {
+    "phase": "base",
+    "reason": "timeout",
+    "calls": [
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77
+      },
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77
+      }
+    ],
+    "state": "blocked",
+    "failure": {
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "completed": {
+        "combined": {
+          "command": [
+            "python3",
+            "feature_check.py"
+          ],
+          "environment": "configured-required-test",
+          "execution": "baton.result-observer",
+          "harness_added": false,
+          "input_commit": "d69f6970ff18d465af20e4b8df79943b7dfdfa19",
+          "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+          "output": "the second job feature check passed",
+          "status": 0,
+          "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+          "test_identity": "w130224-second-line-of-one-target"
+        }
+      },
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at 'e8abd96098e37326de78de8cb025313445ad7dfb'; no exit status was observed and none is invented",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "e8abd96098e37326de78de8cb025313445ad7dfb",
+      "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb",
+      "not_run": [
+        "isolated"
+      ],
+      "phase": "base",
+      "reason": "timeout",
+      "schema": "baton.v12.host-verification-failure/1",
+      "seconds": 77,
+      "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+      "test_identity": "w130224-second-line-of-one-target"
+    }
+  },
+  {
+    "phase": "base",
+    "reason": "start-failed",
+    "calls": [
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77
+      },
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77
+      }
+    ],
+    "state": "blocked",
+    "failure": {
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "completed": {
+        "combined": {
+          "command": [
+            "python3",
+            "feature_check.py"
+          ],
+          "environment": "configured-required-test",
+          "execution": "baton.result-observer",
+          "harness_added": false,
+          "input_commit": "d031ca785743e5efa0cf6cc38c297a2cebdfb3b1",
+          "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+          "output": "the second job feature check passed",
+          "status": 0,
+          "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+          "test_identity": "w130224-second-line-of-one-target"
+        }
+      },
+      "detail": "the configured required test 'feature_check.py' could not be started at '0a8ee4f995f52c65c175628472c936a4f582eccd' (FileNotFoundError); no exit status was observed and none is invented",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "0a8ee4f995f52c65c175628472c936a4f582eccd",
+      "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb",
+      "not_run": [
+        "isolated"
+      ],
+      "phase": "base",
+      "reason": "start-failed",
+      "schema": "baton.v12.host-verification-failure/1",
+      "seconds": 77,
+      "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+      "test_identity": "w130224-second-line-of-one-target"
+    }
+  },
+  {
+    "phase": "isolated",
+    "reason": "timeout",
+    "calls": [
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77
+      },
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77
+      },
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77
+      }
+    ],
+    "state": "blocked",
+    "failure": {
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "completed": {
+        "base": {
+          "command": [
+            "python3",
+            "feature_check.py"
+          ],
+          "environment": "configured-required-test",
+          "execution": "baton.result-observer",
+          "harness_added": true,
+          "input_commit": "9c93f6c467c3618c2973cc05f3e5dd62294ba1d3",
+          "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb",
+          "output": "ModuleNotFoundError: No module named 'feature'",
+          "status": 1,
+          "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+          "test_identity": "w130224-second-line-of-one-target"
+        },
+        "combined": {
+          "command": [
+            "python3",
+            "feature_check.py"
+          ],
+          "environment": "configured-required-test",
+          "execution": "baton.result-observer",
+          "harness_added": false,
+          "input_commit": "8463daa35fa8009af6765fd807f483837ad69edd",
+          "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+          "output": "the second job feature check passed",
+          "status": 0,
+          "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+          "test_identity": "w130224-second-line-of-one-target"
+        }
+      },
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at 'ead6ce9426fad8f61b0d61f83ede85b807e5aef4'; no exit status was observed and none is invented",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "ead6ce9426fad8f61b0d61f83ede85b807e5aef4",
+      "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384",
+      "not_run": [],
+      "phase": "isolated",
+      "reason": "timeout",
+      "schema": "baton.v12.host-verification-failure/1",
+      "seconds": 77,
+      "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+      "test_identity": "w130224-second-line-of-one-target"
+    }
+  },
+  {
+    "phase": "isolated",
+    "reason": "start-failed",
+    "calls": [
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77
+      },
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77
+      },
+      {
+        "argv": [
+          "python3",
+          "feature_check.py"
+        ],
+        "seconds": 77
+      }
+    ],
+    "state": "blocked",
+    "failure": {
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "completed": {
+        "base": {
+          "command": [
+            "python3",
+            "feature_check.py"
+          ],
+          "environment": "configured-required-test",
+          "execution": "baton.result-observer",
+          "harness_added": true,
+          "input_commit": "33d693341611ef21b3db9505c4a32344efaabaad",
+          "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb",
+          "output": "ModuleNotFoundError: No module named 'feature'",
+          "status": 1,
+          "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+          "test_identity": "w130224-second-line-of-one-target"
+        },
+        "combined": {
+          "command": [
+            "python3",
+            "feature_check.py"
+          ],
+          "environment": "configured-required-test",
+          "execution": "baton.result-observer",
+          "harness_added": false,
+          "input_commit": "a42c3098fabffbf4e17bcb82335dfcfd0f39ad45",
+          "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+          "output": "the second job feature check passed",
+          "status": 0,
+          "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+          "test_identity": "w130224-second-line-of-one-target"
+        }
+      },
+      "detail": "the configured required test 'feature_check.py' could not be started at '66aa069629e9dc09c0c9ac6f2489f26b9d3c3151' (FileNotFoundError); no exit status was observed and none is invented",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "66aa069629e9dc09c0c9ac6f2489f26b9d3c3151",
+      "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384",
+      "not_run": [],
+      "phase": "isolated",
+      "reason": "start-failed",
+      "schema": "baton.v12.host-verification-failure/1",
+      "seconds": 77,
+      "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+      "test_identity": "w130224-second-line-of-one-target"
+    }
+  }
+]

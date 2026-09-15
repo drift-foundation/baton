@@ -1,0 +1,69 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_managed_integration_capacity
+.....E..E.....
+======================================================================
+ERROR: test_an_admitted_member_refuses_to_release (tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity.test_an_admitted_member_refuses_to_release)
+The named branch matters: a VALIDATED COMPLETION of the parent
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 240, in test_an_admitted_member_refuses_to_release
+    capacity.begin_integration_ending(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, orchestration_id=self.ORCHESTRATION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        reason="the preparation failed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 361, in begin_integration_ending
+    return store.transact(operation_id, "integration-capacity.ending",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 349, in perform
+    connection.execute(
+    ~~~~~~~~~~~~~~~~~~^
+        "UPDATE integration_capacity_members SET state = 'ended', "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        (f"cancelled before admission: {reason}", operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         orchestration_id))
+         ^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: CHECK constraint failed: (state = 'planned' AND assignment IS NULL)
+      OR (state <> 'planned' AND assignment IS NOT NULL)
+
+======================================================================
+ERROR: test_capacity_releases_once_after_a_validated_ending (tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity.test_capacity_releases_once_after_a_validated_ending)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 271, in test_capacity_releases_once_after_a_validated_ending
+    capacity.begin_integration_ending(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, orchestration_id=self.ORCHESTRATION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        reason="the preparation failed")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 361, in begin_integration_ending
+    return store.transact(operation_id, "integration-capacity.ending",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 349, in perform
+    connection.execute(
+    ~~~~~~~~~~~~~~~~~~^
+        "UPDATE integration_capacity_members SET state = 'ended', "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        (f"cancelled before admission: {reason}", operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         orchestration_id))
+         ^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: CHECK constraint failed: (state = 'planned' AND assignment IS NULL)
+      OR (state <> 'planned' AND assignment IS NOT NULL)
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.036s
+
+FAILED (errors=2)

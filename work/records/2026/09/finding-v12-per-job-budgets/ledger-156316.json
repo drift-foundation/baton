@@ -1,0 +1,4376 @@
+{
+ "allowance": "none assigned by owner or plan; this ledger records exact selectors, elapsed wall time and exit status, and W103525's ledgers do not transfer",
+ "author_runs": 246,
+ "author_spent_seconds": 2530.5844189850177,
+ "claim": 156316,
+ "runs": [
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-c",
+    "\nfrom baton_v12.job_manager import documents, execution_limits, schema\nprint('submission schemas', documents.SUBMISSION_SCHEMAS)\nprint('status', documents.STATUS_SCHEMA, 'store version', schema.SCHEMA_VERSION)\nprint('resolved none:')\nimport json; print(json.dumps(execution_limits.resolved(None), sort_keys=True, indent=1))\n"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.15372968199972092,
+   "exit": 0,
+   "label": "job-manager-import-check",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-01.log",
+   "ok": true,
+   "step": 1
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16735468000024412,
+   "exit": 1,
+   "label": "execution-limits-module",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-02.log",
+   "ok": false,
+   "step": 2
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16837044900057663,
+   "exit": 1,
+   "label": "execution-limits-module-2",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-03.log",
+   "ok": false,
+   "step": 3
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16636099399966042,
+   "exit": 1,
+   "label": "execution-limits-module-3",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-04.log",
+   "ok": false,
+   "step": 4
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.17103765699994256,
+   "exit": 0,
+   "label": "execution-limits-module-4",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-05.log",
+   "ok": true,
+   "step": 5
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_documents",
+    "tests.job_manager.test_submission",
+    "tests.job_manager.test_store",
+    "tests.job_manager.test_status",
+    "tests.job_manager.test_tool",
+    "tests.job_manager.test_exchange"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.5071773869995013,
+   "exit": 1,
+   "label": "affected-job-manager-suites",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-06.log",
+   "ok": false,
+   "step": 6
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_documents",
+    "tests.job_manager.test_submission",
+    "tests.job_manager.test_store",
+    "tests.job_manager.test_status",
+    "tests.job_manager.test_tool",
+    "tests.job_manager.test_exchange",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.5257817199999408,
+   "exit": 1,
+   "label": "affected-job-manager-suites-2",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-07.log",
+   "ok": false,
+   "step": 7
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests/job_manager",
+    "-t",
+    "."
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.94463991900011,
+   "exit": 1,
+   "label": "job-manager-package",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-08.log",
+   "ok": false,
+   "step": 8
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests/job_manager",
+    "-t",
+    "."
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.932180263000191,
+   "exit": 1,
+   "label": "job-manager-package-2",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-09.log",
+   "ok": false,
+   "step": 9
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests/job_manager",
+    "-t",
+    "."
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.935120240999822,
+   "exit": 1,
+   "label": "job-manager-package-3",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-10.log",
+   "ok": false,
+   "step": 10
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_single_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.9600583299998107,
+   "exit": 0,
+   "label": "tools-single-worker-ripple",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-11.log",
+   "ok": true,
+   "step": 11
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.1834339840006578,
+   "exit": 0,
+   "label": "r1-r2-corrections",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-12.log",
+   "ok": true,
+   "step": 12
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_documents",
+    "tests.job_manager.test_submission",
+    "tests.job_manager.test_store",
+    "tests.job_manager.test_tool",
+    "tests.job_manager.test_scheduling",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.5201749950001613,
+   "exit": 0,
+   "label": "affected-job-suites",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-13.log",
+   "ok": true,
+   "step": 13
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.17657854499884706,
+   "exit": 0,
+   "label": "r4-populated-legacy",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-14.log",
+   "ok": true,
+   "step": 14
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_launch"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.15359575299953576,
+   "exit": 0,
+   "label": "launch-three-shape",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-15.log",
+   "ok": true,
+   "step": 15
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.1538579199986998,
+   "exit": 0,
+   "label": "launch-three-module",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-16.log",
+   "ok": true,
+   "step": 16
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_execution_limits",
+    "tests.job_manager.test_documents",
+    "tests.job_manager.test_submission",
+    "tests.job_manager.test_store",
+    "tests.job_manager.test_tool",
+    "tests.job_manager.test_scheduling",
+    "tests.manager.test_launch",
+    "tests.manager.test_execution_limits",
+    "tests.manager.test_worker_entry"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.5273673920000874,
+   "exit": 0,
+   "label": "affected-after-launch",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-17.log",
+   "ok": true,
+   "step": 17
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_execution_limits",
+    "tests.manager.test_launch"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.15140128399980313,
+   "exit": 0,
+   "label": "r5-semantics",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-18.log",
+   "ok": true,
+   "step": 18
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.183351195000796,
+   "exit": 1,
+   "label": "r5-r6-cases",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-19.log",
+   "ok": false,
+   "step": 19
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits",
+    "tests.manager.test_launch"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.1822080099991581,
+   "exit": 0,
+   "label": "r5-semantics-real",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-20.log",
+   "ok": true,
+   "step": 20
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_execution_limits",
+    "tests.job_manager.test_documents",
+    "tests.job_manager.test_submission",
+    "tests.job_manager.test_store",
+    "tests.job_manager.test_tool",
+    "tests.job_manager.test_scheduling",
+    "tests.manager.test_launch",
+    "tests.manager.test_execution_limits",
+    "tests.manager.test_worker_entry"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.5341524860014033,
+   "exit": 0,
+   "label": "affected-after-r5-r6",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-21.log",
+   "ok": true,
+   "step": 21
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.15472621099979733,
+   "exit": 0,
+   "label": "r5-boolean",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-22.log",
+   "ok": true,
+   "step": 22
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_execution_limits",
+    "tests.manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.19436489100007748,
+   "exit": 0,
+   "label": "job-owner-launch-context",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-23.log",
+   "ok": true,
+   "step": 23
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_execution_limits",
+    "tests.job_manager.test_documents",
+    "tests.job_manager.test_submission",
+    "tests.job_manager.test_store",
+    "tests.job_manager.test_tool",
+    "tests.job_manager.test_scheduling",
+    "tests.manager.test_launch",
+    "tests.manager.test_execution_limits",
+    "tests.manager.test_worker_entry"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.5377297439990798,
+   "exit": 0,
+   "label": "affected-final",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-24.log",
+   "ok": true,
+   "step": 24
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.tools.test_single_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.984306772999844,
+   "exit": 0,
+   "label": "tree-unchanged-check",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-25.log",
+   "ok": true,
+   "step": 25
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_single_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.197363248998954,
+   "exit": 1,
+   "label": "worker-propagation-ripple",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-26.log",
+   "ok": false,
+   "step": 26
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_single_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.326460845999463,
+   "exit": 1,
+   "label": "worker-and-observation",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-27.log",
+   "ok": false,
+   "step": 27
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_single_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.227351527999417,
+   "exit": 1,
+   "label": "worker-and-observation-2",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-28.log",
+   "ok": false,
+   "step": 28
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_single_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.015097227000297,
+   "exit": 1,
+   "label": "transport-decides",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-29.log",
+   "ok": false,
+   "step": 29
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_launch",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.19164289500076848,
+   "exit": 0,
+   "label": "full-affected-extent",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-30.log",
+   "ok": true,
+   "step": 30
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_single_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.208048157001031,
+   "exit": 0,
+   "label": "fixture-patch-applied",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-31.log",
+   "ok": true,
+   "step": 31
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 14.241582427001049,
+   "exit": 1,
+   "label": "composed-factories",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-32.log",
+   "ok": false,
+   "step": 32
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_single_worker",
+    "tests.manager.test_launch",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.259248287999071,
+   "exit": 0,
+   "label": "affected-after-factories",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-33.log",
+   "ok": true,
+   "step": 33
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 53.70755629300038,
+   "exit": 1,
+   "label": "stage-turn-helper",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-34.log",
+   "ok": false,
+   "step": 34
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_single_worker",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits",
+    "tests.manager.test_launch"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.25446827900123,
+   "exit": 0,
+   "label": "restored-and-affected",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-35.log",
+   "ok": true,
+   "step": 35
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_worker_entry",
+    "tests.manager.test_claude_agent",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 9.593720419999954,
+   "exit": 0,
+   "label": "worker-readers-and-bounds",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-36.log",
+   "ok": true,
+   "step": 36
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.02883614500024123,
+   "exit": 1,
+   "label": "tools-execution-limits",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-37.log",
+   "ok": false,
+   "step": 37
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.1573972030000732,
+   "exit": 1,
+   "label": "tools-execution-limits-2",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-38.log",
+   "ok": false,
+   "step": 38
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.15475193899874284,
+   "exit": 0,
+   "label": "tools-execution-limits-3",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-39.log",
+   "ok": true,
+   "step": 39
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 50.38125454299916,
+   "exit": 1,
+   "label": "tightened-helper",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-40.log",
+   "ok": false,
+   "step": 40
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 51.994616025998766,
+   "exit": 1,
+   "label": "tightened-helper-2",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-41.log",
+   "ok": false,
+   "step": 41
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.tools.test_single_worker",
+    "tests.manager.test_execution_limits",
+    "tests.manager.test_launch",
+    "tests.manager.test_worker_entry",
+    "tests.manager.test_claude_agent",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.60341617800077,
+   "exit": 0,
+   "label": "affected-final",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-42.log",
+   "ok": true,
+   "step": 42
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_worker_entry",
+    "tests.manager.test_claude_agent"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 9.466621649000444,
+   "exit": 0,
+   "label": "p1-p2-reader",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-43.log",
+   "ok": true,
+   "step": 43
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16416730899982213,
+   "exit": 0,
+   "label": "p2b-production-path",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-44.log",
+   "ok": true,
+   "step": 44
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_worker_entry",
+    "tests.manager.test_claude_agent",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 9.584405964000325,
+   "exit": 0,
+   "label": "changed-behaviour-selectors",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-45.log",
+   "ok": true,
+   "step": 45
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_worker_entry"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.17723973400097748,
+   "exit": 0,
+   "label": "nested-schema",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-46.log",
+   "ok": true,
+   "step": 46
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.1693369629992958,
+   "exit": 0,
+   "label": "nested-and-outcomes",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-47.log",
+   "ok": true,
+   "step": 47
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_integration_worker",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.9441671149998,
+   "exit": 0,
+   "label": "integration-workload",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-48.log",
+   "ok": true,
+   "step": 48
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.17616955500125187,
+   "exit": 1,
+   "label": "imported-boundary-cases",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-49.log",
+   "ok": false,
+   "step": 49
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.15566786199997296,
+   "exit": 0,
+   "label": "imported-boundary-cases-2",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-50.log",
+   "ok": true,
+   "step": 50
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_worker_entry",
+    "tests.manager.test_claude_agent",
+    "tests.manager.test_integration_worker",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 22.398205057999803,
+   "exit": 0,
+   "label": "changed-behaviour-final",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-51.log",
+   "ok": true,
+   "step": 51
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_worker_entry"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.1839983489990118,
+   "exit": 1,
+   "label": "boundary-consistency",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-52.log",
+   "ok": false,
+   "step": 52
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16468997499941906,
+   "exit": 1,
+   "label": "p2-consistency",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-53.log",
+   "ok": false,
+   "step": 53
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.19330443999933777,
+   "exit": 0,
+   "label": "p2-consistency",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-54.log",
+   "ok": true,
+   "step": 54
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits",
+    "tests.tools.test_integration_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.393120372998965,
+   "exit": 0,
+   "label": "direct-carrier",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-55.log",
+   "ok": true,
+   "step": 55
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.75894831199912,
+   "exit": 1,
+   "label": "end-to-end",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-56.log",
+   "ok": false,
+   "step": 56
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.7941795690003346,
+   "exit": 1,
+   "label": "end-to-end",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-57.log",
+   "ok": false,
+   "step": 57
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.8333097319991793,
+   "exit": 1,
+   "label": "end-to-end",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-58.log",
+   "ok": false,
+   "step": 58
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.9789407640000718,
+   "exit": 1,
+   "label": "end-to-end",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-59.log",
+   "ok": false,
+   "step": 59
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0320534969996515,
+   "exit": 1,
+   "label": "end-to-end",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-60.log",
+   "ok": false,
+   "step": 60
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0186007990014332,
+   "exit": 1,
+   "label": "end-to-end",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-61.log",
+   "ok": false,
+   "step": 61
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0217908049999096,
+   "exit": 1,
+   "label": "end-to-end",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-62.log",
+   "ok": false,
+   "step": 62
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.037783458999911,
+   "exit": 1,
+   "label": "end-to-end",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-63.log",
+   "ok": false,
+   "step": 63
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.283307367999441,
+   "exit": 1,
+   "label": "end-to-end",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-64.log",
+   "ok": false,
+   "step": 64
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits",
+    "tests.tools.test_integration_worker",
+    "tests.tools.test_integration_bundle"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 20.04277031699894,
+   "exit": 0,
+   "label": "end-to-end",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-65.log",
+   "ok": true,
+   "step": 65
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.320889132000957,
+   "exit": 0,
+   "label": "host-verification",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-66.log",
+   "ok": true,
+   "step": 66
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 6.303810319999684,
+   "exit": 1,
+   "label": "host-verification",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-67.log",
+   "ok": false,
+   "step": 67
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 6.293569716001002,
+   "exit": 0,
+   "label": "host-verification",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-68.log",
+   "ok": true,
+   "step": 68
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits",
+    "tests.tools.test_integration_worker",
+    "tests.tools.test_integration_bundle",
+    "tests.manager.test_launch",
+    "tests.tools.test_single_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 25.126293006000196,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-69.log",
+   "ok": true,
+   "step": 69
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 45.33028671300053,
+   "exit": 1,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-70.log",
+   "ok": false,
+   "step": 70
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 45.24582158699923,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-71.log",
+   "ok": false,
+   "step": 71
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 45.30246769800033,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-72.log",
+   "ok": false,
+   "step": 72
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_judgment_subject_is_the_derived_candidate"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.9863858289991185,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-73.log",
+   "ok": false,
+   "step": 73
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 22.26509836399964,
+   "exit": 1,
+   "label": "fixture-operand",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-74.log",
+   "ok": false,
+   "step": 74
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 22.24970140000005,
+   "exit": 1,
+   "label": "fixture-operand",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-75.log",
+   "ok": false,
+   "step": 75
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 28.66207107900118,
+   "exit": 0,
+   "label": "fixture-operand",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-76.log",
+   "ok": true,
+   "step": 76
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 51.77592211499905,
+   "exit": 1,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-77.log",
+   "ok": false,
+   "step": 77
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2275170929988235,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-78.log",
+   "ok": false,
+   "step": 78
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_documents",
+    "tests.job_manager.test_store",
+    "tests.job_manager.test_exchange",
+    "tests.job_manager.test_scheduling",
+    "tests.job_manager.test_tool",
+    "tests.job_manager.test_status",
+    "tests.manager.test_launch",
+    "tests.manager.test_worker_entry"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6545440680001775,
+   "exit": 1,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-79.log",
+   "ok": false,
+   "step": 79
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.31165280300047,
+   "exit": 1,
+   "label": "corrections",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-80.log",
+   "ok": false,
+   "step": 80
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.1448618759968667,
+   "exit": 1,
+   "label": "corrections",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-81.log",
+   "ok": false,
+   "step": 81
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.1649570320005296,
+   "exit": 0,
+   "label": "corrections",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-82.log",
+   "ok": true,
+   "step": 82
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.4192162359977374,
+   "exit": 0,
+   "label": "provider-bound",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-83.log",
+   "ok": true,
+   "step": 83
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.409960217999469,
+   "exit": 0,
+   "label": "p2-existence",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-84.log",
+   "ok": true,
+   "step": 84
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits",
+    "tests.tools.test_integration_worker",
+    "tests.tools.test_integration_bundle",
+    "tests.manager.test_worker_entry",
+    "tests.manager.test_launch"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 17.07819529700282,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-85.log",
+   "ok": true,
+   "step": 85
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_single_worker",
+    "tests.manager.test_integration_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 17.053696555001807,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-86.log",
+   "ok": true,
+   "step": 86
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 52.10778351200133,
+   "exit": 1,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-87.log",
+   "ok": false,
+   "step": 87
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits",
+    "tests.tools.test_single_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 6.48985563700262,
+   "exit": 0,
+   "label": "judgment",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-88.log",
+   "ok": true,
+   "step": 88
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits",
+    "tests.tools.test_single_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 6.534431367999787,
+   "exit": 0,
+   "label": "judgment",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-89.log",
+   "ok": true,
+   "step": 89
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits",
+    "tests.tools.test_single_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 6.53764185700129,
+   "exit": 0,
+   "label": "judgment",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-90.log",
+   "ok": true,
+   "step": 90
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 50.39147937799862,
+   "exit": 1,
+   "label": "judgment",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-91.log",
+   "ok": false,
+   "step": 91
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_rejected_derived_judgment_cannot_authorize_import"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4111982089998492,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-92.log",
+   "ok": false,
+   "step": 92
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_rejected_derived_judgment_cannot_authorize_import"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.3637793009984307,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-93.log",
+   "ok": false,
+   "step": 93
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 28.733352598999772,
+   "exit": 0,
+   "label": "judgment",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-94.log",
+   "ok": true,
+   "step": 94
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 51.9223197570027,
+   "exit": 1,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-95.log",
+   "ok": false,
+   "step": 95
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.399595077000413,
+   "exit": 0,
+   "label": "judgment",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-96.log",
+   "ok": true,
+   "step": 96
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.0997536440008844,
+   "exit": 1,
+   "label": "provider",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-97.log",
+   "ok": false,
+   "step": 97
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.134814578002988,
+   "exit": 0,
+   "label": "provider",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-98.log",
+   "ok": true,
+   "step": 98
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits",
+    "tests.tools.test_integration_worker",
+    "tests.tools.test_integration_bundle",
+    "tests.manager.test_worker_entry",
+    "tests.manager.test_launch",
+    "tests.tools.test_single_worker",
+    "tests.manager.test_integration_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 34.71225900400168,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-99.log",
+   "ok": true,
+   "step": 99
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.132126780998078,
+   "exit": 0,
+   "label": "replay-bytes",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-100.log",
+   "ok": true,
+   "step": 100
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2695898040001339,
+   "exit": 1,
+   "label": "composed-host",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-101.log",
+   "ok": false,
+   "step": 101
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.814859409001656,
+   "exit": 0,
+   "label": "composed-host",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-102.log",
+   "ok": true,
+   "step": 102
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.7865870370005723,
+   "exit": 1,
+   "label": "composed-host",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-103.log",
+   "ok": false,
+   "step": 103
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.8883641110005556,
+   "exit": 1,
+   "label": "composed-host",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-104.log",
+   "ok": false,
+   "step": 104
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.91949646699868,
+   "exit": 1,
+   "label": "composed-host",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-105.log",
+   "ok": false,
+   "step": 105
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.2758606749994215,
+   "exit": 0,
+   "label": "composed-host",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-106.log",
+   "ok": true,
+   "step": 106
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.279363670000748,
+   "exit": 1,
+   "label": "composed-host",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-107.log",
+   "ok": false,
+   "step": 107
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.208993226999155,
+   "exit": 1,
+   "label": "composed-host",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-108.log",
+   "ok": false,
+   "step": 108
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.210509125001408,
+   "exit": 0,
+   "label": "composed-host",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-109.log",
+   "ok": true,
+   "step": 109
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.251484111002355,
+   "exit": 1,
+   "label": "readonly-ab",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-110.log",
+   "ok": false,
+   "step": 110
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TwoJobsCeilingsDoNotLeakIntoEachOther.test_each_turn_is_bound_by_its_own_delivery"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.1677362179980264,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-111.log",
+   "ok": false,
+   "step": 111
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.239792779000709,
+   "exit": 1,
+   "label": "readonly-ab",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-112.log",
+   "ok": false,
+   "step": 112
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.220379574999242,
+   "exit": 0,
+   "label": "readonly-ab",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-113.log",
+   "ok": true,
+   "step": 113
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits",
+    "tests.manager.test_worker_entry",
+    "tests.tools.test_integration_worker"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.430802417999075,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-114.log",
+   "ok": true,
+   "step": 114
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 28.71944873800021,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-115.log",
+   "ok": true,
+   "step": 115
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.17458725399774266,
+   "exit": 0,
+   "label": "honest-failure",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-116.log",
+   "ok": true,
+   "step": 116
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.208309933001146,
+   "exit": 0,
+   "label": "honest-failure",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-117.log",
+   "ok": true,
+   "step": 117
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.115382341999066,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-118.log",
+   "ok": true,
+   "step": 118
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 28.716076827000506,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-119.log",
+   "ok": true,
+   "step": 119
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.117217342998629,
+   "exit": 1,
+   "label": "memo-key",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-120.log",
+   "ok": false,
+   "step": 120
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.136486577001051,
+   "exit": 0,
+   "label": "memo-key",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-121.log",
+   "ok": true,
+   "step": 121
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.18141467799796374,
+   "exit": 1,
+   "label": "memo-regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-122.log",
+   "ok": false,
+   "step": 122
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.1621345699968515,
+   "exit": 0,
+   "label": "memo-regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-123.log",
+   "ok": true,
+   "step": 123
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.33276714800013,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-124.log",
+   "ok": true,
+   "step": 124
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 28.653670592000708,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-125.log",
+   "ok": true,
+   "step": 125
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6413936960016144,
+   "exit": 1,
+   "label": "readonly",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-126.log",
+   "ok": false,
+   "step": 126
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6417399790007039,
+   "exit": 1,
+   "label": "readonly",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-127.log",
+   "ok": false,
+   "step": 127
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6617733150014828,
+   "exit": 1,
+   "label": "readonly",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-128.log",
+   "ok": false,
+   "step": 128
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6507825010012311,
+   "exit": 0,
+   "label": "readonly",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-129.log",
+   "ok": true,
+   "step": 129
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.634334497000964,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-130.log",
+   "ok": true,
+   "step": 130
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.642142433000117,
+   "exit": 0,
+   "label": "readonly",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-131.log",
+   "ok": true,
+   "step": 131
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6662575930022285,
+   "exit": 0,
+   "label": "accuracy",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-132.log",
+   "ok": true,
+   "step": 132
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AFreshProcessAdoptsBothJobsConfiguredLaunches"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.33080284199968446,
+   "exit": 1,
+   "label": "fresh",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-133.log",
+   "ok": false,
+   "step": 133
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AFreshProcessAdoptsBothJobsConfiguredLaunches"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.5142622959974688,
+   "exit": 1,
+   "label": "fresh",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-134.log",
+   "ok": false,
+   "step": 134
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AFreshProcessAdoptsBothJobsConfiguredLaunches"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.5015935529991111,
+   "exit": 0,
+   "label": "fresh",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-135.log",
+   "ok": true,
+   "step": 135
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.886963508000917,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-136.log",
+   "ok": true,
+   "step": 136
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.934810776001541,
+   "exit": 0,
+   "label": "count",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-137.log",
+   "ok": true,
+   "step": 137
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.38638005900065764,
+   "exit": 1,
+   "label": "reopen",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-138.log",
+   "ok": false,
+   "step": 138
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.3708150870006648,
+   "exit": 0,
+   "label": "reopen",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-139.log",
+   "ok": true,
+   "step": 139
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 9.101095369998802,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-140.log",
+   "ok": true,
+   "step": 140
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.39210584099782864,
+   "exit": 0,
+   "label": "reopen",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-141.log",
+   "ok": true,
+   "step": 141
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/probe-157925-reopen.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.3990548410001793,
+   "exit": 0,
+   "label": "reopen-probe",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-142.log",
+   "ok": true,
+   "step": 142
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 9.091572515000735,
+   "exit": 0,
+   "label": "reopen",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-143.log",
+   "ok": true,
+   "step": 143
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.397427935997257,
+   "exit": 1,
+   "label": "continuation",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-144.log",
+   "ok": false,
+   "step": 144
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6998370129986142,
+   "exit": 1,
+   "label": "continuation",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-145.log",
+   "ok": false,
+   "step": 145
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6993130400005612,
+   "exit": 0,
+   "label": "continuation",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-146.log",
+   "ok": true,
+   "step": 146
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 9.376213367999298,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-147.log",
+   "ok": true,
+   "step": 147
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.7074053120013559,
+   "exit": 0,
+   "label": "tuples",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-148.log",
+   "ok": true,
+   "step": 148
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.356791723999777,
+   "exit": 1,
+   "label": "post-import",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-149.log",
+   "ok": false,
+   "step": 149
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.822855595000874,
+   "exit": 1,
+   "label": "post-import",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-150.log",
+   "ok": false,
+   "step": 150
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 9.373743590000231,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-151.log",
+   "ok": true,
+   "step": 151
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.21786817300017,
+   "exit": 0,
+   "label": "locator",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-152.log",
+   "ok": true,
+   "step": 152
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 11.620831763000751,
+   "exit": 1,
+   "label": "post-import",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-153.log",
+   "ok": false,
+   "step": 153
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.724827361998905,
+   "exit": 0,
+   "label": "post-import",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-154.log",
+   "ok": true,
+   "step": 154
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 16.968320569001662,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-155.log",
+   "ok": true,
+   "step": 155
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_reconciliation"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.748692986002425,
+   "exit": 0,
+   "label": "owner",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-156.log",
+   "ok": true,
+   "step": 156
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.83334882499912,
+   "exit": 0,
+   "label": "owner",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-157.log",
+   "ok": true,
+   "step": 157
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.798352926998632,
+   "exit": 1,
+   "label": "compose",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-158.log",
+   "ok": false,
+   "step": 158
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_host_verification_that_exceeds_it_defers_and_repeats_nothing"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.281081956003618,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-159.log",
+   "ok": false,
+   "step": 159
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.808586009996361,
+   "exit": 1,
+   "label": "compose",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-160.log",
+   "ok": false,
+   "step": 160
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_host_verification_that_exceeds_it_defers_and_repeats_nothing"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.2396789909980725,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-161.log",
+   "ok": false,
+   "step": 161
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.769918598998629,
+   "exit": 1,
+   "label": "compose",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-162.log",
+   "ok": false,
+   "step": 162
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_host_verification_that_exceeds_it_defers_and_repeats_nothing"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.2752785909979139,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-163.log",
+   "ok": false,
+   "step": 163
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 11.80576164300146,
+   "exit": 1,
+   "label": "compose",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-164.log",
+   "ok": false,
+   "step": 164
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_host_verification_that_exceeds_it_defers_and_repeats_nothing"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.2818647009989945,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-165.log",
+   "ok": false,
+   "step": 165
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.304272477995255,
+   "exit": 1,
+   "label": "compose",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-166.log",
+   "ok": false,
+   "step": 166
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.258732491995033,
+   "exit": 0,
+   "label": "compose",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-167.log",
+   "ok": true,
+   "step": 167
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 27.160384086993872,
+   "exit": 1,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-168.log",
+   "ok": false,
+   "step": 168
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 27.28122472499672,
+   "exit": 1,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-169.log",
+   "ok": false,
+   "step": 169
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling.test_the_configured_seconds_are_what_the_command_is_given"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16706282099767122,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-170.log",
+   "ok": false,
+   "step": 170
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 27.22908821499732,
+   "exit": 1,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-171.log",
+   "ok": false,
+   "step": 171
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 27.18650260099821,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-172.log",
+   "ok": true,
+   "step": 172
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 28.75736440500623,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-173.log",
+   "ok": true,
+   "step": 173
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 22.97626855999988,
+   "exit": 0,
+   "label": "binding",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-174.log",
+   "ok": true,
+   "step": 174
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16502750699874014,
+   "exit": 1,
+   "label": "negatives",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-175.log",
+   "ok": false,
+   "step": 175
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16558460299711442,
+   "exit": 1,
+   "label": "negatives",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-176.log",
+   "ok": false,
+   "step": 176
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 16.47092630199768,
+   "exit": 1,
+   "label": "negatives",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-177.log",
+   "ok": false,
+   "step": 177
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 16.721172407000267,
+   "exit": 0,
+   "label": "negatives",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-178.log",
+   "ok": true,
+   "step": 178
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 27.460196678999637,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-179.log",
+   "ok": true,
+   "step": 179
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 16.672475272003794,
+   "exit": 0,
+   "label": "disposal",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-180.log",
+   "ok": true,
+   "step": 180
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 27.45271903899993,
+   "exit": 0,
+   "label": "expectations",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-181.log",
+   "ok": true,
+   "step": 181
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.17675735699594952,
+   "exit": 1,
+   "label": "trusted",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-182.log",
+   "ok": false,
+   "step": 182
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 27.379718699994555,
+   "exit": 0,
+   "label": "trusted",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-183.log",
+   "ok": true,
+   "step": 183
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 28.84341193599539,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-184.log",
+   "ok": true,
+   "step": 184
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 27.627374024006713,
+   "exit": 0,
+   "label": "pinned",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-185.log",
+   "ok": true,
+   "step": 185
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.18004678900615545,
+   "exit": 0,
+   "label": "pinned",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-186.log",
+   "ok": true,
+   "step": 186
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 27.51556871899811,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-187.log",
+   "ok": true,
+   "step": 187
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheAdmittedFailureMatrix"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16860388300119666,
+   "exit": 1,
+   "label": "matrix",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-188.log",
+   "ok": false,
+   "step": 188
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheAdmittedFailureMatrix"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16777841899602208,
+   "exit": 1,
+   "label": "matrix",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-189.log",
+   "ok": false,
+   "step": 189
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheAdmittedFailureMatrix.test_a_post_import_answer_is_not_a_causal_one"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.15688874100305839,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-190.log",
+   "ok": false,
+   "step": 190
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheAdmittedFailureMatrix.test_a_post_import_answer_is_not_a_causal_one"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.1597962239975459,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-191.log",
+   "ok": false,
+   "step": 191
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 16.652014248997148,
+   "exit": 0,
+   "label": "matrix",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-192.log",
+   "ok": true,
+   "step": 192
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheAdmittedFailureMatrix"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.17936812800326152,
+   "exit": 0,
+   "label": "signature",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-193.log",
+   "ok": true,
+   "step": 193
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.600543934000598,
+   "exit": 0,
+   "label": "reopen",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-194.log",
+   "ok": true,
+   "step": 194
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 17.843224810996617,
+   "exit": 0,
+   "label": "cleanup",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-195.log",
+   "ok": true,
+   "step": 195
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution",
+    "tests.manager.test_execution_limits",
+    "tests.job_manager.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 28.753847393003525,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-196.log",
+   "ok": true,
+   "step": 196
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.74243833500077,
+   "exit": 0,
+   "label": "resumed",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-197.log",
+   "ok": true,
+   "step": 197
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 18.11193913799798,
+   "exit": 0,
+   "label": "authorization",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-198.log",
+   "ok": true,
+   "step": 198
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 28.681775231998472,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-199.log",
+   "ok": true,
+   "step": 199
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.76126910700259,
+   "exit": 0,
+   "label": "owners",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-200.log",
+   "ok": true,
+   "step": 200
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 14.895691710000392,
+   "exit": 1,
+   "label": "owners",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-201.log",
+   "ok": false,
+   "step": 201
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 14.94003939400136,
+   "exit": 0,
+   "label": "owners",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-202.log",
+   "ok": true,
+   "step": 202
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 19.134415633998287,
+   "exit": 0,
+   "label": "counter",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-203.log",
+   "ok": true,
+   "step": 203
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 19.197481924005842,
+   "exit": 0,
+   "label": "counter",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-204.log",
+   "ok": true,
+   "step": 204
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.integration.test_reconciliation",
+    "tests.integration.test_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 29.94919312199636,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-205.log",
+   "ok": true,
+   "step": 205
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 15.024424483002804,
+   "exit": 1,
+   "label": "owners",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-206.log",
+   "ok": false,
+   "step": 206
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 15.03286756399757,
+   "exit": 0,
+   "label": "owners",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-207.log",
+   "ok": true,
+   "step": 207
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 16.755446907998703,
+   "exit": 1,
+   "label": "postimport",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-208.log",
+   "ok": false,
+   "step": 208
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 16.768957027998113,
+   "exit": 1,
+   "label": "postimport",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-209.log",
+   "ok": false,
+   "step": 209
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_restart_keeps_one_unchanged_queue_hold"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.9836085959977936,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-210.log",
+   "ok": false,
+   "step": 210
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 17.36982433799858,
+   "exit": 0,
+   "label": "postimport",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-211.log",
+   "ok": true,
+   "step": 211
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.51535647300625,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-212.log",
+   "ok": true,
+   "step": 212
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_restart_keeps_one_unchanged_queue_hold",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_an_exact_replay_reaches_the_journal_and_writes_nothing"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.8036699109943584,
+   "exit": 0,
+   "label": "carryover",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-213.log",
+   "ok": true,
+   "step": 213
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_base_observation_that_never_finishes",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_base_observation_that_never_starts",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_an_isolated_observation_that_never_finishes",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_an_isolated_observation_that_never_starts"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.944755893004185,
+   "exit": 0,
+   "label": "phases",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-214.log",
+   "ok": true,
+   "step": 214
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 27.508583274000557,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-215.log",
+   "ok": true,
+   "step": 215
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_result_is_refused_by_the_composed_judgment_owners",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_scratch_that_survives_disposal_is_the_deployments_to_release",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_scratch_that_survives_the_release_too_is_reported"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.6684296280000126,
+   "exit": 1,
+   "label": "lifecycle",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-216.log",
+   "ok": false,
+   "step": 216
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_scratch_that_survives_disposal_is_the_deployments_to_release",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_scratch_that_survives_the_release_too_is_reported"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.5075537100055953,
+   "exit": 0,
+   "label": "lifecycle",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-217.log",
+   "ok": true,
+   "step": 217
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits",
+    "tests.tools.test_stage_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 83.24706469100056,
+   "exit": 1,
+   "label": "suites",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-218.log",
+   "ok": false,
+   "step": 218
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 52.380036847003794,
+   "exit": 1,
+   "label": "stage-alone",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-219.log",
+   "ok": false,
+   "step": 219
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0972291660000337,
+   "exit": 1,
+   "label": "baseline",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-220.log",
+   "ok": false,
+   "step": 220
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_scratch_that_survives_the_release_too_is_reported",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_scratch_is_released_by_the_same_close",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_start_failures_scratch_is_released_too"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.9071428870011005,
+   "exit": 0,
+   "label": "carryover",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-221.log",
+   "ok": true,
+   "step": 221
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_one_retained_failure_never_speaks_for_another_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4157122699980391,
+   "exit": 1,
+   "label": "isolation",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-222.log",
+   "ok": false,
+   "step": 222
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_one_retained_failure_never_speaks_for_another_execution"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4485214919986902,
+   "exit": 0,
+   "label": "isolation",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-223.log",
+   "ok": true,
+   "step": 223
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/probe-160172-recovery.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.9490785560046788,
+   "exit": 0,
+   "label": "recovery-probe",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-224.log",
+   "ok": true,
+   "step": 224
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_supported_recovery_over_a_host_hold_keeps_the_hold",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_target_offers_no_fresh_grant_to_recover_with"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.7358867520015338,
+   "exit": 1,
+   "label": "recovery",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-225.log",
+   "ok": false,
+   "step": 225
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_supported_recovery_over_a_host_hold_keeps_the_hold",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_target_offers_no_fresh_grant_to_recover_with"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.7169138780009234,
+   "exit": 1,
+   "label": "recovery",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-226.log",
+   "ok": false,
+   "step": 226
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/probe-160172-recovery.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.9495492610003566,
+   "exit": 0,
+   "label": "recovery-seam",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-227.log",
+   "ok": true,
+   "step": 227
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_hold_is_not_reachable_by_the_supported_recovery"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.9580725520063424,
+   "exit": 0,
+   "label": "seam",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-228.log",
+   "ok": true,
+   "step": 228
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 37.53464453200286,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-229.log",
+   "ok": true,
+   "step": 229
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_this_deployment_can_admit_only_one_derived_result",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_retention_key_distinguishes_its_operands_at_the_unit"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.6807170040046913,
+   "exit": 1,
+   "label": "seam",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-230.log",
+   "ok": false,
+   "step": 230
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_this_deployment_can_admit_only_one_derived_result"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6791796510005952,
+   "exit": 0,
+   "label": "seam",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-231.log",
+   "ok": true,
+   "step": 231
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/provenance-160261.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16773403599654557,
+   "exit": 0,
+   "label": "provenance",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-232.log",
+   "ok": true,
+   "step": 232
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 39.20099291099905,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-233.log",
+   "ok": true,
+   "step": 233
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/provenance-160261.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16638472500198986,
+   "exit": 0,
+   "label": "provenance",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-234.log",
+   "ok": true,
+   "step": 234
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_three_jobs_bind_three_ceilings_and_three_tasks"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4862472919994616,
+   "exit": 0,
+   "label": "three-jobs",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-235.log",
+   "ok": true,
+   "step": 235
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_two_results_fail_their_own_commands_and_neither_inherits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.6251026859972626,
+   "exit": 1,
+   "label": "isolation",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-236.log",
+   "ok": false,
+   "step": 236
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/probe-160341-third-job.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.349583408002218,
+   "exit": 0,
+   "label": "third-probe",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-237.log",
+   "ok": true,
+   "step": 237
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_two_results_fail_their_own_commands_and_neither_inherits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.6315229770043516,
+   "exit": 1,
+   "label": "isolation",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-238.log",
+   "ok": false,
+   "step": 238
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/probe-160341-third-job.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.36913078300131,
+   "exit": 0,
+   "label": "third-probe",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-239.log",
+   "ok": true,
+   "step": 239
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/probe-160341-third-job.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.379369266003778,
+   "exit": 0,
+   "label": "recover-probe",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-240.log",
+   "ok": true,
+   "step": 240
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_result_holds_the_only_integrator_and_job_c_waits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.823302942997543,
+   "exit": 0,
+   "label": "capacity",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-241.log",
+   "ok": true,
+   "step": 241
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 42.96594188800373,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-242.log",
+   "ok": true,
+   "step": 242
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/provenance-160341.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16698061599890934,
+   "exit": 0,
+   "label": "provenance",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-243.log",
+   "ok": true,
+   "step": 243
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_retained_failure_is_keyed_by_the_work_it_is_about",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_this_deployment_can_admit_only_one_derived_result",
+    "tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_result_holds_the_only_integrator_and_job_c_waits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.463534416005132,
+   "exit": 0,
+   "label": "p2",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-244.log",
+   "ok": true,
+   "step": 244
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_execution_limits"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 42.96962292600074,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-245.log",
+   "ok": true,
+   "step": 245
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/provenance-160468.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16839571200398495,
+   "exit": 0,
+   "label": "provenance",
+   "log": "work/records/2026/09/finding-v12-per-job-budgets/run-156316-step-246.log",
+   "ok": true,
+   "step": 246
+  }
+ ],
+ "spent_seconds": 2530.5844189850177,
+ "work": "W156162"
+}

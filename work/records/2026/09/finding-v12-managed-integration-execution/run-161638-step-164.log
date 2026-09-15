@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity
+...........................F.....................................................
+======================================================================
+FAIL: test_a_receipt_about_another_execution_is_refused (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_receipt_about_another_execution_is_refused)
+The two owners must be talking about one execution and one result.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1048, in test_a_receipt_about_another_execution_is_refused
+    self.assertIn("and its frozen output names", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'and its frozen output names' not found in "the persisted intake of 'prepare-attempt-1' recomputes to 'sha256:ff60241bd035818e2ec76fa19530680844c65489e44026d97043… and this manager committed 'sha256:10e206a88b79d65c16ad304e55afc68e993ff7745bb12ad37a8d…; a row and the digest beside it moved together and the journal did not"
+
+----------------------------------------------------------------------
+Ran 81 tests in 0.837s
+
+FAILED (failures=1)

@@ -1,0 +1,9 @@
+test_plain_source_fixture_reproduces_the_reported_refusal (__main__.FixtureBoundary.test_plain_source_fixture_reproduces_the_reported_refusal) ... plain fixture sweep 0
+plain fixture sweep 1
+OBSERVED existing plain directory + generic workload + Git checkpoint: Git line materialization failed: fatal: repository '/home/sl/src/baton/v12/python/v12-w71917-uhk5lii6/source' does not exist
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.050s
+
+OK

@@ -1,0 +1,236 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+EEEE.F.....E.F.EEEE..E....F......E...
+======================================================================
+ERROR: test_a_foreign_revision_is_never_adopted_as_our_own (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_a_foreign_revision_is_never_adopted_as_our_own)
+Merely finding the target somewhere other than the admitted
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 827, in test_a_foreign_revision_is_never_adopted_as_our_own
+    self.publish()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 325, in _eligible
+    if held[mine] != account.get(theirs):
+       ~~~~^^^^^^
+KeyError: 'authority_uuid'
+
+======================================================================
+ERROR: test_a_retry_under_a_different_settlement_refuses (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_a_retry_under_a_different_settlement_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 786, in test_a_retry_under_a_different_settlement_refuses
+    self.published()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 771, in published
+    return self.publish()
+           ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 325, in _eligible
+    if held[mine] != account.get(theirs):
+       ~~~~^^^^^^
+KeyError: 'authority_uuid'
+
+======================================================================
+ERROR: test_an_exact_retry_replays_without_materializing_or_swapping (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_an_exact_retry_replays_without_materializing_or_swapping)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 774, in test_an_exact_retry_replays_without_materializing_or_swapping
+    first = self.published()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 771, in published
+    return self.publish()
+           ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 325, in _eligible
+    if held[mine] != account.get(theirs):
+       ~~~~^^^^^^
+KeyError: 'authority_uuid'
+
+======================================================================
+ERROR: test_an_interrupted_publication_resumes_without_swapping_twice (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_an_interrupted_publication_resumes_without_swapping_twice)
+The swap committed and the settlement did not. A resume finishes
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 809, in test_an_interrupted_publication_resumes_without_swapping_twice
+    self.publish()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 325, in _eligible
+    if held[mine] != account.get(theirs):
+       ~~~~^^^^^^
+KeyError: 'authority_uuid'
+
+======================================================================
+ERROR: test_a_lease_this_node_does_not_hold_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_lease_this_node_does_not_hold_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 499, in test_a_lease_this_node_does_not_hold_refuses
+    self.publish(lease_id="lease-somebody-elses")
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 325, in _eligible
+    if held[mine] != account.get(theirs):
+       ~~~~^^^^^^
+KeyError: 'authority_uuid'
+
+======================================================================
+ERROR: test_a_stale_fence_refuses_before_the_swap (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_stale_fence_refuses_before_the_swap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 486, in test_a_stale_fence_refuses_before_the_swap
+    self.publish(fence=self.fence + 1)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 325, in _eligible
+    if held[mine] != account.get(theirs):
+       ~~~~^^^^^^
+KeyError: 'authority_uuid'
+
+======================================================================
+ERROR: test_content_this_node_does_not_hold_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_content_this_node_does_not_hold_refuses)
+A publication imports bytes this node actually has. The grant has
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 509, in test_content_this_node_does_not_hold_refuses
+    self.publish()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 325, in _eligible
+    if held[mine] != account.get(theirs):
+       ~~~~^^^^^^
+KeyError: 'authority_uuid'
+
+======================================================================
+ERROR: test_a_grant_lost_while_content_resolves_stops_the_swap (tests.tools.test_managed_integration.TheGrantIsProvedAtTheMutationBoundary.test_a_grant_lost_while_content_resolves_stops_the_swap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 718, in test_a_grant_lost_while_content_resolves_stops_the_swap
+    self.publish()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 325, in _eligible
+    if held[mine] != account.get(theirs):
+       ~~~~^^^^^^
+KeyError: 'authority_uuid'
+
+======================================================================
+ERROR: test_a_collected_apply_reaches_the_target (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_collected_apply_reaches_the_target)
+THE POSITIVE, and it names everything it rested on.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 342, in test_a_collected_apply_reaches_the_target
+    answer = self.publish()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 325, in _eligible
+    if held[mine] != account.get(theirs):
+       ~~~~^^^^^^
+KeyError: 'authority_uuid'
+
+======================================================================
+ERROR: test_the_swap_is_against_the_admitted_revision (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_the_swap_is_against_the_admitted_revision)
+NOT against whatever the reference says now. Those are the same
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 367, in test_the_swap_is_against_the_admitted_revision
+    self.publish()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 325, in _eligible
+    if held[mine] != account.get(theirs):
+       ~~~~^^^^^^
+KeyError: 'authority_uuid'
+
+======================================================================
+ERROR: test_the_positive_binds_every_required_fact (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_the_positive_binds_every_required_fact)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 568, in test_the_positive_binds_every_required_fact
+    answer = self.publish()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 330, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 431, in publish_collected_integration
+    _eligible(entry, held, authorized, collected)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 325, in _eligible
+    if held[mine] != account.get(theirs):
+       ~~~~^^^^^^
+KeyError: 'authority_uuid'
+
+======================================================================
+FAIL: test_an_attempt_this_manager_never_recorded_refuses (tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution.test_an_attempt_this_manager_never_recorded_refuses)
+Absence of a record is not absence of a runtime.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 421, in test_an_attempt_this_manager_never_recorded_refuses
+    self.assertIn("absence of a record is not absence of a runtime",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'absence of a record is not absence of a runtime' not found in "the start operation 'runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6… was signed over attempt 'attempt-1' and this phase is 'apply-attempt-elsewhere'"
+
+======================================================================
+FAIL: test_a_phase_this_result_does_not_retain_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_phase_this_result_does_not_retain_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 544, in test_a_phase_this_result_does_not_retain_refuses
+    self.assertIn("absence of a record is not absence of a runtime",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'absence of a record is not absence of a runtime' not found in "the start operation 'runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6… was signed over attempt 'attempt-1' and this phase is 'prepare-attempt-1'"
+
+======================================================================
+FAIL: test_an_attempt_with_no_attached_runtime_refuses (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_an_attempt_with_no_attached_runtime_refuses)
+The shape a publication follows is a runtime that EXISTED. An
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 646, in test_an_attempt_with_no_attached_runtime_refuses
+    self.assertIn("absence of a record is not absence of a runtime",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'absence of a record is not absence of a runtime' not found in "the start operation 'runtime.start:af8e746e7acf861bdc0c086aab883a277f48dfb12c7c6… was signed over attempt 'attempt-1' and this phase is 'apply-attempt-elsewhere'"
+
+----------------------------------------------------------------------
+Ran 37 tests in 0.773s
+
+FAILED (failures=3, errors=11)

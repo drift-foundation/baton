@@ -1,0 +1,6 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 2.324s
+
+OK
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9fddb25990632b7ea1d6d73fc5f0f7a58c25462dbfd1b8766e55c17c7a446226", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:060b186bd4d5fb2975b6ba06e189293ad880475e10e0927263629498beccfdd5", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:47db8255dbb01590117eb8fb6dfaa5c8da6d88c3259e47c9bad68a2cb9af4048", "root": "open", "runtime": "destroyed", "worker_exit": 0}

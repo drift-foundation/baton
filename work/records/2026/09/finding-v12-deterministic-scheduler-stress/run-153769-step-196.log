@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions
+..
+----------------------------------------------------------------------
+Ran 2 tests in 2.825s
+
+OK

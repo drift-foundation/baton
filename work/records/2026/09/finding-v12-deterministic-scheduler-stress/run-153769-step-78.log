@@ -1,0 +1,122 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace
+.....F...F..........F...F.................................F..................F...F....
+======================================================================
+FAIL: test_a_full_positive_authorization_chain_passes (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_full_positive_authorization_chain_passes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2068, in test_a_full_positive_authorization_chain_passes
+    self.assertEqual(self.referenced(self.authorized_chain()), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['undeclared-observation'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'undeclared-observation'
+
+- ['undeclared-observation']
++ []
+
+======================================================================
+FAIL: test_a_trace_with_no_authorization_acts_needs_no_reference (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_trace_with_no_authorization_acts_needs_no_reference)
+The rule runs only for acts that make a claim, so an ordinary
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2096, in test_a_trace_with_no_authorization_acts_needs_no_reference
+    self.assertEqual(self.codes([
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+        self.authorization("verify")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        | {"act": "reserve", "authorization": None,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           "attempt_id": "attempt-1", "worker_id": "impl-one",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           "evidence": "allocations:attempt-1"}]), [])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['undeclared-observation'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'undeclared-observation'
+
+- ['undeclared-observation']
++ []
+
+======================================================================
+FAIL: test_legitimately_differing_generations_are_accepted (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_legitimately_differing_generations_are_accepted)
+And no all-generations-equal rule is invented: policy legitimately
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2173, in test_legitimately_differing_generations_are_accepted
+    self.assertEqual(self.referenced(held), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['undeclared-observation'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'undeclared-observation'
+
+- ['undeclared-observation']
++ []
+
+======================================================================
+FAIL: test_the_producer_and_the_reviewer_hold_their_own_sessions (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_producer_and_the_reviewer_hold_their_own_sessions)
+Owner155646's first requirement: NONEMPTY SESSIONS, INDEPENDENT ROLES.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1732, in test_the_producer_and_the_reviewer_hold_their_own_sessions
+    self.assertEqual(scheduler_trace.validate(artifact), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'code': 'review-session-by-producer', 'd[1130 chars]ne}}] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+{'code': 'review-session-by-producer', 'detail': "session attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/execution/1/provider-session-implementation-1 reviews job-a under participant 'baton.claude', which produced it", 'record': {'tick': 1, 'job_id': 'job-a', 'stage_id': 'job-a/implementation', 'episode': 1, 'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'act': 'observe', 'outcome': 'performed', 'worker_id': None, 'participant': 'baton.claude', 'principal': None, 'operation_id': None, 'runtime_id': None, 'session_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571/execution/1/provider-session-implementation-1', 'evidence': 'agent_sessions:attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'cause': None, 'recorded_at': '2026-09-02T00:00:00.000Z', 'session': {'posture': 'execution', 'session_epoch': 1, 'provider_session_id': 'provider-session-implementation-1', 'work_id': '0000000a-W1', 'state': 'not-started', 'generation': 1, 'pinned_policy': 'sha256:2eea10ec4af53aac6ff4c5579e61cc8c2e46ca741df9f8f03b18f5b9ae7a191b'}, 'authorization': None}}
+
+Diff is 1644 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_a_recorded_session_over_a_claimed_attempt_passes (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_recorded_session_over_a_claimed_attempt_passes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 980, in test_a_recorded_session_over_a_claimed_attempt_passes
+    self.assertEqual(self.codes(self.sessioned()), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['unobserved-field-recorded'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'unobserved-field-recorded'
+
+- ['unobserved-field-recorded']
++ []
+
+======================================================================
+FAIL: test_both_postures_on_one_claimed_attempt_pass (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_both_postures_on_one_claimed_attempt_pass)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 985, in test_both_postures_on_one_claimed_attempt_pass
+    self.assertEqual(self.codes(held), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['unobserved-field-recorded'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'unobserved-field-recorded'
+
+- ['unobserved-field-recorded']
++ []
+
+======================================================================
+FAIL: test_one_reference_under_two_attempts_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_one_reference_under_two_attempts_is_refused)
+THE DEFECT THE OLD SPELLING REALLY HAD. Two attempts each opened
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1037, in test_one_reference_under_two_attempts_is_refused
+    self.assertIn("session-shared-across-attempts", self.codes(held))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'session-shared-across-attempts' not found in ['regressing-time', 'review-session-by-producer', 'session-attempt-mismatch', 'unobserved-field-recorded']
+
+----------------------------------------------------------------------
+Ran 86 tests in 3.255s
+
+FAILED (failures=7)

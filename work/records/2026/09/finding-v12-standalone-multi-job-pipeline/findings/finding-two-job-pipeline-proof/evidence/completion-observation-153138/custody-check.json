@@ -1,0 +1,10 @@
+{
+  "original_manifest_entries_verified": 358,
+  "authorized_source_base_substitutions": [
+    "v12/python/tools/stage_execution.py",
+    "v12/python/tests/tools/test_stage_execution.py"
+  ],
+  "other_mismatches": [],
+  "run10_result_preserved": true,
+  "seconds": 0.023386833985568956
+}

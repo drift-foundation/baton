@@ -1,0 +1,59 @@
+{
+  "work": "W103525",
+  "claim": 157769,
+  "prior_review_seconds": 79.41663728799608,
+  "review_cap_seconds": 300,
+  "author_spent_seconds": 584.4240899839847,
+  "author_cap_seconds": 600,
+  "candidate_before": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "bytes": 93492
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "d0c853e0ef00e6275dbf8513184f28f093b1eac52997dc5acecd3ad9d5f938d3",
+      "bytes": 273577
+    }
+  },
+  "runs": [
+    {
+      "name": "focused",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_second_team_is_authorized_by_scope_not_by_membership",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_wrong_repository_binding_is_refused_by_its_own_owner"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.4640042370010633,
+      "log": "review-157769-focused.log"
+    },
+    {
+      "name": "probe",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-157769.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.015434205000929069,
+      "log": "review-157769-probe.log"
+    }
+  ],
+  "review_spent_seconds": 79.89607572999807,
+  "review_remaining_seconds": 220.10392427000193,
+  "candidate_after": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "bytes": 93492
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "d0c853e0ef00e6275dbf8513184f28f093b1eac52997dc5acecd3ad9d5f938d3",
+      "bytes": 273577
+    }
+  },
+  "candidate_unchanged": true
+}

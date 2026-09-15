@@ -1,0 +1,354 @@
+{
+  "original": [],
+  "foreign_scope": [
+    {
+      "code": "mismatched-authorization",
+      "detail": "review was decided in scope 'scope:elsewhere' and 'proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1' is governed by 'scope:deployment'",
+      "record": {
+        "act": "review",
+        "attempt_id": null,
+        "authorization": {
+          "candidate_digest": "890c4e809c3da04525a5b24528cfca00f2723239",
+          "disposition": "accepted",
+          "effective_scope": "scope:elsewhere",
+          "kind": "review",
+          "policy_generation": 11,
+          "role": "review",
+          "target": "5ef7fd5108abf533d9335b513055e29e3dd7e3f9"
+        },
+        "cause": null,
+        "episode": null,
+        "evidence": "proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1",
+        "job_id": null,
+        "operation_id": "integration-driver.review-receipt:0f4f92faa8578077a665f8d686c95c750903ebc710fcd0a891f30435c6ce66a7",
+        "outcome": "performed",
+        "participant": "baton.approver-review",
+        "principal": "principal:baton.approver-review",
+        "recorded_at": "2026-09-12T17:39:31.707Z",
+        "runtime_id": null,
+        "session_id": null,
+        "stage_id": null,
+        "tick": 1,
+        "worker_id": null
+      }
+    }
+  ],
+  "missing_generation": [
+    {
+      "code": "unattributed-authorization",
+      "detail": "review's decision names no ['policy_generation']; scope, target, candidate, role, generation and disposition are the decision, not decoration",
+      "record": {
+        "act": "review",
+        "attempt_id": null,
+        "authorization": {
+          "candidate_digest": "890c4e809c3da04525a5b24528cfca00f2723239",
+          "disposition": "accepted",
+          "effective_scope": "scope:deployment",
+          "kind": "review",
+          "policy_generation": null,
+          "role": "review",
+          "target": "5ef7fd5108abf533d9335b513055e29e3dd7e3f9"
+        },
+        "cause": null,
+        "episode": null,
+        "evidence": "proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1",
+        "job_id": null,
+        "operation_id": "integration-driver.review-receipt:0f4f92faa8578077a665f8d686c95c750903ebc710fcd0a891f30435c6ce66a7",
+        "outcome": "performed",
+        "participant": "baton.approver-review",
+        "principal": "principal:baton.approver-review",
+        "recorded_at": "2026-09-12T17:39:31.707Z",
+        "runtime_id": null,
+        "session_id": null,
+        "stage_id": null,
+        "tick": 1,
+        "worker_id": null
+      }
+    }
+  ],
+  "wrong_role": [
+    {
+      "code": "mismatched-authorization",
+      "detail": "review was decided in role 'integrate' and this act's role is 'review'; a decision made in another role is another decision",
+      "record": {
+        "act": "review",
+        "attempt_id": null,
+        "authorization": {
+          "candidate_digest": "890c4e809c3da04525a5b24528cfca00f2723239",
+          "disposition": "accepted",
+          "effective_scope": "scope:deployment",
+          "kind": "review",
+          "policy_generation": 11,
+          "role": "integrate",
+          "target": "5ef7fd5108abf533d9335b513055e29e3dd7e3f9"
+        },
+        "cause": null,
+        "episode": null,
+        "evidence": "proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1",
+        "job_id": null,
+        "operation_id": "integration-driver.review-receipt:0f4f92faa8578077a665f8d686c95c750903ebc710fcd0a891f30435c6ce66a7",
+        "outcome": "performed",
+        "participant": "baton.approver-review",
+        "principal": "principal:baton.approver-review",
+        "recorded_at": "2026-09-12T17:39:31.707Z",
+        "runtime_id": null,
+        "session_id": null,
+        "stage_id": null,
+        "tick": 1,
+        "worker_id": null
+      }
+    }
+  ],
+  "missing_reference": [
+    {
+      "code": "unreferenced-authorization",
+      "detail": "verify of 'proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1' has no owner-declared scope to be compared against; without it this decision's scope is unproved rather than acceptable",
+      "record": {
+        "act": "verify",
+        "attempt_id": null,
+        "authorization": {
+          "candidate_digest": "890c4e809c3da04525a5b24528cfca00f2723239",
+          "disposition": "passed",
+          "effective_scope": "scope:deployment",
+          "kind": "verification",
+          "policy_generation": 11,
+          "role": "verify",
+          "target": "5ef7fd5108abf533d9335b513055e29e3dd7e3f9"
+        },
+        "cause": null,
+        "episode": null,
+        "evidence": "proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1",
+        "job_id": null,
+        "operation_id": "integration-driver.ordinary-tests-verification-receipt:fb271553474a43335d42468d7b60393bbf0e4180d75cb1d8f3ee960679bcd1eb",
+        "outcome": "performed",
+        "participant": "baton.verifier",
+        "principal": "principal:baton.verifier",
+        "recorded_at": "2026-09-12T17:39:31.706Z",
+        "runtime_id": null,
+        "session_id": null,
+        "stage_id": null,
+        "tick": 1,
+        "worker_id": null
+      }
+    },
+    {
+      "code": "unreferenced-authorization",
+      "detail": "review of 'proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1' has no owner-declared scope to be compared against; without it this decision's scope is unproved rather than acceptable",
+      "record": {
+        "act": "review",
+        "attempt_id": null,
+        "authorization": {
+          "candidate_digest": "890c4e809c3da04525a5b24528cfca00f2723239",
+          "disposition": "accepted",
+          "effective_scope": "scope:deployment",
+          "kind": "review",
+          "policy_generation": 11,
+          "role": "review",
+          "target": "5ef7fd5108abf533d9335b513055e29e3dd7e3f9"
+        },
+        "cause": null,
+        "episode": null,
+        "evidence": "proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1",
+        "job_id": null,
+        "operation_id": "integration-driver.review-receipt:0f4f92faa8578077a665f8d686c95c750903ebc710fcd0a891f30435c6ce66a7",
+        "outcome": "performed",
+        "participant": "baton.approver-review",
+        "principal": "principal:baton.approver-review",
+        "recorded_at": "2026-09-12T17:39:31.707Z",
+        "runtime_id": null,
+        "session_id": null,
+        "stage_id": null,
+        "tick": 1,
+        "worker_id": null
+      }
+    },
+    {
+      "code": "unreferenced-authorization",
+      "detail": "approve of 'proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1' has no owner-declared scope to be compared against; without it this decision's scope is unproved rather than acceptable",
+      "record": {
+        "act": "approve",
+        "attempt_id": null,
+        "authorization": {
+          "candidate_digest": "890c4e809c3da04525a5b24528cfca00f2723239",
+          "disposition": "approved",
+          "effective_scope": "scope:deployment",
+          "kind": "approval",
+          "policy_generation": 11,
+          "role": "approve",
+          "target": "5ef7fd5108abf533d9335b513055e29e3dd7e3f9"
+        },
+        "cause": null,
+        "episode": null,
+        "evidence": "proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1",
+        "job_id": null,
+        "operation_id": "integration-driver.approval-receipt:2a772215d1e4a283942eda3ef5a04d89cd8403d35a3360238bdf534e59600e3a",
+        "outcome": "performed",
+        "participant": "baton.approver",
+        "principal": "principal:baton.approver",
+        "recorded_at": "2026-09-12T17:39:31.708Z",
+        "runtime_id": null,
+        "session_id": null,
+        "stage_id": null,
+        "tick": 1,
+        "worker_id": null
+      }
+    },
+    {
+      "code": "unreferenced-authorization",
+      "detail": "integrate of 'proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1' has no owner-declared scope to be compared against; without it this decision's scope is unproved rather than acceptable",
+      "record": {
+        "act": "integrate",
+        "attempt_id": null,
+        "authorization": {
+          "candidate_digest": "890c4e809c3da04525a5b24528cfca00f2723239",
+          "disposition": "integrated",
+          "effective_scope": "scope:deployment",
+          "kind": "integration",
+          "policy_generation": 11,
+          "role": "integrate",
+          "target": "5ef7fd5108abf533d9335b513055e29e3dd7e3f9"
+        },
+        "cause": null,
+        "episode": null,
+        "evidence": "proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1",
+        "job_id": null,
+        "operation_id": "integration-driver.integration-receipt:f937af10027f7fea5318b9755f749fdb6800e96bcee91c9228d98932c3c02952",
+        "outcome": "performed",
+        "participant": "baton.integrator",
+        "principal": "principal:baton.integrator",
+        "recorded_at": "2026-09-12T17:39:32.232Z",
+        "runtime_id": null,
+        "session_id": null,
+        "stage_id": null,
+        "tick": 1,
+        "worker_id": null
+      }
+    }
+  ],
+  "foreign_scope_without_reference": [
+    {
+      "code": "unreferenced-authorization",
+      "detail": "verify of 'proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1' has no owner-declared scope to be compared against; without it this decision's scope is unproved rather than acceptable",
+      "record": {
+        "act": "verify",
+        "attempt_id": null,
+        "authorization": {
+          "candidate_digest": "890c4e809c3da04525a5b24528cfca00f2723239",
+          "disposition": "passed",
+          "effective_scope": "scope:deployment",
+          "kind": "verification",
+          "policy_generation": 11,
+          "role": "verify",
+          "target": "5ef7fd5108abf533d9335b513055e29e3dd7e3f9"
+        },
+        "cause": null,
+        "episode": null,
+        "evidence": "proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1",
+        "job_id": null,
+        "operation_id": "integration-driver.ordinary-tests-verification-receipt:fb271553474a43335d42468d7b60393bbf0e4180d75cb1d8f3ee960679bcd1eb",
+        "outcome": "performed",
+        "participant": "baton.verifier",
+        "principal": "principal:baton.verifier",
+        "recorded_at": "2026-09-12T17:39:31.706Z",
+        "runtime_id": null,
+        "session_id": null,
+        "stage_id": null,
+        "tick": 1,
+        "worker_id": null
+      }
+    },
+    {
+      "code": "unreferenced-authorization",
+      "detail": "review of 'proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1' has no owner-declared scope to be compared against; without it this decision's scope is unproved rather than acceptable",
+      "record": {
+        "act": "review",
+        "attempt_id": null,
+        "authorization": {
+          "candidate_digest": "890c4e809c3da04525a5b24528cfca00f2723239",
+          "disposition": "accepted",
+          "effective_scope": "scope:elsewhere",
+          "kind": "review",
+          "policy_generation": 11,
+          "role": "review",
+          "target": "5ef7fd5108abf533d9335b513055e29e3dd7e3f9"
+        },
+        "cause": null,
+        "episode": null,
+        "evidence": "proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1",
+        "job_id": null,
+        "operation_id": "integration-driver.review-receipt:0f4f92faa8578077a665f8d686c95c750903ebc710fcd0a891f30435c6ce66a7",
+        "outcome": "performed",
+        "participant": "baton.approver-review",
+        "principal": "principal:baton.approver-review",
+        "recorded_at": "2026-09-12T17:39:31.707Z",
+        "runtime_id": null,
+        "session_id": null,
+        "stage_id": null,
+        "tick": 1,
+        "worker_id": null
+      }
+    },
+    {
+      "code": "unreferenced-authorization",
+      "detail": "approve of 'proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1' has no owner-declared scope to be compared against; without it this decision's scope is unproved rather than acceptable",
+      "record": {
+        "act": "approve",
+        "attempt_id": null,
+        "authorization": {
+          "candidate_digest": "890c4e809c3da04525a5b24528cfca00f2723239",
+          "disposition": "approved",
+          "effective_scope": "scope:deployment",
+          "kind": "approval",
+          "policy_generation": 11,
+          "role": "approve",
+          "target": "5ef7fd5108abf533d9335b513055e29e3dd7e3f9"
+        },
+        "cause": null,
+        "episode": null,
+        "evidence": "proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1",
+        "job_id": null,
+        "operation_id": "integration-driver.approval-receipt:2a772215d1e4a283942eda3ef5a04d89cd8403d35a3360238bdf534e59600e3a",
+        "outcome": "performed",
+        "participant": "baton.approver",
+        "principal": "principal:baton.approver",
+        "recorded_at": "2026-09-12T17:39:31.708Z",
+        "runtime_id": null,
+        "session_id": null,
+        "stage_id": null,
+        "tick": 1,
+        "worker_id": null
+      }
+    },
+    {
+      "code": "unreferenced-authorization",
+      "detail": "integrate of 'proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1' has no owner-declared scope to be compared against; without it this decision's scope is unproved rather than acceptable",
+      "record": {
+        "act": "integrate",
+        "attempt_id": null,
+        "authorization": {
+          "candidate_digest": "890c4e809c3da04525a5b24528cfca00f2723239",
+          "disposition": "integrated",
+          "effective_scope": "scope:deployment",
+          "kind": "integration",
+          "policy_generation": 11,
+          "role": "integrate",
+          "target": "5ef7fd5108abf533d9335b513055e29e3dd7e3f9"
+        },
+        "cause": null,
+        "episode": null,
+        "evidence": "proposal:integration-driver.proposal:bb2bea0e02b5f66ad2d7af573bc90382e4566c5f2434715c7363c38e8eb425c1",
+        "job_id": null,
+        "operation_id": "integration-driver.integration-receipt:f937af10027f7fea5318b9755f749fdb6800e96bcee91c9228d98932c3c02952",
+        "outcome": "performed",
+        "participant": "baton.integrator",
+        "principal": "principal:baton.integrator",
+        "recorded_at": "2026-09-12T17:39:32.232Z",
+        "runtime_id": null,
+        "session_id": null,
+        "stage_id": null,
+        "tick": 1,
+        "worker_id": null
+      }
+    }
+  ]
+}

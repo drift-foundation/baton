@@ -1,0 +1,149 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+EEEEEEEEEEEEEEEEE
+======================================================================
+ERROR: test_a_quiescent_runtime_is_not_a_stopped_one (tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution.test_a_quiescent_runtime_is_not_a_stopped_one)
+A runtime that stopped EXECUTING still exists.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_an_attempt_this_manager_never_recorded_refuses (tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution.test_an_attempt_this_manager_never_recorded_refuses)
+Absence of a record is not absence of a runtime.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_an_unobserved_runtime_refuses (tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution.test_an_unobserved_runtime_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_a_measured_failure_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_a_measured_failure_cannot_publish)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_a_report_collected_without_a_status_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_a_report_collected_without_a_status_cannot_publish)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_a_sequence_that_stopped_partway_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_a_sequence_that_stopped_partway_cannot_publish)
+A completed prefix with a zero status is not a passing run: the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_no_collected_report_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_no_collected_report_cannot_publish)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_a_lease_this_node_does_not_hold_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_lease_this_node_does_not_hold_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_a_node_with_no_target_repository_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_node_with_no_target_repository_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_a_phase_this_result_does_not_retain_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_phase_this_result_does_not_retain_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_a_placement_without_a_materializer_is_refused_at_composition (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_placement_without_a_materializer_is_refused_at_composition)
+A location operand would be the worker choosing where the bytes
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_a_stale_fence_refuses_before_the_swap (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_stale_fence_refuses_before_the_swap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_content_this_node_does_not_hold_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_content_this_node_does_not_hold_refuses)
+A publication imports bytes this node actually has. The grant has
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_a_collected_apply_reaches_the_target (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_collected_apply_reaches_the_target)
+THE POSITIVE, and it names everything it rested on.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_a_result_for_another_target_is_refused (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_result_for_another_target_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_a_result_reconciled_against_another_revision_is_refused (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_result_reconciled_against_another_revision_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+======================================================================
+ERROR: test_the_swap_is_against_the_admitted_revision (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_the_swap_is_against_the_admitted_revision)
+NOT against whatever the reference says now. Those are the same
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 191, in setUp
+    from .test_attempts import Adapter
+ModuleNotFoundError: No module named 'tests.tools.test_attempts'
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.215s
+
+FAILED (errors=17)

@@ -1,0 +1,142 @@
+[
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/deadlines.py",
+    "expected": "536789e1a2947cf601ca191f675c24252078aa5ecddcf4243314c0d59d5855ae",
+    "current": "536789e1a2947cf601ca191f675c24252078aa5ecddcf4243314c0d59d5855ae",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+    "expected": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6",
+    "current": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/documents.py",
+    "expected": "5f31654f699448a8e52d076f6ba517e9acfef201ada30dea0559051af474b014",
+    "current": "5f31654f699448a8e52d076f6ba517e9acfef201ada30dea0559051af474b014",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+    "expected": "a16143a7709a842fd40369e4eafbaaa8b86fde9873648373f639739e53012a75",
+    "current": "a16143a7709a842fd40369e4eafbaaa8b86fde9873648373f639739e53012a75",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+    "expected": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1",
+    "current": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/__init__.py",
+    "expected": "cd783420d73f237b9c8a01d63fbb1783a697efb3d87d211ed970a9994f0d5834",
+    "current": "cd783420d73f237b9c8a01d63fbb1783a697efb3d87d211ed970a9994f0d5834",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/tests/manager/test_runtime_deadlines.py",
+    "expected": "0caf835093a0fd14663d99ca2a73e27767da259c2ac513c549005c6fe97389d1",
+    "current": "0caf835093a0fd14663d99ca2a73e27767da259c2ac513c549005c6fe97389d1",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/tests/manager/test_runtime_deadline_engine.py",
+    "expected": "6a7156689506266c948572a3e7de0f4fc161b12beed55c0aaf9ffdcf8affad1d",
+    "current": "6a7156689506266c948572a3e7de0f4fc161b12beed55c0aaf9ffdcf8affad1d",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/tests/manager/test_boundary_inventory.py",
+    "expected": "690cf35122814e731e4f8da7a08c8f97c99d2c975ab90997df978e18bfba5416",
+    "current": "690cf35122814e731e4f8da7a08c8f97c99d2c975ab90997df978e18bfba5416",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/tests/manager/test_runtime_deadline_engine_budget.py",
+    "expected": "06fc7a3366dcb985cda5db548de699618042185c6edadafd51c741bd1012c34d",
+    "current": "06fc7a3366dcb985cda5db548de699618042185c6edadafd51c741bd1012c34d",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
+    "expected": "980911451d33acfae889a09c4ec519b355267e6466b0138e60575587bfb77a8e",
+    "current": "980911451d33acfae889a09c4ec519b355267e6466b0138e60575587bfb77a8e",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/tests/manager/test_lifecycle_composition.py",
+    "expected": "3828c5bb34a2cfa81a8356af3d9f52c949770e82013d1e7e3abde5d6152be5d7",
+    "current": "3828c5bb34a2cfa81a8356af3d9f52c949770e82013d1e7e3abde5d6152be5d7",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+    "expected": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+    "current": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/store.py",
+    "expected": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b",
+    "current": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/lanes.py",
+    "expected": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c",
+    "current": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/python/pyproject.toml",
+    "expected": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+    "current": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/worker/Dockerfile",
+    "expected": "0aa92e0b07c10e72bc6ca6c03c2c95f2e94da7fb9585c7a3969774f214d5cc0f",
+    "current": "0aa92e0b07c10e72bc6ca6c03c2c95f2e94da7fb9585c7a3969774f214d5cc0f",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/worker/baton_worker.py",
+    "expected": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+    "current": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/worker/scripted_agent.py",
+    "expected": "f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c",
+    "current": "f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c",
+    "matches": true,
+    "symlink": false
+  },
+  {
+    "path": "v12/worker/worker-control-1.0.schema.json",
+    "expected": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+    "current": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+    "matches": true,
+    "symlink": false
+  }
+]

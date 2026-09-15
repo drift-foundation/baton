@@ -1,0 +1,15 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity
+.......................................................F.....
+======================================================================
+FAIL: test_a_competing_admission_from_another_connection_is_refused (tests.job_manager.test_managed_integration_capacity.TwoStoresContendForOneReservation.test_a_competing_admission_from_another_connection_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1493, in test_a_competing_admission_from_another_connection_is_refused
+    self.assertIn("ended successfully", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ended successfully' not found in "an apply is admitted with the coordinator, the authorization owner and the grant it will run under; this admission of 'attempt-798fa6737df416eb076eabfa574ecc443a539940e2b29dea9d3… carries no authorization, coordinator, grant"
+
+----------------------------------------------------------------------
+Ran 61 tests in 0.521s
+
+FAILED (failures=1)

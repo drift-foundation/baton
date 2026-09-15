@@ -1,0 +1,180 @@
+[
+  {
+    "case": "actual-causal-tree-corrected",
+    "state": "blocked",
+    "prepared": {
+      "base": "457d1f6dee307bbe38f344b49ed60163f7199348",
+      "content": {
+        "feature.py": {
+          "mode": "100644",
+          "object": "203f796e67731f851f817ab43845bebb80308cd3"
+        },
+        "feature_check.py": {
+          "mode": "100644",
+          "object": "72cd58019e2e7be96c4aa2297a754743f4eef4f4"
+        },
+        "harness.py": {
+          "mode": "100644",
+          "object": "8f04e31fd1fdc3fe54da2480f53419b76107cf2e"
+        },
+        "worker-task.txt": {
+          "mode": "100644",
+          "object": "f64c781e749ead4a4bd94e7c08c69bcffba3d58b"
+        }
+      },
+      "head": "6a62e9c10a9d53329aac3e4b2d07ced5821d8ca5",
+      "profile": "git-integration",
+      "reference": "refs/baton/integration/prepared/result-4a6097746a085b22360506feff7c521dc5837c7feb37df9f23c1066f6985b35c",
+      "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+      "version": 1
+    },
+    "failure": {
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "completed": {},
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '6a62e9c10a9d53329aac3e4b2d07ced5821d8ca5'; no exit status was observed and none is invented",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "6a62e9c10a9d53329aac3e4b2d07ced5821d8ca5",
+      "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+      "not_run": [
+        "base",
+        "isolated"
+      ],
+      "phase": "combined",
+      "reason": "timeout",
+      "schema": "baton.v12.host-verification-failure/1",
+      "seconds": 77,
+      "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+      "test_identity": "w130224-second-line-of-one-target"
+    },
+    "actual_subprocess_seconds": [
+      77
+    ]
+  },
+  {
+    "case": "corrupt-causal-accepted",
+    "state": "blocked",
+    "prepared": {
+      "base": "daa9eaffc4bd0097e598c23743a9f962ffda9abf",
+      "content": {
+        "feature.py": {
+          "mode": "100644",
+          "object": "203f796e67731f851f817ab43845bebb80308cd3"
+        },
+        "feature_check.py": {
+          "mode": "100644",
+          "object": "72cd58019e2e7be96c4aa2297a754743f4eef4f4"
+        },
+        "harness.py": {
+          "mode": "100644",
+          "object": "8f04e31fd1fdc3fe54da2480f53419b76107cf2e"
+        },
+        "worker-task.txt": {
+          "mode": "100644",
+          "object": "f64c781e749ead4a4bd94e7c08c69bcffba3d58b"
+        }
+      },
+      "head": "1985a45912acbe8fbc2ae156b18aa59594c4f028",
+      "profile": "git-integration",
+      "reference": "refs/baton/integration/prepared/result-1e56581eeb41d7d6fbf96a73fafd2dbf509cea22a66c53695c78af8b69be6901",
+      "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+      "version": 1
+    },
+    "failure": {
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "completed": {},
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '1985a45912acbe8fbc2ae156b18aa59594c4f028'; no exit status was observed and none is invented",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "1985a45912acbe8fbc2ae156b18aa59594c4f028",
+      "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+      "not_run": [
+        "base",
+        "isolated"
+      ],
+      "phase": "combined",
+      "reason": "timeout",
+      "schema": "baton.v12.host-verification-failure/1",
+      "seconds": 999999,
+      "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+      "test_identity": "w130224-second-line-of-one-target"
+    },
+    "actual_subprocess_seconds": [
+      77
+    ]
+  },
+  {
+    "case": "corrupt-post-import-accepted",
+    "adopted_failure": {
+      "schema": "baton.v12.host-verification-failure/1",
+      "phase": "post-import",
+      "reason": "timeout",
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '746d7db16ec58f5cc7cf3f590ae27f6192a8a939'; no exit status was observed and none is invented",
+      "seconds": 999999,
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "test_identity": "w130224-second-line-of-one-target",
+      "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "746d7db16ec58f5cc7cf3f590ae27f6192a8a939",
+      "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+      "completed": {},
+      "not_run": []
+    },
+    "actual_subprocess_seconds": [
+      77
+    ],
+    "failed_host_verification_reader": null
+  },
+  {
+    "case": "single-member-causal-accepted",
+    "member": "seconds",
+    "value": 78
+  },
+  {
+    "case": "single-member-causal-accepted",
+    "member": "seconds",
+    "value": 999999
+  },
+  {
+    "case": "single-member-causal-accepted",
+    "member": "command",
+    "value": [
+      "foreign-command"
+    ]
+  },
+  {
+    "case": "single-member-causal-accepted",
+    "member": "test_identity",
+    "value": "foreign-task"
+  },
+  {
+    "case": "single-member-causal-accepted",
+    "member": "test_digest",
+    "value": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  },
+  {
+    "case": "single-member-prefix-accepted",
+    "member": "input_commit",
+    "value": "ffffffffffffffffffffffffffffffffffffffff"
+  },
+  {
+    "case": "single-member-prefix-accepted",
+    "member": "input_tree",
+    "value": "ffffffffffffffffffffffffffffffffffffffff"
+  },
+  {
+    "case": "single-member-prefix-accepted",
+    "member": "environment",
+    "value": "foreign-environment"
+  }
+]

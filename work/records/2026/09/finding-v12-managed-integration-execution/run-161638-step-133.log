@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+....................................................
+----------------------------------------------------------------------
+Ran 52 tests in 1.291s
+
+OK

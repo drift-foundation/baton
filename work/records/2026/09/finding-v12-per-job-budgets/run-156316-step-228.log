@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_hold_is_not_reachable_by_the_supported_recovery
+.
+----------------------------------------------------------------------
+Ran 1 test in 1.787s
+
+OK

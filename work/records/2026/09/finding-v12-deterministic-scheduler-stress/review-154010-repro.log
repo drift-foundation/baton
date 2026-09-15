@@ -1,0 +1,203 @@
+{
+  "synthetic_validator_probes": {
+    "missing_start": [
+      {
+        "code": "missing-prerequisite",
+        "detail": "complete for attempt attempt-1 has no recorded start",
+        "record": {
+          "tick": 1,
+          "job_id": "job-a",
+          "stage_id": "job-a/implementation",
+          "episode": 1,
+          "attempt_id": "attempt-1",
+          "act": "complete",
+          "outcome": "performed",
+          "worker_id": "impl-one",
+          "participant": null,
+          "principal": "principal:one",
+          "operation_id": "attempt-1:complete",
+          "runtime_id": null,
+          "session_id": null,
+          "evidence": null,
+          "cause": null
+        }
+      }
+    ],
+    "unsupported_review": [
+      {
+        "code": "unvalidated-act",
+        "detail": "'review' is recorded as 'performed' and this validator implements no predecessor rule for it; it is unproved rather than accepted",
+        "record": {
+          "tick": 1,
+          "job_id": "job-a",
+          "stage_id": "job-a/implementation",
+          "episode": 1,
+          "attempt_id": "attempt-1",
+          "act": "review",
+          "outcome": "performed",
+          "worker_id": "impl-one",
+          "participant": null,
+          "principal": "principal:one",
+          "operation_id": "attempt-1:review",
+          "runtime_id": null,
+          "session_id": null,
+          "evidence": null,
+          "cause": null
+        }
+      }
+    ],
+    "unsupported_integration": [
+      {
+        "code": "unvalidated-act",
+        "detail": "'integrate' is recorded as 'performed' and this validator implements no predecessor rule for it; it is unproved rather than accepted",
+        "record": {
+          "tick": 1,
+          "job_id": "job-a",
+          "stage_id": "job-a/implementation",
+          "episode": 1,
+          "attempt_id": "attempt-1",
+          "act": "integrate",
+          "outcome": "performed",
+          "worker_id": "impl-one",
+          "participant": null,
+          "principal": "principal:one",
+          "operation_id": "attempt-1:integrate",
+          "runtime_id": null,
+          "session_id": null,
+          "evidence": null,
+          "cause": null
+        }
+      }
+    ]
+  },
+  "synthetic_refusal_extractor": {
+    "input_receipts": {
+      "admit": {
+        "state": "refused",
+        "operation_id": "offer-a",
+        "detail": "synthetic explicit refusal",
+        "recorded_at": "2026-09-12T00:00:00Z"
+      }
+    },
+    "records": [
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "act": "reserve",
+        "outcome": "performed",
+        "worker_id": "worker-a",
+        "participant": null,
+        "principal": "principal-a",
+        "operation_id": "allocation.reserve:attempt-a",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "allocations:attempt-a",
+        "cause": null
+      },
+      {
+        "tick": 2,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "act": "offer",
+        "outcome": "refused",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": null,
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "receipts:job-a/implementation:1:admit",
+        "cause": "receipt/refused: synthetic explicit refusal"
+      }
+    ],
+    "violations": []
+  },
+  "synthetic_claim_precedes_offer_but_extractor_reorders": {
+    "input_receipts": {
+      "admit": {
+        "state": "performed",
+        "operation_id": "offer-a",
+        "detail": null,
+        "recorded_at": "2026-09-12T00:00:02Z"
+      },
+      "claim": {
+        "state": "performed",
+        "operation_id": "claim-a",
+        "detail": null,
+        "recorded_at": "2026-09-12T00:00:01Z"
+      }
+    },
+    "records": [
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "act": "reserve",
+        "outcome": "performed",
+        "worker_id": "worker-a",
+        "participant": null,
+        "principal": "principal-a",
+        "operation_id": "allocation.reserve:attempt-a",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "allocations:attempt-a",
+        "cause": null
+      },
+      {
+        "tick": 2,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "act": "offer",
+        "outcome": "performed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": "offer-a",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "receipts:job-a/implementation:1:admit",
+        "cause": null
+      },
+      {
+        "tick": 3,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "act": "claim",
+        "outcome": "performed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": "claim-a",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "receipts:job-a/implementation:1:claim",
+        "cause": null
+      }
+    ],
+    "violations": []
+  },
+  "real_owner_observation_boundaries": {
+    "before_correction": {
+      "implementation": "completed",
+      "review": "queued",
+      "integration": "blocked"
+    },
+    "after_correction": {
+      "implementation": "waiting",
+      "review": "blocked",
+      "integration": "blocked"
+    },
+    "implementation_completion_visible_before_supersession": true
+  }
+}

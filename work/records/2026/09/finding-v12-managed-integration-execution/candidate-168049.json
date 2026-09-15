@@ -1,0 +1,45 @@
+{
+  "claim": 168049,
+  "handoff": 168041,
+  "files": [
+    {
+      "path": "v12/worker/reconciliation_entry.py",
+      "sha256": "65ae6d8bdc53dbad5cb6864d96be75bbbcb81d5d925d7d757edfc70ccb41983a",
+      "bytes": 8303,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/worker/Dockerfile.reconciliation",
+      "sha256": "35279f5dcaa6c2c3b44df7e10aa491a35f92e1933d0b3d06bb6e61bc87f021d3",
+      "bytes": 4725,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/worker/reconciliation_task.py",
+      "sha256": "209b81682049717bd407892f9f76602dc841339045c258e08318f2026d4af8c2",
+      "bytes": 43805,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "94a00b557752760bde6ae528c2e136dbe2d2daff6ea210c6926c5a9242bb4f46",
+      "bytes": 19715,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tools/integration_bundle.py",
+      "sha256": "f5cd7f7f4fa7822470d47c9cd3a79c3bba96720218a731c197df990d362b5c52",
+      "bytes": 68599,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/manager/test_reconciliation_task.py",
+      "sha256": "aba97240578c840c1af40e5a0661d6f04e4a54b87de0d236afc53477444a9654",
+      "bytes": 39486,
+      "mode": "0o644"
+    }
+  ],
+  "review": "Static selected-scope check; no independent behavioral acceptance",
+  "prospective_rows": 49,
+  "prospective_recorded_seconds": 376.7334088279778
+}

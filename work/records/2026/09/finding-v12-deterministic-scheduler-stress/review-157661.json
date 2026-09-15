@@ -1,0 +1,71 @@
+{
+  "work": "W103525",
+  "claim": 157661,
+  "prior_review_seconds": 74.36910990299725,
+  "review_cap_seconds": 300,
+  "author_spent_seconds": 557.5556844129883,
+  "author_cap_seconds": 600,
+  "candidate_before": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "bytes": 93492
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "01002b80334791eeefd859211271a65afa95f3e4e2bc6222152fc29631800bd7",
+      "bytes": 272397
+    }
+  },
+  "runs": [
+    {
+      "name": "focused",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 4.968248088000109,
+      "log": "review-157661-focused.log"
+    },
+    {
+      "name": "probe",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-157661.py"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 0.06370659199819784,
+      "log": "review-157661-probe.log"
+    },
+    {
+      "name": "probe-v2",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-157661-v2.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.015572705000522546,
+      "log": "review-157661-probe-v2.log"
+    }
+  ],
+  "review_spent_seconds": 79.41663728799608,
+  "review_remaining_seconds": 220.58336271200392,
+  "candidate_after": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "bytes": 93492
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "01002b80334791eeefd859211271a65afa95f3e4e2bc6222152fc29631800bd7",
+      "bytes": 272397
+    }
+  },
+  "candidate_unchanged": true
+}

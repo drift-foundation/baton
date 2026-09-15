@@ -1,0 +1,162 @@
+--- accepted-group1
++++ partial-group2
+@@ -1492,8 +1492,137 @@
+     def test_unexpected_pre_intent_fault_recovers_the_held_allocation(self):
+         self.complete("unexpected-decide")
+ 
++    # -- W170382 group2: the rest of the selected restart matrix -----------
++    #
++    # ONE CASE PER SELECTED CUT, each on the ordinary path group1 accepted and
++    # each asserting the same finish: one child Work, one claim, one runtime,
++    # one harness run, one attachment, the parent still queued, the root still
++    # held and apply still planned. `complete` already proves all of that; what
++    # each case adds is the position the interruption lands in.
++
++    def test_committed_intent_resumes_its_own_child_work_creation(self):
++        """INTENT BEFORE WORK CREATION. The intent carries the
++        `work_operation_id` the Authority is then called with, so a sweep
++        interrupted here RESUMES that creation. A second child Work would be
++        the failure this position exists to exclude."""
++        self.complete("create")
++
++    def test_created_child_work_resumes_before_capacity_registration(self):
++        """CREATION BEFORE REGISTRATION. The child Work exists at the
++        Authority and no capacity plan does."""
++        self.complete("register")
++
++    def test_committed_claim_resumes_before_capacity_admission(self):
++        """CLAIM BEFORE ADMISSION -- the window a runtime must never start
++        in, which is why admission is committed before anything starts."""
++        self.complete("admit")
++
++    def test_start_intent_resumes_when_the_adapter_never_answers(self):
++        """START INTENT BEFORE ADAPTER RETURN. The start is journalled and
++        the adapter's answer never comes back, so the next sweep must
++        reconcile the runtime it may already have rather than start a
++        second one."""
++        self.complete("launch")
++
++    def test_the_worker_answer_resumes_before_output_is_frozen(self):
++        """WORKER ANSWER BEFORE FREEZE."""
++        self.complete("dispatch")
++
++    def test_frozen_output_resumes_through_intake_and_attachment(self):
++        """FREEZE BEFORE INTAKE and ACCEPTED INTAKE BEFORE ATTACHMENT, both
++        inside the ordinary `conclude`."""
++        self.complete("conclude")
++
++    def test_cleanup_resumes_before_the_membership_is_ended(self):
++        """CLEANUP BEFORE MEMBERSHIP ENDING."""
++        self.complete("end")
++
++    def test_an_ended_membership_resumes_before_its_candidate_is_adopted(self):
++        """ENDING BEFORE ADOPTION. The retained result is already the owner's;
++        the adoption that consumes it is the last thing to resume."""
++        self.complete("adopt")
++
+     def test_pre_intent_recovery_refuses_an_existing_child_work(self):
+         self.complete("unexpected-decide", obstruct=True)
++
++    # W170382 group2: WHERE EACH SELECTED CUT ACTUALLY LIVES.
++    #
++    # Group1 resolved this inline and knew three placements, which was exactly
++    # enough for the five cuts it owned. The remaining selected cuts fall on
++    # owners that inline expression cannot name -- the capacity registrar, the
++    # ordinary manager operations, the ending and the adoption -- so the
++    # placement becomes a table rather than growing a longer conditional.
++    #
++    # EVERY ENTRY NAMES A REAL OWNER ON THE ORDINARY PATH. Nothing here
++    # introduces a hook, a checkpoint or a test-only seam to interrupt: each is
++    # the public operation the preparation actually calls, patched where the
++    # caller resolves it. `poll` imports `end_integration_execution` and
++    # `reconciliation` INSIDE the method, so those are patched on their
++    # defining modules, which is where that import reads them from.
++    CUT_OWNERS = {
++        # -- group1's five, unchanged in placement and meaning ---------------
++        "decide": ("execution", "decide"),
++        "unexpected-decide": ("execution", "decide"),
++        "start": ("execution", "start"),
++        "submit_claim": ("module", "submit_claim"),
++        "record_attempt": ("module", "record_attempt"),
++        # -- group2: the rest of the selected sequence ----------------------
++        # The intent is committed before the Work it names exists, so cutting
++        # `create` proves a resumed sweep RESUMES that creation rather than
++        # minting a second child Work.
++        "create": ("execution", "create"),
++        # Creation before registration: the child Work exists and the capacity
++        # plan does not.
++        "register": ("capacity", "register_integration_capacity"),
++        # Claim before admission: the claim is committed and capacity is not
++        # admitted, which is the window a runtime must never start in.
++        "admit": ("execution", "admit"),
++        # Start intent before adapter return: the start intent is journalled
++        # and the adapter's answer never comes back.
++        "launch": ("operations", "launch"),
++        # Worker answer before freeze.
++        "dispatch": ("operations", "dispatch"),
++        # Freeze before intake, and accepted intake before attachment: both
++        # live inside the ordinary `conclude`.
++        "conclude": ("operations", "conclude"),
++        # Cleanup before membership ending.
++        "end": ("capacity", "end_integration_execution"),
++        # And the ending before the adoption that consumes it.
++        "adopt": ("reconciliation", "adopt_prepared_candidate"),
++    }
++
++    def interrupts(self, cut, args, kwargs):
++        """WHETHER THIS CALL IS THE PREPARATION'S, and not another worker's.
++
++        The operations cuts land on `ManagerOperations`, which the ordinary
++        producer and reviewer workers use too. Cutting the FIRST call of that
++        name would have interrupted whatever ran first and then asserted a
++        recovery that had nothing to do with a preparation -- the shape of
++        false attribution this Work has already paid for twice. So the
++        placement is checked against the preparation's own child attempt.
++
++        The owners that only a preparation ever calls need no discrimination,
++        and saying so explicitly is cheaper than a check that always answers
++        yes.
++        """
++        if cut not in ("launch", "dispatch", "conclude"):
++            return True
++        stage = args[1] if len(args) > 1 else kwargs.get("stage")
++        started = [one["execution_attempt_id"] for one in self.preparing]
++        return bool(stage) and stage.get("attempt_id") in started
++
++    def interruption(self, cut):
++        """The ACTUAL owner and attribute this cut interrupts."""
++        from baton_v12.integration import reconciliation
++        from baton_v12.job_manager import integration_capacity
++        from baton_v12.job_manager import delegation
++        from tools import integration_worker
++        where, method = self.CUT_OWNERS[cut]
++        return {"execution": integration_worker.PreparationExecution,
++                "module": integration_worker,
++                "capacity": integration_capacity,
++                "operations": delegation.ManagerOperations,
++                "reconciliation": reconciliation}[where], method
+ 
+     def complete(self, cut=None, obstruct=False):
+         import time
+@@ -1597,6 +1726,7 @@
+         target_revision = deployment.authority.canonical_target()
+         target_tree = case.vcs("status", "--porcelain")
+         cut_reached, recovered_cuts = [], []
++        self.preparing = preparation.started
+         child_admits, child_deliveries = [], []
+         from tools import single_worker
+         from baton_v12.job_manager.scheduler import allocation_of
+@@ -1630,11 +1760,10 @@
+                 stage_execution._git_run(["git", "merge", "forbidden"])
+             trap.reached.clear()
+             if cut is not None:
+-                method = "decide" if cut == "unexpected-decide" else cut
+-                owner = integration_worker.PreparationExecution if method in ("decide", "start") else integration_worker
++                owner, method = self.interruption(cut)
+                 original = getattr(owner, method)
+                 def interrupted(*args, **kwargs):
+-                    if not cut_reached:
++                    if not cut_reached and self.interrupts(cut, args, kwargs):
+                         cut_reached.append(cut)
+                         if cut == "unexpected-decide":
+                             recovered_cuts.append(kwargs["orchestration_id"])

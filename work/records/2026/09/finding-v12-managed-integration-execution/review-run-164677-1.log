@@ -1,0 +1,121 @@
+test_a_quiescent_runtime_is_not_a_stopped_one (tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution.test_a_quiescent_runtime_is_not_a_stopped_one)
+A runtime that stopped EXECUTING still exists. ... ok
+test_an_attempt_this_manager_never_recorded_refuses (tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution.test_an_attempt_this_manager_never_recorded_refuses)
+Absence of a record is not absence of a runtime. ... ok
+test_an_unobserved_runtime_refuses (tests.tools.test_managed_integration.NothingPublishesBehindARunningExecution.test_an_unobserved_runtime_refuses) ... ok
+test_a_measured_failure_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_a_measured_failure_cannot_publish) ... ok
+test_a_report_collected_without_a_status_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_a_report_collected_without_a_status_cannot_publish) ... ok
+test_a_sequence_that_stopped_partway_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_a_sequence_that_stopped_partway_cannot_publish)
+A completed prefix with a zero status is not a passing run: the ... ok
+test_no_collected_report_cannot_publish (tests.tools.test_managed_integration.OnlyAMeasuredSuccessAuthorizesAPublication.test_no_collected_report_cannot_publish) ... ok
+test_a_lease_this_node_does_not_hold_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_lease_this_node_does_not_hold_refuses) ... ok
+test_a_node_with_no_target_repository_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_node_with_no_target_repository_refuses) ... ok
+test_a_phase_this_result_does_not_retain_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_phase_this_result_does_not_retain_refuses) ... ok
+test_a_placement_without_a_materializer_is_refused_at_composition (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_placement_without_a_materializer_is_refused_at_composition)
+A location operand would be the worker choosing where the bytes ... ok
+test_a_stale_fence_refuses_before_the_swap (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_stale_fence_refuses_before_the_swap) ... ok
+test_content_this_node_does_not_hold_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_content_this_node_does_not_hold_refuses)
+A publication imports bytes this node actually has. The grant has ... ok
+test_a_collected_apply_reaches_the_target (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_collected_apply_reaches_the_target)
+THE POSITIVE, and it names everything it rested on. ... ok
+test_a_result_for_another_target_is_refused (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_result_for_another_target_is_refused) ... ok
+test_a_result_reconciled_against_another_revision_is_refused (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_a_result_reconciled_against_another_revision_is_refused) ... ok
+test_the_swap_is_against_the_admitted_revision (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_the_swap_is_against_the_admitted_revision)
+NOT against whatever the reference says now. Those are the same ... ok
+test_a_current_coordinator_reads_as_current (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_a_current_coordinator_reads_as_current) ... ok
+test_a_read_only_handle_records_nothing (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_a_read_only_handle_records_nothing) ... ok
+test_a_schema_five_coordinator_reads_and_is_not_upgraded (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_a_schema_five_coordinator_reads_and_is_not_upgraded) ... ok
+test_asking_an_older_store_for_managed_results_is_answered (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_asking_an_older_store_for_managed_results_is_answered)
+Absence is an ANSWER. A reader that discovered it as `no such ... ok
+test_a_result_whose_name_carries_a_slash_replays_exactly (tests.integration.test_managed_storage.AnIdentityIsNotAGrammar.test_a_result_whose_name_carries_a_slash_replays_exactly) ... ok
+test_deletion_is_still_detected_for_the_right_result (tests.integration.test_managed_storage.AnIdentityIsNotAGrammar.test_deletion_is_still_detected_for_the_right_result)
+The narrowed grammar is gone and what it was there FOR is not: a ... ok
+test_neighbouring_names_do_not_claim_each_others_attachments (tests.integration.test_managed_storage.AnIdentityIsNotAGrammar.test_neighbouring_names_do_not_claim_each_others_attachments)
+`_` is a LIKE wildcard and LIKE is case-insensitive, so these four ... ok
+test_a_second_connection_sees_the_same_refusal (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_a_second_connection_sees_the_same_refusal) ... ok
+test_an_ordinary_single_representation_reads_normally (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_an_ordinary_single_representation_reads_normally)
+The guard refuses a DOUBLE representation and nothing else: a store ... ok
+test_the_legacy_reader_refuses_it (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_legacy_reader_refuses_it) ... ok
+test_the_managed_reader_refuses_it (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_managed_reader_refuses_it) ... ok
+test_the_managed_writer_refuses_a_key_the_legacy_side_holds (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_managed_writer_refuses_a_key_the_legacy_side_holds)
+Write order one, through the actual writer. ... ok
+test_the_same_act_from_another_connection_replays (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_same_act_from_another_connection_replays)
+Losing a race and repeating an act are different things, and the ... ok
+test_a_second_managed_result_for_one_snapshot_is_refused (tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable.test_a_second_managed_result_for_one_snapshot_is_refused) ... ok
+test_another_snapshot_of_the_same_submission_is_ordinary (tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable.test_another_snapshot_of_the_same_submission_is_ordinary)
+A later target advance needs a NEW result from the same submission; ... ok
+test_the_shared_key_is_the_one_the_old_table_already_carries (tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable.test_the_shared_key_is_the_one_the_old_table_already_carries) ... ok
+test_a_changed_immutable_task_operand_collides (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_changed_immutable_task_operand_collides)
+[P1] The attachment identity must carry the task it stores, so a ... ok
+test_a_portable_result_carries_no_coordinator_location (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_portable_result_carries_no_coordinator_location)
+Managed fields hold content-addressed artifacts; a workspace path, ... ok
+test_a_preparation_is_retained_and_an_apply_follows_it_later (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_preparation_is_retained_and_an_apply_follows_it_later)
+THE ACCEPTED SEQUENCE, in three journalled acts rather than one. ... ok
+test_a_result_that_does_not_answer_its_task_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_result_that_does_not_answer_its_task_is_refused) ... ok
+test_a_stored_report_is_re_adopted_on_the_way_out (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_stored_report_is_re_adopted_on_the_way_out)
+A ROW IS NOT A DOCUMENT UNTIL IT HAS BEEN OWNED. ... ok
+test_a_tampered_stored_task_is_refused_on_the_way_out (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_tampered_stored_task_is_refused_on_the_way_out) ... ok
+test_a_task_for_another_orchestration_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_task_for_another_orchestration_is_refused) ... ok
+test_an_apply_importing_other_content_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_an_apply_importing_other_content_is_refused) ... ok
+test_an_apply_naming_a_foreign_preparation_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_an_apply_naming_a_foreign_preparation_is_refused)
+[P1] Sharing a parent row is not parentage. An apply naming another ... ok
+test_an_apply_with_no_preparation_retained_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_an_apply_with_no_preparation_retained_is_refused) ... ok
+test_an_exact_repeat_replays (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_an_exact_repeat_replays) ... ok
+test_one_result_carries_both_phases_at_one_snapshot (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_one_result_carries_both_phases_at_one_snapshot)
+[P1] Review 2026-09-13T18:51:48Z: the granularity was wrong. ... ok
+test_the_result_uses_the_existing_result_state_vocabulary (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_the_result_uses_the_existing_result_state_vocabulary)
+A managed result is a distinct admitted REPRESENTATION of the same ... ok
+test_legacy_holds_before_the_managed_write_attempt (tests.integration.test_managed_storage.ThePublicWritersOverlapAtTheTransactionBoundary.test_legacy_holds_before_the_managed_write_attempt) ... ok
+test_managed_holds_before_the_legacy_write_attempt (tests.integration.test_managed_storage.ThePublicWritersOverlapAtTheTransactionBoundary.test_managed_holds_before_the_legacy_write_attempt) ... ok
+test_a_kind_this_build_does_not_own_still_refuses (tests.integration.test_managed_storage.TheQueueReadsAManagedCustodyAct.test_a_kind_this_build_does_not_own_still_refuses)
+The amendment added ONE member and widened nothing else: a ... ok
+test_a_malformed_managed_act_refuses (tests.integration.test_managed_storage.TheQueueReadsAManagedCustodyAct.test_a_malformed_managed_act_refuses)
+Named is not re-owned: the queue positions this act and ... ok
+test_every_managed_act_is_read_including_the_attachments (tests.integration.test_managed_storage.TheQueueReadsAManagedCustodyAct.test_every_managed_act_is_read_including_the_attachments)
+Creation AND each phase attachment commit under this one kind, so ... ok
+test_the_queue_reads_normally_with_managed_acts_journalled (tests.integration.test_managed_storage.TheQueueReadsAManagedCustodyAct.test_the_queue_reads_normally_with_managed_acts_journalled) ... ok
+test_a_changed_result_identity_refuses (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_a_changed_result_identity_refuses)
+The creation act signs the submission identities too, so a row ... ok
+test_a_result_whose_own_act_is_gone_refuses (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_a_result_whose_own_act_is_gone_refuses) ... ok
+test_a_substituted_harness_digest_refuses_on_read_and_replay (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_a_substituted_harness_digest_refuses_on_read_and_replay) ... ok
+test_an_unjournalled_state_transition_refuses (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_an_unjournalled_state_transition_refuses) ... ok
+test_deleted_phase_rows_refuse_rather_than_answer_empty (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_deleted_phase_rows_refuse_rather_than_answer_empty) ... ok
+test_the_state_fields_are_carried_not_dropped (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_the_state_fields_are_carried_not_dropped)
+A reader returning selected members could not report a held reason, ... ok
+test_a_creation_and_an_attachment_that_used_to_collide (tests.integration.test_managed_storage.TheTwoActFamiliesCannotMeet.test_a_creation_and_an_attachment_that_used_to_collide)
+Both orders, both surviving, at different snapshots. ... ok
+test_a_renamed_act_and_pointer_do_not_pass_together (tests.integration.test_managed_storage.TheTwoActFamiliesCannotMeet.test_a_renamed_act_and_pointer_do_not_pass_together)
+[P2] The reader followed whatever identity the row pointed at, so ... ok
+test_a_renamed_phase_act_and_pointer_do_not_pass_together (tests.integration.test_managed_storage.TheTwoActFamiliesCannotMeet.test_a_renamed_phase_act_and_pointer_do_not_pass_together) ... ok
+test_the_identities_are_disjoint_by_construction (tests.integration.test_managed_storage.TheTwoActFamiliesCannotMeet.test_the_identities_are_disjoint_by_construction) ... ok
+test_the_other_order_survives_too (tests.integration.test_managed_storage.TheTwoActFamiliesCannotMeet.test_the_other_order_survives_too) ... ok
+test_a_real_result_and_its_history_survive_the_upgrade (tests.integration.test_managed_storage.TheUpgradeCarriesAGenuineLegacyResult.test_a_real_result_and_its_history_survive_the_upgrade) ... ok
+test_the_legacy_writer_refuses_a_key_the_managed_side_holds (tests.integration.test_managed_storage.TheUpgradeCarriesAGenuineLegacyResult.test_the_legacy_writer_refuses_a_key_the_managed_side_holds)
+THE REVERSE WRITE ORDER, through `prepare_result` itself rather ... ok
+test_a_concurrent_shape_change_is_caught_under_the_lock (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_a_concurrent_shape_change_is_caught_under_the_lock)
+[P2] Review 2026-09-13T18:51:48Z: the preflight ran BEFORE the lock ... ok
+test_a_malformed_older_store_is_refused_before_any_mutation (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_a_malformed_older_store_is_refused_before_any_mutation)
+The ownership decision runs FIRST and in full. A store missing one ... ok
+test_an_older_store_is_refused_by_open_and_left_alone (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_an_older_store_is_refused_by_open_and_left_alone)
+Opening is not consent to change somebody's coordinator. A writing ... ok
+test_an_unknown_version_is_refused_by_both_openers (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_an_unknown_version_is_refused_by_both_openers) ... ok
+test_the_older_shape_is_derived_not_restated (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_older_shape_is_derived_not_restated)
+`shape_for(5)` is this build's own script minus exactly what the ... ok
+test_the_step_preserves_the_records_and_leases_it_found (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_step_preserves_the_records_and_leases_it_found)
+WHAT IT PRESERVES IT PRESERVES BY NOT TOUCHING -- and this compares ... ok
+test_the_upgrade_carries_it_forward_once (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_upgrade_carries_it_forward_once) ... ok
+test_upgrading_a_current_store_is_an_ordinary_answer (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_upgrading_a_current_store_is_an_ordinary_answer)
+Two operators doing the same sensible thing is not an error. ... ok
+test_bad_settlement_is_refused_after_target_moves (__main__.Observations.test_bad_settlement_is_refused_after_target_moves) ... ok
+test_exact_successful_publication_cannot_replay (__main__.Observations.test_exact_successful_publication_cannot_replay) ... ok
+test_grant_can_end_during_materialization_before_swap (__main__.Observations.test_grant_can_end_during_materialization_before_swap) ... ok
+test_publication_has_no_started_runtime_or_authorized_result (__main__.Observations.test_publication_has_no_started_runtime_or_authorized_result) ... ok
+
+----------------------------------------------------------------------
+Ran 77 tests in 0.758s
+
+OK
+DEFECT: malformed settlement raises after target advanced
+DEFECT: exact successful publication retry treats its own prior CAS as foreign target movement
+DEFECT: grant ended at materializer boundary, target still advanced before settlement refused
+DEFECT: preparing result publishes without authorized derived proposal, evidence, or attached runtime/start exclusion proof

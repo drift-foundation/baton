@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_result_holds_the_only_integrator_and_job_c_waits
+.
+----------------------------------------------------------------------
+Ran 1 test in 2.653s
+
+OK

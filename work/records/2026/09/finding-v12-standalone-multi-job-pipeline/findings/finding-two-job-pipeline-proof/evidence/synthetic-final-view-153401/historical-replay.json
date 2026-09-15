@@ -1,0 +1,44 @@
+{
+  "seconds": 0.06244251798489131,
+  "first_failure": "preparation-failed",
+  "first_failure_exchange_required": false,
+  "canonical_commit": "9a512c976e7715bdb37405e08d3ddddf16699126",
+  "tree": "a74cd7ab445209bc0af14e592d4b587f9624aad5",
+  "final_checks": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "check_greeting.py"
+      ],
+      "status": 0,
+      "log": "final-greeting.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "check_hours.py"
+      ],
+      "status": 0,
+      "log": "final-hours.log"
+    },
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "status": 0,
+      "log": "final-tests.log"
+    }
+  ],
+  "view_clean": true,
+  "original_target_unchanged": true,
+  "scope": "read-only historical evidence replay; not a new scenario or retroactive success"
+}

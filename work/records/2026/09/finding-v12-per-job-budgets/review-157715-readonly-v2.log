@@ -1,0 +1,190 @@
+{
+  "case": "real-configured-readonly-adoption",
+  "observed": [
+    {
+      "job_id": "job-a",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "boundaries": {
+        "host_verification": {
+          "seconds": 29,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 300
+        },
+        "integration_verification": {
+          "seconds": 29,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 1800
+        },
+        "ordinary_verification": {
+          "seconds": 29,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 900
+        },
+        "provider_turn": {
+          "seconds": 31,
+          "origin": "job",
+          "setting": "provider_turn_seconds",
+          "default_seconds": 3600
+        }
+      }
+    },
+    {
+      "job_id": "job-b",
+      "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+      "boundaries": {
+        "host_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 300
+        },
+        "integration_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 1800
+        },
+        "ordinary_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 900
+        },
+        "provider_turn": {
+          "seconds": 67,
+          "origin": "job",
+          "setting": "provider_turn_seconds",
+          "default_seconds": 3600
+        }
+      }
+    },
+    {
+      "job_id": "job-a",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "boundaries": {
+        "host_verification": {
+          "seconds": 29,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 300
+        },
+        "integration_verification": {
+          "seconds": 29,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 1800
+        },
+        "ordinary_verification": {
+          "seconds": 29,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 900
+        },
+        "provider_turn": {
+          "seconds": 31,
+          "origin": "job",
+          "setting": "provider_turn_seconds",
+          "default_seconds": 3600
+        }
+      }
+    },
+    {
+      "job_id": "job-a",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "boundaries": {
+        "host_verification": {
+          "seconds": 29,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 300
+        },
+        "integration_verification": {
+          "seconds": 29,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 1800
+        },
+        "ordinary_verification": {
+          "seconds": 29,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 900
+        },
+        "provider_turn": {
+          "seconds": 31,
+          "origin": "job",
+          "setting": "provider_turn_seconds",
+          "default_seconds": 3600
+        }
+      }
+    },
+    {
+      "job_id": "job-b",
+      "attempt_id": "attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e",
+      "boundaries": {
+        "host_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 300
+        },
+        "integration_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 1800
+        },
+        "ordinary_verification": {
+          "seconds": 43,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 900
+        },
+        "provider_turn": {
+          "seconds": 67,
+          "origin": "job",
+          "setting": "provider_turn_seconds",
+          "default_seconds": 3600
+        }
+      }
+    },
+    {
+      "job_id": "job-a",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "boundaries": {
+        "host_verification": {
+          "seconds": 29,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 300
+        },
+        "integration_verification": {
+          "seconds": 29,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 1800
+        },
+        "ordinary_verification": {
+          "seconds": 29,
+          "origin": "job",
+          "setting": "verification_command_seconds",
+          "default_seconds": 900
+        },
+        "provider_turn": {
+          "seconds": 31,
+          "origin": "job",
+          "setting": "provider_turn_seconds",
+          "default_seconds": 3600
+        }
+      }
+    }
+  ],
+  "database_bytes_unchanged": true,
+  "job_writes_rejected": true,
+  "control_public_readonly_open": true,
+  "serving_closed": true,
+  "limits": "already-open Job handle; no fresh process, absent-artifact or full serving reopen proof"
+}

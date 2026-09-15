@@ -1,0 +1,75 @@
+{
+ "author": "baton.claude",
+ "carried_forward": "preparation_identities derives attempt and offer only, NOT the child Work. The composer must preserve the child Work AND the pinned target through the committed intent across sweeps rather than re-resolving the canonical target on a later sweep; preparation_intent_of answers both. Not done this round.",
+ "changed": [
+  {
+   "bytes": 77071,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "e37693f5008156a10f1de0e20fb2ab13bbc25b62f5464100adbcbd5c065d38d5"
+  },
+  {
+   "bytes": 45932,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "1e1d847aacd4b4d3222ac3c8e88b66ec0d02421d6476f6984c3fc76233f4a9fe"
+  }
+ ],
+ "claim": 169172,
+ "correction": [
+  "path_set_digest is read from evidence by _accepted_paths, which refuses a checkpoint answer carrying no path set",
+  "test_scope_digest is a SEPARATE operand from the selected configuration's required-test selection -- no checkpoint field invented, that owner's generic answer not widened"
+ ],
+ "defect": "preparation_operands read accepted['path_set_digest'] and accepted['test_scope_digest']. review_cycles.integration_checkpoint answers line_id/checkpoint_id/verdict_id/checkpoint_digest/evidence, with the path set NESTED in evidence and NO test scope anywhere. My accepted() fixture invented both at the top level, so six cases passed over a read that could never work against the real owner.",
+ "fixture_corrected": "test_the_resolver_consumes_the_real_readers_answer drives review_cycles.integration_checkpoint itself through the producer world, asserts the five-member shape and the nested path set, and asserts no test scope exists on it or in it. The hand-built accepted() is now in the owner's real shape.",
+ "next": "the ManagedPreparation construction in stage_execution from the deployment's own readers, carrying the intent-preserved child Work and target; then the ordinary child launch and ending; the member ended only on its real exclusion proof; then adopt_prepared_candidate. Then A.5, then B.",
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "reviewer_probe": "probe-operands-169146.py now passes.",
+ "unchanged": [
+  {
+   "bytes": 278874,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "63fd8c59b62beffdae3f4474c8f788a1d80fa35fea94c41d4c04bea174e52d67"
+  },
+  {
+   "bytes": 158551,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "88aace0104a6ef77e25e3a497bddc0d08666f746a8559e0f6bf8c42909828bf9"
+  },
+  {
+   "bytes": 191339,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+  },
+  {
+   "bytes": 94098,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+   "sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a"
+  }
+ ],
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 101 restored /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation",
+  "ledger": "101 rows, 840.3013588148926s, quoted from the file",
+  "no": "no engine, model, image build, broad suite or destructive cleanup",
+  "steps": {
+   "100": "REVERSAL -- read the path set at the top level again; 8 failures/errors led by test_the_resolver_consumes_the_real_readers_answer and test_a_checkpoint_without_evidence_paths_refuses. Reported as eight: a request whose authority member is None also breaks every case that digests it, which is the original defect's blast radius.",
+   "101": "restored, OK 278 cases, ledger 13.528643486992223s",
+   "99": "first green with the correction, OK 278 cases, ledger 13.538190139981452s"
+  },
+  "whitespace": "clean on both changed files"
+ },
+ "what": "Review claim169146's [P1] corrected: the resolver read two authority digests off the top of the accepted checkpoint, where neither lives, and my own fixture invented both so nothing measured it.",
+ "work": "2b077949-W161230"
+}

@@ -1,0 +1,13 @@
+test_a_post_import_restart_keeps_one_unchanged_queue_hold (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_restart_keeps_one_unchanged_queue_hold)
+THE POST-IMPORT TWIN OF THE CAUSAL RESTART, and a different shape. ... ok
+test_an_exact_replay_reaches_the_journal_and_writes_nothing (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_an_exact_replay_reaches_the_journal_and_writes_nothing)
+THE OBSERVATION OPERATION REPLAYED, at the store's own Journal. ... ok
+test_a_base_observation_that_never_finishes (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_base_observation_that_never_finishes) ... ok
+test_a_base_observation_that_never_starts (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_base_observation_that_never_starts) ... ok
+test_an_isolated_observation_that_never_finishes (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_an_isolated_observation_that_never_finishes) ... ok
+test_an_isolated_observation_that_never_starts (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_an_isolated_observation_that_never_starts) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 8.375s
+
+OK

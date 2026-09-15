@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.004s
+
+OK

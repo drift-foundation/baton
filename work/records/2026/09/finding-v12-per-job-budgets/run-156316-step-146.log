@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.528s
+
+OK

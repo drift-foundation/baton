@@ -1,0 +1,25 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_supported_recovery_over_a_host_hold_keeps_the_hold tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_target_offers_no_fresh_grant_to_recover_with
+E.
+======================================================================
+ERROR: test_the_supported_recovery_over_a_host_hold_keeps_the_hold (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_supported_recovery_over_a_host_hold_keeps_the_hold)
+EXPLICIT RECOVERY, as the owners actually support it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2312, in test_the_supported_recovery_over_a_host_hold_keeps_the_hold
+    status = recovery.held_status(deployment.integration, held.control,
+                                  None, assignment)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/recovery.py", line 105, in held_status
+    account = _blocked(store, composed)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/recovery.py", line 90, in _blocked
+    _denied(f"target {name_value(assignment['canonical_target_id'])} is "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "blocked for another integration account")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/recovery.py", line 38, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: target 'target-a' is blocked for another integration account
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.543s
+
+FAILED (errors=1)

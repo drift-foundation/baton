@@ -1,0 +1,78 @@
+{
+  "added": [
+    "request disagreement at the publication reader, refused at windows 3 and 4",
+    "committed start with uncertain adapter answer: unknown start remains held"
+  ],
+  "changed_this_claim": [
+    {
+      "bytes": 124925,
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "5eb09c8ff9f594eab6b443646d02c786880ae303d5e3ece11fb2c4d0fefc4a4d",
+      "target_mode": "0o644"
+    }
+  ],
+  "claim": 172200,
+  "consumes_review": "review-2026-09-14T21-01-03Z.md",
+  "no_product_guard_added": "per review172197, unused fixture metadata is not rejected by a product change",
+  "prior_candidate": "candidate-172112.json",
+  "prior_verified_unchanged": true,
+  "reversals": [
+    {
+      "result": "2 fail",
+      "reversal": "published request not changed",
+      "step": "08"
+    },
+    {
+      "result": "passes; empty substring asserts nothing",
+      "reversal": "DENIAL emptied",
+      "step": "09"
+    },
+    {
+      "result": "1 fail",
+      "reversal": "child Work operand not changed",
+      "step": "10"
+    },
+    {
+      "result": "2 fail",
+      "reversal": "pinned refusal phrase wrong",
+      "step": "11"
+    },
+    {
+      "result": "passes; redundant given the pinned message",
+      "reversal": "stays-owed guard removed",
+      "step": "12"
+    },
+    {
+      "result": "1 fail",
+      "reversal": "adapter answer never lost",
+      "step": "13"
+    },
+    {
+      "result": "1 fail",
+      "reversal": "hold claimed reserved",
+      "step": "14"
+    },
+    {
+      "result": "1 fail",
+      "reversal": "second runtime claimed",
+      "step": "15"
+    }
+  ],
+  "runs": [
+    {
+      "checks": 451,
+      "label": "request-negatives-and-uncertain-start",
+      "result": "OK",
+      "step": "16",
+      "supervisor_seconds": 45.62266538501717,
+      "unittest_seconds": 45.417
+    }
+  ],
+  "sources_changed": [],
+  "spending": {
+    "ledger_rows": 16,
+    "ledger_seconds": 437.21702593998634,
+    "note": "experiments supervised from this claim on; earlier claims reversal runs remain an unrecorded unknown"
+  },
+  "work": "W170382"
+}

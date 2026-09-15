@@ -1,5 +1,94 @@
 # Plan
 
+## Current release preparation — owner direction 2026-09-15
+
+RELEASE-NEXT-ACTIONS-2026-09-15.md maps all six recorded W2 providers to current execution, reused evidence, parallel design and their next release action. This supersedes stale scheduling descriptions below, while preserving the selected release boundary and historical evidence. W63255 is required, its W2 edge exists and implementation is now at independent review; the earlier conditional exclusion/unpark wording is historical. W170385 is closed; W170387 has a bounded documentation handoff queued for tuner. W174289 prepares W161234 context reuse, W61599 design is active with Claude, and W174357 queues concrete operator-replacement design. No new dependency gate or implementation backlog is created by this map.
+
+Prioritize ready release-provider completion over lower-priority research: after tuner's current design handoff, complete W170387 documentation before W174357. Original Work prerequisites, claims and independent review remain authoritative. Read current ledger state rather than treating this snapshot as a launch instruction.
+
+## Current selection — 2026-09-14T09:04:44Z
+
+Owner selected handling W165782 now: adopt RELEASE-CLASSIFICATION-165799.md's
+v12-required/v13-hardening division and bounded triage of its unresolved rows,
+revalidating later state before changes. This supersedes awaiting-selection
+wording below. Finalize the explicit minimum-release checklist and commission
+the bounded read-only viewer using existing status/progress providers. Preserve
+the selected v13 membership in W165786's table; no backlog duplication or v13
+implementation. Treat mixed Works by their actual required subset, and record
+concrete surviving defects or evidence of supersession rather than broad gates.
+Apply the supported gate dispositions through authorized handlers after current
+scope checks; report exact owner-only commands if a route prevents execution.
+W165782 owns the release planning edits here and membership updates, serially
+with W165786's parking-only handoff. W161230 keeps its execution/source scope.
+The audit's historical cumulative test caps are superseded by M166331; preserved
+costs do not become new approval gates. Viewer cost figures are planning targets
+to make concrete in its bounded plan, not retrospective acceptance claims.
+
+## Actionable minimum checklist — W165782 completed planning
+
+RELEASE-CHECKLIST-167877.md records selected classifications/current-consumer
+triage and all required outcomes. W167896 is commissioned for the three-file
+read-only viewer; W61599 minimum activity is pinned in its own record. Current
+H-7 source binding is present; verify its existing reader instead of duplicating
+implementation. W63255 no-fence recovery survives in the public legacy command;
+correct it or record positive supported-surface exclusion before release.
+
+W3-on-W32391 removed by167914. W2 route is baton.ops: exact remaining provider-
+first replacement commands and W61599 scheduling are in
+RELEASE-GATE-COMMANDS-167877.md. No reviewer mutation of unauthorized W2 edges.
+No blanket unresolved/hardening gates, no closed umbrella or v13 execution.
+W165786 membership is selected; its parking-only handoff remains separate.
+
+## Current release boundary — confirmed 2026-09-14
+
+V12 delivers reliable parallel development Jobs so that v13 hardening can be
+executed through v12 and benefit from its concurrency. The concrete readiness
+claim is multiple independent development tasks executing concurrently, visible
+in a lightweight read-only monitor, with correctly bound reviewed results and
+explicit recovery when execution fails. Core execution/recovery/context reuse
+remain required; broad hardening is assigned to v13. See FINDING's dated
+"V12 parallel delivery enables v13 hardening" ruling for the complete boundary.
+
+- [done] Owner release strategy and minimum view-only monitor decision pinned
+  in this umbrella and AGENTS.md. Earlier broad v12 hardening scheduling and
+  unqualified TUI-last interpretations are superseded by that ruling.
+- [done planning, W165782] Classify the remaining current ledger by existing Work ID into v12
+  delivery, v13 hardening, or an explicit unresolved placement. Explain actual
+  dependencies and propose exact gate/containment corrections where the broader
+  roadmap currently prevents v12 release. Reuse accepted evidence and existing
+  TUI/observability Work; do not create duplicate implementation backlog entries.
+  W103950 is explicitly assigned to v13 hardening, not v12 delivery. Historical
+  V12 titles, umbrella membership or prerequisites of deferred hardening do not
+  establish v12 release necessity. Evaluate any concrete correctness child
+  separately; do not pull its entire hardening parent onto the critical path.
+- [pending readiness] Select independent v13 tasks for execution through v12,
+  retaining decisions, input/result identity and acceptance criteria. Keep v11
+  authoritative during preparation; no backlog copy or authority cutover now.
+  W165786 is the v13 hardening umbrella at
+  `work/records/2026/09/finding-v13-parallel-hardening/`. Existing containment
+  changes are unavailable in the deployed v11 CLI (W106052); the owner-approved
+  release-membership table is the stated stopgap. Preserve actual graph/IDs
+  and dossiers; do not recreate records or add reparenting to the critical path.
+
+The concrete W165782 packet is RELEASE-CLASSIFICATION-165799.md, with complete
+canonical snapshot RELEASE-GRAPH-165799.json. It proposes9 v12-required,
+42 v13-hardening and14 unresolved rows covering all65 open Work at165832.
+Required counts include this umbrella and the lightweight planning Work, not
+just implementation. The owner selected the division at09:04:44Z; current follow-through, viewer
+allocation and applied/owner-only gate operations are recorded above.
+W161230 slice2 was selected by owner165830 and continues under its own claim;
+this audit adds no implementation scope or competing file owner.
+
+This is release planning, not an assertion of readiness or implementation
+authority for unscoped work. Preserve live claims, individual findings, failure
+receipts and existing verification accounting. W161230's actual managed execution
+and the necessary correction/restart/context proof remain v12 delivery work.
+
+## Historical plan and milestone decisions
+
+The opening status and roadmap below are retained historical records. They do
+not override the current release boundary above or live canonical Baton state.
+
 **Status — current Baton Work `W28` (`43c55d4b-W28`); roadmap with one
 signed-off proof now resident under `v12/`. The original `bec445ce-W193`,
 `bcbb9dbf-W2`, `5f717eee-W2`, and `88990a87-W2` authorities are retired. W76's

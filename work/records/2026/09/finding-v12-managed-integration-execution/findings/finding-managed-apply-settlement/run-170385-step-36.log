@@ -1,0 +1,295 @@
+EEEEE
+======================================================================
+ERROR: test_a_failed_apply_is_collected_and_settles_without_a_target_effect (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_a_failed_apply_is_collected_and_settles_without_a_target_effect)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 25, in test_a_failed_apply_is_collected_and_settles_without_a_target_effect
+    self.complete(failed=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 238, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2619, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 184, in adopted
+    reports.append(sweep(held.job, held.composed, now=fixtures.NOW))
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 168, in sweep
+    spoken = _converse(store, operations, projection.stage_states(store,
+                                                                  operations))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 219, in _converse
+    else operations.conclude(attempt, job))
+         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4288, in conclude
+    return self.integrator.run(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2477, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2615, in _run
+    return self.managed(stage, job)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2505, in managed
+    return self.apply_managed(stage, job, result, repository, operations)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2572, in apply_managed
+    answered = active.poll(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1255, in poll
+    return operations.conclude(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 958, in conclude
+    return self._conclude_attempt(stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 1955, in ending
+    return self.stage.end(self, stage, job, {
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+        "attempt_id": attempt_id, "adapter": adapter, "roots": roots,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "disposition": disposition, "terminal": terminal,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "assignment": _assignment(row)})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1225, in end
+    report, collected = integration_bundle.retained_apply_report(control, self.request)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_bundle.py", line 816, in retained_apply_report
+    if any(intake[name] != frozen[name] for name in ("result_id", "manifest_digest")) or manifest["assignment_ref"] != request["task"]["assignment"] or manifest["input_digest"] != request["task"]["input_digest"]:
+                                                                                                                                                        ~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'input_digest'
+
+======================================================================
+ERROR: test_preparation_judgments_apply_and_target_settle (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_preparation_judgments_apply_and_target_settle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 19, in test_preparation_judgments_apply_and_target_settle
+    self.complete()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 238, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2619, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 184, in adopted
+    reports.append(sweep(held.job, held.composed, now=fixtures.NOW))
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 168, in sweep
+    spoken = _converse(store, operations, projection.stage_states(store,
+                                                                  operations))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 219, in _converse
+    else operations.conclude(attempt, job))
+         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4288, in conclude
+    return self.integrator.run(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2477, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2615, in _run
+    return self.managed(stage, job)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2505, in managed
+    return self.apply_managed(stage, job, result, repository, operations)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2572, in apply_managed
+    answered = active.poll(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1255, in poll
+    return operations.conclude(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 958, in conclude
+    return self._conclude_attempt(stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 1955, in ending
+    return self.stage.end(self, stage, job, {
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+        "attempt_id": attempt_id, "adapter": adapter, "roots": roots,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "disposition": disposition, "terminal": terminal,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "assignment": _assignment(row)})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1225, in end
+    report, collected = integration_bundle.retained_apply_report(control, self.request)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_bundle.py", line 816, in retained_apply_report
+    if any(intake[name] != frozen[name] for name in ("result_id", "manifest_digest")) or manifest["assignment_ref"] != request["task"]["assignment"] or manifest["input_digest"] != request["task"]["input_digest"]:
+                                                                                                                                                        ~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'input_digest'
+
+======================================================================
+ERROR: test_reopen_after_derived_publication (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_derived_publication)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 31, in test_reopen_after_derived_publication
+    self.complete(cut="publication")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 238, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2619, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 184, in adopted
+    reports.append(sweep(held.job, held.composed, now=fixtures.NOW))
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 168, in sweep
+    spoken = _converse(store, operations, projection.stage_states(store,
+                                                                  operations))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 219, in _converse
+    else operations.conclude(attempt, job))
+         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4288, in conclude
+    return self.integrator.run(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2477, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2615, in _run
+    return self.managed(stage, job)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2505, in managed
+    return self.apply_managed(stage, job, result, repository, operations)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2572, in apply_managed
+    answered = active.poll(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1255, in poll
+    return operations.conclude(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 958, in conclude
+    return self._conclude_attempt(stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 1955, in ending
+    return self.stage.end(self, stage, job, {
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+        "attempt_id": attempt_id, "adapter": adapter, "roots": roots,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "disposition": disposition, "terminal": terminal,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "assignment": _assignment(row)})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1225, in end
+    report, collected = integration_bundle.retained_apply_report(control, self.request)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_bundle.py", line 816, in retained_apply_report
+    if any(intake[name] != frozen[name] for name in ("result_id", "manifest_digest")) or manifest["assignment_ref"] != request["task"]["assignment"] or manifest["input_digest"] != request["task"]["input_digest"]:
+                                                                                                                                                        ~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'input_digest'
+
+======================================================================
+ERROR: test_reopen_after_retained_adoption (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_retained_adoption)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 28, in test_reopen_after_retained_adoption
+    self.complete(cut="adoption")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 238, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2619, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 184, in adopted
+    reports.append(sweep(held.job, held.composed, now=fixtures.NOW))
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 168, in sweep
+    spoken = _converse(store, operations, projection.stage_states(store,
+                                                                  operations))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 219, in _converse
+    else operations.conclude(attempt, job))
+         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4288, in conclude
+    return self.integrator.run(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2477, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2615, in _run
+    return self.managed(stage, job)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2505, in managed
+    return self.apply_managed(stage, job, result, repository, operations)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2572, in apply_managed
+    answered = active.poll(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1255, in poll
+    return operations.conclude(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 958, in conclude
+    return self._conclude_attempt(stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 1955, in ending
+    return self.stage.end(self, stage, job, {
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+        "attempt_id": attempt_id, "adapter": adapter, "roots": roots,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "disposition": disposition, "terminal": terminal,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "assignment": _assignment(row)})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1225, in end
+    report, collected = integration_bundle.retained_apply_report(control, self.request)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_bundle.py", line 816, in retained_apply_report
+    if any(intake[name] != frozen[name] for name in ("result_id", "manifest_digest")) or manifest["assignment_ref"] != request["task"]["assignment"] or manifest["input_digest"] != request["task"]["input_digest"]:
+                                                                                                                                                        ~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'input_digest'
+
+======================================================================
+ERROR: test_reopen_after_target_effect_before_coordinator_settlement (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_target_effect_before_coordinator_settlement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 22, in test_reopen_after_target_effect_before_coordinator_settlement
+    self.complete(cut="target-effect")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 238, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2619, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 184, in adopted
+    reports.append(sweep(held.job, held.composed, now=fixtures.NOW))
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 168, in sweep
+    spoken = _converse(store, operations, projection.stage_states(store,
+                                                                  operations))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 219, in _converse
+    else operations.conclude(attempt, job))
+         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4288, in conclude
+    return self.integrator.run(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2477, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2615, in _run
+    return self.managed(stage, job)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2505, in managed
+    return self.apply_managed(stage, job, result, repository, operations)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2572, in apply_managed
+    answered = active.poll(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1255, in poll
+    return operations.conclude(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 958, in conclude
+    return self._conclude_attempt(stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 1955, in ending
+    return self.stage.end(self, stage, job, {
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+        "attempt_id": attempt_id, "adapter": adapter, "roots": roots,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "disposition": disposition, "terminal": terminal,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "assignment": _assignment(row)})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1225, in end
+    report, collected = integration_bundle.retained_apply_report(control, self.request)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_bundle.py", line 816, in retained_apply_report
+    if any(intake[name] != frozen[name] for name in ("result_id", "manifest_digest")) or manifest["assignment_ref"] != request["task"]["assignment"] or manifest["input_digest"] != request["task"]["input_digest"]:
+                                                                                                                                                        ~~~~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'input_digest'
+
+----------------------------------------------------------------------
+Ran 5 tests in 5.992s
+
+FAILED (errors=5)

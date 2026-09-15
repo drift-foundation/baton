@@ -1,0 +1,10 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155666-review.py
+producer implementation-worker baton.claude
+producer session {"posture": "execution", "provider_session_id": null, "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "session_epoch": 1}
+review attempt attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c
+review attempt activation {"assignment_generation": 2, "assignment_participant": "baton.reviewer", "assignment_principal": "principal:baton.reviewer", "authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W1"}
+reviewer review-worker baton.reviewer
+reviewer session {"posture": "execution", "provider_session_id": null, "runtime_attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c", "session_epoch": 1}
+crossed port refused ContractRefusal: this authority session acts for 'baton.claude' and attempt 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb… is assigned to 'baton.reviewer'
+sessions attempt-7b5e070a732d [{"participant": "baton.claude", "posture": "execution", "provider_session_id": null, "session_epoch": 1, "state": "not-started", "work_id": "0000000a-W1"}]
+sessions attempt-9e961a44d61d [{"participant": "baton.reviewer", "posture": "execution", "provider_session_id": null, "session_epoch": 1, "state": "not-started", "work_id": "0000000a-W1"}]

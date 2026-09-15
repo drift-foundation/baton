@@ -1,0 +1,75 @@
+{
+  "work": "W161230",
+  "claim": 161844,
+  "authority": "M161614",
+  "cap_seconds": 300.0,
+  "prior_ledger": "review-ledger-161769.json",
+  "prior_reviewer_seconds": 1.1686485070094932,
+  "runs": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_reconciliation_worker",
+        "tests.manager.test_contracts_inventory"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "guard": {
+        "cap_seconds": 300.0,
+        "spent_seconds_before": 1.1686485070094932,
+        "remaining_seconds_before": 298.8313514929905,
+        "expected_seconds": 5.0,
+        "margin_seconds": 2.0,
+        "timeout_seconds": 30.0
+      },
+      "log": "review-run-161844-1.log",
+      "status": "finished",
+      "exit_code": 0,
+      "elapsed_seconds": 0.26370461899932707
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-161769.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "guard": {
+        "cap_seconds": 300.0,
+        "spent_seconds_before": 1.4323531260088203,
+        "remaining_seconds_before": 298.5676468739912,
+        "expected_seconds": 5.0,
+        "margin_seconds": 2.0,
+        "timeout_seconds": 30.0
+      },
+      "log": "review-run-161844-2.log",
+      "status": "finished",
+      "exit_code": 0,
+      "elapsed_seconds": 0.2137960899999598
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-161844.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "guard": {
+        "cap_seconds": 300.0,
+        "spent_seconds_before": 1.64614921600878,
+        "remaining_seconds_before": 298.3538507839912,
+        "expected_seconds": 5.0,
+        "margin_seconds": 2.0,
+        "timeout_seconds": 30.0
+      },
+      "log": "review-run-161844-3.log",
+      "status": "finished",
+      "exit_code": 1,
+      "elapsed_seconds": 0.16370764699968277
+    }
+  ],
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "jsonschema": "4.19.2",
+  "qualification": "Pinned4.26.0 final acceptance remains outstanding",
+  "reviewer_spent_seconds": 1.8098568630084628,
+  "reviewer_remaining_seconds": 298.19014313699154
+}

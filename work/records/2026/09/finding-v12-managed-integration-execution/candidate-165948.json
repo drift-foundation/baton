@@ -1,0 +1,14 @@
+[
+  {
+    "path": "v12/python/src/baton_v12/job_manager/integration_capacity.py",
+    "bytes": 68558,
+    "sha256": "03f70543313f3d3ac541655830bf108fbf2acfc7fdb4b73c8e6c862cee784f09",
+    "mode": "0o644"
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_managed_integration_capacity.py",
+    "bytes": 107066,
+    "sha256": "a11c730f13616facdfd041fd427416609f03cf42f500c5661e7ecadf03628ccb",
+    "mode": "0o644"
+  }
+]

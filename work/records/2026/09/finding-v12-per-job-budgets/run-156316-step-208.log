@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling
+...F.......
+======================================================================
+FAIL: test_a_post_import_restart_keeps_one_unchanged_queue_hold (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_restart_keeps_one_unchanged_queue_hold)
+THE POST-IMPORT TWIN OF THE CAUSAL RESTART, and a different shape.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1649, in test_a_post_import_restart_keeps_one_unchanged_queue_hold
+    self.assertEqual(len(blocked), 1, blocked)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : []
+
+----------------------------------------------------------------------
+Ran 11 tests in 16.577s
+
+FAILED (failures=1)

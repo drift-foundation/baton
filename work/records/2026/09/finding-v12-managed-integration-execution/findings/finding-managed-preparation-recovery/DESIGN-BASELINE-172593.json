@@ -1,0 +1,137 @@
+{
+  "work": "W170382",
+  "claim": 172593,
+  "kind": "design-scope-baseline-only",
+  "at": "2026-09-14T22:15:39.453544+00:00",
+  "candidate172393_checks": [
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "sha256": "870656c0761d056310e5c846d163f95fc1273e987f3ce01ad1523ea09a7d3491",
+      "bytes": 97142,
+      "mode": "0o644",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "sha256": "41a626f1cc52f45121e2c1c1424fd3fa3cf5fac6d6f2154924ca58974f8d61fe",
+      "bytes": 312396,
+      "mode": "0o664",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "sha256": "05a30a305f20e6ff12c2d455fb1bb2f55ac51ae9c60165021baf621e03f06360",
+      "bytes": 85291,
+      "mode": "0o644",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "b7c0bafd45a3d8f858936728f2a9173a57a5b625533fa21b6f95185e9ac54011",
+      "bytes": 192879,
+      "mode": "0o664",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "sha256": "c4461810b38c9bdee0c67e59d55fb14846624f1cd6db920f23a127ce284ad0dd",
+      "bytes": 166328,
+      "mode": "0o644",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "282d16cb5d7d4407db2dd47811db38f52e897b3c720d8bb259af360193fbbace",
+      "bytes": 94086,
+      "mode": "0o644",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_entry.py",
+      "sha256": "b3ebb8a5488e3cc361beb3c04527bad10a7bd81a98d3949b1fd75b58ae9b5620",
+      "bytes": 10466,
+      "mode": "0o644",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "1f15c89730fe5fce6f1a2ee8e93cc9715342600c56a2a11b1a400a7accdd03f4",
+      "bytes": 129945,
+      "mode": "0o644",
+      "matches": true
+    }
+  ],
+  "proposed_future_paths": [
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/attempts.py",
+      "sha256": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6",
+      "bytes": 184541,
+      "mode": "0o644"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "a16143a7709a842fd40369e4eafbaaa8b86fde9873648373f639739e53012a75",
+      "bytes": 224839,
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/documents.py",
+      "sha256": "5f31654f699448a8e52d076f6ba517e9acfef201ada30dea0559051af474b014",
+      "bytes": 49020,
+      "mode": "0o644"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1",
+      "bytes": 200495,
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/__init__.py",
+      "sha256": "cd783420d73f237b9c8a01d63fbb1783a697efb3d87d211ed970a9994f0d5834",
+      "bytes": 14457,
+      "mode": "0o644"
+    },
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "sha256": "870656c0761d056310e5c846d163f95fc1273e987f3ce01ad1523ea09a7d3491",
+      "bytes": 97142,
+      "mode": "0o644"
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "sha256": "41a626f1cc52f45121e2c1c1424fd3fa3cf5fac6d6f2154924ca58974f8d61fe",
+      "bytes": 312396,
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_attempts.py",
+      "sha256": "714c13286d6810964f50532a2ee2724abf73ab0159c7b6fb77d7e8f8c059adf0",
+      "bytes": 202303,
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_failed_start_destroy.py",
+      "sha256": "7d33b44d5b8bace166f251a410300111c190674c5a07617a78f7f4903334b564",
+      "bytes": 20197,
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "690cf35122814e731e4f8da7a08c8f97c99d2c975ab90997df978e18bfba5416",
+      "bytes": 761749,
+      "mode": "0o644"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "1f15c89730fe5fce6f1a2ee8e93cc9715342600c56a2a11b1a400a7accdd03f4",
+      "bytes": 129945,
+      "mode": "0o644"
+    },
+    {
+      "path": "baton:v12/python/FAILED-START-RECOVERY.md",
+      "exists": false
+    }
+  ],
+  "new_test_seconds": 0
+}

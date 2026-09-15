@@ -1,0 +1,101 @@
+Round 170083 - THE RUNTIME ATTEMPT IS RECORDED BY THE COMPOSITION.
+
+You were right that this was already settled: SLICE2-SCOPE-165724.md lines
+66-73 fix it, and I returned it as a fork instead of revalidating the pinned
+decision. That is my own role instruction and the second round this Work has
+lost to it.
+
+WHAT CHANGED - PreparationExecution.prepare now does _SingleWorker.start's own
+sequence (single_worker.py:1355-1380):
+
+  record_attempt(self._manager, attempt_id=runtime_attempt_id,
+                 **dict(identity, input_digest=planned["input_digest"]))
+  activate_assignment(self._manager, self._port,
+                      attempt_id=runtime_attempt_id,
+                      expect=claimed["assignment"])
+
+The operands are the CHILD WORKER'S OWN. PreparationResolver.identity reads the
+integration worker's held deployment - adapter_name, adapter_digest,
+profile_digest, policy_digest, image_digest, and the input manifest's
+toolchain_digest - the same document IntegrationWorker records its own attempt
+from. Nothing is derived.
+
+ONE OPERAND IS NOT THE CHILD'S CONFIGURATION, and I found this by measurement
+rather than reasoning. Recording the configured manifest digest made admission
+refuse: "execution ... is planned with input_digest 'sha256:9033b448...',
+claimed an offer carrying 'sha256:9033b448...'" - the offer and the attempt
+were two accounts of what this child was given. The child runs on the PUBLISHED
+bundle, so the attempt is recorded under the digest its offer was issued with.
+
+A FIXTURE WAS STANDING IN FOR WORK THE COMPOSITION OWED - and this is why the
+cases passed while the real traversal refused "no runtime attempt". The
+end-to-end case's accepting() seam recorded the runtime attempt itself. It is
+removed. test_the_runtime_attempt_is_recorded_by_the_composition now proves the
+composition records it, with IDENTITY["input_digest"] deliberately a value the
+plan does not carry, so a composition that recorded the configured manifest
+fails there rather than at admission.
+
+REVERSALS, run and restored:
+  delete the record_attempt call ............... 11 preparation cases fail
+  record **identity unchanged (configured digest) 11 fail, incl. the new one
+  restored ..................................... OK
+
+THE TRAVERSAL NOW REACHES THE DEFERRAL. evidence/traversal-probe-170031.py
+reports "preparations started: 1" and stops at the intended nondurable refusal:
+"the parent offer is not issued while the same actor holds this reservation's
+preparation, and this admit stays owed" - 0.333861 s. So on a real selected
+deployment the whole sequence runs: child Work created at the Authority, offer
+issued, acceptance fenced on what was issued, claim committed with its
+generation, runtime attempt recorded, assignment activated, capacity admitted,
+parent deferred without being touched.
+
+VERIFICATION
+  step 146 five focused modules ....... OK, 416 cases
+  step 148 full suite (discover -s tests -t .)
+      7094 tests, 40 failures, 18 errors, 20 skipped, 455.256 s
+
+A FULL-SUITE RUN OF MINE WAS INVALID AND I AM SAYING SO. Step 147 used
+"discover -s tests", making tests the top-level dir, so every module importing
+"from tests..." failed - 20 loader ImportErrors that were my invocation, not
+the tree. Step 148 is the corrected run.
+
+I BASELINED THE ONLY FAILURES THAT NAME THIS PATH rather than asserting they
+were not mine. tests.tools.test_stage_execution: 13 errors, seven named
+"prepares"/"first tick". Reverting exactly this round's four edits gives 13;
+restoring gives 13. Pre-existing in this working tree. Traceback is
+Integration._run -> _authority_read("the producer's proposal") ->
+AttributeError: 'object' object has no attribute 'proposal' - a fixture that
+stubs the authority with a bare object(), on a path that never enters
+_prepares(given). I could NOT baseline against the committed tree: an archived
+checkout of that module runs 263 errors because this Work's sources are
+uncommitted across many files. The revert/restore pair is the baseline I have.
+
+I HAVE NOT BASELINED the rest and am not claiming they are unrelated on
+inspection alone: test_no_declared_owner_is_stale (15),
+test_every_public_parameter_is_a_declared_operand (5, on deadline_policy),
+test_no_entry_is_owned_twice (3), and receiving-lane entries naming
+authority_port.py:AuthorityPort.assignment_of. Boundary-inventory drift in
+modules this round did not touch. That is owed.
+
+FILES
+  tools/integration_worker.py
+    sha256:c14e72096ccf8d2401847d6a7c2c2c05f3f622b785535b57dada7787506ee6a5
+  tools/stage_execution.py
+    sha256:b2270c362902559e95109755864c03c76cc17376b98a32873da969b912b1840b
+  tests/tools/test_managed_preparation.py
+    sha256:b6eefad9232cd3a26548603fefb663b1017acd684cef93c811391f1dc1dfbe9b
+  tests/job_manager/test_managed_integration_capacity.py
+    sha256:aff15f263046746e3f1a32280d1c0192fccd0a2dc5cfc29bdda243fb0ec61bca
+
+CUMULATIVE VERIFICATION SPENDING: ledger 150 rows, 2343.9140903438265 s.
+Round recorded in PROGRESS.md and candidate-170083.json.
+
+STILL OWED, unchanged: recovering exact owner receipts / claim settlement /
+assignment on later sweeps instead of reissuing or reclaiming; held-capacity
+recovery when a pre-intent interruption leaves the allocation
+recovery-required while the intent writer accepts only reserved; ChildAcceptance
+reusing the actual _SingleWorker.delivered / child worker_operations rather than
+repeating its checks; then the ordinary child launch, exchange, ending and
+exclusion, accepted custody and adoption, intended task provenance in the actual
+path, admitted-child replay, restart cuts, checkpoint B and
+DEPLOYMENT-SLICE2-DRAFT.md.

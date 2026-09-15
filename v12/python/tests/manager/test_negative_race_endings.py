@@ -10,8 +10,18 @@ same real daemon, the same built reference worker image and the same manager
 seams, and a change that broke the positive arc would break these too.
 
 WHAT IT ADDS is the endings the positive arc does not reach: an offer that
-expired, a start that created a container and then failed, and a terminal
-worker disposition that is not `completed`.
+expired, a start that created a container and then failed, a terminal worker
+disposition that is not `completed`, and a runtime deadline the manager itself
+called time on.
+
+WHERE THE FIFTH ENDING LIVES. `unsupported-version` is the one named ending
+this module deliberately does NOT re-prove. W32576's
+`test_refused_session_engine` is in the SAME serial registry, subclasses the
+SAME fixture, and drives the whole crossing on a real daemon -- a refusal
+derived from the session's own certified profile after the container exists,
+exact removal, positive absence, launch-root teardown, the lane given back only
+once the daemon agrees, sibling preservation and restart replay. A second copy
+here would be coverage without evidence, so this module points at it instead.
 """
 
 from __future__ import annotations
@@ -26,11 +36,16 @@ from baton_v12.worker_manager import (authorize_failed_start_cleanup,
                                       decide_retention, observe,
                                       reconcile_runtime, request_freeze,
                                       request_intake, request_runtime_start,
-                                      retain_manifest, settle_claim,
-                                      submit_claim)
+                                      retain_manifest, runtime_lane,
+                                      settle_claim, submit_claim)
 
-from .test_lifecycle_composition import Lifecycle, RETENTION
-from .test_offers import MUCH_LATER
+from baton_v12.worker_manager import (advance_deadline,
+                                      deadline_cleanup_of, deadline_of,
+                                      observe_deadline)
+
+from .test_lifecycle_composition import (Lifecycle, POLICY, RETENTION,
+                                         RecordingAgent)
+from .test_offers import MUCH_LATER, NOW
 
 
 class NegativeEndings(Lifecycle):
@@ -254,6 +269,120 @@ class NegativeEndings(Lifecycle):
         self.assertFalse(os.path.exists(
             adapter.launch_delivery.root))
 
+    def test_a_reached_deadline_takes_the_same_cleanup_crossing(self):
+        """THE FIFTH NAMED ENDING, and the last one this Work was waiting on.
+
+        W32577 ruled the runtime deadline and composed it: the Worker Manager
+        owns the authoritative clock, persists the exact deadline with its
+        policy generation BEFORE the start, and expiry records a typed
+        `deadline-reached` observation that by itself kills nothing. A
+        `cancel` policy must first commit an authority-owned cancellation or
+        fence, and only then may the exact runtime be removed.
+
+        WHAT THIS CASE ADDS TO THAT CHILD'S OWN EVIDENCE. `test_runtime_
+        deadline_engine` proves the crossing under a separately authorized,
+        environment-supervised gate that the ordinary registry does not run.
+        This Work's acceptance is that the deadline takes the SAME crossing as
+        the completed arc -- so it is asserted here, beside `plan-rejected`,
+        in the ordinary serial registry and against the same daemon, the same
+        built image and the same seams. A change that broke the positive arc
+        breaks this too, which is the whole reason this module subclasses that
+        fixture rather than restating it.
+
+        NOTHING IS FABRICATED TO GET HERE. No worker disposition is written,
+        no output is frozen and no intake receipt is manufactured: the worker
+        was running when its deadline arrived and never said anything, which
+        is exactly the ending this door exists for.
+        """
+        roots = self.roots()
+        given, assignment = self.activated()
+        inputs = self.composed(roots, given, assignment)
+        delivery = self.credential()
+        adapter = self.adapter(roots=roots, mounts=self.plan(roots),
+                               credential_delivery=delivery)
+
+        # THE MANAGER'S OWN CLOCK, which is what the ruling makes
+        # authoritative. The case moves it; it does not move the deadline.
+        now = [NOW]
+        self.store._clock = lambda: now[0]
+        # AND THE AUTHORITY'S AFTER-STATE, because a `cancel` policy fences
+        # before it removes anything and the ending reads the fence back.
+        self.session.discharge_answer["kind"] = "runtime-absent"
+        cancelled = self.session.cancel
+
+        def fencing(command):
+            answer = cancelled(command)
+            self.session.live_assignment = None
+            self.session._work = dict(
+                self.session._work, phase="block",
+                gate="runtime-quiescence:1",
+                fenced_generations=[{"generation": 1, "cause": "cancelled",
+                                     "reason": command["reason"]}])
+            return answer
+
+        self.session.cancel = fencing
+
+        policy = {"policy_digest": POLICY, "policy_generation": 1,
+                  "duration_seconds": 1, "action": "cancel"}
+        request_runtime_start(self.store, adapter, attempt_id=self.attempt,
+                              inputs=inputs, deadline_policy=policy)
+        runtime_id = self.attempt_row()["runtime_id"]
+        # THE CONTAINER IS REALLY RUNNING when its deadline arrives. That is
+        # this ending's distinguishing fact: the worker is up and the manager
+        # is the one calling time.
+        self.assertEqual(adapter.observe(runtime_id)["state"], "running")
+        self.assertTrue(runtime_lane(self.store, self.attempt)
+                        ["held_by_this_attempt"])
+
+        pin = deadline_of(self.store, attempt_id=self.attempt)
+        self.assertEqual(pin["policy"]["policy_generation"], 1)
+        now[0] = pin["deadline_at"]
+
+        # THE OBSERVATION ALONE TOUCHES NOTHING, which is the ruling's own
+        # sentence: expiry records that the deadline was reached and never by
+        # itself kills, fences, cancels or discards output.
+        before = list(self.engine_calls)
+        observe_deadline(self.store, self.port, attempt_id=self.attempt)
+        self.assertEqual(self.engine_calls, before)
+        # ASKED OF THE DAEMON: the container this attempt attached is still
+        # the one carrying these labels, and it is still running.
+        [carried] = self.carrying(self.labels())
+        self.assertTrue(runtime_id.startswith(carried[:12])
+                        or carried.startswith(runtime_id[:12]),
+                        (carried, runtime_id))
+        self.assertEqual(adapter.observe(runtime_id)["state"], "running")
+
+        settled = advance_deadline(self.store, self.port,
+                                   RecordingAgent(self.trace), adapter,
+                                   attempt_id=self.attempt,
+                                   retention_policy_digest=RETENTION)
+        proof = settled["cleanup"]
+        # THE SAME CROSSING THE COMPLETED ARC TAKES: exact removal, positive
+        # absence, BOTH provider teardowns, and settlement.
+        self.assertEqual(proof["observed"]["state"], "absent")
+        for provider in ("credentials", "launch"):
+            self.assertEqual(
+                proof["observed"][provider]["lifecycle_state"], "torn-down")
+        self.assertEqual(self.attempt_row()["execution_runtime"], "destroyed")
+        # THE ENGINE, NOT THE ROW.
+        self.assertEqual(self.carrying(self.labels()), [])
+        self.assertFalse(os.path.exists(delivery.root))
+        self.assertFalse(os.path.exists(adapter.launch_delivery.root))
+        # AND NOTHING WAS FABRICATED ON THE WAY.
+        row = self.attempt_row()
+        self.assertEqual(row["worker_disposition"], "none")
+        self.assertEqual(row["output"], "open")
+        self.assertEqual(
+            [dict(one) for one in self.store._connection.execute(
+                "SELECT * FROM intakes")], [])
+        # THE LANE IS GIVEN BACK ONLY ON THAT ABSENCE.
+        self.assertFalse(runtime_lane(self.store, self.attempt)
+                         ["held_by_this_attempt"])
+        # AND THE PROOF REPLAYS rather than being re-decided.
+        self.assertEqual(
+            deadline_cleanup_of(self.store, attempt_id=self.attempt,
+                                retention_policy_digest=RETENTION), proof)
+
     def test_no_ending_settles_before_every_required_one_is_established(self):
         """THE LANE IS NOT RELEASED EARLY.
 
@@ -322,30 +451,22 @@ class NegativeEndings(Lifecycle):
         self.assertEqual(self.attempt_row()["execution_runtime"], "destroyed")
         self.assertEqual(self.carrying(self.labels()), [])
 
-        # AND THE RETRY, once the root can be proved gone, settles.
-        done = authorize_cleanup(self.store, self.port, adapter,
-                                 attempt_id=self.attempt,
-                                 retention_policy_digest=RETENTION)
-        self.assertEqual(done["cleanup"], "complete", done)
-        self.assertEqual(self.attempt_row()["cleanup"], "complete")
-        self.assertEqual(self.attempt_row()["execution_runtime"], "destroyed")
-        self.assertEqual(self.carrying(self.labels()), [])
-
-        # AND A REAL SUCCESSOR TAKES THE LANE, offered, claimed, activated and
-        # STARTED -- not a second start on the terminal attempt, which is all
-        # the previous version proved.
+        # AND A REAL SUCCESSOR IS REFUSED WHILE THIS ENDING IS UNPROVED.
         #
-        # AND THE ORDER HERE IS VOLUNTARY, which this case says rather than
-        # implies. The successor starts after cleanup because this case calls
-        # it then. Nothing would have stopped it starting BEFORE: an owner
-        # that arbitrates one lane across two attempts does not exist --
+        # THE ORDER USED TO BE VOLUNTARY AND THIS CASE SAID SO. When it was
+        # written no owner arbitrated one lane across two attempts --
         # `posture_slots` is keyed `(attempt_id, posture)`, so a successor's
-        # slot is a different slot and no manager precondition consults an
-        # unsettled predecessor. Mandatory child W32649 owns that lane
-        # identity and its pre-engine acquisition; until it lands, the "only
-        # after" relation is unenforced and this case witnesses the acts
-        # rather than their order.
-        self.attempt = f"{self.attempt}-successor"
+        # slot is a different slot and nothing consulted an unsettled
+        # predecessor -- and a case asserting a refusal would have been
+        # asserting a guard that did not exist. Mandatory child W32649 landed
+        # that owner, so the relation is now ENFORCED and asserted rather than
+        # witnessed: the successor is a real attempt, offered, claimed and
+        # activated, and its start is refused BEFORE the predecessor's ending
+        # is proved.
+        predecessor = self.attempt
+        self.assertTrue(runtime_lane(self.store, predecessor)
+                        ["held_by_this_attempt"])
+        self.attempt = f"{predecessor}-successor"
         # W16823: the authority answers a CLOSED claim result, so a case that
         # re-points the fence re-points the member rather than the whole.
         self.session.claim_answer = dict(self.session.claim_answer,
@@ -356,10 +477,57 @@ class NegativeEndings(Lifecycle):
         next_inputs = self.composed(next_roots, next_given, next_assignment)
         successor = self.adapter(roots=next_roots,
                                  mounts=self.plan(next_roots))
+        with self.assertRaises(ContractRefusal) as held:
+            request_runtime_start(self.store, successor,
+                                  attempt_id=self.attempt,
+                                  inputs=next_inputs)
+        # PINNED TO THE RELATION THAT REFUSED, not to the word "lane". Two
+        # guards in `_occupy_lane` overlap for a successor on the SAME four
+        # part lane -- the by-Work predecessor query and the table's own
+        # primary key -- and they are different facts: the first says a
+        # predecessor's ending is unsettled, the second says two callers raced
+        # for one lane. Measured: neutering the predecessor query alone left
+        # this case passing on the primary key's refusal, which is a case
+        # asserting less than it reads. So the exact predecessor sentence is
+        # what this asserts.
+        self.assertIn("still holds this Work's runtime lane",
+                      str(held.exception))
+        # AND THE REFUSAL CREATED NOTHING. The predecessor's container is
+        # already gone, so a lane taken here would show up as a container the
+        # daemon holds for this assignment while an ending is unproved --
+        # which is the state this whole ordering exists to prevent.
+        self.assertEqual(self.carrying(self.labels()), [])
+        self.assertEqual(runtime_lane(self.store, self.attempt)["holder"],
+                         predecessor)
+        self.assertIsNone(self.attempt_row()["runtime_id"])
+
+        # AND THE RETRY, once the root can be proved gone, settles.
+        #
+        # THE LIVE ASSIGNMENT IS CLEARED AGAIN because activating the
+        # successor re-pointed it: `authorize_cleanup` destroys the runtime of
+        # an assignment that has ENDED, and the predecessor's has. The
+        # successor's activation is a fact about the successor.
+        self.attempt = predecessor
+        self.session.live_assignment = None
+        done = authorize_cleanup(self.store, self.port, adapter,
+                                 attempt_id=self.attempt,
+                                 retention_policy_digest=RETENTION)
+        self.assertEqual(done["cleanup"], "complete", done)
+        self.assertEqual(self.attempt_row()["cleanup"], "complete")
+        self.assertEqual(self.attempt_row()["execution_runtime"], "destroyed")
+        self.assertEqual(self.carrying(self.labels()), [])
+        self.assertFalse(runtime_lane(self.store, predecessor)
+                         ["held_by_this_attempt"])
+
+        # ...AND ONLY THEN DOES THE SUCCESSOR TAKE THE LANE. One winner, after
+        # the ending is established, which is the acceptance's own sentence.
+        self.attempt = f"{predecessor}-successor"
         request_runtime_start(self.store, successor, attempt_id=self.attempt,
                               inputs=next_inputs)
         self.assertEqual(len(self.carrying(self.labels())), 1)
         self.assertIsNotNone(self.attempt_row()["runtime_id"])
+        self.assertTrue(runtime_lane(self.store, self.attempt)
+                        ["held_by_this_attempt"])
 
 
 class DockerNegativeEndings(NegativeEndings, unittest.TestCase):

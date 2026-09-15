@@ -1,0 +1,17 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle
+............................................................................................................................................................................................................................................................................F...................................................................................................................................
+======================================================================
+FAIL: test_a_resumed_sweep_RECOVERS_rather_than_being_refused (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_resumed_sweep_RECOVERS_rather_than_being_refused)
+THE WHOLE POINT OF RECOVERING, and what my earlier guard got wrong.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 942, in test_a_resumed_sweep_RECOVERS_rather_than_being_refused
+    self.assertEqual(recovered["request"], held["request"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'sch[332 chars]n': '1349e2722ab28529e892ad4ef56f5f4c03124e1d'[1194 chars]ed']} != {'sch[332 chars]n': 'd09c653d5570ec060ffc8c024fe5080a3a206d27'[1194 chars]ed']}
+Diff is 2710 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 400 tests in 21.205s
+
+FAILED (failures=1)

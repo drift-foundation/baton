@@ -1,0 +1,838 @@
+[
+ {
+  "step": "01",
+  "label": "baseline-focused-five",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.integration.test_managed_storage",
+   "tests.job_manager.test_managed_integration_capacity",
+   "tests.manager.test_reconciliation_task",
+   "tests.tools.test_managed_preparation",
+   "tests.tools.test_integration_bundle"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 25.94948829599889,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-01.log"
+ },
+ {
+  "step": "02",
+  "label": "cut-table-preserves-group1",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 6.069163698994089,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-02.log"
+ },
+ {
+  "step": "03",
+  "label": "group2-cut-matrix",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.integration.test_managed_storage",
+   "tests.job_manager.test_managed_integration_capacity",
+   "tests.manager.test_reconciliation_task",
+   "tests.tools.test_managed_preparation",
+   "tests.tools.test_integration_bundle"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 33.07214740201016,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-03.log"
+ },
+ {
+  "step": "04",
+  "label": "group2-cut-matrix-final",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.integration.test_managed_storage",
+   "tests.job_manager.test_managed_integration_capacity",
+   "tests.manager.test_reconciliation_task",
+   "tests.tools.test_managed_preparation",
+   "tests.tools.test_integration_bundle"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 33.37171304397634,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-04.log"
+ },
+ {
+  "step": "05",
+  "label": "positions-restart-and-witness",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.integration.test_managed_storage",
+   "tests.job_manager.test_managed_integration_capacity",
+   "tests.manager.test_reconciliation_task",
+   "tests.tools.test_managed_preparation",
+   "tests.tools.test_integration_bundle"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 37.60913418899872,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-05.log"
+ },
+ {
+  "step": "06",
+  "label": "four-selected-windows",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.integration.test_managed_storage",
+   "tests.job_manager.test_managed_integration_capacity",
+   "tests.manager.test_reconciliation_task",
+   "tests.tools.test_managed_preparation",
+   "tests.tools.test_integration_bundle"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 40.68463038999471,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-06.log"
+ },
+ {
+  "step": "07",
+  "label": "windows-and-identity-refusal",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.integration.test_managed_storage",
+   "tests.job_manager.test_managed_integration_capacity",
+   "tests.manager.test_reconciliation_task",
+   "tests.tools.test_managed_preparation",
+   "tests.tools.test_integration_bundle"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 40.78281987001537,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-07.log"
+ },
+ {
+  "step": "08",
+  "label": "rev-request-agrees",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 20.46852943400154,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-08.log"
+ },
+ {
+  "step": "09",
+  "label": "rev-denial-empty",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 21.05899074699846,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-09.log"
+ },
+ {
+  "step": "10",
+  "label": "rev-workid-agrees",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 20.65506555698812,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-10.log"
+ },
+ {
+  "step": "11",
+  "label": "rev-denial-wrong",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 20.92301353099174,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-11.log"
+ },
+ {
+  "step": "12",
+  "label": "rev-deferral-guard",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 20.93538466800237,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-12.log"
+ },
+ {
+  "step": "13",
+  "label": "rev-no-uncertainty",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 21.42484778398648,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-13.log"
+ },
+ {
+  "step": "14",
+  "label": "rev-hold-reserved",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 24.331580119993305,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-14.log"
+ },
+ {
+  "step": "15",
+  "label": "rev-two-processes",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 24.25785182401887,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-15.log"
+ },
+ {
+  "step": "16",
+  "label": "request-negatives-and-uncertain-start",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.integration.test_managed_storage",
+   "tests.job_manager.test_managed_integration_capacity",
+   "tests.manager.test_reconciliation_task",
+   "tests.tools.test_managed_preparation",
+   "tests.tools.test_integration_bundle"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 45.62266538501717,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-16.log"
+ },
+ {
+  "step": "17",
+  "label": "rev-no-failed-ending",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 24.21807818900561,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-17.log"
+ },
+ {
+  "step": "18",
+  "label": "rev-no-fence",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 21.380448857991723,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-18.log"
+ },
+ {
+  "step": "19",
+  "label": "rev-no-membership-end",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 24.49264708798728,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-19.log"
+ },
+ {
+  "step": "20",
+  "label": "failed-start-ending",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.integration.test_managed_storage",
+   "tests.job_manager.test_managed_integration_capacity",
+   "tests.manager.test_reconciliation_task",
+   "tests.tools.test_managed_preparation",
+   "tests.tools.test_integration_bundle"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 46.04721960698953,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-20.log"
+ },
+ {
+  "step": "21",
+  "label": "stage-execution-regression",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_stage_execution",
+   "tests.tools.test_single_worker"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 57.51754396897741,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-21.log"
+ },
+ {
+  "step": "22",
+  "label": "base-stage-execution",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 24.392000419989927,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-22.log"
+ },
+ {
+  "step": "23",
+  "label": "base-stage-exec-suite",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_stage_execution",
+   "tests.tools.test_single_worker"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 57.686463889986044,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-23.log"
+ },
+ {
+  "step": "24",
+  "label": "rev-observing-adapter",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 24.548685779998777,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-24.log"
+ },
+ {
+  "step": "25",
+  "label": "rev-no-launch-adopt",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 24.136982969008386,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-25.log"
+ },
+ {
+  "step": "26",
+  "label": "rev-no-credential",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 24.28227882500505,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-26.log"
+ },
+ {
+  "step": "27",
+  "label": "rev-no-failstart-restart",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 27.49623306200374,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-27.log"
+ },
+ {
+  "step": "28",
+  "label": "delivery-teardown-and-restart",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.integration.test_managed_storage",
+   "tests.job_manager.test_managed_integration_capacity",
+   "tests.manager.test_reconciliation_task",
+   "tests.tools.test_managed_preparation",
+   "tests.tools.test_integration_bundle"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 49.19340244500199,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-28.log"
+ },
+ {
+  "step": "29",
+  "label": "rev-no-failstart-restart2",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 27.69574812799692,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-29.log"
+ },
+ {
+  "step": "30",
+  "label": "delivery-teardown-and-proved-restart",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.integration.test_managed_storage",
+   "tests.job_manager.test_managed_integration_capacity",
+   "tests.manager.test_reconciliation_task",
+   "tests.tools.test_managed_preparation",
+   "tests.tools.test_integration_bundle"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 49.152209739986574,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-30.log"
+ },
+ {
+  "step": "172672",
+  "label": "manual-recovery-report",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_an_initially_unknown_start_reports_required_human_cleanup",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_an_initially_unknown_start_reports_and_holds_across_restart",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_start_that_failed_after_creating_a_runtime_is_ended"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 10.306443829991622,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-172672.log"
+ },
+ {
+  "step": "172673",
+  "label": "manual-recovery-report-full-identities",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_an_initially_unknown_start_reports_required_human_cleanup",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_an_initially_unknown_start_reports_and_holds_across_restart",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_start_that_failed_after_creating_a_runtime_is_ended"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 10.320262537978124,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-172673.log"
+ },
+ {
+  "step": "172674",
+  "label": "unfinished-credential-teardown",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_credential_teardown"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 0.4395815070020035,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-172674.log"
+ },
+ {
+  "step": "172675",
+  "label": "preparation-unfinished-credential",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_credential_teardown"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 3.5229079220152926,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-172675.log"
+ },
+ {
+  "step": "172676",
+  "label": "preparation-cleanup-before-ending",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_credential_teardown"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 3.551297441998031,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-172676.log"
+ },
+ {
+  "step": "172677",
+  "label": "causal-position-matrix",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 4.465954565996071,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-172677.log"
+ },
+ {
+  "step": "172678",
+  "label": "delivery-retry-matrix",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_credential_teardown",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_launch_teardown",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_credential_teardown",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_launch_teardown"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 13.574170061998302,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-172678.log"
+ },
+ {
+  "step": "172679",
+  "label": "exact-failed-delivery-retry",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_credential_teardown",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_launch_teardown",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_credential_teardown",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_launch_teardown"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 13.67286087499815,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-172679.log"
+ },
+ {
+  "step": "172680",
+  "label": "root-plan-job-profile-refusals",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_window_3_refuses_a_changed_root_before_any_effect",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_window_3_refuses_a_changed_plan_before_any_effect",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_window_4_refuses_a_changed_job_before_any_effect",
+   "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_window_4_refuses_a_changed_profile_before_any_effect"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 2.869445165997604,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-172680.log"
+ },
+ {
+  "step": "172681",
+  "label": "preparation-original-default-regression",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_the_command_bound_comes_from_the_launch_and_is_not_invented",
+   "tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_a_job_override_reaches_the_relocated_command_boundary"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 0.2108133060100954,
+  "exit": 1,
+  "ok": false,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-172681.log"
+ },
+ {
+  "step": "172682",
+  "label": "retained-scope-changed-modules",
+  "argv": [
+   "/home/sl/src/baton/.venv/bin/python3",
+   "-m",
+   "unittest",
+   "tests.tools.test_managed_preparation",
+   "tests.manager.test_reconciliation_task"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "budget": 180.0,
+  "elapsed_seconds": 66.34870723698987,
+  "exit": 0,
+  "ok": true,
+  "timed_out": false,
+  "signalled": [],
+  "group_proved_gone": true,
+  "log": "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/run-170382-step-172682.log"
+ }
+]

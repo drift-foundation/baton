@@ -1,0 +1,146 @@
+{
+  "head": "f3fc9e12cc89bebf9524cd173103df7af67d5212",
+  "paths": 29,
+  "mismatches": [],
+  "numstat": [
+    {
+      "path": "v12/python/DEPLOYMENT.md",
+      "numstat": "242\t0\tv12/python/DEPLOYMENT.md"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/documents.py",
+      "numstat": "64\t14\tv12/python/src/baton_v12/job_manager/documents.py"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/execution_limits.py",
+      "numstat": ""
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/projection.py",
+      "numstat": "19\t2\tv12/python/src/baton_v12/job_manager/projection.py"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/schema.py",
+      "numstat": "51\t4\tv12/python/src/baton_v12/job_manager/schema.py"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/store.py",
+      "numstat": "18\t11\tv12/python/src/baton_v12/job_manager/store.py"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/submission.py",
+      "numstat": "139\t1\tv12/python/src/baton_v12/job_manager/submission.py"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+      "numstat": "324\t10\tv12/python/src/baton_v12/integration/reconciliation.py"
+    },
+    {
+      "path": "v12/python/src/baton_v12/integration/execution.py",
+      "numstat": "33\t0\tv12/python/src/baton_v12/integration/execution.py"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+      "numstat": "208\t12\tv12/python/src/baton_v12/worker_manager/launch.py"
+    },
+    {
+      "path": "v12/python/tests/job_manager/execution_limits_fixtures/PROVENANCE.md",
+      "numstat": ""
+    },
+    {
+      "path": "v12/python/tests/job_manager/execution_limits_fixtures/golden-schema4.sqlite3",
+      "numstat": ""
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_documents.py",
+      "numstat": "9\t2\tv12/python/tests/job_manager/test_documents.py"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_exchange.py",
+      "numstat": "1\t1\tv12/python/tests/job_manager/test_exchange.py"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_execution_limits.py",
+      "numstat": ""
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_scheduling.py",
+      "numstat": "17\t6\tv12/python/tests/job_manager/test_scheduling.py"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_store.py",
+      "numstat": "6\t0\tv12/python/tests/job_manager/test_store.py"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_tool.py",
+      "numstat": "2\t2\tv12/python/tests/job_manager/test_tool.py"
+    },
+    {
+      "path": "v12/python/tests/manager/test_execution_limits.py",
+      "numstat": ""
+    },
+    {
+      "path": "v12/python/tests/tools/test_execution_limits.py",
+      "numstat": ""
+    },
+    {
+      "path": "v12/python/tests/tools/test_single_worker.py",
+      "numstat": "18\t0\tv12/python/tests/tools/test_single_worker.py"
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "numstat": "217\t1\tv12/python/tests/tools/test_stage_execution.py"
+    },
+    {
+      "path": "v12/python/tools/integration_bundle.py",
+      "numstat": "9\t1\tv12/python/tools/integration_bundle.py"
+    },
+    {
+      "path": "v12/python/tools/integration_worker.py",
+      "numstat": "87\t3\tv12/python/tools/integration_worker.py"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "numstat": "191\t17\tv12/python/tools/single_worker.py"
+    },
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "numstat": "450\t24\tv12/python/tools/stage_execution.py"
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "numstat": "277\t6\tv12/worker/baton_worker.py"
+    },
+    {
+      "path": "v12/worker/claude_agent.py",
+      "numstat": "77\t8\tv12/worker/claude_agent.py"
+    },
+    {
+      "path": "v12/worker/integration_workload.py",
+      "numstat": "128\t7\tv12/worker/integration_workload.py"
+    }
+  ],
+  "default_context_hunks": {
+    "v12/python/tools/stage_execution.py": 19,
+    "v12/python/tests/tools/test_stage_execution.py": 6
+  },
+  "foreign_methods": {
+    "v12/python/tools/stage_execution.py": {
+      "sha256": "0de764b6b601ce0fe4acf58b931fb613bceadfc4421ae7873b0653c58d1104b0",
+      "matches_prior_audit": true
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "sha256": "aa23adc2757f95a6812115a3896bd61b132826e512e4db3db119e3d2a3055d7d",
+      "matches_prior_audit": true
+    }
+  },
+  "prior_source_sha256": "ca15f08180556d3ebe310c6ad7e0a0548d925bdd2ebf8b6bff04e7dab793db9a",
+  "source_ast_equal_except_docstrings_and_explanatory_constant": true,
+  "raw_source_ast_unchanged": false,
+  "explanatory_constant_references": [
+    "v12/python/tools/stage_execution.py",
+    "v12/python/tests/tools/test_execution_limits.py"
+  ],
+  "head_matches_packet": true,
+  "head_after": "f3fc9e12cc89bebf9524cd173103df7af67d5212"
+}

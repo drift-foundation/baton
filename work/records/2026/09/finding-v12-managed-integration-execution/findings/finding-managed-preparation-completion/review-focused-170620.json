@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.integration.test_managed_storage"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "seconds": 8.371911872003693,
+  "exit": 0,
+  "timed_out": false,
+  "signals": [],
+  "limits_seconds": [
+    60,
+    5,
+    5
+  ]
+}

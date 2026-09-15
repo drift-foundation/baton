@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.857s
+
+OK

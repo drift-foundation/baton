@@ -1,0 +1,15 @@
+test_case_insensitive_like_matches_a_distinct_identity (__main__.Observations.test_case_insensitive_like_matches_a_distinct_identity) ... ok
+test_like_wildcard_matches_another_results_attachments (__main__.Observations.test_like_wildcard_matches_another_results_attachments) ... ok
+test_repeated_creation_collision_retains_same_refusal (__main__.Observations.test_repeated_creation_collision_retains_same_refusal) ... ok
+test_repeated_invalid_attachment_remains_refused (__main__.Observations.test_repeated_invalid_attachment_remains_refused) ... ok
+test_slash_identity_cannot_replay_its_creation (__main__.Observations.test_slash_identity_cannot_replay_its_creation) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.014s
+
+OK
+DEFECT: valid root creation mistakes ROOT/prepare for its own missing phase
+DEFECT: valid root_ creation mistakes rootA/prepare for its own missing phase
+CORRECTION: creation collision is non-durable and repeats the same refusal
+CORRECTION: invalid attachment is non-durable and remains refused; no success replay defect
+DEFECT: accepted root/child creation replays by looking up root

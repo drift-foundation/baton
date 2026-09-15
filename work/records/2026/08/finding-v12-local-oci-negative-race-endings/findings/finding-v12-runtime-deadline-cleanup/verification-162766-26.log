@@ -1,0 +1,14 @@
+......................F........
+======================================================================
+FAIL: test_normal_leader_exit_still_settles_its_owned_group (tests.manager.test_runtime_deadline_engine_budget.EngineBudget.test_normal_leader_exit_still_settles_its_owned_group)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_runtime_deadline_engine_budget.py", line 392, in test_normal_leader_exit_still_settles_its_owned_group
+    self.assertTrue(result["ok"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 31 tests in 0.122s
+
+FAILED (failures=1)

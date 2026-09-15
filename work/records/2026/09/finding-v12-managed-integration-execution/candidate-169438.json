@@ -1,0 +1,80 @@
+{
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 85232,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "45c840b1ab07ae9cf51d814f2c22e6524c0b1920571a22a45265d9c003740b76"
+  },
+  {
+   "bytes": 288299,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "802256e2f86431413165539402666c910cab0e335dddfe1753206ac0e12039e8"
+  },
+  {
+   "bytes": 55367,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "715802a93f62dda78d80b75d14202988fe33a294ac1f866e7a935f9e6c683b00"
+  },
+  {
+   "bytes": 162808,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "1996f8fdc3df90cf67dc9f6636bcd079ff047e8bb2d96d873551a7bb903aefaf"
+  }
+ ],
+ "claim": 169438,
+ "composition": "stage_execution.PreparationResolver answers the orchestration from the stage alone (cheap, resolving nothing, because ManagedPreparation reads the intent first) and composes operands from the deployment's own readers: line, accepted integration checkpoint, published proposal, Authority canonical target, required-test selection, Job limits. It is RECOVERY-FIRST: with a committed intent it resolves NOTHING and leaves the request for _recovered; only a first sweep reads the target and publishes. integration_worker.preparation_child_work derives the first sweep's child Work with the authority's prefix, for the window before the intent commits.",
+ "corrections_made": [
+  "changed-child refusal is a DISTINCT invariant from moved-target recovery and I had collapsed them: the replacement case exercised _recovered alone and never reached _preserved's child comparison. Now driven through the whole of _preserved with a VALID published input.",
+  "my 'unchanged sweep' case passed None for the intent despite creating one, so it proved absence passthrough while reading as resume agreement. Renamed to test_an_absent_intent_carries_no_constraint; the honest agreement case with a real intent and publication lives where a bundle exists. A guard that only refuses passes every refusal test and breaks every resume.",
+  "the obsolete moved-target refusal is NOT restored"
+ ],
+ "next": "that construction with the worker's acceptance, the ordinary child launch and ending, the member ended on its real exclusion proof, and adoption. The whole-prepare admitted-child replay gap remains open.",
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "not_yet": "The resolver is CONSTRUCTED BY NOBODY -- _integration_operations still passes preparation=None -- so it has NO behavioural coverage: what is proved is that it composes and imports, not that it resolves correctly against a live deployment. Its profile_digest and harness_digest derivations are my first reading of the required-test selection and need driving against a real world.",
+ "unchanged": [
+  {
+   "bytes": 73429,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_bundle.py",
+   "sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad"
+  },
+  {
+   "bytes": 191339,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+  },
+  {
+   "bytes": 94098,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+   "sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a"
+  }
+ ],
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 114 resolver-composed-focused /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle",
+  "ledger": "114 rows, 1132.5981711438683s, quoted from the file",
+  "no": "no engine, model, image build or destructive cleanup",
+  "steps": {
+   "113": "the focused set PLUS tests.tools.test_stage_execution: 668 cases, 13 errors; sorted failing set IDENTICAL to the one bound at claim169019, so the resolver adds none. Those 13 remain the unattributed pre-existing set, not waived.",
+   "114": "focused set, OK 402 cases, ledger 21.40951557000517s"
+  },
+  "stray": "root tools/ confirmed clean; every patch this round used absolute paths",
+  "whitespace": "the one flagged line at stage_execution.py:1912 is the pre-existing one from another Work's hunk, unmoved by my edit; my own hunks are clean"
+ },
+ "what": "Two coverage holes I had opened are closed, and the deployment-side PreparationResolver exists.",
+ "work": "2b077949-W161230"
+}

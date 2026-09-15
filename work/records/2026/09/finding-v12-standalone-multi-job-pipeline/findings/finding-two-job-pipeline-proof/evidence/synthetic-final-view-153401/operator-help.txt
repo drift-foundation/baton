@@ -1,0 +1,9 @@
+usage: scenario.py [-h] [--root ROOT]
+
+Operator entry: fresh fixture repositories, deterministic images,
+submit/serve.
+
+options:
+  -h, --help   show this help message and exit
+  --root ROOT  new absolute disk-backed run root; default under
+               ~/.local/state/baton/v12

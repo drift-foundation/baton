@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-W",
+    "error::ResourceWarning",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_resumed_sweep_RECOVERS_rather_than_being_refused",
+    "tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_published_input_disagreeing_with_the_intent_refuses",
+    "tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_committed_intent_with_no_publication_refuses",
+    "tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_a_committed_intent_with_no_published_input_refuses",
+    "tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_wrapper_admits_preparation_and_defers_the_parent"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "wall_seconds": 0.313786089012865,
+  "exit_code": 0,
+  "timed_out": false,
+  "timeout_seconds": 30,
+  "term_grace_seconds": 5,
+  "kill_grace_seconds": 5,
+  "previous_reviewer_seconds": 28.175441518025764,
+  "cumulative_reviewer_seconds": 28.48922760703863,
+  "evidence": "Three direct recovery tests plus missing-root refusal and initial wrapper admission using real disposable owners; no complete deployment or resumed child lifecycle proof."
+}

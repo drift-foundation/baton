@@ -1,0 +1,33 @@
+{"original_sha256": "e61576c9b968bd4547c044320bc255faa715a4675d37974f69e57a6d998d7f5c", "proposed_sha256": "02de54e9d14cc7379d510cd2f0f7ded0731e79efbe33fe87c63dcec773d468a8", "changed_setup_sites": 2}
+test_a_dead_daemon_is_a_refusal_and_not_an_unreachable_engine (_w156162_review_fixture.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_dead_daemon_is_a_refusal_and_not_an_unreachable_engine)
+Review 2026-09-04T21:52:30Z [P2]: WHAT THIS BOUNDARY REALLY SEES. ... ok
+test_a_fresh_incarnation_reconstructs_the_same_observation (_w156162_review_fixture.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_fresh_incarnation_reconstructs_the_same_observation)
+THE RESTART CONTROL. The manager's lifetime is not the container's, ... ok
+test_a_real_observing_status_run_mutates_no_durable_state (_w156162_review_fixture.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_real_observing_status_run_mutates_no_durable_state)
+W85500 review 2026-09-04T14-27-54Z [P1]: BEHAVIOUR, not capability. ... ok
+test_a_runner_that_timed_out_is_the_same_unasked_question (_w156162_review_fixture.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_runner_that_timed_out_is_the_same_unasked_question)
+The type that used to reach the blanket branch. ... ok
+test_an_arbitrary_defect_in_this_composition_escapes (_w156162_review_fixture.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_an_arbitrary_defect_in_this_composition_escapes)
+AND THE OTHER HALF OF THE SAME RULE. ... ok
+test_an_engine_that_cannot_be_asked_is_uncertain_not_gone (_w156162_review_fixture.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_an_engine_that_cannot_be_asked_is_uncertain_not_gone)
+W85500 re-review 2026-09-04T19:08:40Z [P1], at the real seam. ... ok
+test_repeated_sweeps_replay_the_same_facts_and_do_nothing (_w156162_review_fixture.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_repeated_sweeps_replay_the_same_facts_and_do_nothing) ... ok
+test_the_fault_alone_authorizes_no_act_at_all (_w156162_review_fixture.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_the_fault_alone_authorizes_no_act_at_all)
+The acceptance's negative half, read from the OWNERS' own records. ... ok
+test_the_next_sweep_reports_exceptional_and_a_quiescent_runtime (_w156162_review_fixture.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_the_next_sweep_reports_exceptional_and_a_quiescent_runtime)
+BOTH AXES, FROM ONE SWEEP, and neither derived from the other. ... ok
+test_the_observation_only_status_surface_reports_the_same_terminal (_w156162_review_fixture.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_the_observation_only_status_surface_reports_the_same_terminal)
+PLAN ITEM 5, WHERE A CLAIM EXISTS. ... ok
+test_the_observation_only_surface_opens_no_authority_and_no_engine (_w156162_review_fixture.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_the_observation_only_surface_opens_no_authority_and_no_engine)
+What it is NOT, asserted rather than promised. ... ok
+test_a_matching_terminal_drives_the_whole_ending (_w156162_review_fixture.TheAnsweredEndingRunsThroughTheRealOwners.test_a_matching_terminal_drives_the_whole_ending) ... ok
+test_a_terminal_naming_another_envelope_stops_before_intake (_w156162_review_fixture.TheAnsweredEndingRunsThroughTheRealOwners.test_a_terminal_naming_another_envelope_stops_before_intake)
+The mismatch control, through the real owners. ... ok
+test_a_terminal_with_no_usable_digest_never_reaches_the_ending (_w156162_review_fixture.TheAnsweredEndingRunsThroughTheRealOwners.test_a_terminal_with_no_usable_digest_never_reaches_the_ending)
+The missing and malformed controls, refused at their own owner. ... ok
+test_the_ending_is_not_asked_again_once_cleanup_is_settled (_w156162_review_fixture.TheAnsweredEndingRunsThroughTheRealOwners.test_the_ending_is_not_asked_again_once_cleanup_is_settled) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.732s
+
+OK

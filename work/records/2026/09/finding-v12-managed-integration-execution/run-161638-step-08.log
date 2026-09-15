@@ -1,0 +1,34 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.manager.test_reconciliation_worker
+.....E.......F....
+======================================================================
+ERROR: test_a_foreign_committed_intent_cannot_prove_this_attempt (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_foreign_committed_intent_cannot_prove_this_attempt)
+[P1] A committed row with a familiar kind at a key this attempt
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 271, in test_a_foreign_committed_intent_cannot_prove_this_attempt
+    unstarted_cancellation_of(self.store, self.port, ATTEMPT)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 2929, in unstarted_cancellation_of
+    f"names {_differing(recorded, expected_intent)}; a committed "
+             ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 933, in _differing
+    if found["work_ref"][member] != expected["work_ref"][member]:
+       ~~~~~^^^^^^^^^^^^
+KeyError: 'work_ref'
+
+======================================================================
+FAIL: test_an_authority_that_still_holds_the_assignment_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_authority_that_still_holds_the_assignment_is_refused)
+The fence is the AUTHORITY's act, so the manager's own journal is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 157, in test_an_authority_that_still_holds_the_assignment_is_refused
+    self.assertIn("still holds assignment generation",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'still holds assignment generation' not found in "the projection of '0000000a-W1' carries no fenced generations to read; this reader proves a fence rather than assuming one"
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.072s
+
+FAILED (failures=1, errors=1)

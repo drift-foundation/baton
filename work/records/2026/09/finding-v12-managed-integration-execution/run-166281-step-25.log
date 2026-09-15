@@ -1,0 +1,9 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 /tmp/differential.py
+Traceback (most recent call last):
+  File "/tmp/differential.py", line 25, in <module>
+    both("units->minutes", dict(held, execution_limits=dict(L, units="minutes")))
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/differential.py", line 21, in both
+    try: task.read_request(root); w="ACCEPTS"
+         ~~~~~~~~~~~~~~~~~^^^^^^
+TypeError: read_request() missing 1 required keyword-only argument: 'owned'

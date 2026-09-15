@@ -1,0 +1,17 @@
+{
+  "claim": 168115,
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_the_derived_candidate_is_not_the_original_candidate",
+    "tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_the_targets_own_changes_survive_the_combination",
+    "tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_a_real_conflict_refuses_and_is_reported_as_one"
+  ],
+  "timeout_seconds": 30,
+  "scope": "three selected real disposable Git preparation regressions; no engine/model",
+  "status": "completed",
+  "elapsed_seconds": 0.5640499939909205,
+  "exit_code": 0
+}

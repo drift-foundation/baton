@@ -1,0 +1,59 @@
+{
+  "work": "W103525",
+  "claim": 156430,
+  "prior_review_seconds": 55.0305936499924,
+  "review_cap_seconds": 300,
+  "candidate_before": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "cfbc9aa481c0332a4601f220328ee63692a2be9106e43d6624bca61c7f743c8d",
+      "bytes": 91536
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "b7d784e9c524d8b9ba75febfea118a40e33e6e1de258eac7b8f0a3bb83a68330",
+      "bytes": 222713
+    }
+  },
+  "runs": [
+    {
+      "name": "focused",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_composed_deployment_reopens_and_continues",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_reach_a_real_imported_integration"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 3.7175806660006856,
+      "log": "review-156430-focused.log"
+    },
+    {
+      "name": "probe",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-156430.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.03150646099948062,
+      "log": "review-156430-probe.log"
+    }
+  ],
+  "review_spent_seconds": 58.77968077699256,
+  "review_remaining_seconds": 241.22031922300744,
+  "candidate_after": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "cfbc9aa481c0332a4601f220328ee63692a2be9106e43d6624bca61c7f743c8d",
+      "bytes": 91536
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "b7d784e9c524d8b9ba75febfea118a40e33e6e1de258eac7b8f0a3bb83a68330",
+      "bytes": 222713
+    }
+  },
+  "candidate_unchanged": true
+}

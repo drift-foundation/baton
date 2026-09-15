@@ -1,0 +1,18 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling
+...E.......
+======================================================================
+ERROR: test_a_post_import_restart_keeps_one_unchanged_queue_hold (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_restart_keeps_one_unchanged_queue_hold)
+THE POST-IMPORT TWIN OF THE CAUSAL RESTART, and a different shape.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1658, in test_a_post_import_restart_keeps_one_unchanged_queue_hold
+    entries = deployment.integration._connection.execute(
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        "SELECT * FROM queue_entries").fetchall()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: queue_entries
+
+----------------------------------------------------------------------
+Ran 11 tests in 16.591s
+
+FAILED (errors=1)

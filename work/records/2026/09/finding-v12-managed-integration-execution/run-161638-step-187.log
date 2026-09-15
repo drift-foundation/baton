@@ -1,0 +1,128 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.manager.test_dependencies tests.manager.test_secrets tests.manager.test_text_sweep
+..FFFFF................F...............F......F........................................................................F
+======================================================================
+FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='attempts.py:request_runtime_start', parameter='deadline_policy')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_dependencies.py", line 866, in test_every_public_parameter_is_a_declared_operand
+    self.assertIn(parameter, self.OPERANDS)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'deadline_policy' not found in {'outcome', 'collected', 'generation', 'mounts', 'queue', 'to_state', 'minted_labels', 'receipt_digest', 'outputs', 'assignment', 'agent', 'admits', 'observed_identity', 'credential_provider', 'state', 'contract', 'observation', 'path', 'payload', 'checkpoint_id', 'channel_port', 'optional', 'sequence', 'participant', 'toolchain_digest', 'attempt_id', 'port', 'which', 'prompt', 'max_entries', 'store', 'turn_in_flight', 'operands', 'discriminator', 'question', 'name', 'interactive', 'variants', 'reviewer_worker_id', 'profile', 'operation_id', 'image_digest', 'storage_usage', 'offer_ids', 'session', 'pinned', 'session_epoch', 'program', 'record', 'names', 'bearer', 'input_digest', 'evidence', 'work_id', 'source', 'refusal_record_digest', 'custody', 'retention_policy_digest', 'definition', 'disposition', 'source_delivered', 'delivery', 'value', 'from_state', 'launch_delivered', 'what', 'action', 'transport', 'roots', 'input_manifest_digest', 'writer_id', 'validator', 'session_ref', 'bytes_observed', 'issued', 'boundary', 'offer', 'provider_session_id', 'now', 'columns', 'line_id', 'assignment_id', 'worker_id', 'workspace_group', 'profile_digest', 'attachment_id', 'max_bytes', 'labels', 'root', 'slots', 'adapter_name', 'network', 'reason', 'uri', 'credentials_delivered', 'resolution', 'engine', 'into', 'authority_uuid', 'profile_name', 'ttl_seconds', 'mint_bearer', 'agent_protocol_version', 'posture', 'command', 'incarnation', 'runtime_attempt_id', 'adapter', 'seconds', 'from_instant', 'attempt', 'body', 'operation', 'intent', 'axis', 'declared', 'operation_ids', 'place', 'scope', 'artifact_ids', 'kind', 'failed_start_record_digest', 'expect', 'document', 'answer', 'category', 'policy_digest', 'manifest', 'input_manifest', 'refusal', 'assignment_roots', 'advertised', 'run', 'may_retire', 'runtime_id', 'adapter_digest', 'signature', 'sealed', 'deadline_seconds', 'capacity', 'refused_evidence', 'integration_delivered', 'content', 'verdict_id', 'intent_digest', 'code', 'assignment_manifest', 'offer_id', 'inputs', 'storage', 'minted', 'agent_session_capabilities', 'declared_base', 'workspace', 'operations', 'role', 'clock', 'identity', 'based_checkpoint_id', 'manifest_digest', 'decision', 'work_ref', 'exchange_delivered', 'required', 'live', 'gid', 'request'}
+
+======================================================================
+FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='authority_port.py:AuthorityPort:satisfy_gate', parameter='gate')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_dependencies.py", line 866, in test_every_public_parameter_is_a_declared_operand
+    self.assertIn(parameter, self.OPERANDS)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'gate' not found in {'outcome', 'collected', 'generation', 'mounts', 'queue', 'to_state', 'minted_labels', 'receipt_digest', 'outputs', 'assignment', 'agent', 'admits', 'observed_identity', 'credential_provider', 'state', 'contract', 'observation', 'path', 'payload', 'checkpoint_id', 'channel_port', 'optional', 'sequence', 'participant', 'toolchain_digest', 'attempt_id', 'port', 'which', 'prompt', 'max_entries', 'store', 'turn_in_flight', 'operands', 'discriminator', 'question', 'name', 'interactive', 'variants', 'reviewer_worker_id', 'profile', 'operation_id', 'image_digest', 'storage_usage', 'offer_ids', 'session', 'pinned', 'session_epoch', 'program', 'record', 'names', 'bearer', 'input_digest', 'evidence', 'work_id', 'source', 'refusal_record_digest', 'custody', 'retention_policy_digest', 'definition', 'disposition', 'source_delivered', 'delivery', 'value', 'from_state', 'launch_delivered', 'what', 'action', 'transport', 'roots', 'input_manifest_digest', 'writer_id', 'validator', 'session_ref', 'bytes_observed', 'issued', 'boundary', 'offer', 'provider_session_id', 'now', 'columns', 'line_id', 'assignment_id', 'worker_id', 'workspace_group', 'profile_digest', 'attachment_id', 'max_bytes', 'labels', 'root', 'slots', 'adapter_name', 'network', 'reason', 'uri', 'credentials_delivered', 'resolution', 'engine', 'into', 'authority_uuid', 'profile_name', 'ttl_seconds', 'mint_bearer', 'agent_protocol_version', 'posture', 'command', 'incarnation', 'runtime_attempt_id', 'adapter', 'seconds', 'from_instant', 'attempt', 'body', 'operation', 'intent', 'axis', 'declared', 'operation_ids', 'place', 'scope', 'artifact_ids', 'kind', 'failed_start_record_digest', 'expect', 'document', 'answer', 'category', 'policy_digest', 'manifest', 'input_manifest', 'refusal', 'assignment_roots', 'advertised', 'run', 'may_retire', 'runtime_id', 'adapter_digest', 'signature', 'sealed', 'deadline_seconds', 'capacity', 'refused_evidence', 'integration_delivered', 'content', 'verdict_id', 'intent_digest', 'code', 'assignment_manifest', 'offer_id', 'inputs', 'storage', 'minted', 'agent_session_capabilities', 'declared_base', 'workspace', 'operations', 'role', 'clock', 'identity', 'based_checkpoint_id', 'manifest_digest', 'decision', 'work_ref', 'exchange_delivered', 'required', 'live', 'gid', 'request'}
+
+======================================================================
+FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='launch.py:launch_document', parameter='job_execution')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_dependencies.py", line 866, in test_every_public_parameter_is_a_declared_operand
+    self.assertIn(parameter, self.OPERANDS)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'job_execution' not found in {'outcome', 'collected', 'generation', 'mounts', 'queue', 'to_state', 'minted_labels', 'receipt_digest', 'outputs', 'assignment', 'agent', 'admits', 'observed_identity', 'credential_provider', 'state', 'contract', 'observation', 'path', 'payload', 'checkpoint_id', 'channel_port', 'optional', 'sequence', 'participant', 'toolchain_digest', 'attempt_id', 'port', 'which', 'prompt', 'max_entries', 'store', 'turn_in_flight', 'operands', 'discriminator', 'question', 'name', 'interactive', 'variants', 'reviewer_worker_id', 'profile', 'operation_id', 'image_digest', 'storage_usage', 'offer_ids', 'session', 'pinned', 'session_epoch', 'program', 'record', 'names', 'bearer', 'input_digest', 'evidence', 'work_id', 'source', 'refusal_record_digest', 'custody', 'retention_policy_digest', 'definition', 'disposition', 'source_delivered', 'delivery', 'value', 'from_state', 'launch_delivered', 'what', 'action', 'transport', 'roots', 'input_manifest_digest', 'writer_id', 'validator', 'session_ref', 'bytes_observed', 'issued', 'boundary', 'offer', 'provider_session_id', 'now', 'columns', 'line_id', 'assignment_id', 'worker_id', 'workspace_group', 'profile_digest', 'attachment_id', 'max_bytes', 'labels', 'root', 'slots', 'adapter_name', 'network', 'reason', 'uri', 'credentials_delivered', 'resolution', 'engine', 'into', 'authority_uuid', 'profile_name', 'ttl_seconds', 'mint_bearer', 'agent_protocol_version', 'posture', 'command', 'incarnation', 'runtime_attempt_id', 'adapter', 'seconds', 'from_instant', 'attempt', 'body', 'operation', 'intent', 'axis', 'declared', 'operation_ids', 'place', 'scope', 'artifact_ids', 'kind', 'failed_start_record_digest', 'expect', 'document', 'answer', 'category', 'policy_digest', 'manifest', 'input_manifest', 'refusal', 'assignment_roots', 'advertised', 'run', 'may_retire', 'runtime_id', 'adapter_digest', 'signature', 'sealed', 'deadline_seconds', 'capacity', 'refused_evidence', 'integration_delivered', 'content', 'verdict_id', 'intent_digest', 'code', 'assignment_manifest', 'offer_id', 'inputs', 'storage', 'minted', 'agent_session_capabilities', 'declared_base', 'workspace', 'operations', 'role', 'clock', 'identity', 'based_checkpoint_id', 'manifest_digest', 'decision', 'work_ref', 'exchange_delivered', 'required', 'live', 'gid', 'request'}
+
+======================================================================
+FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='launch.py:materialize', parameter='job_execution')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_dependencies.py", line 866, in test_every_public_parameter_is_a_declared_operand
+    self.assertIn(parameter, self.OPERANDS)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'job_execution' not found in {'outcome', 'collected', 'generation', 'mounts', 'queue', 'to_state', 'minted_labels', 'receipt_digest', 'outputs', 'assignment', 'agent', 'admits', 'observed_identity', 'credential_provider', 'state', 'contract', 'observation', 'path', 'payload', 'checkpoint_id', 'channel_port', 'optional', 'sequence', 'participant', 'toolchain_digest', 'attempt_id', 'port', 'which', 'prompt', 'max_entries', 'store', 'turn_in_flight', 'operands', 'discriminator', 'question', 'name', 'interactive', 'variants', 'reviewer_worker_id', 'profile', 'operation_id', 'image_digest', 'storage_usage', 'offer_ids', 'session', 'pinned', 'session_epoch', 'program', 'record', 'names', 'bearer', 'input_digest', 'evidence', 'work_id', 'source', 'refusal_record_digest', 'custody', 'retention_policy_digest', 'definition', 'disposition', 'source_delivered', 'delivery', 'value', 'from_state', 'launch_delivered', 'what', 'action', 'transport', 'roots', 'input_manifest_digest', 'writer_id', 'validator', 'session_ref', 'bytes_observed', 'issued', 'boundary', 'offer', 'provider_session_id', 'now', 'columns', 'line_id', 'assignment_id', 'worker_id', 'workspace_group', 'profile_digest', 'attachment_id', 'max_bytes', 'labels', 'root', 'slots', 'adapter_name', 'network', 'reason', 'uri', 'credentials_delivered', 'resolution', 'engine', 'into', 'authority_uuid', 'profile_name', 'ttl_seconds', 'mint_bearer', 'agent_protocol_version', 'posture', 'command', 'incarnation', 'runtime_attempt_id', 'adapter', 'seconds', 'from_instant', 'attempt', 'body', 'operation', 'intent', 'axis', 'declared', 'operation_ids', 'place', 'scope', 'artifact_ids', 'kind', 'failed_start_record_digest', 'expect', 'document', 'answer', 'category', 'policy_digest', 'manifest', 'input_manifest', 'refusal', 'assignment_roots', 'advertised', 'run', 'may_retire', 'runtime_id', 'adapter_digest', 'signature', 'sealed', 'deadline_seconds', 'capacity', 'refused_evidence', 'integration_delivered', 'content', 'verdict_id', 'intent_digest', 'code', 'assignment_manifest', 'offer_id', 'inputs', 'storage', 'minted', 'agent_session_capabilities', 'declared_base', 'workspace', 'operations', 'role', 'clock', 'identity', 'based_checkpoint_id', 'manifest_digest', 'decision', 'work_ref', 'exchange_delivered', 'required', 'live', 'gid', 'request'}
+
+======================================================================
+FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='launch.py:adopt', parameter='job_execution')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_dependencies.py", line 866, in test_every_public_parameter_is_a_declared_operand
+    self.assertIn(parameter, self.OPERANDS)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'job_execution' not found in {'outcome', 'collected', 'generation', 'mounts', 'queue', 'to_state', 'minted_labels', 'receipt_digest', 'outputs', 'assignment', 'agent', 'admits', 'observed_identity', 'credential_provider', 'state', 'contract', 'observation', 'path', 'payload', 'checkpoint_id', 'channel_port', 'optional', 'sequence', 'participant', 'toolchain_digest', 'attempt_id', 'port', 'which', 'prompt', 'max_entries', 'store', 'turn_in_flight', 'operands', 'discriminator', 'question', 'name', 'interactive', 'variants', 'reviewer_worker_id', 'profile', 'operation_id', 'image_digest', 'storage_usage', 'offer_ids', 'session', 'pinned', 'session_epoch', 'program', 'record', 'names', 'bearer', 'input_digest', 'evidence', 'work_id', 'source', 'refusal_record_digest', 'custody', 'retention_policy_digest', 'definition', 'disposition', 'source_delivered', 'delivery', 'value', 'from_state', 'launch_delivered', 'what', 'action', 'transport', 'roots', 'input_manifest_digest', 'writer_id', 'validator', 'session_ref', 'bytes_observed', 'issued', 'boundary', 'offer', 'provider_session_id', 'now', 'columns', 'line_id', 'assignment_id', 'worker_id', 'workspace_group', 'profile_digest', 'attachment_id', 'max_bytes', 'labels', 'root', 'slots', 'adapter_name', 'network', 'reason', 'uri', 'credentials_delivered', 'resolution', 'engine', 'into', 'authority_uuid', 'profile_name', 'ttl_seconds', 'mint_bearer', 'agent_protocol_version', 'posture', 'command', 'incarnation', 'runtime_attempt_id', 'adapter', 'seconds', 'from_instant', 'attempt', 'body', 'operation', 'intent', 'axis', 'declared', 'operation_ids', 'place', 'scope', 'artifact_ids', 'kind', 'failed_start_record_digest', 'expect', 'document', 'answer', 'category', 'policy_digest', 'manifest', 'input_manifest', 'refusal', 'assignment_roots', 'advertised', 'run', 'may_retire', 'runtime_id', 'adapter_digest', 'signature', 'sealed', 'deadline_seconds', 'capacity', 'refused_evidence', 'integration_delivered', 'content', 'verdict_id', 'intent_digest', 'code', 'assignment_manifest', 'offer_id', 'inputs', 'storage', 'minted', 'agent_session_capabilities', 'declared_base', 'workspace', 'operations', 'role', 'clock', 'identity', 'based_checkpoint_id', 'manifest_digest', 'decision', 'work_ref', 'exchange_delivered', 'required', 'live', 'gid', 'request'}
+
+======================================================================
+FAIL: test_the_manager_imports_only_the_ruled_validator (tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency.test_the_manager_imports_only_the_ruled_validator) (source='store.py', module='urllib.parse')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_dependencies.py", line 103, in test_the_manager_imports_only_the_ruled_validator
+    self.assertIn(root, allowed | {"baton_v12"})
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'urllib' not found in {'re', 'typing', 'pathlib', 'sqlite3', 'stat', 'unicodedata', 'types', 'json', 'baton_v12', 'contextlib', 'itertools', 'collections', 'hashlib', 'datetime', 'importlib', 'os', 'functools', 'threading', 'hmac', 'jsonschema', 'ipaddress'}
+
+======================================================================
+FAIL: test_every_durable_writer_is_covered (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_every_durable_writer_is_covered)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_secrets.py", line 2321, in test_every_durable_writer_is_covered
+    self.assertEqual(uncovered, [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+                     "durable writers with no §13 coverage")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('review_cycles.py', 'restore_abandoned_c[93 chars]es')] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+('review_cycles.py', 'restore_abandoned_correction', 'line_writers')
+
++ []
+- [('review_cycles.py', 'restore_abandoned_correction', 'line_writers'),
+-  ('review_cycles.py', 'restore_abandoned_correction', 'review_lines')] : durable writers with no §13 coverage
+
+======================================================================
+FAIL: test_every_exported_callable_is_in_exactly_one_class (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_secrets.py", line 1477, in test_every_exported_callable_is_in_exactly_one_class
+    self.assertEqual(sorted(exported - classed), [],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "exported surfaces with no §13 accounting")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['ControlStore.open_readonly', 'ControlSto[220 chars]ine'] != []
+
+First list contains 10 additional elements.
+First extra element 0:
+'ControlStore.open_readonly'
+
++ []
+- ['ControlStore.open_readonly',
+-  'ControlStore.snapshot',
+-  'abandoned_gate_discharge_of',
+-  'abandonment_cleanup_of',
+-  'advance_deadline',
+-  'deadline_cleanup_of',
+-  'deadline_of',
+-  'discharge_abandoned_quiescence_gate',
+-  'discharge_deadline_quiescence_gate',
+-  'observe_deadline'] : exported surfaces with no §13 accounting
+
+======================================================================
+FAIL: test_the_table_names_every_exported_callable (tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_the_table_names_every_exported_callable)
+The completeness half, and the reason this file exists.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_text_sweep.py", line 569, in test_the_table_names_every_exported_callable
+    self.assertEqual(sorted(self.callable_table()),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     sorted(self.exported_callables()))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['Aut[63 chars]', 'accept_offer', 'activate_assignment', 'ado[2120 chars]_of'] != ['Aut[63 chars]', 'abandoned_gate_discharge_of', 'abandonment[2390 chars]_of']
+
+First differing element 4:
+'accept_offer'
+'abandoned_gate_discharge_of'
+
+Second list contains 11 additional elements.
+First extra element 102:
+'seal_refusal'
+
+Diff is 2848 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 116 tests in 1.574s
+
+FAILED (failures=9)

@@ -1,0 +1,8 @@
+{
+  "failure": "BudgetExpired: approved deadline reached: attempt",
+  "live_provider": false,
+  "provider": "synthetic standalone-ab-v1",
+  "root": "/tmp/baton-synthetic-ab-5f9zjyfc",
+  "setup_seconds": 5.058890309999697,
+  "total_seconds": 246.9176634180185
+}

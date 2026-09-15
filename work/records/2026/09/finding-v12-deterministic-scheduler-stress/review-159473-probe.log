@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-159473.py", line 5, in <module>
+    import stage_execution
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 78, in <module>
+    from . import single_worker
+ImportError: attempted relative import with no known parent package

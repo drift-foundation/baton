@@ -1,0 +1,92 @@
+{
+  "work": "W168703",
+  "claim": 169136,
+  "files": [
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "base": "work/records/2026/09/finding-v12-test-registry-classification/base-169136/parallel_test.py",
+      "base_sha256": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+      "candidate": "work/records/2026/09/finding-v12-test-registry-classification/candidate-169136/parallel_test.py",
+      "candidate_sha256": "d2f83940f5fbb3bd135ed0401d77dcd51145ccee5a18360700b2b0e583ec8002",
+      "bytes": 67814,
+      "target_mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/tools/test_parallel_runner.py",
+      "base": "work/records/2026/09/finding-v12-test-registry-classification/base-169136/test_parallel_runner.py",
+      "base_sha256": "690241cb9f51e1405c6d3246bd8a66620a95d4f8ecf561e8d5d4553dfd736406",
+      "candidate": "work/records/2026/09/finding-v12-test-registry-classification/candidate-169136/test_parallel_runner.py",
+      "candidate_sha256": "211eaa4862774147e47f513c990c2527a5a8ecf0b1f59b789e7c962f1490da14",
+      "bytes": 51123,
+      "target_mode": "0o664"
+    }
+  ],
+  "patch": "candidate-169136.patch",
+  "patch_sha256": "240cafcd52b935384e5f7dc42d7ace0d7fca33c82079122017be94fc2981f0fa",
+  "focused_initial": {
+    "argv": [
+      "/home/sl/src/baton/.venv/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.tools.test_parallel_runner.TheJobsBoundIsLowerOnly",
+      "tests.tools.test_parallel_runner.PartitioningLosesAndInventsNothing",
+      "tests.tools.test_parallel_runner.TheRegistryFailsClosed",
+      "tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed",
+      "tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_v12_test_module_is_registered_exactly_once",
+      "tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_the_serial_modules_are_the_ones_that_own_an_engine",
+      "tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_this_module_registered_itself",
+      "tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_the_deadline_engine_has_only_supervised_metadata",
+      "tests.tools.test_parallel_runner.OutputDoesNotDependOnCompletionOrder",
+      "tests.tools.test_parallel_runner.AFailingShardIsReportedAndStopsTheLaterPhases",
+      "tests.tools.test_parallel_runner.TheSerialRegistryOverlapsNothing",
+      "tests.tools.test_parallel_runner.AnInterruptLeavesNothingBehind",
+      "tests.tools.test_parallel_runner.AFailingRunAlsoLeavesNothingBehind",
+      "tests.tools.test_parallel_runner.AShardThatDiesWithoutAReportIsAFailure",
+      "tests.tools.test_parallel_runner.CollectionRefusesAModuleItCannotLoad"
+    ],
+    "cwd": "v12/python",
+    "environment_overrides": {
+      "PYTHONPATH": "src:.",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "timeout_seconds": 180,
+    "returncode": 0,
+    "elapsed_seconds": 12.925435340992408,
+    "log": "focused-169136.log",
+    "kind": "exact runner fake-suite selectors plus no-import real registry assertions; no broad collection"
+  },
+  "focused_followup": {
+    "argv": [
+      "/home/sl/src/baton/.venv/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_empty_evidence_destination_allows_the_leaf_and_serial_does_not_import_it",
+      "tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_leaked_supervised_ids_refuse_the_whole_collection_before_shards"
+    ],
+    "returncode": 0,
+    "elapsed_seconds": 0.21375008099130355,
+    "timeout_seconds": 30,
+    "cwd": "v12/python",
+    "environment_overrides": {
+      "PYTHONPATH": "src:.",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    }
+  },
+  "static": {
+    "kind": "source registry and selected refusal only; no test imports or broad collection",
+    "counts": {
+      "discovered": 117,
+      "parallel": 97,
+      "serial": 19,
+      "supervised": 1
+    },
+    "serial_and_method_split_unchanged": true,
+    "exact_19_parallel_additions": true,
+    "default_all_refusal": "all-source acceptance is uncomposed; supervised tests require separate selection: tests.manager.test_runtime_deadline_engine (W32577; baton:work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py; Requires the reviewed supervisor, preloaded immutable image and reserved cleanup; ordinary execution is not selected.)",
+    "leaf_fixture_drift_since_start": [],
+    "elapsed_seconds": 0.02422232201206498,
+    "justfile_sha256": "e141dca0cbf80dab6dc300eeef34b0b02a2b834df398c37e64fb44e5b3822e9a"
+  }
+}

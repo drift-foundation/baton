@@ -1,0 +1,87 @@
+{
+ "author": "baton.claude",
+ "case_count": {
+  "after": 192,
+  "before": 203,
+  "why": "ThePreparationIsCoordinatedEndToEnd was re-parented from ADecisionIsJournalledBeforeTheWorkExists to CapacityCase, so 14 decision-journal cases stopped running a THIRD time -- they still run in their own class and in TheStartIsBehindTheAdmission -- and 3 new cases were added. No case was deleted."
+ },
+ "changed": [
+  {
+   "bytes": 62394,
+   "mode": "644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "5cb3e461d2a041824ea42718fa7cf93c95d8df4172b2348878912cbd867d8e06"
+  },
+  {
+   "bytes": 146477,
+   "mode": "644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "7bee410b7c84e10b5b7b0a57034aa29c226414b7fce9320c06c2cdfc89e8e631"
+  }
+ ],
+ "claim": 168398,
+ "next": "A.4 -- StageExecution adopting actual frozen/accepted/retained artifacts through integration.reconciliation, preparation membership ended only on its real owner exclusion proof after ordinary ending and cleanup, apply still planned and root still held. Then A.5, then B.",
+ "not_accepted": [
+  "A.3",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "reused_read_only": [
+  {
+   "bytes": 159356,
+   "mode": "664",
+   "path": "baton:v12/python/tools/single_worker.py",
+   "sha256": "3b78842c59a46b30a2a542cac6e7ed860e32c5e5645baed643c478a4eddd3c49"
+  }
+ ],
+ "unchanged_a2": [
+  {
+   "bytes": 50721,
+   "mode": "644",
+   "path": "baton:v12/worker/reconciliation_task.py",
+   "sha256": "69860bdfdc63e5144db973ddd70c7b101bde707ba97c8c99779b3ae6ce992eb6"
+  },
+  {
+   "bytes": 10442,
+   "mode": "644",
+   "path": "baton:v12/worker/reconciliation_entry.py",
+   "sha256": "4b4e43879d76250b7745ff89e9df1eb9d7656cc0c096f1adf1feaf56c3114fc0"
+  },
+  {
+   "bytes": 4725,
+   "mode": "644",
+   "path": "baton:v12/worker/Dockerfile.reconciliation",
+   "sha256": "35279f5dcaa6c2c3b44df7e10aa491a35f92e1933d0b3d06bb6e61bc87f021d3"
+  },
+  {
+   "bytes": 71269,
+   "mode": "644",
+   "path": "baton:v12/python/tools/integration_bundle.py",
+   "sha256": "c0e21cd6b335db084e64499f508a7cc19fd45807d3bd4a81108239806c106a93"
+  },
+  {
+   "bytes": 23259,
+   "mode": "644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "96c622d96855fc4aa81001563d99cfb4b131439baaf58d8bae0e2452073786bb"
+  }
+ ],
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 77 parent-cannot-claim /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation",
+  "ledger": "baton:work/records/2026/09/finding-v12-managed-integration-execution/ledger-166281-prospective.json",
+  "no": "no engine, model, image build, broad suite or destructive cleanup",
+  "steps": {
+   "73": "baseline before any edit, OK 203 cases 12.589867s",
+   "74": "first green after the real-session wiring, OK 192 cases 12.506025s",
+   "75": "REVERSAL -- drop participant_session/worker_port overrides so the class falls back to the FakeSession port; failed exactly test_the_whole_sequence_runs_against_real_owners, test_the_actor_holds_one_live_claim_and_the_preparation_takes_it and test_the_claim_carries_the_authoritys_own_authorization",
+   "76": "restored, OK 192 cases 12.555350s",
+   "77": "parent's own Work used for the slot refusal, OK 192 cases 12.636307s"
+  },
+  "unledgered_probes": "three focused single-class runs of ThePreparationIsCoordinatedEndToEnd while iterating, about 0.1s wall each by the runner's own report of that class inside steps 74/77"
+ },
+ "what": "A.3 closed on ONE disposable real Authority; the reported publish_answer owner blocker is withdrawn and the deployment's own session adapter is reused instead.",
+ "work": "2b077949-W161230"
+}

@@ -1,0 +1,74 @@
+{
+  "claim": 168210,
+  "basis": "M168202/return168207; continuation identity checks only, no behavioral acceptance",
+  "files": [
+    {
+      "path": "v12/worker/reconciliation_task.py",
+      "bytes": 50721,
+      "sha256": "69860bdfdc63e5144db973ddd70c7b101bde707ba97c8c99779b3ae6ce992eb6",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/worker/reconciliation_entry.py",
+      "bytes": 10442,
+      "sha256": "4b4e43879d76250b7745ff89e9df1eb9d7656cc0c096f1adf1feaf56c3114fc0",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tools/integration_bundle.py",
+      "bytes": 71269,
+      "sha256": "c0e21cd6b335db084e64499f508a7cc19fd45807d3bd4a81108239806c106a93",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_preparation.py",
+      "bytes": 23259,
+      "sha256": "96c622d96855fc4aa81001563d99cfb4b131439baaf58d8bae0e2452073786bb",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/worker/Dockerfile.reconciliation",
+      "bytes": 4725,
+      "sha256": "35279f5dcaa6c2c3b44df7e10aa491a35f92e1933d0b3d06bb6e61bc87f021d3",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tools/integration_worker.py",
+      "bytes": 56175,
+      "sha256": "80f0d7f4d457d6c16df3ed98b6b07ef574bafc311560a3b317053b0ed9d228b1",
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "bytes": 124292,
+      "sha256": "4ea690c280502267c56262776f2d0f46004410dee25d8b8e1abe6067533ad939",
+      "mode": "0o644"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/DESIGN-RECONSIDERATION-166444.md",
+      "bytes": 5859,
+      "sha256": "f0bf84a6217b1f44c9c9b71c29efffa9e11e9db8d6305b5deef7b0d632f165b3",
+      "mode": "0o664"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/SLICE2-SCOPE-165724.md",
+      "bytes": 22058,
+      "sha256": "4c18e791a29516b92d5afaba93c2042f5adaefa60bd57b7c54b13a04acba4fa0",
+      "mode": "0o664"
+    }
+  ],
+  "ledger_rows": 64,
+  "ledger_recorded_seconds_mixed_attribution": 414.77075325396726,
+  "viewer_steps": [
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    56
+  ],
+  "reviewer_cumulative_seconds": 23.035609094986285,
+  "verification_child_this_turn": false
+}

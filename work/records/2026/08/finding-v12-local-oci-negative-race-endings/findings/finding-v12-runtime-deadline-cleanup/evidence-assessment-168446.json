@@ -1,0 +1,158 @@
+{
+  "work": "W32577",
+  "claim": 168446,
+  "checked_at": "2026-09-14T10:31:09.960573+00:00",
+  "candidate_manifest_sha256": "ea2cb3557d8ac87b8198ec5bd5cc9c35545a550c0c9a8e53b3b2da11323902e5",
+  "bindings": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/deadlines.py",
+      "sha256": "536789e1a2947cf601ca191f675c24252078aa5ecddcf4243314c0d59d5855ae"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "sha256": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/documents.py",
+      "sha256": "5f31654f699448a8e52d076f6ba517e9acfef201ada30dea0559051af474b014"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "a16143a7709a842fd40369e4eafbaaa8b86fde9873648373f639739e53012a75"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/__init__.py",
+      "sha256": "cd783420d73f237b9c8a01d63fbb1783a697efb3d87d211ed970a9994f0d5834"
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadlines.py",
+      "sha256": "0caf835093a0fd14663d99ca2a73e27767da259c2ac513c549005c6fe97389d1"
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadline_engine.py",
+      "sha256": "6a7156689506266c948572a3e7de0f4fc161b12beed55c0aaf9ffdcf8affad1d"
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "690cf35122814e731e4f8da7a08c8f97c99d2c975ab90997df978e18bfba5416"
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadline_engine_budget.py",
+      "sha256": "06fc7a3366dcb985cda5db548de699618042185c6edadafd51c741bd1012c34d"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
+      "sha256": "980911451d33acfae889a09c4ec519b355267e6466b0138e60575587bfb77a8e"
+    },
+    {
+      "path": "v12/python/tests/manager/test_lifecycle_composition.py",
+      "sha256": "3828c5bb34a2cfa81a8356af3d9f52c949770e82013d1e7e3abde5d6152be5d7"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/store.py",
+      "sha256": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/lanes.py",
+      "sha256": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c"
+    },
+    {
+      "path": "v12/python/pyproject.toml",
+      "sha256": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e"
+    },
+    {
+      "path": "v12/worker/Dockerfile",
+      "sha256": "0aa92e0b07c10e72bc6ca6c03c2c95f2e94da7fb9585c7a3969774f214d5cc0f"
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "sha256": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd"
+    },
+    {
+      "path": "v12/worker/scripted_agent.py",
+      "sha256": "f3a47fa86537d509fec58cdccefb4f0ffd53a55592cf08c75d7fafaa16c3b27c"
+    },
+    {
+      "path": "v12/worker/worker-control-1.0.schema.json",
+      "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/candidate-164779.json",
+      "sha256": "ea2cb3557d8ac87b8198ec5bd5cc9c35545a550c0c9a8e53b3b2da11323902e5"
+    }
+  ],
+  "candidate_snapshots_match": 11,
+  "protected_source_tests_match": 5,
+  "original_evidence_files_unchanged": 44,
+  "owner_receipt_sha256": "ec344f50878bdd2147bfd6b50952dd78ce715867c318cfe6db78ba6a3cb0fb14",
+  "owner_artifacts": {
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/stdout.log": "e1fe1c448199b1454c1d495df7235859faed2d5af2648ea68ee6c549743f0e58",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/receipt.json": "ec344f50878bdd2147bfd6b50952dd78ce715867c318cfe6db78ba6a3cb0fb14",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/guard.json": "54eed68fd8f1934d2f4eefac68a7c2f4286c276327581d9c328a362ce7a57f29",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/parent-call-1.json": "f03f70b0ac2bcab2bfb32ebcbd57bde301d73b9bbdc76b2dd9e5dc77d9b1082f",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/parent-call-2.json": "eee62147864d7ddbfea353f921ea3927f841879308e97c4f8a545deb11c9fa9f",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-5.json": "de25db3bc3586b33b944963667aef16dce76ac998650c7fa0c91d5846740a041",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-2.json": "b9b072457e3d24932c41abea8050ed661de9f3d9ab3a903dce040d2ab5db45b8",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/body-guard.json": "365d17cfd290335626b2e8321e9728be97e688bc70e351765b43d314fb9544da",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/body.log": "77840b4960d48db5c5c2dcb3eecfacb859f63dbdd50426c9501997aa1b97658d",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-10.json": "a4890c13154a6837d4046d4a7722475e299b5b72c65c26534796e447d08e0d7e",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-create-intent-13.json": "23ce19000e19c62eb73666b79e569d0278667c7962887720d1b743312c976b54",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-create-intent-15.json": "1f7332794d06fbb6ac4284414f7b2d41e5b4a6049fdf9297c0fa8b3aeb04572a",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-8.json": "0d9c6d9e3de456855d5f1c546f8252a472988163264f23ed8cd91331fe0e4411",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/config.json": "9b531c0374cd87000d6ce0a595ea0ba39a328cb8e1a8a3c4cb66ba677b5e964c",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-15.json": "ac74ff130be33069aebc166a5a0362c52a8910fd674ec26565887b516b637f7d",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/parent-call-4.json": "b4810db39703851a4b78a9b2342017c36bd5ca4091dd86cd2f24e046fd104f23",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/parent-call-6.json": "41493c0b346c421d93ddba9305dc9422ca335a6f61304df9605ece81832a3d0f",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/reap-guard.json": "e71e56744609542c8b5faa222eefd1363cfccfef4c56b9c406c4fecbac83741c",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/result.json": "c1abe57bd52063af4b7c4f637ecb82e45495426d2857b18948d9813ffa5083f3",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-13.json": "8c3db4890b760d10f932c8f3e6fe45b612d53dc66e2cf1314e1a3058ddd6b547",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-4.json": "0e80aa37246c5573da6eb4063db56a5e951e8b5c595ae7aadc602bc61585a640",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-6.json": "382f51c10cf40fa80df68e16dce0d9fdff0057748e379c9bc8967fb5b56ff243",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-7.json": "1d6e362613b4074e00591c22650b64ba3eed5154f840cc3b8b2c76044cc9d364",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-12.json": "76c05e70372e9cda26088fe45150b0184d19f14fdcd826110ae1818bff574fcb",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-9.json": "ed256358d81ed6526360b6eb7e156ae8e979e63ac11238bae33a96245e4766ac",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/parent-call-3.json": "ba1d738988c1c643e8279dc83059800e86e310297f1b64fb50b09ca581137b68",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-14.json": "88e907256703ad8c74028f975daeef4f78850d377e952c7ef8b09b9868ac5206",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-1.json": "461195a8d6aa8841fe6b2bcb5cbcb16b1e7125354fc246b936494237c9572658",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-3.json": "d33c0ee5c0b12e22ce7efa80a72393fe91c2f2cfb807fe1f74ef1f40ff1a3047",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/fixture-retained.json": "d3ea5359fd4adb703925e54167f166ce58f989f6773dd4da6bd516553a187400",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-create-intent-4.json": "a5fdd7fd4e7204bc4c7c9ccba313055781bbb391b37ca28268d972b8475e56e0",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-create-intent-8.json": "cf922ff8bcf4b192cc0f3dda8562519ceaeceee7ff087d7e9d96d73155071160",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-16.json": "43f480efed528fd59bebc2ffbe6d0a53f4c1fed74a40a9c8fc3d953ae5d15c42",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/child-call-11.json": "924f8ffbade9a2fb6bef933069aba8cd5bc451a14087d9ebd6274b7f7b43d9de",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/parent-call-5.json": "ee1e2d7a7b9692b3fc5b00b977bc8ff6c661b7ee62d0643e043988a2af794179",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/names/a33e307e955cddc395af53a526b8f35250b4fa66baf03bef987090fbdc33c753.json": "93bf8acb25707009d1d7231d9099526d4f3ccad6e05b94c704cf7d5889ca849b",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/names/d9b701cabdfc8bf9470788fbc2c2186f00e5e2a9d914224223e050a585b1d56b.json": "9473a04aff6ef6bc0f26c86ca8af7941e053bcf7a3f9b9c5f54e09a9a18ec57d",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/names/e204639d1b1677433eabfc856dfc10e7dfd60543539709d1d4968059365e1f14.json": "f76804fc4aa3137b22e1f4d0a65b06663fde8e0f04a60c74dc2261609351b916",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/names/d2070fb3c5a9ba31f3372a5ef5bd6531ac5201658dd1f11a4fae49f14c515f67.json": "7e87cafe1f8c2683c38734cdc4cd4e88b69efd03d4ee831fda209f26fbafbc3a",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/fixtures/v12-w6636-znfei179/control.sqlite3": "ab18b1db997daf4535576c92ae7c43a0a93bef3a235e26984996810a44f03fc0",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/fixtures/v12-w6636-znfei179/storage/attempt-2c40df77a7/workspace/deadline-partial.txt": "d12a8df90afec13239147ee60c7ef9537cef9528fad1216f80aea87ea9028938",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/fixtures/v12-w6636-znfei179/storage/attempt-2c40df77a7/inputs/assignment.json": "d7380c4eb0f7c110933b6d426818ddcb46560d8fda4ea109c0ddfd210002784b",
+    "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/owner-execution-167993/run/fixtures/v12-w6636-znfei179/storage/attempt-2c40df77a7/inputs/input.json": "ef80531158309791664d8a438388c0b0f7b32638a676b665532c32ca7f197825"
+  },
+  "resolved_names": [
+    "baton-custody-82fb030ec83eb65b10fb5edbe0272021",
+    "baton-custody-d4860a2ce52e3783e59e05b82cc75122",
+    "w32577-sibling-0c4893d406",
+    "baton-runtime.start-8ce379f1e3eac653ab62d88ec0bf63ab90168c33838f6d2a862ae8d05cbc1b25"
+  ],
+  "runtime_id": "0408235ae666472283236bfb941c622026bb3b1016ba7c39f22d08e292641b6c",
+  "sibling_id": "481a3a2d4aa995dc94a66d9dfadf0c2ce27c209635747dbd5f05440e032438b6",
+  "deadline_clock": "injected manager clock advanced to pinned deadline",
+  "engine": "real Docker29.1.3",
+  "authority_and_agent": "deterministic boundary fixtures",
+  "independent_engine_acceptance": true,
+  "documentation_base_sha256": "971fba687461bf4cc0c8899b5f692d086cad3af8cd794573b2004cee1f0a7f94",
+  "historical_engine_seconds": 30.81015891599236,
+  "current_engine_seconds": 30.81214400099998,
+  "engine_total_seconds": 61.62230291699234
+}

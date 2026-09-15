@@ -1,0 +1,13 @@
+### label: episode-and-receipt-probe
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "/tmp/t525c_probe.py"]
+### exit: 0
+### elapsed_seconds: 0.927639
+### STDOUT
+STAGE job-a/implementation keys ['depends_on', 'job_id', 'kind', 'ordinal', 'profile_digest', 'profile_name', 'stage_id', 'work_id']
+  EP {'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'ended_at': None, 'ended_revision': None, 'ended_state': None, 'episode': 1, 'incarnation': 'stage-composed', 'offer_id': 'offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'opened_at': '2026-09-02T00:00:00.000Z', 'stage_id': 'job-a/implementation'}
+    RECEIPT admit performed offer.issue:offer-7b5e070a732d64a31d8830 2026-09-02T00:00:00.000Z
+    RECEIPT claim performed offer.settle:offer-7b5e070a732d64a31d883 2026-09-02T00:00:00.000Z
+STATE {'job-a/implementation': 'completed', 'job-a/integration': 'integrating', 'job-a/review': 'completed', 'job-b/implementation': 'completed', 'job-b/integration': 'queued', 'job-b/review': 'completed'}
+
+### STDERR

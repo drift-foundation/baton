@@ -1,0 +1,243 @@
+{
+  "retained_records": [
+    [
+      "job-a",
+      "reserve"
+    ],
+    [
+      "job-c",
+      "reserve"
+    ],
+    [
+      "job-d",
+      "reserve"
+    ],
+    [
+      "job-a",
+      "offer"
+    ],
+    [
+      "job-c",
+      "offer"
+    ],
+    [
+      "job-d",
+      "offer"
+    ],
+    [
+      "job-a",
+      "accept"
+    ],
+    [
+      "job-a",
+      "claim"
+    ],
+    [
+      "job-c",
+      "accept"
+    ],
+    [
+      "job-c",
+      "claim"
+    ],
+    [
+      "job-d",
+      "accept"
+    ],
+    [
+      "job-d",
+      "claim"
+    ],
+    [
+      "job-a",
+      "start"
+    ],
+    [
+      "job-c",
+      "start"
+    ],
+    [
+      "job-d",
+      "start"
+    ]
+  ],
+  "principals": {
+    "baton.claude": "principal:baton.claude",
+    "baton.reviewer": "principal:baton.reviewer",
+    "baton.integrator": "principal:baton.integrator",
+    "baton.second": "principal:baton.second",
+    "baton.reviewer-2": "principal:baton.reviewer-2",
+    "other.third": "principal:other.third",
+    "other.reviewer-3": "principal:other.reviewer-3",
+    "other.fourth": "principal:other.fourth",
+    "other.reviewer-4": "principal:other.reviewer-4"
+  },
+  "gaps": [
+    {
+      "name": "a-producer-bound-to-another-work-is-not-an-eligible-slot",
+      "observed": "with C and D naming the existing two producers as their source, neither is ever allocated, while B's own idle producer sits free behind the A->B edge",
+      "reason": "a configured worker carries one Work's input manifest and task and a Work belongs to one Job's implementation stage, so an idle producer bound to another Job's Work is not an eligible slot for this one, in THIS configuration; no claim is made about every possible arrangement of four Job records over two effective slots",
+      "required": "four Jobs over two implementation slots, as this Work's PLAN scenario states it; four producer records are not offered as a substitute and the requirement stays open"
+    }
+  ]
+}
+{
+  "live_owners": [
+    {
+      "job_id": "job-a",
+      "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "claimed_offers": [
+        {
+          "offer_id": "offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "work_id": "0000000a-W1",
+          "authority_uuid": "0000000a000000000000000000000000",
+          "participant": "baton.claude",
+          "runtime_attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "incarnation": "stage-composed",
+          "input_digest": "sha256:59fa2f4d7fdae0f0bb2c68ad1e6ab321f8e33e1b8843d17918b08fb83ec893f7",
+          "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "verifier": "sha256:ad7d741d3a57c6e60120f19940680e453b33c96ead8568a6728819c7c7134a2c",
+          "verifier_spent": 1,
+          "work_scope": "scope:deployment",
+          "work_route": "baton.impl",
+          "issued_at": "2026-09-02T00:00:00.000Z",
+          "expires_at": "2026-09-02T00:02:00.000Z",
+          "state": "claimed",
+          "intent_digest": "sha256:56c7ba32c0e3ac88b413a3bb9eae8527683f57d54e3bc29e8b66d30f0a2397f5",
+          "accepted_at": "2026-09-02T00:00:00.000Z",
+          "settle_by": "2026-09-02T00:01:00.000Z",
+          "claim_operation_id": "claim:9abd1376f6f7d8dc4300ebe8dbd6328b28e2a33189377e68a57e61d3992a4f91",
+          "claim_signature": "{\"kind\":\"claim\",\"operands\":{\"participant\":\"baton.claude\",\"work_id\":\"0000000a-W1\"}}",
+          "claim_generation": 1,
+          "claim_event_seq": 1,
+          "claim_principal": "principal:baton.claude",
+          "claim_scope": "scope:deployment",
+          "claim_role": "baton.impl",
+          "claim_grant": "direct",
+          "claim_policy_generation": 17,
+          "decision_reason": null,
+          "decided_at": "2026-09-02T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "job_id": "job-c",
+      "attempt_id": "attempt-8c68c2357e217301463c1cf3381945be8e11e7d6d5eaa5276d068f9a8beb6e2e",
+      "claimed_offers": [
+        {
+          "offer_id": "offer-8c68c2357e217301463c1cf3381945be8e11e7d6d5eaa5276d068f9a8beb6e2e",
+          "work_id": "0000000a-W3",
+          "authority_uuid": "0000000a000000000000000000000000",
+          "participant": "other.third",
+          "runtime_attempt_id": "attempt-8c68c2357e217301463c1cf3381945be8e11e7d6d5eaa5276d068f9a8beb6e2e",
+          "incarnation": "stage-composed",
+          "input_digest": "sha256:b91b8b09432b35beb4dd1208474d8884efd815b6c8a9d37e448f5dde613acfae",
+          "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "verifier": "sha256:ab807e86f4cf6b276f874b0c294a69138274e3d8cf4c4d08e61049c92f5cf099",
+          "verifier_spent": 1,
+          "work_scope": "scope:deployment",
+          "work_route": "baton.impl",
+          "issued_at": "2026-09-02T00:00:00.000Z",
+          "expires_at": "2026-09-02T00:02:00.000Z",
+          "state": "claimed",
+          "intent_digest": "sha256:f0dac582d0e393f1ece86657249bc60cfa5eeae1a239a6f8c2b6df706c4bf06e",
+          "accepted_at": "2026-09-02T00:00:00.000Z",
+          "settle_by": "2026-09-02T00:01:00.000Z",
+          "claim_operation_id": "claim:3dd68f11367099482310c20438f1e9556bafe08f47e195ad8090caaaebf079ab",
+          "claim_signature": "{\"kind\":\"claim\",\"operands\":{\"participant\":\"other.third\",\"work_id\":\"0000000a-W3\"}}",
+          "claim_generation": 1,
+          "claim_event_seq": 2,
+          "claim_principal": "principal:other.third",
+          "claim_scope": "scope:deployment",
+          "claim_role": "baton.impl",
+          "claim_grant": "direct",
+          "claim_policy_generation": 17,
+          "decision_reason": null,
+          "decided_at": "2026-09-02T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "job_id": "job-d",
+      "attempt_id": "attempt-e72e9aef28d172e2a75d569adb8219c4dfa0b60c70aeec7ab9017f9e6a050746",
+      "claimed_offers": [
+        {
+          "offer_id": "offer-e72e9aef28d172e2a75d569adb8219c4dfa0b60c70aeec7ab9017f9e6a050746",
+          "work_id": "0000000a-W4",
+          "authority_uuid": "0000000a000000000000000000000000",
+          "participant": "other.fourth",
+          "runtime_attempt_id": "attempt-e72e9aef28d172e2a75d569adb8219c4dfa0b60c70aeec7ab9017f9e6a050746",
+          "incarnation": "stage-composed",
+          "input_digest": "sha256:56087470bc9312f6c2f03b34876b91fcf99d07fb89c20a88e175fee47f87404a",
+          "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "verifier": "sha256:45dbc41f7bcb94687b63c2be8b237d43ade6eecf8af40eb6e2af72f9a6151b8a",
+          "verifier_spent": 1,
+          "work_scope": "scope:deployment",
+          "work_route": "baton.impl",
+          "issued_at": "2026-09-02T00:00:00.000Z",
+          "expires_at": "2026-09-02T00:02:00.000Z",
+          "state": "claimed",
+          "intent_digest": "sha256:4f69cffb1ed8003217f20d0c32c164cdd93899af8683bccc6dbf4d6c413bef44",
+          "accepted_at": "2026-09-02T00:00:00.000Z",
+          "settle_by": "2026-09-02T00:01:00.000Z",
+          "claim_operation_id": "claim:f57bce58404983601cc26dd80c5f5a5899ecd3d7b2e4e791b47848e28f98dd79",
+          "claim_signature": "{\"kind\":\"claim\",\"operands\":{\"participant\":\"other.fourth\",\"work_id\":\"0000000a-W4\"}}",
+          "claim_generation": 1,
+          "claim_event_seq": 3,
+          "claim_principal": "principal:other.fourth",
+          "claim_scope": "scope:deployment",
+          "claim_role": "baton.impl",
+          "claim_grant": "direct",
+          "claim_policy_generation": 17,
+          "decision_reason": null,
+          "decided_at": "2026-09-02T00:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "integration_stages": [
+    {
+      "stage_id": "job-a/integration",
+      "job_id": "job-a",
+      "ordinal": 2,
+      "kind": "integration",
+      "work_id": "0000000a-W1",
+      "profile_name": "reference",
+      "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "depends_on": "[{\"job_id\": \"job-a\", \"kind\": \"review\"}]"
+    },
+    {
+      "stage_id": "job-b/integration",
+      "job_id": "job-b",
+      "ordinal": 2,
+      "kind": "integration",
+      "work_id": "0000000a-W2",
+      "profile_name": "reference",
+      "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "depends_on": "[{\"job_id\": \"job-b\", \"kind\": \"review\"}]"
+    },
+    {
+      "stage_id": "job-c/integration",
+      "job_id": "job-c",
+      "ordinal": 2,
+      "kind": "integration",
+      "work_id": "0000000a-W3",
+      "profile_name": "reference",
+      "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "depends_on": "[{\"job_id\": \"job-c\", \"kind\": \"review\"}]"
+    },
+    {
+      "stage_id": "job-d/integration",
+      "job_id": "job-d",
+      "ordinal": 2,
+      "kind": "integration",
+      "work_id": "0000000a-W4",
+      "profile_name": "reference",
+      "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "depends_on": "[{\"job_id\": \"job-d\", \"kind\": \"review\"}]"
+    }
+  ]
+}

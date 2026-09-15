@@ -1,0 +1,16 @@
+--- baseline/v12/python/tools/stage_execution.py
++++ partial/v12/python/tools/stage_execution.py
+@@ -4197,11 +4197,11 @@
+     return profile
+ 
+ 
+-def _git_run(argv):
++def _git_run(argv, *, input=None):
+     """The production Git runner, in the closed shape the profile requires."""
+     import subprocess
+ 
+-    answer = subprocess.run(list(argv), capture_output=True, check=False,
++    answer = subprocess.run(list(argv), input=input, capture_output=True, check=False,
+                             timeout=GIT_SECONDS)
+     return {"returncode": answer.returncode,
+             "stdout": answer.stdout.decode("utf-8", "replace"),

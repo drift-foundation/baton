@@ -1,0 +1,93 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits tests.manager.test_execution_limits tests.job_manager.test_execution_limits
+....................................EE................................................................................
+======================================================================
+ERROR: test_the_configured_ceiling_decides_a_real_verification (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_configured_ceiling_decides_a_real_verification)
+THE WHOLE CHAIN, and no injected runner in it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 678, in test_the_configured_ceiling_decides_a_real_verification
+    self._started()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 614, in _started
+    return self.held, self.fixture.admit(self.held)
+                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_integration_worker.py", line 613, in admit
+    return driver.admit_accepted(
+           ~~~~~~~~~~~~~~~~~~~~~^
+        self.world.coordinator, self.world.manager, self.world.jobs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        launch_root=self.launch_root, workspace_group=self.owner.group,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        required_tests=self.world.required)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1589, in admit_accepted
+    answer = execution.integrate_next(
+        store, manager, jobs, authority, port,
+    ...<2 lines>...
+        lease_id=lease_id, attempt_id=attempt_id,
+        launch_root=launch_root, workspace_group=workspace_group)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/execution.py", line 391, in integrate_next
+    port.run(delivery, assignment)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 570, in run
+    _refuse(f"this attempt's launch carries Job "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(execution['job_id'])} and the accepted "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+            f"Job owns the work",
+            ^^^^^^^^^^^^^^^^^^^^^
+            category="refused", code="precondition")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 94, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: this attempt's launch carries Job 'ceiling-job-a' and the accepted proposal this bundle was composed from belongs to 'job-a'; a launch sealed into a bundle proves the bytes travelled together, not that its Job owns the work
+
+======================================================================
+ERROR: test_the_port_materializes_a_third_version_carrying_the_job (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_port_materializes_a_third_version_carrying_the_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 632, in test_the_port_materializes_a_third_version_carrying_the_job
+    _, answer = self._started()
+                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 614, in _started
+    return self.held, self.fixture.admit(self.held)
+                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_integration_worker.py", line 613, in admit
+    return driver.admit_accepted(
+           ~~~~~~~~~~~~~~~~~~~~~^
+        self.world.coordinator, self.world.manager, self.world.jobs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        launch_root=self.launch_root, workspace_group=self.owner.group,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        required_tests=self.world.required)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1589, in admit_accepted
+    answer = execution.integrate_next(
+        store, manager, jobs, authority, port,
+    ...<2 lines>...
+        lease_id=lease_id, attempt_id=attempt_id,
+        launch_root=launch_root, workspace_group=workspace_group)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/execution.py", line 391, in integrate_next
+    port.run(delivery, assignment)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 570, in run
+    _refuse(f"this attempt's launch carries Job "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(execution['job_id'])} and the accepted "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+            f"Job owns the work",
+            ^^^^^^^^^^^^^^^^^^^^^
+            category="refused", code="precondition")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 94, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: this attempt's launch carries Job 'ceiling-job-a' and the accepted proposal this bundle was composed from belongs to 'job-a'; a launch sealed into a bundle proves the bytes travelled together, not that its Job owns the work
+
+----------------------------------------------------------------------
+Ran 118 tests in 5.143s
+
+FAILED (errors=2)

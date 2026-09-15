@@ -1,0 +1,48 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_execution tests.job_manager.test_managed_integration_capacity tests.job_manager.test_store tests.job_manager.test_scheduling tests.job_manager.test_execution_limits tests.manager.test_reconciliation_worker tests.integration.test_coordinator tests.job_manager.test_documents
+......................................................................................................................................................................................................................................................................................................................................................................................./home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3538: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-zskt1j4x/prose.txt'>
+  before = open(prose, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3545: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-zskt1j4x/prose.txt'>
+  self.assertEqual(open(prose, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3416: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-adwnz2f0/theirs.sqlite3'>
+  before = open(foreign, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3421: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-adwnz2f0/theirs.sqlite3'>
+  self.assertEqual(open(foreign, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-bdi494sr/integration.sqlite3'>
+  return {name: (open(os.path.join(self.root, name), "rb").read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-rj3a0nsq/integration.sqlite3'>
+  return {name: (open(os.path.join(self.root, name), "rb").read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3559: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-nx0p7apc/older.sqlite3'>
+  before = open(path, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3563: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-nx0p7apc/older.sqlite3'>
+  self.assertEqual(open(path, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-6g44aut5/integration.sqlite3'>
+  return {name: (open(os.path.join(self.root, name), "rb").read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3431: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-yujl0n7z/other-kind.sqlite3'>
+  before = open(foreign, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3435: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-yujl0n7z/other-kind.sqlite3'>
+  self.assertEqual(open(foreign, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.../home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3404: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-55gsfb7_/empty.sqlite3'>
+  before = open(empty, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3409: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-55gsfb7_/empty.sqlite3'>
+  self.assertEqual(open(empty, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....../home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-pbx4ic3x/integration.sqlite3'>
+  return {name: (open(os.path.join(self.root, name), "rb").read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.........................................................................................................................................
+----------------------------------------------------------------------
+Ran 527 tests in 2.359s
+
+OK

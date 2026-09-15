@@ -1,0 +1,8 @@
+..
+----------------------------------------------------------------------
+Ran 2 tests in 2.870s
+
+OK
+{"apply_starts": 1, "judgments": 3, "proof": "ordinary-managed-integration", "result": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "state": "imported"}
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:b4bf3fdaf3e5c25b8294c4f817c31ff7c542bc5bca0b6662d78ab1c34309a091", "root": "open", "runtime": "destroyed", "worker_exit": 0}
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:39ded566d6b9612e4a722ec61c55bba58a0c3219a4db7a80e87a1b79411ec864", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:61c537158895c29cc5d824cf67890d5e8765bb43704ab3d38ac5fc92ecf2f6ed", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:5cfa82f9cfe6c1ce765143e97a41c7f678e61553aa59ae4de2bbf4b2681ac7ac", "root": "open", "runtime": "destroyed", "worker_exit": 0}

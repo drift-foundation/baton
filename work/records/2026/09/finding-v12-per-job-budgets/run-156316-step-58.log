@@ -1,0 +1,134 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+..................................E.EE.......
+======================================================================
+ERROR: test_a_port_with_no_job_owner_composes_exactly_what_it_always_did (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_a_port_with_no_job_owner_composes_exactly_what_it_always_did)
+The unchanged deployment. A port composed without the reader is not
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 631, in test_a_port_with_no_job_owner_composes_exactly_what_it_always_did
+    self.fixture.admit(held)
+    ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_integration_worker.py", line 613, in admit
+    return driver.admit_accepted(
+           ~~~~~~~~~~~~~~~~~~~~~^
+        self.world.coordinator, self.world.manager, self.world.jobs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        launch_root=self.launch_root, workspace_group=self.owner.group,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        required_tests=self.world.required)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1504, in admit_accepted
+    account = _import_account(manager, jobs, authority, settled,
+                              line_id=line_id, proposal_id=proposal_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1223, in _import_account
+    return resolved_account(manager, jobs, authority, line_id=line_id,
+                            proposal_id=proposal_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 297, in resolved_account
+    proved = _proved(manager, jobs, authority, line_id=line_id,
+                     proposal_id=proposal_id, freshness=freshness)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 264, in _proved
+    job, scope = _job_for(jobs, proposal_work["work_id"])
+                 ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 150, in _job_for
+    _refuse(f"Work {name_value(work_id)} belongs to {len(matches)} Job "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"implementation stages; admission needs exactly one accepted "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"Job to own its input, policy and test scope")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 48, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: Work '0000000a-W1' belongs to 2 Job implementation stages; admission needs exactly one accepted Job to own its input, policy and test scope
+
+======================================================================
+ERROR: test_the_configured_ceiling_decides_a_real_verification (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_configured_ceiling_decides_a_real_verification)
+THE WHOLE CHAIN, and no injected runner in it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 658, in test_the_configured_ceiling_decides_a_real_verification
+    self._started()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 602, in _started
+    return held, self.fixture.admit(held)
+                 ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_integration_worker.py", line 613, in admit
+    return driver.admit_accepted(
+           ~~~~~~~~~~~~~~~~~~~~~^
+        self.world.coordinator, self.world.manager, self.world.jobs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        launch_root=self.launch_root, workspace_group=self.owner.group,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        required_tests=self.world.required)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1504, in admit_accepted
+    account = _import_account(manager, jobs, authority, settled,
+                              line_id=line_id, proposal_id=proposal_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1223, in _import_account
+    return resolved_account(manager, jobs, authority, line_id=line_id,
+                            proposal_id=proposal_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 297, in resolved_account
+    proved = _proved(manager, jobs, authority, line_id=line_id,
+                     proposal_id=proposal_id, freshness=freshness)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 264, in _proved
+    job, scope = _job_for(jobs, proposal_work["work_id"])
+                 ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 150, in _job_for
+    _refuse(f"Work {name_value(work_id)} belongs to {len(matches)} Job "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"implementation stages; admission needs exactly one accepted "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"Job to own its input, policy and test scope")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 48, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: Work '0000000a-W1' belongs to 2 Job implementation stages; admission needs exactly one accepted Job to own its input, policy and test scope
+
+======================================================================
+ERROR: test_the_port_materializes_a_third_version_carrying_the_job (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_port_materializes_a_third_version_carrying_the_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 613, in test_the_port_materializes_a_third_version_carrying_the_job
+    _, answer = self._started()
+                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 602, in _started
+    return held, self.fixture.admit(held)
+                 ~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_integration_worker.py", line 613, in admit
+    return driver.admit_accepted(
+           ~~~~~~~~~~~~~~~~~~~~~^
+        self.world.coordinator, self.world.manager, self.world.jobs,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        launch_root=self.launch_root, workspace_group=self.owner.group,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        required_tests=self.world.required)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1504, in admit_accepted
+    account = _import_account(manager, jobs, authority, settled,
+                              line_id=line_id, proposal_id=proposal_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/driver.py", line 1223, in _import_account
+    return resolved_account(manager, jobs, authority, line_id=line_id,
+                            proposal_id=proposal_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 297, in resolved_account
+    proved = _proved(manager, jobs, authority, line_id=line_id,
+                     proposal_id=proposal_id, freshness=freshness)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 264, in _proved
+    job, scope = _job_for(jobs, proposal_work["work_id"])
+                 ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 150, in _job_for
+    _refuse(f"Work {name_value(work_id)} belongs to {len(matches)} Job "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"implementation stages; admission needs exactly one accepted "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"Job to own its input, policy and test scope")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/admission.py", line 48, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: Work '0000000a-W1' belongs to 2 Job implementation stages; admission needs exactly one accepted Job to own its input, policy and test scope
+
+----------------------------------------------------------------------
+Ran 45 tests in 0.665s
+
+FAILED (errors=3)

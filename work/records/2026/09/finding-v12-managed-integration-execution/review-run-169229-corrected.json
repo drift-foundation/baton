@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-W",
+    "error",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_resolver_consumes_the_real_readers_answer",
+    "tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_checkpoint_without_evidence_paths_refuses"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "timeout_seconds": 30,
+  "timed_out": false,
+  "exit_code": 0,
+  "measured_seconds": 0.4639832240063697,
+  "boundary": "two focused owner-shape checks; disposable real stores and local Git fixtures, no managed worker/engine/model",
+  "reviewer_cumulative_seconds": 27.083903291008028,
+  "correction": "Use the author-recorded src:tools:. import context; the first direct unittest call omitted tools."
+}

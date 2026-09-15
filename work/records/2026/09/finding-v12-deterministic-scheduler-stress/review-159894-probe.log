@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-159894.py", line 55, in <module>
+    getattr(case, method)()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2729, in test_the_alternate_schedule_reaches_the_same_completions
+    self.b_and_terminal(held, trace)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-159894.py", line 32, in continue_then_read
+    assert len(deployment.judges) == 3, len(deployment.judges)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0

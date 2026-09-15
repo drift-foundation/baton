@@ -1,0 +1,57 @@
+test_a_configured_provider_turn_is_the_one_handed_over (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_a_configured_provider_turn_is_the_one_handed_over) ... ok
+test_a_configured_verification_reaches_the_ordinary_command (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_a_configured_verification_reaches_the_ordinary_command) ... ok
+test_a_job_bound_delivery_never_falls_back_to_a_module_default (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_a_job_bound_delivery_never_falls_back_to_a_module_default)
+[P1]: a resealed configuration missing a boundary was accepted and ... ok
+test_a_job_that_configured_nothing_gets_its_runners_defaults (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_a_job_that_configured_nothing_gets_its_runners_defaults) ... ok
+test_a_launch_with_no_job_behind_it_keeps_the_module_default (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_a_launch_with_no_job_behind_it_keeps_the_module_default)
+The default is for a delivery carrying no Job context at all -- a ... ok
+test_a_start_failure_reports_itself_and_not_a_timeout (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_a_start_failure_reports_itself_and_not_a_timeout)
+The third path: a runner that cannot start is a start error, and the ... ok
+test_a_successful_turn_answers_through_the_configured_bound (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_a_successful_turn_answers_through_the_configured_bound)
+The success path, asserted rather than assumed: the adapter returns ... ok
+test_a_timed_out_turn_reports_the_configured_bound (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_a_timed_out_turn_reports_the_configured_bound)
+The failure text an operator reads names the number they wrote. ... ok
+test_the_configured_seconds_reach_the_real_provider_and_verifier (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_the_configured_seconds_reach_the_real_provider_and_verifier)
+The end of the chain, through the adapter's own methods. ... ok
+test_a_boolean_bound_is_refused_before_it_becomes_one_second (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_boolean_bound_is_refused_before_it_becomes_one_second) ... ok
+test_a_boolean_requested_setting_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_boolean_requested_setting_is_refused)
+Review 2026-09-13T02:51:29Z: a seal proves the bytes were not ... ok
+test_a_bound_outside_the_supported_range_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_bound_outside_the_supported_range_is_refused) ... ok
+test_a_boundary_carrying_an_unknown_member_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_boundary_carrying_an_unknown_member_is_refused) ... ok
+test_a_boundary_missing_its_origin_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_boundary_missing_its_origin_is_refused) ... ok
+test_a_boundary_naming_a_foreign_setting_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_boundary_naming_a_foreign_setting_is_refused) ... ok
+test_a_context_that_is_not_a_document_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_context_that_is_not_a_document_is_refused) ... ok
+test_a_missing_boundary_is_refused_rather_than_defaulted (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_missing_boundary_is_refused_rather_than_defaulted) ... ok
+test_a_missing_context_member_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_missing_context_member_is_refused) ... ok
+test_a_non_text_job_identity_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_non_text_job_identity_is_refused) ... ok
+test_a_requested_setting_this_worker_does_not_name_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_requested_setting_this_worker_does_not_name_is_refused) ... ok
+test_a_seal_that_does_not_cover_its_contents_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_seal_that_does_not_cover_its_contents_is_refused)
+The container cannot ask which Job resolved these numbers; what it ... ok
+test_a_third_version_delivery_is_read (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_third_version_delivery_is_read) ... ok
+test_a_third_version_document_missing_its_context_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_third_version_document_missing_its_context_is_refused)
+And a /3 that lost its Job context is refused as the version it ... ok
+test_an_origin_this_worker_cannot_name_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_an_origin_this_worker_cannot_name_is_refused)
+A bound whose origin this program cannot name is one it cannot ... ok
+test_an_unknown_transport_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_an_unknown_transport_is_refused)
+[P2]: `transport='unknown/channel'` was accepted, and `main` then ... ok
+test_an_unknown_version_is_still_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_an_unknown_version_is_still_refused)
+The module's own rule is unchanged: an unknown schema is held to ... ok
+test_foreign_units_are_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_foreign_units_are_refused)
+A container that reads somebody else's units hands a command sixty ... ok
+test_the_earlier_versions_are_read_exactly_as_before (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_the_earlier_versions_are_read_exactly_as_before) ... ok
+test_a_configured_verification_reaches_the_imported_boundary (tests.tools.test_execution_limits.TheImportedVerificationUsesItsOwnBoundary.test_a_configured_verification_reaches_the_imported_boundary) ... ok
+test_a_job_that_configured_nothing_keeps_the_imported_default (tests.tools.test_execution_limits.TheImportedVerificationUsesItsOwnBoundary.test_a_job_that_configured_nothing_keeps_the_imported_default) ... ok
+test_a_launch_with_no_job_behind_it_keeps_the_module_default (tests.tools.test_execution_limits.TheImportedVerificationUsesItsOwnBoundary.test_a_launch_with_no_job_behind_it_keeps_the_module_default) ... ok
+test_a_third_version_selecting_a_transport_is_not_this_workloads (tests.tools.test_execution_limits.TheImportedVerificationUsesItsOwnBoundary.test_a_third_version_selecting_a_transport_is_not_this_workloads)
+This workload runs once from durable files; a delivery selecting an ... ok
+test_an_omitted_bound_keeps_the_runners_own_default (tests.tools.test_execution_limits.TheImportedVerificationUsesItsOwnBoundary.test_an_omitted_bound_keeps_the_runners_own_default) ... ok
+test_the_configured_bound_reaches_the_verification_runner (tests.tools.test_execution_limits.TheImportedVerificationUsesItsOwnBoundary.test_the_configured_bound_reaches_the_verification_runner) ... ok
+test_the_workload_reads_a_third_version_launch (tests.tools.test_execution_limits.TheImportedVerificationUsesItsOwnBoundary.test_the_workload_reads_a_third_version_launch) ... ok
+test_an_addition_is_imported_verified_and_published (tests.manager.test_integration_worker.TheAcceptedBundleIsCarriedThroughTheRealEntry.test_an_addition_is_imported_verified_and_published) ... ok
+test_a_verification_that_cannot_run_is_held (tests.manager.test_integration_worker.TheEndingIsConservative.test_a_verification_that_cannot_run_is_held)
+`verification=None` leaves the accepted command absent from the ... ok
+
+----------------------------------------------------------------------
+Ran 37 tests in 0.484s
+
+OK

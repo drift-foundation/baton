@@ -1,5 +1,42 @@
 # Plan: prove v12 local isolated execution
 
+## Current owner disposition — 2026-09-14T12:23:19Z
+
+Owner clarification2026-09-14T12:25:15Z: Docker is the goal; Podman is not a
+technical proof requirement. FINDING explicitly supersedes the prompt's contrary
+interpretation. Future reassessment must map current accepted evidence and
+remaining requirements to Docker, separately from historical containment.
+
+Park W3 for now, retaining its historical evidence and unresolved Docker
+acceptance/account questions. Preserve the separately deferred Podman Work
+without treating it as a Docker proof gate. Owner phase act
+is outstanding at snapshot169209; the selected action is recorded in FINDING.
+The W2 release-dependency replacement is complete, superseding the pending
+bookkeeping instruction below. Preserve all other dependencies and containment.
+No implementation, certification or closure is selected. The separate notifier
+reminder follow-up is assigned to the v12 ecosystem in W2's decision record.
+
+## Historical disposition — 2026-09-14, reviewer claim168829
+
+W6 and W32382 technical gates are satisfied; canonical detail records14/15
+children closed. W32391 remains open/parked and contained, so W3 remains open.
+`review-2026-09-14T11-29-00Z.md` reconciles the bounded accepted Docker evidence,
+the still-not-certified W6 result and the later certification scopes. This
+supersedes older pending-W16823/W32382 statements below, not their history.
+
+The owner already classified W32391 AND W33755 as v13 and retained historical
+containment. Do not seek that strategy again or close a child by deferral.
+W2 still has its broad W3 gate at snapshot168838. Next owner action is the
+already-selected provider-first replacement in W2's
+`RELEASE-GATE-COMMANDS-167877.md`, subject to fresh owner detail; reviewer has no
+W2 dependency authority. Preserve W7/W8/W16830 ordering and all child identities.
+
+Operational finding: the umbrella PROGRESS.md is absent (ENOENT). Return the
+exact missing author-account path to baton.ops; reviewer does not manufacture
+it or claim complete milestone review. No tests/engine runs are needed merely
+to re-establish these already recorded closure limits. Item6's full M2 approval
+remains pending; minimum v12 release accounting proceeds separately.
+
 1. [done 2026-08-22] Bind W1425 to this canonical record and revalidate
    the assignment against the campaign decisions, W151 state machine, frozen
    M1 contracts, current `v12/` proof and available local OCI tooling.
@@ -59,3 +96,8 @@
     W32382 already waits transitively on W16823 through W32649; W32391 is
     parked pending a real Podman engine. Re-run item 6 only after both direct
     gates close.
+
+13. [selected2026-09-14] W32391 Podman is v13; remove its direct gate under
+    W165782. This supersedes item12 requiring both direct gates for minimum
+    release. Preserve W32382 and all open children; umbrella closure differs
+    from W2 minimum delivery readiness.

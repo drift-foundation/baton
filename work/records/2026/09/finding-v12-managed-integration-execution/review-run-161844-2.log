@@ -1,0 +1,10 @@
+test_exact_committed_start_replay_still_refuses_proof (__main__.ProjectionReview.test_exact_committed_start_replay_still_refuses_proof) ... ok
+test_foreign_work_projection_refuses (__main__.ProjectionReview.test_foreign_work_projection_refuses) ... ok
+test_malformed_fences_refuse_through_contract_boundary (__main__.ProjectionReview.test_malformed_fences_refuse_through_contract_boundary) ... ok
+test_missing_work_identity_refuses (__main__.ProjectionReview.test_missing_work_identity_refuses) ... ok
+test_noninteger_generation_refuses (__main__.ProjectionReview.test_noninteger_generation_refuses) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.022s
+
+OK

@@ -1,0 +1,20 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-artifact.py
+RECORDS 9
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-artifact.py", line 24, in <module>
+    print("BY STAGE", json.dumps(collections.OrderedDict(sorted(
+                      ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        collections.Counter((one["stage_id"], one["act"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            for one in artifact["records"]).items())),
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        default=str))
+        ^^^^^^^^^^^^
+  File "/usr/lib/python3.13/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "/usr/lib/python3.13/json/encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/usr/lib/python3.13/json/encoder.py", line 261, in iterencode
+    return _iterencode(o, 0)
+TypeError: keys must be str, int, float, bool or None, not tuple

@@ -1,0 +1,20 @@
+...............................................
+----------------------------------------------------------------------
+Ran 47 tests in 9.408s
+
+OK
+{
+  "baseline_unowned_count": 215,
+  "current_unowned_count": 215,
+  "introduced": [],
+  "removed": [],
+  "baseline_orphan_count": 165,
+  "current_orphan_count": 165,
+  "introduced_orphans": [],
+  "baseline_hashes": {
+    "attempts.py": "8c321ac7d9c1c5764c4f181e50a1e99d911c481dad0c20ea1ac11d7a2b349730",
+    "documents.py": "b3fc43f26ffef5a76f1329b273ea722f04c4544b722511c681c3c1a0418b20bd",
+    "intake.py": "d326fe41d0ad8ca90950be9735f4c05b1c537e70e6827f760867969830eae7b7",
+    "oci.py": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f"
+  }
+}

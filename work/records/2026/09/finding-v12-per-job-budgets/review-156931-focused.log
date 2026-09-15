@@ -1,0 +1,24 @@
+test_a_configured_provider_turn_is_the_one_handed_over (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_a_configured_provider_turn_is_the_one_handed_over) ... ok
+test_a_configured_verification_reaches_the_ordinary_command (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_a_configured_verification_reaches_the_ordinary_command) ... ok
+test_a_job_that_configured_nothing_gets_its_runners_defaults (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_a_job_that_configured_nothing_gets_its_runners_defaults) ... ok
+test_a_launch_with_no_job_behind_it_keeps_the_module_default (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_a_launch_with_no_job_behind_it_keeps_the_module_default)
+The default is for a delivery carrying no Job context at all -- a ... ok
+test_the_configured_seconds_reach_the_subprocess_boundary (tests.tools.test_execution_limits.TheAdapterHandsTheCommandWhatWasConfigured.test_the_configured_seconds_reach_the_subprocess_boundary)
+Captured at the normal boundary rather than waited on: what is ... ok
+test_a_boolean_bound_is_refused_before_it_becomes_one_second (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_boolean_bound_is_refused_before_it_becomes_one_second) ... ok
+test_a_bound_outside_the_supported_range_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_bound_outside_the_supported_range_is_refused) ... ok
+test_a_context_that_is_not_a_document_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_context_that_is_not_a_document_is_refused) ... ok
+test_a_missing_context_member_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_missing_context_member_is_refused) ... ok
+test_a_seal_that_does_not_cover_its_contents_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_seal_that_does_not_cover_its_contents_is_refused)
+The container cannot ask which Job resolved these numbers; what it ... ok
+test_a_third_version_delivery_is_read (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_third_version_delivery_is_read) ... ok
+test_a_third_version_document_missing_its_context_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_third_version_document_missing_its_context_is_refused)
+And a /3 that lost its Job context is refused as the version it ... ok
+test_an_unknown_version_is_still_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_an_unknown_version_is_still_refused)
+The module's own rule is unchanged: an unknown schema is held to ... ok
+test_the_earlier_versions_are_read_exactly_as_before (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_the_earlier_versions_are_read_exactly_as_before) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.001s
+
+OK

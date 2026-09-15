@@ -1,0 +1,58 @@
+{
+ "acceptance": "ChildAcceptance is _SingleWorker.delivered for the child: it fences the ISSUED offer against the four identities its own admission bound and calls public accept_offer with the bearer that offer minted and the child's own Work reference. PreparationExecution.offer returns the issued DOCUMENT rather than an id, because a callback handed only an identity could fence nothing. Nothing touches the parent's receipt.",
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 302717,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "f74019f39a6e0db3e573464bed6a2dd0f4c207566c605d61115bd58c8cfb90c2"
+  },
+  {
+   "bytes": 88975,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "b1d44156ef382b28a8e38773f03c1a3ce931830771a55875359ad1a2e1c98b73"
+  },
+  {
+   "bytes": 72764,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "3b0218e14262851684d8254a3e7ca594620d940b9d766fe44a09de8a8ce27287"
+  },
+  {
+   "bytes": 163041,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "82f67481b813d0e7e45061f85c57eabe1109fb127ad9c51ccb2b53bdc8470ee0"
+  }
+ ],
+ "claim": 169942,
+ "defects_the_traversal_found": [
+  "an absent destination REFUSED instead of answering 'nothing published'",
+  "the child Work id was not the Authority's <8 hex>-W<positive> grammar",
+  "the acceptance ran on the WALL clock and hit an expired offer",
+  "building the acceptance EAGERLY made the resumed path ask an owner"
+ ],
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "publication_before_intent": "an existing publication is RECOVERED and reused; deleting or rewriting one would destroy the only durable record of what was asked.",
+ "still_owed": "the child route handler, the ordinary child launch/exchange/ending, the member ended only on its real exclusion proof, accepted custody and adoption, the admitted-child replay, and proving the intended task material in the actual path.",
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 142 acceptance-wired /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle",
+  "ledger": "144 rows, 1614.8909402878373s",
+  "no": "no engine, model, image build or destructive cleanup",
+  "result": "OK, 415 cases",
+  "traversal_cost": "unmeasured -- a diagnostic, not a gate"
+ },
+ "what": "Worker acceptance wired as the ordinary one; the traversal now creates the child Work, issues the offer and ACCEPTS, stopping at a route handler.",
+ "where_it_stands": "the traversal creates the real child Work, issues the offer, and the worker's acceptance SUCCEEDS. It stops at: the authority refused this claim: route 'integration-preparation' does not resolve to 'baton.integrator' -- a deployment configuration act (registering the child route's handler), which is the next edit.",
+ "work": "2b077949-W161230"
+}

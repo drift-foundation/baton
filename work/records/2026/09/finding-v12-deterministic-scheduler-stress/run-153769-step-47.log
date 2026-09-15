@@ -1,0 +1,43 @@
+### label: d1-negatives-2
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace"]
+### exit: 1
+### elapsed_seconds: 1.492814
+### STDOUT
+
+### STDERR
+...E..............................................
+======================================================================
+ERROR: test_the_observer_refuses_an_owner_order_it_cannot_honour (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_observer_refuses_an_owner_order_it_cannot_honour)
+D1: THE SAME PAIR, THROUGH THE ACTUAL `observed()` PATH.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1236, in test_the_observer_refuses_an_owner_order_it_cannot_honour
+    self.observing(held, trace, "job-a", "implementation", "completed")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1101, in observing
+    one_tick(held.job, held.composed, now=fixtures.NOW)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 129, in sweep
+    replaced = _replace(store, operations)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 538, in _replace
+    held = projection.stage_states(store, operations)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 470, in stage_states
+    "receipts": (receipts_of(store, stage_id, live["episode"])
+                 ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1220, in crossed
+    standing = dict(projection.receipts_of(store, stage_id, episode))
+                    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1220, in crossed
+    standing = dict(projection.receipts_of(store, stage_id, episode))
+                    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1220, in crossed
+    standing = dict(projection.receipts_of(store, stage_id, episode))
+                    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  [Previous line repeated 977 more times]
+RecursionError: maximum recursion depth exceeded
+
+----------------------------------------------------------------------
+Ran 50 tests in 1.311s
+
+FAILED (errors=1)

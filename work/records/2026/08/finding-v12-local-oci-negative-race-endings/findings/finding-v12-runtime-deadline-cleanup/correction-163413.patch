@@ -1,0 +1,545 @@
+--- a/v12/python/tests/manager/test_runtime_deadline_engine_budget.py
++++ b/v12/python/tests/manager/test_runtime_deadline_engine_budget.py
+@@ -1,8 +1,11 @@
+ """Deterministic supervisor/fixture coverage; never calls Docker or a real child."""
+ import json
++import io
++import signal
+ from pathlib import Path
+ import subprocess
+ import tempfile
++from types import SimpleNamespace
+ import unittest
+ from unittest import mock
+ 
+@@ -86,6 +89,14 @@
+         self.actions.append("kill")
+         self.stopped = not self.resist_kill
+ 
++    def group_alive(self):
++        return not self.stopped
++
++    def release(self, timeout):
++        if self.group_alive():
++            raise RuntimeError("fake group still live")
++        return self.wait(timeout)
++
+ 
+ class EngineBudget(unittest.TestCase):
+     def setUp(self):
+@@ -93,9 +104,16 @@
+         self.addCleanup(self.temp.cleanup)
+         self.root = Path(self.temp.name) / "run"
+         self.clock = Clock()
++        for patcher in (mock.patch.object(gate.time, "sleep", side_effect=self.advance_clock),
++                        mock.patch.object(gate.time, "monotonic", side_effect=self.clock)):
++            patcher.start()
++            self.addCleanup(patcher.stop)
+         self.docker = Docker(self.clock)
+         self.process = Process(self.clock)
+         self.names = ["runtime-one", "custodian-one", "sibling-one"]
++
++    def advance_clock(self, seconds):
++        self.clock.now += seconds
+ 
+     def factory(self, command, **kwargs):
+         root = Path(kwargs["env"]["BATON_W32577_GATE_DIR"])
+@@ -117,10 +135,14 @@
+         self.assertEqual(set(result["cleanup"]["resolved"]), set(self.names))
+         self.assertEqual(set(self.inventory.names()), set(self.names))
+         self.assertEqual(set(self.docker.live), {"foreign"})
+-        self.assertEqual(self.process.actions, [])
++        self.assertEqual(self.process.actions, ["terminate", "kill"])
+         self.assertEqual(result["elapsed"], self.clock() - 1000)
+         self.assertEqual(sum(row["elapsed"] for row in result["phases"].values()), result["elapsed"])
+-        self.assertEqual(json.loads((self.root / "result.json").read_text()), result)
++        receipt = json.loads((self.root / "result.json").read_text())
++        self.assertFalse(receipt["ok"])
++        self.assertTrue(receipt["candidate_ok"])
++        self.assertEqual(receipt["status"], "incomplete-awaiting-supervisor-exit")
++        self.assertEqual(gate.completion_exit(result, clock=self.clock, output=io.StringIO()), 0)
+         for command, timeout, started in self.docker.commands:
+             self.assertLessEqual(timeout, 30)
+             self.assertLess(started + timeout, 1180)
+@@ -131,7 +153,7 @@
+         result = self.run_gate()
+         self.assertFalse(result["ok"])
+         self.assertIn("TimeoutExpired", result["body_error"])
+-        self.assertEqual(self.process.actions, ["terminate"])
++        self.assertEqual(self.process.actions, ["terminate", "kill"])
+         self.assertEqual(set(result["cleanup"]["resolved"]), set(self.names))
+         self.assertEqual(set(self.docker.live), {"foreign"})
+         self.assertLess(result["elapsed"], 180)
+@@ -215,7 +237,7 @@
+         self.assertFalse(result["ok"])
+         cleanup_calls = self.docker.commands[3:]
+         self.assertLessEqual(len(cleanup_calls), 2)
+-        self.assertLessEqual(result["elapsed"], 3.75 + 50)
++        self.assertLessEqual(result["phases"]["cleanup"]["elapsed"], 50)
+         self.assertTrue(result["cleanup"]["unresolved"])
+         self.assertLess(cleanup_calls[-1][1], 30)
+ 
+@@ -331,6 +353,173 @@
+             result = self.run_gate()
+         self.assertFalse(result["ok"])
+         self.assertIn("accounting_error", result)
++
++    def test_owned_wrapper_keeps_leader_identity_until_descendant_killed(self):
++        leader = SimpleNamespace(pid=12345, args=["fake"], exited=False, descendant=True, released=False)
++        signals = []
++        def status(*args):
++            self.assertFalse(leader.released)
++            self.assertTrue(args[2] & gate.os.WNOWAIT)
++            return SimpleNamespace(si_status=0, si_code=gate.os.CLD_EXITED) if leader.exited else None
++        def killpg(pid, number):
++            self.assertEqual(pid, leader.pid)
++            self.assertFalse(leader.released)
++            signals.append(number)
++            leader.exited = True
++            if number == signal.SIGKILL:
++                leader.descendant = False
++        def release(timeout):
++            self.assertFalse(leader.descendant)
++            leader.released = True
++            return -9
++        leader.wait = release
++        with mock.patch.object(gate.subprocess, "Popen", return_value=leader), \
++                mock.patch.object(gate.os, "waitid", side_effect=status), \
++                mock.patch.object(gate.os, "killpg", side_effect=killpg), \
++                mock.patch.object(gate.OwnedProcess, "group_alive", side_effect=lambda: leader.descendant):
++            self.process = gate.OwnedProcess(["fake"])
++            result = self.run_gate()
++            with self.assertRaises(RuntimeError):
++                self.process.kill()
++        self.assertEqual(signals, [signal.SIGTERM, signal.SIGKILL])
++        self.assertTrue(leader.released)
++        self.assertFalse(leader.descendant)
++        self.assertEqual(set(result["cleanup"]["resolved"]), set(self.names))
++
++    def test_normal_leader_exit_still_settles_its_owned_group(self):
++        self.process.group_alive = mock.Mock(return_value=False)
++        # The normal body return must still enter the stop/group-settlement path.
++        result = self.run_gate()
++        self.assertTrue(result["ok"])
++        self.assertEqual(self.process.actions, ["terminate", "kill"])
++
++    def test_no_time_after_term_retains_names_without_racing_descendant(self):
++        self.process.duration = 500
++        def terminate():
++            self.process.actions.append("terminate")
++            self.clock.now = 1124.9
++        self.process.terminate = terminate
++        result = self.run_gate()
++        self.assertFalse(result["ok"])
++        self.assertEqual(self.process.actions, ["terminate"])
++        self.assertEqual(set(result["cleanup"]["unresolved"]), set(self.names))
++        self.assertFalse(any(command[1] == "rm" for command, _, _ in self.docker.commands))
++
++    def test_lost_leader_wait_ownership_never_signals_recycled_group(self):
++        leader = SimpleNamespace(pid=12345, args=["fake"])
++        with mock.patch.object(gate.subprocess, "Popen", return_value=leader), \
++                mock.patch.object(gate.os, "waitid", side_effect=ChildProcessError("already reaped elsewhere")), \
++                mock.patch.object(gate.os, "killpg") as signals:
++            self.process = gate.OwnedProcess(["fake"])
++            result = self.run_gate()
++        signals.assert_not_called()
++        self.assertFalse(result["ok"])
++        self.assertEqual(set(result["cleanup"]["unresolved"]), set(self.names))
++
++    def test_owned_group_scan_distinguishes_live_members_zombies_and_foreign_groups(self):
++        proc = Path(self.temp.name) / "proc-fixture"
++        proc.mkdir()
++        for pid, state, group in ((12345, "Z", 12345), (12346, "S", 12345), (54321, "S", 54321)):
++            (proc / str(pid)).mkdir()
++            (proc / str(pid) / "stat").write_text(f"{pid} (fake process) {state} 1 {group} {group} 0\n")
++        leader = SimpleNamespace(pid=12345, args=["fake"])
++        with mock.patch.object(gate.subprocess, "Popen", return_value=leader), \
++                mock.patch.object(gate.os, "waitid", return_value=SimpleNamespace(si_status=0, si_code=gate.os.CLD_EXITED)), \
++                mock.patch.object(gate, "Path", side_effect=lambda value: proc if value == "/proc" else Path(value)):
++            process = gate.OwnedProcess(["fake"])
++            self.assertTrue(process.group_alive())
++            (proc / "12346" / "stat").write_text("12346 (fake process) Z 1 12345 12345 0\n")
++            self.assertFalse(process.group_alive())
++
++    def test_owned_group_scan_refuses_a_session_mismatch(self):
++        proc = Path(self.temp.name) / "proc-fixture"
++        (proc / "12345").mkdir(parents=True)
++        (proc / "12345" / "stat").write_text("12345 (fake) S 1 12345 999 0\n")
++        leader = SimpleNamespace(pid=12345, args=["fake"])
++        with mock.patch.object(gate.subprocess, "Popen", return_value=leader), \
++                mock.patch.object(gate.os, "waitid", return_value=None), \
++                mock.patch.object(gate, "Path", side_effect=lambda value: proc if value == "/proc" else Path(value)):
++            process = gate.OwnedProcess(["fake"])
++            with self.assertRaisesRegex(RuntimeError, "identity mismatch"):
++                process.group_alive()
++
++    def test_partial_diagnostics_preserve_error_but_clean_known_owned_resources(self):
++        def factory(command, **kwargs):
++            process = self.factory(command, **kwargs)
++            (self.root / "child-call-1.json").write_text("{")
++            process.code = 1
++            return process
++        result = self.run_gate(factory)
++        self.assertFalse(result["ok"])
++        self.assertEqual(set(result["cleanup"]["resolved"]), set(self.names))
++        self.assertEqual(result["cleanup"]["unresolved"], [])
++        self.assertTrue(any("JSONDecodeError" in error for error in result["cleanup"]["errors"]))
++        self.assertEqual(len(list(self.root.glob("child-create-intent-*.json"))), 3)
++        self.assertEqual(set(self.docker.live), {"foreign"})
++
++    def test_damaged_diagnostics_cannot_settle_absent_uncertain_creation(self):
++        def factory(command, **kwargs):
++            process = self.factory(command, **kwargs)
++            (self.root / "child-call-1.json").write_text("")
++            del self.docker.live["runtime-one"]
++            return process
++        result = self.run_gate(factory)
++        self.assertFalse(result["ok"])
++        self.assertEqual(result["cleanup"]["unresolved"], ["runtime-one"])
++        self.assertEqual(set(result["cleanup"]["resolved"]), {"custodian-one", "sibling-one"})
++
++    def test_interrupted_atomic_diagnostic_replacement_preserves_guard_and_intent(self):
++        def factory(command, **kwargs):
++            control = gate.ChildControl(kwargs["env"]["BATON_W32577_GATE_DIR"], clock=self.clock, runner=self.docker)
++            with mock.patch.object(gate.os, "replace", side_effect=OSError("replace interrupted")):
++                with self.assertRaises(OSError):
++                    control.docker(["create", "--name", "interrupted-replace", "image"])
++            self.assertEqual(json.loads((self.root / "child-call-1.json").read_text())["state"], "running")
++            self.assertEqual(json.loads((self.root / "child-create-intent-1.json").read_text())["name"], "interrupted-replace")
++            self.process.code = 1
++            return self.process
++        result = self.run_gate(factory)
++        self.assertFalse(result["ok"])
++        self.assertEqual(result["cleanup"]["resolved"], ["interrupted-replace"])
++        self.assertEqual(set(self.docker.live), {"foreign"})
++
++    def test_last_accounting_write_is_in_exit_outcome_and_never_persists_success(self):
++        original = gate.durable
++        def durable(path, value, **kwargs):
++            original(path, value, **kwargs)
++            if Path(path).name == "result.json" and not kwargs.get("exclusive"):
++                self.clock.now += 181
++        with mock.patch.object(gate, "durable", side_effect=durable):
++            result = self.run_gate()
++        self.assertFalse(result["ok"])
++        self.assertGreater(result["elapsed"], 180)
++        self.assertEqual(result["elapsed"], self.clock() - 1000)
++        self.assertFalse(json.loads((self.root / "result.json").read_text())["ok"])
++        self.assertEqual(gate.completion_exit(result, clock=self.clock, output=io.StringIO()), 1)
++
++    def test_final_output_flush_is_inside_authoritative_exit_decision(self):
++        result = self.run_gate()
++        self.assertTrue(result["ok"])
++        class Output(io.StringIO):
++            def flush(inner):
++                self.clock.now += 6
++        output = Output()
++        self.assertEqual(gate.completion_exit(result, clock=self.clock, output=output), 1)
++        self.assertFalse(json.loads(output.getvalue())["ok"])
++        self.assertEqual(result["elapsed"], self.clock() - 1000)
++        self.assertFalse(result["ok"])
++
++    def test_final_evidence_write_failure_leaves_only_incomplete_receipt(self):
++        original = gate.durable
++        def durable(path, value, **kwargs):
++            if Path(path).name == "result.json" and not kwargs.get("exclusive"):
++                raise OSError("final evidence unavailable")
++            return original(path, value, **kwargs)
++        with mock.patch.object(gate, "durable", side_effect=durable):
++            result = self.run_gate()
++        self.assertFalse(result["ok"])
++        self.assertIn("final evidence unavailable", result["accounting_error"])
++        self.assertFalse(json.loads((self.root / "result.json").read_text())["ok"])
+ 
+     def test_fixture_engineport_and_direct_sibling_use_the_same_registration_boundary(self):
+         self.root.mkdir()
+--- a/work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py
++++ b/work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py
+@@ -20,14 +20,20 @@
+ 
+ 
+ def durable(path, value, *, exclusive=False):
+-    flags = os.O_WRONLY | os.O_CREAT | (os.O_EXCL if exclusive else os.O_TRUNC)
+-    fd = os.open(path, flags, 0o600)
++    path = Path(path)
++    temporary = path.with_name(".pending-" + uuid.uuid4().hex + ".tmp")
++    fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+     with os.fdopen(fd, "w") as stream:
+         json.dump(value, stream, sort_keys=True)
+         stream.write("\n")
+         stream.flush()
+         os.fsync(stream.fileno())
+-    parent = os.open(Path(path).parent, os.O_RDONLY | os.O_DIRECTORY)
++    if exclusive:
++        os.link(temporary, path)  # Atomic publication that cannot replace an old intent.
++        temporary.unlink()
++    else:
++        os.replace(temporary, path)
++    parent = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+     try:
+         os.fsync(parent)
+     finally:
+@@ -74,6 +80,8 @@
+     def names(self):
+         names = []
+         for path in sorted(self.root.iterdir()):
++            if re.fullmatch(r"\.pending-[0-9a-f]{32}\.tmp", path.name):
++                continue  # An unpublished record cannot have authorized a create.
+             if path.is_symlink() or not path.is_file():
+                 raise ValueError("invalid inventory entry type")
+             value = json.loads(path.read_text())
+@@ -93,10 +101,13 @@
+         self.root, self.budget, self.runner, self.channel = Path(root), budget, runner, channel
+         self.sequence = 0
+ 
+-    def run(self, command, end):
++    def run(self, command, end, *, creation=None):
+         timeout = self.budget.allowance(end)
+         self.sequence += 1
+         path = self.root / f"{self.channel}-call-{self.sequence}.json"
++        if creation is not None:
++            durable(self.root / f"child-create-intent-{self.sequence}.json",
++                    {**creation, "call": path.name}, exclusive=True)
+         record = {"command": command, "expected": 1, "margin": 1, "timeout": timeout,
+                   "phase_end": end, "total_end": self.budget.total_end, "state": "running"}
+         durable(path, record, exclusive=True)
+@@ -128,33 +139,81 @@
+ 
+     def docker(self, words):
+         words = list(words)
++        creation = None
+         # Both EnginePort (runtime/custodian) and direct sibling paths cross here.
+         if words and words[0] in ("create", "run"):
+             if words.count("--name") != 1:
+                 raise ValueError("creation requires one exact registered name")
+-            self.inventory.register(words[words.index("--name") + 1])
++            name = words[words.index("--name") + 1]
++            self.inventory.register(name)
++            creation = {"name": name, "run_id": self.inventory.run_id}
+             words[1:1] = ["--label", LABEL + "=" + self.inventory.run_id]
+-        return self.calls.run(["docker", *words], self.budget.body_end)
++        return self.calls.run(["docker", *words], self.budget.body_end, creation=creation)
+ 
+ 
+ class OwnedProcess:
+     def __init__(self, command, **kwargs):
+         self.process = subprocess.Popen(command, start_new_session=True, **kwargs)
++        self.released = False
++
++    def status(self):
++        if self.released:
++            raise RuntimeError("owned leader identity already released")
++        # Only this wrapper waits for its child. Retaining the waitable leader
++        # (including its zombie) pins its PID/PGID until all signalling is done.
++        return os.waitid(os.P_PID, self.process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+ 
+     def wait(self, timeout):
+-        return self.process.wait(timeout=timeout)
++        end = time.monotonic() + timeout
++        while True:
++            status = self.status()
++            if status is not None:
++                return status.si_status if status.si_code == os.CLD_EXITED else -status.si_status
++            remaining = end - time.monotonic()
++            if remaining <= 0:
++                raise subprocess.TimeoutExpired(self.process.args, timeout)
++            time.sleep(min(0.01, remaining))
++
++    def send(self, number):
++        self.status()  # Lost/external reaping refuses before killpg can hit a reused ID.
++        os.killpg(self.process.pid, number)
+ 
+     def terminate(self):
+-        os.killpg(self.process.pid, signal.SIGTERM)
++        self.send(signal.SIGTERM)
+ 
+     def kill(self):
+-        os.killpg(self.process.pid, signal.SIGKILL)
++        self.send(signal.SIGKILL)
++
++    def group_alive(self):
++        self.status()
++        for path in Path("/proc").iterdir():
++            if not path.name.isdecimal():
++                continue
++            try:
++                fields = (path / "stat").read_text().rsplit(") ", 1)[1].split()
++            except FileNotFoundError:
++                continue
++            # /proc stat suffix: state, ppid, pgrp, session, ...
++            if int(fields[2]) == self.process.pid:
++                if int(fields[3]) != self.process.pid:
++                    raise RuntimeError("owned process group identity mismatch")
++                if fields[0] not in ("Z", "X", "x"):
++                    return True
++        return False
++
++    def release(self, timeout):
++        if self.group_alive():
++            raise RuntimeError("owned group still has a live member")
++        result = self.process.wait(timeout=timeout)
++        self.released = True
++        return result
+ 
+ 
+ def reap(process, budget, end):
+     """Stop/reap the one session this supervisor created, within its shared slot."""
+     failures = []
+     for action in (process.terminate, process.kill):
++        budget.allowance(end, expected=0.1, margin=0.1, maximum=2)
+         try:
+             action()
+         except ProcessLookupError:
+@@ -164,10 +223,15 @@
+         timeout = budget.allowance(end, expected=0.1, margin=0.1, maximum=2)
+         try:
+             process.wait(timeout=timeout)
+-            return failures
+         except subprocess.TimeoutExpired:
+-            continue
+-    raise TimeoutError("owned child could not be reaped within reserved slot")
++            pass
++        # Leader exit is not group settlement. Always KILL before the final
++        # membership check, while the unreaped leader still pins group identity.
++    while process.group_alive():
++        timeout = budget.allowance(end, expected=0.1, margin=0.1, maximum=0.01)
++        time.sleep(timeout)
++    process.release(timeout=budget.allowance(end, expected=0.1, margin=0.1, maximum=2))
++    return failures
+ 
+ 
+ def inspect_owned(calls, inventory, name, end):
+@@ -186,16 +250,37 @@
+     return identity
+ 
+ 
+-def uncertain_creations(root):
++def uncertain_creations(root, inventory):
+     """A lost create reply cannot turn one absent observation into settlement."""
+-    uncertain = set()
+-    for path in Path(root).glob("child-call-*.json"):
+-        record = json.loads(path.read_text())
+-        command = record["command"]
+-        if len(command) > 1 and command[1] in ("create", "run") and "--name" in command:
+-            if record["state"] != "completed" or record["returncode"] != 0:
+-                uncertain.add(command[command.index("--name") + 1])
+-    return uncertain
++    uncertain, errors = set(inventory.names()), []
++    settled, failed = set(), set()
++    for diagnostic in Path(root).glob("child-call-*.json"):
++        try:
++            json.loads(diagnostic.read_text())
++        except Exception as error:
++            errors.append(diagnostic.name + ": " + type(error).__name__ + ": " + str(error))
++    for path in Path(root).glob("child-create-intent-*.json"):
++        try:
++            intent = json.loads(path.read_text())
++            if set(intent) != {"name", "run_id", "call"} or intent["run_id"] != inventory.run_id or intent["name"] not in uncertain:
++                raise ValueError("invalid immutable creation intent")
++            if not re.fullmatch(r"child-call-[0-9]+\.json", intent["call"]):
++                raise ValueError("invalid creation diagnostic locator")
++            record = json.loads((Path(root) / intent["call"]).read_text())
++            command = record["command"]
++            if command[1] not in ("create", "run") or command[command.index("--name") + 1] != intent["name"]:
++                raise ValueError("creation diagnostic does not match intent")
++            if record["state"] == "completed" and record["returncode"] == 0:
++                settled.add(intent["name"])
++            else:
++                failed.add(intent["name"])
++        except Exception as error:
++            errors.append(path.name + ": " + type(error).__name__ + ": " + str(error))
++    # Any damaged intent/diagnostic conservatively withholds all absence settlement,
++    # but never withholds inspection/removal of positively identified owned IDs.
++    if not errors:
++        uncertain -= settled - failed
++    return uncertain, errors
+ 
+ 
+ def cleanup(inventory, calls, end, uncertain=()):
+@@ -228,7 +313,7 @@
+     durable(root / "config.json", {"run_id": run_id, "start": budget.start}, exclusive=True)
+     inventory = Inventory(root / "names", run_id)
+     calls = Calls(root, budget, runner)
+-    result = {"body_returncode": None, "body_error": None, "reap_errors": [], "cleanup": None, "phases": {}}
++    result = {"started": budget.start, "body_returncode": None, "body_error": None, "reap_errors": [], "cleanup": None, "phases": {}}
+     process = None
+     reaped = False
+     try:
+@@ -241,7 +326,7 @@
+                 env={**(os.environ if env is None else env), "BATON_W32577_GATE_DIR": str(root.resolve()),
+                      "TMPDIR": str((root / "fixtures").resolve()), "PYTHONDONTWRITEBYTECODE": "1"})
+             result["body_returncode"] = process.wait(timeout=budget.allowance(budget.body_end, maximum=120))
+-            reaped = True
++            # OwnedProcess.wait deliberately retains the waitable leader identity.
+     except BaseException as error:
+         result["body_error"] = type(error).__name__ + ": " + str(error)
+     finally:
+@@ -263,26 +348,51 @@
+                 result["cleanup"] = {"resolved": [], "unresolved": inventory.names(),
+                                      "errors": ["owned child not reaped; inventory retained"]}
+             else:
+-                result["cleanup"] = cleanup(inventory, calls, phase_end, uncertain_creations(root))
++                uncertain, diagnostic_errors = uncertain_creations(root, inventory)
++                result["cleanup"] = cleanup(inventory, calls, phase_end, uncertain)
++                result["cleanup"]["errors"].extend(diagnostic_errors)
+         except Exception as error:
+             result["cleanup"] = {"resolved": [], "unresolved": None,
+                                  "errors": [type(error).__name__ + ": " + str(error)]}
+         result["phases"]["cleanup"] = {"start": phase_start, "elapsed": clock() - phase_start, "end": phase_end}
+         phase_start, phase_end = clock(), budget.phase_end("account")
+-        result["elapsed"] = clock() - budget.start
+         result["accounting_end"] = phase_end
+-        result["ok"] = (result["body_returncode"] == 0 and result["body_error"] is None
++        candidate_ok = (result["body_returncode"] == 0 and result["body_error"] is None
+                         and not result["reap_errors"] and not result["cleanup"]["errors"]
+-                        and not result["cleanup"]["unresolved"] and result["elapsed"] < 180
++                        and not result["cleanup"]["unresolved"] and clock() < budget.total_end
+                         and all(row["start"] + row["elapsed"] <= row["end"] for row in result["phases"].values()))
+-        durable(root / "result.json", result, exclusive=True)
++        # A file cannot include the time its own final write will take. Persist
++        # provisional evidence only; completed output followed by CLI exit is the
++        # completion receipt. No durable artifact ever asserts gate success.
++        result.update(ok=False, candidate_ok=candidate_ok, status="incomplete-awaiting-supervisor-exit",
++                      elapsed_before_output=clock() - budget.start,
++                      completion_authority="supervisor exit after final evidence and stdout flush")
++        try:
++            durable(root / "result.json", result, exclusive=True)
++            # Replace once to preserve a final-accounting checkpoint, still provisional.
++            result["elapsed_before_output"] = clock() - budget.start
++            durable(root / "result.json", result)
++        except Exception as error:
++            result["accounting_error"] = type(error).__name__ + ": " + str(error)
+         result["phases"]["account"] = {"start": phase_start, "elapsed": clock() - phase_start, "end": phase_end}
+         result["elapsed"] = clock() - budget.start
++        result["ok"] = candidate_ok and "accounting_error" not in result and clock() < phase_end
+         if clock() >= phase_end:
+-            result["ok"] = False
+             result["accounting_error"] = "final accounting exhausted reserved phase/total"
+-        durable(root / "result.json", result)
+     return result
++
++
++def completion_exit(result, *, clock=time.monotonic, output=None):
++    """Flush provisional output, then decide exit status; never print early success."""
++    output = sys.stdout if output is None else output
++    summary = dict(result, ok=False, status="incomplete-awaiting-supervisor-exit")
++    summary["elapsed_before_stdout"] = summary.pop("elapsed")
++    output.write(json.dumps(summary, sort_keys=True) + "\n")
++    output.flush()
++    completed = clock()
++    result["elapsed"] = completed - result["started"]
++    result["ok"] = result["ok"] and completed < result["accounting_end"]
++    return 0 if result["ok"] else 1
+ 
+ 
+ def main():
+@@ -295,8 +405,7 @@
+     repo = Path(__file__).resolve().parents[7]
+     result = supervise(args.run_dir, [str(args.python), "-W", "error", "-m", "unittest", SELECTOR],
+                        cwd=repo / "v12/python", env={**os.environ, "PYTHONPATH": str(repo / "v12/python/src")})
+-    print(json.dumps(result, sort_keys=True))
+-    return 0 if result["ok"] else 1
++    return completion_exit(result)
+ 
+ 
+ if __name__ == "__main__":

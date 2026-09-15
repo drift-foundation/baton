@@ -1,0 +1,22 @@
+[
+  {
+    "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/review-2026-09-15T02-43-53Z.md",
+    "sha256": "e408cb9bc244f39aaa11c3b9da0e303f6d020890166a534abe89319bb4660772"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/review-after-174229.json",
+    "sha256": "e60cb5704bbba4e64a9920a6b103b013d9387d10475e83ba38b46d476c384c2a"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/review-baseline-174229.json",
+    "sha256": "7ddcc27087abb56fe4f7e6dfff1d7b366417d3dfdb0cb4ab105d1b22e09ee3ab"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/review-delta-174229.patch",
+    "sha256": "c29d5501bc6c4e3e7b26092b304b38976450a57a021ba1d705f1d4b3c8385488"
+  },
+  {
+    "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/review-run-174229.py",
+    "sha256": "01bdc5e24c49ede9f90287cc9833625707395192b4d76c0040b73014795f6784"
+  }
+]

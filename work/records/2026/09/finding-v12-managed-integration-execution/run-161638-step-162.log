@@ -1,0 +1,519 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity
+EE.EEEEEEEEEEEEE.EE..EE..EE..............E........EE........E...............E
+======================================================================
+ERROR: test_a_grant_this_coordinator_does_not_hold_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_a_grant_this_coordinator_does_not_hold_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1764, in test_a_grant_this_coordinator_does_not_hold_is_refused
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_a_malformed_grant_never_reaches_an_identity (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_a_malformed_grant_never_reaches_an_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1853, in test_a_malformed_grant_never_reaches_an_identity
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_a_released_grant_refuses_the_admission (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_a_released_grant_refuses_the_admission)
+The grant is read at the moment of admission, not presented.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1776, in test_a_released_grant_refuses_the_admission
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_a_retry_after_the_collected_content_changed_collides (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_a_retry_after_the_collected_content_changed_collides)
+[P2] The identity carried the candidate and not the content it was
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1900, in test_a_retry_after_the_collected_content_changed_collides
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_a_retry_over_another_candidate_collides (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_a_retry_over_another_candidate_collides)
+[P1] The identity signed the grant and not the candidate, so an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1840, in test_a_retry_over_another_candidate_collides
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_an_admission_under_another_grant_collides (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_admission_under_another_grant_collides)
+The grant rides the signature, so an admission under a different
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1789, in test_an_admission_under_another_grant_collides
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_an_apply_is_admitted_with_both (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_apply_is_admitted_with_both)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1701, in test_an_apply_is_admitted_with_both
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_an_apply_without_its_grant_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_apply_without_its_grant_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1717, in test_an_apply_without_its_grant_is_refused
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_an_authorization_about_other_content_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_authorization_about_other_content_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1756, in test_an_authorization_about_other_content_is_refused
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_an_unapproved_candidate_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_unapproved_candidate_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1740, in test_an_unapproved_candidate_is_refused
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_an_unavailable_authorization_owner_is_refused (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_unavailable_authorization_owner_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1748, in test_an_unavailable_authorization_owner_is_refused
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_an_unchanged_admission_still_replays (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_an_unchanged_admission_still_replays)
+The correction does not make an ordinary retry into a collision.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1916, in test_an_unchanged_admission_still_replays
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_collected_content_moving_between_the_two_reads_refuses (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_collected_content_moving_between_the_two_reads_refuses)
+The owner is asked outside the transaction and the authoritative
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1871, in test_collected_content_moving_between_the_two_reads_refuses
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_the_authorized_candidate_is_retained (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_the_authorized_candidate_is_retained)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1824, in test_the_authorized_candidate_is_retained
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_the_grant_is_proved_after_the_authorization_owner_is_asked (tests.job_manager.test_managed_integration_capacity.TheApplyBringsItsGrantAndItsAuthorization.test_the_grant_is_proved_after_the_authorization_owner_is_asked)
+[P1] Review 2026-09-14T00:55:37Z: asking the owner is a call that
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1803, in test_the_grant_is_proved_after_the_authorization_owner_is_asked
+    store, stage = self.ready()
+                   ~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1694, in ready
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_the_release_still_claims_nothing_about_cleanup (tests.job_manager.test_managed_integration_capacity.TheCompletionBranchDoesNotSpeakForTheExecutions.test_the_release_still_claims_nothing_about_cleanup)
+LOGICAL CAPACITY AND NOTHING ELSE, unchanged by this Work: the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1358, in test_the_release_still_claims_nothing_about_cleanup
+    self.prepared(store, outcome="failed")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_the_same_branch_releases_once_after_every_member_ended (tests.job_manager.test_managed_integration_capacity.TheCompletionBranchDoesNotSpeakForTheExecutions.test_the_same_branch_releases_once_after_every_member_ended)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1333, in test_the_same_branch_releases_once_after_every_member_ended
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_a_destroyed_runtime_ends_on_the_observed_axis (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_destroyed_runtime_ends_on_the_observed_axis)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 826, in test_a_destroyed_runtime_ends_on_the_observed_axis
+    frozen = self.collected("prepare-attempt-1")
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_a_failed_execution_records_no_collected_content (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_failed_execution_records_no_collected_content)
+A failed execution contributes nothing an apply may import, whatever
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 981, in test_a_failed_execution_records_no_collected_content
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_a_quiescent_runtime_is_not_a_destroyed_one (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_quiescent_runtime_is_not_a_destroyed_one)
+A runtime that stopped executing STILL EXISTS. Reading `quiescent`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 865, in test_a_quiescent_runtime_is_not_a_destroyed_one
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_a_report_at_another_disposition_collected_no_content (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_report_at_another_disposition_collected_no_content)
+The THIRD answer, kept apart from the other two: a report WAS
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 965, in test_a_report_at_another_disposition_collected_no_content
+    self.collected("prepare-attempt-1", disposition="unable",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   outputs=OutputCase.missing())
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_a_failed_execution_ends_without_becoming_a_success (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_a_failed_execution_ends_without_becoming_a_success)
+`failed` is an ENDING like `succeeded` is. The outcome says what the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 702, in test_a_failed_execution_ends_without_becoming_a_success
+    answer = self.prepared(store, outcome="failed")
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_the_apply_phase_is_admitted_after_preparation_ends (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_the_apply_phase_is_admitted_after_preparation_ends)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 606, in test_the_apply_phase_is_admitted_after_preparation_ends
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_a_duplicate_release_does_not_release_twice (tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation.test_a_duplicate_release_does_not_release_twice)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1451, in test_a_duplicate_release_does_not_release_twice
+    self.prepared(store, outcome="failed")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_capacity_releases_once_after_a_validated_ending (tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity.test_capacity_releases_once_after_a_validated_ending)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 765, in test_capacity_releases_once_after_a_validated_ending
+    self.prepared(store, outcome="failed")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+======================================================================
+ERROR: test_two_connections_releasing_settle_on_one_release (tests.job_manager.test_managed_integration_capacity.TwoStoresContendForOneReservation.test_two_connections_releasing_settle_on_one_release)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1605, in test_two_connections_releasing_settle_on_one_release
+    self.prepared(store, outcome="failed")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 389, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 288, in collected
+    self.taken(attempt_id, frozen, custody=custody)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 307, in taken
+    for one in frozen["artifacts"]]}
+               ~~~~~~^^^^^^^^^^^^^
+KeyError: 'artifacts'
+
+----------------------------------------------------------------------
+Ran 77 tests in 0.682s
+
+FAILED (errors=26)

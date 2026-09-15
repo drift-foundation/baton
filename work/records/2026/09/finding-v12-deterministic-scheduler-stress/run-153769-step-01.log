@@ -1,0 +1,47 @@
+### label: first-trace-suite
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace"]
+### exit: 1
+### elapsed_seconds: 0.191236
+### STDOUT
+
+### STDERR
+...F...........F...
+======================================================================
+FAIL: test_a_dependent_stage_is_not_reserved_before_its_prerequisite (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_a_dependent_stage_is_not_reserved_before_its_prerequisite)
+THE EDGE IS THE PROJECTION'S, not this module's. Job B's stage
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 259, in test_a_dependent_stage_is_not_reserved_before_its_prerequisite
+    self.assertNotIn("job-b/implementation", reserved)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'job-b/implementation' unexpectedly found in ['job-a/implementation', 'job-b/implementation', 'job-a/implementation', 'job-b/implementation']
+
+======================================================================
+FAIL: test_a_valid_synthetic_trace_passes_the_oracle (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_valid_synthetic_trace_passes_the_oracle)
+The oracle is not vacuous: a well-formed trace produces no
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 454, in test_a_valid_synthetic_trace_passes_the_oracle
+    self.assertEqual(self.codes([
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+        self.record(job_id="job-a", stage_id="job-a/implementation",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+                    attempt_id="attempt-3", worker_id="review-one",
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    principal="principal:two", operation_id="op-3")]), [])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['skipped-act'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'skipped-act'
+
+- ['skipped-act']
++ []
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.035s
+
+FAILED (failures=2)

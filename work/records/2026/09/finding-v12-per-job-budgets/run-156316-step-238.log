@@ -1,0 +1,23 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_two_results_fail_their_own_commands_and_neither_inherits
+F
+======================================================================
+FAIL: test_two_results_fail_their_own_commands_and_neither_inherits (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_two_results_fail_their_own_commands_and_neither_inherits)
+COMPOSED ISOLATION, through the configured causal entrypoint.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2745, in test_two_results_fail_their_own_commands_and_neither_inherits
+    self.assertEqual(sorted(blocked), ["job-b", "job-c"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['job-b'] != ['job-b', 'job-c']
+
+Second list contains 1 additional elements.
+First extra element 1:
+'job-c'
+
+- ['job-b']
++ ['job-b', 'job-c']
+
+----------------------------------------------------------------------
+Ran 1 test in 2.459s
+
+FAILED (failures=1)

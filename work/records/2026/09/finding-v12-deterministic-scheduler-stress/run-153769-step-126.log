@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces
+........................................................................
+----------------------------------------------------------------------
+Ran 72 tests in 0.067s
+
+OK

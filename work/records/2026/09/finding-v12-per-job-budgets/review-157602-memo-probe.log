@@ -1,0 +1,38 @@
+{
+  "case": "memo-harness-collision",
+  "observed": [
+    {
+      "case": "first-harness",
+      "new_child_calls": 1,
+      "refusal": "the configured required test 'harness.py' did not finish within this Job's 77s host_verification ceiling at 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; no exit status was observed and none is invented"
+    },
+    {
+      "case": "repeat",
+      "new_child_calls": 0,
+      "refusal": "the configured required test 'harness.py' did not finish within this Job's 77s host_verification ceiling at 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; no exit status was observed and none is invented"
+    },
+    {
+      "case": "different-harness",
+      "new_child_calls": 0,
+      "refusal": "the configured required test 'harness.py' did not finish within this Job's 77s host_verification ceiling at 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; no exit status was observed and none is invented"
+    }
+  ],
+  "calls": [
+    {
+      "body": "# first\n",
+      "seconds": 77
+    }
+  ],
+  "materializations": 3,
+  "retained_scratch_directories": 3,
+  "keys": [
+    [
+      [
+        "python3",
+        "harness.py"
+      ],
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      77
+    ]
+  ]
+}

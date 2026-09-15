@@ -1,0 +1,64 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity
+.........................................F......E...........F...F.....
+======================================================================
+ERROR: test_the_serial_rule_survives_a_read_that_saw_free_capacity (tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation.test_the_serial_rule_survives_a_read_that_saw_free_capacity)
+THE READ IS NOT WHAT MAKES IT SAFE.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1365, in test_the_serial_rule_survives_a_read_that_saw_free_capacity
+    self.applying(store, stage)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 401, in applying
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, orchestration_id=self.ORCHESTRATION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        phase="apply", execution_attempt_id=stage["attempt_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(stage["attempt_id"]), **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 626, in admit_integration_execution
+    _refuse(f"integration capacity {name_value(orchestration_id)} "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"retains no collected preparation; an apply is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"authorized over content a preparation produced")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 134, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: integration capacity 'integration-capacity-1' retains no collected preparation; an apply is authorized over content a preparation produced
+
+======================================================================
+FAIL: test_apply_is_refused_while_preparation_is_still_live (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_apply_is_refused_while_preparation_is_still_live)
+A parent apply and its preparation can never both be live under one
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 565, in test_apply_is_refused_while_preparation_is_still_live
+    self.assertIn("an apply follows a preparation that ended successfully",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'an apply follows a preparation that ended successfully' not found in "integration capacity 'integration-capacity-1' retains no collected preparation; an apply is authorized over content a preparation produced"
+
+======================================================================
+FAIL: test_nothing_new_is_admitted_while_one_member_is_uncertain (tests.job_manager.test_managed_integration_capacity.TheUncertainExecutionHoldsItsCapacity.test_nothing_new_is_admitted_while_one_member_is_uncertain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 996, in test_nothing_new_is_admitted_while_one_member_is_uncertain
+    self.assertIn("ended successfully", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ended successfully' not found in "integration capacity 'integration-capacity-1' retains no collected preparation; an apply is authorized over content a preparation produced"
+
+======================================================================
+FAIL: test_a_competing_admission_from_another_connection_is_refused (tests.job_manager.test_managed_integration_capacity.TwoStoresContendForOneReservation.test_a_competing_admission_from_another_connection_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1496, in test_a_competing_admission_from_another_connection_is_refused
+    self.assertIn("ended successfully", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ended successfully' not found in "integration capacity 'integration-capacity-1' retains no collected preparation; an apply is authorized over content a preparation produced"
+
+----------------------------------------------------------------------
+Ran 70 tests in 0.659s
+
+FAILED (failures=3, errors=1)

@@ -1,0 +1,9 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation
+........................................................................................./home/sl/src/baton/v12/python/src/baton_v12/authority/store.py:687: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7cf01bad4c70>
+  connection.execute(statement)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..................................................................................................................
+----------------------------------------------------------------------
+Ran 203 tests in 12.441s
+
+OK

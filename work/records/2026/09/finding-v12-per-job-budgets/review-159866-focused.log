@@ -1,0 +1,9 @@
+test_resumed_serving_after_a_reopen_runs_no_command (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_resumed_serving_after_a_reopen_runs_no_command)
+RESUMED SERVING, not a getter. ... ok
+test_a_blocked_failure_can_never_be_published_or_authorized (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_failure_can_never_be_published_or_authorized)
+BLOCKED PUBLICATION, EVIDENCE AND IMPORT, asked of the PUBLIC OWNERS. ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.552s
+
+OK

@@ -1,0 +1,10 @@
+test_current_admission_accepts_a_plan_with_foreign_offer_and_digests (__main__.OwnerSurfaces.test_current_admission_accepts_a_plan_with_foreign_offer_and_digests) ... ok
+test_existing_readers_expose_offer_and_recorded_attempt_digests (__main__.OwnerSurfaces.test_existing_readers_expose_offer_and_recorded_attempt_digests) ... ok
+test_foreign_root_authority_refuses (__main__.OwnerSurfaces.test_foreign_root_authority_refuses) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.014s
+
+OK
+DEFECT OBSERVED: unissued planned offer and mismatched profile/input were admitted
+Existing public snapshot/claimed_offers_for/operation_record expose offer and attempt-record bindings

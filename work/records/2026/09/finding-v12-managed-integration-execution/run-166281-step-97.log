@@ -1,0 +1,21 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation
+......................................................................................................................................................................................................................................................................F.............
+======================================================================
+FAIL: test_the_child_identities_are_derived_and_not_minted (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_child_identities_are_derived_and_not_minted)
+A restart must reach the SAME three. Identities minted on a second
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 807, in test_the_child_identities_are_derived_and_not_minted
+    self.assertEqual(first[name], again[name])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'orch-1-prepare-941772e2' != 'orch-1-prepare-e7e0fa36'
+- orch-1-prepare-941772e2
+?                ^^^ -- ^
++ orch-1-prepare-e7e0fa36
+?                ^  ^^^^^
+
+
+----------------------------------------------------------------------
+Ran 276 tests in 13.197s
+
+FAILED (failures=1)

@@ -1,0 +1,19 @@
+Operator-supplied evidence, received 2026-09-14; exact invocation time not supplied.
+Command:
+docker ps -a --filter 'name=baton-runtime.start' --format '{{.ID}}\t{{.Names}}\t{{.Status}}'
+
+0d4c56e98200    baton-runtime.start-76227065aaf91dc381310375f106f03f345388cdbc7f0011d2d787925c649db9    Exited (0) 2 days ago
+f4cb69fc10a4    baton-runtime.start-69c32cb7d774c7eae20c145e3b9b31029173048c87926c1cc7a4ffb8734b30b9    Exited (0) 2 days ago
+e1f2870a3d8d    baton-runtime.start-6a4f8ee772f56fe5cf2cf386d5c72320572461c0ac645dfcf021b44982240b36    Exited (0) 2 days ago
+24883a02c1ae    baton-runtime.start-886a8063e67f42792f3b7d566cb9e8ad0deee5501b62d31e0239150344a58a30    Exited (0) 2 days ago
+3fbd01bf2553    baton-runtime.start-991573162903046c09ccdf6518daf9961ad4a0476531e6ce2ee5215861bd32b7    Exited (137) 2 days ago
+e3abf8787175    baton-runtime.start-595618e300b08f1024a2d801e547079396ada88ea6f21af25226ba8ac666a815    Exited (0) 2 days ago
+8a3050f9d79c    baton-runtime.start-b5ebce02c2075c405cb96c5002d15972970571d2905294593b6c06268a26b726    Exited (0) 2 days ago
+ef35fd598277    baton-runtime.start-fa26af1079c00b171223787fcc03de404e743388e1d5587432f79cf776bc3108    Exited (0) 2 days ago
+41550d32d00c    baton-runtime.start-cf746b5acd01e7753bcdd9d6a4edf7a952c6428f0b3373f6b1e458e7d4f8222b    Exited (0) 2 days ago
+17c8dadfe949    baton-runtime.start-ccb1427f97adc75c98668d3a568278570a24880aeed2a0bcc47316b18ba7da1d    Exited (0) 2 days ago
+a2b00b62bdbb    baton-runtime.start-e70236d74cfc04737fa04f7cef091a5eec284fc3707b52840881439fc3eced2a    Exited (0) 2 days ago
+83effcee9c77    baton-runtime.start-e83cae764be388030248841e3cb0098621ecada10863edb7c200a4bd8017657d    Exited (0) 2 days ago
+349badf3cd82    baton-runtime.start-5a4c28ecb74724dc0e08c613cd72908813c7d97c8b82d0c2841efdc8345977ab    Exited (137) 3 days ago
+99c01a528151    baton-runtime.start-89032a192ef34df4d53f63af3877f1a7438d94f3e12c0d6379ba983ae9507b40    Exited (0) 3 days ago
+4ec1e4e23355    baton-runtime.start-16785c954fd710853173b640520fdc594399e05c280e83812695a4089610ce29    Exited (0) 3 days ago

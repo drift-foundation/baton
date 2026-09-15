@@ -1,0 +1,40 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+.......................................F...F..............
+======================================================================
+FAIL: test_the_configured_ceiling_is_what_the_verification_is_given (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_configured_ceiling_is_what_the_verification_is_given)
+THE WHOLE CHAIN, and the number is OBSERVED rather than inferred.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 821, in test_the_configured_ceiling_is_what_the_verification_is_given
+    self.assertEqual(captured, [self.CEILING])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [300] != [120]
+
+First differing element 0:
+300
+120
+
+- [300]
++ [120]
+
+======================================================================
+FAIL: test_the_same_turn_with_no_job_is_given_the_image_default (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_same_turn_with_no_job_is_given_the_image_default)
+THE CONTROL, and without it the case above proves only that a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 850, in test_the_same_turn_with_no_job_is_given_the_image_default
+    self.assertEqual(captured, [self.workload.VERIFICATION_SECONDS])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [300] != [1800]
+
+First differing element 0:
+300
+1800
+
+- [300]
++ [1800]
+
+----------------------------------------------------------------------
+Ran 58 tests in 2.970s
+
+FAILED (failures=2)

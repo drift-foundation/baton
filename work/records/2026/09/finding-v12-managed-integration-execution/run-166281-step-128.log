@@ -1,0 +1,66 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_preparation
+..............................................FFFFFF....
+======================================================================
+FAIL: test_a_selection_this_build_cannot_place_refuses (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_a_selection_this_build_cannot_place_refuses) (configured='false')
+A STRING IS NOT A DECISION. Review claim169661: `given.get(...)`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 767, in test_a_selection_this_build_cannot_place_refuses
+    self.assertIn("cannot place", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot place' not found in 'this deployment selects managed integration preparation and supplies no integrator or serving deployment to resolve it from; a selected path that silently became the ordinary one would run the unmanaged branch under a managed configuration'
+
+======================================================================
+FAIL: test_a_selection_this_build_cannot_place_refuses (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_a_selection_this_build_cannot_place_refuses) (configured='true')
+A STRING IS NOT A DECISION. Review claim169661: `given.get(...)`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 767, in test_a_selection_this_build_cannot_place_refuses
+    self.assertIn("cannot place", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot place' not found in 'this deployment selects managed integration preparation and supplies no integrator or serving deployment to resolve it from; a selected path that silently became the ordinary one would run the unmanaged branch under a managed configuration'
+
+======================================================================
+FAIL: test_a_selection_this_build_cannot_place_refuses (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_a_selection_this_build_cannot_place_refuses) (configured=1)
+A STRING IS NOT A DECISION. Review claim169661: `given.get(...)`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 767, in test_a_selection_this_build_cannot_place_refuses
+    self.assertIn("cannot place", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot place' not found in 'this deployment selects managed integration preparation and supplies no integrator or serving deployment to resolve it from; a selected path that silently became the ordinary one would run the unmanaged branch under a managed configuration'
+
+======================================================================
+FAIL: test_a_selection_this_build_cannot_place_refuses (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_a_selection_this_build_cannot_place_refuses) (configured=0)
+A STRING IS NOT A DECISION. Review claim169661: `given.get(...)`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 765, in test_a_selection_this_build_cannot_place_refuses
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_selection_this_build_cannot_place_refuses (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_a_selection_this_build_cannot_place_refuses) (configured='')
+A STRING IS NOT A DECISION. Review claim169661: `given.get(...)`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 765, in test_a_selection_this_build_cannot_place_refuses
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_selection_this_build_cannot_place_refuses (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_a_selection_this_build_cannot_place_refuses) (configured='yes')
+A STRING IS NOT A DECISION. Review claim169661: `given.get(...)`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 767, in test_a_selection_this_build_cannot_place_refuses
+    self.assertIn("cannot place", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot place' not found in 'this deployment selects managed integration preparation and supplies no integrator or serving deployment to resolve it from; a selected path that silently became the ordinary one would run the unmanaged branch under a managed configuration'
+
+----------------------------------------------------------------------
+Ran 51 tests in 1.592s
+
+FAILED (failures=6)

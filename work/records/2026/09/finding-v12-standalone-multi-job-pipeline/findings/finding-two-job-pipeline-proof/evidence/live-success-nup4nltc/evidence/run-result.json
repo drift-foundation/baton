@@ -1,0 +1,174 @@
+{
+  "budget_clock": {
+    "remaining": 804.0877459360054,
+    "winner": {
+      "charged": 395.9122540639946,
+      "kind": "whole-run",
+      "limit": 1200,
+      "remaining": 804.0877459360054
+    }
+  },
+  "exceptional_stops": [],
+  "final_source_identity": "5d2e87388bb65b2939c20d60127f71bfb1425c47 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+  "final_source_status": "",
+  "final_target_identity": "62648125255cc4b460e6e185d499495ae4951b2f c959be30099a27ca4d59f126402ace0142e352fb",
+  "final_target_status": "D  check_hours.py\nMM demo/greeting.py\nM  demo/units.py\nMM tests/test_greeting.py\nD  tests/test_hours.py",
+  "final_test_exit": 0,
+  "final_view": {
+    "checks": [
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "check_greeting.py"
+        ],
+        "log": "final-greeting.log",
+        "status": 0
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "check_hours.py"
+        ],
+        "log": "final-hours.log",
+        "status": 0
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-v"
+        ],
+        "log": "final-tests.log",
+        "status": 0
+      }
+    ],
+    "clean": true,
+    "commit": "62648125255cc4b460e6e185d499495ae4951b2f",
+    "git_blobs": {
+      ".gitignore": "7a60b85e148f80966a550e5ab6a762a907c69ca6",
+      "README.md": "e85e850655ea70197cd455bfa8fa9b99875cd6a8",
+      "check_greeting.py": "c33c92115924021acb680949b1b736743d289cf2",
+      "check_hours.py": "305f0f798a1642e33b613e8920322cf0ca08ec89",
+      "demo/__init__.py": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+      "demo/greeting.py": "e58a0d1d5964f5a4c74ba0539b277037030cc2f0",
+      "demo/units.py": "7115232bd561caaf1df59b6b4ce818e891a83026",
+      "tests/__init__.py": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+      "tests/test_greeting.py": "db067f3bb1859545c4e2936996004dfce9e51a67",
+      "tests/test_guard.py": "9bef23b0be13b6b3915127349f141b9faa36e210",
+      "tests/test_hours.py": "54e1744e16e2a7884a77355e5d0616755f08fc7c",
+      "tests/test_units.py": "f5442b7ffa1723e6c0f12cdd784b786e9a788ee2"
+    },
+    "manifest": {
+      ".gitignore": {
+        "mode": 420,
+        "sha256": "862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793"
+      },
+      "README.md": {
+        "mode": 420,
+        "sha256": "f17e4568a49779e4215d3584ad29d009d9a7a81e44a1d06a5c67eefd41c5d9bf"
+      },
+      "check_greeting.py": {
+        "mode": 420,
+        "sha256": "ef2f043ae6e449d2e23f687695d21fc21c424776efe76e18af5997081d35fbd6"
+      },
+      "check_hours.py": {
+        "mode": 420,
+        "sha256": "20ccf6066c982ff5bd3d94aa37455f9916345172d40aa5079746ecfa90749f15"
+      },
+      "demo/__init__.py": {
+        "mode": 420,
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      "demo/greeting.py": {
+        "mode": 420,
+        "sha256": "b30a9aae2f567e51ec4ff770378659b51c4bc304d1280d87fc94ea9b891ce5ab"
+      },
+      "demo/units.py": {
+        "mode": 420,
+        "sha256": "89be1f256e08b750484bdd0191316391e2137cfd4cb383704d5c1648b724e691"
+      },
+      "tests/__init__.py": {
+        "mode": 420,
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      "tests/test_greeting.py": {
+        "mode": 420,
+        "sha256": "a722734fb3f54d3a5dbcd2dbd2e4e356ea0a17c7565cc5ff1335208b24ce4548"
+      },
+      "tests/test_guard.py": {
+        "mode": 420,
+        "sha256": "985459697a7e04ce76b1da1afdac4996aaef8264b5c3c11ba51b2806de16a816"
+      },
+      "tests/test_hours.py": {
+        "mode": 420,
+        "sha256": "7dbd216217c48fe14a1b1f0208785382f703db59e45650aafda1574ac57bd173"
+      },
+      "tests/test_units.py": {
+        "mode": 420,
+        "sha256": "26e146ea3d81b88972dc56538ee50b8ed438918c48968165e25f299701883523"
+      }
+    },
+    "path": "/home/sl/.local/state/baton/v12/live-ab-nup4nltc/final-view",
+    "tree": "c959be30099a27ca4d59f126402ace0142e352fb"
+  },
+  "initial": {
+    "source": {
+      "commit": "5d2e87388bb65b2939c20d60127f71bfb1425c47",
+      "path": "/home/sl/.local/state/baton/v12/live-ab-nup4nltc/source",
+      "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+    },
+    "target": {
+      "commit": "5d2e87388bb65b2939c20d60127f71bfb1425c47",
+      "path": "/home/sl/.local/state/baton/v12/live-ab-nup4nltc/target",
+      "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+    }
+  },
+  "live_provider": true,
+  "ordinary_operator_transitions": 0,
+  "provider": "Claude CLI live-ab-v1",
+  "result": "live-provider confirmation passed: both terminal and committed final verification passed",
+  "started_at": "2026-09-12T15:35:31.101815+00:00",
+  "stats_observations": {
+    "available": 133,
+    "coverage": "sampled command output only; gaps are not measurements or lifecycle results",
+    "gaps": [
+      {
+        "error": {
+          "type": "nonzero-exit"
+        },
+        "requested_ids": [
+          "070233f4b0e7ba4ed632e0434f9642c257debb5c01d0df634ecfce22d00daad8",
+          "9ee6be7b1a4eb676d97c0072fbe8ce593bbd3fbc09077d1737155b9ca9acf9b4"
+        ],
+        "sample": "samples.jsonl:58"
+      },
+      {
+        "error": {
+          "type": "nonzero-exit"
+        },
+        "requested_ids": [
+          "9f1337793fa0f4cb38e4595004aeb9668334f7fd86820115a162f184e002ea16",
+          "3fc6eb23717c04ede6f64fd09f7c5ddb60250adbf005e4e0bd224b84b482c72a",
+          "ef99f48b9218c01730c61527c16a82a9529ba5b17603d53ea176a0059980a300"
+        ],
+        "sample": "samples.jsonl:135"
+      }
+    ],
+    "not-requested": 10,
+    "truncated_samples": [],
+    "unavailable": 2
+  },
+  "submitted": true,
+  "success_wall_seconds": 397.0351264529745,
+  "target_checkout_is_output": false,
+  "terminal_both": true,
+  "terminal_wall_seconds": 395.9120752119925,
+  "wall_seconds": 397.0352161999908
+}

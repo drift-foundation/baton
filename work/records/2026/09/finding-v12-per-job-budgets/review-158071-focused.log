@@ -1,0 +1,13 @@
+test_the_post_import_verification_uses_the_jobs_ceiling (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_post_import_verification_uses_the_jobs_ceiling)
+THE SECOND HOST BOUNDARY, reachable at last. ... ok
+test_a_post_import_overrun_runs_once_and_defers (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_overrun_runs_once_and_defers)
+The overrun at this boundary: ONE call across four ordinary ticks, ... ok
+test_a_post_import_start_failure_is_the_same_shape (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_start_failure_is_the_same_shape)
+The OTHER way a host command produces no exit status: the child ... ok
+test_the_failed_scratch_is_retained_and_this_is_a_limitation (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_failed_scratch_is_retained_and_this_is_a_limitation)
+WHAT HAPPENS TO THE TREE THE FAILED ATTEMPT MATERIALIZED. ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 7.554s
+
+OK

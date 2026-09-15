@@ -1,0 +1,82 @@
+{
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 289856,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "144fdd79e760ebffb054320080217b96ea361f7af2e4d15342179498671de5df"
+  },
+  {
+   "bytes": 61158,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "b91a28547753e187a50a7106a67433b2d5c24caff7220f64000dc161242f675b"
+  }
+ ],
+ "claim": 169499,
+ "defects_corrected": [
+  "required_tests belongs to Integration, not StageDeployment; it is now INJECTED, with a case asserting the injected derivation is called and the member's real owner",
+  "job_execution_reader's reader takes four KEYWORD-ONLY operands; it now receives job_id, attempt_id, runtime_input_digest and runtime_policy_digest from the stage and the Job, with a case asserting the exact operand set",
+  "my 'recovery resolves nothing' claim was FALSE of my own code -- line, checkpoint and required tests ran before the intent test. The branch is now first; a resumed sweep asks no owner and recovers from the committed PLAN. Its case gives the resolver a required_tests that raises and a deployment with no owners, so reaching one fails it.",
+  "worker profile/policy/name/participant now come from the integration worker's own configured deployment document, not the producer's input-manifest digest"
+ ],
+ "execution_limit": {
+  "consequence": "the restoration run is UNLEDGERED and reported as such: env PYTHONPATH=src:tools:. .venv/bin/python3 -m unittest over the five focused modules, OK, 405 cases, 21.293s self-reported, cwd v12/python",
+  "what": "/tmp/w166281_run.py REFUSED to start step 117: 'REFUSING to start: 24.342633s remain of 1200.0s and this command is expected to cost about 25.0s with a 1.0s margin.'",
+  "what_i_did_not_do": "I did not edit the runner or the ledger to pass it; that guard is verification policy, not mine to relax.",
+  "why": "its CAP = 1200.0 predates owner M166331, which removed cumulative stopwatch caps as gates. Ledger 116 rows 1175.6573671388498s."
+ },
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "unchanged": [
+  {
+   "bytes": 85232,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "45c840b1ab07ae9cf51d814f2c22e6524c0b1920571a22a45265d9c003740b76"
+  },
+  {
+   "bytes": 162808,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "1996f8fdc3df90cf67dc9f6636bcd079ff047e8bb2d96d873551a7bb903aefaf"
+  },
+  {
+   "bytes": 73429,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_bundle.py",
+   "sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad"
+  },
+  {
+   "bytes": 191339,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+  }
+ ],
+ "unresolved_owner_question": {
+  "member": "apply_task_digest",
+  "question": "which owner answers the apply phase's task_digest at admission, before its parent offer exists?",
+  "what_i_did": "made it an explicit required operand rather than reusing the required-test digest, and LEFT _integration_operations passing preparation=None -- I will not enable a path whose plan carries an invented identity",
+  "why": "no owner answers it at admit time: the stage row carries no task digest, and the apply task cannot be composed before the preparation ends because it needs the collected digest"
+ },
+ "verification": {
+  "no": "no engine, model, image build or destructive cleanup",
+  "stage_execution": "sorted failing set compared again against the one bound at claim169019: identical; the resolver adds none",
+  "steps": {
+   "115": "last ledgered green, OK 405 cases",
+   "116": "REVERSAL -- move the branch back after resolution; failed exactly test_a_resumed_sweep_reads_no_owner_but_its_own_intent",
+   "117": "REFUSED by the runner's stale cap; restoration verified unledgered, OK 405 cases"
+  },
+  "stray": "root tools/ clean; all patches used absolute paths"
+ },
+ "what": "The resolver's two reproduced API errors corrected, the false resolves-nothing claim made true, and an actual execution limit hit.",
+ "work": "2b077949-W161230"
+}

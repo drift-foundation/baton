@@ -1,0 +1,6 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 30.516s
+
+OK
+{"gate": "W32577", "engine": "29.1.3", "image_digest": "sha256:9b8c98820877e33d38d33352d86cc3810e5b72d4935a181b82b512b4d3291de8", "jsonschema": "4.26.0", "authority": "deterministic boundary fixture", "live_model": false}

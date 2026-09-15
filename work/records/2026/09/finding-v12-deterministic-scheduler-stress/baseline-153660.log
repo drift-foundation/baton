@@ -1,0 +1,131 @@
+test_scheduling (unittest.loader._FailedTest.test_scheduling) ... ERROR
+test_scheduling (unittest.loader._FailedTest.test_scheduling) ... ERROR
+test_scheduling (unittest.loader._FailedTest.test_scheduling) ... ERROR
+test_scheduling (unittest.loader._FailedTest.test_scheduling) ... ERROR
+test_sweep (unittest.loader._FailedTest.test_sweep) ... ERROR
+test_sweep (unittest.loader._FailedTest.test_sweep) ... ERROR
+
+======================================================================
+ERROR: test_scheduling (unittest.loader._FailedTest.test_scheduling)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_scheduling
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 8, in <module>
+    from baton_v12.contracts import ContractRefusal
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/__init__.py", line 30, in <module>
+    from .manifest import (ARTIFACT_REF_MEMBERS, CONTENT_MANIFEST_MEMBERS,
+    ...<2 lines>...
+                           check_uri, check_work_ref)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 32, in <module>
+    from .validate import validate_fragment, verify_manifest_digest
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 32, in <module>
+    import jsonschema
+ModuleNotFoundError: No module named 'jsonschema'
+
+
+======================================================================
+ERROR: test_scheduling (unittest.loader._FailedTest.test_scheduling)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_scheduling
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 8, in <module>
+    from baton_v12.contracts import ContractRefusal
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/__init__.py", line 30, in <module>
+    from .manifest import (ARTIFACT_REF_MEMBERS, CONTENT_MANIFEST_MEMBERS,
+    ...<2 lines>...
+                           check_uri, check_work_ref)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 32, in <module>
+    from .validate import validate_fragment, verify_manifest_digest
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 32, in <module>
+    import jsonschema
+ModuleNotFoundError: No module named 'jsonschema'
+
+
+======================================================================
+ERROR: test_scheduling (unittest.loader._FailedTest.test_scheduling)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_scheduling
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 8, in <module>
+    from baton_v12.contracts import ContractRefusal
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/__init__.py", line 30, in <module>
+    from .manifest import (ARTIFACT_REF_MEMBERS, CONTENT_MANIFEST_MEMBERS,
+    ...<2 lines>...
+                           check_uri, check_work_ref)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 32, in <module>
+    from .validate import validate_fragment, verify_manifest_digest
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 32, in <module>
+    import jsonschema
+ModuleNotFoundError: No module named 'jsonschema'
+
+
+======================================================================
+ERROR: test_scheduling (unittest.loader._FailedTest.test_scheduling)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_scheduling
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 8, in <module>
+    from baton_v12.contracts import ContractRefusal
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/__init__.py", line 30, in <module>
+    from .manifest import (ARTIFACT_REF_MEMBERS, CONTENT_MANIFEST_MEMBERS,
+    ...<2 lines>...
+                           check_uri, check_work_ref)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 32, in <module>
+    from .validate import validate_fragment, verify_manifest_digest
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 32, in <module>
+    import jsonschema
+ModuleNotFoundError: No module named 'jsonschema'
+
+
+======================================================================
+ERROR: test_sweep (unittest.loader._FailedTest.test_sweep)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_sweep
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_sweep.py", line 18, in <module>
+    from baton_v12.contracts import ContractRefusal
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/__init__.py", line 30, in <module>
+    from .manifest import (ARTIFACT_REF_MEMBERS, CONTENT_MANIFEST_MEMBERS,
+    ...<2 lines>...
+                           check_uri, check_work_ref)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 32, in <module>
+    from .validate import validate_fragment, verify_manifest_digest
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 32, in <module>
+    import jsonschema
+ModuleNotFoundError: No module named 'jsonschema'
+
+
+======================================================================
+ERROR: test_sweep (unittest.loader._FailedTest.test_sweep)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_sweep
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_sweep.py", line 18, in <module>
+    from baton_v12.contracts import ContractRefusal
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/__init__.py", line 30, in <module>
+    from .manifest import (ARTIFACT_REF_MEMBERS, CONTENT_MANIFEST_MEMBERS,
+    ...<2 lines>...
+                           check_uri, check_work_ref)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 32, in <module>
+    from .validate import validate_fragment, verify_manifest_digest
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/validate.py", line 32, in <module>
+    import jsonschema
+ModuleNotFoundError: No module named 'jsonschema'
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.000s
+
+FAILED (errors=6)

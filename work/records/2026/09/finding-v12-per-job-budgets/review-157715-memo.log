@@ -1,0 +1,55 @@
+{
+  "case": "memo-harness-collision",
+  "observed": [
+    {
+      "case": "first-harness",
+      "new_child_calls": 1,
+      "refusal": "the configured required test 'harness.py' did not finish within this Job's 77s host_verification ceiling at 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; no exit status was observed and none is invented"
+    },
+    {
+      "case": "repeat",
+      "new_child_calls": 0,
+      "refusal": "the configured required test 'harness.py' did not finish within this Job's 77s host_verification ceiling at 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; no exit status was observed and none is invented"
+    },
+    {
+      "case": "different-harness",
+      "new_child_calls": 1,
+      "refusal": "the configured required test 'harness.py' did not finish within this Job's 77s host_verification ceiling at 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'; no exit status was observed and none is invented"
+    }
+  ],
+  "calls": [
+    {
+      "body": "# first\n",
+      "seconds": 77
+    },
+    {
+      "body": "# corrected\n",
+      "seconds": 77
+    }
+  ],
+  "materializations": 2,
+  "retained_scratch_directories": 2,
+  "keys": [
+    [
+      null,
+      [
+        "python3",
+        "harness.py"
+      ],
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      77,
+      "a04042ce4a5e66443c5a26ef2d4432aa535421286c062ea7bf55cba5bae15ef4"
+    ],
+    [
+      null,
+      [
+        "python3",
+        "harness.py"
+      ],
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      77,
+      "c5585d2c9e8fb01c41389401429b611e29852e71aa40034c3d9bd6dc4e7e621c"
+    ]
+  ]
+}
+Prior harness collision and repeat materialization reproducer now confirms independent failures and no repeat archive.

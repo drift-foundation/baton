@@ -113,3 +113,43 @@ The working-tree diff check is clean and no added line exceeds 79 characters.
 
 Awaiting review of the projection slice before the sink and the safe stream are
 built on top of it. Passing back rather than closing.
+
+## Claim 174354 — baton.claude, design only
+
+Unparked W61599 to `queued` at seq 174353 under the configured `baton.impl`
+Handler and claimed standalone at 174354, after the W63255 implementation
+handoff released its claim at 174297 — the condition M174203 names. Design
+only: no product or test file edited, nothing executed.
+
+Deliverable: `ACTIVITY-SOURCE-DESIGN-174354.md`,
+`sha256:696c117d71bc9740d33e458bb93a2e8e6a82dd424c02d55938539f53d65ac3f7`.
+
+**The producer nearly exists already.** `_ran_provider`'s drain reads the
+provider's own stdout inside the container in 4096-byte pieces and bounds what
+it KEEPS (`held`) while never counting what it READ. A cumulative
+`seen += len(piece)` beside `held.extend` is the whole producer, and it is
+content-free by construction.
+
+**The transport exists already too.** `exchange.EVENT_DIRECTORY` is a
+manager-owned directory bind-mounted at `/run/baton/exchange/events`, created
+mode `0o700`, and `serve_exchange` already publishes `state-<operation>.json`
+at `dispatched` and `answered`. One bounded integer member on that existing
+document needs no new mount, transport or document kind.
+
+**One fact decides the design and nobody has observed it**, including me:
+whether provider stdout grows during a turn under `--output-format json`, or
+arrives once at the end. The design carries both candidates — stdout as read
+today, or the native JSONL under the prepared home — with the one-turn
+experiment that chooses between them, and names the third outcome honestly: if
+neither grows incrementally, the options are a provider-contract change or
+reporting that provider-safe liveness is unavailable without one.
+
+**Two existing assertions are superseded, and the design says so rather than
+discovering it mid-slice:** `test_every_byte_is_counted_including_the_ones_discarded`
+(the stream it counts stops being the source) and
+`test_a_silent_worker_is_observed_as_silent_and_not_as_unobserved` (its
+"zero is a fact" position, under review [P2] and PLAN item 11). The
+recommendation is absence until positive growth, with no second observation
+instant proposed.
+
+Verification spending this claim: **zero measured seconds**.

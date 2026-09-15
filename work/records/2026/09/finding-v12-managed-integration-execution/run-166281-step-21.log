@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused
+..............
+----------------------------------------------------------------------
+Ran 14 tests in 0.004s
+
+OK

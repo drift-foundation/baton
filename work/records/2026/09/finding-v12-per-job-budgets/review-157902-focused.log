@@ -1,0 +1,6 @@
+test_a_reopened_serving_adopts_the_same_two_deliveries (tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched.test_a_reopened_serving_adopts_the_same_two_deliveries) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.242s
+
+OK

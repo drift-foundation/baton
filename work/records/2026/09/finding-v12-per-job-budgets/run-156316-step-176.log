@@ -1,0 +1,41 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout
+......FF......
+======================================================================
+FAIL: test_a_prefix_naming_another_task_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_prefix_naming_another_task_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2610, in test_a_prefix_naming_another_task_is_refused
+    self.assertIn(
+    ~~~~~~~~~~~~~^
+        "names task", self.refused(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            phase="base", input_commit=self.HELD["source_base"],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            input_tree="anything", completed=completed,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            not_run=["isolated"]))
+            ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'names task' not found in "the failure's completed combined observation's input_tree is one full lowercase object name"
+
+======================================================================
+FAIL: test_a_prefix_running_another_command_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_prefix_running_another_command_is_refused)
+The base phase really has a prefix, so this is where a completed
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2594, in test_a_prefix_running_another_command_is_refused
+    self.assertIn(
+    ~~~~~~~~~~~~~^
+        "one configured command is run against every state",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.refused(phase="base", input_commit=self.HELD["source_base"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     input_tree="anything", completed=completed,
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     not_run=["isolated"]))
+                     ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'one configured command is run against every state' not found in "the failure's completed combined observation's input_tree is one full lowercase object name"
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.003s
+
+FAILED (failures=2)

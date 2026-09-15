@@ -1,0 +1,24 @@
+$ env PYTHONPATH=src:tools:. env W103525_EXPECT=14 python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs
+E
+======================================================================
+ERROR: test_the_opened_edge_and_one_integrator_serialize_four_jobs (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs)
+THE CONTINUATION, and the integration capacity the PLAN asks for.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2619, in test_the_opened_edge_and_one_integrator_serialize_four_jobs
+    self.b_and_terminal(held, trace)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2800, in b_and_terminal
+    self.case.integration_turn(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, self.attempt_of(held, live + "/integration")), 0)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7996, in integration_turn
+    launch_place=launched.place,
+                 ^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'place'
+
+----------------------------------------------------------------------
+Ran 1 test in 3.086s
+
+FAILED (errors=1)

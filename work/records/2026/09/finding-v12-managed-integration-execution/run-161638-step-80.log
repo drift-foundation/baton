@@ -1,0 +1,834 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_storage
+.E..EEEEE.EE.EEEEEEEF/usr/lib/python3.13/tempfile.py:1132: ResourceWarning: Implicitly cleaning up <TemporaryDirectory '/tmp/v12-integration-8xrxjyea'>
+  _warnings.warn(warn_message, ResourceWarning)
+/usr/lib/python3.13/tempfile.py:1132: ResourceWarning: Implicitly cleaning up <TemporaryDirectory '/tmp/v12-integration-uyvyu56a'>
+  _warnings.warn(warn_message, ResourceWarning)
+/usr/lib/python3.13/tempfile.py:1132: ResourceWarning: Implicitly cleaning up <TemporaryDirectory '/tmp/v12-integration-w993rf85'>
+  _warnings.warn(warn_message, ResourceWarning)
+/usr/lib/python3.13/traceback.py:805: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x71ea083ab790>
+  def _extract_caret_anchors_from_line_segment(segment):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/traceback.py:805: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x71ea083ab4c0>
+  def _extract_caret_anchors_from_line_segment(segment):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/traceback.py:805: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x71ea083aba60>
+  def _extract_caret_anchors_from_line_segment(segment):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+EEFEEEEEEE....E..
+======================================================================
+ERROR: test_a_read_only_handle_records_nothing (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_a_read_only_handle_records_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 457, in test_a_read_only_handle_records_nothing
+    recorded = self.record(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_a_second_connection_sees_the_same_refusal (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_a_second_connection_sees_the_same_refusal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 740, in test_a_second_connection_sees_the_same_refusal
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_an_ordinary_single_representation_reads_normally (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_an_ordinary_single_representation_reads_normally)
+The guard refuses a DOUBLE representation and nothing else: a store
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 753, in test_an_ordinary_single_representation_reads_normally
+    recorded = self.record(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_the_legacy_reader_refuses_it (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_legacy_reader_refuses_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 705, in test_the_legacy_reader_refuses_it
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_the_legacy_writer_refuses_a_key_the_managed_side_holds (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_legacy_writer_refuses_a_key_the_managed_side_holds)
+Write order two, through `prepare_result`'s own claim -- the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 724, in test_the_legacy_writer_refuses_a_key_the_managed_side_holds
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_the_managed_reader_refuses_it (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_managed_reader_refuses_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 696, in test_the_managed_reader_refuses_it
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_a_second_managed_result_for_one_snapshot_is_refused (tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable.test_a_second_managed_result_for_one_snapshot_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 777, in test_a_second_managed_result_for_one_snapshot_is_refused
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_another_snapshot_of_the_same_submission_is_ordinary (tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable.test_another_snapshot_of_the_same_submission_is_ordinary)
+A later target advance needs a NEW result from the same submission;
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 790, in test_another_snapshot_of_the_same_submission_is_ordinary
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_a_recorded_managed_act_is_refused_by_the_queue_history (tests.integration.test_managed_storage.TheJournalVocabularyIsQueueOwned.test_a_recorded_managed_act_is_refused_by_the_queue_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 826, in test_a_recorded_managed_act_is_refused_by_the_queue_history
+    store, _entry, _lease = self.populated()
+                            ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 169, in populated
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_the_queue_reads_normally_until_one_is_recorded (tests.integration.test_managed_storage.TheJournalVocabularyIsQueueOwned.test_the_queue_reads_normally_until_one_is_recorded)
+The gap is the new KIND and nothing else: the same store, the same
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 847, in test_the_queue_reads_normally_until_one_is_recorded
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_a_changed_immutable_task_operand_collides (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_changed_immutable_task_operand_collides) (member='harness_digest')
+[P1] The operation identity omitted the TASKS it stored, so a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 613, in test_a_changed_immutable_task_operand_collides
+    first = case.record(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_a_changed_immutable_task_operand_collides (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_changed_immutable_task_operand_collides) (member='task_digest')
+[P1] The operation identity omitted the TASKS it stored, so a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 613, in test_a_changed_immutable_task_operand_collides
+    first = case.record(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_a_changed_immutable_task_operand_collides (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_changed_immutable_task_operand_collides) (member='input_digest')
+[P1] The operation identity omitted the TASKS it stored, so a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 613, in test_a_changed_immutable_task_operand_collides
+    first = case.record(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_a_portable_result_carries_no_coordinator_location (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_portable_result_carries_no_coordinator_location)
+Managed fields hold content-addressed artifacts; a workspace path,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 596, in test_a_portable_result_carries_no_coordinator_location
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_a_preparation_is_retained_and_an_apply_follows_it_later (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_preparation_is_retained_and_an_apply_follows_it_later)
+THE ACCEPTED SEQUENCE, in three journalled acts rather than one.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 482, in test_a_preparation_is_retained_and_an_apply_follows_it_later
+    created = record_managed_result(
+        store, submission(), orchestration_id=ORCHESTRATION,
+        canonical_target_id=fixtures.TARGET, target_revision=REVISION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_a_stored_report_is_re_adopted_on_the_way_out (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_stored_report_is_re_adopted_on_the_way_out)
+A ROW IS NOT A DOCUMENT UNTIL IT HAS BEEN OWNED.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 654, in test_a_stored_report_is_re_adopted_on_the_way_out
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_a_tampered_stored_task_is_refused_on_the_way_out (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_tampered_stored_task_is_refused_on_the_way_out)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 669, in test_a_tampered_stored_task_is_refused_on_the_way_out
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_an_apply_importing_other_content_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_an_apply_importing_other_content_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 528, in test_an_apply_importing_other_content_is_refused
+    self.record(store, phases=("prepare",))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_an_apply_naming_a_foreign_preparation_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_an_apply_naming_a_foreign_preparation_is_refused)
+[P1] Sharing a parent row is not parentage. An apply naming another
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 515, in test_an_apply_naming_a_foreign_preparation_is_refused
+    self.record(store, phases=("prepare",))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_an_apply_with_no_preparation_retained_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_an_apply_with_no_preparation_retained_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 538, in test_an_apply_with_no_preparation_retained_is_refused
+    record_managed_result(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        store, submission(), orchestration_id=ORCHESTRATION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        canonical_target_id=fixtures.TARGET, target_revision=REVISION)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_an_exact_repeat_replays (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_an_exact_repeat_replays)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 626, in test_an_exact_repeat_replays
+    first = self.record(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_one_result_carries_both_phases_at_one_snapshot (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_one_result_carries_both_phases_at_one_snapshot)
+[P1] Review 2026-09-13T18:51:48Z: the granularity was wrong.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 560, in test_one_result_carries_both_phases_at_one_snapshot
+    recorded = self.record(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_the_result_uses_the_existing_result_state_vocabulary (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_the_result_uses_the_existing_result_state_vocabulary)
+A managed result is a distinct admitted REPRESENTATION of the same
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 579, in test_the_result_uses_the_existing_result_state_vocabulary
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_a_concurrent_shape_change_is_caught_under_the_lock (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_a_concurrent_shape_change_is_caught_under_the_lock)
+[P2] Review 2026-09-13T18:51:48Z: the preflight ran BEFORE the lock
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 343, in test_a_concurrent_shape_change_is_caught_under_the_lock
+    store, _entry, _lease = self.populated()
+                            ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 169, in populated
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+ERROR: test_the_step_preserves_the_records_and_leases_it_found (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_step_preserves_the_records_and_leases_it_found)
+WHAT IT PRESERVES IT PRESERVES BY NOT TOUCHING -- and this compares
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 308, in test_the_step_preserves_the_records_and_leases_it_found
+    store, entry, lease = self.populated()
+                          ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 169, in populated
+    self.record(store)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 143, in record
+    answer = record_managed_result(store, submission(), **held)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2344, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, create,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2342, in create
+    return managed_result_of(store, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2502, in managed_result_of
+    _committed_act(store, row["operation_id"],
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   _signature(MANAGED_KIND,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+                              _managed_operands(row, accounts)))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2264, in _committed_act
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"recorded as having written")
+baton_v12.contracts.errors.ContractRefusal: this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written
+
+======================================================================
+FAIL: test_a_result_that_does_not_answer_its_task_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_result_that_does_not_answer_its_task_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 640, in test_a_result_that_does_not_answer_its_task_is_refused
+    self.assertIn("answers the integration it was composed for",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'answers the integration it was composed for' not found in "this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written"
+
+======================================================================
+FAIL: test_a_task_for_another_orchestration_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_task_for_another_orchestration_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 649, in test_a_task_for_another_orchestration_is_refused
+    self.assertIn("and this result is", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'and this result is' not found in "this store holds no act 'result.managed:integration-capacity-1'; a managed row whose own act is not in the journal is a row nobody is recorded as having written"
+
+----------------------------------------------------------------------
+Ran 36 tests in 0.078s
+
+FAILED (failures=2, errors=25)

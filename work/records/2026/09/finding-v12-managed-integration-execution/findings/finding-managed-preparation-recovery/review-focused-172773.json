@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation",
+    "tests.manager.test_reconciliation_task"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "seconds": 65.82415766999475,
+  "exit": 0,
+  "timed_out": false,
+  "signals": [],
+  "limits_seconds": [
+    180,
+    5,
+    5
+  ],
+  "process_group_gone": true
+}

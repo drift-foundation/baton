@@ -1,0 +1,42 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+.............F...........................F..............F...
+======================================================================
+FAIL: test_an_exact_retry_replays_without_materializing_or_swapping (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_an_exact_retry_replays_without_materializing_or_swapping)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 881, in test_an_exact_retry_replays_without_materializing_or_swapping
+    self.assertEqual(first["outcome"], "published")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'resumed' != 'published'
+- resumed
++ published
+
+
+======================================================================
+FAIL: test_a_deleted_intent_act_refuses (tests.tools.test_managed_integration.ThePublicationRowIsNotAnAccountWithoutItsActs.test_a_deleted_intent_act_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 1347, in test_a_deleted_intent_act_refuses
+    self.assertEqual(held["outcome"], "published")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'resumed' != 'published'
+- resumed
++ published
+
+
+======================================================================
+FAIL: test_the_positive_binds_every_required_fact (tests.tools.test_managed_integration.TheTrustedOwnersAreBothRequired.test_the_positive_binds_every_required_fact)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 672, in test_the_positive_binds_every_required_fact
+    self.assertEqual(answer["outcome"], "published")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'resumed' != 'published'
+- resumed
++ published
+
+
+----------------------------------------------------------------------
+Ran 60 tests in 1.597s
+
+FAILED (failures=3)

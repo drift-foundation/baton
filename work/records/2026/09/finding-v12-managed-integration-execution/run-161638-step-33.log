@@ -1,0 +1,45 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_managed_integration_capacity
+.FFFE.........
+======================================================================
+ERROR: test_the_apply_phase_is_admitted_after_preparation_ends (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_the_apply_phase_is_admitted_after_preparation_ends)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 276, in test_the_apply_phase_is_admitted_after_preparation_ends
+    self.assignment(generation=2))
+    ^^^^^^^^^^^^^^^
+AttributeError: 'ThePhasesAreSerial' object has no attribute 'assignment'
+
+======================================================================
+FAIL: test_an_admission_naming_another_participant_is_refused (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_an_admission_naming_another_participant_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 287, in test_an_admission_naming_another_participant_is_refused
+    self.assertIn("is planned for", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'is planned for' not found in "execution 'prepare-attempt-1' claimed a dict and this admission presents a dict; a membership is admitted against the claim its own owner recorded"
+
+======================================================================
+FAIL: test_an_unplanned_execution_cannot_be_admitted (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_an_unplanned_execution_cannot_be_admitted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 297, in test_an_unplanned_execution_cannot_be_admitted
+    self.assertIn("is not a planned member", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'is not a planned member' not found in "no runtime attempt 'attempt-nobody-planned'"
+
+======================================================================
+FAIL: test_apply_is_refused_while_preparation_is_still_live (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_apply_is_refused_while_preparation_is_still_live)
+A parent apply and its preparation can never both be live under one
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 253, in test_apply_is_refused_while_preparation_is_still_live
+    self.assertIn("an apply follows a preparation that ended successfully",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'an apply follows a preparation that ended successfully' not found in "offer 'prepare-offer-1' is already issued; its bearer existed only in the process that minted it, so this call cannot reproduce one and will not answer with a bearer that does not derive the stored verifier"
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.061s
+
+FAILED (failures=3, errors=1)

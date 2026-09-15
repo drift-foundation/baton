@@ -1,0 +1,119 @@
+--- a/v12/python/tests/manager/test_runtime_deadline_engine_budget.py
++++ b/v12/python/tests/manager/test_runtime_deadline_engine_budget.py
+@@ -1,5 +1,6 @@
+ """Deterministic supervisor/fixture coverage; never calls Docker or a real child."""
+ import json
++import hashlib
+ import io
+ import signal
+ from pathlib import Path
+@@ -51,7 +52,7 @@
+             if name in self.live:
+                 out = json.dumps([self.live[name]]).encode()
+             else:
+-                status, out, err = 1, b"[]\n", ("Error: No such container: " + name + "\n").encode()
++                status, out, err = 1, b"[]\n", ("Error response from daemon: No such container: " + name + "\n").encode()
+         elif command[1:3] == ["rm", "--force"]:
+             if self.fail_remove:
+                 status, err = 1, b"daemon refused removal"
+@@ -147,6 +148,86 @@
+             self.assertLessEqual(timeout, 30)
+             self.assertLess(started + timeout, 1180)
+             self.assertNotIn("foreign", command)
++
++    def test_supported_absence_variants_before_and_after_immutable_id_removal(self):
++        inventory = SimpleNamespace(run_id="selected-run", names=lambda: ["selected-name"])
++        owned = json.dumps([{"Id": "a" * 64, "Name": "/selected-name",
++                             "Config": {"Labels": {gate.LABEL: inventory.run_id}}}]).encode()
++        for prefix in (b"Error response from daemon: No such container: ", b"Error: No such container: "):
++            for stdout in (b"", b"\n", b"[]", b"[]\n"):
++                for present in (False, True):
++                    with self.subTest(prefix=prefix, stdout=stdout, present=present):
++                        absent = subprocess.CompletedProcess([], 1, stdout, prefix + b"selected-name\n")
++                        responses = ([subprocess.CompletedProcess([], 0, owned, b""),
++                                      subprocess.CompletedProcess([], 0, b"a" * 64 + b"\n", b"")]
++                                     if present else []) + [absent]
++                        calls = SimpleNamespace(run=mock.Mock(side_effect=responses))
++                        result = gate.cleanup(inventory, calls, 1050)
++                        self.assertEqual(result, {"resolved": ["selected-name"], "unresolved": [], "errors": []})
++                        commands = [["docker", "container", "inspect", "selected-name"]]
++                        if present:
++                            commands += [["docker", "rm", "--force", "a" * 64], commands[0]]
++                        self.assertEqual(calls.run.call_args_list, [mock.call(command, 1050) for command in commands])
++
++    def test_absence_refuses_wrong_status_name_diagnostic_and_stdout(self):
++        inventory = SimpleNamespace(run_id="selected-run", names=lambda: ["selected-name"])
++        stderr = b"Error response from daemon: No such container: selected-name\n"
++        cases = [(status, b"[]\n", stderr) for status in (0, 2, -9, True, 1.0)]
++        cases += [(1, stdout, stderr) for stdout in (b"[", b"[{}]", b"null", b"{}", b"[]\nextra", b"\xff")]
++        cases += [(1, b"[]\n", diagnostic) for diagnostic in (
++            stderr.replace(b"selected-name", b"selected-name-extra"),
++            stderr.replace(b"selected-name", b"different-name"),
++            b"permission denied while trying to connect to the Docker daemon socket",
++            b"Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?",
++            b"Error response from daemon: unknown diagnostic: selected-name\n",
++            stderr + b"additional error\n", b"warning\n" + stderr, stderr + b"\xff",
++            b"Error: No such container: different-name\n", b"")]
++        for status, stdout, diagnostic in cases:
++            with self.subTest(status=status, stdout=stdout, diagnostic=diagnostic):
++                calls = SimpleNamespace(run=mock.Mock(return_value=subprocess.CompletedProcess([], status, stdout, diagnostic)))
++                result = gate.cleanup(inventory, calls, 1050)
++                self.assertEqual(result["resolved"], [])
++                self.assertEqual(result["unresolved"], ["selected-name"])
++                self.assertEqual(len(result["errors"]), 1)
++                calls.run.assert_called_once_with(["docker", "container", "inspect", "selected-name"], 1050)
++
++    def test_retained_owner_responses_replay_exact_cleanup_without_docker(self):
++        source = Path(gate.__file__).parent / "owner-execution-164414" / "run"
++        digests = (
++            "43463c6164b60e9d4b50ddd01bc3e9ecc4c94fca2a4c1133a707de64a00e8d78",
++            "0d9b74feb2c8b79af82ff162889aa1976ece3b2708b5fad523b9667dc84e7464",
++            "6d4eb8bf965b30636f230007a94dcc9478f613229900c8d0f02b6c547152c81d",
++            "ad4ea8d76420dddf9373014fdc25ed4c6358533c61d5a7f3e81062afa9437653",
++            "990f547a1bb032df2e4dd7a2711489630b086b429bbdf9ca19b45a1cd1fe4718",
++            "3c6060438c411dec564b50234e3b6e6e5c60da2bd9baae49b3b520cdaeb5e087",
++        )
++        records = []
++        for index, digest in enumerate(digests, 1):
++            raw = (source / f"parent-call-{index}.json").read_bytes()
++            self.assertEqual(hashlib.sha256(raw).hexdigest(), digest)
++            records.append(json.loads(raw))
++        names = {row["command"][-1] for row in records if row["command"][1:3] == ["container", "inspect"]}
++        self.assertEqual(len(names), 4)
++        self.root.mkdir()
++        (self.root / "names").mkdir()
++        inventory = gate.Inventory(self.root / "names", "6eb2ab1bec5a4b92bb2d69fbe5db1a71")
++        for name in names:
++            inventory.register(name)
++        remaining = iter(records)
++        def replay(command, *, capture_output, timeout):
++            row = next(remaining)
++            self.assertEqual(command, row["command"])
++            self.assertTrue(capture_output)
++            self.assertGreater(timeout, 0)
++            return subprocess.CompletedProcess(command, row["returncode"], row["stdout"].encode(), row["stderr"].encode())
++        calls = gate.Calls(self.root, gate.Budget(clock=self.clock), runner=replay)
++        result = gate.cleanup(inventory, calls, 1050)
++        self.assertEqual(set(result["resolved"]), names)
++        self.assertEqual(result["unresolved"], [])
++        self.assertEqual(result["errors"], [])
++        self.assertEqual(calls.sequence, 6)
++        self.assertEqual(list(remaining), [])
++        self.assertEqual(self.docker.commands, [])
+ 
+     def test_body_timeout_stops_owned_child_then_uses_reserved_cleanup(self):
+         self.process.duration = 500
+--- a/work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py
++++ b/work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py
+@@ -236,8 +236,9 @@
+ 
+ def inspect_owned(calls, inventory, name, end):
+     result = calls.run(["docker", "container", "inspect", name], end)
+-    missing = "Error: No such container: " + name
+-    if result.returncode and result.stdout.strip() in (b"", b"[]") and result.stderr.decode().strip() == missing:
++    missing = tuple((prefix + name).encode() for prefix in (
++        "Error response from daemon: No such container: ", "Error: No such container: "))
++    if type(result.returncode) is int and result.returncode == 1 and result.stdout.strip() in (b"", b"[]") and result.stderr.strip() in missing:
+         return None
+     if result.returncode:
+         raise RuntimeError("cannot establish exact container identity/absence: " + name)

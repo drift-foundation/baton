@@ -1,0 +1,659 @@
+{
+ "author_cap_seconds": 1200.0,
+ "author_remaining_seconds": 1124.4612200450501,
+ "author_spent_seconds": 75.53877995494986,
+ "authority": "W167896 owns its own verification record. Review claim168071: viewer runs were written into W161230s prospective ledger (steps 36-42, 1.438459018987487s), preserved there and in verification-attribution-168071.json; future viewer runs are recorded HERE.",
+ "cap_seconds": 1200.0,
+ "runs": [
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1200.0,
+    "spent_seconds_before": 0,
+    "timeout_seconds": 1199.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.20859248499618843,
+   "exit": 0,
+   "label": "viewer-corrections",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-01.log",
+   "ok": true,
+   "step": 1,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1199.7914075150038,
+    "spent_seconds_before": 0.20859248499618843,
+    "timeout_seconds": 1198.7914075150038
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.22611180300009437,
+   "exit": 0,
+   "label": "new-cases",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-02.log",
+   "ok": true,
+   "step": 2,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1199.5652957120037,
+    "spent_seconds_before": 0.4347042879962828,
+    "timeout_seconds": 1198.5652957120037
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2503144990041619,
+   "exit": 0,
+   "label": "drill-identities",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-03.log",
+   "ok": true,
+   "step": 3,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1199.3149812129996,
+    "spent_seconds_before": 0.6850187870004447,
+    "timeout_seconds": 1198.3149812129996
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.25919429599889554,
+   "exit": 0,
+   "label": "canonical",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-04.log",
+   "ok": true,
+   "step": 4,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1199.0557869170007,
+    "spent_seconds_before": 0.9442130829993403,
+    "timeout_seconds": 1198.0557869170007
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2548805819969857,
+   "exit": 1,
+   "label": "reversal",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-05.log",
+   "ok": false,
+   "step": 5,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1198.8009063350037,
+    "spent_seconds_before": 1.199093664996326,
+    "timeout_seconds": 1197.8009063350037
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2534742989955703,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-06.log",
+   "ok": true,
+   "step": 6,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1198.547432036008,
+    "spent_seconds_before": 1.4525679639918962,
+    "timeout_seconds": 1197.547432036008
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2540768190083327,
+   "exit": 0,
+   "label": "final",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-07.log",
+   "ok": true,
+   "step": 7,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1198.2933552169998,
+    "spent_seconds_before": 1.706644783000229,
+    "timeout_seconds": 1197.2933552169998
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2624205920001259,
+   "exit": 1,
+   "label": "p2-fixes",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-08.log",
+   "ok": false,
+   "step": 8,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1198.0309346249996,
+    "spent_seconds_before": 1.9690653750003548,
+    "timeout_seconds": 1197.0309346249996
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2663021119951736,
+   "exit": 1,
+   "label": "banner-order",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-09.log",
+   "ok": false,
+   "step": 9,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1197.7646325130045,
+    "spent_seconds_before": 2.2353674869955285,
+    "timeout_seconds": 1196.7646325130045
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.274951080995379,
+   "exit": 1,
+   "label": "real-allocation",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-10.log",
+   "ok": false,
+   "step": 10,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1197.489681432009,
+    "spent_seconds_before": 2.5103185679909075,
+    "timeout_seconds": 1196.489681432009
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2637452420021873,
+   "exit": 0,
+   "label": "real-allocation",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-11.log",
+   "ok": true,
+   "step": 11,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1197.225936190007,
+    "spent_seconds_before": 2.7740638099930948,
+    "timeout_seconds": 1196.225936190007
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 32.0872624249896,
+   "exit": 0,
+   "label": "real-observation",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-12.log",
+   "ok": true,
+   "step": 12,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1165.1386737650173,
+    "spent_seconds_before": 34.8613262349827,
+    "timeout_seconds": 1164.1386737650173
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.094530898000812,
+   "exit": 0,
+   "label": "trimmed",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-13.log",
+   "ok": true,
+   "step": 13,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1162.0441428670165,
+    "spent_seconds_before": 37.95585713298351,
+    "timeout_seconds": 1161.0441428670165
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.103155117991264,
+   "exit": 1,
+   "label": "reversal",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-14.log",
+   "ok": false,
+   "step": 14,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1158.9409877490252,
+    "spent_seconds_before": 41.059012250974774,
+    "timeout_seconds": 1157.9409877490252
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.0979448199941544,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-15.log",
+   "ok": true,
+   "step": 15,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1155.843042929031,
+    "spent_seconds_before": 44.15695707096893,
+    "timeout_seconds": 1154.843042929031
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.1639628970006015,
+   "exit": 1,
+   "label": "more-cases",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-16.log",
+   "ok": false,
+   "step": 16,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1152.6790800320305,
+    "spent_seconds_before": 47.32091996796953,
+    "timeout_seconds": 1151.6790800320305
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.118637792998925,
+   "exit": 0,
+   "label": "detail-order",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-17.log",
+   "ok": true,
+   "step": 17,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1149.5604422390315,
+    "spent_seconds_before": 50.439557760968455,
+    "timeout_seconds": 1148.5604422390315
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.1144828329997836,
+   "exit": 1,
+   "label": "reversal2",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-18.log",
+   "ok": false,
+   "step": 18,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1146.4459594060318,
+    "spent_seconds_before": 53.55404059396824,
+    "timeout_seconds": 1145.4459594060318
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.10373134999827,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-19.log",
+   "ok": true,
+   "step": 19,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1143.3422280560335,
+    "spent_seconds_before": 56.65777194396651,
+    "timeout_seconds": 1142.3422280560335
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.122711892006919,
+   "exit": 0,
+   "label": "drill-threshold",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-20.log",
+   "ok": true,
+   "step": 20,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1140.2195161640266,
+    "spent_seconds_before": 59.78048383597343,
+    "timeout_seconds": 1139.2195161640266
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.1302448459900916,
+   "exit": 0,
+   "label": "owner-artifact",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-21.log",
+   "ok": true,
+   "step": 21,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1137.0892713180365,
+    "spent_seconds_before": 62.91072868196352,
+    "timeout_seconds": 1136.0892713180365
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.1390377310017357,
+   "exit": 0,
+   "label": "reversal",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-22.log",
+   "ok": true,
+   "step": 22,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1133.9502335870347,
+    "spent_seconds_before": 66.04976641296525,
+    "timeout_seconds": 1132.9502335870347
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.144759069997235,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-23.log",
+   "ok": true,
+   "step": 23,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1130.8054745170375,
+    "spent_seconds_before": 69.19452548296249,
+    "timeout_seconds": 1129.8054745170375
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.1562741909874603,
+   "exit": 1,
+   "label": "reversal-real",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-24.log",
+   "ok": false,
+   "step": 24,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1127.64920032605,
+    "spent_seconds_before": 72.35079967394995,
+    "timeout_seconds": 1126.64920032605
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.187980280999909,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer/run-167908-step-25.log",
+   "ok": true,
+   "step": 25,
+   "timed_out": false
+  }
+ ]
+}

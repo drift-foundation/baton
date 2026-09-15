@@ -1,0 +1,26 @@
+F
+======================================================================
+FAIL: test_preparation_judgments_apply_and_target_settle (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_preparation_judgments_apply_and_target_settle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 19, in test_preparation_judgments_apply_and_target_settle
+    self.complete()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 162, in complete
+    case.complete(configured=configure, completed=adopted)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2612, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 158, in adopted
+    self.assertEqual(integration_capacity_of(held.job, result["managed_result_id"])["root"]["lifecycle"], "ended")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ending' != 'ended'
+- ending
++ ended
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.332s
+
+FAILED (failures=1)

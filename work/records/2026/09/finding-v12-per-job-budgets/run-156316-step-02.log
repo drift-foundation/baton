@@ -1,0 +1,57 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_execution_limits
+EE..............EE.......
+======================================================================
+ERROR: test_a_migrated_store_then_accepts_a_configured_job (tests.job_manager.test_execution_limits.TheMigrationLeavesOldJobsMeaningExactlyWhatTheyMeant.test_a_migrated_store_then_accepts_a_configured_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_execution_limits.py", line 348, in test_a_migrated_store_then_accepts_a_configured_job
+    self.schema_four()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_execution_limits.py", line 316, in schema_four
+    connection.execute(
+    ~~~~~~~~~~~~~~~~~~^
+        "INSERT INTO meta (name, value) VALUES ('store_kind', ?)",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        (schema.STORE_KIND,))
+        ^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: table meta has no column named name
+
+======================================================================
+ERROR: test_a_schema_four_store_migrates_and_its_jobs_keep_the_defaults (tests.job_manager.test_execution_limits.TheMigrationLeavesOldJobsMeaningExactlyWhatTheyMeant.test_a_schema_four_store_migrates_and_its_jobs_keep_the_defaults)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_execution_limits.py", line 328, in test_a_schema_four_store_migrates_and_its_jobs_keep_the_defaults
+    self.schema_four()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_execution_limits.py", line 316, in schema_four
+    connection.execute(
+    ~~~~~~~~~~~~~~~~~~^
+        "INSERT INTO meta (name, value) VALUES ('store_kind', ?)",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        (schema.STORE_KIND,))
+        ^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: table meta has no column named name
+
+======================================================================
+ERROR: test_repeated_read_only_status_changes_nothing (tests.job_manager.test_execution_limits.TheStoreKeepsWhatTheJobAskedFor.test_repeated_read_only_status_changes_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_execution_limits.py", line 271, in test_repeated_read_only_status_changes_nothing
+    operations = ManagerOperations(self.control(), self.session)
+TypeError: ManagerOperations.__init__() missing 2 required keyword-only arguments: 'mint_bearer' and 'deliver_bearer'
+
+======================================================================
+ERROR: test_the_public_status_reports_requested_and_effective_values (tests.job_manager.test_execution_limits.TheStoreKeepsWhatTheJobAskedFor.test_the_public_status_reports_requested_and_effective_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_execution_limits.py", line 251, in test_the_public_status_reports_requested_and_effective_values
+    held = projection.status(store, ManagerOperations(self.control(),
+                                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+                                                      self.session),
+                                                      ^^^^^^^^^^^^^
+TypeError: ManagerOperations.__init__() missing 2 required keyword-only arguments: 'mint_bearer' and 'deliver_bearer'
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.016s
+
+FAILED (errors=4)

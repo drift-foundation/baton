@@ -1,0 +1,60 @@
+$ env PYTHONPATH=src:tools:. env W103525_EXPECT=12 python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs
+E
+======================================================================
+ERROR: test_the_opened_edge_and_one_integrator_serialize_four_jobs (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs)
+THE CONTINUATION, and the integration capacity the PLAN asks for.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2615, in test_the_opened_edge_and_one_integrator_serialize_four_jobs
+    held = self.four_job_deployment(own_workers=True, ticks=7)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2113, in four_job_deployment
+    result_judgment_workers=self.case.judgment_workers(),
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7163, in judgment_workers
+    held = {kind: self.judgment_execution(kind, job_id)
+                  ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7132, in judgment_execution
+    work_id = self.judgment_work(kind)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7094, in judgment_work
+    authority.create_work(work_id, fixtures.ROUTE,
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                          contract="v12-assignment-1",
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          operation_id=f"create-{kind}-judgment-work")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/api.py", line 218, in create_work
+    return self._core.create_work(work_id, route,
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+                                  operation_id=operation_id,
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  contract=contract, phase=phase,
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                  gate=gate, scope=scope, labels=labels)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 678, in create_work
+    return self._replay(
+           ~~~~~~~~~~~~^
+        operation_id,
+        ^^^^^^^^^^^^^
+    ...<10 lines>...
+            "labels": list(wanted)}),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+        body, at=at)
+        ^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 2383, in _replay
+    return self._store.replay(operation_id, signature, action,
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              at=at or self._now())
+                              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/store.py", line 502, in replay
+    raise outcome["refusal"]
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/store.py", line 436, in _savepoint
+    value = body()
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 643, in body
+    raise Refusal(f"Work {name_of(work_id)} already exists")
+baton_v12.authority.errors.Refusal: Work '0000000a-W3' already exists
+
+----------------------------------------------------------------------
+Ran 1 test in 0.038s
+
+FAILED (errors=1)

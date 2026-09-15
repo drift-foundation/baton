@@ -1,0 +1,53 @@
+{
+  "setup_claim": 170372,
+  "owner_message": 170369,
+  "children": [
+    {
+      "group": 1,
+      "work": "W170380",
+      "create_seq": 170380,
+      "record": "finding-managed-preparation-completion"
+    },
+    {
+      "group": 2,
+      "work": "W170382",
+      "create_seq": 170382,
+      "record": "finding-managed-preparation-recovery",
+      "on": "W170380",
+      "block_seq": 170383
+    },
+    {
+      "group": 3,
+      "work": "W170385",
+      "create_seq": 170385,
+      "record": "finding-managed-apply-settlement",
+      "on": "W170382",
+      "block_seq": 170386
+    },
+    {
+      "group": 4,
+      "work": "W170387",
+      "create_seq": 170387,
+      "record": "finding-managed-integration-acceptance",
+      "on": "W170385",
+      "block_seq": 170388
+    }
+  ],
+  "parent_on": "W170387",
+  "parent_block_seq": 170389,
+  "product_changes": false,
+  "test_runs": 0,
+  "group2_route_seq": 170406,
+  "pre_dispatch_children_snapshot": 170407,
+  "group1_route_seq": 170409,
+  "parent_return_route_seq": 170418,
+  "final_snapshot": 170420,
+  "parent_route": "baton.ops",
+  "parent_next": "baton.ops",
+  "parent_handler": null,
+  "parent_phase": "block",
+  "group1_handler": "baton.tuner",
+  "group1_phase": "active",
+  "successors_phase": "block",
+  "pass_refusal": "Adding parent dependency170389 released claim into block; pass refused unclaimed/block. Canonical reroute170418 returned owner route, retaining Next=ops."
+}

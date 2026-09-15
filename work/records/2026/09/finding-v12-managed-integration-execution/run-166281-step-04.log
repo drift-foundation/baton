@@ -1,0 +1,36 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.manager.test_reconciliation_task
+...........................F.F.F
+======================================================================
+FAIL: test_an_unbounded_request_refuses (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_an_unbounded_request_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 258, in test_an_unbounded_request_refuses
+    self.assertIn("is not one request document", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'is not one request document' not found in 'preparation-request.json is larger than 262144 bytes'
+
+======================================================================
+FAIL: test_the_request_is_not_read_through_a_symlink (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_the_request_is_not_read_through_a_symlink)
+A link out of the input namespace would let the document that
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 250, in test_the_request_is_not_read_through_a_symlink
+    self.assertIn("symlink", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'symlink' not found in 'preparation-request.json could not be opened without following a link (OSError)'
+
+======================================================================
+FAIL: test_only_the_standard_library_is_imported (tests.manager.test_reconciliation_task.TheWorkloadImportsNoManager.test_only_the_standard_library_is_imported)
+Read the imports rather than the paragraph that promises them.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 96, in test_only_the_standard_library_is_imported
+    self.assertEqual(names, {"hashlib", "json", "os", "subprocess"})
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Items in the first set but not the second:
+'stat'
+
+----------------------------------------------------------------------
+Ran 32 tests in 2.113s
+
+FAILED (failures=3)

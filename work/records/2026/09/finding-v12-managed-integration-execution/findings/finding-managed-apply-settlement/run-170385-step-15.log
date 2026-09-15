@@ -1,0 +1,30 @@
+E
+======================================================================
+ERROR: test_preparation_judgments_apply_and_target_settle (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_preparation_judgments_apply_and_target_settle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 19, in test_preparation_judgments_apply_and_target_settle
+    self.complete()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 139, in complete
+    case.complete(configured=configure, completed=adopted)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2264, in complete
+    held = case.reviewed()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3490, in reviewed
+    held = self.implemented()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2859, in implemented
+    job, control, composed = self.serving()
+                             ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2251, in serving
+    members.update(configured(self))
+                   ~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 42, in configure
+    world.vcs_in = MethodType(stage_fixture.EachJobBindsItsOwnDeploymentAndLine.vcs_in, world)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'EachJobBindsItsOwnDeploymentAndLine' has no attribute 'vcs_in'. Did you mean: 'vcs_at'?
+
+----------------------------------------------------------------------
+Ran 1 test in 0.032s
+
+FAILED (errors=1)

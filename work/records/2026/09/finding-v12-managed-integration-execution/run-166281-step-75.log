@@ -1,0 +1,40 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation
+.........................................................................FF...E.................................................................................................................
+======================================================================
+ERROR: test_the_whole_sequence_runs_against_real_owners (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_whole_sequence_runs_against_real_owners)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2610, in test_the_whole_sequence_runs_against_real_owners
+    self.authority().assignment_of(self.EXECUTION_WORK)["participant"],
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+FAIL: test_the_actor_holds_one_live_claim_and_the_preparation_takes_it (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_actor_holds_one_live_claim_and_the_preparation_takes_it)
+WHY THIS FIXTURE PRE-CLAIMS NOTHING, asserted rather than asserted
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2636, in test_the_actor_holds_one_live_claim_and_the_preparation_takes_it
+    self.assertEqual(self.authority().slot_holder(self.ACTOR),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     self.EXECUTION_WORK)
+                     ^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != '00000000-W2'
+
+======================================================================
+FAIL: test_the_claim_carries_the_authoritys_own_authorization (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_claim_carries_the_authoritys_own_authorization)
+The assignment is not the whole of what a claim answers.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2675, in test_the_claim_carries_the_authoritys_own_authorization
+    self.assertEqual(offer["claim_role"], projected["route"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'baton.impl' != 'integration-preparation'
+- baton.impl
++ integration-preparation
+
+
+----------------------------------------------------------------------
+Ran 192 tests in 12.326s
+
+FAILED (failures=2, errors=1)

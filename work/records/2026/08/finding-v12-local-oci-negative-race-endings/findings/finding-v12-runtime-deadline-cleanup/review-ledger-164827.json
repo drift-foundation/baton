@@ -1,0 +1,38 @@
+{
+  "work": "W32577",
+  "claim": 164827,
+  "cap_seconds": 60.0,
+  "authority": "review-2026-09-13T18-26-19Z.md",
+  "prior_reviewer_seconds": 5.285408751995419,
+  "runs": [
+    {
+      "argv": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-W",
+        "error",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.manager.test_runtime_deadline_engine_budget"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "status": "finished",
+      "guard": {
+        "cap_seconds": 60.0,
+        "spent_seconds_before": 5.285408751995419,
+        "remaining_seconds_before": 54.71459124800458,
+        "expected_seconds": 10.0,
+        "margin_seconds": 3.0,
+        "timeout_seconds": 35.0
+      },
+      "log": "review-run-164827-1.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.3640428889921168
+    }
+  ],
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "jsonschema": "4.26.0",
+  "qualification": "Pinned4.26.0 deterministic classifier/budget verification; no engine gate or current absence claim",
+  "reviewer_spent_seconds": 5.649451640987536,
+  "reviewer_remaining_seconds": 54.350548359012464
+}

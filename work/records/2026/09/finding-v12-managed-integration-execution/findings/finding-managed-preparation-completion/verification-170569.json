@@ -1,0 +1,127 @@
+{
+  "work": "W170380",
+  "claim": 170569,
+  "runs": [
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/probe-real-cut-retry-170533.py"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 0.006193751993123442,
+      "exit": 2,
+      "group_proved_gone": null,
+      "label": "group1-real-fault-recovery",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170569.log",
+      "ok": false,
+      "signalled": null,
+      "step": 170569,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/probe-real-cut-retry-170533.py"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 0.5687735480023548,
+      "exit": 1,
+      "group_proved_gone": null,
+      "label": "group1-real-fault-recovery",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170570.log",
+      "ok": false,
+      "signalled": null,
+      "step": 170570,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/probe-real-cut-retry-170533.py"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 0.8470617209968623,
+      "exit": 0,
+      "group_proved_gone": null,
+      "label": "group1-real-fault-recovery",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170571.log",
+      "ok": true,
+      "signalled": null,
+      "step": 170571,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 4.628251463000197,
+      "exit": 0,
+      "group_proved_gone": null,
+      "label": "group1-real-admission-and-recovery",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170572.log",
+      "ok": true,
+      "signalled": null,
+      "step": 170572,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation",
+        "tests.job_manager.test_managed_integration_capacity",
+        "tests.integration.test_managed_storage"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 7.997477808006806,
+      "exit": 0,
+      "group_proved_gone": null,
+      "label": "group1-correction-regressions",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170573.log",
+      "ok": true,
+      "signalled": null,
+      "step": 170573,
+      "timed_out": false
+    }
+  ],
+  "claim_measured_seconds": 14.047758291999344,
+  "group1_author_measured_seconds": 98.71050525197643,
+  "parent_ledger_measured_seconds": 2442.624595595803,
+  "reviewer_cumulative_seconds": 42.91925322503812,
+  "historical_unknowns": "Preserved; no inferred total."
+}

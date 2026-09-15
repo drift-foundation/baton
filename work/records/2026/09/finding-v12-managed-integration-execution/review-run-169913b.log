@@ -1,0 +1,8 @@
+runTest (__main__.SelectedTraversal.runTest) ... OBSERVED managed admission after upstream review, sweep 1: KeyError accept BEFORE PreparationExecution.prepare invocation
+OBSERVED next sweep returns deferred publication refusal: {"acts": [{"act": "admit", "detail": {"category": "refused", "code": "operation-collision", "message": "'/home/sl/src/baton/v12/python/v12-w71917-2q1n6y78/state/int\u2026 already exists; an immutable bundle is published once and never appended to"}, "episode": 1, "operation_id": "offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "outcome": "deferred", "stage_id": "job-a/integration"}], "observed": 0, "observed_at": "2026-09-02T00:00:00.000Z", "recovered": null, "refreshed": [{"attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571", "episode": 1, "stage_id": "job-a/implementation", "state": "not-asked"}, {"attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c", "episode": 1, "stage_id": "job-a/review", "state": "not-asked"}, {"attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "episode": 1, "stage_id": "job-a/integration", "state": "not-asked"}], "replaced": [], "spoken": [], "started": []}
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.381s
+
+OK

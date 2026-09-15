@@ -1,0 +1,23 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs
+F
+======================================================================
+FAIL: test_the_opened_edge_and_one_integrator_serialize_four_jobs (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs)
+THE CONTINUATION, and the integration capacity the PLAN asks for.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2774, in test_the_opened_edge_and_one_integrator_serialize_four_jobs
+    self.b_and_terminal(held, trace)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2962, in b_and_terminal
+    carried = self.every_remaining_import(held, trace, integrated)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 3114, in every_remaining_import
+    answer = self.reconciled_next(held, trace, done, judged=judged)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 3059, in reconciled_next
+    self.assertEqual(len(mine), 3, sorted(mine))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 3 : [('result-3cbd79f003842ed48b4242318f045b8603ae2899caf9e9be7d870acd4065ff1f', 'verification')]
+
+----------------------------------------------------------------------
+Ran 1 test in 7.865s
+
+FAILED (failures=1)

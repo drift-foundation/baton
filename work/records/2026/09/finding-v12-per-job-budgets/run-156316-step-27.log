@@ -1,0 +1,899 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_single_worker
+FFFF/home/sl/src/baton/v12/python/src/baton_v12/authority/store.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d79030>
+  return [dict(row) for row in self._db.execute(sql, args).fetchall()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/authority/store.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d79a80>
+  return [dict(row) for row in self._db.execute(sql, args).fetchall()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/authority/store.py:361: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d7a2f0>
+  return [dict(row) for row in self._db.execute(sql, args).fetchall()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FFFF/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:181: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d79b70>
+  def _members(taken, what, required, optional):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:181: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d78310>
+  def _members(taken, what, required, optional):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:181: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d7b790>
+  def _members(taken, what, required, optional):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FFF./usr/lib/python3.13/_strptime.py:516: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d7bf10>
+  def _strptime(data_string, format="%a %b %d %H:%M:%S %Y"):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.13/_strptime.py:516: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d78d60>
+  def _strptime(data_string, format="%a %b %d %H:%M:%S %Y"):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.....F/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d78c70>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d7a890>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d79030>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d78e50>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FF/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d78d60>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.FF/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py:174: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d78e50>
+  for record in store._connection.execute(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py:174: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d7a890>
+  for record in store._connection.execute(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.FF/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:199: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d7a200>
+  allowed = frozenset(required) | frozenset(optional)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:199: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d78c70>
+  allowed = frozenset(required) | frozenset(optional)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FFF...<frozen importlib._bootstrap>:488: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d79a80>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<frozen importlib._bootstrap>:488: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d7a890>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+F..............F../usr/lib/python3/dist-packages/jsonschema/exceptions.py:152: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d78d60>
+  for k, v in kwargs.items():
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3/dist-packages/jsonschema/exceptions.py:152: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2c1dd50>
+  for k, v in kwargs.items():
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.FF/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:199: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2c1fe20>
+  allowed = frozenset(required) | frozenset(optional)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:199: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2c1f790>
+  allowed = frozenset(required) | frozenset(optional)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FF./home/sl/src/baton/v12/python/src/baton_v12/authority/core.py:1008: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2c1f790>
+  def project_work(self, work_id):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py:1008: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2c1f100>
+  def project_work(self, work_id):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......................F.F/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2c1f5b0>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2c1f4c0>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FF./home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a44b1030>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2c1fc40>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+F..FF/usr/lib/python3/dist-packages/jsonschema/_keywords.py:284: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2c1fc40>
+  if not any(validator.is_type(instance, type) for type in types):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3/dist-packages/jsonschema/_keywords.py:284: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2a048b0>
+  if not any(validator.is_type(instance, type) for type in types):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FF/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d7a110>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2a04040>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2c1f790>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d7a200>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FFF/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2c1f790>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2a046d0>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FF/usr/lib/python3/dist-packages/jsonschema/_keywords.py:281: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2c1f790>
+  def type(validator, types, instance, schema):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3/dist-packages/jsonschema/_keywords.py:281: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2d78d60>
+  def type(validator, types, instance, schema):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FF/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a44b1030>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FF......./home/sl/src/baton/v12/python/src/baton_v12/authority/store.py:358: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2c1fa60>
+  return None if row is None else dict(row)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+F.F./home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:199: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a44b1030>
+  allowed = frozenset(required) | frozenset(optional)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...FFFF/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2a04220>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x70a7a2a055d0>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+FFF
+======================================================================
+FAIL: test_a_dead_daemon_is_a_refusal_and_not_an_unreachable_engine (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_dead_daemon_is_a_refusal_and_not_an_unreachable_engine)
+Review 2026-09-04T21:52:30Z [P2]: WHAT THIS BOUNDARY REALLY SEES.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2743, in test_a_dead_daemon_is_a_refusal_and_not_an_unreachable_engine
+    self.faulted("fault-dead-daemon")
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2609, in faulted
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_a_fresh_incarnation_reconstructs_the_same_observation (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_fresh_incarnation_reconstructs_the_same_observation)
+THE RESTART CONTROL. The manager's lifetime is not the container's,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2827, in test_a_fresh_incarnation_reconstructs_the_same_observation
+    self.faulted("fault-4")
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2609, in faulted
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_a_real_observing_status_run_mutates_no_durable_state (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_real_observing_status_run_mutates_no_durable_state)
+W85500 review 2026-09-04T14-27-54Z [P1]: BEHAVIOUR, not capability.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2906, in test_a_real_observing_status_run_mutates_no_durable_state
+    self.faulted("observe-durable")
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2609, in faulted
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_a_runner_that_timed_out_is_the_same_unasked_question (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_runner_that_timed_out_is_the_same_unasked_question)
+The type that used to reach the blanket branch.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2715, in test_a_runner_that_timed_out_is_the_same_unasked_question
+    report, held, _before = self.unreachable(
+                            ~~~~~~~~~~~~~~~~^
+        "fault-timeout",
+        ^^^^^^^^^^^^^^^^
+        subprocess.TimeoutExpired(["docker", "inspect"], 600))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2664, in unreachable
+    self.faulted(incarnation)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2609, in faulted
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_an_arbitrary_defect_in_this_composition_escapes (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_an_arbitrary_defect_in_this_composition_escapes)
+AND THE OTHER HALF OF THE SAME RULE.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2775, in test_an_arbitrary_defect_in_this_composition_escapes
+    self.faulted("fault-defect")
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2609, in faulted
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_an_engine_that_cannot_be_asked_is_uncertain_not_gone (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_an_engine_that_cannot_be_asked_is_uncertain_not_gone)
+W85500 re-review 2026-09-04T19:08:40Z [P1], at the real seam.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2691, in test_an_engine_that_cannot_be_asked_is_uncertain_not_gone
+    report, held, before = self.unreachable(
+                           ~~~~~~~~~~~~~~~~^
+        "fault-unreachable", OSError("no such engine binary"))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2664, in unreachable
+    self.faulted(incarnation)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2609, in faulted
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_repeated_sweeps_replay_the_same_facts_and_do_nothing (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_repeated_sweeps_replay_the_same_facts_and_do_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2809, in test_repeated_sweeps_replay_the_same_facts_and_do_nothing
+    self.faulted("fault-3")
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2609, in faulted
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_the_fault_alone_authorizes_no_act_at_all (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_the_fault_alone_authorizes_no_act_at_all)
+The acceptance's negative half, read from the OWNERS' own records.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2794, in test_the_fault_alone_authorizes_no_act_at_all
+    self.faulted("fault-2")
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2609, in faulted
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_the_next_sweep_reports_exceptional_and_a_quiescent_runtime (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_the_next_sweep_reports_exceptional_and_a_quiescent_runtime)
+BOTH AXES, FROM ONE SWEEP, and neither derived from the other.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2641, in test_the_next_sweep_reports_exceptional_and_a_quiescent_runtime
+    self.faulted("fault-1")
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2609, in faulted
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_the_observation_only_status_surface_reports_the_same_terminal (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_the_observation_only_status_surface_reports_the_same_terminal)
+PLAN ITEM 5, WHERE A CLAIM EXISTS.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2869, in test_the_observation_only_status_surface_reports_the_same_terminal
+    self.faulted("fault-5")
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2609, in faulted
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_the_observation_only_surface_opens_no_authority_and_no_engine (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_the_observation_only_surface_opens_no_authority_and_no_engine)
+What it is NOT, asserted rather than promised.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2991, in test_the_observation_only_surface_opens_no_authority_and_no_engine
+    self.faulted("fault-6")
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2609, in faulted
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_a_mismatched_credential_mount_is_refused_and_stopped (tests.tools.test_single_worker.CredentialRestartProvesTheLiveRuntimeFirst.test_a_mismatched_credential_mount_is_refused_and_stopped)
+Exactly identified, and what disagrees is what it has mounted.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1787, in test_a_mismatched_credential_mount_is_refused_and_stopped
+    self.assertIn("cannot be recovered", detail)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot be recovered' not found in "attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch root holds ['launch.json'] and this manager creates exactly ['command', 'events', 'launch.json']; adopting a widened root would authorize deleting an entry this component never wrote; the runtime was identified as 'runtime-single-1'; the identification is committed as 'attached' and this attempt's execution runtime is now 'running'; the failed preparation is journalled as 'runtime.preparation-failed:5216d33ac31b80877f9d9633afccdfea…"
+
+======================================================================
+FAIL: test_a_record_naming_another_runtime_is_refused_without_adopting (tests.tools.test_single_worker.CredentialRestartProvesTheLiveRuntimeFirst.test_a_record_naming_another_runtime_is_refused_without_adopting)
+The live runtime is not the one this manager's record names.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1745, in test_a_record_naming_another_runtime_is_refused_without_adopting
+    self.assertIn("cannot be recovered", detail)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot be recovered' not found in "attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch root holds ['launch.json'] and this manager creates exactly ['command', 'events', 'launch.json']; adopting a widened root would authorize deleting an entry this component never wrote; the runtime was identified as 'runtime-somebody-else'; the identification is committed as 'attached' and this attempt's execution runtime is now 'uncertain'; the failed preparation is journalled as 'runtime.preparation-failed:5216d33ac31b80877f9d9633afccdfea…"
+
+======================================================================
+FAIL: test_the_exact_recovery_adopts_through_the_public_proof (tests.tools.test_single_worker.CredentialRestartProvesTheLiveRuntimeFirst.test_the_exact_recovery_adopts_through_the_public_proof)
+The positive case: the engine is ASKED before any bearer is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1712, in test_the_exact_recovery_adopts_through_the_public_proof
+    self.assertEqual(held["job-a/implementation"]["state"], "waiting")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'exceptional' != 'waiting'
+- exceptional
++ waiting
+
+
+======================================================================
+FAIL: test_a_mismatched_credential_mount_is_refused_and_stopped (tests.tools.test_single_worker.IdentificationIsOwedUntilItIsDone.test_a_mismatched_credential_mount_is_refused_and_stopped)
+Exactly identified, and what disagrees is what it has mounted.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1787, in test_a_mismatched_credential_mount_is_refused_and_stopped
+    self.assertIn("cannot be recovered", detail)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot be recovered' not found in "attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch root holds ['launch.json'] and this manager creates exactly ['command', 'events', 'launch.json']; adopting a widened root would authorize deleting an entry this component never wrote; the runtime was identified as 'runtime-single-1'; the identification is committed as 'attached' and this attempt's execution runtime is now 'running'; the failed preparation is journalled as 'runtime.preparation-failed:5216d33ac31b80877f9d9633afccdfea…"
+
+======================================================================
+FAIL: test_a_record_naming_another_runtime_is_refused_without_adopting (tests.tools.test_single_worker.IdentificationIsOwedUntilItIsDone.test_a_record_naming_another_runtime_is_refused_without_adopting)
+The live runtime is not the one this manager's record names.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1745, in test_a_record_naming_another_runtime_is_refused_without_adopting
+    self.assertIn("cannot be recovered", detail)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot be recovered' not found in "attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch root holds ['launch.json'] and this manager creates exactly ['command', 'events', 'launch.json']; adopting a widened root would authorize deleting an entry this component never wrote; the runtime was identified as 'runtime-somebody-else'; the identification is committed as 'attached' and this attempt's execution runtime is now 'uncertain'; the failed preparation is journalled as 'runtime.preparation-failed:5216d33ac31b80877f9d9633afccdfea…"
+
+======================================================================
+FAIL: test_the_exact_recovery_adopts_through_the_public_proof (tests.tools.test_single_worker.IdentificationIsOwedUntilItIsDone.test_the_exact_recovery_adopts_through_the_public_proof)
+The positive case: the engine is ASKED before any bearer is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1712, in test_the_exact_recovery_adopts_through_the_public_proof
+    self.assertEqual(held["job-a/implementation"]["state"], "waiting")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'exceptional' != 'waiting'
+- exceptional
++ waiting
+
+
+======================================================================
+FAIL: test_a_matching_terminal_drives_the_whole_ending (tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners.test_a_matching_terminal_drives_the_whole_ending)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3091, in test_a_matching_terminal_drives_the_whole_ending
+    job, control, operations, attempt_id, held = self.worked("ending-ok")
+                                                 ~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3060, in worked
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_a_terminal_naming_another_envelope_stops_before_intake (tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners.test_a_terminal_naming_another_envelope_stops_before_intake)
+The mismatch control, through the real owners.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3125, in test_a_terminal_naming_another_envelope_stops_before_intake
+    job, control, operations, attempt_id, held = self.worked("ending-bad")
+                                                 ~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3060, in worked
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_a_terminal_with_no_usable_digest_never_reaches_the_ending (tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners.test_a_terminal_with_no_usable_digest_never_reaches_the_ending)
+The missing and malformed controls, refused at their own owner.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3147, in test_a_terminal_with_no_usable_digest_never_reaches_the_ending
+    job, control, operations, attempt_id, held = self.worked("ending-null")
+                                                 ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3060, in worked
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_the_ending_is_not_asked_again_once_cleanup_is_settled (tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners.test_the_ending_is_not_asked_again_once_cleanup_is_settled)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3109, in test_the_ending_is_not_asked_again_once_cleanup_is_settled
+    job, control, operations, _attempt_id, _held = self.worked("ending-once")
+                                                   ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3060, in worked
+    stage = self.commanded(job, operations)["jobs"][0]["stages"][0]
+            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_a_work_request_over_the_composed_root_reaches_the_provider (tests.tools.test_single_worker.TheCertifiedWorkerReachesTheDeliveredTask.test_a_work_request_over_the_composed_root_reaches_the_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1344, in test_a_work_request_over_the_composed_root_reaches_the_provider
+    inputs = self.composed_root()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1332, in composed_root
+    projected = self.commanded(job, operations)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_the_held_bytes_and_not_the_path_are_what_is_delivered (tests.tools.test_single_worker.TheConfigurationBoundaryIsClosed.test_the_held_bytes_and_not_the_path_are_what_is_delivered)
+A change to the configured path after construction changes nothing.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 786, in test_the_held_bytes_and_not_the_path_are_what_is_delivered
+    projected = self.commanded(job, operations)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_a_mismatched_credential_mount_is_refused_and_stopped (tests.tools.test_single_worker.TheEndingAndTheNamingAreOneAct.test_a_mismatched_credential_mount_is_refused_and_stopped)
+Exactly identified, and what disagrees is what it has mounted.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1787, in test_a_mismatched_credential_mount_is_refused_and_stopped
+    self.assertIn("cannot be recovered", detail)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot be recovered' not found in "attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch root holds ['launch.json'] and this manager creates exactly ['command', 'events', 'launch.json']; adopting a widened root would authorize deleting an entry this component never wrote; the runtime was identified as 'runtime-single-1'; the identification is committed as 'attached' and this attempt's execution runtime is now 'running'; the failed preparation is journalled as 'runtime.preparation-failed:5216d33ac31b80877f9d9633afccdfea…"
+
+======================================================================
+FAIL: test_a_record_naming_another_runtime_is_refused_without_adopting (tests.tools.test_single_worker.TheEndingAndTheNamingAreOneAct.test_a_record_naming_another_runtime_is_refused_without_adopting)
+The live runtime is not the one this manager's record names.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1745, in test_a_record_naming_another_runtime_is_refused_without_adopting
+    self.assertIn("cannot be recovered", detail)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot be recovered' not found in "attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch root holds ['launch.json'] and this manager creates exactly ['command', 'events', 'launch.json']; adopting a widened root would authorize deleting an entry this component never wrote; the runtime was identified as 'runtime-somebody-else'; the identification is committed as 'attached' and this attempt's execution runtime is now 'uncertain'; the failed preparation is journalled as 'runtime.preparation-failed:5216d33ac31b80877f9d9633afccdfea…"
+
+======================================================================
+FAIL: test_the_exact_recovery_adopts_through_the_public_proof (tests.tools.test_single_worker.TheEndingAndTheNamingAreOneAct.test_the_exact_recovery_adopts_through_the_public_proof)
+The positive case: the engine is ASKED before any bearer is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1712, in test_the_exact_recovery_adopts_through_the_public_proof
+    self.assertEqual(held["job-a/implementation"]["state"], "waiting")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'exceptional' != 'waiting'
+- exceptional
++ waiting
+
+
+======================================================================
+FAIL: test_a_death_between_the_naming_and_the_record_leaves_neither (tests.tools.test_single_worker.TheFailedStartEndingCommitsWithItsNaming.test_a_death_between_the_naming_and_the_record_leaves_neither)
+The exact interval, interrupted.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2375, in test_a_death_between_the_naming_and_the_record_leaves_neither
+    self.assertEqual(held["job-a/implementation"]["state"], "waiting")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'exceptional' != 'waiting'
+- exceptional
++ waiting
+
+
+======================================================================
+FAIL: test_a_mismatched_credential_mount_is_refused_and_stopped (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_a_mismatched_credential_mount_is_refused_and_stopped)
+Exactly identified, and what disagrees is what it has mounted.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1787, in test_a_mismatched_credential_mount_is_refused_and_stopped
+    self.assertIn("cannot be recovered", detail)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot be recovered' not found in "attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch root holds ['launch.json'] and this manager creates exactly ['command', 'events', 'launch.json']; adopting a widened root would authorize deleting an entry this component never wrote; the runtime was identified as 'runtime-single-1'; the identification is committed as 'attached' and this attempt's execution runtime is now 'running'; the failed preparation is journalled as 'runtime.preparation-failed:5216d33ac31b80877f9d9633afccdfea…"
+
+======================================================================
+FAIL: test_a_missing_launch_delivery_before_a_start_is_authored_once (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_a_missing_launch_delivery_before_a_start_is_authored_once)
+The other side of the same rule: before a start, absence is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1886, in test_a_missing_launch_delivery_before_a_start_is_authored_once
+    self.assertEqual(held["job-a/implementation"]["state"], "waiting")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'exceptional' != 'waiting'
+- exceptional
++ waiting
+
+
+======================================================================
+FAIL: test_a_record_naming_another_runtime_is_refused_without_adopting (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_a_record_naming_another_runtime_is_refused_without_adopting)
+The live runtime is not the one this manager's record names.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1745, in test_a_record_naming_another_runtime_is_refused_without_adopting
+    self.assertIn("cannot be recovered", detail)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot be recovered' not found in "attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch root holds ['launch.json'] and this manager creates exactly ['command', 'events', 'launch.json']; adopting a widened root would authorize deleting an entry this component never wrote; the runtime was identified as 'runtime-somebody-else'; the identification is committed as 'attached' and this attempt's execution runtime is now 'uncertain'; the failed preparation is journalled as 'runtime.preparation-failed:5216d33ac31b80877f9d9633afccdfea…"
+
+======================================================================
+FAIL: test_the_exact_recovery_adopts_through_the_public_proof (tests.tools.test_single_worker.ThePostStartLaunchDeliveryIsAdoptedAndNeverReauthored.test_the_exact_recovery_adopts_through_the_public_proof)
+The positive case: the engine is ASKED before any bearer is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1712, in test_the_exact_recovery_adopts_through_the_public_proof
+    self.assertEqual(held["job-a/implementation"]["state"], "waiting")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'exceptional' != 'waiting'
+- exceptional
++ waiting
+
+
+======================================================================
+FAIL: test_an_accepted_offer_is_adopted_after_restart (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_an_accepted_offer_is_adopted_after_restart)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 486, in test_an_accepted_offer_is_adopted_after_restart
+    self.commanded(resumed_job, resumed)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_one_submission_becomes_one_observable_runtime_and_is_adopted (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_one_submission_becomes_one_observable_runtime_and_is_adopted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 410, in test_one_submission_becomes_one_observable_runtime_and_is_adopted
+    first = self.commanded(job, operations)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_restart_after_activation_commits (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_activation_commits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 497, in test_restart_after_activation_commits
+    self.crash_and_restart("activation")
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 398, in crash_and_restart
+    projected = self.commanded(resumed_job, resumed)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_restart_after_credential_materialization (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_credential_materialization)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 523, in test_restart_after_credential_materialization
+    self.crash_and_restart("credential")
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 398, in crash_and_restart
+    projected = self.commanded(resumed_job, resumed)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_restart_after_input_composition (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_input_composition)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 517, in test_restart_after_input_composition
+    self.crash_and_restart("input")
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 398, in crash_and_restart
+    projected = self.commanded(resumed_job, resumed)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_restart_after_launch_delivery (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_launch_delivery)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 526, in test_restart_after_launch_delivery
+    self.crash_and_restart("launch")
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 398, in crash_and_restart
+    projected = self.commanded(resumed_job, resumed)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_restart_after_manifest_retention (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_manifest_retention)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 520, in test_restart_after_manifest_retention
+    self.crash_and_restart("manifest")
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 398, in crash_and_restart
+    projected = self.commanded(resumed_job, resumed)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_restart_after_the_attempt_record_commits (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_the_attempt_record_commits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 494, in test_restart_after_the_attempt_record_commits
+    self.crash_and_restart("attempt")
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 398, in crash_and_restart
+    projected = self.commanded(resumed_job, resumed)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_restart_after_the_boundary_is_adopted_for_the_start (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_the_boundary_is_adopted_for_the_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 514, in test_restart_after_the_boundary_is_adopted_for_the_start
+    self.crash_and_restart("adopted-boundary")
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 398, in crash_and_restart
+    projected = self.commanded(resumed_job, resumed)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_restart_after_the_claim_commits (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_the_claim_commits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 491, in test_restart_after_the_claim_commits
+    self.crash_and_restart("claimed")
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 398, in crash_and_restart
+    projected = self.commanded(resumed_job, resumed)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_restart_after_the_runtime_start_commits (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_the_runtime_start_commits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 529, in test_restart_after_the_runtime_start_commits
+    self.crash_and_restart("runtime")
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 398, in crash_and_restart
+    projected = self.commanded(resumed_job, resumed)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_restart_after_the_source_boundary_is_composed (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_the_source_boundary_is_composed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 511, in test_restart_after_the_source_boundary_is_composed
+    self.crash_and_restart("boundary")
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 398, in crash_and_restart
+    projected = self.commanded(resumed_job, resumed)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_restart_after_workspace_allocation (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_after_workspace_allocation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 500, in test_restart_after_workspace_allocation
+    self.crash_and_restart("workspace")
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 398, in crash_and_restart
+    projected = self.commanded(resumed_job, resumed)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_restart_reconciles_the_start_journal_engine_call_window (tests.tools.test_single_worker.TheProductionCompositionIsRestartSafe.test_restart_reconciles_the_start_journal_engine_call_window)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 563, in test_restart_reconciles_the_start_journal_engine_call_window
+    after = self.commanded(resumed_job, resumed)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_a_changed_task_in_a_composed_root_refuses_rather_than_repairs (tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_a_changed_task_in_a_composed_root_refuses_rather_than_repairs)
+`read_input_root` reads exactly the two PROTOCOL documents, so a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1039, in test_a_changed_task_in_a_composed_root_refuses_rather_than_repairs
+    engine, _job, _control, operations, _stage, inputs = self.composed(
+                                                         ~~~~~~~~~~~~~^
+        "workload-changed")
+        ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 915, in composed
+    projected = self.commanded(job, operations)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_a_restart_neither_rewrites_the_task_nor_starts_a_second_runtime (tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_a_restart_neither_rewrites_the_task_nor_starts_a_second_runtime)
+The already-composed root is ADOPTED, and proving it now includes
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 998, in test_a_restart_neither_rewrites_the_task_nor_starts_a_second_runtime
+    engine, job, control, operations, stage, inputs = self.composed(
+                                                      ~~~~~~~~~~~~~^
+        "workload-restart")
+        ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 915, in composed
+    projected = self.commanded(job, operations)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_changed_judgment_subject_refuses_recovery_without_repair (tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_changed_judgment_subject_refuses_recovery_without_repair)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 945, in test_changed_judgment_subject_refuses_recovery_without_repair
+    worker, inputs = self.judgment_root()
+                     ~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 927, in judgment_root
+    projected = self.commanded(job, operations)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_judgment_subject_is_delivered_read_only_beside_unchanged_task (tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_judgment_subject_is_delivered_read_only_beside_unchanged_task)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 934, in test_judgment_subject_is_delivered_read_only_beside_unchanged_task
+    worker, inputs = self.judgment_root()
+                     ~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 927, in judgment_root
+    projected = self.commanded(job, operations)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_the_engine_is_given_the_root_that_carries_the_task (tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_the_engine_is_given_the_root_that_carries_the_task)
+The mount vector and the composed root are one fact, not two.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 984, in test_the_engine_is_given_the_root_that_carries_the_task
+    engine, _job, _control, operations, _stage, inputs = self.composed(
+                                                         ~~~~~~~~~~~~~^
+        "workload-mount")
+        ^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 915, in composed
+    projected = self.commanded(job, operations)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_the_published_document_is_the_held_bytes_at_a_real_file (tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_the_published_document_is_the_held_bytes_at_a_real_file)
+The positive half of the same rule, asserted at the final name.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 1149, in test_the_published_document_is_the_held_bytes_at_a_real_file
+    _engine, _job, _control, operations, _stage, inputs = self.composed(
+                                                          ~~~~~~~~~~~~~^
+        "workload-identity")
+        ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 915, in composed
+    projected = self.commanded(job, operations)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_the_root_carries_both_manifests_the_task_and_the_source (tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_the_root_carries_both_manifests_the_task_and_the_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 958, in test_the_root_carries_both_manifests_the_task_and_the_source
+    engine, _job, _control, operations, _stage, inputs = self.composed()
+                                                         ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 915, in composed
+    projected = self.commanded(job, operations)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_the_task_is_read_only_inside_a_frozen_root (tests.tools.test_single_worker.TheWorkloadDocumentIsDeliveredWithTheProtocolPair.test_the_task_is_read_only_inside_a_frozen_root)
+The mode says on disk what the delivery says in prose, and the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 973, in test_the_task_is_read_only_inside_a_frozen_root
+    _engine, _job, _control, operations, _stage, inputs = self.composed(
+                                                          ~~~~~~~~~~~~~^
+        "workload-modes")
+        ^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 915, in composed
+    projected = self.commanded(job, operations)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 369, in commanded
+    self.fail("the one-worker pipeline did not reach a commanded worker")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the one-worker pipeline did not reach a commanded worker
+
+======================================================================
+FAIL: test_a_launch_adopted_after_a_crash_is_disposed_of_by_the_ending (tests.tools.test_single_worker.WhatNoRuntimeReceivedIsThisCompositionsToEnd.test_a_launch_adopted_after_a_crash_is_disposed_of_by_the_ending)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2437, in test_a_launch_adopted_after_a_crash_is_disposed_of_by_the_ending
+    self.assertEqual(calls, [("fixture", "fixture/one")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [('fixture', 'fixture/one')]
+
+Second list contains 1 additional elements.
+First extra element 0:
+('fixture', 'fixture/one')
+
+- []
++ [('fixture', 'fixture/one')]
+
+----------------------------------------------------------------------
+Ran 121 tests in 4.154s
+
+FAILED (failures=54)

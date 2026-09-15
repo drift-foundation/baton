@@ -1,0 +1,223 @@
+{
+  "claim": 170533,
+  "manifest_sha256": "837de82f649079afa57c40a09359330d175c18b6e4ea38fd5de2ac26739ff61b",
+  "files": [
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "sha256": "ab4a71aefc2593bf43198f56fadecbcaad6d41c42203cc891bcbf2b96d4d5171",
+      "bytes": 91968,
+      "mode": "0o644",
+      "custody_mode": "0o444",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "sha256": "ca9459aa445009edca50239220ff45ed4cf152acd117227a5355c1bd3c7d7bd1",
+      "bytes": 313335,
+      "mode": "0o664",
+      "custody_mode": "0o444",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "sha256": "e341cdba1f5c0cf7d6558138ebe2b789a1e1762322dd57ada07d2eb993e805ff",
+      "bytes": 80493,
+      "mode": "0o644",
+      "custody_mode": "0o444",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "b7c0bafd45a3d8f858936728f2a9173a57a5b625533fa21b6f95185e9ac54011",
+      "bytes": 192879,
+      "mode": "0o664",
+      "custody_mode": "0o444",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "sha256": "c4461810b38c9bdee0c67e59d55fb14846624f1cd6db920f23a127ce284ad0dd",
+      "bytes": 166328,
+      "mode": "0o644",
+      "custody_mode": "0o444",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "282d16cb5d7d4407db2dd47811db38f52e897b3c720d8bb259af360193fbbace",
+      "bytes": 94086,
+      "mode": "0o644",
+      "custody_mode": "0o444",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_entry.py",
+      "sha256": "b3ebb8a5488e3cc361beb3c04527bad10a7bd81a98d3949b1fd75b58ae9b5620",
+      "bytes": 10466,
+      "mode": "0o644",
+      "custody_mode": "0o444",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "1fe0f937d73262fedaeb0946cd5aab825630d0795f43864750e8b04ecbcb565c",
+      "bytes": 84239,
+      "mode": "0o644",
+      "custody_mode": "0o444",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/integration_bundle.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/managed_execution.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_integration_bundle.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_stage_execution.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_execution_limits.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_execution.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/single_worker.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/delegation.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/scheduler.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/manager.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/store.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/output.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/intake.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/exchange.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/attempts.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/git_profile.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/baton_worker.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/worker-control-1.0.schema.json",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/DEPLOYMENT.md",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_task.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/Dockerfile.reconciliation",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_reconciliation_task.py",
+      "matches": true
+    }
+  ],
+  "author_runs": 13,
+  "author_seconds": 84.66274695997708,
+  "prior_reviewer_seconds": 33.87037022400909,
+  "runs": [
+    {
+      "locator": "review-process-170533.json",
+      "command": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "PYTHONPATH": "src:tools:.",
+      "seconds": 3.6171566389966756,
+      "exit": 0,
+      "timed_out": false,
+      "signals": [],
+      "limits_seconds": [
+        60,
+        5,
+        5
+      ]
+    },
+    {
+      "locator": "review-real-cut-170533.json",
+      "command": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/probe-real-cut-170533.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "PYTHONPATH": "src:tools:.",
+      "seconds": 0.5641233140195254,
+      "exit": 1,
+      "timed_out": false,
+      "signals": [],
+      "limits_seconds": [
+        60,
+        5,
+        5
+      ]
+    },
+    {
+      "locator": "review-real-cut-retry-170533.json",
+      "command": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/probe-real-cut-retry-170533.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "PYTHONPATH": "src:tools:.",
+      "seconds": 4.867603048012825,
+      "exit": 1,
+      "timed_out": false,
+      "signals": [],
+      "limits_seconds": [
+        60,
+        5,
+        5
+      ]
+    }
+  ],
+  "this_review_seconds": 9.048883001029026,
+  "cumulative_reviewer_seconds": 42.91925322503812,
+  "candidate_unchanged_after_tests": true
+}

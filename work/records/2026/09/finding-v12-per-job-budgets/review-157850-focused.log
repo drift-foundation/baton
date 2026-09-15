@@ -1,0 +1,8 @@
+test_the_child_answers_each_jobs_own_numbers (tests.tools.test_execution_limits.AFreshProcessAdoptsBothJobsConfiguredLaunches.test_the_child_answers_each_jobs_own_numbers) ... ok
+test_an_absent_delivery_is_answered_and_never_repaired (tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches.test_an_absent_delivery_is_answered_and_never_repaired)
+ABSENT ARTIFACT: an attempt whose launch root does not exist is ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.522s
+
+OK

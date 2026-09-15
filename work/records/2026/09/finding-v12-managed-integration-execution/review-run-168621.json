@@ -1,0 +1,18 @@
+{
+  "claim": 168621,
+  "utc": "2026-09-14T10:56:56.356349+00:00",
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-W",
+    "error",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-adoption-168621.py"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "/home/sl/src/baton/v12/python/src:/home/sl/src/baton/v12/python",
+  "timeout_seconds": 30,
+  "elapsed_seconds": 0.23117261000152212,
+  "exit_code": 1,
+  "reviewer_previous_seconds": 25.25020806099201,
+  "reviewer_cumulative_seconds": 25.48138067099353,
+  "scope": "Three focused deterministic adoption identity cases on disposable real Job/Control/coordinator stores around the existing fixture participant session; no real Authority claim, engine, model or image."
+}

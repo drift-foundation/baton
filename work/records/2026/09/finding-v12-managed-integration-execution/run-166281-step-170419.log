@@ -1,0 +1,15 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_managed_preparation.OneManagedPreparationCompletes
+F
+======================================================================
+FAIL: test_ordinary_sweeps_retain_and_adopt_one_real_preparation (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_ordinary_sweeps_retain_and_adopt_one_real_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1569, in test_ordinary_sweeps_retain_and_adopt_one_real_preparation
+    self.assertTrue(preparation.adopted, (failures[:3], failures[-1:], logs))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {} is not true : (['ContractRefusal("stage \'job-a/integration\' is preparing under orchestration \'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83…; the parent offer is not issued while the same actor holds this reservation\'s preparation, and this admit stays owed")', 'ContractRefusal("stage \'job-a/integration\' is preparing under orchestration \'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83…; the parent offer is not issued while the same actor holds this reservation\'s preparation, and this admit stays owed")', 'ContractRefusal("stage \'job-a/integration\' is preparing under orchestration \'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83…; the parent offer is not issued while the same actor holds this reservation\'s preparation, and this admit stays owed")'], ['ContractRefusal("proposal \'integration-driver.proposal:3b9d6245afe2060fe7dc214f8303e9a… has no verification receipt")'], [''])
+
+----------------------------------------------------------------------
+Ran 1 test in 4.818s
+
+FAILED (failures=1)

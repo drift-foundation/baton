@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.manager.test_reconciliation_task
+.....................................
+----------------------------------------------------------------------
+Ran 37 tests in 4.232s
+
+OK

@@ -1,0 +1,18 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling
+E..
+======================================================================
+ERROR: test_a_host_verification_that_exceeds_it_defers_and_publishes_nothing (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_host_verification_that_exceeds_it_defers_and_publishes_nothing)
+THE BOUNDED FAILURE, through the composed owners.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1323, in test_a_host_verification_that_exceeds_it_defers_and_publishes_nothing
+    [result] = deployment.integration._connection.execute(
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        "SELECT result_id FROM reconciled_results").fetchall()
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: reconciled_results
+
+----------------------------------------------------------------------
+Ran 3 tests in 4.112s
+
+FAILED (errors=1)

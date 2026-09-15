@@ -1,0 +1,62 @@
+[
+  {
+    "path": "v12/python/src/baton_v12/source_profiles/__init__.py",
+    "recorded": "sha256:c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+    "current": "sha256:c16e597fa779e585cb33723d39ee648770cdd4c7b29e841cbcc2ce76ccaefdad",
+    "matches": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/source_profiles/checkout.py",
+    "recorded": "sha256:037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+    "current": "sha256:037f197ad2cfc3dd9c373bcddf447adaa62160a74f7e5d1b4af0a783e73185c7",
+    "matches": true
+  },
+  {
+    "path": "v12/worker/Dockerfile.integration",
+    "recorded": "sha256:afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+    "current": "sha256:afce1f01f41b593d57c19740c353c5ac5fad53e30bde4da4bbd08ce962ae8d28",
+    "matches": true
+  },
+  {
+    "path": "v12/worker/baton_worker.py",
+    "recorded": "sha256:da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923",
+    "current": "sha256:85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+    "matches": false
+  },
+  {
+    "path": "v12/worker/claude_agent.py",
+    "recorded": "sha256:489399897c3f0ae94f06be9da47adde3f05210fa0ecfd7faad295daf6accfe2a",
+    "current": "sha256:c7a2b746fbefc088a7670c6f1a3c6363d0faeadcb08d27c56c8f6819ae0f979c",
+    "matches": false
+  },
+  {
+    "path": "v12/worker/dogfood_entry.py",
+    "recorded": "sha256:bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3",
+    "current": "sha256:bfa77501d13c621c03071c393ab820c925afd3536aa782b7617465aec9c710f3",
+    "matches": true
+  },
+  {
+    "path": "v12/worker/integration_contract.py",
+    "recorded": "sha256:74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+    "current": "sha256:74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+    "matches": true
+  },
+  {
+    "path": "v12/worker/integration_entry.py",
+    "recorded": "sha256:0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+    "current": "sha256:0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+    "matches": true
+  },
+  {
+    "path": "v12/worker/integration_workload.py",
+    "recorded": "sha256:b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+    "current": "sha256:eb9bb61929304a605b5c1ba4c8087738b5c4de3b0fbaad976b1dd3cbc004ff42",
+    "matches": false
+  },
+  {
+    "path": "v12/worker/worker-control-1.0.schema.json",
+    "recorded": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+    "current": "sha256:22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+    "matches": true
+  }
+]

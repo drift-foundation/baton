@@ -1,0 +1,11 @@
+test_a_resumed_sweep_reads_no_owner_but_its_own_intent (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_a_resumed_sweep_reads_no_owner_but_its_own_intent)
+"Resolves nothing" was FALSE of my first form -- line, checkpoint ... ok
+test_the_job_limits_reader_gets_every_operand_it_requires (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_the_job_limits_reader_gets_every_operand_it_requires)
+Four keyword-only operands, from the stage and the Job. The old ... ok
+test_the_required_test_selection_is_the_integrators (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_the_required_test_selection_is_the_integrators)
+`Integration` owns that derivation and the deployment does not, so ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.002s
+
+OK

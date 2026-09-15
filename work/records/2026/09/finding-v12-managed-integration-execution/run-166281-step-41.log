@@ -1,0 +1,44 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_job_viewer
+.F.F...........F..../home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:259: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:332: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=4, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:268: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.
+======================================================================
+FAIL: test_activity_is_unknown_until_a_trusted_source_exists (tests.tools.test_job_viewer.NothingIsInvented.test_activity_is_unknown_until_a_trusted_source_exists)
+W61599 owns the activity source. Until it exists this says
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 108, in test_activity_is_unknown_until_a_trusted_source_exists
+    self.assertIn("activity unknown", self.listed())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'activity unknown' not found in 'observed at 2026-09-02T00:00:00.000Z   read 0s ago   [the manager was NOT read: absences here mean nobody looked]\n\nJOB job-a   submission sub-1\n  implementation   queued           elapsed 0s       activity live     job-a/implementation\n      held: no attempt in progress\n  review           blocked          elapsed 0s       activity live     job-a/review\n      held: waiting on job-a/implementation (queued)\n\nJOB job-b   submission sub-1\n  implementation   queued           elapsed 0s       activity live     job-b/implementation\n      held: no attempt in progress'
+
+======================================================================
+FAIL: test_elapsed_comes_from_source_times_and_not_the_wall_clock (tests.tools.test_job_viewer.NothingIsInvented.test_elapsed_comes_from_source_times_and_not_the_wall_clock)
+A stage whose start nobody recorded has an UNKNOWN elapsed. The
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 122, in test_elapsed_comes_from_source_times_and_not_the_wall_clock
+    self.assertIn("elapsed unknown", shown)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'elapsed unknown' not found in 'observed at 2026-09-02T00:00:00.000Z   read 0s ago   [the manager was NOT read: absences here mean nobody looked]\n\nJOB job-a   submission sub-1\n  implementation   queued           elapsed 0s       activity live     job-a/implementation\n      held: no attempt in progress\n  review           blocked          elapsed 0s       activity live     job-a/review\n      held: waiting on job-a/implementation (queued)\n\nJOB job-b   submission sub-1\n  implementation   queued           elapsed 0s       activity live     job-b/implementation\n      held: no attempt in progress'
+
+======================================================================
+FAIL: test_an_unrefreshed_view_becomes_conspicuously_stale (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_an_unrefreshed_view_becomes_conspicuously_stale)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 150, in test_an_unrefreshed_view_becomes_conspicuously_stale
+    self.assertIn("!! STALE", shown)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+AssertionError: '!! STALE' not found in 'observed at 2026-09-02T00:00:00.000Z   read 1m00s ago   [the manager was NOT read: absences here mean nobody looked]\n\nJOB job-a   submission sub-1\n  implementation   queued           elapsed 0s       activity live     job-a/implementation\n      held: no attempt in progress\n  review           blocked          elapsed 0s       activity live     job-a/review\n      held: waiting on job-a/implementation (queued)\n\nJOB job-b   submission sub-1\n  implementation   queued           elapsed 0s       activity live     job-b/implementation\n      held: no attempt in progress'
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.054s
+
+FAILED (failures=3)

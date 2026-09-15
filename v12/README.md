@@ -21,6 +21,13 @@ The answer, with evidence, is in the bound dossier's `PROGRESS.md`.
 
 ## Operator runbook
 
+For the Python standalone two-Job pipeline with a deterministic provider, use
+the [isolated A/B coordination test](testing/standalone_ab/README.md). Its single
+operator command runs real worker containers, coordination, merges and tests
+with synthetic provider edits and reports; it makes no live model calls.
+The separate [live-provider confirmation command](testing/live_ab/README.md)
+uses the same validated checks with pinned live images and actual provider turns.
+
 Run every command in this section from `v12/`. This subtree has its own
 `justfile`, package and lockfile; the repository's root gate neither calls
 into this proof nor installs its dependencies.

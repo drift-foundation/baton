@@ -1,0 +1,58 @@
+{
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 298063,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "0f9843807a432c2233bec0f7025467a05c410336965aeccbf4915c7e792d58a7"
+  }
+ ],
+ "claim": 169890,
+ "defects_found_by_the_traversal": [
+  "the bundle HOME was never created: compose_preparation_input requires the destination absent (published once, never appended to) but its PARENT present, and nothing created it -- FileNotFoundError at the first managed admission. The home is established and the destination left to the producer.",
+  "I passed the CHECKPOINT PROFILE's runner to the input producer. _git_run takes no working directory and answers DECODED streams; the producer runs a bounded export in a directory it chose and needs EXACT BYTES, because candidate content is not text and a decoded stream has lost it. TypeError: _git_run() got an unexpected keyword argument 'directory'. _export_run is that contract, named apart.",
+  "KeyError 'accept' in PreparationExecution.prepare -- the worker's acceptance, which the composition REFUSES to perform because accepting is the worker's act and doing it here is the fabricated receipt it is forbidden to produce. Not a blocker: the exact unwritten piece."
+ ],
+ "next": "the worker's acceptance at that operand, then the ordinary child launch/exchange/ending, the member ended only on its real exclusion proof, accepted custody and adoption, and the admitted-child replay.",
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "provenance_qualified": "the apply-digest case hashes the resolver's OWN field, generic in the unit fixture. The composed case reads it from a real composition, but proving it is the INTENDED configured material belongs in the actual path -- which the traversal can now reach, and where I will prove it.",
+ "unchanged": [
+  {
+   "bytes": 72421,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "a345a417f76068da1301d38a1eaf131b1cf92db7746f19664ca61c4b5b5b80f2"
+  },
+  {
+   "bytes": 85232,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "45c840b1ab07ae9cf51d814f2c22e6524c0b1920571a22a45265d9c003740b76"
+  },
+  {
+   "bytes": 162808,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "1996f8fdc3df90cf67dc9f6636bcd079ff047e8bb2d96d873551a7bb903aefaf"
+  }
+ ],
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 136 traversal-reaches-acceptance /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle",
+  "ledger": "139 rows, 1506.8876871798304s",
+  "no": "no engine, model, image build or destructive cleanup",
+  "result": "OK, 415 cases",
+  "traversal_command": "driving TheComposedJobTraversesReviewAndAcceptance with integration_preparation=True through reviewed() then ordinary sweep ticks. Cost UNMEASURED -- a diagnostic rather than a gate, and no figure is invented for it."
+ },
+ "what": "My blocker report is WITHDRAWN; the real traversal runs and exposed three defects of mine, stopping at the worker-acceptance operand.",
+ "withdrawn": "I reported that this tree cannot reach an integration stage. FALSE, and the cause was my fixture: ServingCase inherits a plain-directory generic task and a synthetic a*40 base, so its Git refusal is a property of the fixture I reached for. ComposedOneJobCase provides a coherent real Git source and base and reaches implementation waiting with the selection on, no stub and no product edit. The '13 errors are one external Git defect' attribution is superseded -- they are mixed. Second time in this Work I have attributed my own error outward; recorded as such.",
+ "work": "2b077949-W161230"
+}

@@ -1,0 +1,8 @@
+test_empty (tests.test_greeting.GreetingTest.test_empty) ... ok
+test_name (tests.test_greeting.GreetingTest.test_name) ... ok
+test_surrounding_spaces (tests.test_greeting.GreetingTest.test_surrounding_spaces) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+OK

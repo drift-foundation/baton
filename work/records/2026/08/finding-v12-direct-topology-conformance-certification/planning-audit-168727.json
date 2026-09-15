@@ -1,0 +1,201 @@
+{
+  "kind": "W33755 static planning audit; no tests or runtime execution",
+  "claim": 168727,
+  "utc": "2026-09-14T11:22:14.605168+00:00",
+  "files": [
+    {
+      "path": "work/records/2026/08/finding-v12-direct-topology-conformance-certification/FINDING.md",
+      "bytes": 13621,
+      "mode": "0o664",
+      "sha256": "a6f8f63cd23ed88378d4fbebf05f893a31a7b6b256e98a582412091b11f46618"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-direct-topology-conformance-certification/PLAN.md",
+      "bytes": 2785,
+      "mode": "0o664",
+      "sha256": "de1cac0e4ff21ed374edebbdec202f1b0b96b5bdae682ac780c99c414a944323"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-direct-topology-conformance-certification/PLAN-CORRECTION-168727.md",
+      "bytes": 17217,
+      "mode": "0o664",
+      "sha256": "eb11029fa8dc358567fbec63fa8136e838547a17595b4652cd36ddbb2fb062e9"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-direct-topology-conformance-certification/PROGRESS.md",
+      "bytes": 154,
+      "mode": "0o664",
+      "sha256": "6f1927b1366e7c917c8c0ca4bf23122fb10c089e7938587a29045b173c1f9f20"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-direct-topology-conformance-certification/review-2026-09-04T14-40-59Z.md",
+      "bytes": 5057,
+      "mode": "0o664",
+      "sha256": "aca5edfea08e324e5c8cc30a99f67a7d0bf3022f78016bf576070175d8ff9029"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md",
+      "bytes": 151363,
+      "mode": "0o664",
+      "sha256": "6c683b09ecdc01964a60e9d69f7eae13150820f4f542860e13cbca72f4fdd4d1"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/SPEC.md",
+      "bytes": 58685,
+      "mode": "0o664",
+      "sha256": "af55719598032353b5650d12218fa04fb44c693224b3eeeed1cff83ef0951342"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/FINDING.md",
+      "bytes": 3721,
+      "mode": "0o664",
+      "sha256": "23ef41bf452073c0ca974e7cc98ec4f533acdd087f8e3da784e9e848f959c53f"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/SPEC.md",
+      "bytes": 66689,
+      "mode": "0o664",
+      "sha256": "e7bd2d35f98918a67cb3db33d5cee07c38d6740e67f03889fd8eaae20a028cd2"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json",
+      "bytes": 51419,
+      "mode": "0o664",
+      "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/FINDING.md",
+      "bytes": 31396,
+      "mode": "0o664",
+      "sha256": "c7b59fe69b1b02494b77727cbacbfe65f1e595fbf42f344c19ca214baee11dfd"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/SPEC.md",
+      "bytes": 78373,
+      "mode": "0o664",
+      "sha256": "faeb1097e99d5b8ebb8289bc620f72b4bbe7a71589fed28e5536631704d3b1b8"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/schema/agent-session-1.0.schema.json",
+      "bytes": 48212,
+      "mode": "0o664",
+      "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/FINDING.md",
+      "bytes": 15097,
+      "mode": "0o664",
+      "sha256": "89e1c69ab9e92e799e22949fda0427ac4e7a4f97bce213294c585c03a1444179"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/SPEC.md",
+      "bytes": 46718,
+      "mode": "0o664",
+      "sha256": "e0a361c873d2dcb7e9072341ef27b672146686935959c9bea191828198a37cf6"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/schema/conformance-1.0.schema.json",
+      "bytes": 30601,
+      "mode": "0o664",
+      "sha256": "f542c4a5a6828796aca3c0459ff3cd5c88f098a06d622960de16c8893f4477f7"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/obligations.json",
+      "bytes": 64464,
+      "mode": "0o664",
+      "sha256": "469c4e12636ad02eca18686ab4c580f203508e4e2aa57f5326dce74c4d42d8aa"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/cases.json",
+      "bytes": 166999,
+      "mode": "0o664",
+      "sha256": "67d58fc282ae51a4d54bce2fec971f2e4bbc12f647f8b1ced989fe5f7bed8cb4"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/build_cases.py",
+      "bytes": 60358,
+      "mode": "0o664",
+      "sha256": "1752ce1d11da4898febf270bb7d5546eb1ba425b469caebd853a3a7b23ea623f"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/conformance_model.py",
+      "bytes": 25641,
+      "mode": "0o664",
+      "sha256": "eb4379ebf29a1286b29bf36df573536f54eeb3ef50da830e707988372b9ce2e9"
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/identity.py",
+      "bytes": 22986,
+      "mode": "0o664",
+      "sha256": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+      "bytes": 72850,
+      "mode": "0o644",
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "bytes": 184541,
+      "mode": "0o644",
+      "sha256": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/frozen.py",
+      "bytes": 3554,
+      "mode": "0o664",
+      "sha256": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/validate.py",
+      "bytes": 16210,
+      "mode": "0o664",
+      "sha256": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/manifest.py",
+      "bytes": 34407,
+      "mode": "0o664",
+      "sha256": "53324c97c84911e571ddcffacbc8d4a312f4bdd6b0fa6649bc00c0a205071acc"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json",
+      "bytes": 51419,
+      "mode": "0o664",
+      "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+      "bytes": 48212,
+      "mode": "0o664",
+      "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+    },
+    {
+      "path": "v12/worker/Dockerfile",
+      "bytes": 4737,
+      "mode": "0o664",
+      "sha256": "0aa92e0b07c10e72bc6ca6c03c2c95f2e94da7fb9585c7a3969774f214d5cc0f"
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "bytes": 113422,
+      "mode": "0o664",
+      "sha256": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd"
+    },
+    {
+      "path": "v12/worker/worker-control-1.0.schema.json",
+      "bytes": 51419,
+      "mode": "0o664",
+      "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+    }
+  ],
+  "baseline": {
+    "cases": 136,
+    "local_oci": 135,
+    "obligations": 79,
+    "duplicate_ids": false,
+    "dangling_case_obligations": []
+  },
+  "elapsed_seconds": 0.0021814140054630116
+}

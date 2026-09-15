@@ -1,0 +1,628 @@
+diff --git a/v12/python/tools/stage_execution.py b/v12/python/tools/stage_execution.py
+index 86c20d2..d479586 100644
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -61,7 +61,8 @@ from baton_v12.integration import git_profile
+ from baton_v12.integration import admission, driver
+ from baton_v12.integration.driver import admit_authorized_result
+ from baton_v12.integration.git_profile import GitIntegrationProfile
+-from baton_v12.job_manager import ending, review_driver, scheduler
++from baton_v12.job_manager import (ending, execution_limits, review_driver,
++                                   scheduler)
+ from baton_v12.job_manager.delegation import INTEGRATION_OBSERVATION_SCHEMA
+ from baton_v12.job_manager.scheduler import allocation_of
+ from baton_v12.job_manager.submission import job_of
+@@ -1735,6 +1736,118 @@ def _materialize(runner, repository, revision, into):
+     return into
+ 
+ 
++# W156162, review 2026-09-13T04:18:41Z. THE OWNER CONTRACT THIS DEPLOYMENT DOES
++# NOT HAVE, written down rather than worked around.
++#
++# `reconciliation._observation` requires an actual integer exit status, and
++# `execution._owned_post_import` requires one too. Neither has a representation
++# for "this observation COULD NOT BE MADE" -- a command that outlasted its
++# ceiling or could not be started supplies no status, and inventing one would be
++# fabricating evidence about a child that never ran to completion.
++#
++# WHAT IS MISSING, EXACTLY: an owner-recorded, DURABLE outcome for a required
++# test that produced no exit status, carrying the boundary that stopped it, the
++# reason, and enough identity for a later tick or a fresh process to recognise
++# the same failed work and decline to repeat it. A bounded extension would be a
++# `status: null` observation admitted ONLY with a `why` naming a closed reason
++# and the bound, settled as blocked and never authorizable -- which is a change
++# to `reconciliation` and `execution`, both outside this Work's finite scope.
++#
++# WHAT IS NOT MISSING, and an earlier form of this comment said otherwise.
++# The OUTCOME is durable: a causal failure settles the result `blocked` through
++# `record_causal_observations`, and a post-import failure holds the target
++# through the queue -- both in owner custody that a reopened deployment reads,
++# which is why resumed serving runs no command. The in-process retention below
++# is an ADDITIONAL cache that stops the observed twelve-runs-in-four-ticks
++# repeat WITHIN one composition; it is not what suppresses execution after a
++# normal reopen.
++#
++# WHAT IS STILL MISSING is narrower than "durability": an owner-recorded
++# outcome for the ATTEMPT ITSELF. A process that dies between the command's
++# failure and the owner's record leaves nothing behind, so the next composition
++# has no custody to read and will try once more. That is a crash-before-record
++# limit rather than an exactly-once guarantee, and it is stated here and in
++# DEPLOYMENT.md rather than hidden.
++HOST_OBSERVATION_CONTRACT = (
++    "an owner-recorded durable outcome for a required test that produced no "
++    "exit status, carrying its boundary and reason")
++
++
++def _host_retention(deployment):
++    """The deployment's own memory of host observations that could not be made.
++
++    Composed lazily on the deployment because the owners above are built fresh
++    every tick; see `HOST_OBSERVATION_CONTRACT` for what would make it durable.
++    """
++    held = getattr(deployment, "_host_observation_failures", None)
++    if held is None:
++        held = {}
++        setattr(deployment, "_host_observation_failures", held)
++    return held
++
++
++def _host_scratch(deployment):
++    """The paths a failed host observation could NOT dispose of.
++
++    W156162, step 5 of the accepted host-failure proposal, and review
++    2026-09-13T11:08:02Z is what says the earlier form did not discharge it.
++    `_no_status` attempts the removal and, when the tree is still there, names
++    it in the retained diagnostic -- so it was REPORTED and still owned by
++    nobody. A deployment released its workers, its integration store and its
++    Authority and walked past the bytes.
++
++    THE REGISTRY IS THE DEPLOYMENT'S, for the same reason the retention is:
++    these owners are composed fresh every tick, so a per-instance list would
++    forget the moment the tick ended. What is held is the path AND the
++    diagnosis that named it, because the release below has to be able to say
++    what the surviving tree was.
++    """
++    held = getattr(deployment, "_host_surviving_scratch", None)
++    if held is None:
++        held = {}
++        setattr(deployment, "_host_surviving_scratch", held)
++    return held
++
++
++def _dispose_surviving(surviving):
++    """Try again to remove what a failed observation left, and report it.
++
++    RETURNS THE PATHS THAT ARE STILL THERE. Removing a path that has since
++    gone is not an error; a path that survives this attempt too is named to
++    the caller rather than dropped, which is the whole point of the registry.
++    A path is forgotten only once it is actually gone, so nothing accumulates
++    and nothing is silently abandoned.
++    """
++    import shutil
++
++    left = []
++    for where in sorted(surviving):
++        shutil.rmtree(where, ignore_errors=True)
++        if os.path.exists(where):
++            left.append(where)
++        else:
++            surviving.pop(where, None)
++    return left
++
++
++def _host_seconds(deployment, stage):
++    """This stage's Job's host-verification ceiling, or the boundary default.
++
++    W156162. Asked of the JOB OWNER, which is what resolves a Job's admitted
++    settings under the generation it was admitted under; this assembly holds no
++    table of its own. A stage with no Job -- the one-binding deployments whose
++    stages carry a name nothing bound -- gets the boundary's own default, which
++    is the number this line already ran under.
++    """
++    from baton_v12.job_manager import submission as job_submission
++
++    job_id = stage.get("job_id") if type(stage) is dict else None
++    if job_id is None or getattr(deployment, "jobs", None) is None:
++        return execution_limits.boundary_default("host_verification")
++    return job_submission.boundary_seconds(deployment.jobs, job_id,
++                                           "host_verification")
++
++
+ class _ConfiguredExecution:
+     """What both reconciled owners do: run THE DEPLOYMENT'S OWN required test.
+ 
+@@ -1744,11 +1857,148 @@ class _ConfiguredExecution:
+     these run exactly that against content materialized from a real repository.
+     """
+ 
+-    def __init__(self, participant, argv, runner, root):
++    def __init__(self, participant, argv, runner, root, *, seconds=None,
++                 retention=None, scope=None, surviving=None):
+         self.participant = participant
+         self._argv = list(argv)
+         self._runner = runner
+         self._root = root
++        # W156162: THE JOB'S `host_verification` CEILING, and the reason it is
++        # not `GIT_SECONDS`. These owners do two different things with a clock:
++        # `_materialize` asks GIT for content, which is this deployment's own
++        # tooling over its own repository, and then CANDIDATE CODE RUNS. Only
++        # the second is a Job's to bound, and binding them to one number would
++        # mean a Job that shortened its own tests had also shortened this
++        # deployment's archive. The default is the boundary's own, which is the
++        # same 300 this line has always used.
++        self._seconds = (execution_limits.boundary_default("host_verification")
++                         if seconds is None else seconds)
++        # WHERE A FAILED OBSERVATION IS REMEMBERED. These owners are composed
++        # fresh on every tick, so the retention belongs to the DEPLOYMENT and is
++        # handed in; a per-instance memo would forget between ticks, which is
++        # precisely the repeat this exists to stop.
++        self._retention = {} if retention is None else retention
++        # AND WHERE A TREE THAT COULD NOT BE REMOVED IS HANDED ON. Same
++        # ownership as the retention and for the same reason: see
++        # `_host_scratch`. A composition given none keeps its own, which is a
++        # standalone owner whose caller holds it.
++        self._surviving = {} if surviving is None else surviving
++        # AND WHOSE WORK THIS IS. A retention shared by a deployment must not
++        # let one result's failure speak for another's, so the owning scope --
++        # the Job, the result and the phase this owner was composed for -- is
++        # part of every key. `None` is a composition with no owning scope, and
++        # it keys under that rather than under somebody else's.
++        self._scope = scope
++        # THE HARNESS THIS OWNER LAST READ, pinned at the content boundary. See
++        # `expectations`: `None` until a run has read one.
++        self._pinned = None
++
++    def _failure_key(self, revision, adding):
++        """WHAT MAKES ONE RETAINED FAILURE THE SAME WORK AS ANOTHER.
++
++        Review 2026-09-13T04:31:29Z [P1]: the first key was
++        `(argv, revision, seconds)`, and the causal owner runs the SAME command
++        at the SAME revision with a DIFFERENT harness -- that is what `adding`
++        is for, and `harness_added` is the observation member that exists to
++        keep it honest. So a memo from one harness refused another harness's
++        run without ever attempting it.
++        
++        EVERY VARYING OPERAND IS IN THE KEY NOW: the owning scope this observer
++        was composed for -- its Job, its result and which phase it is -- the
++        command, the revision, the bound, and a digest of the harness content
++        that would be added. Two runs that differ in any of those are different
++        work and neither speaks for the other.
++        """
++        import hashlib
++
++        harness = "" if adding is None else hashlib.sha256(
++            adding.encode("utf-8")).hexdigest()
++        return (self._scope, tuple(self._argv), revision, self._seconds,
++                harness)
++
++    def _retain(self, revision, adding, message):
++        """Record why this command cannot be observed, and refuse with it."""
++        self._retention[self._failure_key(revision, adding)] = message
++        _refuse(message, category="refused", code="precondition")
++
++    def _no_status(self, where, body, added, revision, adding, *, reason,
++                   detail):
++        """The closed failure answer, and the scratch that is DISPOSED OF.
++
++        W156162, owner ruling M157653 steps 1 and 5. The answer is the owner's
++        own closed shape, so every diagnostic this run can honestly supply is
++        IN it: the phase, the reason, the bound actually applied, the command,
++        the pinned harness and its digest, and the content it ran against.
++
++        THE TEMPORARY TREE GOES WITH IT. Once the diagnostic is in the answer
++        nothing needs those bytes, and leaving them meant a failed run owned a
++        path with no lifecycle -- which repeated polls did not add to, and
++        which nothing ever removed. The successful branch's tree is untouched:
++        its caller still reads `where`.
++        """
++        import hashlib
++        import shutil
++
++        self._retention[self._failure_key(revision, adding)] = detail
++        # AND A DISPOSAL THAT FAILS SAYS SO. Review 2026-09-13T09:34:47Z:
++        # `ignore_errors=True` alone would report a clean disposal for a tree
++        # that is still there, which is the same class of silence this Work
++        # keeps refusing. What remains is named in the retained diagnostic; it
++        # is not raised, because the FAILURE is the fact being reported and
++        # losing it to a cleanup problem would be worse.
++        shutil.rmtree(where, ignore_errors=True)
++        if os.path.exists(where):
++            detail = (f"{detail}. Its temporary materialization at {where!r} "
++                      f"could not be disposed of and remains")
++            self._retention[self._failure_key(revision, adding)] = detail
++            # AND IT IS HANDED TO THE RUNTIME THAT OWNS IT. Naming a surviving
++            # tree in a diagnostic tells an operator it is there and leaves
++            # nobody responsible for it; the deployment releases it with its
++            # other handles. The diagnosis is unchanged either way -- it is
++            # what this answer reports, and a later cleanup does not edit it.
++            self._surviving[where] = detail
++        return reconciliation.failed_observation(
++            phase=self._phase(), reason=reason, detail=detail,
++            seconds=self._seconds, command=list(self._argv),
++            # THE HARNESS THIS OWNER PINNED. The base class does not name one --
++            # its two subclasses do -- and a composition without one says so
++            # rather than inventing an identity it was never given.
++            test_identity=getattr(self, "_identity", None) or "unidentified",
++            test_digest="sha256:" + hashlib.sha256(
++                body.encode("utf-8")).hexdigest(),
++            environment="configured-required-test",
++            execution=self.participant, input_commit=revision,
++            input_tree=revision, completed={}, not_run=[])
++
++    @property
++    def expectations(self):
++        """WHAT THIS OWNER WAS CONFIGURED WITH, published for its owner to ask.
++
++        W156162, review 2026-09-13T09:48:11Z [P1]. A failure answer cannot
++        vouch for its own command, task or bound -- a probe changed only the
++        seconds and both host custodies took it. These are the deployment's own
++        operands, held on this object before anything ran, and the integration
++        owner compares the answer against them rather than against itself.
++
++        AND THE HARNESS DIGEST IS HERE TOO, pinned per RESULT AND PHASE rather
++        than per configuration. `_run` reads the harness at the content
++        boundary before it starts anything and holds that digest; publishing it
++        is what lets the integration owner compare the answer's digest against
++        a value the answer did not supply. It is never a stale global: it is
++        whatever this owner last read, which is the phase the failure is about.
++        """
++        held = {"command": list(self._argv),
++                "test_identity": getattr(self, "_identity", None)
++                or "unidentified",
++                "seconds": self._seconds}
++        pinned = getattr(self, "_pinned", None)
++        if pinned is not None:
++            held["test_digest"] = pinned
++        return held
++
++    def _phase(self):
++        """Which host boundary this owner is; its subclasses say."""
++        return (self._scope or (None, None, None))[2]
+ 
+     def _run(self, repository, revision, *, adding=None):
+         import hashlib
+@@ -1756,6 +2006,14 @@ class _ConfiguredExecution:
+         import subprocess
+         import tempfile
+ 
++        # THE RETAINED FAILURE IS CHECKED FIRST, BEFORE ANYTHING IS
++        # MATERIALIZED. Review 2026-09-13T04:31:29Z [P2]: the first form
++        # checked after `mkdtemp` and `_materialize`, so three memo hits made
++        # three scratch trees for one child that never ran. A run this
++        # composition already knows it cannot observe costs nothing now.
++        held_failure = self._retention.get(self._failure_key(revision, adding))
++        if held_failure is not None:
++            _refuse(held_failure, category="refused", code="precondition")
+         where = tempfile.mkdtemp(dir=self._root)
+         _materialize(self._runner, repository, revision, where)
+         named = self._argv[-1]
+@@ -1773,12 +2031,62 @@ class _ConfiguredExecution:
+         try:
+             with open(_os.path.join(where, named)) as handle:
+                 body = handle.read()
++            # W156162, review 2026-09-13T09:56:51Z [P1]: THE HARNESS IS PINNED
++            # HERE, at the content-read boundary and BEFORE the subprocess.
++            #
++            # I had argued this owner could not publish a digest because it
++            # does not know one until it reads the content. That is true of a
++            # CONFIGURATION-time digest and it does not waive the per-result
++            # binding: the harness for THIS phase is in hand at exactly this
++            # line, and holding it here is what lets the integration owner
++            # compare the answer against something the answer did not supply.
++            # A probe that changed only `test_digest` was otherwise retained
++            # durably.
++            self._pinned = "sha256:" + hashlib.sha256(
++                body.encode("utf-8")).hexdigest()
+         except OSError:
+             _refuse(f"the configured required test {named!r} is not in the "
+                     f"content at {revision!r}",
+                     category="refused", code="precondition")
+-        answered = subprocess.run(self._argv, cwd=where, capture_output=True,
+-                                  text=True, timeout=GIT_SECONDS)
++        # W156162: A COMMAND THAT OUTLASTS ITS CEILING, and this is the second
++        # form of the handling. Review 2026-09-13T04:18:41Z [P1]: the first one
++        # answered `status: None`, and `reconciliation._observation` REQUIRES an
++        # actual integer exit status -- it refuses the document before retaining
++        # anything -- so every ordinary tick re-ran the timed-out command and
++        # the public cause was a schema diagnostic instead of the timeout. The
++        # measured shape was three host commands per tick, twelve over four,
++        # forever.
++        #
++        # SO NOTHING IS FABRICATED AND NOTHING IS REPEATED. A child that
++        # supplied no exit status does not get one invented for it; the refusal
++        # carries the bound and the actual reason, and it is RETAINED so a later
++        # tick re-refuses from the record rather than running the command again.
++        #
++        # AND THE DURABLE PART IS THE OWNER'S, not this cache's. The failure
++        # this branch answers with is settled by the result owner -- blocked --
++        # or held on the target by the queue, and that is what a reopened
++        # deployment reads. This retention only stops the repeat inside one
++        # composition. What no owner has is a record of an ATTEMPT that died
++        # before either of those was written; see `HOST_OBSERVATION_CONTRACT`,
++        # which is written down for disposition rather than worked around by
++        # changing an owner outside this Work's scope.
++        try:
++            answered = subprocess.run(self._argv, cwd=where,
++                                      capture_output=True, text=True,
++                                      timeout=self._seconds)
++        except subprocess.TimeoutExpired:
++            return self._no_status(
++                where, body, added, revision, adding, reason="timeout",
++                detail=f"the configured required test {named!r} did not "
++                       f"finish within this Job's {self._seconds}s "
++                       f"host_verification ceiling at {revision!r}; no exit "
++                       f"status was observed and none is invented")
++        except OSError as failed:
++            return self._no_status(
++                where, body, added, revision, adding, reason="start-failed",
++                detail=f"the configured required test {named!r} could not be "
++                       f"started at {revision!r} ({type(failed).__name__}); no "
++                       f"exit status was observed and none is invented")
+         tail = answered.stderr.strip().splitlines()[-1:]
+         # W133129, measured at step55: the causal owner refused every tick with
+         # "the base causal observation names the command that produced it"
+@@ -1809,8 +2117,11 @@ class _CausalObserver(_ConfiguredExecution):
+     """
+ 
+     def __init__(self, participant, argv, runner, root, *, workspace,
+-                 line_root, base, candidate, identity):
+-        super().__init__(participant, argv, runner, root)
++                 line_root, base, candidate, identity, seconds=None,
++                 retention=None, scope=None, surviving=None):
++        super().__init__(participant, argv, runner, root, seconds=seconds,
++                         retention=retention, scope=scope,
++                         surviving=surviving)
+         self._workspace = workspace
+         # BOTH SOURCE OBSERVATIONS COME OUT OF THE PRODUCER'S OWN LINE, and
+         # review 2026-09-10T15:07:43Z is why that is stated rather than
+@@ -1827,8 +2138,30 @@ class _CausalObserver(_ConfiguredExecution):
+         self._identity = identity
+         self.asked = []
+ 
++    def _tree(self, repository, revision):
++        """The tree this revision names, asked of Git rather than assumed."""
++        answered = self._runner(("git", "-C", repository, "rev-parse",
++                                 revision + "^{tree}"))
++        if answered["returncode"] != 0:
++            _refuse(f"the configured Git runner could not read the tree of "
++                    f"{revision!r}", category="refused", code="precondition")
++        return answered["stdout"].strip()
++
+     def _observation(self, repository, revision, *, adding=None):
+         answered = self._run(repository, revision, adding=adding)
++        # THE FAILURE ANSWER TRAVELS AS ITSELF. It carries no exit status, so
++        # there is no observation to compose from it and nothing here invents
++        # one; `observe` completes its prefix and remainder.
++        #
++        # ITS TREE IS READ HERE, AND THAT IS A CORRECTION. Review
++        # 2026-09-13T09:34:47Z [P1]: `_run` knows only the revision, so the
++        # first form recorded `input_tree` as the COMMIT -- which is not the
++        # tree, and for the combined phase is not `prepared.tree` either. The
++        # owner that can ask Git is this one, so it asks before the answer
++        # leaves.
++        if reconciliation.is_failed_observation(answered):
++            return dict(answered,
++                        input_tree=self._tree(repository, revision))
+         tree = self._runner(("git", "-C", repository, "rev-parse",
+                              revision + "^{tree}"))
+         if tree["returncode"] != 0:
+@@ -1854,11 +2187,38 @@ class _CausalObserver(_ConfiguredExecution):
+         carried into the base run, which then says `harness_added` about
+         itself."""
+         self.asked.append(dict(basis))
+-        harness, combined = self._observation(self._workspace,
+-                                              basis["candidate"])
+-        _body, base = self._observation(self._line_root, self._base,
+-                                        adding=harness)
+-        _body, isolated = self._observation(self._line_root, self._candidate)
++        # W156162, owner ruling M157653 step 2: THE COMPLETED PREFIX IS CARRIED
++        # AND THE REMAINDER IS NOT INVENTED. The three phases run in this
++        # order, so a failure in one has exactly the phases before it as its
++        # completed prefix and exactly the phases after it as not run. Each is
++        # collected as it finishes rather than reconstructed afterwards.
++        completed, order = {}, list(reconciliation.CAUSAL_PHASES)
++        harness = None
++        for phase in order:
++            if phase == "combined":
++                answered = self._observation(self._workspace,
++                                             basis["candidate"])
++            elif phase == "base":
++                answered = self._observation(self._line_root, self._base,
++                                             adding=harness)
++            else:
++                answered = self._observation(self._line_root, self._candidate)
++            if reconciliation.is_failed_observation(answered):
++                where = order.index(phase)
++                return {"result_id": basis["result_id"],
++                        "content_digest": basis["content_digest"],
++                        "candidate": basis["candidate"],
++                        "tree": basis["tree"], "target": basis["target"],
++                        "execution": self.participant,
++                        "observations": dict(
++                            answered, phase=phase, completed=dict(completed),
++                            not_run=list(order[where + 1:]))}
++            body, one = answered
++            if phase == "combined":
++                harness = body
++            completed[phase] = one
++        base, isolated = completed["base"], completed["isolated"]
++        combined = completed["combined"]
+         return {"result_id": basis["result_id"],
+                 "content_digest": basis["content_digest"],
+                 "candidate": basis["candidate"], "tree": basis["tree"],
+@@ -1876,14 +2236,23 @@ class _ImportedVerifier(_ConfiguredExecution):
+     runs before the reference CAS and a non-zero status holds the target.
+     """
+ 
+-    def __init__(self, participant, argv, runner, root, *, identity):
+-        super().__init__(participant, argv, runner, root)
++    def __init__(self, participant, argv, runner, root, *, identity,
++                 seconds=None, retention=None, scope=None, surviving=None):
++        super().__init__(participant, argv, runner, root, seconds=seconds,
++                         retention=retention, scope=scope,
++                         surviving=surviving)
+         self._identity = identity
+         self.asked = []
+ 
+     def verify_imported(self, basis):
+         self.asked.append(dict(basis))
+         answered = self._run(basis["target_root"], basis["input_commit"])
++        # W156162, step 3: ONE COMMAND, SO NO PREFIX AND NO REMAINDER. The
++        # bindings are the imported content's, which is what this owner ran
++        # against.
++        if reconciliation.is_failed_observation(answered):
++            return dict(answered, input_commit=basis["input_commit"],
++                        input_tree=basis["input_tree"])
+         return {"command": answered["command"],
+                 "test_identity": self._identity,
+                 "input_commit": basis["input_commit"],
+@@ -2443,7 +2812,11 @@ class Integration:
+                 line_root=line_place,
+                 base=held["source_base"],
+                 candidate=held["source_candidate"],
+-                identity=operands["required_tests"]["task_id"])
++                identity=operands["required_tests"]["task_id"],
++                seconds=_host_seconds(deployment, stage),
++                retention=_host_retention(deployment),
++                surviving=_host_scratch(deployment),
++                scope=(stage.get("job_id"), held["result_id"], "causal"))
+             held = reconciliation.record_causal_observations(
+                 deployment.integration, observer,
+                 result_id=held["result_id"])
+@@ -2484,7 +2857,11 @@ class Integration:
+             deployment.observer_participant(),
+             operands["required_tests"]["argv"], _git_run,
+             deployment.integration_root,
+-            identity=operands["required_tests"]["task_id"])
++            identity=operands["required_tests"]["task_id"],
++            seconds=_host_seconds(deployment, stage),
++            retention=_host_retention(deployment),
++            surviving=_host_scratch(deployment),
++            scope=(stage.get("job_id"), held["result_id"], "post-import"))
+         return admit_authorized_result(
+             deployment.integration, profile, _git_run, deployment.control,
+             deployment.jobs, deployment.authority,
+@@ -3308,7 +3685,13 @@ class StageDeployment:
+                 self.judges[key] = single_worker.JudgmentExecution(
+                     one["deployment"], self.control, self.authority,
+                     self.judgment_providers[one["worker_id"]], worker_id=one["worker_id"],
+-                    subject=dict(subject, kind=kind), source=source, engine_run=self._engine_run, clock=self.judgment_clock)
++                    subject=dict(subject, kind=kind), source=source, engine_run=self._engine_run, clock=self.judgment_clock,
++                    # W156162: THE SAME NARROW READER the pooled workers and the
++                    # integration port are composed with. A derived judgment
++                    # runs a real container over a real candidate, and it was
++                    # the one execution in this deployment that received no Job
++                    # context at all.
++                    execution_context=single_worker.job_execution_reader(self.jobs))
+             answers[kind] = self.judges[key].poll()
+         if any(answer is None for answer in answers.values()):
+             _refuse("the derived candidate awaits its configured judges' frozen reports",
+@@ -3500,7 +3883,13 @@ class StageDeployment:
+             # view over it is composed rather than borrowed.
+             credential_home=credentials.CredentialHome(
+                 given["credential_home"]),
+-            credential_provider=self._credential_provider)
++            credential_provider=self._credential_provider,
++            # W156162: THE SAME NARROW READER THE POOLED WORKERS ARE COMPOSED
++            # WITH, over the Job store this deployment already holds. It answers
++            # one Job's execution context and carries no way back to the store,
++            # which is why an integration port -- a composition that opens
++            # containers over somebody else's writable target -- may hold it.
++            execution_context=single_worker.job_execution_reader(self.jobs))
+ 
+     @property
+     def reconciliation_profile(self):
+@@ -3712,6 +4101,30 @@ class StageExecution:
+                     code="transport")
+ 
+     def _closers(self):
++        # WHAT A FAILED OBSERVATION LEFT BEHIND, FIRST. It is this
++        # deployment's own scratch under its own integration root, and it is
++        # released before the handles because a store or Authority failure
++        # must not be what decides whether the bytes are cleaned up. A path
++        # that survives THIS attempt too is reported through the same failure
++        # list as any other handle -- an operator is told, rather than the
++        # tree being quietly abandoned a second time. See `_host_scratch`.
++        # IT IS READ OFF THE DEPLOYMENT, which is where the owners that made
++        # it registered it; this object is what opened that deployment and so
++        # is what releases what it left.
++        surviving = getattr(self.deployment, "_host_surviving_scratch", None)
++        if surviving:
++            def dispose():
++                left = _dispose_surviving(surviving)
++                if left:
++                    _refuse("it could not be disposed of",
++                            category="unavailable", code="transport")
++
++            # THE PATHS ARE IN THE LABEL, because `release` reports a failed
++            # closer by its NAME and the type of its error. A surviving tree
++            # an operator cannot locate is the silence this Work refuses.
++            yield ("the retained host scratch at "
++                   + ", ".join(repr(one) for one in sorted(surviving))), \
++                dispose
+         for one in reversed(self.workers):
+             operations = one.get("operations")
+             if operations is not None and hasattr(operations, "release"):
+@@ -4095,7 +4508,7 @@ def _integration_ports(given, supplied):
+ 
+ 
+ def _integration_operations(given, worker, provider, control_store, authority,
+-                            *, engine_run, clock, checkpoint):
++                            *, engine_run, clock, checkpoint, job_store):
+     """The integration worker's operations, one held operand set per Job.
+ 
+     ONE BINDING COMPOSES EXACTLY WHAT IT ALWAYS DID. The one-Job document
+@@ -4115,7 +4528,14 @@ def _integration_operations(given, worker, provider, control_store, authority,
+             composed.append((binding["job_id"], single_worker.worker_operations(
+                 _served_deployment(given, worker, binding), control_store,
+                 authority, provider, engine_run=engine_run, clock=clock,
+-                checkpoint=checkpoint, dispose=lambda: None)))
++                checkpoint=checkpoint, dispose=lambda: None,
++                # W156162: EVERY JOB-BOUND FACTORY GETS THE READER. Review
++                # 2026-09-13T02:10:47Z: a default of `None` is a composition
++                # with no Job behind it, and reading that as "this Job
++                # configured nothing" would be a silent legacy fallback for a
++                # Job that configured a ceiling.
++                execution_context=single_worker.job_execution_reader(
++                    job_store))))
+     except BaseException:
+         for _job_id, one in composed:
+             one.close()
+@@ -4299,7 +4719,8 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+                 # same answer so admission and this provider cannot disagree.
+                 operations = _integration_operations(
+                     given, one, provider, control_store, composed.authority,
+-                    engine_run=engine_run, clock=clock, checkpoint=checkpoint)
++                    engine_run=engine_run, clock=clock, checkpoint=checkpoint,
++                    job_store=job_store)
+                 # W103068: AND THE DEPLOYMENT LEARNS ITS INTEGRATION CAPACITY.
+                 # An integration runtime port is composed over this worker's own
+                 # held operands, and it cannot be composed until an accepted
+@@ -4313,6 +4734,9 @@ def operations_from(document, job_store, control_store, *, engine_run=None,
+                     checkpoint=checkpoint,
+                     stage=StageComposition(deployment, role=one["role"],
+                                            worker_id=one["worker_id"]),
++                    # W156162: the same reader every Job-bound factory gets.
++                    execution_context=single_worker.job_execution_reader(
++                        job_store),
+                     # ONE AUTHORITY, RELEASED ONCE. A worker that disposed the
+                     # shared handle would take the other two down with it.
+                     dispose=lambda: None)
+@@ -4573,15 +4997,13 @@ class StageObservation:
+     def observe_integration(self, stage):
+         """Use the same owned completion account as serving, through ro handles.
+ 
+-        A generic or not-yet-activated stage needs neither owner opened.
++        A generic stage needs neither owner opened. Integration.account selects
++        reconciled completion before checking direct-runtime prerequisites.
+         Handles are local to the read, including all refusal paths, so the
+         observation object carries no serving capability or disposal obligation.
+         """
+         if stage.get("kind") != "integration":
+             return None
+-        row = attempt_runtime_of(self.control, stage["attempt_id"])
+-        if row is None or row["assignment"] is None:
+-            return None
+         authority = _authority_read("read-only integration Authority", lambda: Authority.open_readonly(
+             self.given["authority_store"], expected_authority_uuid=self.given["authority_uuid"]))
+         with authority:

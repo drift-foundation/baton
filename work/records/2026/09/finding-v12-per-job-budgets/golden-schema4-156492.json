@@ -1,0 +1,37 @@
+{
+ "claim": 156492,
+ "generation_cost": "UNMEASURED. The generator ran outside ledger-156316.json's measured runner, so it has no elapsed time, exit status or log there. Recorded as unknown rather than estimated; it is reproducible from golden-schema4-156492.py.",
+ "golden_sha256": "bb9fa3aba268f461f46cc38098faed7bbe8699d0da5918f62f0fc9c44a6b7866",
+ "how": "the committed HEAD versions of the FIVE job_manager source files listed under old_owner_sha256 -- documents.py, schema.py, store.py, submission.py and projection.py -- were materialized over a copy of the working tree into an isolated directory, and `submit(store, fixtures.submission())` was run there; nothing in this Work's code wrote a row. Corrected 2026-09-13 per review 2026-09-13T01:36:01Z: the earlier wording said six files while listing five, and five is what was replaced. The generator is retained as golden-schema4-156492.py.",
+ "old_owner_sha256": {
+  "documents.py": "4bbac912d0bd51cacc15b9cbc36405506e651e78d723a5a18e870f2b44688b4c",
+  "projection.py": "d22c3e7d83731e9ecf5c74255b2d40a46f8b24b858fd091226cd60e9eba91af3",
+  "schema.py": "1c291ddf1cd62a989fb1bd66a64a5a794ddddeb26fb92731f9ee08ddbf5915e8",
+  "store.py": "5413efe1d7d25af780cba4fe421ffb4205b4e0e684ffdda1f794d3cf0d650954",
+  "submission.py": "c80845d9615ec0db5e0d0d2e21d72fd7833b47985f6d5be59630a11500bd512e"
+ },
+ "operations": [
+  {
+   "kind": "submission.record",
+   "operation_id": "submission.record:sub-1",
+   "state": "committed"
+  }
+ ],
+ "schema_version": "4",
+ "tables": [
+  "episodes",
+  "jobs",
+  "meta",
+  "operations",
+  "pool_generations",
+  "pool_workers",
+  "receipts",
+  "stage_allocations",
+  "stages",
+  "submissions",
+  "worker_affinity"
+ ],
+ "test_fixture_copy": "v12/python/tests/job_manager/execution_limits_fixtures/golden-schema4.sqlite3, byte-identical, with its own PROVENANCE.md; added per review R6 so the migration regression lives inside the product candidate rather than reaching into this dossier.",
+ "what": "a GENUINE populated Job store at schema 4, produced by the pre-W156162 owner. Review 2026-09-13T01:23:33Z R4: my previous case opened an empty schema-4 store with the CURRENT owner -- which migrates it to 5 before anything is submitted -- so the /1 submission it called an old-owner admission was admitted at schema 5 and the deleted row was a fallback, not history.",
+ "work": "W156162"
+}

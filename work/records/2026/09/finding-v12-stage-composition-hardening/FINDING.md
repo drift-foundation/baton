@@ -84,3 +84,21 @@ W129844 owns the disjoint status/locator join. This supersedes pending first-sli
 assessment, not full hardening acceptance. Retain the red assertion and existing
 accepted evidence; no current resource leak or broad green claim. W110783 remains
 parked pending precise historical reconciliation at final parent review.
+
+## 2026-09-14 — owner assigns this hardening campaign to v13
+
+Slawomir explicitly named W103950 as work that must not be pulled into v12
+delivery while confirming the strategy of using v12 parallelism to expedite v13
+hardening. This campaign belongs to v13. The canonical decision is W2's
+FINDING.md, "V12 parallel delivery enables v13 hardening", at
+work/records/2026/08/finding-v12-isolated-agent-workers/.
+
+This supersedes interpreting the historical V12 title or the 2026-09-06
+scheduling approval as a current v12 release requirement. The approved technical
+coverage and retained red defect evidence remain valid history. Preserve Work
+identity and records. W165782 classifies the current queue and proposes any
+explicit scheduling/relationship corrections; this note itself does not change
+phase, claims or graph edges. At this read W103950 has no parent and blocks no
+consumer Work. Keep the broader matrix outside the v12 delivery gate. Assess
+any concrete correctness child independently for a demonstrated effect on v12
+readiness; such an assessment does not pull this entire campaign into v12.

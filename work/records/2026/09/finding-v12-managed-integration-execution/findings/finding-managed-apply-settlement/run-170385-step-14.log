@@ -1,0 +1,26 @@
+E
+======================================================================
+ERROR: test_preparation_judgments_apply_and_target_settle (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_preparation_judgments_apply_and_target_settle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 19, in test_preparation_judgments_apply_and_target_settle
+    self.complete()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 138, in complete
+    case.complete(configured=configure, completed=adopted)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2612, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 118, in adopted
+    world.judgment_turn(held, execution)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7193, in judgment_turn
+    self.assertEqual(self.vcs_in(worker.given["source_nomination"].place, "rev-parse", "HEAD").strip(), execution.subject["candidate"])
+                     ^^^^^^^^^^^
+AttributeError: 'Selected' object has no attribute 'vcs_in'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.936s
+
+FAILED (errors=1)

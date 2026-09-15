@@ -1,0 +1,38 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_job_viewer
+.....E................................................../home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:706: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:779: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=4, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:715: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.
+======================================================================
+ERROR: test_detail_on_a_first_unreadable_snapshot_does_not_exit (tests.tools.test_job_viewer.AMalformedRefreshDoesNotEndTheView.test_detail_on_a_first_unreadable_snapshot_does_not_exit)
+"I have not managed to look" and "I looked and it is not there"
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 383, in test_detail_on_a_first_unreadable_snapshot_does_not_exit
+    shown = "\n".join(render_detail(viewer.snapshot, "job-a",
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                     now=self.now))
+                                     ^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/job_viewer.py", line 469, in render_detail
+    _refuse("this snapshot holds no Job named " + repr(job_id)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            + "; it holds "
+            ^^^^^^^^^^^^^^^
+            + ", ".join(repr(one.get("job_id"))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for one in snapshot.jobs()) or "nothing")
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/job_viewer.py", line 90, in _refuse
+    raise ViewerRefusal(message)
+tools.job_viewer.ViewerRefusal: this snapshot holds no Job named 'job-a'; it holds 
+
+----------------------------------------------------------------------
+Ran 60 tests in 2.979s
+
+FAILED (errors=1)

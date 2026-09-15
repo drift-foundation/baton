@@ -1,0 +1,28 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.manager.test_reconciliation_task
+.........F...F........
+======================================================================
+FAIL: test_a_cut_sequence_keeps_its_prefix_and_names_its_suffix (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_a_cut_sequence_keeps_its_prefix_and_names_its_suffix)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 274, in test_a_cut_sequence_keeps_its_prefix_and_names_its_suffix
+    self.assertEqual(report["kind"], "collected-without-status")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'measured' != 'collected-without-status'
+- measured
++ collected-without-status
+
+
+======================================================================
+FAIL: test_the_base_is_measured_with_the_combined_harness (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_the_base_is_measured_with_the_combined_harness)
+`_CausalObserver`'s rule, held here: the base predates the test the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 325, in test_the_base_is_measured_with_the_combined_harness
+    self.assertEqual(answers["base"]["status"], 7)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 7
+
+----------------------------------------------------------------------
+Ran 22 tests in 1.103s
+
+FAILED (failures=2)

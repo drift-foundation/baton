@@ -1,0 +1,191 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation
+..............................E.......EE.EE...........................................................................................................................................................................................................................
+======================================================================
+ERROR: test_a_foreign_task_digest_refuses_and_writes_nothing (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_a_foreign_task_digest_refuses_and_writes_nothing)
+Review [P2]: the task's own identity was not compared to the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1694, in test_a_foreign_task_digest_refuses_and_writes_nothing
+    held = self.adopt(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1622, in adopt
+    return adoption.adopt_prepared_candidate(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.coordinated(), store, self._control, **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2955, in adopt_prepared_candidate
+    record_managed_result(store, submission,
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+                          orchestration_id=orchestration_id,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          canonical_target_id=owned_request[
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "canonical_target_id"],
+                              ^^^^^^^^^^^^^^^^^^^^^^^
+                          target_revision=target_revision)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2399, in record_managed_result
+    held = _managed_submission(submission)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2195, in _managed_submission
+    owned[name] = _object(held[name], f"a result's {name}")
+                  ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 172, in _object
+    _refuse(f"{what} is one full lowercase object name",
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="integrity", code="schema")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 165, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: a result's source_candidate is one full lowercase object name
+
+======================================================================
+ERROR: test_the_collected_preparation_is_adopted_end_to_end (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_the_collected_preparation_is_adopted_end_to_end)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1629, in test_the_collected_preparation_is_adopted_end_to_end
+    held = self.adopt(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1622, in adopt
+    return adoption.adopt_prepared_candidate(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.coordinated(), store, self._control, **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2955, in adopt_prepared_candidate
+    record_managed_result(store, submission,
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+                          orchestration_id=orchestration_id,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          canonical_target_id=owned_request[
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "canonical_target_id"],
+                              ^^^^^^^^^^^^^^^^^^^^^^^
+                          target_revision=target_revision)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2399, in record_managed_result
+    held = _managed_submission(submission)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2195, in _managed_submission
+    owned[name] = _object(held[name], f"a result's {name}")
+                  ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 172, in _object
+    _refuse(f"{what} is one full lowercase object name",
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="integrity", code="schema")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 165, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: a result's source_candidate is one full lowercase object name
+
+======================================================================
+ERROR: test_the_phase_is_retained_through_its_own_owner (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_the_phase_is_retained_through_its_own_owner)
+The adoption does not write rows: it drives `record_managed_result`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1658, in test_the_phase_is_retained_through_its_own_owner
+    held = self.adopt(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1622, in adopt
+    return adoption.adopt_prepared_candidate(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.coordinated(), store, self._control, **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2955, in adopt_prepared_candidate
+    record_managed_result(store, submission,
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+                          orchestration_id=orchestration_id,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          canonical_target_id=owned_request[
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "canonical_target_id"],
+                              ^^^^^^^^^^^^^^^^^^^^^^^
+                          target_revision=target_revision)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2399, in record_managed_result
+    held = _managed_submission(submission)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2195, in _managed_submission
+    owned[name] = _object(held[name], f"a result's {name}")
+                  ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 172, in _object
+    _refuse(f"{what} is one full lowercase object name",
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="integrity", code="schema")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 165, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: a result's source_candidate is one full lowercase object name
+
+======================================================================
+ERROR: test_the_root_is_still_held_and_the_apply_still_planned (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_the_root_is_still_held_and_the_apply_still_planned)
+Slice2 finishes with the preparation ended, the apply NOT run and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1852, in test_the_root_is_still_held_and_the_apply_still_planned
+    self.adopt(store)
+    ~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1622, in adopt
+    return adoption.adopt_prepared_candidate(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.coordinated(), store, self._control, **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2955, in adopt_prepared_candidate
+    record_managed_result(store, submission,
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+                          orchestration_id=orchestration_id,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          canonical_target_id=owned_request[
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "canonical_target_id"],
+                              ^^^^^^^^^^^^^^^^^^^^^^^
+                          target_revision=target_revision)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2399, in record_managed_result
+    held = _managed_submission(submission)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2195, in _managed_submission
+    owned[name] = _object(held[name], f"a result's {name}")
+                  ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 172, in _object
+    _refuse(f"{what} is one full lowercase object name",
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="integrity", code="schema")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 165, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: a result's source_candidate is one full lowercase object name
+
+======================================================================
+ERROR: test_the_submission_is_resolved_from_owners_not_supplied (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_the_submission_is_resolved_from_owners_not_supplied)
+Review [P1]: the submission was a caller operand handed straight to
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1718, in test_the_submission_is_resolved_from_owners_not_supplied
+    held = self.adopt(store)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1622, in adopt
+    return adoption.adopt_prepared_candidate(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.coordinated(), store, self._control, **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2955, in adopt_prepared_candidate
+    record_managed_result(store, submission,
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+                          orchestration_id=orchestration_id,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          canonical_target_id=owned_request[
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              "canonical_target_id"],
+                              ^^^^^^^^^^^^^^^^^^^^^^^
+                          target_revision=target_revision)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2399, in record_managed_result
+    held = _managed_submission(submission)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2195, in _managed_submission
+    owned[name] = _object(held[name], f"a result's {name}")
+                  ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 172, in _object
+    _refuse(f"{what} is one full lowercase object name",
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="integrity", code="schema")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 165, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: a result's source_candidate is one full lowercase object name
+
+----------------------------------------------------------------------
+Ran 262 tests in 12.890s
+
+FAILED (errors=5)

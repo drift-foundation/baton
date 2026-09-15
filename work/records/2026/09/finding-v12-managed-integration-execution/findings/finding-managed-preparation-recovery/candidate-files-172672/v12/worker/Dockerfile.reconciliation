@@ -1,0 +1,82 @@
+# The v12 PREPARATION worker image: the managed preparation, one entrypoint on.
+#
+# W161230 slice2, `work/records/2026/09/finding-v12-managed-integration-execution/`.
+# Every line carries the decision behind it, as W6633's, W39357's and W110935's
+# recipes do, because each one is either inherited from a measured fact or is a
+# deliberate departure from the image it is derived from.
+#
+# THE BASE IS AN EXPLICITLY SELECTED EXISTING PROVIDER IMAGE, AND IT HAS NO
+# DEFAULT -- the same rule `Dockerfile.integration` states and for the same
+# measured reason: `Dockerfile.claude` installs the provider runtime and the
+# system trust store over a moving `apt-get` and a moving `npm install`, and
+# W55361 measured that two builds of an unchanged tree differ in exactly those
+# two layers. A build must name the digest the deployment has already validated
+# and selected; a floating tag would let an unselected artefact become the base
+# by omission. Building here produces a CANDIDATE, and selecting a digest is a
+# separate deployment act this recipe cannot perform and does not claim.
+ARG PROVIDER_BASE
+FROM ${PROVIDER_BASE}
+
+# THE WORKER MODULES, RE-COPIED FROM THE REVIEWED TREE ON PURPOSE. Byte
+# identity with this tree becomes a property of THIS artefact rather than an
+# inherited assumption about the base -- W39357's gate paid for that lesson,
+# where an image asserting a file merely EXISTED passed every case after the
+# adapter it was certifying had changed underneath it.
+#
+# `baton_worker.py` travels because this entry IS `baton_worker.main`: the
+# preparation image has no serve loop of its own, and the frozen contract
+# document travels with it because a module whose data was left behind is one
+# that imports cleanly and fails at the first call that needs it.
+#
+# NOTHING FROM `baton_v12` IS COPIED IN, exactly as in the three images before
+# this one. `reconciliation_task.py` is standard-library-only for that reason
+# and this recipe is where that pays: there is no manager, Authority or store
+# package here for it to have reached. A workload that could import the manager
+# would be a manager running under a worker's name.
+COPY worker/baton_worker.py /opt/baton/baton_worker.py
+COPY worker/reconciliation_task.py /opt/baton/reconciliation_task.py
+COPY worker/reconciliation_entry.py /opt/baton/reconciliation_entry.py
+COPY worker/worker-control-1.0.schema.json \
+     /opt/baton/worker-control-1.0.schema.json
+
+# NO PROVIDER ADAPTER AND NO SOURCE PROFILES, and that is a departure from
+# `Dockerfile.integration` rather than an oversight. A preparation runs a
+# CONFIGURED CAUSAL SEQUENCE over content the manager already resolved: it asks
+# no model, holds no credential and performs no checkout. `claude_agent.py` is
+# absent because there is nothing here for it to adapt, and an image carrying a
+# provider it never calls is an image whose credential surface nobody needed.
+
+# THE SAME FIXED NON-ROOT PAIR as every other image in this campaign and as the
+# adapter's `--user` restriction. Restated rather than inherited: the identity
+# this container runs as is a property a reviewer should read in the recipe
+# that produced it, and `read_launch`'s read-only proof depends on this process
+# not being root.
+USER 65532:65532
+
+# ONE SHOT, EXEC FORM, NO SHELL IN THE PROCESS TREE. The manager stops this
+# container by signalling PID 1, and PID 1 is Python. `reconciliation_entry.py`
+# is the composition -- a reviewable artefact rather than a shell incantation --
+# and it is one line: `baton_worker.main(agent=PreparationAgent())`.
+ENTRYPOINT ["python3", "/opt/baton/reconciliation_entry.py"]
+
+# Deterministic bytes and an explicit module path, as in the images before this
+# one. `PYTHONDONTWRITEBYTECODE` is for the interpreter's OWN imports inside the
+# container; this workload composes no child environments, so there is no
+# `PYTHONPYCACHEPREFIX` question here.
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/baton \
+    PYTHONHASHSEED=0
+
+# THERE IS DELIBERATELY NO `ENV ANTHROPIC_*` OF ANY KIND. This image asks no
+# model, so a credential here would be one nothing in it could need -- and the
+# provider resolves its credential from the environment FIRST, so a key present
+# here would silently outrank a mounted slot for every container built from it.
+#
+# There is also no `ENV BATON_WORKER_*`: that transport was retired with no
+# fallback (W26291), and this image's programs do not read those names.
+#
+# No `VOLUME`, no `EXPOSE`, no `HEALTHCHECK`: the launch, the input and the
+# declared outputs are mounts the manager names per attempt, and this
+# container's health is observed by the adapter through the engine rather than
+# announced by the container.

@@ -1,0 +1,60 @@
+{
+  "work": "W103525",
+  "claim": 157568,
+  "prior_review_seconds": 69.43512828399685,
+  "review_cap_seconds": 300,
+  "author_spent_seconds": 511.595439156989,
+  "author_cap_seconds": 600,
+  "candidate_before": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "bytes": 93492
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "c375039e1fa773a2921d8a9a8066bc23584cd1a112d3d8628881428e0805be1a",
+      "bytes": 269913
+    }
+  },
+  "runs": [
+    {
+      "name": "focused",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 4.918457297000714,
+      "log": "review-157568-focused.log"
+    },
+    {
+      "name": "probe",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-157568.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.015524321999691892,
+      "log": "review-157568-probe.log"
+    }
+  ],
+  "review_spent_seconds": 74.36910990299725,
+  "review_remaining_seconds": 225.63089009700275,
+  "candidate_after": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "bytes": 93492
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "c375039e1fa773a2921d8a9a8066bc23584cd1a112d3d8628881428e0805be1a",
+      "bytes": 269913
+    }
+  },
+  "candidate_unchanged": true
+}

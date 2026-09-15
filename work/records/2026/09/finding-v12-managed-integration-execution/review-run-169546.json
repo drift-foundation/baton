@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-W",
+    "error::ResourceWarning",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "wall_seconds": 0.2136666239821352,
+  "exit_code": 0,
+  "timed_out": false,
+  "timeout_seconds": 30,
+  "term_grace_seconds": 5,
+  "kill_grace_seconds": 5,
+  "previous_reviewer_seconds": 28.86670601505466,
+  "cumulative_reviewer_seconds": 29.080372639036796,
+  "evidence": "Three callback/signature/recovery-order unit tests. Limits reader is mocked; intent is supplied. No complete owner-backed deployment or engine proof."
+}

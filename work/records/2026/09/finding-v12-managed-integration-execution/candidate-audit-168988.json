@@ -1,0 +1,110 @@
+{
+  "claim": 168988,
+  "files": [
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "actual": {
+        "sha256": "eb86c310365a7f083544b6488883f5f3ba0459a7635d9654e1349792180cf221",
+        "bytes": 70627,
+        "mode": "0o644"
+      },
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "actual": {
+        "sha256": "63fd8c59b62beffdae3f4474c8f788a1d80fa35fea94c41d4c04bea174e52d67",
+        "bytes": 278874,
+        "mode": "0o664"
+      },
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "actual": {
+        "sha256": "88aace0104a6ef77e25e3a497bddc0d08666f746a8559e0f6bf8c42909828bf9",
+        "bytes": 158551,
+        "mode": "0o644"
+      },
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "actual": {
+        "sha256": "8067e75137b59be373c1d20eb5d0649b70e3d134c737c367f427950d06d31807",
+        "bytes": 32310,
+        "mode": "0o644"
+      },
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "actual": {
+        "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c",
+        "bytes": 191339,
+        "mode": "0o664"
+      },
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+      "actual": {
+        "sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a",
+        "bytes": 94098,
+        "mode": "0o644"
+      },
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/integration_bundle.py",
+      "actual": {
+        "sha256": "c0e21cd6b335db084e64499f508a7cc19fd45807d3bd4a81108239806c106a93",
+        "bytes": 71269,
+        "mode": "0o644"
+      },
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_task.py",
+      "actual": {
+        "sha256": "69860bdfdc63e5144db973ddd70c7b101bde707ba97c8c99779b3ae6ce992eb6",
+        "bytes": 50721,
+        "mode": "0o644"
+      },
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_entry.py",
+      "actual": {
+        "sha256": "4b4e43879d76250b7745ff89e9df1eb9d7656cc0c096f1adf1feaf56c3114fc0",
+        "bytes": 10442,
+        "mode": "0o644"
+      },
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/Dockerfile.reconciliation",
+      "actual": {
+        "sha256": "35279f5dcaa6c2c3b44df7e10aa491a35f92e1933d0b3d06bb6e61bc87f021d3",
+        "bytes": 4725,
+        "mode": "0o644"
+      },
+      "matches": true
+    },
+    {
+      "path": "SLICE2-SCOPE-165724.md",
+      "actual": "4c18e791a29516b92d5afaba93c2042f5adaefa60bd57b7c54b13a04acba4fa0",
+      "matches": true
+    },
+    {
+      "path": "DESIGN-RECONSIDERATION-166444.md",
+      "actual": "f0bf84a6217b1f44c9c9b71c29efffa9e11e9db8d6305b5deef7b0d632f165b3",
+      "matches": true
+    },
+    {
+      "path": "v12/python/DEPLOYMENT.md",
+      "actual": "48a3268e456765c02696c897558f1aed9511c39a4188480a8d194b21ac50077f",
+      "matches": true
+    }
+  ]
+}

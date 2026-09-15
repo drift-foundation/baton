@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+....................................E........
+======================================================================
+ERROR: test_the_configured_ceiling_decides_a_real_verification (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_configured_ceiling_decides_a_real_verification)
+THE WHOLE CHAIN, and no injected runner in it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 678, in test_the_configured_ceiling_decides_a_real_verification
+    self.assertEqual(answer["outcome"], "held")
+                     ~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+----------------------------------------------------------------------
+Ran 45 tests in 1.862s
+
+FAILED (errors=1)

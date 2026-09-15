@@ -1,0 +1,1 @@
+{"declared_version": "4", "future_objects_retained": ["capacity_one_active_member", "integration_capacity_members", "integration_capacity_roots"], "meaning": "Current schema_four fixture does not remove later capacity objects; synthetic DDL, not candidate migration evidence."}

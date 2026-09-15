@@ -1,0 +1,102 @@
+{
+  "v12/README.md": {
+    "bytes": 19784,
+    "sha256": "38556169fd8d607592c5651d663ea65f8bba6b40cab8ef12218773373e7fa269"
+  },
+  "v12/python/tests/tools/test_live_ab.py": {
+    "bytes": 3867,
+    "sha256": "1528a2ed8fcb98ed059421b7f0b2a1de9de370b8f2e4fd3fba6b5ea5a2a42279"
+  },
+  "v12/testing/live_ab/README.md": {
+    "bytes": 3096,
+    "sha256": "320ee09733665aa319fb94a5753187e463cbc337a2d9290d503d9d864aee042c"
+  },
+  "v12/testing/live_ab/accounting.py": {
+    "bytes": 22768,
+    "sha256": "30a984a316d76d379dde3e743037ca6d1f0bfc105ed365781b1d42fdf727c245"
+  },
+  "v12/testing/live_ab/deployment.py": {
+    "bytes": 24085,
+    "sha256": "5af2965fa42240b0abfda282e06fb2c03ec662bc27d2f1cea98dbe221b137808"
+  },
+  "v12/testing/live_ab/failure_observation.py": {
+    "bytes": 12777,
+    "sha256": "004f5fe4756c70eaf945b2ce64bcebc1b5de42b85e3da5d3963e40913755894f"
+  },
+  "v12/testing/live_ab/final_view.py": {
+    "bytes": 4013,
+    "sha256": "91b67a3d01b2cf0abf067ea967075a8873b60304048959d9596d0e20a3d4667f"
+  },
+  "v12/testing/live_ab/fixtures/baseline/.gitignore": {
+    "bytes": 19,
+    "sha256": "862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793"
+  },
+  "v12/testing/live_ab/fixtures/baseline/README.md": {
+    "bytes": 527,
+    "sha256": "f17e4568a49779e4215d3584ad29d009d9a7a81e44a1d06a5c67eefd41c5d9bf"
+  },
+  "v12/testing/live_ab/fixtures/baseline/check_greeting.py": {
+    "bytes": 207,
+    "sha256": "ef2f043ae6e449d2e23f687695d21fc21c424776efe76e18af5997081d35fbd6"
+  },
+  "v12/testing/live_ab/fixtures/baseline/demo/__init__.py": {
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "v12/testing/live_ab/fixtures/baseline/demo/greeting.py": {
+    "bytes": 51,
+    "sha256": "bf2306895de87391dc278701447b1095afaadd0d6f8f55f80ee48383f8618ea0"
+  },
+  "v12/testing/live_ab/fixtures/baseline/demo/units.py": {
+    "bytes": 45,
+    "sha256": "b96936e12ea4fd44b6a418e8a44911c4ecfced8f6d9dca8671528f1607d5131f"
+  },
+  "v12/testing/live_ab/fixtures/baseline/tests/__init__.py": {
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "v12/testing/live_ab/fixtures/baseline/tests/test_greeting.py": {
+    "bytes": 267,
+    "sha256": "f6fb8233390ce3feb801fad552bf6cd66ab131e54000b2d784687ded6a643c95"
+  },
+  "v12/testing/live_ab/fixtures/baseline/tests/test_guard.py": {
+    "bytes": 132,
+    "sha256": "985459697a7e04ce76b1da1afdac4996aaef8264b5c3c11ba51b2806de16a816"
+  },
+  "v12/testing/live_ab/fixtures/baseline/tests/test_units.py": {
+    "bytes": 253,
+    "sha256": "26e146ea3d81b88972dc56538ee50b8ed438918c48968165e25f299701883523"
+  },
+  "v12/testing/live_ab/fixtures/task-a.md": {
+    "bytes": 949,
+    "sha256": "868b8669c92d2e3308516473df93ab57562774b9c2e0d3631acfca5be950e0d5"
+  },
+  "v12/testing/live_ab/fixtures/task-b.md": {
+    "bytes": 1242,
+    "sha256": "4368c7da5dbb10c65f28029dffeffc3f2e3338cbf061f7700f381e2e705b4711"
+  },
+  "v12/testing/live_ab/input-bindings.json": {
+    "bytes": 13851,
+    "sha256": "63cc7a9ec02740399ec763a94062b74d97c653cbff2ab0d086fe5c0767b322d4"
+  },
+  "v12/testing/live_ab/live-images.json": {
+    "bytes": 2078,
+    "sha256": "3609239d8029ee63edbc7c39a2e4da539ffdab05e700557ffddcde207d67e50e"
+  },
+  "v12/testing/live_ab/provenance.json": {
+    "bytes": 1159,
+    "sha256": "2f022da1d58e7ee415e1a0caffbdb944446a70a76a5808f3faa25caf1582ca84"
+  },
+  "v12/testing/live_ab/run.py": {
+    "bytes": 18270,
+    "sha256": "eae6aa264fa9f9ae38d39cb1322d3d7a87fc79e9a76d99f7e85a531c64f0586a"
+  },
+  "v12/testing/live_ab/scenario.py": {
+    "bytes": 5790,
+    "sha256": "6f8ece279aa70a12ada9c7bb4003807f267a797689d082801d40f002edf69bf5"
+  },
+  "v12/testing/live_ab/target_posture.py": {
+    "bytes": 4891,
+    "sha256": "62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+  }
+}

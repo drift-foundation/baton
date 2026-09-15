@@ -1,0 +1,337 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_stage_execution
+W103068 genuine consumer evidence {"derived_proposal": "proposal-result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "derived_result": "result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "jobs": {"job-a": {"implementation": "completed", "integration": "completed", "review": "completed"}, "job-b": {"implementation": "completed", "integration": "completed", "review": "completed"}}, "judgments": [{"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.verifier", "principal": "principal:baton.verifier", "runtime_attempt_id": "judgment-b8b99ca2b83c418d6ee8a9a71f8dd68dd0116a9a6631c2f0baf5f0e72bcfc808", "work_id": "0000000a-W3"}, "attempt_id": "judgment-b8b99ca2b83c418d6ee8a9a71f8dd68dd0116a9a6631c2f0baf5f0e72bcfc808", "receipt_digest": "sha256:a544b53a602ce8baa16c0dacbadd7b40f7be032b66b14de10eb5fc1963c8cb55", "result_digest": "sha256:227d6b8cc849483d05d3f3152fb632e3bf920ce1066812cd688e19dfe5742bc0", "result_id": "result-judgment-b8b99ca2b83c418d6ee8a9a71f8dd68dd0116a9a6631c2f0baf5f0e72bcfc808", "subject": {"candidate": "a03a8492f332634e7c8a5dbe2f6d60820b8f4258", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "897baa19e1382705cdd695dd67a36e763601a2cc", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "a03a8492f332634e7c8a5dbe2f6d60820b8f4258", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "16e0ff1a255c803fd070207c3332615083840905", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "derived_result_digest": "sha256:c493d555c3c3db0d38090dec359b7b027137ba4007d0bdad852c0b9cd9a4b8fc", "derived_result_id": "derived-result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "job_id": "job-b", "kind": "verification", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "source_base": "897baa19e1382705cdd695dd67a36e763601a2cc", "source_candidate": "16e0ff1a255c803fd070207c3332615083840905", "source_proposal_id": "integration-driver.proposal:22b9103d651ddabd28125a07e2c30a174dbb11d927c273ea910ab8c25f0ffe18", "target_revision": "0e8d7ef43ece580c5cabcf6eff0461ca94fbf853", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver-review", "principal": "principal:baton.approver-review", "runtime_attempt_id": "judgment-e5492eb5ea877de79528849f8142b5a077e61f36fdfb6248ebdc395c907521eb", "work_id": "0000000a-W4"}, "attempt_id": "judgment-e5492eb5ea877de79528849f8142b5a077e61f36fdfb6248ebdc395c907521eb", "receipt_digest": "sha256:68cd172aa2a7d5c0cbca56a8a521a97970ab0f7189e6822c2de623f0c747c0e7", "result_digest": "sha256:152e5de6356265251b4e9617bed1a1b8093904bdc0069ed4d67afd13c6b2495d", "result_id": "result-judgment-e5492eb5ea877de79528849f8142b5a077e61f36fdfb6248ebdc395c907521eb", "subject": {"candidate": "a03a8492f332634e7c8a5dbe2f6d60820b8f4258", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "897baa19e1382705cdd695dd67a36e763601a2cc", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "a03a8492f332634e7c8a5dbe2f6d60820b8f4258", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "16e0ff1a255c803fd070207c3332615083840905", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "derived_result_digest": "sha256:c493d555c3c3db0d38090dec359b7b027137ba4007d0bdad852c0b9cd9a4b8fc", "derived_result_id": "derived-result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "job_id": "job-b", "kind": "review", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "source_base": "897baa19e1382705cdd695dd67a36e763601a2cc", "source_candidate": "16e0ff1a255c803fd070207c3332615083840905", "source_proposal_id": "integration-driver.proposal:22b9103d651ddabd28125a07e2c30a174dbb11d927c273ea910ab8c25f0ffe18", "target_revision": "0e8d7ef43ece580c5cabcf6eff0461ca94fbf853", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}, {"assignment": {"authority_uuid": "0000000a000000000000000000000000", "effective_scope": "scope:deployment", "generation": 1, "participant": "baton.approver", "principal": "principal:baton.approver", "runtime_attempt_id": "judgment-125ee843518f28d47a4c43a603572d89e10c4b4f2dfef8514989cd47d3f8a21d", "work_id": "0000000a-W5"}, "attempt_id": "judgment-125ee843518f28d47a4c43a603572d89e10c4b4f2dfef8514989cd47d3f8a21d", "receipt_digest": "sha256:e9a195677e46ea4eddbc40e4b90150c3e68bad0b57224cbff3e5a7f24930aee4", "result_digest": "sha256:b4587e2088b4051916d4cc80da1d602e9a0255edc5f01427e601defd047aea62", "result_id": "result-judgment-125ee843518f28d47a4c43a603572d89e10c4b4f2dfef8514989cd47d3f8a21d", "subject": {"candidate": "a03a8492f332634e7c8a5dbe2f6d60820b8f4258", "canonical_target_id": "target-a", "causal_observations": {"base": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": true, "input_commit": "897baa19e1382705cdd695dd67a36e763601a2cc", "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb", "output": "ModuleNotFoundError: No module named 'feature'", "status": 1, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "combined": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "a03a8492f332634e7c8a5dbe2f6d60820b8f4258", "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}, "isolated": {"command": ["python3", "feature_check.py"], "environment": "configured-required-test", "execution": "baton.result-observer", "harness_added": false, "input_commit": "16e0ff1a255c803fd070207c3332615083840905", "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384", "output": "the second job feature check passed", "status": 0, "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40", "test_identity": "w130224-second-line-of-one-target"}}, "content_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457", "derived_proposal_id": "proposal-result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "derived_result_digest": "sha256:c493d555c3c3db0d38090dec359b7b027137ba4007d0bdad852c0b9cd9a4b8fc", "derived_result_id": "derived-result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "job_id": "job-b", "kind": "approval", "observed_by": "baton.result-observer", "policy_generation": 15, "result_id": "result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "source_base": "897baa19e1382705cdd695dd67a36e763601a2cc", "source_candidate": "16e0ff1a255c803fd070207c3332615083840905", "source_proposal_id": "integration-driver.proposal:22b9103d651ddabd28125a07e2c30a174dbb11d927c273ea910ab8c25f0ffe18", "target_revision": "0e8d7ef43ece580c5cabcf6eff0461ca94fbf853", "tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f"}, "verdict": "accepted"}], "receipts": [{"actor": "baton.verifier", "candidate_digest": "a03a8492f332634e7c8a5dbe2f6d60820b8f4258", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.verifier", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.verifier", "role": "verify"}, "disposition": "passed", "kind": "verification", "policy_generation": null, "proposal_id": "proposal-result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "receipt_id": "judgment-2988487216fbcadca1587fd6f55fbda8496d77def5661d5774e551cd6dbf6c8b", "recorded_at": "2026-09-13T03:43:35.335Z", "target": "0e8d7ef43ece580c5cabcf6eff0461ca94fbf853"}, {"actor": "baton.approver", "candidate_digest": "a03a8492f332634e7c8a5dbe2f6d60820b8f4258", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver", "role": "approve"}, "disposition": "approved", "kind": "approval", "policy_generation": 15, "proposal_id": "proposal-result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "receipt_id": "judgment-5600756660d51d5d9092e3cd322a37c9cfd7cb38220857590b69b7bd6fc70f71", "recorded_at": "2026-09-13T03:43:35.336Z", "target": "0e8d7ef43ece580c5cabcf6eff0461ca94fbf853"}, {"actor": "baton.approver-review", "candidate_digest": "a03a8492f332634e7c8a5dbe2f6d60820b8f4258", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.approver-review", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.approver-review", "role": "review"}, "disposition": "accepted", "kind": "review", "policy_generation": null, "proposal_id": "proposal-result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "receipt_id": "judgment-f0c344818f34feae5a5ffb7e0ecaf10d3a82e5d374c2074b5fa851c17ab5733b", "recorded_at": "2026-09-13T03:43:35.336Z", "target": "0e8d7ef43ece580c5cabcf6eff0461ca94fbf853"}, {"actor": "baton.integrator", "candidate_digest": "a03a8492f332634e7c8a5dbe2f6d60820b8f4258", "decision": {"effective_scope": "scope:deployment", "endpoint": "baton.integrator", "grant": "direct", "policy_generation": 15, "principal": "principal:baton.integrator", "role": "integrate"}, "disposition": "integrated", "kind": "integration", "policy_generation": null, "proposal_id": "proposal-result-a27007761cd30bd9dbb353f882e4e9fd71b4eb0bb1d4530cd1c56f803aa64e1e", "receipt_id": "integration-driver.integration-receipt:41713963da128ba2fc4f7d6c6e1ab134fd1a5d64e2e6e7c7989b9ad906c013fd", "recorded_at": "2026-09-13T03:43:35.409Z", "target": "0e8d7ef43ece580c5cabcf6eff0461ca94fbf853"}], "target": "a03a8492f332634e7c8a5dbe2f6d60820b8f4258"}
+EEE.E........................................................................................................................................EEE.EEEEE........................................E.............................................................................
+======================================================================
+ERROR: test_a_fresh_port_prepares_that_delivery_and_then_starts_it (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_fresh_port_prepares_that_delivery_and_then_starts_it)
+W103083 review 2026-09-08T12:41:47Z [P1], and the whole of W119113.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1577, in test_a_fresh_port_prepares_that_delivery_and_then_starts_it
+    answer, admit, keep = self.tick(port)
+                          ~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1491, in tick
+    answer = held.run(self.case.stage(), {"job_id": "job-1"})
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2120, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2233, in _run
+    if deployment.reconciles():
+       ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'
+
+======================================================================
+ERROR: test_a_runtime_this_execution_did_not_start_is_still_held (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_runtime_this_execution_did_not_start_is_still_held)
+The hold this correction must not spend: a started attempt is NOT
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1597, in test_a_runtime_this_execution_did_not_start_is_still_held
+    answer, admit, keep = self.tick(port)
+                          ~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1491, in tick
+    answer = held.run(self.case.stage(), {"job_id": "job-1"})
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2120, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2233, in _run
+    if deployment.reconciles():
+       ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'
+
+======================================================================
+ERROR: test_a_second_tick_in_the_same_execution_starts_nothing_again (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_second_tick_in_the_same_execution_starts_nothing_again)
+The same-execution case: this port holds the marker it made, so the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1538, in test_a_second_tick_in_the_same_execution_starts_nothing_again
+    self.tick(port)
+    ~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1491, in tick
+    answer = held.run(self.case.stage(), {"job_id": "job-1"})
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2120, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2233, in _run
+    if deployment.reconciles():
+       ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'
+
+======================================================================
+ERROR: test_an_ordinary_first_tick_prepares_and_starts_exactly_once (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_ordinary_first_tick_prepares_and_starts_exactly_once)
+The valid initial case: nothing is published yet, so this is the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1524, in test_an_ordinary_first_tick_prepares_and_starts_exactly_once
+    answer, admit, keep = self.tick(port)
+                          ~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1491, in tick
+    answer = held.run(self.case.stage(), {"job_id": "job-1"})
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2120, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2233, in _run
+    if deployment.reconciles():
+       ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'
+
+======================================================================
+ERROR: test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick) (delivery=False)
+Absent or unpublished: neither invents an assignment.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1396, in test_a_delivery_carrying_no_assignment_is_the_first_tick
+    _, calls, admit, keep, _ = self.driven(delivery=delivery,
+                               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+                                           assignment=None)
+                                           ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1240, in driven
+    answer = stage_execution.Integration(held, taken).run(
+        {"attempt_id": "attempt-1", "kind": "integration"},
+        {"job_id": "job-1"})
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2120, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2181, in _run
+    published = _authority_read(
+        "the producer's proposal",
+        lambda: deployment.authority.proposal(operands["proposal_id"]))
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 848, in _authority_read
+    return read()
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2183, in <lambda>
+    lambda: deployment.authority.proposal(operands["proposal_id"]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'object' object has no attribute 'proposal'
+
+======================================================================
+ERROR: test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick) (delivery=True)
+Absent or unpublished: neither invents an assignment.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1396, in test_a_delivery_carrying_no_assignment_is_the_first_tick
+    _, calls, admit, keep, _ = self.driven(delivery=delivery,
+                               ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+                                           assignment=None)
+                                           ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1240, in driven
+    answer = stage_execution.Integration(held, taken).run(
+        {"attempt_id": "attempt-1", "kind": "integration"},
+        {"job_id": "job-1"})
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2120, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2181, in _run
+    published = _authority_read(
+        "the producer's proposal",
+        lambda: deployment.authority.proposal(operands["proposal_id"]))
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 848, in _authority_read
+    return read()
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2183, in <lambda>
+    lambda: deployment.authority.proposal(operands["proposal_id"]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'object' object has no attribute 'proposal'
+
+======================================================================
+ERROR: test_a_delivery_with_no_started_runtime_is_not_refreshed (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed)
+The namespaces are materialized before the container, so a delivery
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1363, in test_a_delivery_with_no_started_runtime_is_not_refreshed
+    _, calls, admit, keep, _ = self.driven(
+                               ~~~~~~~~~~~^
+        delivery=object(), assignment={"attempt_id": "attempt-1"},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        port=self.port(runtime_state="not-started"))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1240, in driven
+    answer = stage_execution.Integration(held, taken).run(
+        {"attempt_id": "attempt-1", "kind": "integration"},
+        {"job_id": "job-1"})
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2120, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2181, in _run
+    published = _authority_read(
+        "the producer's proposal",
+        lambda: deployment.authority.proposal(operands["proposal_id"]))
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 848, in _authority_read
+    return read()
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2183, in <lambda>
+    lambda: deployment.authority.proposal(operands["proposal_id"]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'object' object has no attribute 'proposal'
+
+======================================================================
+ERROR: test_a_later_tick_refreshes_before_it_continues (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_later_tick_refreshes_before_it_continues)
+Owner ruling M115946: refresh FIRST, then the port's own marker.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1325, in test_a_later_tick_refreshes_before_it_continues
+    _, calls, admit, keep, seen = self.driven(
+                                  ~~~~~~~~~~~^
+        delivery=object(), assignment={"attempt_id": "attempt-1"})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1240, in driven
+    answer = stage_execution.Integration(held, taken).run(
+        {"attempt_id": "attempt-1", "kind": "integration"},
+        {"job_id": "job-1"})
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2120, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2181, in _run
+    published = _authority_read(
+        "the producer's proposal",
+        lambda: deployment.authority.proposal(operands["proposal_id"]))
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 848, in _authority_read
+    return read()
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2183, in <lambda>
+    lambda: deployment.authority.proposal(operands["proposal_id"]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'object' object has no attribute 'proposal'
+
+======================================================================
+ERROR: test_a_lost_marker_falls_through_to_admission (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_lost_marker_falls_through_to_admission)
+A fresh serving incarnation holds no marker, so the driver's own
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1340, in test_a_lost_marker_falls_through_to_admission
+    _, calls, admit, keep, _ = self.driven(
+                               ~~~~~~~~~~~^
+        delivery=object(), assignment={"attempt_id": "attempt-1"},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        port=self.port(continuable=False))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1240, in driven
+    answer = stage_execution.Integration(held, taken).run(
+        {"attempt_id": "attempt-1", "kind": "integration"},
+        {"job_id": "job-1"})
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2120, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2181, in _run
+    published = _authority_read(
+        "the producer's proposal",
+        lambda: deployment.authority.proposal(operands["proposal_id"]))
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 848, in _authority_read
+    return read()
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2183, in <lambda>
+    lambda: deployment.authority.proposal(operands["proposal_id"]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'object' object has no attribute 'proposal'
+
+======================================================================
+ERROR: test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here) (runtime='running')
+The other side of that branch, which is why it IS a branch.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1382, in test_a_started_or_uncertain_runtime_is_never_prepared_here
+    _, calls, admit, keep, _ = self.driven(
+                               ~~~~~~~~~~~^
+        delivery=object(),
+        ^^^^^^^^^^^^^^^^^^
+        assignment={"attempt_id": "attempt-1"},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        port=self.port(runtime_state=state, continuable=False))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1240, in driven
+    answer = stage_execution.Integration(held, taken).run(
+        {"attempt_id": "attempt-1", "kind": "integration"},
+        {"job_id": "job-1"})
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2120, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2181, in _run
+    published = _authority_read(
+        "the producer's proposal",
+        lambda: deployment.authority.proposal(operands["proposal_id"]))
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 848, in _authority_read
+    return read()
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2183, in <lambda>
+    lambda: deployment.authority.proposal(operands["proposal_id"]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'object' object has no attribute 'proposal'
+
+======================================================================
+ERROR: test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here) (runtime='uncertain')
+The other side of that branch, which is why it IS a branch.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1382, in test_a_started_or_uncertain_runtime_is_never_prepared_here
+    _, calls, admit, keep, _ = self.driven(
+                               ~~~~~~~~~~~^
+        delivery=object(),
+        ^^^^^^^^^^^^^^^^^^
+        assignment={"attempt_id": "attempt-1"},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        port=self.port(runtime_state=state, continuable=False))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1240, in driven
+    answer = stage_execution.Integration(held, taken).run(
+        {"attempt_id": "attempt-1", "kind": "integration"},
+        {"job_id": "job-1"})
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2120, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2181, in _run
+    published = _authority_read(
+        "the producer's proposal",
+        lambda: deployment.authority.proposal(operands["proposal_id"]))
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 848, in _authority_read
+    return read()
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2183, in <lambda>
+    lambda: deployment.authority.proposal(operands["proposal_id"]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'object' object has no attribute 'proposal'
+
+======================================================================
+ERROR: test_the_first_tick_prepares_and_then_admits (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1313, in test_the_first_tick_prepares_and_then_admits
+    _, calls, admit, keep, seen = self.driven()
+                                  ~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1240, in driven
+    answer = stage_execution.Integration(held, taken).run(
+        {"attempt_id": "attempt-1", "kind": "integration"},
+        {"job_id": "job-1"})
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2120, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2181, in _run
+    published = _authority_read(
+        "the producer's proposal",
+        lambda: deployment.authority.proposal(operands["proposal_id"]))
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 848, in _authority_read
+    return read()
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2183, in <lambda>
+    lambda: deployment.authority.proposal(operands["proposal_id"]))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'object' object has no attribute 'proposal'
+
+======================================================================
+ERROR: test_an_integration_without_a_runtime_port_refuses_as_that (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_an_integration_without_a_runtime_port_refuses_as_that)
+The one capability this build does not have, reported rather than
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 1760, in test_an_integration_without_a_runtime_port_refuses_as_that
+    composed.launch({"kind": "integration", "attempt_id": "attempt-i"},
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    {})
+                    ^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 3717, in launch
+    return self.integrator.run(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2120, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2145, in _run
+    line = (deployment.line() if job_id is None
+            ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 3102, in line
+    return self.line_for(held[0]["job_id"])
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 3011, in line_for
+    created = review_cycles.create_line(
+        self.control, source=self.source_for(job_id),
+        declared_base=binding["line_declared_base"],
+        profile=self.profile, authority_uuid=self.given["authority_uuid"],
+        work_id=binding["job_work_id"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/review_cycles.py", line 991, in create_line
+    materialized = profile.materialize(source.place, path, declared_base)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/checkpoint_profiles.py", line 257, in materialize
+    self._run(clone_vector(source, repository), "line materialization")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/checkpoint_profiles.py", line 238, in _run
+    raise ProfileRefusal(f"Git {what} failed" +
+                         (f": {detail}" if detail else ""))
+baton_v12.source_profiles.checkout.ProfileRefusal: Git line materialization failed: fatal: repository '/home/sl/src/baton/v12/python/v12-w71917-0oj1f6gy/source' does not exist
+
+----------------------------------------------------------------------
+Ran 266 tests in 51.927s
+
+FAILED (errors=13)

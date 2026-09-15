@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_scratch_that_survives_the_release_too_is_reported tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_scratch_is_released_by_the_same_close tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_post_import_start_failures_scratch_is_released_too
+...
+----------------------------------------------------------------------
+Ran 3 tests in 4.731s
+
+OK

@@ -1,0 +1,113 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+..................................EEEE.......
+======================================================================
+ERROR: test_a_port_with_no_job_owner_composes_exactly_what_it_always_did (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_a_port_with_no_job_owner_composes_exactly_what_it_always_did)
+The unchanged deployment. A port composed without the reader is not
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 566, in setUp
+    self.job_id = self._configured_job()
+                  ~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 585, in _configured_job
+    submit(self.fixture.world.jobs, held)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/submission.py", line 48, in submit
+    owned = documents.owned_submission(document)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 335, in owned_submission
+    _resolvable(owned)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 507, in _resolvable
+    _refuse(f"this submission gates on {sample_of(missing)}, which it does "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not carry; a dependency on a stage outside the submission "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is a gate nothing in it can ever open")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 286, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: this submission gates on 'job-a/implementation', which it does not carry; a dependency on a stage outside the submission is a gate nothing in it can ever open
+
+======================================================================
+ERROR: test_an_attempt_this_execution_never_prepared_is_refused (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_an_attempt_this_execution_never_prepared_is_refused)
+A configured reader and an unbound attempt does NOT fall back to the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 566, in setUp
+    self.job_id = self._configured_job()
+                  ~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 585, in _configured_job
+    submit(self.fixture.world.jobs, held)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/submission.py", line 48, in submit
+    owned = documents.owned_submission(document)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 335, in owned_submission
+    _resolvable(owned)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 507, in _resolvable
+    _refuse(f"this submission gates on {sample_of(missing)}, which it does "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not carry; a dependency on a stage outside the submission "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is a gate nothing in it can ever open")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 286, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: this submission gates on 'job-a/implementation', which it does not carry; a dependency on a stage outside the submission is a gate nothing in it can ever open
+
+======================================================================
+ERROR: test_the_configured_ceiling_decides_a_real_verification (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_configured_ceiling_decides_a_real_verification)
+THE WHOLE CHAIN, and no injected runner in it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 566, in setUp
+    self.job_id = self._configured_job()
+                  ~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 585, in _configured_job
+    submit(self.fixture.world.jobs, held)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/submission.py", line 48, in submit
+    owned = documents.owned_submission(document)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 335, in owned_submission
+    _resolvable(owned)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 507, in _resolvable
+    _refuse(f"this submission gates on {sample_of(missing)}, which it does "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not carry; a dependency on a stage outside the submission "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is a gate nothing in it can ever open")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 286, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: this submission gates on 'job-a/implementation', which it does not carry; a dependency on a stage outside the submission is a gate nothing in it can ever open
+
+======================================================================
+ERROR: test_the_port_materializes_a_third_version_carrying_the_job (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_port_materializes_a_third_version_carrying_the_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 566, in setUp
+    self.job_id = self._configured_job()
+                  ~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 585, in _configured_job
+    submit(self.fixture.world.jobs, held)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/submission.py", line 48, in submit
+    owned = documents.owned_submission(document)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 335, in owned_submission
+    _resolvable(owned)
+    ~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 507, in _resolvable
+    _refuse(f"this submission gates on {sample_of(missing)}, which it does "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not carry; a dependency on a stage outside the submission "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is a gate nothing in it can ever open")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 286, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: this submission gates on 'job-a/implementation', which it does not carry; a dependency on a stage outside the submission is a gate nothing in it can ever open
+
+----------------------------------------------------------------------
+Ran 45 tests in 0.635s
+
+FAILED (errors=4)

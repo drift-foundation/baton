@@ -1,0 +1,77 @@
+{
+  "changed_this_claim": [
+    {
+      "bytes": 111035,
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "dd71a6e01a5a36f0ca211336a1d722be838ad9fa329e63793ff41b5af05086d1",
+      "target_mode": "0o644"
+    }
+  ],
+  "claim": 170804,
+  "consumes_review": "review-2026-09-14T16-44-44Z.md",
+  "prior_candidate": "findings/finding-managed-preparation-completion/candidate-170569.json",
+  "prior_files_verified_unchanged": 7,
+  "recorded_not_covered": [
+    "register: capacity is registered BEFORE intent/create, so the packet state is unreachable; open selection/implementation mismatch"
+  ],
+  "resolved": [
+    "P1 restart stale receiver (reviewer-diagnosed; 8 restart cases pass)",
+    "P1 cut positions for freeze/intake/attach moved to named owners",
+    "position discrimination via committed-prefix witnesses",
+    "handoff now transmits actual text, not an @file argument"
+  ],
+  "reversals": [
+    {
+      "failed": 8,
+      "reversal": "stale bound receiver restored"
+    },
+    {
+      "failed": 0,
+      "note": "closing the stores is correct but not discriminated by these cases",
+      "reversal": "durable handles left open across the restart"
+    },
+    {
+      "failed": 4,
+      "reversal": "freeze/intake cuts never fire on the preparation child"
+    },
+    {
+      "failed": 2,
+      "note": "PASSED before the witnesses",
+      "reversal": "intake cut moved onto the freeze owner"
+    },
+    {
+      "failed": 2,
+      "note": "PASSED before the witnesses",
+      "reversal": "create cut moved onto planned"
+    }
+  ],
+  "runs": [
+    {
+      "checks": 443,
+      "label": "positions-restart-and-witness",
+      "result": "OK",
+      "step": "05",
+      "supervisor_seconds": 37.60913418899872,
+      "unittest_seconds": 37.411
+    }
+  ],
+  "sources_changed": [],
+  "spending": {
+    "ledger_rows": 5,
+    "ledger_seconds": 136.0716466299782,
+    "unknown": "reversal and experiment runs across both claims ran outside the supervisor and have no per-run timings; preserved as unknown"
+  },
+  "still_owed": [
+    "committed start intent with uncertain adapter outcome at attempts.request_runtime_start",
+    "negative identity/profile/task/manifest/digest/length/source/harness",
+    "missing blob, symlink/escape, frozen-only, missing/quarantined intake",
+    "causal combined/base/isolated positive and failure matrix",
+    "per-position timeout and start failure with exact prefix/suffix",
+    "defaults/overrides and two-Job isolation",
+    "refusal/cancel/uncertain endings, leader-first, TERM-resistant",
+    "direct/legacy evidence",
+    "finite acceptance matrix",
+    "DEPLOYMENT-SLICE2-DRAFT.md"
+  ],
+  "work": "W170382"
+}

@@ -1,0 +1,52 @@
+test_a_restart_before_work_creation_resumes_one_child_work (review_restart_probe.OneManagedPreparationCompletes.test_a_restart_before_work_creation_resumes_one_child_work) ... ERROR
+
+======================================================================
+ERROR: test_a_restart_before_work_creation_resumes_one_child_work (review_restart_probe.OneManagedPreparationCompletes.test_a_restart_before_work_creation_resumes_one_child_work)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1554, in test_a_restart_before_work_creation_resumes_one_child_work
+    # placement becomes a table rather than growing a longer conditional.
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1859, in complete
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 153, in sweep
+    acts.append(_delegate(store, operations, owed, entry["attempt"],
+                ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          submission.job_of(store,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^
+                                            entry["stage"]["job_id"])))
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 762, in _delegate
+    _perform(operations, owed["act"], stage, job)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 805, in _perform
+    return operations.admit(stage, job)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4078, in admit
+    else self.pooled.admit(stage, job))
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py", line 812, in admit
+    return worker.admit(stage, job)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1130, in admit
+    return self._preparation.admit(self._operations, stage, job)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1787, in traced
+    break
+       ^^
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 1206, in admit
+    allocation = allocation_of(self._jobs, stage["attempt_id"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py", line 273, in allocation_of
+    row = store._connection.execute(
+          ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        "SELECT allocation.*, generation.variant, "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        "WHERE allocation.assignment_id = ?",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        (assignment_id,)).fetchone()
+        ^^^^^^^^^^^^^^^^^
+sqlite3.ProgrammingError: Cannot operate on a closed database.
+
+----------------------------------------------------------------------
+Ran 1 test in 0.411s
+
+FAILED (errors=1)

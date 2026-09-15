@@ -1,0 +1,359 @@
+{
+  "old_missing_reserve_offer": {
+    "records": [
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-1",
+        "act": "claim",
+        "outcome": "performed",
+        "worker_id": "impl-one",
+        "participant": null,
+        "principal": "principal:one",
+        "operation_id": "attempt-1:claim",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": null,
+        "cause": null
+      },
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-1",
+        "act": "complete",
+        "outcome": "performed",
+        "worker_id": "impl-one",
+        "participant": null,
+        "principal": "principal:one",
+        "operation_id": "attempt-1:complete",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": null,
+        "cause": null
+      }
+    ],
+    "violations": [
+      {
+        "code": "missing-prerequisite",
+        "detail": "claim for attempt attempt-1 has no recorded reserve",
+        "record": {
+          "tick": 1,
+          "job_id": "job-a",
+          "stage_id": "job-a/implementation",
+          "episode": 1,
+          "attempt_id": "attempt-1",
+          "act": "claim",
+          "outcome": "performed",
+          "worker_id": "impl-one",
+          "participant": null,
+          "principal": "principal:one",
+          "operation_id": "attempt-1:claim",
+          "runtime_id": null,
+          "session_id": null,
+          "evidence": null,
+          "cause": null
+        }
+      },
+      {
+        "code": "missing-prerequisite",
+        "detail": "claim for attempt attempt-1 has no recorded offer",
+        "record": {
+          "tick": 1,
+          "job_id": "job-a",
+          "stage_id": "job-a/implementation",
+          "episode": 1,
+          "attempt_id": "attempt-1",
+          "act": "claim",
+          "outcome": "performed",
+          "worker_id": "impl-one",
+          "participant": null,
+          "principal": "principal:one",
+          "operation_id": "attempt-1:claim",
+          "runtime_id": null,
+          "session_id": null,
+          "evidence": null,
+          "cause": null
+        }
+      },
+      {
+        "code": "missing-prerequisite",
+        "detail": "complete for attempt attempt-1 has no recorded reserve",
+        "record": {
+          "tick": 1,
+          "job_id": "job-a",
+          "stage_id": "job-a/implementation",
+          "episode": 1,
+          "attempt_id": "attempt-1",
+          "act": "complete",
+          "outcome": "performed",
+          "worker_id": "impl-one",
+          "participant": null,
+          "principal": "principal:one",
+          "operation_id": "attempt-1:complete",
+          "runtime_id": null,
+          "session_id": null,
+          "evidence": null,
+          "cause": null
+        }
+      },
+      {
+        "code": "missing-prerequisite",
+        "detail": "complete for attempt attempt-1 has no recorded offer",
+        "record": {
+          "tick": 1,
+          "job_id": "job-a",
+          "stage_id": "job-a/implementation",
+          "episode": 1,
+          "attempt_id": "attempt-1",
+          "act": "complete",
+          "outcome": "performed",
+          "worker_id": "impl-one",
+          "participant": null,
+          "principal": "principal:one",
+          "operation_id": "attempt-1:complete",
+          "runtime_id": null,
+          "session_id": null,
+          "evidence": null,
+          "cause": null
+        }
+      }
+    ]
+  },
+  "old_alias_occupancy": {
+    "records": [
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-1",
+        "act": "reserve",
+        "outcome": "performed",
+        "worker_id": "impl-one",
+        "participant": null,
+        "principal": "principal:one",
+        "operation_id": "attempt-1:reserve",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": null,
+        "cause": null
+      },
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "b",
+        "act": "reserve",
+        "outcome": "performed",
+        "worker_id": "w2",
+        "participant": null,
+        "principal": "principal:one",
+        "operation_id": "b:reserve",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": null,
+        "cause": null
+      }
+    ],
+    "violations": [
+      {
+        "code": "overlapping-occupancy",
+        "detail": "principal principal:one was reserved for b while still holding attempt-1",
+        "record": {
+          "tick": 1,
+          "job_id": "job-a",
+          "stage_id": "job-a/implementation",
+          "episode": 1,
+          "attempt_id": "b",
+          "act": "reserve",
+          "outcome": "performed",
+          "worker_id": "w2",
+          "participant": null,
+          "principal": "principal:one",
+          "operation_id": "b:reserve",
+          "runtime_id": null,
+          "session_id": null,
+          "evidence": null,
+          "cause": null
+        }
+      }
+    ]
+  },
+  "completion_without_start": {
+    "records": [
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-1",
+        "act": "reserve",
+        "outcome": "performed",
+        "worker_id": "impl-one",
+        "participant": null,
+        "principal": "principal:one",
+        "operation_id": "attempt-1:reserve",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": null,
+        "cause": null
+      },
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-1",
+        "act": "offer",
+        "outcome": "performed",
+        "worker_id": "impl-one",
+        "participant": null,
+        "principal": "principal:one",
+        "operation_id": "attempt-1:offer",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": null,
+        "cause": null
+      },
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-1",
+        "act": "claim",
+        "outcome": "performed",
+        "worker_id": "impl-one",
+        "participant": null,
+        "principal": "principal:one",
+        "operation_id": "attempt-1:claim",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": null,
+        "cause": null
+      },
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-1",
+        "act": "complete",
+        "outcome": "performed",
+        "worker_id": "impl-one",
+        "participant": null,
+        "principal": "principal:one",
+        "operation_id": "attempt-1:complete",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": null,
+        "cause": null
+      }
+    ],
+    "violations": []
+  },
+  "integration_without_any_authorization": {
+    "records": [
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-1",
+        "act": "integrate",
+        "outcome": "performed",
+        "worker_id": "impl-one",
+        "participant": null,
+        "principal": "principal:one",
+        "operation_id": "attempt-1:integrate",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": null,
+        "cause": null
+      }
+    ],
+    "violations": []
+  },
+  "review_without_any_claim": {
+    "records": [
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-1",
+        "act": "review",
+        "outcome": "performed",
+        "worker_id": "impl-one",
+        "participant": null,
+        "principal": "principal:one",
+        "operation_id": "attempt-1:review",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": null,
+        "cause": null
+      }
+    ],
+    "violations": []
+  },
+  "refused_admit_snapshot_translation": {
+    "input": {
+      "attempt": {
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "offer_id": "offer-a"
+      },
+      "state": "exceptional",
+      "receipts": {
+        "admit": {
+          "state": "refused",
+          "receipt_json": "{}"
+        }
+      }
+    },
+    "records": [
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "act": "reserve",
+        "outcome": "performed",
+        "worker_id": "w1",
+        "participant": null,
+        "principal": "p1",
+        "operation_id": "allocation.reserve:attempt-a",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "stage_states:job-a/implementation",
+        "cause": null
+      },
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "act": "offer",
+        "outcome": "performed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": "offer.issue:offer-a",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "stage_states:job-a/implementation",
+        "cause": null
+      }
+    ],
+    "violations": []
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "work": "W103525",
+  "claim": 157279,
+  "prior_review_seconds": 58.77968077699256,
+  "review_cap_seconds": 300,
+  "author_spent_seconds": 321.26425073798833,
+  "author_cap_seconds": 600,
+  "candidate_before": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "bytes": 93492
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "1c62663bdf3e211de059a652870ffdb36edb5dedd3baa84caba871543ad4291a",
+      "bytes": 240956
+    }
+  },
+  "runs": [
+    {
+      "name": "focused",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_reach_a_real_imported_integration",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_on_two_repositories_code_in_parallel",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_two_producer_slots_cannot_serve_four_jobs",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_four_job_contention_exports_a_clean_artifact"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 2.3158140129999083,
+      "log": "review-157279-focused.log"
+    },
+    {
+      "name": "probe",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-157279.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.41393775200049276,
+      "log": "review-157279-probe.log"
+    }
+  ],
+  "review_spent_seconds": 61.509432541992965,
+  "review_remaining_seconds": 238.49056745800704,
+  "candidate_after": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "bytes": 93492
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "1c62663bdf3e211de059a652870ffdb36edb5dedd3baa84caba871543ad4291a",
+      "bytes": 240956
+    }
+  },
+  "candidate_unchanged": true
+}

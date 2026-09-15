@@ -1,0 +1,27 @@
+{
+  "configured_policy": 17,
+  "current_policy": 17,
+  "states": {
+    "job-a": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "integrating"
+    },
+    "job-b": {
+      "implementation": "waiting",
+      "review": "blocked",
+      "integration": "blocked"
+    },
+    "job-c": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "queued"
+    },
+    "job-d": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "queued"
+    }
+  },
+  "observed_ticks": 9
+}

@@ -1,0 +1,11 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheValidatorRefusesWhatItCannotJustify
+E
+======================================================================
+ERROR: TheValidatorRefusesWhatItCannotJustify (unittest.loader._FailedTest.TheValidatorRefusesWhatItCannotJustify)
+----------------------------------------------------------------------
+AttributeError: module 'tests.tools.test_scheduler_trace' has no attribute 'TheValidatorRefusesWhatItCannotJustify'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)

@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity
+...........................................................................................F......................
+======================================================================
+FAIL: test_a_start_before_admission_refuses (tests.job_manager.test_managed_integration_capacity.TheStartIsBehindTheAdmission.test_a_start_before_admission_refuses)
+CAPACITY IS THE GATE. An intent decides; it does not admit, and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2263, in test_a_start_before_admission_refuses
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 114 tests in 1.072s
+
+FAILED (failures=1)

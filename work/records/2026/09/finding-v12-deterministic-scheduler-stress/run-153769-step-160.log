@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_four_job_contention_exports_a_clean_artifact
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.160s
+
+OK

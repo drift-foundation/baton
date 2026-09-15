@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle.test_fresh_process_observes_owned_completion_after_serving_closes",
+    "tests.tools.test_stage_execution.TheObservationSurfaceIsSeparateAndReadOnly",
+    "-v"
+  ],
+  "seconds": 1.3325363540207036,
+  "returncode": 0
+}

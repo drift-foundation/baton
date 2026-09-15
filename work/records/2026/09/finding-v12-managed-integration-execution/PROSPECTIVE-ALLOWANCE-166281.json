@@ -1,0 +1,20 @@
+{
+  "work": "W161230",
+  "authority": "M166281",
+  "recorded_by_claim": 166284,
+  "historical_snapshot": "historical-ledger-at-166281.json",
+  "historical_snapshot_sha256": "8f09b7f8b3f33145159389b9acedc7ccb55dff29315490027012a0985c14fd85",
+  "historical_ledger_entries": 197,
+  "historical_recorded_seconds": 1106.721556888122,
+  "historical_qualification": "Unresolved accounting for183-185; original and provisional charges preserved; estimates are not bounds; resource termination not proved. Owner supersedes historical reconstruction as prerequisite.",
+  "prospective_author_allowance_seconds": 1200,
+  "prospective_starts": "next author verification child after M166281",
+  "prospective_spent_at_grant": 0,
+  "old_arithmetic_remainder_not_carried": 93.278443111878,
+  "reviewer_cap_seconds": 300,
+  "reviewer_spent_seconds": 22.04422853698634,
+  "reviewer_remaining_seconds": 277.95577146301366,
+  "scope_packet": "SLICE2-SCOPE-165724.md",
+  "scope_sha256": "4c18e791a29516b92d5afaba93c2042f5adaefa60bd57b7c54b13a04acba4fa0",
+  "verification": "guarded focused deterministic only; no broad discovery, actual Docker/model execution, image operations, blanket cleanup or acceptance waiver"
+}

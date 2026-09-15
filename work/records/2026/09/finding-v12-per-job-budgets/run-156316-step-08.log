@@ -1,0 +1,279 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest discover -s tests/job_manager -t .
+............................................................................................................................................E.............................................................................................................................................................................................................................................................................................................................................E..............EFEF........EE......E......................................................................................................................................................
+======================================================================
+ERROR: test_a_completed_or_held_integration_owes_nothing (tests.job_manager.test_exchange.AnIntegrationStageOwesConcludeAndNeverDispatch.test_a_completed_or_held_integration_owes_nothing) (state='completed')
+`completed` and `exceptional` are both outside `EXCHANGE_OWED`, so
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_exchange.py", line 657, in test_a_completed_or_held_integration_owes_nothing
+    self.assertEqual(self.owed(), [])
+                     ~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_exchange.py", line 625, in owed
+    held = stage_states(self.jobs, self.acts)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 467, in stage_states
+    "observed": (delegation.observation_of(
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, episodes.attempting(stage, live),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        submission.job_of(store, stage["job_id"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 364, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 399, in _bound
+    held["integration"] = _integration_observation(held, stage)
+                          ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 481, in _integration_observation
+    _integration_completion(document, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 585, in _integration_completion
+    held = boundaries.document(found, f"{what}'s completion account",
+                               required=INTEGRATION_COMPLETION_MEMBERS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: stage 'job-i/integration''s integration observation's completion account needs source_proposal_id, result_id
+
+======================================================================
+ERROR: test_schema_three_migrates_atomically_to_empty_scheduler_relations (tests.job_manager.test_scheduling.PoolDocuments.test_schema_three_migrates_atomically_to_empty_scheduler_relations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 109, in test_schema_three_migrates_atomically_to_empty_scheduler_relations
+    migrated = JobStore.open(self.job_path, authority_uuid=UUID,
+                             incarnation="jobs-migrated", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 603, in _migrate
+    cls._exactly_schema_three(connection, path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 324, in _exactly_schema_three
+    raise ContractRefusal(
+    ...<6 lines>...
+        + ". Nothing was changed")
+baton_v12.contracts.errors.ContractRefusal: the Job store at '/tmp/v12-job-manager-dzj0kdq1/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected job_execution_limits. Nothing was changed
+
+======================================================================
+ERROR: test_a_whole_schema_three_store_migrates (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_a_whole_schema_three_store_migrates)
+The positive case, so the refusals below are about the spoiling.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 455, in test_a_whole_schema_three_store_migrates
+    migrated = self.reopen()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 434, in reopen
+    store = JobStore.open(self.job_path, authority_uuid=UUID,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 603, in _migrate
+    cls._exactly_schema_three(connection, path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 324, in _exactly_schema_three
+    raise ContractRefusal(
+    ...<6 lines>...
+        + ". Nothing was changed")
+baton_v12.contracts.errors.ContractRefusal: the Job store at '/tmp/v12-job-manager-p8uun6lf/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected job_execution_limits. Nothing was changed
+
+======================================================================
+ERROR: test_the_two_legitimate_spellings_of_one_schema_both_migrate (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_the_two_legitimate_spellings_of_one_schema_both_migrate)
+The comparison is about CONTENT, and this is what protects that.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 568, in test_the_two_legitimate_spellings_of_one_schema_both_migrate
+    self.reopen()
+    ~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 434, in reopen
+    store = JobStore.open(self.job_path, authority_uuid=UUID,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 603, in _migrate
+    cls._exactly_schema_three(connection, path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 324, in _exactly_schema_three
+    raise ContractRefusal(
+    ...<6 lines>...
+        + ". Nothing was changed")
+baton_v12.contracts.errors.ContractRefusal: the Job store at '/tmp/v12-job-manager-yeff5dhb/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected job_execution_limits. Nothing was changed
+
+======================================================================
+ERROR: test_a_completed_account_survives_a_later_uncertain_refresh (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_completed_account_survives_a_later_uncertain_refresh)
+[2]. A completed integration is HISTORICAL evidence about the fixed
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_status.py", line 429, in test_a_completed_account_survives_a_later_uncertain_refresh
+    self.projected("completed", runtime=self.runtime("uncertain"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   completion=self.completion()), "completed")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_status.py", line 342, in projected
+    return self.states(status(self.jobs, self.acts,
+                       ~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                              observed_at=NOW))[self.STAGE]
+                              ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 603, in status
+    held = stage_states(store, operations)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 467, in stage_states
+    "observed": (delegation.observation_of(
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, episodes.attempting(stage, live),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        submission.job_of(store, stage["job_id"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 364, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 399, in _bound
+    held["integration"] = _integration_observation(held, stage)
+                          ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 481, in _integration_observation
+    _integration_completion(document, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 585, in _integration_completion
+    held = boundaries.document(found, f"{what}'s completion account",
+                               required=INTEGRATION_COMPLETION_MEMBERS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: stage 'job-a/integration''s integration observation's completion account needs source_proposal_id, result_id
+
+======================================================================
+ERROR: test_a_failed_start_still_answers_first (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_failed_start_still_answers_first)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_status.py", line 484, in test_a_failed_start_still_answers_first
+    self.projected("completed", runtime=self.runtime("destroyed"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   completion=self.completion(),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   start_failure={"reason": "no image"}),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_status.py", line 342, in projected
+    return self.states(status(self.jobs, self.acts,
+                       ~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                              observed_at=NOW))[self.STAGE]
+                              ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 603, in status
+    held = stage_states(store, operations)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 467, in stage_states
+    "observed": (delegation.observation_of(
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, episodes.attempting(stage, live),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        submission.job_of(store, stage["job_id"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 364, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 399, in _bound
+    held["integration"] = _integration_observation(held, stage)
+                          ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 481, in _integration_observation
+    _integration_completion(document, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 585, in _integration_completion
+    held = boundaries.document(found, f"{what}'s completion account",
+                               required=INTEGRATION_COMPLETION_MEMBERS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: stage 'job-a/integration''s integration observation's completion account needs source_proposal_id, result_id
+
+======================================================================
+ERROR: test_completed_is_completed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_completed_is_completed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_status.py", line 372, in test_completed_is_completed
+    self.projected("completed", runtime=self.runtime("destroyed"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   completion=self.completion()), "completed")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_status.py", line 342, in projected
+    return self.states(status(self.jobs, self.acts,
+                       ~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                              observed_at=NOW))[self.STAGE]
+                              ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 603, in status
+    held = stage_states(store, operations)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 467, in stage_states
+    "observed": (delegation.observation_of(
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, episodes.attempting(stage, live),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        submission.job_of(store, stage["job_id"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 364, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 399, in _bound
+    held["integration"] = _integration_observation(held, stage)
+                          ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 481, in _integration_observation
+    _integration_completion(document, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 585, in _integration_completion
+    held = boundaries.document(found, f"{what}'s completion account",
+                               required=INTEGRATION_COMPLETION_MEMBERS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: stage 'job-a/integration''s integration observation's completion account needs source_proposal_id, result_id
+
+======================================================================
+FAIL: test_an_extra_object_refuses_and_changes_nothing (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_an_extra_object_refuses_and_changes_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 576, in test_an_extra_object_refuses_and_changes_nothing
+    self.assertIn("unexpected somebody_elses", caught.exception.message)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unexpected somebody_elses' not found in "the Job store at '/tmp/v12-job-manager-0aj4mi94/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected job_execution_limits, somebody_elses. Nothing was changed"
+
+======================================================================
+FAIL: test_two_concurrent_migrations_leave_one_store (tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom.test_two_concurrent_migrations_leave_one_store)
+Both openers see schema 3; the lock decides and the loser adopts.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_scheduling.py", line 622, in test_two_concurrent_migrations_leave_one_store
+    self.assertEqual(answers, [[], []], answers)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [ContractRefusal("the Job store at '/tmp/v[335 chars]ed")] != [[], []]
+
+First differing element 0:
+ContractRefusal("the Job store at '/tmp/v[143 chars]ged")
+[]
+
++ [[], []]
+- [ContractRefusal("the Job store at '/tmp/v12-job-manager-zm08s9xd/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected job_execution_limits. Nothing was changed"),
+-  ContractRefusal("the Job store at '/tmp/v12-job-manager-zm08s9xd/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected job_execution_limits. Nothing was changed")] : [ContractRefusal("the Job store at '/tmp/v12-job-manager-zm08s9xd/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected job_execution_limits. Nothing was changed"), ContractRefusal("the Job store at '/tmp/v12-job-manager-zm08s9xd/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected job_execution_limits. Nothing was changed")]
+
+----------------------------------------------------------------------
+Ran 660 tests in 7.766s
+
+FAILED (failures=2, errors=7)

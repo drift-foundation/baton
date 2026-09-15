@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+..F..................................
+======================================================================
+FAIL: test_an_exact_retry_replays_without_materializing_or_swapping (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_an_exact_retry_replays_without_materializing_or_swapping)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 780, in test_an_exact_retry_replays_without_materializing_or_swapping
+    self.assertEqual(again["settlement"], first["settlement"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'imported_paths': ['feature.py'], 'verific[49 chars]: 0}} != {'entry_id': 'entry-1', 'canonical_target_i[1878 chars]92'}}
+Diff is 2484 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 37 tests in 0.800s
+
+FAILED (failures=1)

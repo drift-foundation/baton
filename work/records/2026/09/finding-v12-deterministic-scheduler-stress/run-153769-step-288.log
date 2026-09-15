@@ -1,0 +1,2 @@
+$ env PYTHONPATH=src:tools:. python3 trace-160959-composed.py
+python3: can't open file '/home/sl/src/baton/v12/python/trace-160959-composed.py': [Errno 2] No such file or directory

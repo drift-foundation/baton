@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.manager.test_documents tests.manager.test_offers
+E.............................................................................
+======================================================================
+ERROR: test_documents (unittest.loader._FailedTest.test_documents)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_documents
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+ModuleNotFoundError: No module named 'tests.manager.test_documents'
+
+
+----------------------------------------------------------------------
+Ran 78 tests in 0.198s
+
+FAILED (errors=1)

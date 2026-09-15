@@ -1,0 +1,36 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched
+F
+======================================================================
+FAIL: test_a_reopened_serving_adopts_the_same_two_deliveries (tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched.test_a_reopened_serving_adopts_the_same_two_deliveries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2130, in test_a_reopened_serving_adopts_the_same_two_deliveries
+    self._continues(job, control, composed, stages, roots)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2173, in _continues
+    self.case.turn(control, "implementation",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   one["attempt_id"], roots[job_id],
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   edits=self._edits(job_id)), 0,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2708, in turn
+    job_execution=self.job_execution_for(role, attempt_id),
+                  ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2818, in job_execution_for
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        len(workers), 1,
+        ^^^^^^^^^^^^^^^^
+        f"exactly one configured worker prepared {attempt_id!r}; "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"{len(workers)} did, and a delivery this fixture cannot attribute "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"is not one it may adopt as a legacy launch")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : exactly one configured worker prepared 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571'; 0 did, and a delivery this fixture cannot attribute is not one it may adopt as a legacy launch
+
+----------------------------------------------------------------------
+Ran 1 test in 0.215s
+
+FAILED (failures=1)

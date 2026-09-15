@@ -1,0 +1,2 @@
+$ env PYTHONPATH=src:tools:. /usr/bin/python3 /tmp/w161230-term-resistant-sva2hdop/leader.py
+TIMED OUT at the per-run bound; signalled SIGTERM, SIGKILL; group proved gone: True

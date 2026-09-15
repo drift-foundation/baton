@@ -1,0 +1,192 @@
+test_a_boolean_status_is_refused_on_adoption (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_a_boolean_status_is_refused_on_adoption) ... ok
+test_a_report_about_another_execution_is_refused_on_adoption (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_a_report_about_another_execution_is_refused_on_adoption) ... ok
+test_a_report_of_another_schema_is_refused_on_adoption (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_a_report_of_another_schema_is_refused_on_adoption) ... ok
+test_a_valid_stored_result_round_trips (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_a_valid_stored_result_round_trips) ... ok
+test_an_undeclared_command_and_dropped_suffix_are_refused (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_an_undeclared_command_and_dropped_suffix_are_refused) ... ok
+test_an_unknown_kind_is_refused_on_adoption (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_an_unknown_kind_is_refused_on_adoption) ... ok
+test_every_valid_answer_survives_the_round_trip (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_every_valid_answer_survives_the_round_trip)
+The three answers are preserved, not merely refused in their ... ok
+test_not_collected_carrying_a_status_is_refused_on_adoption (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_not_collected_carrying_a_status_is_refused_on_adoption)
+THE WORST OF THE FOUR: a report that says nothing was collected ... ok
+test_the_composer_and_the_adopter_are_one_owner (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_the_composer_and_the_adopter_are_one_owner)
+The rules are not spelled twice. Whatever the composer refuses, ... ok
+test_a_boundary_carrying_seconds_the_generation_does_not_pin (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_boundary_carrying_seconds_the_generation_does_not_pin)
+[P1] Review 2026-09-13T18:34:36Z, and this is the case that was ... ok
+test_a_boundary_claiming_the_job_chose_it_when_it_did_not (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_boundary_claiming_the_job_chose_it_when_it_did_not)
+`job` means the Job asked for this number. A boundary claiming it ... ok
+test_a_boundary_hiding_a_request_the_job_did_make (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_boundary_hiding_a_request_the_job_did_make) ... ok
+test_a_boundary_naming_another_boundarys_setting (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_boundary_naming_another_boundarys_setting) ... ok
+test_a_generation_this_build_cannot_reproduce_is_refused (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_generation_this_build_cannot_reproduce_is_refused)
+THE DEFECT ITSELF: 999 was accepted by a generic generation rule. ... ok
+test_a_jobs_own_request_travels_beside_the_resolution (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_jobs_own_request_travels_beside_the_resolution)
+What a Job ASKED FOR and what a boundary GETS are different facts; ... ok
+test_a_legacy_job_resolves_and_is_ordinary (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_legacy_job_resolves_and_is_ordinary)
+A Job admitted before per-Job limits existed runs under generation ... ok
+test_a_missing_boundary_is_refused (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_missing_boundary_is_refused) ... ok
+test_a_request_the_owner_itself_refuses_is_refused_here (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_request_the_owner_itself_refuses_is_refused_here)
+The two INPUTS go through the owner's own rules before anything is ... ok
+test_a_requested_setting_that_the_boundaries_do_not_reflect (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_requested_setting_that_the_boundaries_do_not_reflect)
+Tampering from the other side: the request says one thing and the ... ok
+test_an_empty_limits_document_is_refused (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_an_empty_limits_document_is_refused)
+The other half of the same defect: `{"effective": {}}` passed a ... ok
+test_the_real_resolved_document_is_carried_whole (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_the_real_resolved_document_is_carried_whole) ... ok
+test_units_and_scope_are_the_owners_own (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_units_and_scope_are_the_owners_own) ... ok
+test_a_measured_status_and_no_collected_content_is_legal (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_a_measured_status_and_no_collected_content_is_legal)
+They are separate facts: a phase can measure a status and collect ... ok
+test_a_report_about_another_execution_is_refused (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_a_report_about_another_execution_is_refused) ... ok
+test_a_result_carries_its_identity_report_and_content (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_a_result_carries_its_identity_report_and_content) ... ok
+test_an_adopted_result_for_another_orchestration_is_denied (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_an_adopted_result_for_another_orchestration_is_denied) ... ok
+test_an_adopted_result_is_held_to_the_task_it_answers (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_an_adopted_result_is_held_to_the_task_it_answers) ... ok
+test_an_adopted_result_of_another_schema_is_refused (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_an_adopted_result_of_another_schema_is_refused) ... ok
+test_content_without_a_report_is_a_contradiction (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_content_without_a_report_is_a_contradiction) ... ok
+test_a_preparation_with_a_parent_is_refused (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_a_preparation_with_a_parent_is_refused) ... ok
+test_a_task_binds_identity_content_and_the_jobs_own_limits (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_a_task_binds_identity_content_and_the_jobs_own_limits) ... ok
+test_a_task_names_no_host_path_and_no_location (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_a_task_names_no_host_path_and_no_location)
+It says WHAT was asked for, never WHERE it runs. A task carrying a ... ok
+test_a_task_naming_one_command_twice_is_refused (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_a_task_naming_one_command_twice_is_refused) ... ok
+test_a_task_that_runs_nothing_is_not_a_task (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_a_task_that_runs_nothing_is_not_a_task) ... ok
+test_an_apply_cannot_be_its_own_parent (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_an_apply_cannot_be_its_own_parent) ... ok
+test_an_apply_names_the_real_preparation_it_follows (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_an_apply_names_the_real_preparation_it_follows) ... ok
+test_an_apply_naming_only_an_attempt_is_refused (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_an_apply_naming_only_an_attempt_is_refused)
+Both members, because an attempt alone lets an apply follow a ... ok
+test_an_apply_that_imports_nothing_is_refused (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_an_apply_that_imports_nothing_is_refused) ... ok
+test_limits_are_the_jobs_own_document_not_two_numbers (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_limits_are_the_jobs_own_document_not_two_numbers) ... ok
+test_a_boolean_status_is_refused (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_boolean_status_is_refused)
+`True` is an `int` in this language, so an `isinstance` check would ... ok
+test_a_collected_report_without_a_status_is_tagged (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_collected_report_without_a_status_is_tagged) ... ok
+test_a_command_the_task_never_declared_is_refused (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_command_the_task_never_declared_is_refused) ... ok
+test_a_measured_nonzero_status_is_an_answer_like_any_other (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_measured_nonzero_status_is_an_answer_like_any_other) ... ok
+test_a_measured_report_carries_the_status_that_was_measured (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_measured_report_carries_the_status_that_was_measured) ... ok
+test_a_measured_report_that_ran_nothing_is_refused (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_measured_report_that_ran_nothing_is_refused) ... ok
+test_a_missing_status_is_never_zero (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_missing_status_is_never_zero)
+THE COLLAPSE THIS VOCABULARY EXISTS TO PREVENT. There is no way to ... ok
+test_a_reordered_report_describes_a_different_phase (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_reordered_report_describes_a_different_phase) ... ok
+test_a_report_that_does_not_exist_cannot_say_what_ran (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_report_that_does_not_exist_cannot_say_what_ran) ... ok
+test_a_report_that_does_not_exist_carries_no_tag (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_report_that_does_not_exist_carries_no_tag) ... ok
+test_a_status_that_is_not_an_integer_is_refused (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_status_that_is_not_an_integer_is_refused) ... ok
+test_a_tagless_no_status_report_is_refused (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_tagless_no_status_report_is_refused) ... ok
+test_an_unknown_kind_is_refused (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_an_unknown_kind_is_refused) ... ok
+test_nothing_collected_describes_no_run_at_all (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_nothing_collected_describes_no_run_at_all) ... ok
+test_the_completed_prefix_and_not_run_suffix_are_the_sequence (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_the_completed_prefix_and_not_run_suffix_are_the_sequence) ... ok
+test_a_current_coordinator_reads_as_current (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_a_current_coordinator_reads_as_current) ... ok
+test_a_read_only_handle_records_nothing (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_a_read_only_handle_records_nothing) ... ok
+test_a_schema_five_coordinator_reads_and_is_not_upgraded (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_a_schema_five_coordinator_reads_and_is_not_upgraded) ... ok
+test_asking_an_older_store_for_managed_results_is_answered (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_asking_an_older_store_for_managed_results_is_answered)
+Absence is an ANSWER. A reader that discovered it as `no such ... ok
+test_a_second_connection_sees_the_same_refusal (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_a_second_connection_sees_the_same_refusal) ... ok
+test_an_ordinary_single_representation_reads_normally (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_an_ordinary_single_representation_reads_normally)
+The guard refuses a DOUBLE representation and nothing else: a store ... ok
+test_the_legacy_reader_refuses_it (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_legacy_reader_refuses_it) ... ok
+test_the_managed_reader_refuses_it (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_managed_reader_refuses_it) ... ok
+test_the_managed_writer_refuses_a_key_the_legacy_side_holds (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_managed_writer_refuses_a_key_the_legacy_side_holds)
+Write order one, through the actual writer. ... ok
+test_two_connections_contend_for_one_snapshot (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_two_connections_contend_for_one_snapshot)
+ACTUAL WRITER CONTENTION, not a re-read of a prepared duplicate. ... ok
+test_a_second_managed_result_for_one_snapshot_is_refused (tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable.test_a_second_managed_result_for_one_snapshot_is_refused) ... ok
+test_another_snapshot_of_the_same_submission_is_ordinary (tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable.test_another_snapshot_of_the_same_submission_is_ordinary)
+A later target advance needs a NEW result from the same submission; ... ok
+test_the_shared_key_is_the_one_the_old_table_already_carries (tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable.test_the_shared_key_is_the_one_the_old_table_already_carries) ... ok
+test_a_changed_immutable_task_operand_collides (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_changed_immutable_task_operand_collides)
+[P1] The attachment identity must carry the task it stores, so a ... ok
+test_a_portable_result_carries_no_coordinator_location (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_portable_result_carries_no_coordinator_location)
+Managed fields hold content-addressed artifacts; a workspace path, ... ok
+test_a_preparation_is_retained_and_an_apply_follows_it_later (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_preparation_is_retained_and_an_apply_follows_it_later)
+THE ACCEPTED SEQUENCE, in three journalled acts rather than one. ... ok
+test_a_result_that_does_not_answer_its_task_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_result_that_does_not_answer_its_task_is_refused) ... ok
+test_a_stored_report_is_re_adopted_on_the_way_out (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_stored_report_is_re_adopted_on_the_way_out)
+A ROW IS NOT A DOCUMENT UNTIL IT HAS BEEN OWNED. ... ok
+test_a_tampered_stored_task_is_refused_on_the_way_out (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_tampered_stored_task_is_refused_on_the_way_out) ... ok
+test_a_task_for_another_orchestration_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_a_task_for_another_orchestration_is_refused) ... ok
+test_an_apply_importing_other_content_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_an_apply_importing_other_content_is_refused) ... ok
+test_an_apply_naming_a_foreign_preparation_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_an_apply_naming_a_foreign_preparation_is_refused)
+[P1] Sharing a parent row is not parentage. An apply naming another ... ok
+test_an_apply_with_no_preparation_retained_is_refused (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_an_apply_with_no_preparation_retained_is_refused) ... ok
+test_an_exact_repeat_replays (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_an_exact_repeat_replays) ... ok
+test_one_result_carries_both_phases_at_one_snapshot (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_one_result_carries_both_phases_at_one_snapshot)
+[P1] Review 2026-09-13T18:51:48Z: the granularity was wrong. ... ok
+test_the_result_uses_the_existing_result_state_vocabulary (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_the_result_uses_the_existing_result_state_vocabulary)
+A managed result is a distinct admitted REPRESENTATION of the same ... ok
+test_a_kind_this_build_does_not_own_still_refuses (tests.integration.test_managed_storage.TheQueueReadsAManagedCustodyAct.test_a_kind_this_build_does_not_own_still_refuses)
+The amendment added ONE member and widened nothing else: a ... ok
+test_a_malformed_managed_act_refuses (tests.integration.test_managed_storage.TheQueueReadsAManagedCustodyAct.test_a_malformed_managed_act_refuses)
+Named is not re-owned: the queue positions this act and ... ok
+test_every_managed_act_is_read_including_the_attachments (tests.integration.test_managed_storage.TheQueueReadsAManagedCustodyAct.test_every_managed_act_is_read_including_the_attachments)
+Creation AND each phase attachment commit under this one kind, so ... ok
+test_the_queue_reads_normally_with_managed_acts_journalled (tests.integration.test_managed_storage.TheQueueReadsAManagedCustodyAct.test_the_queue_reads_normally_with_managed_acts_journalled) ... ok
+test_a_changed_result_identity_refuses (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_a_changed_result_identity_refuses)
+The creation act signs the submission identities too, so a row ... ok
+test_a_result_whose_own_act_is_gone_refuses (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_a_result_whose_own_act_is_gone_refuses) ... ok
+test_a_substituted_harness_digest_refuses_on_read_and_replay (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_a_substituted_harness_digest_refuses_on_read_and_replay) ... ok
+test_an_unjournalled_state_transition_refuses (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_an_unjournalled_state_transition_refuses) ... ok
+test_deleted_phase_rows_refuse_rather_than_answer_empty (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_deleted_phase_rows_refuse_rather_than_answer_empty) ... ok
+test_the_state_fields_are_carried_not_dropped (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_the_state_fields_are_carried_not_dropped)
+A reader returning selected members could not report a held reason, ... ok
+test_a_real_result_and_its_history_survive_the_upgrade (tests.integration.test_managed_storage.TheUpgradeCarriesAGenuineLegacyResult.test_a_real_result_and_its_history_survive_the_upgrade) ... ok
+test_the_legacy_writer_refuses_a_key_the_managed_side_holds (tests.integration.test_managed_storage.TheUpgradeCarriesAGenuineLegacyResult.test_the_legacy_writer_refuses_a_key_the_managed_side_holds)
+THE REVERSE WRITE ORDER, through `prepare_result` itself rather ... ok
+test_a_concurrent_shape_change_is_caught_under_the_lock (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_a_concurrent_shape_change_is_caught_under_the_lock)
+[P2] Review 2026-09-13T18:51:48Z: the preflight ran BEFORE the lock ... ok
+test_a_malformed_older_store_is_refused_before_any_mutation (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_a_malformed_older_store_is_refused_before_any_mutation)
+The ownership decision runs FIRST and in full. A store missing one ... ok
+test_an_older_store_is_refused_by_open_and_left_alone (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_an_older_store_is_refused_by_open_and_left_alone)
+Opening is not consent to change somebody's coordinator. A writing ... ok
+test_an_unknown_version_is_refused_by_both_openers (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_an_unknown_version_is_refused_by_both_openers) ... ok
+test_the_older_shape_is_derived_not_restated (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_older_shape_is_derived_not_restated)
+`shape_for(5)` is this build's own script minus exactly what the ... ok
+test_the_step_preserves_the_records_and_leases_it_found (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_step_preserves_the_records_and_leases_it_found)
+WHAT IT PRESERVES IT PRESERVES BY NOT TOUCHING -- and this compares ... ok
+test_the_upgrade_carries_it_forward_once (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_upgrade_carries_it_forward_once) ... ok
+test_upgrading_a_current_store_is_an_ordinary_answer (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_upgrading_a_current_store_is_an_ordinary_answer)
+Two operators doing the same sensible thing is not an error. ... ok
+test_case_insensitive_like_matches_a_distinct_identity (__main__.Observations.test_case_insensitive_like_matches_a_distinct_identity) ... ok
+test_like_wildcard_matches_another_results_attachments (__main__.Observations.test_like_wildcard_matches_another_results_attachments) ... ok
+test_refused_attachment_replay_becomes_success (__main__.Observations.test_refused_attachment_replay_becomes_success) ... ERROR
+test_refused_creation_loses_original_outcome (__main__.Observations.test_refused_creation_loses_original_outcome) ... FAIL
+test_slash_identity_cannot_replay_its_creation (__main__.Observations.test_slash_identity_cannot_replay_its_creation) ... ok
+
+======================================================================
+ERROR: test_refused_attachment_replay_becomes_success (__main__.Observations.test_refused_attachment_replay_becomes_success)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-164484.py", line 21, in test_refused_attachment_replay_becomes_success
+    answer = attempt()
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-164484.py", line 18, in attempt
+    return attach_managed_phase(store, managed_result_id=storage.ORCHESTRATION, task=account['task'], result=account['result'])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2450, in attach_managed_phase
+    return store.transact(operation_id, MANAGED_KIND, signature, attach,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2417, in attach
+    _refuse(f"this apply follows preparation "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(parent['execution_attempt_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"the preparation retained beside it is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(prepared['execution_attempt_id'])}",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="integrity", code="schema")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 160, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: this apply follows preparation 'foreign-preparation' and the preparation retained beside it is 'prepare-attempt-1'
+
+======================================================================
+FAIL: test_refused_creation_loses_original_outcome (__main__.Observations.test_refused_creation_loses_original_outcome)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-164484.py", line 33, in test_refused_creation_loses_original_outcome
+    self.assertNotEqual(str(first.exception), str(repeated.exception))
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "target 'target:mainline' already holds a result for proposal 'proposal-1' at revision 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' in managed_integration_results; one submission has one result per target snapshot, in either representation" == "target 'target:mainline' already holds a result for proposal 'proposal-1' at revision 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' in managed_integration_results; one submission has one result per target snapshot, in either representation"
+
+----------------------------------------------------------------------
+Ran 105 tests in 0.257s
+
+FAILED (failures=1, errors=1)
+DEFECT: valid root creation mistakes ROOT/prepare for its own missing phase
+DEFECT: valid root_ creation mistakes rootA/prepare for its own missing phase
+DEFECT: accepted root/child creation replays by looking up root

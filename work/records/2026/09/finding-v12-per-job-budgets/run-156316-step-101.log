@@ -1,0 +1,45 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling
+EEE
+======================================================================
+ERROR: test_a_host_verification_that_exceeds_it_is_held_not_published (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_host_verification_that_exceeds_it_is_held_not_published)
+The bounded failure, through the composed owners.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1264, in test_a_host_verification_that_exceeds_it_is_held_not_published
+    self._watching(failing=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1216, in _watching
+    accepted = list(self.case.required["argv"])
+                    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'TwoBoundJobsTraverseServingAndCorrection' object has no attribute 'required'. Did you mean: 'refused'?
+
+======================================================================
+ERROR: test_a_repeated_tick_after_that_runs_no_second_command (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_repeated_tick_after_that_runs_no_second_command)
+NO DUPLICATE WORK after observation. The causal observations are
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1276, in test_a_repeated_tick_after_that_runs_no_second_command
+    self._watching()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1216, in _watching
+    accepted = list(self.case.required["argv"])
+                    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'TwoBoundJobsTraverseServingAndCorrection' object has no attribute 'required'. Did you mean: 'refused'?
+
+======================================================================
+ERROR: test_the_composed_causal_owner_runs_under_the_jobs_ceiling (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_composed_causal_owner_runs_under_the_jobs_ceiling)
+The reconciled path drives the causal observer over three content
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1233, in test_the_composed_causal_owner_runs_under_the_jobs_ceiling
+    self._watching()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1216, in _watching
+    accepted = list(self.case.required["argv"])
+                    ^^^^^^^^^^^^^^^^^^
+AttributeError: 'TwoBoundJobsTraverseServingAndCorrection' object has no attribute 'required'. Did you mean: 'refused'?
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.091s
+
+FAILED (errors=3)

@@ -1,0 +1,43 @@
+test_the_whole_sequence_runs_against_real_owners (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_whole_sequence_runs_against_real_owners) ... ERROR
+
+======================================================================
+ERROR: test_the_whole_sequence_runs_against_real_owners (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_whole_sequence_runs_against_real_owners)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2455, in test_the_whole_sequence_runs_against_real_owners
+    store, stage, allocation, execution, held = self.prepared()
+                                                ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2411, in prepared
+    held = execution.prepare(
+        orchestration_id=self.ORCHESTRATION,
+    ...<4 lines>...
+        policy_digest=self.POLICY, profile_name="reference",
+        accept=self.accepting())
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 952, in prepare
+    admitted = self.admit(intent, runtime_attempt_id=runtime_attempt_id,
+                          assignment=assignment)
+  File "/home/sl/src/baton/v12/python/tools/integration_worker.py", line 999, in admit
+    return admit_integration_execution(
+        self._jobs, self._control,
+        orchestration_id=intent["orchestration_id"],
+        phase=PREPARATION_PHASE,
+        execution_attempt_id=runtime_attempt_id, assignment=assignment)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 798, in admit_integration_execution
+    held = boundaries.document(assignment, "the claimed assignment",
+                               required=("work_ref", "participant",
+                                         "generation"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: the claimed assignment needs work_ref
+
+----------------------------------------------------------------------
+Ran 1 test in 0.014s
+
+FAILED (errors=1)
+REVIEW bypasses recorded skip for diagnosis: A.3 end-to-end stops at activation -- activate_assignment refuses the FakeSession claim answer: 'the claimed assignment needs work_ref'

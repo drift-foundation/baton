@@ -1,0 +1,39 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling.test_the_configured_seconds_are_what_the_command_is_given
+E
+======================================================================
+ERROR: test_the_configured_seconds_are_what_the_command_is_given (tests.tools.test_execution_limits.TheHostSideVerificationCarriesTheSameCeiling.test_the_configured_seconds_are_what_the_command_is_given)
+Through the production `_run`, at the NORMAL SUBPROCESS BOUNDARY.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 1952, in _run
+    answered = subprocess.run(self._argv, cwd=where,
+                              capture_output=True, text=True,
+                              timeout=self._seconds)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1187, in run
+    raise subprocess.TimeoutExpired(argv, options.get("timeout"))
+subprocess.TimeoutExpired: Command '['python3', 'harness.py']' timed out after 1 seconds
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1201, in test_the_configured_seconds_are_what_the_command_is_given
+    answered = held._run("/unused-repository", "HEAD")
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 1956, in _run
+    return self._no_status(
+           ~~~~~~~~~~~~~~~^
+        where, body, added, revision, adding, reason="timeout",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+               f"host_verification ceiling at {revision!r}; no exit "
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               f"status was observed and none is invented")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 1885, in _no_status
+    test_identity=self._identity,
+                  ^^^^^^^^^^^^^^
+AttributeError: '_ConfiguredExecution' object has no attribute '_identity'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.005s
+
+FAILED (errors=1)

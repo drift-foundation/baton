@@ -1,0 +1,9 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157442-turns.py
+PRODUCERS {'job-a/implementation': 'implementation-worker', 'job-b/implementation': None, 'job-c/implementation': 'implementation-worker-c', 'job-d/implementation': 'implementation-worker-d'}
+PRODUCED job-a {'implementation': 'completed', 'review': 'queued', 'integration': 'blocked'}
+PRODUCED job-c {'implementation': 'completed', 'review': 'queued', 'integration': 'blocked'}
+PRODUCED job-d {'implementation': 'completed', 'review': 'queued', 'integration': 'blocked'}
+STATES job-a {'implementation': 'completed', 'review': 'waiting', 'integration': 'blocked'}
+STATES job-b {'implementation': 'blocked', 'review': 'blocked', 'integration': 'blocked'}
+STATES job-c {'implementation': 'completed', 'review': 'offered', 'integration': 'blocked'}
+STATES job-d {'implementation': 'completed', 'review': 'queued', 'integration': 'blocked'}

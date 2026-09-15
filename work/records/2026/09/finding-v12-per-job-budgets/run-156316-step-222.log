@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_one_retained_failure_never_speaks_for_another_execution
+F
+======================================================================
+FAIL: test_one_retained_failure_never_speaks_for_another_execution (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_one_retained_failure_never_speaks_for_another_execution)
+THE ISOLATION MATRIX, through real owners and real attempts.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2184, in test_one_retained_failure_never_speaks_for_another_execution
+    self.assertIsNotNone(second_result, results)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None : ['result-bec5267ef8e02e6137be2cecceda0c4e0cc50e864ca5441810126818bcca73aa']
+
+----------------------------------------------------------------------
+Ran 1 test in 1.248s
+
+FAILED (failures=1)

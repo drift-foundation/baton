@@ -1,0 +1,8 @@
+test_existing_adapter_claims_and_replays_against_real_authority (__main__.RealAdapter.test_existing_adapter_claims_and_replays_against_real_authority) ... ok
+test_inquiry_publication_is_an_explicit_refusal (__main__.RealAdapter.test_inquiry_publication_is_an_explicit_refusal) ... ok
+test_the_whole_sequence_runs_against_real_owners (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_whole_sequence_runs_against_real_owners) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.016s
+
+OK

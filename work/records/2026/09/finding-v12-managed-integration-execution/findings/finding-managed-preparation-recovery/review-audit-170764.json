@@ -1,0 +1,93 @@
+{
+  "work": "W170382",
+  "claim": 170764,
+  "outcome": "incomplete; changes requested, no slice2 acceptance",
+  "candidate_manifest_sha256": "cddea00f2956127d83340bfb7ee4af5efac34a21dd0fef5fde7c3ae2345e1aee",
+  "runs": [
+    {
+      "command": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/review-restart-probe-170764.py",
+        "stale"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "PYTHONPATH": "src:tools:.",
+      "seconds": 0.6141237819974776,
+      "exit": 1,
+      "timed_out": false,
+      "signals": [],
+      "limits_seconds": [
+        60,
+        5,
+        5
+      ]
+    },
+    {
+      "command": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/review-restart-probe-170764.py",
+        "fixed",
+        "test_a_restart_before_work_creation_resumes_one_child_work",
+        "test_a_restart_before_capacity_registration_resumes_one_plan",
+        "test_a_restart_before_admission_starts_no_second_runtime",
+        "test_a_restart_before_the_adapter_answers_starts_one_runtime",
+        "test_a_restart_before_the_freeze_runs_one_harness",
+        "test_a_restart_before_intake_makes_one_attachment",
+        "test_a_restart_before_the_ending_ends_the_membership_once",
+        "test_a_restart_before_adoption_adopts_the_same_candidate"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "PYTHONPATH": "src:tools:.",
+      "seconds": 7.520925062999595,
+      "exit": 0,
+      "timed_out": false,
+      "signals": [],
+      "limits_seconds": [
+        60,
+        5,
+        5
+      ]
+    },
+    {
+      "command": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/review-position-probe-170764.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "PYTHONPATH": "src:tools:.",
+      "seconds": 5.468395403004251,
+      "exit": 0,
+      "timed_out": false,
+      "signals": [],
+      "limits_seconds": [
+        60,
+        5,
+        5
+      ]
+    },
+    {
+      "command": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/review-register-probe-170764.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "PYTHONPATH": "src:tools:.",
+      "seconds": 0.9142690830049105,
+      "exit": 0,
+      "timed_out": false,
+      "signals": [],
+      "limits_seconds": [
+        60,
+        5,
+        5
+      ]
+    }
+  ],
+  "reviewer_this_claim_seconds": 14.517713331006235,
+  "reviewer_prior_seconds": 52.20567240202945,
+  "reviewer_cumulative_seconds": 66.72338573303568,
+  "author_recorded_four_runs_seconds": 98.46251244097948,
+  "author_other_probe_durations": "not supplied; no complete claim-total assertion",
+  "limits": "60s + TERM5s + KILL5s per run; no timeouts or signals",
+  "source_changes_by_reviewer": []
+}

@@ -1,0 +1,17 @@
+F
+======================================================================
+FAIL: test_compare_exact_prechange_source (inventory_audit_162766.Compare.test_compare_exact_prechange_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/inventory_audit_162766.py", line 42, in test_compare_exact_prechange_source
+    self.assertEqual(hashlib.sha256((baseline / name).read_bytes()).hexdigest(), digest, name)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'e602210f7c414264f99b15c5da9b1c7a12ad14861b6222cecd6869f73af3cc56' != 'b3fc43f26ffef5a76f1329b273ea722f04c4544b722511c681c3c1a0418b20bd'
+- e602210f7c414264f99b15c5da9b1c7a12ad14861b6222cecd6869f73af3cc56
++ b3fc43f26ffef5a76f1329b273ea722f04c4544b722511c681c3c1a0418b20bd
+ : documents.py
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (failures=1)

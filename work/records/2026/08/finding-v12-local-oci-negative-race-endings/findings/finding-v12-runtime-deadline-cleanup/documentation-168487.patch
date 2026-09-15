@@ -1,0 +1,115 @@
+--- a/v12/python/DEPLOYMENT.md
++++ b/v12/python/DEPLOYMENT.md
+@@ -1568,3 +1568,112 @@
+   `jsonschema==4.26.0` on Python 3.13.7 (`/home/sl/src/baton/.venv/bin/python3`),
+   which is the interpreter a deployment should use for them. Earlier qualifying
+   runs were made on 4.19.2 before that pin was available.
++
++## Runtime-attempt deadlines
++
++The Worker Manager exposes a deadline API for deployment orchestration. The
++caller selects a policy before runtime start, decides when to observe expiry,
++and explicitly advances its action and any unfinished cleanup. These calls do
++not install a background timer or enable a deadline by default. Per-Job
++provider-turn and verification-command ceilings keep their existing meanings;
++an interrogation timeout still records only that the manager stopped waiting.
++
++### Selecting and preserving the policy
++
++Trusted manager configuration can supply this policy when starting an activated
++attempt. The variables below are the deployment's existing store, adapter,
++attempt identity, authorized input root and recorded attempt policy digest:
++
++```python
++from baton_v12.worker_manager import request_runtime_start
++
++request_runtime_start(store, adapter, attempt_id=attempt_id, inputs=inputs,
++    deadline_policy={
++        "policy_digest": recorded_attempt_policy_digest,
++        "policy_generation": 1,
++        "duration_seconds": 900,
++        "action": "cancel",
++    })
++```
++
++The policy has exactly these four members. Duration is a positive whole number
++of seconds, generation is a positive integer, and the digest must match the
++attempt's recorded policy. The action is `report-only` or `cancel`. The manager
++persists the fixed assignment, policy and its own start/deadline instants before
++calling the runtime adapter. The duration runs from that persisted manager
++instant; a delayed start or manager restart does not extend it.
++
++Omitting `deadline_policy`, or passing `None`, pins no deadline for a new start.
++A start retry must supply the same selection: omission after selecting a policy
++is a conflicting change, as is replacing a pinned `None` with a deadline. A
++committed legacy start without a pin stays unconfigured and cannot acquire a
++deadline retroactively. A new start under an already reached `cancel` deadline
++is refused.
++
++### Observing expiry and advancing its action
++
++`deadline_of(store, attempt_id=...)` reads the immutable pin. `None` means an
++activated attempt is still unpinned; a pin whose `policy` is `None` records an
++explicit no-deadline selection. Only a configured deadline can be observed.
++For that attempt, the deployment's orchestration can use:
++
++```python
++from baton_v12.worker_manager import observe_deadline, advance_deadline
++
++reached = observe_deadline(store, authority_port, attempt_id=attempt_id)
++if reached is not None:
++    result = advance_deadline(store, authority_port, agent, adapter,
++        attempt_id=attempt_id,
++        retention_policy_digest=retention_policy_digest)
++```
++
++`observe_deadline` returns `None` before expiry and commits the first reached
++observation at or after expiry. It accepts no caller timestamp. A new observation
++requires the matching live assignment and an eligible unanswered attempt; stale
++or terminal attempts cannot acquire one. Repeated observations replay the first
++committed fact. Observation alone does not stop execution, cancel an assignment,
++discard output or change a worker disposition.
++
++`advance_deadline` requires that committed observation and applies only the
++persisted policy. `report-only` returns it with no cleanup or gate discharge.
++`cancel` records the cancellation intent and obtains the Authority fence before
++cooperative cancellation/stop and exact runtime removal. The agent must support
++`cancel`; the adapter must support `stop`, `destroy_deadline` and directory
++custody, including its custodian image identity. The Authority port and its
++underlying session must support gate discharge (`satisfy_gate`); a callable port
++wrapper alone does not establish that the session operation is installed.
++
++An exception from the cooperative agent cancellation or runtime stop is retained
++as bounded diagnostic evidence. Deadline cleanup can continue after that failure
++only by confirming the same assignment/runtime and committed cancellation intent,
++then positively resolving the same Authority cancellation operation again. It
++does not require an unreachable worker to recover. Authority or manager failures,
++changed identities and unknown runtime facts still prevent unsafe progress. The
++ordinary cancellation API keeps its existing error behavior.
++
++### Retention, retries and settlement
++
++A genuine intake receipt continues through ordinary retention cleanup. Without
++a receipt, deadline cleanup preserves the untrusted output directory and records
++retained custody. It does not invent a worker disposition, intake receipt or
++abandonment. Output arriving concurrently holds cleanup for its actual owner.
++Uncertain start/engine observations and unsettled credential or launch providers
++keep cleanup pending and capacity held. Resolve those facts and retry with the
++same attempt and retention policy; a returned advance result alone is not proof
++that cleanup finished.
++
++For a runtime that started, local lane release requires positive exact runtime
++absence, provider settlement and committed output custody. The Authority's
++quiescence gate is a separate durable step. `advance_deadline` attempts its
++discharge after cleanup commits; an interruption can leave local cleanup complete
++while the remote gate still blocks replacement.
++
++`deadline_cleanup_of(store, attempt_id=..., retention_policy_digest=...)` validates
++the committed receiptless deadline cleanup proof. Once it exists,
++`discharge_deadline_quiescence_gate(store, authority_port, attempt_id=...,
++retention_policy_digest=...)` carries that exact proof to its gate. Retrying this
++call, or `advance_deadline`, after a lost remote receipt does not remove the
++runtime again. A genuine receipt uses the ordinary cleanup and gate-discharge
++owners instead. An attempt proved never to have started uses the existing
++six-fact no-start cancellation proof; it does not fabricate runtime absence or
++a gate discharge.

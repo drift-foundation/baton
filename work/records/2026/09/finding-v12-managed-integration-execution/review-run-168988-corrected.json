@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-W",
+    "error",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_managed_integration_capacity.ThePreparationIsAdmittedBeforeTheParentOffer",
+    "tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_wrapper_admits_preparation_and_defers_the_parent"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "/home/sl/src/baton/v12/python/src:/home/sl/src/baton/v12/python",
+  "timeout_seconds": 30,
+  "timed_out": false,
+  "exit_code": 0,
+  "measured_seconds": 0.2137739150202833,
+  "boundary": "five focused disposable-owner tests; no worker process, engine or model",
+  "prior_failed_setup_seconds": 0.0636182349990122,
+  "reviewer_cumulative_seconds": 26.04229486000986
+}

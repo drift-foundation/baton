@@ -1,0 +1,48 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+.E...F..............................................
+======================================================================
+ERROR: test_a_foreign_move_onto_our_revision_after_intent_is_uncertain (tests.tools.test_managed_integration.APublicationKeepsItsOwnDurableAccount.test_a_foreign_move_onto_our_revision_after_intent_is_uncertain)
+THE SAME WINDOW FROM THE OTHER SIDE. Our advance never ran and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 1176, in test_a_foreign_move_onto_our_revision_after_intent_is_uncertain
+    self.publish()
+    ~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 426, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 637, in publish_collected_integration
+    done = _target_answer(placement, placement.target_owner.apply,
+                          request)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 198, in _target_answer
+    answer = act(dict(operands))
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 151, in apply
+    placed = self.profile.advance(
+        self.repository, reference=self.reference,
+        imported=request["imported_revision"],
+        reviewed=request["admitted_old_revision"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 514, in advance
+    self._run(advance_ref_vector(repository, reference, imported, reviewed),
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              "target revision advance")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 287, in _run
+    _refuse(f"Git {what} failed" + (f": {detail}" if detail else ""))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 67, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: Git target revision advance failed: fatal: update_ref failed for ref 'refs/heads/main': cannot lock ref 'refs/heads/main': is at 51db541fd6178acf51eb6a0c5001585c788d2a8d but expected 0939867970c6c4b1ef6fcb663ca91f599d22e9c8
+
+======================================================================
+FAIL: test_an_intent_is_committed_before_the_swap (tests.tools.test_managed_integration.APublicationKeepsItsOwnDurableAccount.test_an_intent_is_committed_before_the_swap)
+A crash between the two is answerable, which is the whole reason
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 1141, in test_an_intent_is_committed_before_the_swap
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 52 tests in 1.364s
+
+FAILED (failures=1, errors=1)

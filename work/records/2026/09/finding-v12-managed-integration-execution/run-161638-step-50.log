@@ -1,0 +1,346 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_managed_integration_capacity
+.EE..EE..FE.............FE..F.....EE........E..........
+======================================================================
+ERROR: test_the_release_still_claims_nothing_about_cleanup (tests.job_manager.test_managed_integration_capacity.TheCompletionBranchDoesNotSpeakForTheExecutions.test_the_release_still_claims_nothing_about_cleanup)
+LOGICAL CAPACITY AND NOTHING ELSE, unchanged by this Work: the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1234, in test_the_release_still_claims_nothing_about_cleanup
+    self.prepared(store, outcome="failed")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 317, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 238, in collected
+    return request_freeze(self._control, self.port,
+                          Collector(self.sealed_result(
+                              attempt_id, disposition=disposition,
+                              outputs=outputs)),
+                          attempt_id=attempt_id, disposition=disposition)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 216, in request_freeze
+    return record_frozen_result(store, attempt_id=attempt_id, sealed=sealed)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 329, in record_frozen_result
+    owned = check_manifest_structure(sealed, "resultManifest",
+                                     what="a sealed result")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 654, in check_manifest_structure
+    _relate_work_ref(assignment["work_ref"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"{what} assignment reference")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 117, in _relate_work_ref
+    _refuse(f"{what} names Work {name_value(work_id)}, which does not "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carry the prefix of authority {name_value(authority)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 96, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: a sealed result assignment reference names Work '0000000a-W2', which does not carry the prefix of authority '0000000000000000000000000000000a'
+
+======================================================================
+ERROR: test_the_same_branch_releases_once_after_every_member_ended (tests.job_manager.test_managed_integration_capacity.TheCompletionBranchDoesNotSpeakForTheExecutions.test_the_same_branch_releases_once_after_every_member_ended)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1209, in test_the_same_branch_releases_once_after_every_member_ended
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 317, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 238, in collected
+    return request_freeze(self._control, self.port,
+                          Collector(self.sealed_result(
+                              attempt_id, disposition=disposition,
+                              outputs=outputs)),
+                          attempt_id=attempt_id, disposition=disposition)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 216, in request_freeze
+    return record_frozen_result(store, attempt_id=attempt_id, sealed=sealed)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 329, in record_frozen_result
+    owned = check_manifest_structure(sealed, "resultManifest",
+                                     what="a sealed result")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 654, in check_manifest_structure
+    _relate_work_ref(assignment["work_ref"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"{what} assignment reference")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 117, in _relate_work_ref
+    _refuse(f"{what} names Work {name_value(work_id)}, which does not "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carry the prefix of authority {name_value(authority)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 96, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: a sealed result assignment reference names Work '0000000a-W2', which does not carry the prefix of authority '0000000000000000000000000000000a'
+
+======================================================================
+ERROR: test_a_destroyed_runtime_ends_on_the_observed_axis (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_destroyed_runtime_ends_on_the_observed_axis)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 712, in test_a_destroyed_runtime_ends_on_the_observed_axis
+    frozen = self.collected("prepare-attempt-1")
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 238, in collected
+    return request_freeze(self._control, self.port,
+                          Collector(self.sealed_result(
+                              attempt_id, disposition=disposition,
+                              outputs=outputs)),
+                          attempt_id=attempt_id, disposition=disposition)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 216, in request_freeze
+    return record_frozen_result(store, attempt_id=attempt_id, sealed=sealed)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 329, in record_frozen_result
+    owned = check_manifest_structure(sealed, "resultManifest",
+                                     what="a sealed result")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 654, in check_manifest_structure
+    _relate_work_ref(assignment["work_ref"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"{what} assignment reference")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 117, in _relate_work_ref
+    _refuse(f"{what} names Work {name_value(work_id)}, which does not "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carry the prefix of authority {name_value(authority)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 96, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: a sealed result assignment reference names Work '0000000a-W2', which does not carry the prefix of authority '0000000000000000000000000000000a'
+
+======================================================================
+ERROR: test_a_failed_execution_records_no_collected_content (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_failed_execution_records_no_collected_content)
+A failed execution contributes nothing an apply may import, whatever
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 865, in test_a_failed_execution_records_no_collected_content
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 238, in collected
+    return request_freeze(self._control, self.port,
+                          Collector(self.sealed_result(
+                              attempt_id, disposition=disposition,
+                              outputs=outputs)),
+                          attempt_id=attempt_id, disposition=disposition)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 216, in request_freeze
+    return record_frozen_result(store, attempt_id=attempt_id, sealed=sealed)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 329, in record_frozen_result
+    owned = check_manifest_structure(sealed, "resultManifest",
+                                     what="a sealed result")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 654, in check_manifest_structure
+    _relate_work_ref(assignment["work_ref"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"{what} assignment reference")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 117, in _relate_work_ref
+    _refuse(f"{what} names Work {name_value(work_id)}, which does not "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carry the prefix of authority {name_value(authority)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 96, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: a sealed result assignment reference names Work '0000000a-W2', which does not carry the prefix of authority '0000000000000000000000000000000a'
+
+======================================================================
+ERROR: test_a_report_at_another_disposition_collected_no_content (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_report_at_another_disposition_collected_no_content)
+The THIRD answer, kept apart from the other two: a report WAS
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 849, in test_a_report_at_another_disposition_collected_no_content
+    self.collected("prepare-attempt-1", disposition="unable",
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   outputs=OutputCase.missing())
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 238, in collected
+    return request_freeze(self._control, self.port,
+                          Collector(self.sealed_result(
+                              attempt_id, disposition=disposition,
+                              outputs=outputs)),
+                          attempt_id=attempt_id, disposition=disposition)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 216, in request_freeze
+    return record_frozen_result(store, attempt_id=attempt_id, sealed=sealed)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 329, in record_frozen_result
+    owned = check_manifest_structure(sealed, "resultManifest",
+                                     what="a sealed result")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 654, in check_manifest_structure
+    _relate_work_ref(assignment["work_ref"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"{what} assignment reference")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 117, in _relate_work_ref
+    _refuse(f"{what} names Work {name_value(work_id)}, which does not "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carry the prefix of authority {name_value(authority)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 96, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: a sealed result assignment reference names Work '0000000a-W2', which does not carry the prefix of authority '0000000000000000000000000000000a'
+
+======================================================================
+ERROR: test_a_failed_execution_ends_without_becoming_a_success (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_a_failed_execution_ends_without_becoming_a_success)
+`failed` is an ENDING like `succeeded` is. The outcome says what the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 588, in test_a_failed_execution_ends_without_becoming_a_success
+    answer = self.prepared(store, outcome="failed")
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 317, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 238, in collected
+    return request_freeze(self._control, self.port,
+                          Collector(self.sealed_result(
+                              attempt_id, disposition=disposition,
+                              outputs=outputs)),
+                          attempt_id=attempt_id, disposition=disposition)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 216, in request_freeze
+    return record_frozen_result(store, attempt_id=attempt_id, sealed=sealed)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 329, in record_frozen_result
+    owned = check_manifest_structure(sealed, "resultManifest",
+                                     what="a sealed result")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 654, in check_manifest_structure
+    _relate_work_ref(assignment["work_ref"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"{what} assignment reference")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 117, in _relate_work_ref
+    _refuse(f"{what} names Work {name_value(work_id)}, which does not "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carry the prefix of authority {name_value(authority)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 96, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: a sealed result assignment reference names Work '0000000a-W2', which does not carry the prefix of authority '0000000000000000000000000000000a'
+
+======================================================================
+ERROR: test_the_apply_phase_is_admitted_after_preparation_ends (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_the_apply_phase_is_admitted_after_preparation_ends)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 492, in test_the_apply_phase_is_admitted_after_preparation_ends
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 317, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 238, in collected
+    return request_freeze(self._control, self.port,
+                          Collector(self.sealed_result(
+                              attempt_id, disposition=disposition,
+                              outputs=outputs)),
+                          attempt_id=attempt_id, disposition=disposition)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 216, in request_freeze
+    return record_frozen_result(store, attempt_id=attempt_id, sealed=sealed)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 329, in record_frozen_result
+    owned = check_manifest_structure(sealed, "resultManifest",
+                                     what="a sealed result")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 654, in check_manifest_structure
+    _relate_work_ref(assignment["work_ref"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"{what} assignment reference")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 117, in _relate_work_ref
+    _refuse(f"{what} names Work {name_value(work_id)}, which does not "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carry the prefix of authority {name_value(authority)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 96, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: a sealed result assignment reference names Work '0000000a-W2', which does not carry the prefix of authority '0000000000000000000000000000000a'
+
+======================================================================
+ERROR: test_a_duplicate_release_does_not_release_twice (tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation.test_a_duplicate_release_does_not_release_twice)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1311, in test_a_duplicate_release_does_not_release_twice
+    self.prepared(store, outcome="failed")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 317, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 238, in collected
+    return request_freeze(self._control, self.port,
+                          Collector(self.sealed_result(
+                              attempt_id, disposition=disposition,
+                              outputs=outputs)),
+                          attempt_id=attempt_id, disposition=disposition)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 216, in request_freeze
+    return record_frozen_result(store, attempt_id=attempt_id, sealed=sealed)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 329, in record_frozen_result
+    owned = check_manifest_structure(sealed, "resultManifest",
+                                     what="a sealed result")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 654, in check_manifest_structure
+    _relate_work_ref(assignment["work_ref"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"{what} assignment reference")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 117, in _relate_work_ref
+    _refuse(f"{what} names Work {name_value(work_id)}, which does not "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carry the prefix of authority {name_value(authority)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 96, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: a sealed result assignment reference names Work '0000000a-W2', which does not carry the prefix of authority '0000000000000000000000000000000a'
+
+======================================================================
+ERROR: test_capacity_releases_once_after_a_validated_ending (tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity.test_capacity_releases_once_after_a_validated_ending)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 651, in test_capacity_releases_once_after_a_validated_ending
+    self.prepared(store, outcome="failed")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 317, in prepared
+    self.collected("prepare-attempt-1")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 238, in collected
+    return request_freeze(self._control, self.port,
+                          Collector(self.sealed_result(
+                              attempt_id, disposition=disposition,
+                              outputs=outputs)),
+                          attempt_id=attempt_id, disposition=disposition)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 216, in request_freeze
+    return record_frozen_result(store, attempt_id=attempt_id, sealed=sealed)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/output.py", line 329, in record_frozen_result
+    owned = check_manifest_structure(sealed, "resultManifest",
+                                     what="a sealed result")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 654, in check_manifest_structure
+    _relate_work_ref(assignment["work_ref"],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+                     f"{what} assignment reference")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 117, in _relate_work_ref
+    _refuse(f"{what} names Work {name_value(work_id)}, which does not "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carry the prefix of authority {name_value(authority)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/contracts/manifest.py", line 96, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: a sealed result assignment reference names Work '0000000a-W2', which does not carry the prefix of authority '0000000000000000000000000000000a'
+
+======================================================================
+FAIL: test_a_quiescent_runtime_is_not_a_destroyed_one (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_quiescent_runtime_is_not_a_destroyed_one)
+A runtime that stopped executing STILL EXISTS. Reading `quiescent`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 755, in test_a_quiescent_runtime_is_not_a_destroyed_one
+    self.assertIn("quiescent", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'quiescent' not found in "preparation 'prepare-attempt-1' ended successfully and its manager has no frozen output; no report was collected, and absence is not content an apply may import"
+
+======================================================================
+FAIL: test_the_recorded_attempt_may_disagree_alone (tests.job_manager.test_managed_integration_capacity.ThePersistedEvidenceIsOwnedEndToEnd.test_the_recorded_attempt_may_disagree_alone)
+THE THIRD ACCOUNT, on its own. The two refusals added last claim
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1067, in test_the_recorded_attempt_may_disagree_alone
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_a_preparation_wearing_the_parents_identity_is_refused (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_a_preparation_wearing_the_parents_identity_is_refused)
+A preparation is the actor's SEPARATE execution under this
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 469, in test_a_preparation_wearing_the_parents_identity_is_refused
+    self.assertIn("which is the parent's own", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "which is the parent's own" not found in 'a capacity plan names one execution attempt more than once'
+
+----------------------------------------------------------------------
+Ran 55 tests in 0.432s
+
+FAILED (failures=3, errors=9)

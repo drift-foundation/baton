@@ -1,0 +1,220 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_managed_integration_capacity
+EFFEEE..EE....
+======================================================================
+ERROR: test_a_failed_execution_ends_without_becoming_a_success (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_a_failed_execution_ends_without_becoming_a_success)
+`failed` is an ENDING like `succeeded` is. The outcome says what the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 293, in test_a_failed_execution_ends_without_becoming_a_success
+    store, self.claimed("prepare-attempt-1", "prepare-offer-1"),
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 130, in claimed
+    activate_assignment(control, self.port, attempt_id=attempt_id,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        expect={"work_ref": {
+                        ^^^^^^^^^^^^^^^^^^^^^
+                            "authority_uuid": fixtures.UUID,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "work_id": self.EXECUTION_WORK},
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "participant": self.ACTOR, "generation": 1})
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 882, in activate_assignment
+    live = port.assignment_of(expected["work_ref"]["work_id"],
+                              expected["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 324, in assignment_of
+    return self._assignment(answer, work_id, authority_uuid,
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "the live assignment")
+                            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 599, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"against another Work is not this offer's claim")
+baton_v12.contracts.errors.ContractRefusal: the live assignment names Work '0000000a-W1' and this manager asked about '0000000a-W2'; an assignment recorded against another Work is not this offer's claim
+
+======================================================================
+ERROR: test_apply_is_refused_while_preparation_is_still_live (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_apply_is_refused_while_preparation_is_still_live)
+A parent apply and its preparation can never both be live under one
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 232, in test_apply_is_refused_while_preparation_is_still_live
+    store, self.claimed("prepare-attempt-1", "prepare-offer-1"),
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 130, in claimed
+    activate_assignment(control, self.port, attempt_id=attempt_id,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        expect={"work_ref": {
+                        ^^^^^^^^^^^^^^^^^^^^^
+                            "authority_uuid": fixtures.UUID,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "work_id": self.EXECUTION_WORK},
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "participant": self.ACTOR, "generation": 1})
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 882, in activate_assignment
+    live = port.assignment_of(expected["work_ref"]["work_id"],
+                              expected["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 324, in assignment_of
+    return self._assignment(answer, work_id, authority_uuid,
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "the live assignment")
+                            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 599, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"against another Work is not this offer's claim")
+baton_v12.contracts.errors.ContractRefusal: the live assignment names Work '0000000a-W1' and this manager asked about '0000000a-W2'; an assignment recorded against another Work is not this offer's claim
+
+======================================================================
+ERROR: test_the_apply_phase_is_admitted_after_preparation_ends (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_the_apply_phase_is_admitted_after_preparation_ends)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 248, in test_the_apply_phase_is_admitted_after_preparation_ends
+    store, self.claimed("prepare-attempt-1", "prepare-offer-1"),
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 130, in claimed
+    activate_assignment(control, self.port, attempt_id=attempt_id,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        expect={"work_ref": {
+                        ^^^^^^^^^^^^^^^^^^^^^
+                            "authority_uuid": fixtures.UUID,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "work_id": self.EXECUTION_WORK},
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "participant": self.ACTOR, "generation": 1})
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 882, in activate_assignment
+    live = port.assignment_of(expected["work_ref"]["work_id"],
+                              expected["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 324, in assignment_of
+    return self._assignment(answer, work_id, authority_uuid,
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "the live assignment")
+                            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 599, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"against another Work is not this offer's claim")
+baton_v12.contracts.errors.ContractRefusal: the live assignment names Work '0000000a-W1' and this manager asked about '0000000a-W2'; an assignment recorded against another Work is not this offer's claim
+
+======================================================================
+ERROR: test_an_admitted_member_refuses_to_release (tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity.test_an_admitted_member_refuses_to_release)
+The named branch matters: a VALIDATED COMPLETION of the parent
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 323, in test_an_admitted_member_refuses_to_release
+    store, self.claimed("prepare-attempt-1", "prepare-offer-1"),
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 130, in claimed
+    activate_assignment(control, self.port, attempt_id=attempt_id,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        expect={"work_ref": {
+                        ^^^^^^^^^^^^^^^^^^^^^
+                            "authority_uuid": fixtures.UUID,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "work_id": self.EXECUTION_WORK},
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "participant": self.ACTOR, "generation": 1})
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 882, in activate_assignment
+    live = port.assignment_of(expected["work_ref"]["work_id"],
+                              expected["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 324, in assignment_of
+    return self._assignment(answer, work_id, authority_uuid,
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "the live assignment")
+                            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 599, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"against another Work is not this offer's claim")
+baton_v12.contracts.errors.ContractRefusal: the live assignment names Work '0000000a-W1' and this manager asked about '0000000a-W2'; an assignment recorded against another Work is not this offer's claim
+
+======================================================================
+ERROR: test_capacity_releases_once_after_a_validated_ending (tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity.test_capacity_releases_once_after_a_validated_ending)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 353, in test_capacity_releases_once_after_a_validated_ending
+    store, self.claimed("prepare-attempt-1", "prepare-offer-1"),
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 130, in claimed
+    activate_assignment(control, self.port, attempt_id=attempt_id,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        expect={"work_ref": {
+                        ^^^^^^^^^^^^^^^^^^^^^
+                            "authority_uuid": fixtures.UUID,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "work_id": self.EXECUTION_WORK},
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "participant": self.ACTOR, "generation": 1})
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 882, in activate_assignment
+    live = port.assignment_of(expected["work_ref"]["work_id"],
+                              expected["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 324, in assignment_of
+    return self._assignment(answer, work_id, authority_uuid,
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "the live assignment")
+                            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 599, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"against another Work is not this offer's claim")
+baton_v12.contracts.errors.ContractRefusal: the live assignment names Work '0000000a-W1' and this manager asked about '0000000a-W2'; an assignment recorded against another Work is not this offer's claim
+
+======================================================================
+ERROR: test_quarantine_still_works_while_a_member_is_open (tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity.test_quarantine_still_works_while_a_member_is_open)
+THE GUARD IS ON THE RELEASE TRANSITION ONLY. A root that could not
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 342, in test_quarantine_still_works_while_a_member_is_open
+    store, self.claimed("prepare-attempt-1", "prepare-offer-1"),
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 130, in claimed
+    activate_assignment(control, self.port, attempt_id=attempt_id,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        expect={"work_ref": {
+                        ^^^^^^^^^^^^^^^^^^^^^
+                            "authority_uuid": fixtures.UUID,
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "work_id": self.EXECUTION_WORK},
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "participant": self.ACTOR, "generation": 1})
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 882, in activate_assignment
+    live = port.assignment_of(expected["work_ref"]["work_id"],
+                              expected["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 324, in assignment_of
+    return self._assignment(answer, work_id, authority_uuid,
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                            "the live assignment")
+                            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 599, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"against another Work is not this offer's claim")
+baton_v12.contracts.errors.ContractRefusal: the live assignment names Work '0000000a-W1' and this manager asked about '0000000a-W2'; an assignment recorded against another Work is not this offer's claim
+
+======================================================================
+FAIL: test_an_admission_naming_another_participant_is_refused (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_an_admission_naming_another_participant_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 276, in test_an_admission_naming_another_participant_is_refused
+    self.assertIn("is planned for", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'is planned for' not found in "the live assignment names Work '0000000a-W1' and this manager asked about '0000000a-W2'; an assignment recorded against another Work is not this offer's claim"
+
+======================================================================
+FAIL: test_an_unplanned_execution_cannot_be_admitted (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_an_unplanned_execution_cannot_be_admitted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 286, in test_an_unplanned_execution_cannot_be_admitted
+    self.assertIn("is not a planned member", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'is not a planned member' not found in "the live assignment names Work '0000000a-W1' and this manager asked about '0000000a-W2'; an assignment recorded against another Work is not this offer's claim"
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.059s
+
+FAILED (failures=2, errors=6)

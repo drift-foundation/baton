@@ -1,0 +1,46 @@
+E
+======================================================================
+ERROR: test_preparation_judgments_apply_and_target_settle (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_preparation_judgments_apply_and_target_settle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 19, in test_preparation_judgments_apply_and_target_settle
+    self.complete()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 162, in complete
+    case.complete(configured=configure, completed=adopted)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2612, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 135, in adopted
+    reports.append(sweep(held.job, held.composed, now=fixtures.NOW))
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 168, in sweep
+    spoken = _converse(store, operations, projection.stage_states(store,
+                                                                  operations))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 219, in _converse
+    else operations.conclude(attempt, job))
+         ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4267, in conclude
+    return self.integrator.run(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2477, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2598, in _run
+    return self.managed(stage, job)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2505, in managed
+    return self.apply_managed(stage, job, result, repository, operations)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2583, in apply_managed
+    self.finish_managed(stage, operations)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2591, in finish_managed
+    "from_route": worker.given["route"], "to_route": worker.given["review_route"]})
+                  ~~~~~~~~~~~~^^^^^^^^^
+KeyError: 'route'
+
+----------------------------------------------------------------------
+Ran 1 test in 1.262s
+
+FAILED (errors=1)

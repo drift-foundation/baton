@@ -1,0 +1,37 @@
+F..................................................................................................................................................................................................................................................................................................................F.......................F..................
+======================================================================
+FAIL: test_a_cleanup_refusal_becomes_a_named_unresolved_fact (tests.tools.test_dogfood_operator.ARecoveryThatBeganAlwaysLeavesAnAccount.test_a_cleanup_refusal_becomes_a_named_unresolved_fact)
+An EXPECTED cleanup refusal is an account, not a fault: the record
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_dogfood_operator.py", line 5437, in test_a_cleanup_refusal_becomes_a_named_unresolved_fact
+    self.assertEqual(answered["authority_fence"], fenced)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != {'fenced': True, 'generation': 1}
+
+======================================================================
+FAIL: test_a_pre_attach_retry_replays_the_same_fence (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_a_pre_attach_retry_replays_the_same_fence)
+An exact retry adopts the same declaration and answers the SAME
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_dogfood_operator.py", line 7033, in test_a_pre_attach_retry_replays_the_same_fence
+    self.assertIsNotNone(first[1]["authority_fence"])
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None
+
+======================================================================
+FAIL: test_the_documented_command_fences_a_pre_attach_assignment (tests.tools.test_dogfood_operator.TheRecoveryNeverAdoptsAnOlderIncarnationsRuntime.test_the_documented_command_fences_a_pre_attach_assignment)
+W63255's centre: `main --abandon` over an attempt that ACTIVATED and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_dogfood_operator.py", line 7008, in test_the_documented_command_fences_a_pre_attach_assignment
+    self.assertIsNotNone(written["authority_fence"],
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         "the pre-attach branch recorded no fence at all")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None : the pre-attach branch recorded no fence at all
+
+----------------------------------------------------------------------
+Ran 350 tests in 3.952s
+
+FAILED (failures=3)

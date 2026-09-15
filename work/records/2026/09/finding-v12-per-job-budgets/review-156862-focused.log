@@ -1,0 +1,11 @@
+test_one_submitted_job_reaches_a_completed_implementation_stage (tests.tools.test_stage_execution.TheComposedImplementationHalfRunsOnOrdinaryTicks.test_one_submitted_job_reaches_a_completed_implementation_stage)
+No operator transition after the submission, measured as one. ... ok
+test_the_reviewers_own_verdict_completes_the_review_stage (tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance.test_the_reviewers_own_verdict_completes_the_review_stage)
+The verdict is READ from the reviewer's frozen result. ... ok
+test_the_second_job_reaches_its_own_reviewer_and_verdict (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_job_reaches_its_own_reviewer_and_verdict)
+THE OTHER HALF OF THE OVERLAP, driven rather than assumed. ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.854s
+
+OK

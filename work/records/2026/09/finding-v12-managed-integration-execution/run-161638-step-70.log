@@ -1,0 +1,34 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_storage
+.F...E.......................
+======================================================================
+ERROR: test_an_ordinary_single_representation_reads_normally (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_an_ordinary_single_representation_reads_normally)
+The guard refuses a DOUBLE representation and nothing else: a store
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 551, in test_an_ordinary_single_representation_reads_normally
+    self.assertEqual(result_of(store, "legacy-" + "d" * 40)["state"],
+                     ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1975, in result_of
+    _refuse(f"result {name_value(result_id)} does not derive its own "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"identity from its recorded operands",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            category="integrity", code="digest")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 159, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: result 'legacy-dddddddddddddddddddddddddddddddddddddddd' does not derive its own identity from its recorded operands
+
+======================================================================
+FAIL: test_a_read_only_handle_records_nothing (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_a_read_only_handle_records_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 337, in test_a_read_only_handle_records_nothing
+    self.assertIn("performs no act", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'performs no act' not found in "the apply task names orchestration 'integration-capacity-1' on target 'target:mainline' and this result is 'integration-capacity-2' on 'target:mainline'"
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.083s
+
+FAILED (failures=1, errors=1)

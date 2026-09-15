@@ -1,0 +1,78 @@
+{
+ "author": "baton.claude",
+ "cases": [
+  "a moved target refuses",
+  "a second child Work refuses",
+  "an unchanged sweep passes through untouched",
+  "a first sweep with no intent is unconstrained -- a guard that refused agreement would break every ordinary resume"
+ ],
+ "changed": [
+  {
+   "bytes": 79960,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "2ecfa9789755bb39f31ed502271c234f66ff74fe5d37f11b9c2d0081a2be8162"
+  },
+  {
+   "bytes": 162659,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "7cf0542e55eb0064bef55f4f12d3837c6f427793925b0d5e4120d90585a80f55"
+  }
+ ],
+ "claim": 169253,
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "rule": "The committed intent is authoritative once it exists. Agreeing operands pass through; disagreeing ones are REFUSED rather than reconciled, because there is no honest way to choose between two answers about one committed decision. An absent intent is the first sweep and carries no constraint.",
+ "still_next": "No deployment constructs ManagedPreparation: _integration_operations passes preparation=None, so nothing reads line, checkpoint, proposal, canonical target and Job limits through the deployment's own readers. Then the ordinary child launch and ending, the member ended on its real exclusion proof, and adoption. Then A.5, then B.",
+ "unchanged": [
+  {
+   "bytes": 278874,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "63fd8c59b62beffdae3f4474c8f788a1d80fa35fea94c41d4c04bea174e52d67"
+  },
+  {
+   "bytes": 45932,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "1e1d847aacd4b4d3222ac3c8e88b66ec0d02421d6476f6984c3fc76233f4a9fe"
+  },
+  {
+   "bytes": 191339,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+  },
+  {
+   "bytes": 94098,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+   "sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a"
+  }
+ ],
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 106 restored /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation",
+  "ledger": "106 rows, 908.289996341907s, quoted from the file",
+  "no": "no engine, model, image build, broad suite or destructive cleanup",
+  "steps": {
+   "102": "first green, OK 282 cases, ledger 13.594937616988318s",
+   "103": "REVERSAL -- stop refusing a moved target; failed exactly test_a_resumed_sweep_that_moved_the_target_refuses",
+   "104": "REVERSAL -- stop refusing a second child Work; failed exactly test_a_resumed_sweep_naming_a_second_child_work_refuses",
+   "105": "A RESTORE THAT DID NOT TAKE: run from the wrong directory with the reversal still in place, so it was RED. Reported rather than dropped, because for one step a green claim would have been false.",
+   "106": "the real restore, verified by grep -c 'if False' returning 0 first; OK 282 cases, ledger 13.696434626996052s"
+  },
+  "whitespace": "clean on both changed files"
+ },
+ "what": "The carried-forward durability item: a resumed sweep may not change the child Work or the pinned target that the committed intent already decided.",
+ "why": "preparation_identities derives the attempt and offer; the child Work is COMPOSED and the target is the Authority's canonical revision at the moment the intent was committed. A later sweep that re-resolved that target after another Job integrated would compose a different request under the same orchestration, with create_work replaying under the intent's operation id while the request it was decided for had moved.",
+ "withdrawn": "My claim that probe-operands-169146.py 'now passes' as a regression. It passes, but its exception check is broad enough to accept the missing-argument TypeError the new required operand introduces before the body runs. The typed cases in the tree are the evidence.",
+ "work": "2b077949-W161230"
+}

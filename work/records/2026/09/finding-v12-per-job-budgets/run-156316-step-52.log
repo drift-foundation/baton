@@ -1,0 +1,19 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits tests.manager.test_worker_entry
+..............F.............................................................................
+======================================================================
+FAIL: test_a_boundary_naming_a_foreign_setting_is_refused (tests.tools.test_execution_limits.TheContainerEntryReadsTheThirdVersion.test_a_boundary_naming_a_foreign_setting_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 201, in test_a_boundary_naming_a_foreign_setting_is_refused
+    self.assertIn("which this worker does not", self.resealed(
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        lambda one: one["boundaries"]["provider_turn"].update(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            setting="cumulative_seconds")))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'which this worker does not' not found in "/run/baton/launch.json's provider_turn names setting 'cumulative_seconds' and this boundary answers to 'provider_turn_seconds'; which setting moves a boundary is not something a delivery gets to say"
+
+----------------------------------------------------------------------
+Ran 92 tests in 0.016s
+
+FAILED (failures=1)

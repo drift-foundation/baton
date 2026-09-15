@@ -120,3 +120,90 @@ retention, review or integration decision.
 
 Implementation remains an isolated v12 assignment; this approval does not
 route the Work to the legacy v11 implementer.
+
+## 2026-09-14T11:40:26Z — supported recovery retained; fix selected for v12
+
+Slawomir confirms: "I agree, keep the cmd and put in the fix". Keep the public
+`--abandon` command supported and implement the approved pre-attach assignment
+fence before minimum v12 release. This supersedes the pending correction-or-
+release-surface-exclusion choice in W165782's release checklist and M167960:
+exclusion is not the selected outcome. The 2026-09-02 technical direction stands.
+
+Prompt revalidated the current dogfood_operator `_recovering` branch: it still
+calls `_pre_attach_recovered` without the Authority port or abandonment reason.
+The documented correction remains applicable; the implementing Handler must
+revalidate the manager intent/start/fence composition against its current tree.
+Use the existing W63255 identity and dossier. Implement through baton.impl,
+then pass to baton.feat for independent review. Preserve W161230's active
+assignment and serialize shared paths; this queues subsequent work rather than
+interrupting the current implementation.
+
+Use focused deterministic public-Authority/manager/command tests for the exact
+fence, no-start race, replay/collision, crash recovery and truthful unresolved
+results. Preserve attached abandonment, cancellation and W61984 finalizer
+semantics. No broad suite, live model or engine execution is selected by this
+ruling. Standing test-change authority and current per-run verification policy
+apply. Record actual changed source/test paths in the implementation handoff.
+
+The required W2-on-W63255 dependency and unpark act remain owner operations;
+recorded selection alone does not claim either transition has occurred.
+
+## 2026-09-15 — owner selects Claude implementation now
+
+Slawomir agreed to start W63255 with Claude after the completed pre-work and file-overlap check, then prepare W61599's activity-source/transport design. This supersedes pending implementation scheduling above. W2 now canonically depends on W63255. The configured baton.impl Handler is authorized to unpark this Work and claim it before implementation; prompt neither claims it nor impersonates the operator. No unpark or claim is asserted by this text.
+
+Use accepted advisory W174050, baton:work/records/2026/09/finding-v12-abandon-fence-prework/PREWORK.md SHA256 eb543aca3d5bb7604b978aedb3e3c3752309686ba7640b71074969b79888d6a3, together with this dossier's full evidence/research-2026-09-01/README.md and approved 2026-09-02 direction. Preserve the advisory closure correction: a winning start requires fresh observation and reconciliation or attached abandonment as actually applicable, never assumed attachment.
+
+Selected source ownership: v12/python/src/baton_v12/worker_manager/intake.py and v12/python/tools/dogfood_operator.py. Selected test ownership: v12/python/tests/manager/test_attempts.py and v12/python/tests/tools/test_dogfood_operator.py. These four paths are absent from W170385's selected path set, including its preparation-output and scheduler amendments. Tuner retains that Work and its entire dossier. Revalidate current bytes and other active ownership at claim start. Factor shared intent/fence helpers without weakening attached abandonment, ordinary cancellation or W61984 finalization; do not expand into other owners without a concrete scoped finding.
+
+Complete the exact fence/no-start/replay/positive-absence outcome and focused deterministic public-Authority/manager/command coverage, preserving existing evidence and recording actual changes and measured runs. No live engine/model or broad discovery is selected. Current standing test-change authority applies without per-test permission. Return a complete digest-bound candidate to baton.feat with set-next=baton.feat for independent review. No self-acceptance or release closure. After this implementation handoff, Claude may prepare W61599 design while review proceeds, without editing its product files until a design is selected.
+
+Operational scheduling observation: prompt's asynchronous @ request on W63255 was refused because baton.prompt is not a resolved handler of baton.impl. No request or unpark was committed by that attempt. This is an authority-boundary refusal, not evidence of a Baton defect. The exact pending human operation is phase work=W63255 to=queued with the owner selection as reason. Plain discussion and the recorded selection do not themselves wake parked Work. No duplicate Work or alternate identity is used to bypass this boundary.
+
+Scheduling correction: the suggested baton.slaw phase operation was also refused because phase requires the current baton.impl Route Handler. The preceding statement that an owner unpark command suffices is superseded. Claude is the configured Handler and can perform the selected scheduling transition under its own identity before claiming. Prompt will use the conversational participant poke to ask Claude about this parked authorized assignment; the poke conveys no new workflow authority. The authority is the existing owner selection and configured Route, and no successful transition is claimed until canonical state confirms it. This was prompt's incorrect command recommendation, not a product defect.
+
+## 2026-09-15T03:05:11Z — independent review174362 requests completion
+
+Candidate174231's four file hashes match;828 focused attempts/operator/finalizer
+tests pass in8.220771550986683s, group ended without timeout/signals. This is
+not acceptance of the required successful real-public-Authority pre-attach
+command or crash/replay/race matrix. review-2026-09-15T03-05-11Z.md records the
+exact gaps after inspecting bodies: ArcSession manufactures the fence, the new
+command case expects unresolved/status1, equal fake retry replies do not prove
+one durable Authority effect, and the new race covers only a seeded start state.
+No reproduced new runtime defect is asserted from those missing tests.
+
+The author-disclosed export at worker_manager/__init__.py lies outside the
+explicit selected source paths. EXPORT-AMENDMENT-174362.md proposes only the
+two import/__all__ entries; removing them in memory reproduces the accepted
+W32577 base hashcd783420d73f237b9c8a01d63fbb1783a697efb3d87d211ed970a9994f0d5834.
+Owner selection is the next action, then baton.impl completes already-selected
+acceptance/provenance and returns baton.feat. No new per-test permission gate.
+This supersedes awaiting-review/scheduling next actions, not the approved fence
+direction. W63255/W2 remain open; PROGRESS remains the author's account.
+
+## 2026-09-15 — owner selects the bounded export amendment (M174440)
+
+Slawomir selected `EXPORT-AMENDMENT-174362.md`
+(SHA-256 `a521e1fb53d3698d081570c4b6bfc13e619f42eac1e21c85082129b5c5800027`),
+**limited to the two import/`__all__` entries** in
+`v12/python/src/baton_v12/worker_manager/__init__.py` that export
+`fence_pre_attach_abandonment` from `.intake`. All other bytes of that file
+remain unchanged, and the pre-existing deadline imports/exports are inherited
+from the accepted W32577 candidate rather than added here.
+
+Accepted W32577 baseline: `cd783420d73f237b9c8a01d63fbb1783a697efb3d87d211ed970a9994f0d5834`,
+14457 bytes, mode `0644`. Proposed:
+`cce4b68650b5f73c0fa1b17f8ddb16f354c45c35df8e6f983594834307b36f29`,
+14551 bytes, mode `0644`.
+
+The selected source paths are therefore `worker_manager/intake.py`,
+`tools/dogfood_operator.py` and — for those two entries only —
+`worker_manager/__init__.py`. **No broader source expansion is selected.**
+Per the amendment, `tests/manager/test_attempts.py` need not change merely to
+fill a path list where equivalent substantive coverage lives in the selected
+operator tests. No live engine or model execution is selected.
+
+Remaining acceptance and provenance corrections are those in
+`review-2026-09-15T03-05-11Z.md`; the corrected candidate returns to
+`baton.feat` for independent review.

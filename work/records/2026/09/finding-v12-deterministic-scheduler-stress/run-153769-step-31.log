@@ -1,0 +1,13 @@
+### label: c2-c3-wired-5
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace"]
+### exit: 0
+### elapsed_seconds: 1.444567
+### STDOUT
+
+### STDERR
+..........................................
+----------------------------------------------------------------------
+Ran 42 tests in 1.264s
+
+OK

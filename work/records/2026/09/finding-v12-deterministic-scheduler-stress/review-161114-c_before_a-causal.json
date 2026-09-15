@@ -1,0 +1,167 @@
+[
+  {
+    "result_id": "result-b39bfb05e8caf0e5decf37f2279248782ed56ad5d65cc62249e2202163f39ab4",
+    "content_digest": "sha256:5928e1128a398cdf5ad4c375506c1ece3e1e1a49c776eaec7a8f0ae51977670f",
+    "candidate": "0511bf2460e4a9a17524e4930f41e6205b4b41a8",
+    "tree": "07274a7610f9837974bf97ebf52cb3c61ce82cc6",
+    "target": "9966f36c30b79f3044987b7011f23fc9ab2fcc40",
+    "execution": "baton.result-observer",
+    "observations": {
+      "base": {
+        "command": [
+          "python3",
+          "check_job_a.py"
+        ],
+        "test_identity": "w103525-job_a-regression",
+        "input_commit": "f6ea5b93ad9a62ac091dfed63a856cd214fd7766",
+        "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb",
+        "test_digest": "sha256:6f7cb4673921a58f166a9f584ddf2aab7b4464ba99eb9b8ba813980ee49fec20",
+        "environment": "configured-required-test",
+        "status": 1,
+        "output": "ModuleNotFoundError: No module named 'feature_job_a'",
+        "execution": "baton.result-observer",
+        "harness_added": true
+      },
+      "isolated": {
+        "command": [
+          "python3",
+          "check_job_a.py"
+        ],
+        "test_identity": "w103525-job_a-regression",
+        "input_commit": "c6cbcf35279008cfe57fb2574d7d47413a882f0d",
+        "input_tree": "6a39fa3907f66066f2061872855d2202b530f3c2",
+        "test_digest": "sha256:6f7cb4673921a58f166a9f584ddf2aab7b4464ba99eb9b8ba813980ee49fec20",
+        "environment": "configured-required-test",
+        "status": 0,
+        "output": "job-a regression passed",
+        "execution": "baton.result-observer",
+        "harness_added": false
+      },
+      "combined": {
+        "command": [
+          "python3",
+          "check_job_a.py"
+        ],
+        "test_identity": "w103525-job_a-regression",
+        "input_commit": "0511bf2460e4a9a17524e4930f41e6205b4b41a8",
+        "input_tree": "07274a7610f9837974bf97ebf52cb3c61ce82cc6",
+        "test_digest": "sha256:6f7cb4673921a58f166a9f584ddf2aab7b4464ba99eb9b8ba813980ee49fec20",
+        "environment": "configured-required-test",
+        "status": 0,
+        "output": "job-a regression passed",
+        "execution": "baton.result-observer",
+        "harness_added": false
+      }
+    }
+  },
+  {
+    "result_id": "result-3159e34cd52f1b1b6a90c9a465f790246dfe968d1014c10365281e48a41fef69",
+    "content_digest": "sha256:8e4ffa90ee898f0ed184b06156d7f3c367c8d2126cedd0d6cb3db5c65dde152f",
+    "candidate": "1c14e6196f63624acde615a532e08b50998b9571",
+    "tree": "8975cc1a88173ff573b7cb0421f7019a11867a11",
+    "target": "0511bf2460e4a9a17524e4930f41e6205b4b41a8",
+    "execution": "baton.result-observer",
+    "observations": {
+      "base": {
+        "command": [
+          "python3",
+          "feature_check.py"
+        ],
+        "test_identity": "w130224-second-line-of-one-target",
+        "input_commit": "f6ea5b93ad9a62ac091dfed63a856cd214fd7766",
+        "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb",
+        "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+        "environment": "configured-required-test",
+        "status": 1,
+        "output": "ModuleNotFoundError: No module named 'feature'",
+        "execution": "baton.result-observer",
+        "harness_added": true
+      },
+      "isolated": {
+        "command": [
+          "python3",
+          "feature_check.py"
+        ],
+        "test_identity": "w130224-second-line-of-one-target",
+        "input_commit": "1bbfc263c502b7386b96badf45e737d57b099d07",
+        "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384",
+        "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+        "environment": "configured-required-test",
+        "status": 0,
+        "output": "the second job feature check passed",
+        "execution": "baton.result-observer",
+        "harness_added": false
+      },
+      "combined": {
+        "command": [
+          "python3",
+          "feature_check.py"
+        ],
+        "test_identity": "w130224-second-line-of-one-target",
+        "input_commit": "1c14e6196f63624acde615a532e08b50998b9571",
+        "input_tree": "8975cc1a88173ff573b7cb0421f7019a11867a11",
+        "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+        "environment": "configured-required-test",
+        "status": 0,
+        "output": "the second job feature check passed",
+        "execution": "baton.result-observer",
+        "harness_added": false
+      }
+    }
+  },
+  {
+    "result_id": "result-843be36d47154471d58f14f1a342d3c6ebe20cf1350314e7a8427eae5635cd28",
+    "content_digest": "sha256:b0db25bda1639fb31edb50857870da148d84d86473a1588c5b84c07d17f17ae4",
+    "candidate": "e9c36e04323de1f92736066ae4bd8beb66f0e448",
+    "tree": "a8ba794c370fc6671f422be386f9532d4254ce59",
+    "target": "1c14e6196f63624acde615a532e08b50998b9571",
+    "execution": "baton.result-observer",
+    "observations": {
+      "base": {
+        "command": [
+          "python3",
+          "check_job_d.py"
+        ],
+        "test_identity": "w103525-job_d-regression",
+        "input_commit": "f6ea5b93ad9a62ac091dfed63a856cd214fd7766",
+        "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb",
+        "test_digest": "sha256:4f050794cfc63ee8533c8d6cef154a3b833a9299124a967d7db01679a2e25b7d",
+        "environment": "configured-required-test",
+        "status": 1,
+        "output": "ModuleNotFoundError: No module named 'feature_job_d'",
+        "execution": "baton.result-observer",
+        "harness_added": true
+      },
+      "isolated": {
+        "command": [
+          "python3",
+          "check_job_d.py"
+        ],
+        "test_identity": "w103525-job_d-regression",
+        "input_commit": "0bc24f56e24af5f081e69434b13d3633a55b1029",
+        "input_tree": "90dd1093ea8b7c7ef2f44331417070b50def271f",
+        "test_digest": "sha256:4f050794cfc63ee8533c8d6cef154a3b833a9299124a967d7db01679a2e25b7d",
+        "environment": "configured-required-test",
+        "status": 0,
+        "output": "job-d regression passed",
+        "execution": "baton.result-observer",
+        "harness_added": false
+      },
+      "combined": {
+        "command": [
+          "python3",
+          "check_job_d.py"
+        ],
+        "test_identity": "w103525-job_d-regression",
+        "input_commit": "e9c36e04323de1f92736066ae4bd8beb66f0e448",
+        "input_tree": "a8ba794c370fc6671f422be386f9532d4254ce59",
+        "test_digest": "sha256:4f050794cfc63ee8533c8d6cef154a3b833a9299124a967d7db01679a2e25b7d",
+        "environment": "configured-required-test",
+        "status": 0,
+        "output": "job-d regression passed",
+        "execution": "baton.result-observer",
+        "harness_added": false
+      }
+    }
+  }
+]

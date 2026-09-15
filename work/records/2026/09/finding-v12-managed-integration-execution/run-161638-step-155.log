@@ -1,0 +1,38 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity
+................................................E.....................
+======================================================================
+ERROR: test_the_serial_rule_survives_a_read_that_saw_free_capacity (tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation.test_the_serial_rule_survives_a_read_that_saw_free_capacity)
+THE READ IS NOT WHAT MAKES IT SAFE.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1365, in test_the_serial_rule_survives_a_read_that_saw_free_capacity
+    self.applying(store, stage)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 401, in applying
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, orchestration_id=self.ORCHESTRATION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        phase="apply", execution_attempt_id=stage["attempt_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(stage["attempt_id"]), **held)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 636, in admit_integration_execution
+    _refuse(f"preparation "
+    ~~~~~~~^^^^^^^^^^^^^^^^
+            f"{name_value(preparing['execution_attempt_id'])} is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(preparing['state'])}"
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"/{name_value(preparing['outcome'])}; an apply follows a "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"preparation that ended successfully")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 134, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: preparation 'prepare-attempt-1' is 'admitted'/none; an apply follows a preparation that ended successfully
+
+----------------------------------------------------------------------
+Ran 70 tests in 0.680s
+
+FAILED (errors=1)

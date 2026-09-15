@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_lost_transport_ends_the_epoch_and_never_resumes
+F
+======================================================================
+FAIL: test_a_lost_transport_ends_the_epoch_and_never_resumes (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_lost_transport_ends_the_epoch_and_never_resumes)
+Session continuity, and the contract's own answer to what it is.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2142, in test_a_lost_transport_ends_the_epoch_and_never_resumes
+    self.assertIn("recovery-required", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'recovery-required' not found in "'0000000a-W1' holds no live assignment; an execution session belongs to one"
+
+----------------------------------------------------------------------
+Ran 1 test in 0.229s
+
+FAILED (failures=1)

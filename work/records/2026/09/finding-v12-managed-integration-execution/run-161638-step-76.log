@@ -1,0 +1,40 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_storage
+.............E...............F..
+======================================================================
+ERROR: test_a_recorded_managed_act_is_refused_by_the_queue_history (tests.integration.test_managed_storage.TheJournalVocabularyIsQueueOwned.test_a_recorded_managed_act_is_refused_by_the_queue_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 736, in test_a_recorded_managed_act_is_refused_by_the_queue_history
+    store, _entry, _lease = self.populated()
+                            ^^^^^^^^^^^^^^
+AttributeError: 'TheJournalVocabularyIsQueueOwned' object has no attribute 'populated'
+
+======================================================================
+FAIL: test_the_step_preserves_the_records_and_leases_it_found (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_step_preserves_the_records_and_leases_it_found)
+WHAT IT PRESERVES IT PRESERVES BY NOT TOUCHING -- and this compares
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 308, in test_the_step_preserves_the_records_and_leases_it_found
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        [(one[0], one[2]) for one in self.contents(("leases",))["leases"]],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        [("lease-1", "live")])
+        ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('lease-1', 'entry-1')] != [('lease-1', 'live')]
+
+First differing element 0:
+('lease-1', 'entry-1')
+('lease-1', 'live')
+
+- [('lease-1', 'entry-1')]
+?                ------
+
++ [('lease-1', 'live')]
+?               +++
+
+
+----------------------------------------------------------------------
+Ran 32 tests in 0.098s
+
+FAILED (failures=1, errors=1)

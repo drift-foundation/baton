@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.manager.test_reconciliation_task tests.tools.test_managed_preparation
+................................................................
+----------------------------------------------------------------------
+Ran 64 tests in 10.444s
+
+OK

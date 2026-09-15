@@ -1,0 +1,326 @@
+{
+  "work": "W174289",
+  "claim": 174293,
+  "recorded_at": "2026-09-15T02:55:49.017300+00:00",
+  "kind": "read-only source and evidence inventory; no execution",
+  "files": [
+    {
+      "path": "baton:v12/python/tools/single_worker.py",
+      "sha256": "3b78842c59a46b30a2a542cac6e7ed860e32c5e5645baed643c478a4eddd3c49",
+      "bytes": 159356
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "sha256": "abf0bb2d89aee0398f8428221a0282b52c69cdb5074736150a0259f2281dd8b2",
+      "bytes": 330153
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/sessions.py",
+      "sha256": "bbbae52e65a99268c54b891578f4e9e9a731c337f0845c7b6c988aef5b0300dd",
+      "bytes": 42926
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/handshake.py",
+      "sha256": "2ec488f72c739fce74216c44c3c0824866593bc329c7dc49cb0d73fb04c8416e",
+      "bytes": 35452
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/launch.py",
+      "sha256": "d89159a36a40c383ba3e838b70e31eaa836b4e2d37b919e2020ef7b41e70e508",
+      "bytes": 42657
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1",
+      "bytes": 200495
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/schema.py",
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "bytes": 72850
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/store.py",
+      "sha256": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b",
+      "bytes": 43206
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/review_cycles.py",
+      "sha256": "0fe076b29decd39c83af6477ea009d37e038fd6d868a956beb1d4005b1dbef5b",
+      "bytes": 151441
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/review_driver.py",
+      "sha256": "b5b22535ef105f786aa74f61ff894614a1e91bb8e2739f1051151fb893ebe10c",
+      "bytes": 91086
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+      "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c",
+      "bytes": 48212
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/contracts/validate.py",
+      "sha256": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0",
+      "bytes": 16210
+    },
+    {
+      "path": "baton:v12/worker/claude_agent.py",
+      "sha256": "c7a2b746fbefc088a7670c6f1a3c6363d0faeadcb08d27c56c8f6819ae0f979c",
+      "bytes": 172402
+    },
+    {
+      "path": "baton:v12/worker/baton_worker.py",
+      "sha256": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+      "bytes": 113422
+    },
+    {
+      "path": "baton:v12/python/tests/tools/scheduler_trace.py",
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "bytes": 93492
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_scheduler_trace.py",
+      "sha256": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+      "bytes": 313954
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "bytes": 464872
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "cc361c61174ea1b35c13fa73fd8f655c567f0c4e21f9351eccb8960454211a57",
+      "bytes": 41046
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_claude_agent.py",
+      "sha256": "675a2afa32dce11136326c12dd4a41dad6c4f7e8affed3dddf941e0bb93b834a",
+      "bytes": 160993
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_sessions.py",
+      "sha256": "928eaa9e46db95b3461f45aabf06e070ea96dcc9fbb6d09e643a649e9eaef418",
+      "bytes": 65167
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_handshake.py",
+      "sha256": "2e36975881250323f50035d31358f1a17744db6ad3a9df182005d59333e97208",
+      "bytes": 29642
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-proof/ADOPTION-AND-PROOF-161434.md",
+      "sha256": "1d3d96c596b55af6219feca360b4f534ecaa39989278ad1b8de426ab547bbcc0",
+      "bytes": 20218
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-correction-restart-prework/PREWORK.md",
+      "sha256": "639a22651132cddde285ace635a7c6e317eb860605d9145ad7a4efedf77a2e54",
+      "bytes": 15453
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/review-2026-09-15T02-43-53Z.md",
+      "sha256": "e408cb9bc244f39aaa11c3b9da0e303f6d020890166a534abe89319bb4660772",
+      "bytes": 8255
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-live-session-workspace-detach/review-2026-09-07T20-20-41Z.md",
+      "sha256": "d757acbe3bc1e82f65a4b3d4b21c7957e0b2159f62f5eb1933eeb3c4d8b2771f",
+      "bytes": 6569
+    },
+    {
+      "path": "baton:work/records/2026/08/finding-v12-isolated-agent-workers/RELEASE-CHECKLIST-167877.md",
+      "sha256": "cdb1fb26d24c28cb67ecfc39cd5045532c6b8632766981d57e0b9b06e896d385",
+      "bytes": 29201
+    }
+  ],
+  "accepted_integration_checks": [
+    {
+      "path": "baton:v12/python/tools/integration_bundle.py",
+      "accepted_sha256": "5e67f1a64043ce46325669caaca6c35410fe6e6ac0473c65d474bfdd7fe71942",
+      "current_sha256": "5e67f1a64043ce46325669caaca6c35410fe6e6ac0473c65d474bfdd7fe71942",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "accepted_sha256": "e6cf57eb6033022fc8b307b75148183f5ffb804744897c315ac8f7fcdfda6295",
+      "current_sha256": "e6cf57eb6033022fc8b307b75148183f5ffb804744897c315ac8f7fcdfda6295",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "accepted_sha256": "abf0bb2d89aee0398f8428221a0282b52c69cdb5074736150a0259f2281dd8b2",
+      "current_sha256": "abf0bb2d89aee0398f8428221a0282b52c69cdb5074736150a0259f2281dd8b2",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/integration_placement.py",
+      "accepted_sha256": "f38486931e1bdefb893f0b0222ba351ca8cf3f129f8ceda79afe6e46b8404161",
+      "current_sha256": "f38486931e1bdefb893f0b0222ba351ca8cf3f129f8ceda79afe6e46b8404161",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/managed_execution.py",
+      "accepted_sha256": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936",
+      "current_sha256": "1da12e8a62f22f133223904128689c4ccb321add18b39c78ba19517b7a34f936",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "accepted_sha256": "2ae66976951d9afd43e994daaf214aaf6e6f2c95f80b43449626ac8460da5110",
+      "current_sha256": "2ae66976951d9afd43e994daaf214aaf6e6f2c95f80b43449626ac8460da5110",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/execution.py",
+      "accepted_sha256": "d928395f8f6620dcc41692274dd3fe92eb336b7a249925b41e5695427a14c77e",
+      "current_sha256": "d928395f8f6620dcc41692274dd3fe92eb336b7a249925b41e5695427a14c77e",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/queue.py",
+      "accepted_sha256": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+      "current_sha256": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/git_profile.py",
+      "accepted_sha256": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+      "current_sha256": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "accepted_sha256": "87b92b347f0391b1c3487be9ef3176d64c9567f0b5bf3d3a91544c481963317b",
+      "current_sha256": "87b92b347f0391b1c3487be9ef3176d64c9567f0b5bf3d3a91544c481963317b",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/delegation.py",
+      "accepted_sha256": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8",
+      "current_sha256": "f8ae5cf8525024a6d329d90bc0669b35a356411caa2b2b83f31f57920b8024d8",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/projection.py",
+      "accepted_sha256": "f979b60a86bf3d80ec11ae05d673616f95c925b2967778757ad0c3eeb121f9db",
+      "current_sha256": "f979b60a86bf3d80ec11ae05d673616f95c925b2967778757ad0c3eeb121f9db",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/integration_contract.py",
+      "accepted_sha256": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+      "current_sha256": "12f3beec00a1d98f8828bb9a18a6565fa2fe8c49eb056846fe4c118ba4e1fc0d",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/integration_workload.py",
+      "accepted_sha256": "001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a",
+      "current_sha256": "001896a4f3a9b20199ccbaf2e89183f0cf650d295b09e8e64263caca5cd0a64a",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/integration_entry.py",
+      "accepted_sha256": "23cc2608732e885bda617c470f84de417b2f016c5a3bd3edf8e782097e81de66",
+      "current_sha256": "23cc2608732e885bda617c470f84de417b2f016c5a3bd3edf8e782097e81de66",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_apply.py",
+      "accepted_sha256": "cc361c61174ea1b35c13fa73fd8f655c567f0c4e21f9351eccb8960454211a57",
+      "current_sha256": "cc361c61174ea1b35c13fa73fd8f655c567f0c4e21f9351eccb8960454211a57",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "accepted_sha256": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+      "current_sha256": "944121e36a48323a0dae0ccff43b2be3aa86557793ccb9a42a2cda654dfffa53",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_stage_execution.py",
+      "accepted_sha256": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "current_sha256": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_integration_worker.py",
+      "accepted_sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "current_sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_integration_bundle.py",
+      "accepted_sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "current_sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_integration.py",
+      "accepted_sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "current_sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_execution_limits.py",
+      "accepted_sha256": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "current_sha256": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_execution.py",
+      "accepted_sha256": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "current_sha256": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+      "accepted_sha256": "79ae10e06ee474f5d5d68d3eb6d97a24331545b3d5955d8f862f17826d383bd5",
+      "current_sha256": "79ae10e06ee474f5d5d68d3eb6d97a24331545b3d5955d8f862f17826d383bd5",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_execution.py",
+      "accepted_sha256": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "current_sha256": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "accepted_sha256": "3bdd3ffa1349c56a99d65c6eb3f1280752a5a55563deeff5ef729d4eb3edab86",
+      "current_sha256": "3bdd3ffa1349c56a99d65c6eb3f1280752a5a55563deeff5ef729d4eb3edab86",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_delegation.py",
+      "accepted_sha256": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "current_sha256": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_integration_worker.py",
+      "accepted_sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "current_sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_task.py",
+      "accepted_sha256": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2",
+      "current_sha256": "a410f70bca3d94a5b37cb58c3213a33bc73869133fcd6ab908f3eb9378b07cb2",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_entry.py",
+      "accepted_sha256": "e595b44ba2c77a4b0b6b4f3c5eab5c2f0567f01ffe1f80140b41d5b8e16c03d4",
+      "current_sha256": "e595b44ba2c77a4b0b6b4f3c5eab5c2f0567f01ffe1f80140b41d5b8e16c03d4",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/scheduler.py",
+      "accepted_sha256": "4a315a23dc368e8b39fdb07c63868c29578f32be409912ffc762078f17bda0e1",
+      "current_sha256": "4a315a23dc368e8b39fdb07c63868c29578f32be409912ffc762078f17bda0e1",
+      "matches": true
+    }
+  ]
+}

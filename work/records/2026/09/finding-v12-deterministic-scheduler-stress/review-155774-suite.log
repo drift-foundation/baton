@@ -1,0 +1,154 @@
+test_a_correction_opens_a_second_episode_on_the_same_line (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_correction_opens_a_second_episode_on_the_same_line)
+A requested correction is a real authorized transition too, and it ... ok
+test_a_decision_in_a_foreign_scope_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_decision_in_a_foreign_scope_is_refused)
+Review 2026-09-12T17:37:27Z, retained mutation 1: a foreign ... ok
+test_a_decision_made_in_another_role_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_decision_made_in_another_role_is_refused)
+Retained mutation 3: a review whose decision role was `integrate` ... ok
+test_a_decision_with_no_positive_generation_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_decision_with_no_positive_generation_is_refused)
+Retained mutation 2: a missing decision.policy_generation validated ... ok
+test_a_foreign_scope_with_no_reference_is_still_unproved (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_foreign_scope_with_no_reference_is_still_unproved)
+And the other retained negative: a foreign scope AND a missing ... ok
+test_a_full_positive_authorization_chain_passes (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_full_positive_authorization_chain_passes) ... ok
+test_a_nonaccepting_review_authorizes_nothing (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_nonaccepting_review_authorizes_nothing)
+The exact erasure review 2026-09-12T17:30:56Z retained: a review ... ok
+test_a_review_recorded_after_its_integration_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_review_recorded_after_its_integration_is_refused)
+The other retained erasure: a review at 00:00:02 after an integration ... ok
+test_a_second_team_is_authorized_by_scope_not_by_membership (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_second_team_is_authorized_by_scope_not_by_membership)
+R1: THE THREE-CASE TEAM MATRIX, driven through the real Authority. ... ok
+test_a_trace_with_no_authorization_acts_needs_no_reference (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_trace_with_no_authorization_acts_needs_no_reference)
+The rule runs only for acts that make a claim, so an ordinary ... ok
+test_a_wrong_repository_binding_is_refused_by_its_own_owner (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_wrong_repository_binding_is_refused_by_its_own_owner)
+R1: THE WRONG-REPOSITORY CASE, DRIVEN, with its legal companion. ... ok
+test_an_accepted_review_is_a_real_authorized_transition (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_accepted_review_is_a_real_authorized_transition)
+Job A reaches a genuinely accepted review, observed tick by tick. ... ok
+test_an_authorization_with_no_owner_reference_is_unproved (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_authorization_with_no_owner_reference_is_unproved)
+Review 2026-09-12T17:42:54Z: deleting the reference map disabled the ... ok
+test_an_authorization_without_its_decision_context_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_authorization_without_its_decision_context_is_refused) ... ok
+test_an_empty_reference_scope_is_unproved (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_empty_reference_scope_is_unproved) ... ok
+test_an_import_missing_a_judgment_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_import_missing_a_judgment_is_refused)
+All three judgments, not a review alone. ... ok
+test_an_import_of_another_candidate_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_import_of_another_candidate_is_refused) ... ok
+test_an_integration_of_another_subject_does_not_authorize_this_one (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_integration_of_another_subject_does_not_authorize_this_one)
+A review of a DIFFERENT proposal is not this candidate's ... ok
+test_an_integration_without_its_review_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_integration_without_its_review_is_refused)
+The oracle's own negative: an integration receipt whose subject has no ... ok
+test_an_unattributed_authorization_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_unattributed_authorization_is_refused)
+And a receipt that does not say who decided is not an ... ok
+test_legitimately_differing_generations_are_accepted (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_legitimately_differing_generations_are_accepted)
+And no all-generations-equal rule is invented: policy legitimately ... ok
+test_real_authorization_receipts_bind_actor_scope_and_subject (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_real_authorization_receipts_bind_actor_scope_and_subject)
+The queued item: ACTUAL review/import authorization, from the ... ok
+test_the_observer_accepts_the_owners_own_order (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_observer_accepts_the_owners_own_order)
+Its legal companion, through the same path: the real receipts, whose ... ok
+test_the_observer_refuses_an_owner_order_it_cannot_honour (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_observer_refuses_an_owner_order_it_cannot_honour)
+D1: THE SAME PAIR, THROUGH THE ACTUAL `observed()` PATH. ... ok
+test_the_producer_and_the_reviewer_hold_their_own_sessions (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_producer_and_the_reviewer_hold_their_own_sessions)
+Owner155646's first requirement: NONEMPTY SESSIONS, INDEPENDENT ROLES. ... ok
+test_the_two_bound_jobs_complete_in_either_order (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_two_bound_jobs_complete_in_either_order)
+Owner155646's second requirement, first half: ALTERNATE ORDER over ... ok
+test_two_independent_repository_bindings_are_configured (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_two_independent_repository_bindings_are_configured)
+C3: THE REPOSITORY BINDINGS ARE PROVED, not reported missing. ... ok
+test_a_principal_alias_does_not_multiply_capacity (tests.tools.test_scheduler_trace.TheEligibilityAndAliasBoundaries.test_a_principal_alias_does_not_multiply_capacity)
+Two configured participants resolving to ONE principal are one ... ok
+test_a_stage_kind_no_worker_is_eligible_for_is_refused (tests.tools.test_scheduler_trace.TheEligibilityAndAliasBoundaries.test_a_stage_kind_no_worker_is_eligible_for_is_refused)
+A wrong-role stage finds no eligible worker and says so. ... ok
+test_an_unrelated_review_reserves_while_implementation_is_full (tests.tools.test_scheduler_trace.TheEligibilityAndAliasBoundaries.test_an_unrelated_review_reserves_while_implementation_is_full)
+A capacity miss on one lane is not a stall of another. ... ok
+test_a_refused_admission_is_not_a_performed_offer (tests.tools.test_scheduler_trace.TheExtractorPreservesRefusedOwnerActs.test_a_refused_admission_is_not_a_performed_offer) ... ok
+test_a_refused_claim_is_not_a_performed_claim (tests.tools.test_scheduler_trace.TheExtractorPreservesRefusedOwnerActs.test_a_refused_claim_is_not_a_performed_claim) ... ok
+test_a_refused_record_still_carries_a_cause_for_the_oracle (tests.tools.test_scheduler_trace.TheExtractorPreservesRefusedOwnerActs.test_a_refused_record_still_carries_a_cause_for_the_oracle)
+And the oracle agrees: a refusal without its cause is a violation, ... ok
+test_only_positively_settled_receipts_become_performed (tests.tools.test_scheduler_trace.TheExtractorPreservesRefusedOwnerActs.test_only_positively_settled_receipts_become_performed) ... ok
+test_affinity_fallback_is_soft_and_is_recorded_as_a_gap (tests.tools.test_scheduler_trace.TheRetainedContractMismatchesAreRecordedAsGaps.test_affinity_fallback_is_soft_and_is_recorded_as_a_gap)
+MISMATCH 1. `reserve` falls back to another compatible worker when ... ok
+test_authority_teams_and_repository_bindings_are_not_established (tests.tools.test_scheduler_trace.TheRetainedContractMismatchesAreRecordedAsGaps.test_authority_teams_and_repository_bindings_are_not_established)
+R1: THE LABELS THIS FOUNDATION MAY NOT CLAIM, recorded as a gap. ... ok
+test_composed_continuation_is_not_observable_here (tests.tools.test_scheduler_trace.TheRetainedContractMismatchesAreRecordedAsGaps.test_composed_continuation_is_not_observable_here)
+MISMATCH 3. `stage_execution._job_workers` binds implementation ... ok
+test_stage_id_order_is_not_a_priority_contract (tests.tools.test_scheduler_trace.TheRetainedContractMismatchesAreRecordedAsGaps.test_stage_id_order_is_not_a_priority_contract)
+MISMATCH 2. `owed_acts` visits sorted stage ids and `reserve` orders ... ok
+test_a_dependent_stage_is_not_reserved_before_its_prerequisite (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_a_dependent_stage_is_not_reserved_before_its_prerequisite)
+THE EDGE IS THE PROJECTION'S, not this module's. Job B's stage ... ok
+test_no_credential_material_reaches_the_artifact (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_no_credential_material_reaches_the_artifact)
+The artifact carries identities and locators, never secrets. ... ok
+test_the_artifact_is_versioned_and_carries_its_environment (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_the_artifact_is_versioned_and_carries_its_environment)
+Every export names its schema, its scenario digest and the exact ... ok
+test_the_capacity_miss_names_its_exact_public_cause (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_the_capacity_miss_names_its_exact_public_cause)
+A third implementation stage with two slots occupied is refused, and ... ok
+test_the_two_schedules_differ_in_order_and_satisfy_one_oracle (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_the_two_schedules_differ_in_order_and_satisfy_one_oracle)
+A-before-C and C-before-A are different allowed orders of the same ... ok
+test_two_independent_jobs_take_the_two_implementation_slots (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_two_independent_jobs_take_the_two_implementation_slots)
+C and D are independent of A/B and of each other, and the pool ... ok
+test_a_repeated_observation_changes_nothing (tests.tools.test_scheduler_trace.TheThirdScheduleReopensAtADurableBoundary.test_a_repeated_observation_changes_nothing)
+Repeated read-only observation is idempotent and adds no effect. ... ok
+test_reopening_retains_durable_identities (tests.tools.test_scheduler_trace.TheThirdScheduleReopensAtADurableBoundary.test_reopening_retains_durable_identities) ... ok
+test_a_claim_and_completion_with_no_reserve_or_offer_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_claim_and_completion_with_no_reserve_or_offer_is_refused)
+The exact trace review R2 retained: claim then complete, nothing ... ok
+test_a_completion_does_not_free_custody (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_completion_does_not_free_custody)
+A stage completion and an allocation release are different facts; ... ok
+test_a_consent_session_carrying_an_assignment_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_consent_session_carrying_an_assignment_is_refused)
+Consent has no assignment -- that is the separation the two postures ... ok
+test_a_correction_after_its_review_and_its_own_episode_passes (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_correction_after_its_review_and_its_own_episode_passes) ... ok
+test_a_correction_of_no_earlier_episode_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_correction_of_no_earlier_episode_is_refused) ... ok
+test_a_correction_read_from_nothing_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_correction_read_from_nothing_is_refused) ... ok
+test_a_correction_recorded_before_its_own_review_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_correction_recorded_before_its_own_review_is_refused) ... ok
+test_a_correction_superseding_an_unrecorded_episode_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_correction_superseding_an_unrecorded_episode_is_refused) ... ok
+test_a_declaration_naming_a_field_this_oracle_knows_nothing_of (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_declaration_naming_a_field_this_oracle_knows_nothing_of) ... ok
+test_a_deleted_offer_leaves_the_claim_unproved (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_deleted_offer_leaves_the_claim_unproved) ... ok
+test_a_deleted_reservation_leaves_every_later_act_unproved (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_deleted_reservation_leaves_every_later_act_unproved) ... ok
+test_a_duplicated_operation_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_duplicated_operation_is_refused) ... ok
+test_a_foreign_schema_is_refused_outright (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_foreign_schema_is_refused_outright) ... ok
+test_a_legal_chain_passes_the_oracle (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_legal_chain_passes_the_oracle) ... ok
+test_a_legal_release_then_reuse_passes_the_oracle (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_legal_release_then_reuse_passes_the_oracle)
+R3's positive companion: capacity really does come back when the ... ok
+test_a_manifest_calling_a_recorded_field_unobserved_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_manifest_calling_a_recorded_field_unobserved_is_refused)
+MY OWN ARTIFACTS HAD THIS. `unobserved_fields` was a module constant ... ok
+test_a_manifest_naming_no_declaration_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_manifest_naming_no_declaration_is_refused) ... ok
+test_a_prerequisite_at_the_same_tick_is_concurrent_and_accepted (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_prerequisite_at_the_same_tick_is_concurrent_and_accepted)
+Several facts can already be true at a first observation, and the ... ok
+test_a_recorded_session_over_a_claimed_attempt_passes (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_recorded_session_over_a_claimed_attempt_passes) ... ok
+test_a_reference_disagreeing_with_its_own_context_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_reference_disagreeing_with_its_own_context_is_refused)
+The old `posture:epoch` spelling, exactly: a reference that is not ... ok
+test_a_refusal_with_no_cause_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_refusal_with_no_cause_is_refused) ... ok
+test_a_reopen_does_not_free_custody (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_reopen_does_not_free_custody)
+R3: restart does not release an allocation. The first oracle treated ... ok
+test_a_repeated_act_for_one_attempt_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_repeated_act_for_one_attempt_is_refused) ... ok
+test_a_restart_with_no_review_behind_it_is_not_a_correction (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_restart_with_no_review_behind_it_is_not_a_correction)
+The difference between a correction and a restart IS the review that ... ok
+test_a_review_by_the_producing_principal_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_review_by_the_producing_principal_is_refused) ... ok
+test_a_review_session_held_by_the_producer_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_review_session_held_by_the_producer_is_refused) ... ok
+test_a_scenario_digest_that_does_not_match_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_scenario_digest_that_does_not_match_is_refused) ... ok
+test_a_session_filed_under_another_attempt_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_session_filed_under_another_attempt_is_refused) ... ok
+test_a_session_missing_one_context_member_is_unattributed (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_session_missing_one_context_member_is_unattributed) ... ok
+test_a_session_recorded_before_its_own_claim_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_session_recorded_before_its_own_claim_is_refused) ... ok
+test_a_session_whose_attempt_was_never_claimed_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_session_whose_attempt_was_never_claimed_is_refused)
+A session is opened against an ACTIVATED attempt and activation ... ok
+test_a_session_with_no_context_is_unattributed (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_session_with_no_context_is_unattributed) ... ok
+test_a_successor_reserved_before_its_prerequisite_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_successor_reserved_before_its_prerequisite_is_refused) ... ok
+test_an_act_at_an_earlier_tick_than_its_prerequisite_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_an_act_at_an_earlier_tick_than_its_prerequisite_is_refused)
+The unit of observed time is the logical tick: a prerequisite seen at ... ok
+test_an_act_naming_another_episode_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_an_act_naming_another_episode_is_refused) ... ok
+test_an_execution_session_with_no_assignment_is_unattributed (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_an_execution_session_with_no_assignment_is_unattributed)
+An execution session HAS the exact assignment; a row naming neither ... ok
+test_an_incomplete_record_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_an_incomplete_record_is_refused) ... ok
+test_an_untimed_act_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_an_untimed_act_is_refused) ... ok
+test_both_postures_on_one_claimed_attempt_pass (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_both_postures_on_one_claimed_attempt_pass) ... ok
+test_equal_ticks_do_not_erase_contradictory_owner_instants (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_equal_ticks_do_not_erase_contradictory_owner_instants)
+D1, review 2026-09-12T17:01:19Z: THE EXACT ERASURE THIS CLOSES. ... ok
+test_equal_ticks_with_instants_in_order_are_accepted (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_equal_ticks_with_instants_in_order_are_accepted)
+Its legal companion: the same shape, the owners' order respected. ... ok
+test_instants_in_their_own_order_are_accepted (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_instants_in_their_own_order_are_accepted) ... ok
+test_one_reference_offered_for_two_attempts_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_one_reference_offered_for_two_attempts_is_refused)
+THE DEFECT THE OLD SPELLING REALLY HAD, and what actually catches it. ... ok
+test_overlapping_worker_occupancy_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_overlapping_worker_occupancy_is_refused) ... ok
+test_records_whose_own_instants_run_backwards_are_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_records_whose_own_instants_run_backwards_are_refused)
+D1: AN EXTRACTOR MAY NOT REORDER THE OWNERS' OWN TIMESTAMPS. ... ok
+test_regressing_logical_time_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_regressing_logical_time_is_refused)
+The exact trace review R2 retained: a legal chain whose ticks run ... ok
+test_two_workers_sharing_one_principal_cannot_both_be_reserved (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_two_workers_sharing_one_principal_cannot_both_be_reserved)
+R3: two reservations on DIFFERENT workers resolving to ONE canonical ... ok
+
+----------------------------------------------------------------------
+Ran 93 tests in 3.981s
+
+OK

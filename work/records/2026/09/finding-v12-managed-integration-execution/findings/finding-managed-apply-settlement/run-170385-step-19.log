@@ -1,0 +1,26 @@
+F
+======================================================================
+FAIL: test_preparation_judgments_apply_and_target_settle (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_preparation_judgments_apply_and_target_settle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 19, in test_preparation_judgments_apply_and_target_settle
+    self.complete()
+    ~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 140, in complete
+    case.complete(configured=configure, completed=adopted)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2612, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 128, in adopted
+    self.assertEqual(world.states(held.job, held.composed)["integration"], "completed", (reports[-3:], [log.read().decode(errors="replace") for log in logs]))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'exceptional' != 'completed'
+- exceptional
++ completed
+ : ([{'observed_at': '2026-09-02T00:00:00.000Z', 'recovered': None, 'observed': 0, 'replaced': [], 'acts': [], 'started': [], 'spoken': [], 'refreshed': [{'stage_id': 'job-a/implementation', 'episode': 1, 'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'state': 'not-asked'}, {'stage_id': 'job-a/review', 'episode': 1, 'attempt_id': 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'state': 'not-asked'}, {'stage_id': 'job-a/integration', 'episode': 1, 'attempt_id': 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0', 'state': 'running'}]}, {'observed_at': '2026-09-02T00:00:00.000Z', 'recovered': None, 'observed': 0, 'replaced': [], 'acts': [], 'started': [], 'spoken': [], 'refreshed': [{'stage_id': 'job-a/implementation', 'episode': 1, 'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'state': 'not-asked'}, {'stage_id': 'job-a/review', 'episode': 1, 'attempt_id': 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'state': 'not-asked'}, {'stage_id': 'job-a/integration', 'episode': 1, 'attempt_id': 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0', 'state': 'running'}]}, {'observed_at': '2026-09-02T00:00:00.000Z', 'recovered': None, 'observed': 0, 'replaced': [], 'acts': [], 'started': [], 'spoken': [], 'refreshed': [{'stage_id': 'job-a/implementation', 'episode': 1, 'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'state': 'not-asked'}, {'stage_id': 'job-a/review', 'episode': 1, 'attempt_id': 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'state': 'not-asked'}, {'stage_id': 'job-a/integration', 'episode': 1, 'attempt_id': 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0', 'state': 'running'}]}], [''])
+
+----------------------------------------------------------------------
+Ran 1 test in 7.887s
+
+FAILED (failures=1)

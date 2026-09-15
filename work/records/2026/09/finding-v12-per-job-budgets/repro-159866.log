@@ -1,0 +1,171 @@
+{
+  "counts_before_after": [
+    [
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      1
+    ]
+  ],
+  "result_state": "authorized",
+  "target_state": "blocked",
+  "blocked_reason": "post-import-verification-no-status",
+  "reference": "ae8aa4c56de3bb4a25731dcb8e3c8b3b03a360a8",
+  "entries": [
+    {
+      "entry_id": "integration-driver.entry:6f1ef20d1b641091243b11303c89bd2a0d95a34663cc3d27a187f94db91e3032",
+      "canonical_target_id": "target-a",
+      "rank": 1,
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W1",
+      "assignment_generation": 1,
+      "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+      "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+      "verdict_id": "verdict-7bbcf60ea2c26dcd77b5b40addf4307365c4109ecd60a75b9543ca67ada90fe5",
+      "checkpoint_digest": "sha256:8a57f6c42938edde05b349c8fb734f21755fb26cf9abce8e0e2a438a33398022",
+      "proposal_id": "integration-driver.proposal:f1f9ed6339e28afa8808f1b4377059342061230ec6cc0cf489dfb6c396c1a9cc",
+      "candidate_digest": "ae8aa4c56de3bb4a25731dcb8e3c8b3b03a360a8",
+      "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "result_digest": "sha256:cd784c36c3c75ccfea325604eb37e31d527a209cfdbb404b47eb814d3be4e169",
+      "profile_kind": "git",
+      "expected_target_revision": "e6860ace21c01019ef2bb37c50570c6e27709c9d",
+      "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+      "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28",
+      "state": "integrated",
+      "enqueued_at": "2026-09-02T00:00:00.000Z",
+      "settled_at": "2026-09-02T00:00:00.000Z",
+      "settlement": {
+        "imported_paths": [
+          "harness.py"
+        ],
+        "verification": {
+          "argv": [
+            "python3",
+            "harness.py"
+          ],
+          "status": 0
+        }
+      },
+      "eligibility": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W1",
+        "assignment_generation": 1,
+        "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a",
+        "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a",
+        "verdict_id": "verdict-7bbcf60ea2c26dcd77b5b40addf4307365c4109ecd60a75b9543ca67ada90fe5",
+        "checkpoint_digest": "sha256:8a57f6c42938edde05b349c8fb734f21755fb26cf9abce8e0e2a438a33398022",
+        "proposal_id": "integration-driver.proposal:f1f9ed6339e28afa8808f1b4377059342061230ec6cc0cf489dfb6c396c1a9cc",
+        "candidate_digest": "ae8aa4c56de3bb4a25731dcb8e3c8b3b03a360a8",
+        "result_id": "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+        "result_digest": "sha256:cd784c36c3c75ccfea325604eb37e31d527a209cfdbb404b47eb814d3be4e169",
+        "profile_kind": "git",
+        "expected_target_revision": "e6860ace21c01019ef2bb37c50570c6e27709c9d",
+        "path_set_digest": "sha256:695b752f1c98185f394d3a09fb0ff7f04a61fa1129402d714268a66c4fb16289",
+        "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28"
+      }
+    },
+    {
+      "entry_id": "integration-driver.entry:cb3a4a7f745d622395b943fffca806fffc6a8adadccd89e29d7e0e2861734976",
+      "canonical_target_id": "target-a",
+      "rank": 2,
+      "authority_uuid": "0000000a000000000000000000000000",
+      "work_id": "0000000a-W2",
+      "assignment_generation": 1,
+      "line_id": "line-2138677f5ed9712ef486e17e2295ca696d06ca50fc7ebdc2cd580a8f5bc419af",
+      "checkpoint_id": "checkpoint-71f9100d1d1545dfbc79b05d3778e689e9d8e9b47bc2eb9ded022bdb8968dadc",
+      "verdict_id": "verdict-c65cfac165b00a2961be3eaa3acb7e80a9a6fa318bbc4f7272a10274f2a7e5e9",
+      "checkpoint_digest": "sha256:1dd499287d6c9461284cff52e26187f106b167d607f0916d894b5e10c36ab374",
+      "proposal_id": "proposal-result-0fc949326c0c56caccf079cd597c5a14415f8ea1bbb21711c1a06f8f968596fa",
+      "candidate_digest": "45dd63bfca2c66a4ed7f3a9f2bd43fd76f605493",
+      "result_id": "derived-result-0fc949326c0c56caccf079cd597c5a14415f8ea1bbb21711c1a06f8f968596fa",
+      "result_digest": "sha256:e79bfaca5f4fa1f70d9bc5a1b1862325303bd715e8fa3e0fe9b97c123d80c031",
+      "profile_kind": "git",
+      "expected_target_revision": "ae8aa4c56de3bb4a25731dcb8e3c8b3b03a360a8",
+      "path_set_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457",
+      "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28",
+      "state": "held",
+      "enqueued_at": "2026-09-02T00:00:00.000Z",
+      "settled_at": "2026-09-02T00:00:00.000Z",
+      "settlement": {
+        "detail": {
+          "candidate": "45dd63bfca2c66a4ed7f3a9f2bd43fd76f605493",
+          "observed": "the required post-import test supplied NO EXIT STATUS (timeout) under this Job's 77s host_verification ceiling; the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '45dd63bfca2c66a4ed7f3a9f2bd43fd76f605493'; no exit status was observed and none is invented",
+          "result_id": "result-0fc949326c0c56caccf079cd597c5a14415f8ea1bbb21711c1a06f8f968596fa",
+          "verification": {
+            "command": [
+              "python3",
+              "feature_check.py"
+            ],
+            "completed": {},
+            "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '45dd63bfca2c66a4ed7f3a9f2bd43fd76f605493'; no exit status was observed and none is invented",
+            "environment": "configured-required-test",
+            "execution": "baton.result-observer",
+            "input_commit": "45dd63bfca2c66a4ed7f3a9f2bd43fd76f605493",
+            "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+            "not_run": [],
+            "phase": "post-import",
+            "reason": "timeout",
+            "schema": "baton.v12.host-verification-failure/1",
+            "seconds": 77,
+            "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+            "test_identity": "w130224-second-line-of-one-target"
+          }
+        },
+        "reason": "post-import-verification-no-status"
+      },
+      "eligibility": {
+        "authority_uuid": "0000000a000000000000000000000000",
+        "work_id": "0000000a-W2",
+        "assignment_generation": 1,
+        "line_id": "line-2138677f5ed9712ef486e17e2295ca696d06ca50fc7ebdc2cd580a8f5bc419af",
+        "checkpoint_id": "checkpoint-71f9100d1d1545dfbc79b05d3778e689e9d8e9b47bc2eb9ded022bdb8968dadc",
+        "verdict_id": "verdict-c65cfac165b00a2961be3eaa3acb7e80a9a6fa318bbc4f7272a10274f2a7e5e9",
+        "checkpoint_digest": "sha256:1dd499287d6c9461284cff52e26187f106b167d607f0916d894b5e10c36ab374",
+        "proposal_id": "proposal-result-0fc949326c0c56caccf079cd597c5a14415f8ea1bbb21711c1a06f8f968596fa",
+        "candidate_digest": "45dd63bfca2c66a4ed7f3a9f2bd43fd76f605493",
+        "result_id": "derived-result-0fc949326c0c56caccf079cd597c5a14415f8ea1bbb21711c1a06f8f968596fa",
+        "result_digest": "sha256:e79bfaca5f4fa1f70d9bc5a1b1862325303bd715e8fa3e0fe9b97c123d80c031",
+        "profile_kind": "git",
+        "expected_target_revision": "ae8aa4c56de3bb4a25731dcb8e3c8b3b03a360a8",
+        "path_set_digest": "sha256:dbd5fc06696dc50da92f4c5707584461e6055556d44294f379fd556e6980f457",
+        "scope_digest": "sha256:d0f4d3c8f3739ce1daa1100b7b20c87c575b70b3ed834c16bd7fc54b8a31ea28"
+      }
+    }
+  ],
+  "hold": {
+    "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+    "detail": {
+      "candidate": "45dd63bfca2c66a4ed7f3a9f2bd43fd76f605493",
+      "observed": "the required post-import test supplied NO EXIT STATUS (timeout) under this Job's 77s host_verification ceiling; the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '45dd63bfca2c66a4ed7f3a9f2bd43fd76f605493'; no exit status was observed and none is invented",
+      "result_id": "result-0fc949326c0c56caccf079cd597c5a14415f8ea1bbb21711c1a06f8f968596fa",
+      "verification": {
+        "command": [
+          "python3",
+          "feature_check.py"
+        ],
+        "completed": {},
+        "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '45dd63bfca2c66a4ed7f3a9f2bd43fd76f605493'; no exit status was observed and none is invented",
+        "environment": "configured-required-test",
+        "execution": "baton.result-observer",
+        "input_commit": "45dd63bfca2c66a4ed7f3a9f2bd43fd76f605493",
+        "input_tree": "8eefe71a6a543504cf363f4456c7ce98366aaa2f",
+        "not_run": [],
+        "phase": "post-import",
+        "reason": "timeout",
+        "schema": "baton.v12.host-verification-failure/1",
+        "seconds": 77,
+        "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+        "test_identity": "w130224-second-line-of-one-target"
+      }
+    },
+    "entry_id": "integration-driver.entry:cb3a4a7f745d622395b943fffca806fffc6a8adadccd89e29d7e0e2861734976",
+    "fence": 2,
+    "integrator_participant": "baton.integrator",
+    "lease_id": "integration-driver.lease:7085b06c5dece4f715154d7ea8511ccc8ade0ecd62a714d55ef3f4c4f5369da6",
+    "reason": "post-import-verification-no-status"
+  }
+}

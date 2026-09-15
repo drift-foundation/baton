@@ -1,0 +1,46 @@
+{
+  "budget_clock": {
+    "remaining": 1182.545805525995,
+    "winner": {
+      "charged": 17.454194474004908,
+      "kind": "whole-run",
+      "limit": 1200,
+      "remaining": 1182.545805525995
+    }
+  },
+  "exceptional_stops": [],
+  "failure": "RuntimeError: source changed or final target is dirty",
+  "final_source_identity": "1c8016e6a28ff0395c4d88905afb8a5375da2fc9 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+  "final_source_status": "",
+  "final_target_identity": "9a512c976e7715bdb37405e08d3ddddf16699126 a74cd7ab445209bc0af14e592d4b587f9624aad5",
+  "final_target_status": "D  check_hours.py\nMM demo/greeting.py\nM  demo/units.py\nMM tests/test_greeting.py\nD  tests/test_hours.py",
+  "final_test_exit": 0,
+  "initial": {
+    "source": {
+      "commit": "1c8016e6a28ff0395c4d88905afb8a5375da2fc9",
+      "path": "/home/sl/.local/state/baton/v12/synthetic-ab-2/source",
+      "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+    },
+    "target": {
+      "commit": "1c8016e6a28ff0395c4d88905afb8a5375da2fc9",
+      "path": "/home/sl/.local/state/baton/v12/synthetic-ab-2/target",
+      "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+    }
+  },
+  "live_provider": false,
+  "ordinary_operator_transitions": 0,
+  "provider": "synthetic standalone-ab-v1",
+  "started_at": "2026-09-12T14:58:51.730869+00:00",
+  "stats_observations": {
+    "available": 1,
+    "coverage": "sampled command output only; gaps are not measurements or lifecycle results",
+    "gaps": [],
+    "not-requested": 13,
+    "truncated_samples": [],
+    "unavailable": 0
+  },
+  "submitted": true,
+  "terminal_both": true,
+  "terminal_wall_seconds": 17.453996124997502,
+  "wall_seconds": 18.547138238005573
+}

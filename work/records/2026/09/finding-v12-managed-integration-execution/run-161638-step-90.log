@@ -1,0 +1,19 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_storage
+....................................F........
+======================================================================
+FAIL: test_the_legacy_writer_refuses_a_key_the_managed_side_holds (tests.integration.test_managed_storage.TheUpgradeCarriesAGenuineLegacyResult.test_the_legacy_writer_refuses_a_key_the_managed_side_holds)
+THE REVERSE WRITE ORDER, through `prepare_result` itself rather
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1080, in test_the_legacy_writer_refuses_a_key_the_managed_side_holds
+    self.assertEqual(caught.exception.code, "operation-collision")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'precondition' != 'operation-collision'
+- precondition
++ operation-collision
+
+
+----------------------------------------------------------------------
+Ran 45 tests in 0.255s
+
+FAILED (failures=1)

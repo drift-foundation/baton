@@ -1,0 +1,42 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_execution_limits
+EE.......................
+======================================================================
+ERROR: test_a_migrated_store_then_accepts_a_configured_job (tests.job_manager.test_execution_limits.TheMigrationLeavesOldJobsMeaningExactlyWhatTheyMeant.test_a_migrated_store_then_accepts_a_configured_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_execution_limits.py", line 339, in test_a_migrated_store_then_accepts_a_configured_job
+    store = JobStore.open(self.job_path, authority_uuid=UUID,
+                          incarnation="jobs-1", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table job_execution_limits already exists
+
+======================================================================
+ERROR: test_a_schema_four_store_migrates_and_its_jobs_keep_the_defaults (tests.job_manager.test_execution_limits.TheMigrationLeavesOldJobsMeaningExactlyWhatTheyMeant.test_a_schema_four_store_migrates_and_its_jobs_keep_the_defaults)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_execution_limits.py", line 319, in test_a_schema_four_store_migrates_and_its_jobs_keep_the_defaults
+    store = JobStore.open(self.job_path, authority_uuid=UUID,
+                          incarnation="jobs-1", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table job_execution_limits already exists
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.018s
+
+FAILED (errors=2)

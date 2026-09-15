@@ -1,0 +1,67 @@
+### label: acceptance-and-session
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace"]
+### exit: 1
+### elapsed_seconds: 1.774858
+### STDOUT
+
+### STDERR
+...F..........................................FF....
+======================================================================
+FAIL: test_an_accepted_review_is_a_real_authorized_transition (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_accepted_review_is_a_real_authorized_transition)
+Job A reaches a genuinely accepted review, observed tick by tick.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1350, in test_an_accepted_review_is_a_real_authorized_transition
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        sorted(scheduler_trace.UNREPRESENTED_EVIDENCE),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ["offer-acceptance", "session-independence"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != ['offer-acceptance', 'session-independence']
+
+Second list contains 2 additional elements.
+First extra element 0:
+'offer-acceptance'
+
+- []
++ ['offer-acceptance', 'session-independence']
+
+======================================================================
+FAIL: test_equal_ticks_with_instants_in_order_are_accepted (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_equal_ticks_with_instants_in_order_are_accepted)
+Its legal companion: the same shape, the owners' order respected.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 845, in test_equal_ticks_with_instants_in_order_are_accepted
+    self.assertEqual(self.codes(held), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['missing-prerequisite'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'missing-prerequisite'
+
+- ['missing-prerequisite']
++ []
+
+======================================================================
+FAIL: test_instants_in_their_own_order_are_accepted (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_instants_in_their_own_order_are_accepted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 851, in test_instants_in_their_own_order_are_accepted
+    self.assertEqual(self.codes(held), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['missing-prerequisite'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'missing-prerequisite'
+
+- ['missing-prerequisite']
++ []
+
+----------------------------------------------------------------------
+Ran 52 tests in 1.589s
+
+FAILED (failures=3)

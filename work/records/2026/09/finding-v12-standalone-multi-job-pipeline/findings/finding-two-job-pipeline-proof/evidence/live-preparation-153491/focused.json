@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_live_ab",
+    "-v"
+  ],
+  "seconds": 0.22069319599540904,
+  "returncode": 1,
+  "prepared_input_count": 116
+}

@@ -1,0 +1,945 @@
+{
+ "claim": 153769,
+ "gaps": [
+  {
+   "locator": "FINDING.md 2026-09-12T15:54:16Z mismatch 1",
+   "name": "explicit-fallback",
+   "state": "open"
+  },
+  {
+   "locator": "FINDING.md 2026-09-12T15:54:16Z mismatch 2",
+   "name": "priority-and-creation-order",
+   "state": "open"
+  },
+  {
+   "locator": "FINDING.md 2026-09-12T15:54:16Z mismatch 3",
+   "name": "composed-continuation",
+   "state": "open"
+  }
+ ],
+ "note": "exploratory: fake Authority sessions and an unpinned jsonschema resolution; not composed certification",
+ "schedules": [
+  {
+   "artifact": {
+    "environment": {
+     "implementation": "CPython",
+     "jsonschema_conformant": false,
+     "jsonschema_pinned": "4.26.0",
+     "jsonschema_resolved": "4.19.2",
+     "python": "3.13.7",
+     "sources": {
+      "scheduler_trace.py": "sha256:2462271a32f6b4a7f7ab4e128ac4e58c680de13b27fe8a4ef85cb1536290ae8d",
+      "test_scheduler_trace.py": "sha256:35cb21e4da6a16a5514c5419c96384358bdfac2b12a545971b0be21000f531bf"
+     }
+    },
+    "gaps": [],
+    "records": [
+     {
+      "act": "activate-pool",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "pool_generations:1",
+      "job_id": null,
+      "operation_id": "pool.activate:1",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "submit",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "jobs:job-a",
+      "job_id": "job-a",
+      "operation_id": "submission:job-a",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "submit",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "jobs:job-b",
+      "job_id": "job-b",
+      "operation_id": "submission:job-b",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "submit",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "jobs:job-c",
+      "job_id": "job-c",
+      "operation_id": "submission:job-c",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "submit",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "jobs:job-d",
+      "job_id": "job-d",
+      "operation_id": "submission:job-d",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "reserve",
+      "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+      "cause": null,
+      "episode": 1,
+      "evidence": "allocations:attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+      "job_id": "job-a",
+      "operation_id": "allocation.reserve:attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+      "outcome": "performed",
+      "participant": "baton.impl-one",
+      "principal": "principal:team-one",
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": "job-a/implementation",
+      "tick": 1,
+      "worker_id": "impl-one"
+     },
+     {
+      "act": "reserve",
+      "attempt_id": "attempt-06633e3b6aeef8f35af7bd9867bba7688f22344015d9b8f8daf1e5068fa00702",
+      "cause": null,
+      "episode": 1,
+      "evidence": "allocations:attempt-06633e3b6aeef8f35af7bd9867bba7688f22344015d9b8f8daf1e5068fa00702",
+      "job_id": "job-c",
+      "operation_id": "allocation.reserve:attempt-06633e3b6aeef8f35af7bd9867bba7688f22344015d9b8f8daf1e5068fa00702",
+      "outcome": "performed",
+      "participant": "baton.impl-two",
+      "principal": "principal:team-two",
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": "job-c/implementation",
+      "tick": 1,
+      "worker_id": "impl-two"
+     }
+    ],
+    "scenario": {
+     "jobs": [
+      {
+       "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+       "job_id": "job-a",
+       "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+       "stages": [
+        {
+         "depends_on": [],
+         "kind": "implementation",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W1"
+        },
+        {
+         "depends_on": [
+          {
+           "job_id": "job-a",
+           "kind": "implementation"
+          }
+         ],
+         "kind": "review",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W1"
+        }
+       ],
+       "terminal_policy": "report-and-hold",
+       "test_scope": [
+        "v12/python/tests/job_manager"
+       ]
+      },
+      {
+       "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+       "job_id": "job-b",
+       "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+       "stages": [
+        {
+         "depends_on": [
+          {
+           "job_id": "job-a",
+           "kind": "implementation"
+          }
+         ],
+         "kind": "implementation",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W2"
+        }
+       ],
+       "terminal_policy": "report-and-hold",
+       "test_scope": [
+        "v12/python/tests/job_manager"
+       ]
+      },
+      {
+       "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+       "job_id": "job-c",
+       "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+       "stages": [
+        {
+         "depends_on": [],
+         "kind": "implementation",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W3"
+        }
+       ],
+       "terminal_policy": "report-and-hold",
+       "test_scope": [
+        "v12/python/tests/tools"
+       ]
+      },
+      {
+       "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+       "job_id": "job-d",
+       "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+       "stages": [
+        {
+         "depends_on": [],
+         "kind": "implementation",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W3"
+        }
+       ],
+       "terminal_policy": "report-and-hold",
+       "test_scope": [
+        "v12/python/tests/tools"
+       ]
+      }
+     ],
+     "name": "four-jobs-two-teams-two-repositories",
+     "note": null,
+     "reopen_at": null,
+     "schema": "baton.v12.scheduler-trace-scenario/1",
+     "ticks": 100,
+     "workers": [
+      {
+       "eligible_kinds": [
+        "implementation"
+       ],
+       "lane": "implementation",
+       "participant": "baton.impl-one",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "impl-one"
+      },
+      {
+       "eligible_kinds": [
+        "implementation"
+       ],
+       "lane": "implementation",
+       "participant": "baton.impl-two",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "impl-two"
+      },
+      {
+       "eligible_kinds": [
+        "review"
+       ],
+       "lane": "review",
+       "participant": "baton.review-one",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "review-one"
+      },
+      {
+       "eligible_kinds": [
+        "review"
+       ],
+       "lane": "review",
+       "participant": "baton.review-two",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "review-two"
+      },
+      {
+       "eligible_kinds": [
+        "integration"
+       ],
+       "lane": "implementation",
+       "participant": "baton.integrate-one",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "integrate-one"
+      }
+     ]
+    },
+    "scenario_digest": "sha256:832cbefbb96a90f829d1483cd7545f640e1c611edd517d72b24e8c3c834fcc4a",
+    "schema": "baton.v12.scheduler-trace/1"
+   },
+   "name": "a-before-c",
+   "order": [
+    "job-a/implementation",
+    "job-c/implementation"
+   ],
+   "violations": []
+  },
+  {
+   "artifact": {
+    "environment": {
+     "implementation": "CPython",
+     "jsonschema_conformant": false,
+     "jsonschema_pinned": "4.26.0",
+     "jsonschema_resolved": "4.19.2",
+     "python": "3.13.7",
+     "sources": {
+      "scheduler_trace.py": "sha256:2462271a32f6b4a7f7ab4e128ac4e58c680de13b27fe8a4ef85cb1536290ae8d",
+      "test_scheduler_trace.py": "sha256:35cb21e4da6a16a5514c5419c96384358bdfac2b12a545971b0be21000f531bf"
+     }
+    },
+    "gaps": [],
+    "records": [
+     {
+      "act": "activate-pool",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "pool_generations:1",
+      "job_id": null,
+      "operation_id": "pool.activate:1",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "submit",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "jobs:job-a",
+      "job_id": "job-a",
+      "operation_id": "submission:job-a",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "submit",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "jobs:job-b",
+      "job_id": "job-b",
+      "operation_id": "submission:job-b",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "submit",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "jobs:job-c",
+      "job_id": "job-c",
+      "operation_id": "submission:job-c",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "submit",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "jobs:job-d",
+      "job_id": "job-d",
+      "operation_id": "submission:job-d",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "reserve",
+      "attempt_id": "attempt-06633e3b6aeef8f35af7bd9867bba7688f22344015d9b8f8daf1e5068fa00702",
+      "cause": null,
+      "episode": 1,
+      "evidence": "allocations:attempt-06633e3b6aeef8f35af7bd9867bba7688f22344015d9b8f8daf1e5068fa00702",
+      "job_id": "job-c",
+      "operation_id": "allocation.reserve:attempt-06633e3b6aeef8f35af7bd9867bba7688f22344015d9b8f8daf1e5068fa00702",
+      "outcome": "performed",
+      "participant": "baton.impl-one",
+      "principal": "principal:team-one",
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": "job-c/implementation",
+      "tick": 1,
+      "worker_id": "impl-one"
+     },
+     {
+      "act": "reserve",
+      "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+      "cause": null,
+      "episode": 1,
+      "evidence": "allocations:attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+      "job_id": "job-a",
+      "operation_id": "allocation.reserve:attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+      "outcome": "performed",
+      "participant": "baton.impl-two",
+      "principal": "principal:team-two",
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": "job-a/implementation",
+      "tick": 1,
+      "worker_id": "impl-two"
+     }
+    ],
+    "scenario": {
+     "jobs": [
+      {
+       "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+       "job_id": "job-a",
+       "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+       "stages": [
+        {
+         "depends_on": [],
+         "kind": "implementation",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W1"
+        },
+        {
+         "depends_on": [
+          {
+           "job_id": "job-a",
+           "kind": "implementation"
+          }
+         ],
+         "kind": "review",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W1"
+        }
+       ],
+       "terminal_policy": "report-and-hold",
+       "test_scope": [
+        "v12/python/tests/job_manager"
+       ]
+      },
+      {
+       "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+       "job_id": "job-b",
+       "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+       "stages": [
+        {
+         "depends_on": [
+          {
+           "job_id": "job-a",
+           "kind": "implementation"
+          }
+         ],
+         "kind": "implementation",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W2"
+        }
+       ],
+       "terminal_policy": "report-and-hold",
+       "test_scope": [
+        "v12/python/tests/job_manager"
+       ]
+      },
+      {
+       "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+       "job_id": "job-c",
+       "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+       "stages": [
+        {
+         "depends_on": [],
+         "kind": "implementation",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W3"
+        }
+       ],
+       "terminal_policy": "report-and-hold",
+       "test_scope": [
+        "v12/python/tests/tools"
+       ]
+      },
+      {
+       "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+       "job_id": "job-d",
+       "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+       "stages": [
+        {
+         "depends_on": [],
+         "kind": "implementation",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W3"
+        }
+       ],
+       "terminal_policy": "report-and-hold",
+       "test_scope": [
+        "v12/python/tests/tools"
+       ]
+      }
+     ],
+     "name": "four-jobs-two-teams-two-repositories",
+     "note": null,
+     "reopen_at": null,
+     "schema": "baton.v12.scheduler-trace-scenario/1",
+     "ticks": 100,
+     "workers": [
+      {
+       "eligible_kinds": [
+        "implementation"
+       ],
+       "lane": "implementation",
+       "participant": "baton.impl-one",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "impl-one"
+      },
+      {
+       "eligible_kinds": [
+        "implementation"
+       ],
+       "lane": "implementation",
+       "participant": "baton.impl-two",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "impl-two"
+      },
+      {
+       "eligible_kinds": [
+        "review"
+       ],
+       "lane": "review",
+       "participant": "baton.review-one",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "review-one"
+      },
+      {
+       "eligible_kinds": [
+        "review"
+       ],
+       "lane": "review",
+       "participant": "baton.review-two",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "review-two"
+      },
+      {
+       "eligible_kinds": [
+        "integration"
+       ],
+       "lane": "implementation",
+       "participant": "baton.integrate-one",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "integrate-one"
+      }
+     ]
+    },
+    "scenario_digest": "sha256:832cbefbb96a90f829d1483cd7545f640e1c611edd517d72b24e8c3c834fcc4a",
+    "schema": "baton.v12.scheduler-trace/1"
+   },
+   "name": "c-before-a",
+   "order": [
+    "job-c/implementation",
+    "job-a/implementation"
+   ],
+   "violations": []
+  },
+  {
+   "artifact": {
+    "environment": {
+     "implementation": "CPython",
+     "jsonschema_conformant": false,
+     "jsonschema_pinned": "4.26.0",
+     "jsonschema_resolved": "4.19.2",
+     "python": "3.13.7",
+     "sources": {
+      "scheduler_trace.py": "sha256:2462271a32f6b4a7f7ab4e128ac4e58c680de13b27fe8a4ef85cb1536290ae8d",
+      "test_scheduler_trace.py": "sha256:35cb21e4da6a16a5514c5419c96384358bdfac2b12a545971b0be21000f531bf"
+     }
+    },
+    "gaps": [],
+    "records": [
+     {
+      "act": "activate-pool",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "pool_generations:1",
+      "job_id": null,
+      "operation_id": "pool.activate:1",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "submit",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "jobs:job-a",
+      "job_id": "job-a",
+      "operation_id": "submission:job-a",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "submit",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "jobs:job-b",
+      "job_id": "job-b",
+      "operation_id": "submission:job-b",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "submit",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "jobs:job-c",
+      "job_id": "job-c",
+      "operation_id": "submission:job-c",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "submit",
+      "attempt_id": null,
+      "cause": null,
+      "episode": null,
+      "evidence": "jobs:job-d",
+      "job_id": "job-d",
+      "operation_id": "submission:job-d",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 0,
+      "worker_id": null
+     },
+     {
+      "act": "reserve",
+      "attempt_id": "attempt-06633e3b6aeef8f35af7bd9867bba7688f22344015d9b8f8daf1e5068fa00702",
+      "cause": null,
+      "episode": 1,
+      "evidence": "allocations:attempt-06633e3b6aeef8f35af7bd9867bba7688f22344015d9b8f8daf1e5068fa00702",
+      "job_id": "job-c",
+      "operation_id": "allocation.reserve:attempt-06633e3b6aeef8f35af7bd9867bba7688f22344015d9b8f8daf1e5068fa00702",
+      "outcome": "performed",
+      "participant": "baton.impl-one",
+      "principal": "principal:team-one",
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": "job-c/implementation",
+      "tick": 1,
+      "worker_id": "impl-one"
+     },
+     {
+      "act": "reserve",
+      "attempt_id": "attempt-205eb497313fdc1ba04c910446c6b078d95bb2fb4483f9596838f66b161603c7",
+      "cause": null,
+      "episode": 1,
+      "evidence": "allocations:attempt-205eb497313fdc1ba04c910446c6b078d95bb2fb4483f9596838f66b161603c7",
+      "job_id": "job-d",
+      "operation_id": "allocation.reserve:attempt-205eb497313fdc1ba04c910446c6b078d95bb2fb4483f9596838f66b161603c7",
+      "outcome": "performed",
+      "participant": "baton.impl-two",
+      "principal": "principal:team-two",
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": "job-d/implementation",
+      "tick": 1,
+      "worker_id": "impl-two"
+     },
+     {
+      "act": "reserve",
+      "attempt_id": "attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1",
+      "cause": "refused/precondition: stage 'job-a/implementation' has eligible implementation workers but every effective worker/principal capacity is reserved or recovery-required",
+      "episode": 1,
+      "evidence": null,
+      "job_id": "job-a",
+      "operation_id": null,
+      "outcome": "refused",
+      "participant": null,
+      "principal": null,
+      "runtime_id": null,
+      "session_id": null,
+      "stage_id": "job-a/implementation",
+      "tick": 1,
+      "worker_id": null
+     }
+    ],
+    "scenario": {
+     "jobs": [
+      {
+       "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+       "job_id": "job-a",
+       "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+       "stages": [
+        {
+         "depends_on": [],
+         "kind": "implementation",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W1"
+        },
+        {
+         "depends_on": [
+          {
+           "job_id": "job-a",
+           "kind": "implementation"
+          }
+         ],
+         "kind": "review",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W1"
+        }
+       ],
+       "terminal_policy": "report-and-hold",
+       "test_scope": [
+        "v12/python/tests/job_manager"
+       ]
+      },
+      {
+       "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+       "job_id": "job-b",
+       "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+       "stages": [
+        {
+         "depends_on": [
+          {
+           "job_id": "job-a",
+           "kind": "implementation"
+          }
+         ],
+         "kind": "implementation",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W2"
+        }
+       ],
+       "terminal_policy": "report-and-hold",
+       "test_scope": [
+        "v12/python/tests/job_manager"
+       ]
+      },
+      {
+       "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+       "job_id": "job-c",
+       "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+       "stages": [
+        {
+         "depends_on": [],
+         "kind": "implementation",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W3"
+        }
+       ],
+       "terminal_policy": "report-and-hold",
+       "test_scope": [
+        "v12/python/tests/tools"
+       ]
+      },
+      {
+       "input_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+       "job_id": "job-d",
+       "policy_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+       "stages": [
+        {
+         "depends_on": [],
+         "kind": "implementation",
+         "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+         "profile_name": "reference",
+         "work_id": "0000000a-W3"
+        }
+       ],
+       "terminal_policy": "report-and-hold",
+       "test_scope": [
+        "v12/python/tests/tools"
+       ]
+      }
+     ],
+     "name": "four-jobs-two-teams-two-repositories",
+     "note": null,
+     "reopen_at": null,
+     "schema": "baton.v12.scheduler-trace-scenario/1",
+     "ticks": 100,
+     "workers": [
+      {
+       "eligible_kinds": [
+        "implementation"
+       ],
+       "lane": "implementation",
+       "participant": "baton.impl-one",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "impl-one"
+      },
+      {
+       "eligible_kinds": [
+        "implementation"
+       ],
+       "lane": "implementation",
+       "participant": "baton.impl-two",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "impl-two"
+      },
+      {
+       "eligible_kinds": [
+        "review"
+       ],
+       "lane": "review",
+       "participant": "baton.review-one",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "review-one"
+      },
+      {
+       "eligible_kinds": [
+        "review"
+       ],
+       "lane": "review",
+       "participant": "baton.review-two",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "review-two"
+      },
+      {
+       "eligible_kinds": [
+        "integration"
+       ],
+       "lane": "implementation",
+       "participant": "baton.integrate-one",
+       "profile_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "profile_name": "reference",
+       "worker_id": "integrate-one"
+      }
+     ]
+    },
+    "scenario_digest": "sha256:832cbefbb96a90f829d1483cd7545f640e1c611edd517d72b24e8c3c834fcc4a",
+    "schema": "baton.v12.scheduler-trace/1"
+   },
+   "name": "capacity-miss",
+   "order": [
+    "job-c/implementation",
+    "job-d/implementation",
+    "job-a/implementation"
+   ],
+   "violations": []
+  }
+ ],
+ "schema": "baton.v12.scheduler-trace-set/1",
+ "validator": {
+  "codes": [
+   "unknown-schema",
+   "incomplete-record",
+   "unattributed-act",
+   "out-of-order",
+   "untimed-act",
+   "unproven-completion",
+   "successor-before-prerequisite",
+   "overlapping-occupancy",
+   "unattributed-review",
+   "review-by-producer",
+   "duplicate-operation",
+   "uncaused-refusal"
+  ],
+  "note": "each has a synthetic invalid-trace case; synthetic traces are never execution evidence"
+ },
+ "work": "W103525"
+}

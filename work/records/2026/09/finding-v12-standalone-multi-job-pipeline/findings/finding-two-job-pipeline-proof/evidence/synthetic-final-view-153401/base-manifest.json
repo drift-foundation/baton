@@ -1,0 +1,15 @@
+{
+  "paths": {
+    "v12/testing/standalone_ab/scenario.py": "93a87127d6b871495e18287bc1bdcb13008ae838426091b5a6e8ca135dd6e6f9",
+    "v12/testing/standalone_ab/run.py": "796909f181c4bb4deca84562e341be683a57d2aa907035847f7eaa309f116375",
+    "v12/testing/standalone_ab/failure_observation.py": "9f653396dd4e05a9419448de198aba9c03b5d021f7f00357e1cc54999cef11c9",
+    "v12/testing/standalone_ab/README.md": "03e5c674eeaaf8e1bc42c720f9c062289ba27500da588ea181361bd91669b90a",
+    "v12/python/tests/tools/test_standalone_ab.py": "67733c2fafb28311d2f9c4dd4979d629131b55b1ce5b3daa98016437ee280db0"
+  },
+  "historical_results": {
+    "/tmp/baton-synthetic-ab-5f9zjyfc/scenario-result.json": "ced0a3422034ff7ace730d03fff12c874b9817dedbfe148a06c6b586d33d1479",
+    "/tmp/baton-synthetic-ab-5f9zjyfc/evidence/run-result.json": "bced51ba2e1a4ebe5af615f68ed3ceaf31a05d41c4d00c5d4efd33cdb54cece3",
+    "/home/sl/.local/state/baton/v12/synthetic-ab-2/scenario-result.json": "9cd039914ebbd0c5696d3b0adad727703c1cdef76a466a37c02d486cd3e792c1",
+    "/home/sl/.local/state/baton/v12/synthetic-ab-2/evidence/run-result.json": "18468ecab4ac6262c3de52e2c6b9c6093ecc7285dfa3357e230e048c2a7a9781"
+  }
+}

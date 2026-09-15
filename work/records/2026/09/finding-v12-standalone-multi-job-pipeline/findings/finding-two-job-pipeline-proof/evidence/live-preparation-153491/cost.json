@@ -1,0 +1,16 @@
+{
+  "claim": 153491,
+  "measured_preparation_checks_seconds": 0.47073079098481685,
+  "cumulative_preparation_checks_seconds": 123.29580207790424,
+  "claim_started_at": "2026-09-12T15:19:02Z",
+  "recorded_at": "2026-09-12T15:27:42.986641+00:00",
+  "claim_wall_seconds_to_record": 520.986641,
+  "synthetic_success_total_seconds": 19.506483848002972,
+  "synthetic_success_execution_seconds": 17.45977773400955,
+  "prior_synthetic_failed_total_seconds": [
+    246.9176634180185,
+    18.794468152016634
+  ],
+  "prior_failed_and_interrupted_live_wall_seconds": 2945.8728742020467,
+  "qualification": "Claim wall includes reading, reasoning, editing and checks, not model billing time. Final canonical pass supplies handoff latency. Prior unmetered preparation/coordination uncertainty remains."
+}

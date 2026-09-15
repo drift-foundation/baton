@@ -1,0 +1,12 @@
+{
+  "v12/python/tools/stage_execution.py": {
+    "sha256": "44de0f895df8d8c0fcd80c6e244d28cd9ed130d34b737447dd98532d42428776",
+    "bytes": 253521,
+    "mode": "0o664"
+  },
+  "v12/python/tests/tools/test_stage_execution.py": {
+    "sha256": "908dca6c11c452a54b224dec421aae2e420229a4cbee85dd358c910a98cb4e28",
+    "bytes": 456548,
+    "mode": "0o664"
+  }
+}

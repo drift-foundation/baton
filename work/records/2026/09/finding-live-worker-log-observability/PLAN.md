@@ -1,3 +1,21 @@
+# Current minimum release subset — selected 2026-09-14
+
+## Current next action — 2026-09-15 owner-selected design by Claude
+
+After Claude hands W63255 implementation to independent review, unpark and claim W61599 for the design-only turn pinned in FINDING. Produce the actual provider-source and count-only transport proposal with exact path ownership and focused deterministic validation; read the original full review and corrected W174051 pre-work. No product edits or test execution in this turn. Return baton.ops for concrete scope selection. Existing minimum outcome and v13 deferrals below remain effective; this supersedes pending design scheduling, not implementation acceptance.
+
+W165782 owner ruling selects items11–12 only as the minimum v12 correction:
+provider-safe positive native-session growth/last activity, bounded nonblocking
+publication, no unrelated stderr or zero-byte EOF activity, honest restart.
+W167896 consumes this public activity or explicit unknown; it does not own the
+provider. Validate the current supported stage/provider source before edits.
+Items5b/6/7/9 and richer stream/log UX are v13 remainder, not minimum gates.
+Current Work completion is the independently accepted minimum subset; name
+the historical rich-stream deferrals explicitly in its closure. Those later
+ideas remain W39649/v13 selection material, not additional W61599 gates.
+Scheduling remains with the current baton.impl handler/owner; preserve its
+serial workload. M166331 removes old cumulative stopwatch gates.
+
 # Plan: make live worker progress observable
 
 1. [done 2026-09-01] Record the observed W52821 visibility gap and the ruling

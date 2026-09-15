@@ -1,0 +1,35 @@
+{
+  "head": "f3fc9e12cc89bebf9524cd173103df7af67d5212",
+  "paths": 29,
+  "mismatches": [],
+  "new_paths": [
+    "v12/python/src/baton_v12/job_manager/execution_limits.py",
+    "v12/python/tests/job_manager/execution_limits_fixtures/PROVENANCE.md",
+    "v12/python/tests/job_manager/execution_limits_fixtures/golden-schema4.sqlite3",
+    "v12/python/tests/job_manager/test_execution_limits.py",
+    "v12/python/tests/manager/test_execution_limits.py",
+    "v12/python/tests/tools/test_execution_limits.py"
+  ],
+  "default_context_hunks": {
+    "v12/python/tools/stage_execution.py": 19,
+    "v12/python/tests/tools/test_stage_execution.py": 6
+  },
+  "foreign_methods": {
+    "v12/python/tools/stage_execution.py": {
+      "method": "observe_integration",
+      "sha256": "0de764b6b601ce0fe4acf58b931fb613bceadfc4421ae7873b0653c58d1104b0",
+      "prior_audit_boundary_sha256": "edace97b4ff4ab1566cf70df63cfa6d59faa881e28fef314a5cdd028c31dfc69",
+      "matches_foreign_candidate": true
+    },
+    "v12/python/tests/tools/test_stage_execution.py": {
+      "method": "test_readonly_reconciled_completion_without_runtime_reaches_outer_observer",
+      "sha256": "aa23adc2757f95a6812115a3896bd61b132826e512e4db3db119e3d2a3055d7d",
+      "prior_audit_boundary_sha256": "aa23adc2757f95a6812115a3896bd61b132826e512e4db3db119e3d2a3055d7d",
+      "matches_foreign_candidate": true
+    }
+  },
+  "numstat_scope": "tracked modified paths only; the six new files have no numstat/hunks in this generator",
+  "tracked_added": 2548,
+  "tracked_removed": 132,
+  "u0_hunks": 156
+}

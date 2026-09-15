@@ -1,0 +1,52 @@
+test_live_documents_use_pinned_images_real_reference_and_current_task_ids (tests.tools.test_live_ab.LiveProviderPreparation.test_live_documents_use_pinned_images_real_reference_and_current_task_ids) ... FAIL
+test_live_image_preflight_refuses_input_drift_before_engine_access (tests.tools.test_live_ab.LiveProviderPreparation.test_live_image_preflight_refuses_input_drift_before_engine_access) ... ok
+
+======================================================================
+FAIL: test_live_documents_use_pinned_images_real_reference_and_current_task_ids (tests.tools.test_live_ab.LiveProviderPreparation.test_live_documents_use_pinned_images_real_reference_and_current_task_ids)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_live_ab.py", line 36, in test_live_documents_use_pinned_images_real_reference_and_current_task_ids
+    self.assertEqual(done.returncode, 0, done.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/source_boundary.py", line 360, in nominate_source
+    held = os.lstat(place)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/live-ab-render-test-q3dj3um_/source'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+    d.documents(d.CONFIG,d.SETTINGS['images'],facts)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/testing/live_ab/deployment.py", line 323, in documents
+    stage_execution.held_configuration(config)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 460, in held_configuration
+    given["workers"] = _held_workers(
+                       ~~~~~~~~~~~~~^
+        given["workers"], here, given["authority_uuid"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        many=given["schema"] == MULTI_CONFIG_SCHEMA)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 668, in _held_workers
+    deployment = single_worker._held(named, roles=ROLES)
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 329, in _held
+    given["source_nomination"] = source_boundary.nominate_source(
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        given["nominated_source"])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/source_boundary.py", line 362, in nominate_source
+    _refuse(f"the nominated source {name_value(place)} is not a directory "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this manager can see ({type(failure).__name__})")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/source_boundary.py", line 186, in _refuse
+    raise ContractRefusal("integrity", code, message)
+baton_v12.contracts.errors.ContractRefusal: the nominated source '/tmp/live-ab-render-test-q3dj3um_/source' is not a directory this manager can see (FileNotFoundError)
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.183s
+
+FAILED (failures=1)

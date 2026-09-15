@@ -1,0 +1,9 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-four-jobs.py
+SOURCES: /home/sl/src/baton/v12/python/v12-w71917-74igbta7/source /home/sl/src/baton/v12/python/v12-w71917-74igbta7/source-b
+WORKER IDS: [('implementation-worker', 'implementation', 'baton.claude'), ('review-worker', 'review', 'baton.reviewer'), ('integration-worker', 'integration', 'baton.integrator'), ('implementation-worker-b', 'implementation', 'baton.second'), ('review-worker-b', 'review', 'baton.reviewer-2')]
+BINDINGS: [{'job_id': 'job-a', 'job_work_id': '0000000a-W1', 'review_work_id': '0000000a-W1', 'line_declared_base': 'f08932a81df379f4c28f087bfaa583ca62a23736', 'canonical_target_id': 'target-a', 'source_worker_id': 'implementation-worker'}, {'job_id': 'job-b', 'job_work_id': '0000000a-W2', 'review_work_id': '0000000a-W2', 'line_declared_base': '852a1892bd61bea0b323720586b9dc611e64a4c3', 'canonical_target_id': 'target-b', 'source_worker_id': 'implementation-worker-b'}]
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-four-jobs.py", line 18, in <module>
+    rows = authority._connection.execute(
+           ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Authority' object has no attribute '_connection'

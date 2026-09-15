@@ -1,0 +1,59 @@
+{
+ "author": "baton.claude",
+ "beyond_the_blocker": "the worker's acceptance, the ordinary child launch/exchange/ending, the member ended only on its real exclusion proof, accepted custody and adoption, and the admitted-child replay -- all need a Job that can reach its integration stage.",
+ "changed": [
+  {
+   "bytes": 72421,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "a345a417f76068da1301d38a1eaf131b1cf92db7746f19664ca61c4b5b5b80f2"
+  }
+ ],
+ "claim": 169839,
+ "composed_for_real": "operations_from over real Job and control stores with integration_preparation selected: Authority opened, profiles certified, workspace group configured, every worker composed, and the integration role's operations returned WRAPPED with a real ManagedPreparation. The same composition without the selection carries none.",
+ "exact_blocker": {
+  "error": "ProfileRefusal: Git line materialization failed: fatal: repository '/home/sl/src/baton/v12/python/v12-w71917-.../source' does not exist",
+  "preparations_started": 0,
+  "same_as": "the unattributed 13 tests.tools.test_stage_execution errors bound at claim169019",
+  "what_i_did_not_do": "stub the profile or build a second line materialization to get past it -- that would invent a fixture for another owner and make the resulting green say nothing about the real path",
+  "where": "driving the ordinary sweep on the selected deployment with a submitted Job, at TICK 1, before any integration stage exists",
+  "why_it_blocks": "it fires in the IMPLEMENTATION stage, so the Job never reaches integration and the managed path cannot be driven end to end in this tree. It is not caused by the managed branch, which never runs."
+ },
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "product_source_unchanged": [
+  {
+   "bytes": 296527,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "cc69d5d7c783b949bbaf0d7f6e9e427a4ecbb8abdc21b92825a414cfddbe85c0"
+  },
+  {
+   "bytes": 85232,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "45c840b1ab07ae9cf51d814f2c22e6524c0b1920571a22a45265d9c003740b76"
+  },
+  {
+   "bytes": 162808,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "1996f8fdc3df90cf67dc9f6636bcd079ff047e8bb2d96d873551a7bb903aefaf"
+  }
+ ],
+ "provenance_objection_closed": "the resolver holds THIS DEPLOYMENT'S OWN configured integration workload bytes and measures the apply digest from them -- a real configured document from a real composition, not the fixture bytes the unit cases supply. Closed by construction rather than by assertion.",
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 135 selected-deployment-composed /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle",
+  "no": "no engine, model, image build or destructive cleanup",
+  "result": "OK, 415 cases"
+ },
+ "what": "Checkpoint A attempted on a REAL selected deployment. It composes; the end-to-end traversal is blocked by a pre-existing defect, reported exactly rather than worked around.",
+ "work": "2b077949-W161230"
+}

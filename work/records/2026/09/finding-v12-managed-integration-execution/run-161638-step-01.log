@@ -1,0 +1,21 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.manager.test_reconciliation_worker
+E
+======================================================================
+ERROR: test_reconciliation_worker (unittest.loader._FailedTest.test_reconciliation_worker)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_reconciliation_worker
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 34, in <module>
+    from test_attempts import ATTEMPT, Adapter, Agent, AttemptCase   # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_attempts.py", line 41, in <module>
+    from . import input_roots
+ImportError: attempted relative import with no known parent package
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)

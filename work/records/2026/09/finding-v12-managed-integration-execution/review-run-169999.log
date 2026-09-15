@@ -1,0 +1,99 @@
+test_with_child_handler (__main__.ObserveChild.test_with_child_handler) ... {
+  "route_registered": true,
+  "observations": [
+    {
+      "sweep": 0,
+      "acts": [],
+      "completed_prepare_calls": 0
+    },
+    {
+      "sweep": 1,
+      "acts": [
+        {
+          "stage": "job-a/integration",
+          "act": "admit",
+          "outcome": "deferred",
+          "message": "the claim answer's generation is a whole assignment generation, counting from zero; this is none"
+        }
+      ],
+      "completed_prepare_calls": 0
+    },
+    {
+      "sweep": 2,
+      "acts": [
+        {
+          "stage": "job-a/integration",
+          "act": "admit",
+          "outcome": "deferred",
+          "message": "'0000000a-W47984398722361' is 'open'/'active' with handler 'baton.integrator' and gate none; an offer is issued only against open, queued, unclaimed, ungated Work"
+        }
+      ],
+      "completed_prepare_calls": 0
+    },
+    {
+      "sweep": 3,
+      "acts": [
+        {
+          "stage": "job-a/integration",
+          "act": "admit",
+          "outcome": "deferred",
+          "message": "'0000000a-W47984398722361' is 'open'/'active' with handler 'baton.integrator' and gate none; an offer is issued only against open, queued, unclaimed, ungated Work"
+        }
+      ],
+      "completed_prepare_calls": 0
+    }
+  ]
+}
+ok
+test_without_child_handler (__main__.ObserveChild.test_without_child_handler) ... {
+  "route_registered": false,
+  "observations": [
+    {
+      "sweep": 0,
+      "acts": [],
+      "completed_prepare_calls": 0
+    },
+    {
+      "sweep": 1,
+      "acts": [
+        {
+          "stage": "job-a/integration",
+          "act": "admit",
+          "outcome": "deferred",
+          "message": "the authority refused this claim: route 'integration-preparation' does not resolve to 'baton.integrator'"
+        }
+      ],
+      "completed_prepare_calls": 0
+    },
+    {
+      "sweep": 2,
+      "acts": [
+        {
+          "stage": "job-a/integration",
+          "act": "admit",
+          "outcome": "deferred",
+          "message": "offer 'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83\u2026 is already issued; its bearer existed only in the process that minted it, so this call cannot reproduce one and will not answer with a bearer that does not derive the stored verifier"
+        }
+      ],
+      "completed_prepare_calls": 0
+    },
+    {
+      "sweep": 3,
+      "acts": [
+        {
+          "stage": "job-a/integration",
+          "act": "admit",
+          "outcome": "deferred",
+          "message": "offer 'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83\u2026 is already issued; its bearer existed only in the process that minted it, so this call cannot reproduce one and will not answer with a bearer that does not derive the stored verifier"
+        }
+      ],
+      "completed_prepare_calls": 0
+    }
+  ]
+}
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.675s
+
+OK

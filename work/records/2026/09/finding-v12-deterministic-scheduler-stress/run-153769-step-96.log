@@ -1,0 +1,8 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155914.py
+before {"implementation": "completed", "integration": "blocked", "review": "queued"}
+allocations before {"attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e": ["job-b/implementation", "implementation-worker-b", "reserved"], "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": ["job-a/implementation", "implementation-worker", "reserved"]}
+reopened ok
+after reopen {"implementation": "completed", "integration": "blocked", "review": "waiting"}
+allocations after {"attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e": ["job-b/implementation", "implementation-worker-b", "reserved"], "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571": ["job-a/implementation", "implementation-worker", "released"], "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c": ["job-a/review", "review-worker", "reserved"]}
+same attempts kept: True
+review attempt attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c

@@ -1,0 +1,27 @@
+test_absent_authority_record_cannot_prove_the_named_cancellation (__main__.EvidenceAndRaceReview.test_absent_authority_record_cannot_prove_the_named_cancellation) ... FAIL
+test_committed_start_delayed_at_adapter_refuses_without_row_edits (__main__.EvidenceAndRaceReview.test_committed_start_delayed_at_adapter_refuses_without_row_edits) ... ok
+test_foreign_committed_intent_cannot_prove_this_attempt (__main__.EvidenceAndRaceReview.test_foreign_committed_intent_cannot_prove_this_attempt) ... FAIL
+test_stale_start_pre_read_loses_to_cancellation_axis (__main__.EvidenceAndRaceReview.test_stale_start_pre_read_loses_to_cancellation_axis) ... ok
+
+======================================================================
+FAIL: test_absent_authority_record_cannot_prove_the_named_cancellation (__main__.EvidenceAndRaceReview.test_absent_authority_record_cannot_prove_the_named_cancellation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-161686.py", line 29, in test_absent_authority_record_cannot_prove_the_named_cancellation
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_foreign_committed_intent_cannot_prove_this_attempt (__main__.EvidenceAndRaceReview.test_foreign_committed_intent_cannot_prove_this_attempt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-161686.py", line 47, in test_foreign_committed_intent_cannot_prove_this_attempt
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.020s
+
+FAILED (failures=2)

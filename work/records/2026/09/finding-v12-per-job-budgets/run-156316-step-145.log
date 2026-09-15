@@ -1,0 +1,24 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched
+FF
+======================================================================
+FAIL: test_a_reopened_serving_adopts_the_same_two_deliveries (tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched.test_a_reopened_serving_adopts_the_same_two_deliveries) (job='job-a')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2203, in _continues
+    self.assertEqual(len(self.starts_naming(one["attempt_id"])), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 3 != 1
+
+======================================================================
+FAIL: test_a_reopened_serving_adopts_the_same_two_deliveries (tests.tools.test_execution_limits.AReopenedServingKeepsBothJobsLaunchesUntouched.test_a_reopened_serving_adopts_the_same_two_deliveries) (job='job-b')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2203, in _continues
+    self.assertEqual(len(self.starts_naming(one["attempt_id"])), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 3 != 1
+
+----------------------------------------------------------------------
+Ran 1 test in 0.530s
+
+FAILED (failures=2)

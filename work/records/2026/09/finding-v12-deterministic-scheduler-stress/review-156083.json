@@ -1,0 +1,72 @@
+{
+  "work": "W103525",
+  "claim": 156083,
+  "prior_review_seconds": 38.43880415599301,
+  "review_cap_seconds": 300,
+  "candidate_before": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "55d809d6229890148baa157217c2b432b6defa4b34264bada65f9641d02cd048",
+      "bytes": 74359
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "1f945e88a9fc98a168897ecc2102399d3916fa1163c9fd6bf01c349314129dde",
+      "bytes": 193396
+    }
+  },
+  "runs": [
+    {
+      "name": "focused",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_composed_deployment_reopens_and_continues",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_same_line_correction_keeps_its_worker_and_not_its_session",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_lost_transport_ends_the_epoch_and_never_resumes"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 2.715843522999421,
+      "log": "review-156083-focused.log"
+    },
+    {
+      "name": "probe",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-156083.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 2.215907396000148,
+      "log": "review-156083-probe.log"
+    },
+    {
+      "name": "launch-owner-answer",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-156083-launch.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.7650490879996141,
+      "log": "review-156083-launch.log"
+    }
+  ],
+  "note": "Scripted providers only; existing jsonschema gap retained; subprocess wall time only; reads and evidence edits unmeasured.",
+  "review_spent_seconds": 45.135604162992195,
+  "review_remaining_seconds": 254.8643958370078,
+  "candidate_after": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "55d809d6229890148baa157217c2b432b6defa4b34264bada65f9641d02cd048",
+      "bytes": 74359
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "1f945e88a9fc98a168897ecc2102399d3916fa1163c9fd6bf01c349314129dde",
+      "bytes": 193396
+    }
+  },
+  "candidate_unchanged": true
+}

@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "seconds": 16.779572244005976,
+  "exit": 0,
+  "timed_out": false,
+  "signals": [],
+  "limits_seconds": [
+    60,
+    5,
+    5
+  ]
+}

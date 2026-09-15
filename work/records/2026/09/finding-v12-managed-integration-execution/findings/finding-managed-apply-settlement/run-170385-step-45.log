@@ -1,0 +1,50 @@
+.F
+======================================================================
+FAIL: test_target_drift_after_admission_prevents_start (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_target_drift_after_admission_prevents_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 58, in test_target_drift_after_admission_prevents_start
+    self.complete(denied="target")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 369, in complete
+    case.complete(configured=configure, completed=adopted, base_harness=body)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2619, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 274, in adopted
+    reports.append(sweep(held.job, held.composed, now=fixtures.NOW))
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 160, in sweep
+    started = _launch(store, operations, projection.stage_states(store,
+                                                                 operations))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 340, in _launch
+    answer = operations.launch(attempt, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4286, in launch
+    return self.integrator.run(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2477, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2622, in _run
+    return self.managed(stage, job)
+           ~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2506, in managed
+    return self.apply_managed(stage, job, result, repository, operations)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2570, in apply_managed
+    admit_integration_execution(deployment.jobs, deployment.control, orchestration_id=result_id, phase="apply",
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                execution_attempt_id=attempt, assignment=fixed, coordinator=deployment.integration,
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                authorization=authorization, grant=grant)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 248, in after_admission
+    self.assertEqual(_git_run(["git", "--git-dir=" + deployment.given["integration_target"], "update-ref", "refs/heads/main", prepared["derived_candidate"]["revision"], world.base])["returncode"], 0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 128 != 0
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.249s
+
+FAILED (failures=1)
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:5c208c9fbca7904fda5bab5a185c0c7dd3b4837275481f9ea3bf6d1727b91d9a", "root": "open", "runtime": "destroyed", "worker_exit": 0}

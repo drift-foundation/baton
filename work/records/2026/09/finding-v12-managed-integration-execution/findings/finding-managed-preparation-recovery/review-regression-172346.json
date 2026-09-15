@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_ordinary_sweeps_retain_and_adopt_one_real_preparation",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_unexpected_pre_intent_fault_recovers_the_held_allocation",
+    "tests.job_manager.test_managed_integration_capacity"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "seconds": 2.765816930012079,
+  "exit": 0,
+  "timed_out": false,
+  "signals": [],
+  "limits_seconds": [
+    60,
+    5,
+    5
+  ]
+}

@@ -1,0 +1,27 @@
+.F....................................................F.................
+======================================================================
+FAIL: test_ordinary_retained_custody_materializes_without_execution_roots (tests.tools.test_managed_apply.ThePreparationHandoffRetainsItsGitObjects.test_ordinary_retained_custody_materializes_without_execution_roots)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 35, in test_ordinary_retained_custody_materializes_without_execution_roots
+    case.complete(completed=adopted)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2558, in complete
+    self.assertTrue(preparation.adopted, (failures[:3], failures[-1:], logs, last))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {} is not true : (['ContractRefusal("stage \'job-a/integration\' is preparing under orchestration \'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83…; the parent offer is not issued while the same actor holds this reservation\'s preparation, and this admit stays owed")', 'ContractRefusal("stage \'job-a/integration\' is preparing under orchestration \'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83…; the parent offer is not issued while the same actor holds this reservation\'s preparation, and this admit stays owed")', 'ContractRefusal("stage \'job-a/integration\' is preparing under orchestration \'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83…; the parent offer is not issued while the same actor holds this reservation\'s preparation, and this admit stays owed")'], ["ContractRefusal('the document nests deeper than the frozen limit of 8; a shape this boundary refuses to own may not acquire a digest either')"], [''], {'observed_at': '2026-09-02T00:00:00.000Z', 'recovered': None, 'observed': 0, 'replaced': [], 'acts': [{'stage_id': 'job-a/integration', 'episode': 1, 'act': 'admit', 'outcome': 'deferred', 'operation_id': 'offer.issue:offer-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0', 'detail': {'category': 'integrity', 'code': 'schema', 'message': 'the document nests deeper than the frozen limit of 8; a shape this boundary refuses to own may not acquire a digest either'}}], 'started': [], 'spoken': [], 'refreshed': [{'stage_id': 'job-a/implementation', 'episode': 1, 'attempt_id': 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571', 'state': 'not-asked'}, {'stage_id': 'job-a/review', 'episode': 1, 'attempt_id': 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'state': 'not-asked'}, {'stage_id': 'job-a/integration', 'episode': 1, 'attempt_id': 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0', 'state': 'not-asked'}]})
+
+======================================================================
+FAIL: test_an_unjournalled_state_transition_refuses (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_an_unjournalled_state_transition_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 975, in test_an_unjournalled_state_transition_refuses
+    self.assertIn("no committed act for", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'no committed act for' not found in "the managed result's current fields differ from its committed transition chain"
+
+----------------------------------------------------------------------
+Ran 72 tests in 6.228s
+
+FAILED (failures=2)
+{"derived_revision": "71da07c6d38ecff486ff91cb56ee67b52b69f72b", "derived_tree": "e75b85b6c985a0cf4eacad6cfff393915e79c11e", "git_mode": "100755", "proof": "exact-preparation-object-export", "scratch_gone": true}

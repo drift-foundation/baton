@@ -1,0 +1,26 @@
+test_a_host_verification_that_exceeds_it_defers_and_publishes_nothing (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_host_verification_that_exceeds_it_defers_and_publishes_nothing)
+THE BOUNDED FAILURE, through the composed owners. ... ok
+test_a_repeated_tick_after_that_runs_no_second_command (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_repeated_tick_after_that_runs_no_second_command)
+NO DUPLICATE WORK after observation. The causal observations are ... ok
+test_the_composed_causal_owner_runs_under_the_jobs_ceiling (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_composed_causal_owner_runs_under_the_jobs_ceiling)
+The reconciled path drives the causal observer over three content ... ok
+test_a_foreign_job_is_refused_on_the_read_only_path_too (tests.tools.test_execution_limits.TheReadOnlyObservationReproducesAConfiguredLaunch.test_a_foreign_job_is_refused_on_the_read_only_path_too)
+A status pass over a stage naming a Job this store does not hold is ... ok
+test_a_missing_context_is_refused_on_the_read_only_path_too (tests.tools.test_execution_limits.TheReadOnlyObservationReproducesAConfiguredLaunch.test_a_missing_context_is_refused_on_the_read_only_path_too) ... ok
+test_both_compositions_resolve_the_same_bytes (tests.tools.test_execution_limits.TheReadOnlyObservationReproducesAConfiguredLaunch.test_both_compositions_resolve_the_same_bytes)
+The whole point of the observation: identical inputs, identical ... ok
+test_the_observation_reads_and_repairs_nothing (tests.tools.test_execution_limits.TheReadOnlyObservationReproducesAConfiguredLaunch.test_the_observation_reads_and_repairs_nothing)
+A read-only path stays read-only: resolving a Job's configuration ... ok
+test_a_delivery_that_is_not_a_document_is_refused (tests.tools.test_execution_limits.TwoJobsCeilingsDoNotLeakIntoEachOther.test_a_delivery_that_is_not_a_document_is_refused) ... ok
+test_a_turn_with_no_delivery_between_two_bound_ones (tests.tools.test_execution_limits.TwoJobsCeilingsDoNotLeakIntoEachOther.test_a_turn_with_no_delivery_between_two_bound_ones)
+The legacy delivery keeps the image default and does not inherit the ... ok
+test_each_turn_is_bound_by_its_own_delivery (tests.tools.test_execution_limits.TwoJobsCeilingsDoNotLeakIntoEachOther.test_each_turn_is_bound_by_its_own_delivery) ... ok
+test_the_adapter_holds_nothing_after_the_last_turn (tests.tools.test_execution_limits.TwoJobsCeilingsDoNotLeakIntoEachOther.test_the_adapter_holds_nothing_after_the_last_turn)
+And it keeps nothing afterwards: a turn's delivery is restored, so a ... ok
+test_a_second_turn_under_the_same_delivery_duplicates_nothing (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_a_second_turn_under_the_same_delivery_duplicates_nothing)
+REPLAY, with the configured context in it. The attempt already ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 4.413s
+
+OK

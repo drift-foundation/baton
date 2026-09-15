@@ -1,0 +1,37 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.manager.test_reconciliation_task
+.......FFF...........
+======================================================================
+FAIL: test_a_command_this_workload_does_not_run_is_refused (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_a_command_this_workload_does_not_run_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 331, in test_a_command_this_workload_does_not_run_is_refused
+    self.assertIn("this workload runs", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'this workload runs' not found in 'the combined state has no harness.py to pin; its status measured something else'
+
+======================================================================
+FAIL: test_a_cut_sequence_keeps_its_prefix_and_names_its_suffix (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_a_cut_sequence_keeps_its_prefix_and_names_its_suffix)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 260, in test_a_cut_sequence_keeps_its_prefix_and_names_its_suffix
+    self.assertEqual(report["kind"], "collected-without-status")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'measured' != 'collected-without-status'
+- measured
++ collected-without-status
+
+
+======================================================================
+FAIL: test_a_genuine_base_failure_is_a_real_integer (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_a_genuine_base_failure_is_a_real_integer)
+A base that fails BECAUSE the fix is absent is positive evidence,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 247, in test_a_genuine_base_failure_is_a_real_integer
+    self.assertEqual(report["status"], 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 21 tests in 1.093s
+
+FAILED (failures=3)

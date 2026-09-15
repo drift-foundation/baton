@@ -1,0 +1,93 @@
+{
+  "adapter_owners": [
+    "_mounted",
+    "_credential (delivery or OrphanTeardown)",
+    "_adopted (launch.adopt)"
+  ],
+  "changed_this_claim": [
+    {
+      "bytes": 97142,
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "sha256": "870656c0761d056310e5c846d163f95fc1273e987f3ce01ad1523ea09a7d3491",
+      "target_mode": "0o644"
+    },
+    {
+      "bytes": 312396,
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "sha256": "41a626f1cc52f45121e2c1c1424fd3fa3cf5fac6d6f2154924ca58974f8d61fe",
+      "target_mode": "0o664"
+    },
+    {
+      "bytes": 129945,
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "1f15c89730fe5fce6f1a2ee8e93cc9715342600c56a2a11b1a400a7accdd03f4",
+      "target_mode": "0o644"
+    }
+  ],
+  "claim": 172393,
+  "consumes_review": "review-2026-09-14T21-34-01Z.md",
+  "corrected": [
+    "an observing adapter was used for a destructive ending, leaving both delivery roots",
+    "the uncertain path continued past owed-restart, and then fell through into the pre-intent raise",
+    "the first restart case proved nothing; the reversal caught it"
+  ],
+  "generic_owners_modified": [],
+  "not_reclaimed": "the 13 pre-existing test_stage_execution errors were not re-baselined this claim",
+  "prior_candidate": "candidate-172286.json",
+  "prior_verified_unchanged": true,
+  "product_change": true,
+  "reversals": [
+    {
+      "result": "1 fail",
+      "reversal": "observing adapter restored",
+      "step": "24"
+    },
+    {
+      "result": "1 fail",
+      "reversal": "launch delivery not adopted",
+      "step": "25"
+    },
+    {
+      "result": "1 fail",
+      "reversal": "credential delivery/orphan not recovered",
+      "step": "26"
+    },
+    {
+      "result": "PASSES; the case proved nothing",
+      "reversal": "failed-start restart removed (before the fix)",
+      "step": "27"
+    },
+    {
+      "result": "1 fail",
+      "reversal": "failed-start restart removed (after the fix)",
+      "step": "29"
+    }
+  ],
+  "runs": [
+    {
+      "checks": 452,
+      "label": "delivery-teardown-and-proved-restart",
+      "result": "OK",
+      "step": "30",
+      "supervisor_seconds": 49.152209739986574
+    }
+  ],
+  "spending": {
+    "ledger_rows": 30,
+    "ledger_seconds": 919.4569689099153
+  },
+  "still_owed": [
+    "genuinely inconclusive observation with preserved holds",
+    "partial delivery recovery",
+    "root/plan/profile/Job negatives",
+    "on-disk identity/task/manifest/digest/length/source/harness and custody negatives",
+    "missing blobs, symlink/escape, frozen-only, missing/quarantined intake",
+    "causal combined/base/isolated and limits",
+    "two-Job isolation and defaults/overrides",
+    "cancellation/refusal, leader-first, TERM-resistant ordinary cleanup",
+    "direct/legacy evidence",
+    "finite acceptance matrix",
+    "DEPLOYMENT-SLICE2-DRAFT.md"
+  ],
+  "work": "W170382"
+}

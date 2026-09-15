@@ -1,0 +1,107 @@
+{
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 70627,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "eb86c310365a7f083544b6488883f5f3ba0459a7635d9654e1349792180cf221"
+  },
+  {
+   "bytes": 278874,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "63fd8c59b62beffdae3f4474c8f788a1d80fa35fea94c41d4c04bea174e52d67"
+  },
+  {
+   "bytes": 158551,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "88aace0104a6ef77e25e3a497bddc0d08666f746a8559e0f6bf8c42909828bf9"
+  },
+  {
+   "bytes": 32310,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "8067e75137b59be373c1d20eb5d0649b70e3d134c737c367f427950d06d31807"
+  }
+ ],
+ "claim": 168895,
+ "corrections_accepted": {
+  "guard": "patch.object replaces module attributes, not references captured before patching or pre-existing class bases. The docstring now says what it actually intercepts and turns the gap into an ordering requirement for A.5. The branch-absence assertion that would have made success fail is replaced by the legacy-branch invariant.",
+  "placement": "reconciled is too late -- manager._launch drives only claimed stages, so the parent already holds this principal's one Authority slot. The seam is PooledManagerOperations.admit, reached by wrapping the operations _integration_operations composes."
+ },
+ "honestly_partial": "no deployment composes ManagedPreparation.operands yet, so the managed path is reachable and unselected: what is proved is the ORDER and the deferral, not a preparation a deployment actually ran.",
+ "next": "resolve the operands in stage_execution from the accepted checkpoint/proposal and the Job's limits; drive the child launch through single_worker.worker_operations and the ending through _SingleWorker.ending (delegation.conclude calls that owner); end the member only on its real exclusion proof; then adopt_prepared_candidate. Then A.5 inside the armed guard, then B.",
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "pre_existing_not_mine": {
+  "test_stage_execution": "13 errors, identical failing set with and without the wrapper (diff clean). Pre-existing in this working tree from other in-flight Works.",
+  "whitespace": "stage_execution.py:1909 trailing whitespace, inside a pre-existing uncommitted hunk far from my edit; my own hunk is clean."
+ },
+ "reversal_that_failed_nothing": "step 91 replaced the deferral with `return None` -- the exact integrity fault _delegate treats a receipt-less success as -- and failed NO test, because the four wrapper cases were transparency plus two refusals that never reach the deferral. An end-to-end case on the real Authority fixture now drives it; the repeat at step 93 failed exactly that case.",
+ "unchanged": [
+  {
+   "bytes": 191339,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+  },
+  {
+   "bytes": 94098,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+   "sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a"
+  },
+  {
+   "bytes": 71269,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_bundle.py",
+   "sha256": "c0e21cd6b335db084e64499f508a7cc19fd45807d3bd4a81108239806c106a93"
+  },
+  {
+   "bytes": 50721,
+   "mode": "0o644",
+   "path": "baton:v12/worker/reconciliation_task.py",
+   "sha256": "69860bdfdc63e5144db973ddd70c7b101bde707ba97c8c99779b3ae6ce992eb6"
+  },
+  {
+   "bytes": 10442,
+   "mode": "0o644",
+   "path": "baton:v12/worker/reconciliation_entry.py",
+   "sha256": "4b4e43879d76250b7745ff89e9df1eb9d7656cc0c096f1adf1feaf56c3114fc0"
+  },
+  {
+   "bytes": 4725,
+   "mode": "0o644",
+   "path": "baton:v12/worker/Dockerfile.reconciliation",
+   "sha256": "35279f5dcaa6c2c3b44df7e10aa491a35f92e1933d0b3d06bb6e61bc87f021d3"
+  }
+ ],
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 94 restored /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation",
+  "no": "no engine, model, image build, broad suite or destructive cleanup",
+  "steps": {
+   "90": "first green with the wrapper, OK 269 cases 13.218125s",
+   "91": "REVERSAL -- drop the deferral; FAILED NOTHING, reported as the defect it is",
+   "92": "green with the end-to-end deferral case, OK 270 cases",
+   "93": "REVERSAL repeated; failed exactly test_the_wrapper_admits_preparation_and_defers_the_parent",
+   "94": "restored, OK 270 cases 13.219s"
+  }
+ },
+ "what": "The reserved-before-parent-offer admission wrapper, wired at the seam review claim168871 corrected me to, with both of that review's corrections applied.",
+ "wired": [
+  "PreparationAdmission -- transparent until a deployment selects preparation; forwards every other act by attribute",
+  "ManagedPreparation -- allocation from its own owner, capacity root and two-phase plan registered against it, PreparationExecution through admission, then a NONDURABLE refusal deferring the parent with no receipt",
+  "the apply member names the parent's own episode-minted identities",
+  "an already-claimed parent refuses managed conversion"
+ ],
+ "work": "2b077949-W161230"
+}

@@ -1,0 +1,22 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace
+....................................F........................................................................................................
+======================================================================
+FAIL: test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens)
+THE FIRST BOUNDED SCHEDULE, A BEFORE C.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2363, in test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens
+    self.assertEqual(scheduler_trace.validate(trace.artifact(SOURCES)), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'code': 'successor-before-prerequisite',[2346 chars]ne}}] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+{'code': 'successor-before-prerequisite', 'detail': 'job-a/review was reserved before job-a/implementation completed', 'record': {'tick': 1, 'job_id': 'job-a', 'stage_id': 'job-a/review', 'episode': 1, 'attempt_id': 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'act': 'reserve', 'outcome': 'performed', 'worker_id': 'review-worker', 'participant': None, 'principal': 'principal:baton.reviewer', 'operation_id': 'allocation.reserve:attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'runtime_id': None, 'session_id': None, 'evidence': 'allocations:attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'cause': None, 'recorded_at': None, 'session': None, 'correction': None, 'completion': None, 'authorization': None}}
+
+Diff is 3286 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 141 tests in 11.959s
+
+FAILED (failures=1)

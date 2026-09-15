@@ -1,0 +1,89 @@
+{
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 185452,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "c92f4c5a29c6cf4740263ce505f4f1e75b19c7542561f86d84b7e2280310d0f1"
+  },
+  {
+   "bytes": 88867,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+   "sha256": "946a12df6f03917206f9faa2c924b494df0f2af852c07289604efbfa33ed936f"
+  },
+  {
+   "bytes": 147019,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "b57ca7b7fec5236b4172fd3331432510e0c0b54e0375ba4471347514fcb7602c"
+  }
+ ],
+ "claim": 168541,
+ "modes": {
+  "reconciliation.py": "0o664 UNCHANGED -- SLICE2-BASELINE-165724.json records 0o664 for this path and its sibling modules in that directory carry the same. No mode was set by this claim."
+ },
+ "next": "the StageExecution managed branch consuming adopt_prepared_candidate while preserving direct/legacy; then A.5 real worker fixture process with the coordinator-host trap; then B including the claim168490 retry gap and DEPLOYMENT-SLICE2-DRAFT.md.",
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "unchanged": [
+  {
+   "bytes": 62394,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "5cb3e461d2a041824ea42718fa7cf93c95d8df4172b2348878912cbd867d8e06"
+  },
+  {
+   "bytes": 50721,
+   "mode": "0o644",
+   "path": "baton:v12/worker/reconciliation_task.py",
+   "sha256": "69860bdfdc63e5144db973ddd70c7b101bde707ba97c8c99779b3ae6ce992eb6"
+  },
+  {
+   "bytes": 10442,
+   "mode": "0o644",
+   "path": "baton:v12/worker/reconciliation_entry.py",
+   "sha256": "4b4e43879d76250b7745ff89e9df1eb9d7656cc0c096f1adf1feaf56c3114fc0"
+  },
+  {
+   "bytes": 4725,
+   "mode": "0o644",
+   "path": "baton:v12/worker/Dockerfile.reconciliation",
+   "sha256": "35279f5dcaa6c2c3b44df7e10aa491a35f92e1933d0b3d06bb6e61bc87f021d3"
+  },
+  {
+   "bytes": 71269,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_bundle.py",
+   "sha256": "c0e21cd6b335db084e64499f508a7cc19fd45807d3bd4a81108239806c106a93"
+  },
+  {
+   "bytes": 23259,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "96c622d96855fc4aa81001563d99cfb4b131439baaf58d8bae0e2452073786bb"
+  }
+ ],
+ "unfinished_in_a4": "StageExecution does not yet consume the adoption. Integration.reconciled still fetches into a coordinator workspace and runs _CausalObserver on the host; the managed branch routing away from host preparation is unwritten.",
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 82 restored /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation",
+  "ledger": "baton:work/records/2026/09/finding-v12-managed-integration-execution/ledger-166281-prospective.json",
+  "no": "no engine, model, image build, broad suite or destructive cleanup",
+  "steps": {
+   "79": "first green with the adoption owner and its cases, OK 258 cases 13.113653s",
+   "80": "REVERSAL -- drop the length/digest weighing in _measured_body; failed exactly test_the_report_bytes_are_weighed_against_custody",
+   "81": "REVERSAL -- drop the requested-versus-measured harness comparison; failed exactly test_a_preparation_that_ran_another_harness_refuses",
+   "82": "restored, OK 258 cases 13.046235s"
+  }
+ },
+ "what": "A.4 OWNER HALF: reconciliation.adopt_prepared_candidate adopts the collected preparation through capacity, Worker Manager custody and the committed request, weighing the report's bytes against custody and comparing the requested harness with the one actually run.",
+ "work": "2b077949-W161230"
+}

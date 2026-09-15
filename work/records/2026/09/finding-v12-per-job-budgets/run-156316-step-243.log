@@ -1,0 +1,26 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/provenance-160341.py
+{
+ "head_revision": "f3fc9e12cc89bebf9524cd173103df7af67d5212",
+ "paths": 29,
+ "new_paths_untracked_at_head": [
+  "v12/python/src/baton_v12/job_manager/execution_limits.py",
+  "v12/python/tests/job_manager/execution_limits_fixtures/PROVENANCE.md",
+  "v12/python/tests/job_manager/execution_limits_fixtures/golden-schema4.sqlite3",
+  "v12/python/tests/job_manager/test_execution_limits.py",
+  "v12/python/tests/manager/test_execution_limits.py",
+  "v12/python/tests/tools/test_execution_limits.py"
+ ],
+ "tracked_modified_paths": 23,
+ "tracked_unmodified_paths": [],
+ "missing_from_worktree": [],
+ "tracked_modified_added_lines": 2569,
+ "tracked_modified_removed_lines": 132,
+ "tracked_modified_zero_context_hunks": 156,
+ "new_path_bytes": 423727,
+ "candidate_changed_since_160261": [
+  "v12/python/DEPLOYMENT.md",
+  "v12/python/tests/tools/test_execution_limits.py",
+  "v12/python/tools/stage_execution.py"
+ ],
+ "base_changed_since_160261": []
+}

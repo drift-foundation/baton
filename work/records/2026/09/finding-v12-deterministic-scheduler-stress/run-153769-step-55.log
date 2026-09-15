@@ -1,0 +1,14 @@
+### label: team-matrix-export
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154186-composed.py"]
+### exit: 0
+### elapsed_seconds: 1.236840
+### STDOUT
+wrote /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154186-composed.json
+composed-accepted-review violations: 0 acts: [('job-a/implementation', 'claim'), ('job-a/implementation', 'complete'), ('job-a/implementation', 'offer'), ('job-a/implementation', 'release'), ('job-a/implementation', 'reserve'), ('job-a/implementation', 'start'), ('job-a/review', 'claim'), ('job-a/review', 'complete'), ('job-a/review', 'offer'), ('job-a/review', 'reserve'), ('job-a/review', 'start')]
+composed-correction violations: 0 acts: [('job-a/implementation', 'claim'), ('job-a/implementation', 'complete'), ('job-a/implementation', 'offer'), ('job-a/implementation', 'release'), ('job-a/implementation', 'reserve'), ('job-a/implementation', 'start'), ('job-a/review', 'claim'), ('job-a/review', 'offer'), ('job-a/review', 'release'), ('job-a/review', 'reserve'), ('job-a/review', 'start')]
+composed-two-repository-bindings violations: 0 acts: []
+composed-wrong-repository-refusal violations: 0 acts: [(None, 'submit')]
+composed-second-team-matrix violations: 0 acts: [(None, 'submit')]
+
+### STDERR

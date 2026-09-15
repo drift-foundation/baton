@@ -1,0 +1,62 @@
+{
+  "budget_clock": {
+    "remaining": 958.6736743010115,
+    "winner": {
+      "charged": 241.3263256989885,
+      "kind": "whole-run",
+      "limit": 1200,
+      "remaining": 958.6736743010115
+    }
+  },
+  "exceptional_stops": [],
+  "expired_budget": {
+    "active": true,
+    "assignment": {
+      "generation": 1,
+      "participant": "baton.synthetic-impl-a",
+      "work_ref": {
+        "authority_uuid": "58c62895a8d9464192a6d303e5553489",
+        "work_id": "58c62895-W1"
+      }
+    },
+    "charged": 240.18159008026123,
+    "end": 1789224827.26359,
+    "ending": null,
+    "excluded": 0.0,
+    "exclusions": [],
+    "kind": "attempt",
+    "limit": 240,
+    "name": "a",
+    "paused": false,
+    "remaining": -0.18159008026123047,
+    "start": 1789224587.082
+  },
+  "failure": "BudgetExpired: approved deadline reached: attempt",
+  "initial": {
+    "source": {
+      "commit": "39d7cbc809184b115c38e51f8262aa340d5a0835",
+      "path": "/tmp/baton-synthetic-ab-5f9zjyfc/source",
+      "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+    },
+    "target": {
+      "commit": "39d7cbc809184b115c38e51f8262aa340d5a0835",
+      "path": "/tmp/baton-synthetic-ab-5f9zjyfc/target",
+      "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+    }
+  },
+  "live_provider": false,
+  "ordinary_operator_transitions": 0,
+  "provider": "synthetic standalone-ab-v1",
+  "started_at": "2026-09-12T14:49:45.755869+00:00",
+  "stats_observations": {
+    "available": 0,
+    "coverage": "sampled command output only; gaps are not measurements or lifecycle results",
+    "gaps": [],
+    "not-requested": 204,
+    "truncated_samples": [],
+    "unavailable": 0
+  },
+  "submitted": true,
+  "terminal_both": false,
+  "wall_seconds": 241.82697641299455
+}

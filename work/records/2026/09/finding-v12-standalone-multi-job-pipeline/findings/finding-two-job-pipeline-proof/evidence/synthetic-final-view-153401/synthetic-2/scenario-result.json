@@ -1,0 +1,8 @@
+{
+  "failure": "RuntimeError: source changed or final target is dirty",
+  "live_provider": false,
+  "provider": "synthetic standalone-ab-v1",
+  "root": "/home/sl/.local/state/baton/v12/synthetic-ab-2",
+  "setup_seconds": 0.21600123500684276,
+  "total_seconds": 18.794468152016634
+}

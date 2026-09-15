@@ -1,0 +1,586 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.manager.test_reconciliation_task
+........EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE.E..E..
+======================================================================
+ERROR: test_a_base_without_a_preceding_combined_state_refuses (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_a_base_without_a_preceding_combined_state_refuses)
+The carry has no source, and the base's own file is not a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 360, in setUp
+    for name in task.CAUSAL_ORDER:
+                ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_combined_state_with_no_harness_refuses (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_a_combined_state_with_no_harness_refuses)
+Its status measured something else, and carrying nothing forward
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 360, in setUp
+    for name in task.CAUSAL_ORDER:
+                ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_command_this_workload_does_not_run_is_refused (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_a_command_this_workload_does_not_run_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 360, in setUp
+    for name in task.CAUSAL_ORDER:
+                ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_cut_phase_is_not_counted_as_never_having_run (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_a_cut_phase_is_not_counted_as_never_having_run)
+CORRECTED UNDER STANDING TEST AUTHORITY (review claim166129 defect
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 360, in setUp
+    for name in task.CAUSAL_ORDER:
+                ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_genuine_base_failure_is_a_real_integer (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_a_genuine_base_failure_is_a_real_integer)
+A base that fails BECAUSE the fix is absent is positive evidence,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 360, in setUp
+    for name in task.CAUSAL_ORDER:
+                ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_passing_sequence_is_measured_with_no_suffix (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_a_passing_sequence_is_measured_with_no_suffix)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 360, in setUp
+    for name in task.CAUSAL_ORDER:
+                ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_nothing_observed_at_all_is_its_own_answer (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_nothing_observed_at_all_is_its_own_answer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 360, in setUp
+    for name in task.CAUSAL_ORDER:
+                ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_the_base_is_measured_with_the_combined_harness (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_the_base_is_measured_with_the_combined_harness)
+`_CausalObserver`'s rule, held here: the base predates the test the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 360, in setUp
+    for name in task.CAUSAL_ORDER:
+                ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_the_report_claims_nothing_about_collection (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_the_report_claims_nothing_about_collection)
+A workload cannot say its output was frozen, taken into custody or
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 360, in setUp
+    for name in task.CAUSAL_ORDER:
+                ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_broken_limits_document_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_broken_limits_document_refuses_in_both)
+The Job's OWN resolved configuration. The worker checks the kind of
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 214, in test_a_broken_limits_document_refuses_in_both
+    limits = _request()["execution_limits"]
+             ~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_command_this_workload_does_not_run_refuses (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_command_this_workload_does_not_run_refuses) (commands=['combined', 'publish'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 238, in test_a_command_this_workload_does_not_run_refuses
+    task.read_request(self.written(_corrupted(commands=wrong)))
+                                   ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 68, in _corrupted
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_command_this_workload_does_not_run_refuses (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_command_this_workload_does_not_run_refuses) (commands=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 238, in test_a_command_this_workload_does_not_run_refuses
+    task.read_request(self.written(_corrupted(commands=wrong)))
+                                   ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 68, in _corrupted
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_command_this_workload_does_not_run_refuses (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_command_this_workload_does_not_run_refuses) (commands=['base', 'base'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 238, in test_a_command_this_workload_does_not_run_refuses
+    task.read_request(self.written(_corrupted(commands=wrong)))
+                                   ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 68, in _corrupted
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_digest_form_the_manager_permits_is_not_refused_here (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_digest_form_the_manager_permits_is_not_refused_here)
+THE MIRRORED HALF OF DEFECT 1. The manager reads digests through
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 168, in test_a_digest_form_the_manager_permits_is_not_refused_here
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_missing_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_missing_member_refuses_in_both) (member='schema')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 187, in test_a_missing_member_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_missing_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_missing_member_refuses_in_both) (member='orchestration_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 187, in test_a_missing_member_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_missing_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_missing_member_refuses_in_both) (member='canonical_target_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 187, in test_a_missing_member_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_missing_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_missing_member_refuses_in_both) (member='job_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 187, in test_a_missing_member_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_missing_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_missing_member_refuses_in_both) (member='line_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 187, in test_a_missing_member_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_missing_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_missing_member_refuses_in_both) (member='source_proposal_id')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 187, in test_a_missing_member_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_missing_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_missing_member_refuses_in_both) (member='source')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 187, in test_a_missing_member_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_missing_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_missing_member_refuses_in_both) (member='authority')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 187, in test_a_missing_member_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_missing_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_missing_member_refuses_in_both) (member='harness_digest')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 187, in test_a_missing_member_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_missing_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_missing_member_refuses_in_both) (member='profile_digest')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 187, in test_a_missing_member_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_missing_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_missing_member_refuses_in_both) (member='input_digest')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 187, in test_a_missing_member_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_missing_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_missing_member_refuses_in_both) (member='execution_limits')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 187, in test_a_missing_member_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_missing_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_missing_member_refuses_in_both) (member='commands')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 187, in test_a_missing_member_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_real_producer_document_is_accepted_by_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_real_producer_document_is_accepted_by_both)
+The agreement, in the direction that matters most: the worker must
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 159, in test_a_real_producer_document_is_accepted_by_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_revision_expression_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_revision_expression_refuses_in_both) (member='base', value='HEAD~1')
+A preparation is about an immutable snapshot: `HEAD~1` and a branch
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 205, in test_a_revision_expression_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_revision_expression_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_revision_expression_refuses_in_both) (member='base', value='main')
+A preparation is about an immutable snapshot: `HEAD~1` and a branch
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 205, in test_a_revision_expression_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_revision_expression_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_revision_expression_refuses_in_both) (member='base', value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+A preparation is about an immutable snapshot: `HEAD~1` and a branch
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 205, in test_a_revision_expression_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_revision_expression_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_revision_expression_refuses_in_both) (member='base', value=None)
+A preparation is about an immutable snapshot: `HEAD~1` and a branch
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 205, in test_a_revision_expression_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_revision_expression_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_revision_expression_refuses_in_both) (member='candidate', value='HEAD~1')
+A preparation is about an immutable snapshot: `HEAD~1` and a branch
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 205, in test_a_revision_expression_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_revision_expression_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_revision_expression_refuses_in_both) (member='candidate', value='main')
+A preparation is about an immutable snapshot: `HEAD~1` and a branch
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 205, in test_a_revision_expression_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_revision_expression_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_revision_expression_refuses_in_both) (member='candidate', value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+A preparation is about an immutable snapshot: `HEAD~1` and a branch
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 205, in test_a_revision_expression_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_revision_expression_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_revision_expression_refuses_in_both) (member='candidate', value=None)
+A preparation is about an immutable snapshot: `HEAD~1` and a branch
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 205, in test_a_revision_expression_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_revision_expression_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_revision_expression_refuses_in_both) (member='target_revision', value='HEAD~1')
+A preparation is about an immutable snapshot: `HEAD~1` and a branch
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 205, in test_a_revision_expression_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_revision_expression_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_revision_expression_refuses_in_both) (member='target_revision', value='main')
+A preparation is about an immutable snapshot: `HEAD~1` and a branch
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 205, in test_a_revision_expression_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_revision_expression_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_revision_expression_refuses_in_both) (member='target_revision', value='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+A preparation is about an immutable snapshot: `HEAD~1` and a branch
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 205, in test_a_revision_expression_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_a_revision_expression_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_revision_expression_refuses_in_both) (member='target_revision', value=None)
+A preparation is about an immutable snapshot: `HEAD~1` and a branch
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 205, in test_a_revision_expression_refuses_in_both
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_an_extra_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_an_extra_member_refuses_in_both)
+The manager rebuilds a request through its own composer, so a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 195, in test_an_extra_member_refuses_in_both
+    _, worker = self.assertBothRefuse(_corrupted(extra="member"),
+                                      ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 68, in _corrupted
+    held = _request()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+======================================================================
+ERROR: test_the_request_is_not_read_through_a_symlink (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_the_request_is_not_read_through_a_symlink)
+A link out of the input namespace would let the document that
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 245, in test_the_request_is_not_read_through_a_symlink
+    json.dump(_request(), handle)
+              ~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 81, in _request
+    return json.loads(json.dumps(_producer_request(**changed)))
+                                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 55, in _producer_request
+    "commands": list(task.CAUSAL_ORDER)}
+                     ^^^^^^^^^^^^^^^^^
+AttributeError: module 'reconciliation_task' has no attribute 'CAUSAL_ORDER'
+
+----------------------------------------------------------------------
+Ran 30 tests in 1.016s
+
+FAILED (errors=42)

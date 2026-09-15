@@ -1,0 +1,35 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_judgment_subject_is_the_derived_candidate
+E
+======================================================================
+ERROR: test_the_judgment_subject_is_the_derived_candidate (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_judgment_subject_is_the_derived_candidate)
+W103068: WHAT A JUDGE IS ASKED ABOUT, read from the coordinator's own
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7424, in test_the_judgment_subject_is_the_derived_candidate
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8863, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7890, in integration_turn
+    launched = launch.adopt(
+        deployment.integration_home(
+    ...<3 lines>...
+        contract=self.config["launch_contract"],
+        role=integration_worker.LAUNCH_ROLE)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 747, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 223, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b6…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+----------------------------------------------------------------------
+Ran 1 test in 0.808s
+
+FAILED (errors=1)

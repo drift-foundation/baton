@@ -19,7 +19,7 @@ import json
 from ..contracts import ContractRefusal
 from ..contracts.errors import name_value, sample_of
 from ..worker_manager import boundaries
-from . import documents, episodes, schema
+from . import documents, episodes, execution_limits, schema
 from .store import job_signature
 
 __all__ = ["job_of", "job_rows", "jobs_of", "stage_rows", "stages_of",
@@ -124,6 +124,20 @@ def _job(connection, submission_id, ordinal, job):
          job["policy_digest"],
          json.dumps(job["test_scope"], ensure_ascii=False),
          job["terminal_policy"]))
+    # W156162: ITS REQUESTED CEILINGS AND THE GENERATION IT IS ADMITTED UNDER.
+    #
+    # EVERY Job gets a row, including one that configured nothing, and review
+    # 2026-09-13T01:13:49Z R1 is why: the preserved DEFAULTS are as much a part
+    # of a Job's admitted configuration as an override is. A Job with no row
+    # would have nothing pinning its 3600, and a later default change would
+    # reinterpret it -- which is the exact defect the probe demonstrated.
+    requested = job.get(documents.JOB_LIMIT_MEMBER) or {}
+    connection.execute(
+        "INSERT INTO job_execution_limits (job_id, requested, "
+        "compatibility_generation) VALUES (?, ?, ?)",
+        (job["job_id"],
+         json.dumps(requested, sort_keys=True, ensure_ascii=False),
+         execution_limits.CURRENT_GENERATION))
 
 
 def _stage(connection, store, job_id, ordinal, stage, recorded_at):
@@ -183,6 +197,130 @@ def job_rows(store):
             for record in store._connection.execute(
                 "SELECT * FROM jobs ORDER BY submission_id, ordinal"
             ).fetchall()]
+
+
+def execution_limits_of(store, job_id):
+    """One Job's admitted execution configuration: what it asked for, and the
+    frozen compatibility generation its preserved defaults come from.
+
+    W156162. The public immutable reader: a Job's own intent, owned on the way
+    out of the store exactly as it was owned on the way in, with absence as an
+    ordinary answer rather than a refusal. Resolution to effective per-boundary
+    seconds belongs to `execution_limits.resolved`, which this deliberately
+    does not do -- what a Job asked for and what a boundary gets are two facts,
+    and a reader that conflated them could not report a preserved default as
+    one.
+    """
+    boundaries.identity(job_id, "a Job id")
+    found = store._connection.execute(
+        "SELECT * FROM job_execution_limits WHERE job_id = ?",
+        (job_id,)).fetchone()
+    if found is None:
+        # A JOB ADMITTED BEFORE THIS FEATURE. It configured nothing and ran
+        # under the four numbers generation 0 freezes, and saying so is what
+        # keeps it meaning what it meant rather than inheriting a later default.
+        return {"requested": None,
+                "compatibility_generation":
+                    execution_limits.LEGACY_GENERATION}
+    row = boundaries.row(found, "a persisted Job execution limit",
+                         schema.JOB_EXECUTION_LIMIT_COLUMNS)
+    held = row["requested"]
+    return {"requested": execution_limits.requested_from_row(
+                held if isinstance(held, str)
+                else json.dumps(held, sort_keys=True, ensure_ascii=False)),
+            "compatibility_generation": execution_limits.owned_generation(
+                row["compatibility_generation"])}
+
+
+def job_execution_context(store, job_id, *, attempt_id,
+                          runtime_input_digest, runtime_policy_digest):
+    """The launch carrier's `job_execution`, composed by the JOB'S OWN OWNER.
+
+    W156162 PLAN item 3: "resolve through the immutable public Job reader at
+    launch preparation". This is that reader. The Worker Manager's launch
+    carrier states what a container is running; deciding WHICH configuration
+    that is belongs here, where the Job's admitted settings and the generation
+    it was admitted under are held -- and a Worker Manager composing it from
+    parts would be a second party resolving a Job's configuration.
+
+    THE JOB'S IDENTITIES AND THE RUNTIME'S ARE BOTH STATED. A review or a
+    derived judgment legitimately runs over a frozen input that is not the
+    Job's original one, so the runtime's actual input and policy identities are
+    the caller's to supply and are carried beside the Job's rather than
+    compared with them. What this owner will not do is invent either.
+
+    IT READS AND WRITES NOTHING ELSE. No store mutation, no resolution stored:
+    the effective values are derived from the Job's own settings under its own
+    frozen generation every time, which is what makes a later default change
+    unable to reinterpret it.
+    """
+    held = execution_limits_of(store, job_id)
+    return {"job_id": boundaries.identity(job_id, "a Job id"),
+            "attempt_id": boundaries.identity(attempt_id,
+                                              "a runtime attempt id"),
+            "job_input_digest": job_of(store, job_id)["input_digest"],
+            "job_policy_digest": job_of(store, job_id)["policy_digest"],
+            "runtime_input_digest": boundaries.text(
+                runtime_input_digest, "a runtime's input digest"),
+            "runtime_policy_digest": boundaries.text(
+                runtime_policy_digest, "a runtime's policy digest"),
+            "execution_limits": execution_limits.resolved(
+                held["requested"], held["compatibility_generation"]),
+            "execution_limits_digest": _sealed(execution_limits.resolved(
+                held["requested"], held["compatibility_generation"]))}
+
+
+def boundary_seconds(store, job_id, boundary):
+    """One Job's effective ceiling at ONE boundary, from its own owner.
+
+    W156162. Not every consumer of a Job's ceilings is composing a launch: the
+    host-side reconciled owners run the deployment's required test in THIS
+    process, so there is no container, no delivery and no document -- and
+    `job_execution_context` would oblige a caller with none of those to invent
+    an attempt id and two runtime digests it has no fact for.
+
+    WHAT IT WILL NOT DO IS LET A CALLER NAME A BOUNDARY NOBODY OWNS. The
+    boundary set is this owner's, so an unknown one is a refusal here rather
+    than a `KeyError` in whichever assembly asked -- and, like every other
+    reader on this path, the answer is resolved through the generation the Job
+    was ADMITTED under rather than today's defaults.
+    """
+    if boundary not in execution_limits.BOUNDARIES:
+        raise ContractRefusal(
+            "integrity", "schema",
+            f"{name_value(boundary)} is not an execution boundary this build "
+            f"owns; a ceiling can only be asked for where one is defined")
+    # AND THE JOB MUST EXIST BEFORE ITS CONFIGURATION IS RESOLVED. Review
+    # 2026-09-13T03:27:43Z [P2]: `execution_limits_of`'s missing-row answer is a
+    # COMPATIBILITY answer for a Job admitted before this table existed, and it
+    # cannot tell that apart from a Job nobody ever submitted -- so a misspelled
+    # or foreign id came back with the preserved defaults and a host path ran
+    # under ceilings belonging to nothing. `job_execution_context` already asks
+    # `job_of`; this reader did not.
+    #
+    # THE COMPATIBILITY ANSWER IS UNTOUCHED. A Job this store HOLDS with no
+    # limits row still resolves through generation 0 exactly as it did; what is
+    # refused is a name the store does not hold at all.
+    job_of(store, job_id)
+    held = execution_limits_of(store, job_id)
+    return execution_limits.resolved(
+        held["requested"],
+        held["compatibility_generation"])["boundaries"][boundary]["seconds"]
+
+
+def _sealed(document):
+    """The canonical digest the launch carrier compares against.
+
+    One spelling, written here because the Job owner is what produces the
+    document and the carrier is what checks it; two spellings of one digest
+    would be two components disagreeing about a seal neither could debug.
+    """
+    import hashlib
+
+    return "sha256:" + hashlib.sha256(
+        json.dumps(document, sort_keys=True, separators=(",", ":"),
+                   ensure_ascii=False, allow_nan=False)
+        .encode("utf-8")).hexdigest()
 
 
 def job_of(store, job_id):

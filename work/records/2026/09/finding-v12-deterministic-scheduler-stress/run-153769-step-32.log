@@ -1,0 +1,20 @@
+### label: repository-binding-probe
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "/tmp/t525c_repo.py"]
+### exit: 0
+### elapsed_seconds: 0.241158
+### STDOUT
+bindings:
+   {'job_id': 'job-a', 'canonical_target_id': 'target-a', 'source_worker_id': 'implementation-worker', 'line_declared_base': '9e814416cf1c5cffd4cc7d47e91a4827d9869f96'}
+   {'job_id': 'job-b', 'canonical_target_id': 'target-b', 'source_worker_id': 'implementation-worker-b', 'line_declared_base': '88cc202b85d0572d1b7a721e383031831056fa3f'}
+implementation workers' nominated sources:
+   implementation-worker /home/sl/src/baton/v12/python/v12-w71917-0paytpyd/source
+   implementation-worker-b /home/sl/src/baton/v12/python/v12-w71917-0paytpyd/source-b
+traversing bindings:
+   {'job_id': 'job-a', 'canonical_target_id': 'target-a', 'source_worker_id': 'implementation-worker'}
+   {'job_id': 'job-b', 'canonical_target_id': 'target-a', 'source_worker_id': 'implementation-worker-b'}
+traversing impl sources:
+   implementation-worker /home/sl/src/baton/v12/python/v12-w71917-0paytpyd/source
+   implementation-worker-b /home/sl/src/baton/v12/python/v12-w71917-0paytpyd/source
+
+### STDERR

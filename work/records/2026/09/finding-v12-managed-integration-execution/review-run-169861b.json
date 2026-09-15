@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-fixture-169861b.py"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "exit_code": 0,
+  "seconds": 0.2637857149820775,
+  "limits_seconds": [
+    30,
+    5,
+    5
+  ],
+  "signals": [],
+  "prior_reviewer_seconds": 30.235640190054255,
+  "cumulative_reviewer_seconds": 30.499425905036333,
+  "meaning": "Corrected diagnostic allows up to five sweeps; plain directory fixture only. Earlier first-sweep assumption failed and is retained separately."
+}

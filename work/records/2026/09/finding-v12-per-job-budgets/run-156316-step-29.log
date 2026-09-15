@@ -1,0 +1,461 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_single_worker
+EEE/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:196: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a2b8d60>
+  missing = [member for member in required if member not in taken]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:196: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a2b9120>
+  missing = [member for member in required if member not in taken]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:196: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a2b9b70>
+  missing = [member for member in required if member not in taken]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+EEEEE/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a2b98a0>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a2b8220>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a2bbe20>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a024400>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+EEE./home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a2bb1f0>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py:200: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a2b8400>
+  extra = sorted(member for member in taken if member not in allowed)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......./home/sl/src/baton/v12/python/src/baton_v12/worker_manager/store.py:625: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a2ba020>
+  connection.execute("ROLLBACK")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/store.py:625: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a0246d0>
+  connection.execute("ROLLBACK")
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......EEEE...<frozen importlib._bootstrap_external>:784: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a2bbe20>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<frozen importlib._bootstrap_external>:784: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a2b9300>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<frozen importlib._bootstrap_external>:784: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a2bb970>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+<frozen importlib._bootstrap_external>:784: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x7d887a0246d0>
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.........................................................................................
+======================================================================
+ERROR: test_a_dead_daemon_is_a_refusal_and_not_an_unreachable_engine (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_dead_daemon_is_a_refusal_and_not_an_unreachable_engine)
+Review 2026-09-04T21:52:30Z [P2]: WHAT THIS BOUNDARY REALLY SEES.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2743, in test_a_dead_daemon_is_a_refusal_and_not_an_unreachable_engine
+    self.faulted("fault-dead-daemon")
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2612, in faulted
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_a_fresh_incarnation_reconstructs_the_same_observation (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_fresh_incarnation_reconstructs_the_same_observation)
+THE RESTART CONTROL. The manager's lifetime is not the container's,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2827, in test_a_fresh_incarnation_reconstructs_the_same_observation
+    self.faulted("fault-4")
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2612, in faulted
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_a_real_observing_status_run_mutates_no_durable_state (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_real_observing_status_run_mutates_no_durable_state)
+W85500 review 2026-09-04T14-27-54Z [P1]: BEHAVIOUR, not capability.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2906, in test_a_real_observing_status_run_mutates_no_durable_state
+    self.faulted("observe-durable")
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2612, in faulted
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_a_runner_that_timed_out_is_the_same_unasked_question (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_a_runner_that_timed_out_is_the_same_unasked_question)
+The type that used to reach the blanket branch.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2715, in test_a_runner_that_timed_out_is_the_same_unasked_question
+    report, held, _before = self.unreachable(
+                            ~~~~~~~~~~~~~~~~^
+        "fault-timeout",
+        ^^^^^^^^^^^^^^^^
+        subprocess.TimeoutExpired(["docker", "inspect"], 600))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2664, in unreachable
+    self.faulted(incarnation)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2612, in faulted
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_an_arbitrary_defect_in_this_composition_escapes (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_an_arbitrary_defect_in_this_composition_escapes)
+AND THE OTHER HALF OF THE SAME RULE.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2775, in test_an_arbitrary_defect_in_this_composition_escapes
+    self.faulted("fault-defect")
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2612, in faulted
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_an_engine_that_cannot_be_asked_is_uncertain_not_gone (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_an_engine_that_cannot_be_asked_is_uncertain_not_gone)
+W85500 re-review 2026-09-04T19:08:40Z [P1], at the real seam.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2691, in test_an_engine_that_cannot_be_asked_is_uncertain_not_gone
+    report, held, before = self.unreachable(
+                           ~~~~~~~~~~~~~~~~^
+        "fault-unreachable", OSError("no such engine binary"))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2664, in unreachable
+    self.faulted(incarnation)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2612, in faulted
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_repeated_sweeps_replay_the_same_facts_and_do_nothing (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_repeated_sweeps_replay_the_same_facts_and_do_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2809, in test_repeated_sweeps_replay_the_same_facts_and_do_nothing
+    self.faulted("fault-3")
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2612, in faulted
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_the_fault_alone_authorizes_no_act_at_all (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_the_fault_alone_authorizes_no_act_at_all)
+The acceptance's negative half, read from the OWNERS' own records.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2794, in test_the_fault_alone_authorizes_no_act_at_all
+    self.faulted("fault-2")
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2612, in faulted
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_the_next_sweep_reports_exceptional_and_a_quiescent_runtime (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_the_next_sweep_reports_exceptional_and_a_quiescent_runtime)
+BOTH AXES, FROM ONE SWEEP, and neither derived from the other.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2641, in test_the_next_sweep_reports_exceptional_and_a_quiescent_runtime
+    self.faulted("fault-1")
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2612, in faulted
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_the_observation_only_status_surface_reports_the_same_terminal (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_the_observation_only_status_surface_reports_the_same_terminal)
+PLAN ITEM 5, WHERE A CLAIM EXISTS.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2869, in test_the_observation_only_status_surface_reports_the_same_terminal
+    self.faulted("fault-5")
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2612, in faulted
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_the_observation_only_surface_opens_no_authority_and_no_engine (tests.tools.test_single_worker.AFaultedTerminalSurvivesTheContainerThatWroteIt.test_the_observation_only_surface_opens_no_authority_and_no_engine)
+What it is NOT, asserted rather than promised.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2991, in test_the_observation_only_surface_opens_no_authority_and_no_engine
+    self.faulted("fault-6")
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 2612, in faulted
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_a_matching_terminal_drives_the_whole_ending (tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners.test_a_matching_terminal_drives_the_whole_ending)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3091, in test_a_matching_terminal_drives_the_whole_ending
+    job, control, operations, attempt_id, held = self.worked("ending-ok")
+                                                 ~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3063, in worked
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_a_terminal_naming_another_envelope_stops_before_intake (tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners.test_a_terminal_naming_another_envelope_stops_before_intake)
+The mismatch control, through the real owners.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3125, in test_a_terminal_naming_another_envelope_stops_before_intake
+    job, control, operations, attempt_id, held = self.worked("ending-bad")
+                                                 ~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3063, in worked
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_a_terminal_with_no_usable_digest_never_reaches_the_ending (tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners.test_a_terminal_with_no_usable_digest_never_reaches_the_ending)
+The missing and malformed controls, refused at their own owner.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3147, in test_a_terminal_with_no_usable_digest_never_reaches_the_ending
+    job, control, operations, attempt_id, held = self.worked("ending-null")
+                                                 ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3063, in worked
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+======================================================================
+ERROR: test_the_ending_is_not_asked_again_once_cleanup_is_settled (tests.tools.test_single_worker.TheAnsweredEndingRunsThroughTheRealOwners.test_the_ending_is_not_asked_again_once_cleanup_is_settled)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3109, in test_the_ending_is_not_asked_again_once_cleanup_is_settled
+    job, control, operations, _attempt_id, _held = self.worked("ending-once")
+                                                   ~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_single_worker.py", line 3063, in worked
+    delivered = single_worker.launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<2 lines>...
+        transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 738, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 214, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be1…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+----------------------------------------------------------------------
+Ran 121 tests in 3.849s
+
+FAILED (errors=15)

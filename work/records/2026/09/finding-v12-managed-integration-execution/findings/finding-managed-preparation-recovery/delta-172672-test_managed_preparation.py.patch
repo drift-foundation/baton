@@ -1,0 +1,226 @@
+--- baseline/v12/python/tests/tools/test_managed_preparation.py
++++ candidate/v12/python/tests/tools/test_managed_preparation.py
+@@ -430,12 +430,20 @@
+         self.assertIn("no verified limits", answered["reason"])
+ 
+     def test_the_command_bound_comes_from_the_launch_and_is_not_invented(self):
+-        self.assertEqual(
+-            entry._bound(self.limits),
+-            self.limits["boundaries"]["integration_verification"]["seconds"])
++        self.assertEqual(entry._bound(self.limits), 300)
++        self.assertEqual({name: held["seconds"] for name, held in self.limits["boundaries"].items()},
++                         {"provider_turn": 3600, "ordinary_verification": 900,
++                          "integration_verification": 1800, "host_verification": 300})
+         with self.assertRaises(task.PreparationRefusal) as caught:
+             entry._bound(dict(self.limits, boundaries={}))
+         self.assertIn("will not invent one", str(caught.exception))
++
++    def test_a_job_override_reaches_the_relocated_command_boundary(self):
++        from baton_v12.job_manager import execution_limits
++        owned = execution_limits.resolved({"verification_command_seconds": 77},
++                                          execution_limits.CURRENT_GENERATION)
++        self.assertEqual(entry._bound(owned), 77)
++        self.assertEqual(owned["boundaries"]["provider_turn"]["seconds"], 3600)
+ 
+     def test_the_worker_holds_no_manager_or_target_capability(self):
+         """The derivation happens here, which makes "what else can it reach"
+@@ -1694,6 +1702,122 @@
+         preserved."""
+         self.complete(uncertain=True)
+ 
++    def test_an_initially_unknown_start_reports_required_human_cleanup(self):
++        self.manual_recovery()
++
++    def test_an_initially_unknown_start_reports_and_holds_across_restart(self):
++        self.manual_recovery(restart=True)
++
++    def test_failed_start_retries_an_unfinished_credential_teardown(self):
++        self.unfinished_delivery("_torn_down")
++
++    def test_failed_start_retries_an_unfinished_launch_teardown(self):
++        self.unfinished_delivery("_launch_ended")
++
++    def test_reopened_failed_start_retries_unfinished_credential_teardown(self):
++        self.unfinished_delivery("_torn_down", restart=True)
++
++    def test_reopened_failed_start_retries_unfinished_launch_teardown(self):
++        self.unfinished_delivery("_launch_ended", restart=True)
++
++    def unfinished_delivery(self, method, restart=False):
++        from baton_v12.worker_manager.oci import OciAdapter
++        original = getattr(OciAdapter, method)
++        deferred = []
++        active = []
++        destroy = OciAdapter.destroy_failed_start
++
++        def failing_start(adapter, command):
++            self.assertTrue(command["runtime_attempt_id"].startswith("prepare-"))
++            active.append(command["runtime_attempt_id"])
++            try:
++                return destroy(adapter, command)
++            finally:
++                active.clear()
++
++        def once(adapter, *args):
++            absent = args[0]["state"] == "absent" if method == "_torn_down" else args[0]
++            if active and absent and not deferred:
++                deferred.append(adapter)
++                return {"lifecycle_state": "unresolved", "why": "selected interrupted delivery teardown"}
++            return original(adapter, *args)
++
++        with mock.patch.object(OciAdapter, method, once), \
++                mock.patch.object(OciAdapter, "destroy_failed_start", failing_start):
++            self.complete(uncertain=True, restart=restart)
++        self.assertEqual(len(deferred), 1)
++
++    def manual_recovery(self, restart=False):
++        from baton_v12.worker_manager import attempts, attempt_runtime_of
++        from baton_v12.worker_manager.oci import OciAdapter
++        from baton_v12.job_manager.integration_capacity import integration_capacity_of
++        from baton_v12.job_manager.scheduler import allocation_of
++
++        settlement = attempts._settled_and_recorded
++        listing = OciAdapter.list
++        originals, adapters, selectors = [], [], []
++
++        def inconclusive(store, adapter, attempt_id, failure):
++            def empty(instance, request):
++                adapters.append(instance)
++                selectors.append(request)
++                return []
++            with mock.patch.object(OciAdapter, "list", empty):
++                answer = settlement(store, adapter, attempt_id, failure)
++            originals.append(attempts.attempt_start_failure_of(store, attempt_id))
++            return answer
++
++        def unresolved(held, preparation, processes, uncertainty, orchestration,
++                       target_before, target_revision, target_tree, case):
++            capacity = integration_capacity_of(held.job, orchestration)
++            members = {one["phase"]: one for one in capacity["members"]}
++            attempt = members["prepare"]["execution_attempt_id"]
++            failure = attempts.attempt_start_failure_of(held.control, attempt)
++            current = attempt_runtime_of(held.control, attempt)
++            self.assertEqual(len(originals), 1)
++            self.assertEqual(failure, originals[0])
++            self.assertIsNone(failure["runtime_id"])
++            self.assertIsNone(current["runtime_id"])
++            self.assertEqual(current["execution_runtime"], "uncertain")
++            self.assertEqual(current["cleanup"], "pending")
++            self.assertEqual(len(processes), 1)
++            self.assertIsNone(processes[0].poll())
++            self.assertFalse(preparation.adopted)
++            self.assertEqual(members["prepare"]["state"], "admitted")
++            self.assertEqual(members["apply"]["state"], "planned")
++            self.assertEqual(capacity["root"]["lifecycle"], "open")
++            allocation = allocation_of(held.job, capacity["root"]["root_assignment_id"])
++            self.assertEqual(allocation["allocation_state"], "recovery-required")
++            self.assertEqual(case.states(held.job, held.composed)["integration"], "queued")
++            self.assertIsNone(held.control.operation_record("offer.issue:" + members["apply"]["execution_offer_id"]))
++            self.assertEqual(pathlib.Path(case.source, "harness.py").read_bytes(), target_before)
++            self.assertEqual(held.composed.deployment.authority.canonical_target(), target_revision)
++            self.assertEqual(case.vcs("status", "--porcelain"), target_tree)
++            # The existing outward sweep report, not the exception spy, must
++            # carry the action and exact identity through ordinary deferral.
++            report = json.dumps(self.last_failed_start_sweep)
++            for text in ("Human inspection and cleanup are required", "a worker may still exist",
++                         "automatic cleanup is unresolved", "runtime identity is unknown",
++                         attempt, failure["start_operation_id"], failure["expect"]["work_ref"]["work_id"]):
++                self.assertIn(text, report)
++            self.assertIn("Job ", report)
++            # Exact evidence is available later; the selected finish remains
++            # manual recovery, without automatic attachment or destruction.
++            self.assertEqual(len(selectors), 1)
++            available = listing(adapters[0], selectors[0])
++            self.assertEqual(len(available), 1)
++            self.assertEqual(failure, attempts.attempt_start_failure_of(held.control, attempt))
++            print(json.dumps({"proof": "unknown-start-manual-recovery", "restart": restart,
++                              "report": self.last_failed_start_sweep,
++                              "later_available_runtime": available[0]["runtime_id"],
++                              "allocation": allocation["allocation_state"],
++                              "cleanup": current["cleanup"], "worker_alive": processes[0].poll() is None}, sort_keys=True))
++
++        with mock.patch.object(attempts, "_settled_and_recorded", inconclusive), \
++                mock.patch.object(self, "ended_after_failed_start", unresolved), \
++                mock.patch.object(OciAdapter, "destroy_failed_start", side_effect=AssertionError("unknown start must not be automatically destroyed")):
++            self.complete(uncertain=True, restart=restart)
++
+     # -- and a changed identity is refused at those windows -----------------
+ 
+     def test_window_3_refuses_a_changed_request_before_any_effect(self):
+@@ -1705,6 +1829,18 @@
+     def test_window_4_refuses_a_changed_request_before_any_effect(self):
+         """Same rule one window later."""
+         self.complete("child_admit", perturb="request")
++
++    def test_window_3_refuses_a_changed_root_before_any_effect(self):
++        self.complete("create", perturb="root")
++
++    def test_window_3_refuses_a_changed_plan_before_any_effect(self):
++        self.complete("create", perturb="plan")
++
++    def test_window_4_refuses_a_changed_job_before_any_effect(self):
++        self.complete("child_admit", perturb="request_job")
++
++    def test_window_4_refuses_a_changed_profile_before_any_effect(self):
++        self.complete("child_admit", perturb="request_profile")
+ 
+     def test_window_3_refuses_a_changed_child_work_before_any_effect(self):
+         """The committed intent is authoritative once it exists. A sweep whose
+@@ -1920,7 +2056,11 @@
+ 
+     # WHAT THE REFUSAL MUST SAY, so a case cannot pass on any refusal.
+     DENIAL = {"execution_work_id": "already decided child Work",
+-              "request": "must name one request"}
++              "request": "must name one request",
++              "request_job": "must name one request",
++              "request_profile": "must name one request",
++              "root": "integration-capacity.register:",
++              "plan": "integration-capacity.register:"}
+ 
+     def disagreeing(self, preparation, member):
+         """DISAGREE WITH THE COMMITTED INTENT ON EXACTLY ONE IDENTITY.
+@@ -1940,6 +2080,23 @@
+         """
+         from tools import integration_worker
+ 
++        if member == "root":
++            from baton_v12.job_manager import integration_capacity
++            register = integration_capacity.register_integration_capacity
++
++            def different_root(store, **operands):
++                return register(store, **dict(operands, root_assignment_id="another-root"))
++            return mock.patch.object(integration_capacity, "register_integration_capacity", different_root)
++
++        if member == "plan":
++            planned = integration_worker.ManagedPreparation.planned
++
++            def different_plan(instance, stage, held):
++                result = planned(instance, stage, held)
++                result[0] = dict(result[0], task_digest="sha256:" + "0" * 64)
++                return result
++            return mock.patch.object(integration_worker.ManagedPreparation, "planned", different_plan)
++
+         if member == "execution_work_id":
+             original = preparation._operands
+ 
+@@ -1955,8 +2112,10 @@
+             # A VALID request member changed at the normal publication reader.
+             # This is simulated reader disagreement, not on-disk tamper or
+             # custody evidence, and this case claims nothing about those.
+-            return dict(published(instance, place),
+-                        harness_digest="sha256:" + "0" * 64)
++            key, value = {"request": ("harness_digest", "sha256:" + "0" * 64),
++                          "request_job": ("job_id", "another-job"),
++                          "request_profile": ("profile_digest", "sha256:" + "0" * 64)}[member]
++            return dict(published(instance, place), **{key: value})
+         return mock.patch.object(integration_worker.ManagedPreparation,
+                                  "_published", changed)
+ 
+@@ -2380,6 +2539,7 @@
+             if restart:
+                 self.assertEqual(len(reopened), 1, "no restart was taken")
+                 preparation = reopened[0]
++            self.last_failed_start_sweep = last
+             return self.ended_after_failed_start(
+                 held, preparation, processes, uncertainty, orchestrating[0],
+                 target_before, target_revision, target_tree, case)

@@ -1,0 +1,4 @@
+stops at: ('ContractRefusal', "no runtime attempt 'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83…")
+states: {'implementation': 'completed', 'review': 'completed', 'integration': 'queued'}
+preparations started: 0
+seconds: 0.639372

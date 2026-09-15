@@ -1,0 +1,89 @@
+{
+  "changed_this_claim": [
+    {
+      "bytes": 97142,
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "sha256": "870656c0761d056310e5c846d163f95fc1273e987f3ce01ad1523ea09a7d3491",
+      "target_mode": "0o644"
+    },
+    {
+      "bytes": 311452,
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "sha256": "762c7f5542c1a44b6ded477729ae96477b18471aca59921275eb5b2a7d8d33d7",
+      "target_mode": "0o664"
+    },
+    {
+      "bytes": 127301,
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "c86e6f82b5543a0cc6c719a179313bb694db9c5f2d9c8df1a8d5985e644c0d12",
+      "target_mode": "0o644"
+    }
+  ],
+  "claim": 172286,
+  "consumes_review": "review-2026-09-14T21-15-19Z.md",
+  "corrected": "a known live failed start was classified as an unknown held outcome; it is now ENDED",
+  "ending_order": [
+    "AuthorityPort.cancel fences the fixed assignment",
+    "worker_manager.intake.authorize_failed_start_cleanup, authorized by the runtime.start-failed record",
+    "end_integration_execution(outcome=failed, exclusion=runtime-destroyed)"
+  ],
+  "generic_owners_modified": [],
+  "prior_candidate": "candidate-172200.json",
+  "prior_verified_unchanged": true,
+  "product_change": true,
+  "reversals": [
+    {
+      "result": "1 fail",
+      "reversal": "failed-start ending never runs",
+      "step": "17"
+    },
+    {
+      "result": "1 error; the generic owner refuses a live assignment",
+      "reversal": "Authority fence skipped",
+      "step": "18"
+    },
+    {
+      "result": "1 fail",
+      "reversal": "membership not ended",
+      "step": "19"
+    }
+  ],
+  "runs": [
+    {
+      "checks": 451,
+      "label": "failed-start-ending",
+      "result": "OK",
+      "step": "20"
+    },
+    {
+      "errors": 13,
+      "label": "stage-execution-regression",
+      "step": "21"
+    },
+    {
+      "errors": 13,
+      "label": "baseline at accepted group1 source bytes",
+      "step": "23",
+      "verdict": "the 13 errors are pre-existing, not introduced by this change"
+    }
+  ],
+  "spending": {
+    "ledger_rows": 23,
+    "ledger_seconds": 692.9514279609139,
+    "note": "experiments supervised since claim172200; the first three claims reversal runs remain unrecorded"
+  },
+  "still_owed": [
+    "genuinely inconclusive observation with preserved holds",
+    "restart across the failed start (uncertain path continues past owed-restart)",
+    "root/plan/profile/Job negatives",
+    "on-disk identity/task/manifest/digest/length/source/harness and custody negatives",
+    "missing blobs, symlink/escape, frozen-only, missing/quarantined intake",
+    "causal combined/base/isolated and limits",
+    "two-Job isolation and defaults/overrides",
+    "cancellation/refusal, leader-first, TERM-resistant ordinary cleanup",
+    "direct/legacy evidence",
+    "finite acceptance matrix",
+    "DEPLOYMENT-SLICE2-DRAFT.md"
+  ],
+  "work": "W170382"
+}

@@ -1,0 +1,7 @@
+{
+  "path": "/tmp/w166281_run.py",
+  "sha256": "52b4a04868e8d90080164c063b929f451ec7cdf0c3af732ef55600988fd82f7c",
+  "observed": "Header says cumulative gate removed; executable remaining/expected check and timeout bound still enforce CAP1200.",
+  "authority": "AGENTS.md Development verification time accounting; owning FINDING 2026-09-14T04:24:23Z",
+  "decision": "Retire obsolete cumulative admission gate under existing owner ruling; preserve ledger/history and per-run timeout plus process cleanup. No new permission needed."
+}

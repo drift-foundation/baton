@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-traversal-169913b.py"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "exit_code": 0,
+  "seconds": 0.5641321859729942,
+  "limits_seconds": [
+    45,
+    5,
+    5
+  ],
+  "signals": [],
+  "prior_reviewer_seconds": 31.06353199203295,
+  "cumulative_reviewer_seconds": 31.627664178005944,
+  "meaning": "Corrected diagnostic reads next sweep deferred result, instead of expecting propagated ContractRefusal. Real disposable upstream owners/fake engine/provider; no preparation worker."
+}

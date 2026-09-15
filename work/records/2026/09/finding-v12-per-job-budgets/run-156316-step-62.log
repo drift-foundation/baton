@@ -1,0 +1,50 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+..................................E.EE.......
+======================================================================
+ERROR: test_a_port_with_no_job_owner_composes_exactly_what_it_always_did (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_a_port_with_no_job_owner_composes_exactly_what_it_always_did)
+The unchanged deployment. A port composed without the reader is not
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 649, in test_a_port_with_no_job_owner_composes_exactly_what_it_always_did
+    launch.adopt(self.fixture.place("launch-home"),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ...<2 lines>...
+                 contract="baton.worker-control/1",
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                 role=self.fixture_module.LAUNCH_ROLE)["schema"],
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+TypeError: 'LaunchDelivery' object is not subscriptable
+
+======================================================================
+ERROR: test_the_configured_ceiling_decides_a_real_verification (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_configured_ceiling_decides_a_real_verification)
+THE WHOLE CHAIN, and no injected runner in it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 676, in test_the_configured_ceiling_decides_a_real_verification
+    answer = self._turn()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 719, in _turn
+    json.dump(self._materialized(), handle)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/json/__init__.py", line 179, in dump
+    for chunk in iterable:
+                 ^^^^^^^^
+  File "/usr/lib/python3.13/json/encoder.py", line 440, in _iterencode
+    o = _default(o)
+  File "/usr/lib/python3.13/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type LaunchDelivery is not JSON serializable
+
+======================================================================
+ERROR: test_the_port_materializes_a_third_version_carrying_the_job (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_the_port_materializes_a_third_version_carrying_the_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 632, in test_the_port_materializes_a_third_version_carrying_the_job
+    self.assertEqual(held["schema"], "baton.worker-launch/3")
+                     ~~~~^^^^^^^^^^
+TypeError: 'LaunchDelivery' object is not subscriptable
+
+----------------------------------------------------------------------
+Ran 45 tests in 0.858s
+
+FAILED (errors=3)

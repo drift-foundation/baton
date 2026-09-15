@@ -1,0 +1,125 @@
+--- baton:v12/python/src/baton_v12/job_manager/integration_capacity.py@170415
++++ baton:v12/python/src/baton_v12/job_manager/integration_capacity.py@170569
+@@ -45,6 +45,7 @@
+ 
+ __all__ = ["INTENT_KIND", "PREPARATION_INTENT_MEMBERS",
+            "record_preparation_intent", "preparation_intent_of",
++           "recover_preparation_reservation",
+            "LIFECYCLES", "MEMBER_STATES", "PHASES", "LIVE_MEMBER_STATES",
+            "EXCLUSIONS", "register_integration_capacity",
+            "admit_integration_execution", "end_integration_execution",
+@@ -322,6 +323,95 @@
+     return taken
+ 
+ 
++_PREPARATION_RECOVERY = "integration-capacity.recover-pre-intent"
++
++
++def _recovery_basis(store, root):
++    return {"orchestration_id": root["orchestration_id"],
++            "root_assignment_id": root["root_assignment_id"],
++            "authority_uuid": root["authority_uuid"],
++            "plan": [{name: member[name] for name in _PLAN_MEMBERS}
++                     for member in _members(store._connection, root["orchestration_id"])]}
++
++
++def _preparation_recovered(store, allocation):
++    """Only the exact pre-intent preparation proved safe inside this hold."""
++    if allocation is None or allocation["allocation_state"] != "recovery-required":
++        return False
++    root = root_of_allocation(store, allocation["assignment_id"])
++    if root is None or root["lifecycle"] != "open":
++        return False
++    record = store.operation_record(_PREPARATION_RECOVERY + ":" + root["orchestration_id"])
++    if record is None:
++        return False
++    basis = _recovery_basis(store, root)
++    if (record["kind"] != _PREPARATION_RECOVERY or record["state"] != "committed"
++            or record["signature"] != job_signature(_PREPARATION_RECOVERY, basis)
++            or json.loads(record["result"]) != basis):
++        _refuse("the preparation recovery proof disagrees with its held root")
++    return True
++
++
++def recover_preparation_reservation(store, control, authority, *, orchestration_id):
++    """Prove the pre-intent cut; preserve the scheduler's recovery hold.
++
++    This permits only this root's first preparation. It neither resets the
++    allocation nor authorizes apply. Any prior Work, offer, attempt, intent or
++    occupied phase is outside this positive no-execution proof and refuses.
++    """
++    from ..worker_manager.events import publish_offer_states
++
++    boundaries.identity(orchestration_id, "an orchestration id")
++    capacity = integration_capacity_of(store, orchestration_id)
++    root = capacity["root"]
++    allocation = allocation_of(store, root["root_assignment_id"])
++    if allocation is None or allocation["allocation_state"] != "recovery-required":
++        _refuse("pre-intent recovery requires the existing scheduler recovery hold")
++    if _preparation_recovered(store, allocation):
++        return _recovery_basis(store, root)
++    if root["lifecycle"] != "open" or any(one["state"] != "planned" for one in capacity["members"]):
++        _refuse("pre-intent recovery requires an open root with both phases still planned")
++    if preparation_intent_of(store, orchestration_id) is not None:
++        _refuse("an existing preparation intent requires its own execution recovery")
++    preparing = next(one for one in capacity["members"] if one["phase"] == "prepare")
++    if authority.work_creation(preparing["execution_work_id"]) is not None:
++        _refuse("the preparation Work already exists; absence of execution is unproved")
++    parent = authority.project_work(root["work_id"])
++    if parent is None or parent["authority_uuid"] != root["authority_uuid"] or parent["phase"] != "queued":
++        _refuse("the parent Work is not positively queued at this Authority")
++    if authority.slot_holder(root["participant"]) is not None:
++        _refuse("the preparation actor has an occupied Authority slot")
++
++    class States:
++        def __init__(self):
++            self.answers = []
++
++        def publish(self, answer):
++            self.answers.append(answer)
++
++    states = States()
++    publish_offer_states(control, states, [one["execution_offer_id"] for one in capacity["members"]])
++    if states.answers:
++        _refuse("an execution offer exists; pre-intent absence is unproved")
++    for member in capacity["members"]:
++        if attempt_runtime_of(control, member["execution_attempt_id"]) is not None:
++            _refuse("an execution attempt exists; pre-intent absence is unproved")
++    basis = _recovery_basis(store, root)
++
++    def perform(connection):
++        current = integration_capacity_of(store, orchestration_id)
++        if (_recovery_basis(store, current["root"]) != basis
++                or current["root"]["lifecycle"] != "open"
++                or any(one["state"] != "planned" for one in current["members"])
++                or preparation_intent_of(store, orchestration_id) is not None
++                or allocation_of(store, root["root_assignment_id"])["allocation_state"] != "recovery-required"):
++            _refuse("the preparation root changed during pre-intent recovery")
++        return basis
++
++    return store.transact(_PREPARATION_RECOVERY + ":" + orchestration_id,
++                          _PREPARATION_RECOVERY, job_signature(_PREPARATION_RECOVERY, basis), perform)
++
++
+ def _parent_facts(connection, store, root_assignment_id):
+     """The reservation this orchestration runs inside, read from its own rows.
+ 
+@@ -334,7 +424,7 @@
+         _refuse(f"stage assignment {name_value(root_assignment_id)} has no "
+                 f"allocation; an orchestration is intended inside capacity "
+                 f"the scheduler actually reserved")
+-    if allocation["allocation_state"] != "reserved":
++    if allocation["allocation_state"] != "reserved" and not _preparation_recovered(store, allocation):
+         _refuse(f"stage assignment {name_value(root_assignment_id)} is "
+                 f"{name_value(allocation['allocation_state'])}; an intent "
+                 f"accounts capacity that is actually held")
+@@ -934,7 +1024,8 @@
+         # executions -- capacity that is `recovery-required` is exactly the
+         # capacity nothing new may run under.
+         allocation = allocation_of(store, root["root_assignment_id"])
+-        if allocation is None or allocation["allocation_state"] != "reserved":
++        if (allocation is None or (allocation["allocation_state"] != "reserved"
++                and not (phase == "prepare" and _preparation_recovered(store, allocation)))):
+             _refuse(f"the reservation behind "
+                     f"{name_value(orchestration_id)} is "
+                     f"{name_value((allocation or {}).get('allocation_state'))}"

@@ -1,0 +1,71 @@
+{
+  "work": "W103525",
+  "claim": 156225,
+  "prior_review_seconds": 45.135604162992195,
+  "review_cap_seconds": 300,
+  "candidate_before": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "b992ab51c76201ccfb65e5a3a57327f03cd1a2ff32bce6e2ef6ff6df2660ae37",
+      "bytes": 79456
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "ea0db5f9af0bd87d823889d2eabb706d433e8051ec162979c0d49db85992c814",
+      "bytes": 212704
+    }
+  },
+  "runs": [
+    {
+      "name": "focused",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_composed_deployment_reopens_and_continues",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them",
+        "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_reach_a_real_imported_integration"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 3.71703113500007,
+      "log": "review-156225-focused.log"
+    },
+    {
+      "name": "probe",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-156225.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.6141739380000217,
+      "log": "review-156225-probe.log"
+    },
+    {
+      "name": "public-completion-binding",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-156225-completion.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 1.7650023980004335,
+      "log": "review-156225-completion.log"
+    }
+  ],
+  "note": "Scripted providers; existing jsonschema gap retained. Subprocess wall time only; reads/evidence edits unmeasured.",
+  "review_spent_seconds": 51.23181163399272,
+  "review_remaining_seconds": 248.76818836600728,
+  "candidate_after": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "b992ab51c76201ccfb65e5a3a57327f03cd1a2ff32bce6e2ef6ff6df2660ae37",
+      "bytes": 79456
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "ea0db5f9af0bd87d823889d2eabb706d433e8051ec162979c0d49db85992c814",
+      "bytes": 212704
+    }
+  },
+  "candidate_unchanged": true
+}

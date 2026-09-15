@@ -106,10 +106,10 @@ def _definition(sql):
 def _created_name(statement):
     """The object one `CREATE` statement makes, or `None`.
 
-    The 3 -> 4 step only creates, which is what lets the schema-3 expectation
-    be a subtraction. A step that ALTERED an existing table would make that
-    subtraction wrong, so an unrecognised leading verb is refused here rather
-    than silently contributing nothing.
+    Every step from 3 onward only creates, which is what lets the schema-3
+    expectation be a subtraction. A step that ALTERED an existing table would
+    make that subtraction wrong, so an unrecognised leading verb is refused
+    here rather than silently contributing nothing.
     """
     words = statement.split()
     if not words:
@@ -117,9 +117,10 @@ def _created_name(statement):
     if words[0].upper() != "CREATE":
         raise ContractRefusal(
             "integrity", "schema",
-            f"the 3 -> 4 migration performs {name_value(words[0])}; this "
-            f"build derives schema 3 by subtracting what that step CREATES, "
-            f"and a step that changes an existing object cannot be subtracted")
+            f"a migration after schema 3 performs {name_value(words[0])}; "
+            f"this build derives schema 3 by subtracting what those steps "
+            f"CREATE, and a step that changes an existing object cannot be "
+            f"subtracted")
     rest = [word for word in words[1:]
             if word.upper() not in ("TABLE", "INDEX", "UNIQUE", "VIEW",
                                     "TRIGGER", "IF", "NOT", "EXISTS")]
@@ -346,10 +347,16 @@ class JobStore:
         finally:
             beside.close()
         added = set()
-        for statement in _statements(MIGRATIONS[3]):
-            name = _created_name(statement)
-            if name is not None:
-                added.add(name)
+        # EVERY STEP AFTER 3, not only the 3 -> 4 one. W156162 added a 4 -> 5
+        # step, and subtracting only the first would have left this build's
+        # newest table in the shape a genuine schema-3 store is compared
+        # against -- so every schema-3 store would have refused to migrate,
+        # reported as missing an object it could not possibly have.
+        for at in sorted(one for one in MIGRATIONS if one >= 3):
+            for statement in _statements(MIGRATIONS[at]):
+                name = _created_name(statement)
+                if name is not None:
+                    added.add(name)
         return {name: shape for name, shape in whole.items()
                 if name not in added}
 

@@ -1,0 +1,29 @@
+### label: c2-c3-wired-4
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace"]
+### exit: 1
+### elapsed_seconds: 1.440023
+### STDOUT
+
+### STDERR
+F.........................................
+======================================================================
+FAIL: test_a_correction_opens_a_second_episode_on_the_same_line (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_correction_opens_a_second_episode_on_the_same_line)
+A requested correction is a real authorized transition too, and it
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1245, in test_a_correction_opens_a_second_episode_on_the_same_line
+    self.assertEqual(scheduler_trace.validate(artifact), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'code': 'successor-before-prerequisite',[647 chars]ne}}] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+{'code': 'successor-before-prerequisite', 'detail': 'job-a/review was reserved before job-a/implementation completed', 'record': {'tick': 6, 'job_id': 'job-a', 'stage_id': 'job-a/review', 'episode': 1, 'attempt_id': 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'act': 'reserve', 'outcome': 'performed', 'worker_id': 'review-worker', 'participant': None, 'principal': 'principal:baton.reviewer', 'operation_id': 'allocation.reserve:attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'runtime_id': None, 'session_id': None, 'evidence': 'allocations:attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'cause': None}}
+
+Diff is 920 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 42 tests in 1.261s
+
+FAILED (failures=1)

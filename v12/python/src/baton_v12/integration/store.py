@@ -54,11 +54,115 @@ from ..worker_manager.store import seal_refusal
 from .schema import (MIGRATIONS, OPERATION_COLUMNS, SCHEMA, SCHEMA_VERSION,
                      STORE_KIND)
 
-__all__ = ["IntegrationStore", "integration_signature"]
+__all__ = ["IntegrationStore", "integration_signature", "READABLE_VERSIONS",
+           "upgrade_store"]
+
+# W161230 slice1 condition 4. THE VERSIONS A READ-ONLY OPEN UNDERSTANDS. A
+# deployment upgrades its coordinator at a moment somebody chooses; a status
+# reader that refused every store until that happened would make the upgrade
+# itself unobservable. Both shapes are READ here and neither is written.
+#
+# A WRITING OPEN IS DELIBERATELY NOT IN THIS SET. See `upgrade_store`.
+READABLE_VERSIONS = (5, SCHEMA_VERSION)
 
 _BUSY_TIMEOUT_MS = 5000
 _META_STORE_KIND = "store_kind"
 _META_SCHEMA_VERSION = "schema_version"
+
+
+def upgrade_store(path, *, incarnation, clock):
+    """Carry ONE recognized coordinator from schema 5 to this build's, ONCE.
+
+    W161230 slice1 condition 4, and it is a separate act on purpose. `open`
+    refuses a store at 5 rather than migrating it: opening is not consent to
+    change somebody's coordinator, and a writing process that migrated
+    silently would upgrade a live deployment at whatever moment a command
+    happened to run. This is the caller's decision, named.
+
+    EVERY REFUSAL HAPPENS BEFORE ANY MUTATION. The store is adopted at exactly
+    version 5 -- its ownership metadata, its whole owned shape, missing, extra
+    and altered objects alike -- and only then does the DDL run. A store this
+    build cannot describe entirely is left exactly as it was found, which is
+    the same rule `_adopt` is under and the reason the check is that one
+    rather than a lighter version of it.
+
+    WHAT IT PRESERVES IT PRESERVES BY NOT TOUCHING. The 5 -> 6 step is
+    CREATE-ONLY: no existing table is altered, no row is rewritten, no lease is
+    ended. A live lease held across the upgrade is the same lease afterwards,
+    and an entry mid-import is where it was -- a migration that rebuilt
+    `integration_results` or `leases` could not promise either.
+
+    AN ALREADY-CURRENT STORE IS AN ORDINARY ANSWER. Upgrading twice is a thing
+    that happens when two operators do the same sensible thing, and the second
+    one is told the store is current rather than being refused as an error.
+    """
+    boundaries.text(path, "an integration coordinator store path")
+    boundaries.text(incarnation, "a coordinator incarnation")
+    boundaries.capability(clock, "the coordinator's instant source")
+    if not os.path.lexists(path):
+        _refuse(f"there is no integration coordinator store at "
+                f"{name_value(path)}; an upgrade carries an existing store "
+                f"forward and creates none",
+                category="refused", code="precondition")
+    connection = sqlite3.connect(path, isolation_level=None,
+                                 timeout=_BUSY_TIMEOUT_MS / 1000)
+    try:
+        connection.execute(f"PRAGMA busy_timeout = {_BUSY_TIMEOUT_MS}")
+        connection.row_factory = sqlite3.Row
+        if not IntegrationStore._objects(connection):
+            _refuse(f"the database at {name_value(path)} holds no objects; an "
+                    f"upgrade carries an initialized coordinator forward and "
+                    f"initializes nothing",
+                    category="refused", code="precondition")
+        # THE SAME OWNERSHIP DECISION, over both shapes, BEFORE the write. It
+        # refuses a foreign store, unknown metadata, an unreadable version and
+        # any missing, extra or altered object -- each leaving the database
+        # exactly as found.
+        found = IntegrationStore._adopt(connection, path, READABLE_VERSIONS)
+        if found == SCHEMA_VERSION:
+            return {"path": path, "from_version": found,
+                    "to_version": SCHEMA_VERSION, "upgraded": False}
+        connection.execute("BEGIN IMMEDIATE")
+        try:
+            # AND THE WHOLE DECISION IS MADE AGAIN UNDER THE WRITE LOCK.
+            # Review 2026-09-13T18:51:48Z [P2]: the preflight above ran BEFORE
+            # the lock and only the VERSION was re-read inside it -- so a
+            # concurrent change that dropped an index between the two passed
+            # unnoticed, the upgrade reported success, stamped schema 6, and
+            # the next ordinary open refused the store it had just created.
+            # The version had not changed, so a version check could not see it.
+            #
+            # THE PREFLIGHT IS DIAGNOSTIC AND AUTHORIZES NOTHING. What
+            # authorizes the DDL below is this decision, on this connection,
+            # inside this transaction -- and any refusal here rolls back
+            # having written nothing.
+            locked = IntegrationStore._adopt(connection, path,
+                                             READABLE_VERSIONS)
+            if locked == SCHEMA_VERSION:
+                connection.execute("ROLLBACK")
+                return {"path": path, "from_version": locked,
+                        "to_version": SCHEMA_VERSION, "upgraded": False}
+            found = locked
+            for step in sorted(MIGRATIONS):
+                if step >= found:
+                    for statement in _statements(MIGRATIONS[step]):
+                        connection.execute(statement)
+            connection.execute("UPDATE meta SET value = ? WHERE key = ?",
+                               (str(SCHEMA_VERSION), _META_SCHEMA_VERSION))
+            connection.execute("COMMIT")
+        except BaseException:
+            try:
+                connection.execute("ROLLBACK")
+            except BaseException:
+                pass
+            raise
+        return {"path": path, "from_version": found,
+                "to_version": SCHEMA_VERSION, "upgraded": True}
+    finally:
+        try:
+            connection.close()
+        except BaseException:
+            pass
 
 
 def integration_signature(kind, operands):
@@ -188,6 +292,41 @@ def _shape(connection):
 
 
 _EXPECTED = None
+_EARLIER = {}
+
+
+def shape_for(version):
+    """This build's own schema AS IT WAS at one version it can still read.
+
+    DERIVED BY SUBTRACTION, never restated. `expected_shape` builds the current
+    script and reads back what SQLite stored; an older shape is that one minus
+    exactly the objects the migrations after `version` create. A hand-written
+    second expectation is a second owner of the shape and drifts from `SCHEMA`
+    the first time either changes -- the Job store's `_schema_three_shape` is
+    under the same rule for the same reason.
+    """
+    if version == SCHEMA_VERSION:
+        return expected_shape()
+    if version not in _EARLIER:
+        if version not in MIGRATIONS:
+            _refuse(f"this build cannot describe integration coordinator "
+                    f"schema {name_value(version)}; it holds migrations from "
+                    f"{', '.join(str(one) for one in sorted(MIGRATIONS))}")
+        later = set()
+        for step in sorted(MIGRATIONS):
+            if step >= version:
+                scratch = sqlite3.connect(":memory:")
+                try:
+                    scratch.row_factory = sqlite3.Row
+                    for statement in _statements(MIGRATIONS[step]):
+                        scratch.execute(statement)
+                    later |= set(_shape(scratch))
+                finally:
+                    scratch.close()
+        _EARLIER[version] = {key: value
+                             for key, value in expected_shape().items()
+                             if key not in later}
+    return _EARLIER[version]
 
 
 def expected_shape():
@@ -253,6 +392,12 @@ class IntegrationStore:
         # inside a transition is not this coordinator's refusal, and by the
         # time one appears the transition has already decided things.
         self._readonly = readonly
+        # W161230 slice1 condition 4: WHICH SHAPE THIS HANDLE ADOPTED. A
+        # writing handle is always current -- `open` refuses anything else --
+        # and a read-only one may be looking at a coordinator nobody has
+        # upgraded yet. `managed_results_available` is how a reader asks,
+        # instead of discovering it as a SQL error mid-read.
+        self._schema_version = SCHEMA_VERSION
         # THE ONE ACT CURRENTLY BETWEEN ITS WRITE AND ITS RECORD.
         #
         # A materialized transition and its journal row commit together, so no
@@ -370,7 +515,16 @@ class IntegrationStore:
                             f"objects; a read-only open reads an initialized "
                             f"coordinator and initializes nothing",
                             category="refused", code="precondition")
-                cls._adopt(connection, path)
+                # W161230 slice1 condition 4: BOTH READABLE SHAPES, AND
+                # NEITHER IS UPGRADED. A deployment upgrades its coordinator
+                # when somebody decides to; a status reader that refused every
+                # store until then would make the upgrade itself unobservable,
+                # and one that performed the upgrade would be a read-only open
+                # writing DDL. The store also records WHICH shape it adopted,
+                # because a reader asking for a relation that version does not
+                # have deserves that answer rather than a SQL error.
+                store._schema_version = cls._adopt(connection, path,
+                                                   READABLE_VERSIONS)
             # Proved after the store exists and inside this handler, exactly as
             # `open` does it, so a clock that cannot stamp is found here rather
             # than at the first read that wants one.
@@ -449,7 +603,7 @@ class IntegrationStore:
             raise
 
     @classmethod
-    def _adopt(cls, connection, path):
+    def _adopt(cls, connection, path, accept=(SCHEMA_VERSION,)):
         """Decide a non-empty database: ours, or refused untouched.
 
         The NAME `meta` is not permission to read `key, value` out of it: a
@@ -483,15 +637,33 @@ class IntegrationStore:
                     f"ownership rather than by resemblance. Nothing was "
                     f"changed")
         version = recorded.get(_META_SCHEMA_VERSION)
-        if version != str(SCHEMA_VERSION):
-            # NO MIGRATION IS INVENTED. `MIGRATIONS` is empty and there is no
-            # earlier shape; a store at another version is refused rather than
-            # guessed across, which is the rule every store here is under.
+        adopted = next((one for one in accept if version == str(one)), None)
+        if adopted is None and len(accept) > 1:
+            # A READ-ONLY OPENER SAYS WHICH SHAPES IT UNDERSTANDS. It reads
+            # both and writes neither, so a version outside the set is the only
+            # refusal it has -- and naming the set is what tells an operator
+            # whether the store is ahead of this build or behind it.
+            _refuse(f"the integration coordinator store at {name_value(path)} "
+                    f"is schema {name_value(version)}; this build reads "
+                    f"{', '.join(str(one) for one in accept)}. Nothing was "
+                    f"changed")
+        if adopted is None:
+            # NO MIGRATION IS INVENTED, AND NONE RUNS BY ITSELF. W161230
+            # slice1 adds an explicit 5 -> 6 step, and this opener still
+            # refuses a store at 5: opening is not consent to change somebody's
+            # coordinator, and a writing process that quietly migrated would
+            # upgrade a store at whatever moment a status command happened to
+            # run. `upgrade_store` is the act, it is a caller's decision, and
+            # its refusal says so by name.
             _refuse(f"the integration coordinator store at {name_value(path)} "
                     f"is schema {name_value(version)}; this build is "
-                    f"{SCHEMA_VERSION}, carries no migration from that "
-                    f"version, and does not guess across versions. Nothing "
-                    f"was changed")
+                    f"{SCHEMA_VERSION}"
+                    + (f" and upgrades from {version} only through an "
+                       f"explicit `upgrade_store`, never on open"
+                       if version in tuple(str(one) for one in MIGRATIONS)
+                       else f", carries no migration from that version, and "
+                            f"does not guess across versions")
+                    + ". Nothing was changed")
         # THE WHOLE OWNED SHAPE, NOT A LIST OF TABLE NAMES. Review of
         # 2026-09-06 [P1]: this checked that four names existed, so a database
         # with `leases_one_live_per_target` DROPPED reopened without complaint
@@ -499,13 +671,15 @@ class IntegrationStore:
         # one-live-lease-per-target exclusion this store exists to enforce. A
         # missing constraint is not a missing convenience; it is a store whose
         # central safety property silently is not there.
-        expected = expected_shape()
+        expected = shape_for(adopted)
         found = _shape(connection)
+        # (`adopted` is returned at the end: a caller that accepts more than
+        # one shape has to know which one it got.)
         missing = sorted(f"{kind} {name}" for kind, name in expected
                          if (kind, name) not in found)
         if missing:
             _refuse(f"the integration coordinator store at {name_value(path)} "
-                    f"says it is schema {SCHEMA_VERSION} and is missing "
+                    f"says it is schema {adopted} and is missing "
                     f"{', '.join(missing)}. Nothing was changed")
         extra = sorted(f"{kind} {name}" for kind, name in found
                        if (kind, name) not in expected)
@@ -521,6 +695,25 @@ class IntegrationStore:
                     f"defines {', '.join(altered)} differently from this "
                     f"build, so its constraints are not the ones this build "
                     f"relies on. Nothing was changed")
+        # WHICH SHAPE WAS ADOPTED. A caller accepting more than one has to know
+        # which it got, and deriving it again later would be a second read of
+        # a fact this decision already made.
+        return adopted
+
+    @property
+    def schema_version(self):
+        """The version of the store behind this handle."""
+        return self._schema_version
+
+    def managed_results_available(self):
+        """Whether this store holds the managed-result relation at all.
+
+        ABSENCE IS AN ANSWER, not an error. A coordinator nobody has upgraded
+        yet has no managed results and never had any; a reader told that can
+        report it, while one that discovered it as `no such table` mid-query
+        would be reporting a fault.
+        """
+        return self._schema_version >= 6
 
     def _now(self):
         return boundaries.instant(self._clock(), "the coordinator's instant")

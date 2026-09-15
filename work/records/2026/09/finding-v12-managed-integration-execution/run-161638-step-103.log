@@ -1,0 +1,34 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage
+............................................F...........
+======================================================================
+FAIL: test_the_identities_are_disjoint_by_construction (tests.integration.test_managed_storage.TheTwoActFamiliesCannotMeet.test_the_identities_are_disjoint_by_construction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1358, in test_the_identities_are_disjoint_by_construction
+    self.assertEqual(journalled,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                     ["result.managed:11:root/prepare",
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "result.managed:4:root",
+                      ^^^^^^^^^^^^^^^^^^^^^^^^
+                      "result.managed:4:root/prepare"])
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['result.managed:12:root/prepare', 'result.managed:4:root',[28 chars]are'] != ['result.managed:11:root/prepare', 'result.managed:4:root',[28 chars]are']
+
+First differing element 0:
+'result.managed:12:root/prepare'
+'result.managed:11:root/prepare'
+
+- ['result.managed:12:root/prepare',
+?                   ^
+
++ ['result.managed:11:root/prepare',
+?                   ^
+
+   'result.managed:4:root',
+   'result.managed:4:root/prepare']
+
+----------------------------------------------------------------------
+Ran 56 tests in 0.268s
+
+FAILED (failures=1)

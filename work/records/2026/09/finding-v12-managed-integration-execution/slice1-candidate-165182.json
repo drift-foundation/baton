@@ -1,0 +1,128 @@
+[
+  {
+    "path": "tools/integration_placement.py",
+    "bytes": 41523,
+    "sha256": "db24decb3305d5b82663e77e1a3e8fb24a045dffee8e75f81d253679fb80a863",
+    "mode": "0o644"
+  },
+  {
+    "path": "tests/tools/test_managed_integration.py",
+    "bytes": 75613,
+    "sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+    "mode": "0o644"
+  },
+  {
+    "path": "tests/integration/test_managed_storage.py",
+    "bytes": 70628,
+    "sha256": "d398bda36e22a6880d54e19c7f1b67fcc4316e444d6c01c3e8f2cdb51cd51a7c",
+    "mode": "0o644"
+  },
+  {
+    "path": "DEPLOYMENT.md",
+    "bytes": 88436,
+    "sha256": "971fba687461bf4cc0c8899b5f692d086cad3af8cd794573b2004cee1f0a7f94",
+    "mode": "0o664"
+  },
+  {
+    "path": "src/baton_v12/integration/reconciliation.py",
+    "bytes": 165046,
+    "sha256": "bc82064ff4481c6d67ada769f57c93fd4fbafdcb25241eb2789cbd07f690b5e7",
+    "mode": "0o664"
+  },
+  {
+    "path": "src/baton_v12/integration/queue.py",
+    "bytes": 117764,
+    "sha256": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+    "mode": "0o664"
+  },
+  {
+    "path": "src/baton_v12/integration/schema.py",
+    "bytes": 37291,
+    "sha256": "2ff94a4d7509545c326e94b20020f23670482d6438e064653891072fd0a41e7a",
+    "mode": "0o664"
+  },
+  {
+    "path": "src/baton_v12/integration/store.py",
+    "bytes": 46545,
+    "sha256": "06936f989e13f55509b97559c7086b1019b349ab637af35de3b5979ba3bb4eec",
+    "mode": "0o664"
+  },
+  {
+    "path": "src/baton_v12/integration/managed_execution.py",
+    "bytes": 29666,
+    "sha256": "f220b688b1fe15b54b70bbea3c223e131cb5597358fcf5f00e0fe32b761747b0",
+    "mode": "0o644"
+  },
+  {
+    "path": "tests/integration/test_managed_execution.py",
+    "bytes": 33696,
+    "sha256": "40da90207a98cc11507f24fcd811689406ca17afc7347f8b06cd18a20b1e872d",
+    "mode": "0o644"
+  },
+  {
+    "path": "src/baton_v12/job_manager/integration_capacity.py",
+    "bytes": 64967,
+    "sha256": "4186730ed6f43ed34491e08d379440a3120f6fffa62cfd9adfa80520df8e73f4",
+    "mode": "0o644"
+  },
+  {
+    "path": "tests/job_manager/test_managed_integration_capacity.py",
+    "bytes": 100380,
+    "sha256": "369b3793a6ec1d40c13663c291b572d293428f56f1d3686c4757e9c70811dd31",
+    "mode": "0o644"
+  },
+  {
+    "path": "src/baton_v12/job_manager/schema.py",
+    "bytes": 40136,
+    "sha256": "137617b87020e4b4b5309c3396ce94f86243822604d67392bfbd44dafd9cc0f0",
+    "mode": "0o664"
+  },
+  {
+    "path": "src/baton_v12/job_manager/store.py",
+    "bytes": 41531,
+    "sha256": "f35eb9878c7bfbcd592bc5afc816acf1a67ee01a1529fc123e2b0f89fda33c91",
+    "mode": "0o664"
+  },
+  {
+    "path": "src/baton_v12/job_manager/scheduler.py",
+    "bytes": 44007,
+    "sha256": "f2066c9614a9d7511547d5ce4446bfbbf350f00df8c71ab2d8d0cfb99d6434ad",
+    "mode": "0o664"
+  },
+  {
+    "path": "src/baton_v12/worker_manager/attempts.py",
+    "bytes": 184541,
+    "sha256": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6",
+    "mode": "0o644"
+  },
+  {
+    "path": "src/baton_v12/worker_manager/documents.py",
+    "bytes": 49020,
+    "sha256": "5f31654f699448a8e52d076f6ba517e9acfef201ada30dea0559051af474b014",
+    "mode": "0o644"
+  },
+  {
+    "path": "tests/manager/test_reconciliation_worker.py",
+    "bytes": 25665,
+    "sha256": "c0d7f2d1f90a1a5d024c034c83ef71fdc161888f37817e198fd318b08c67bd98",
+    "mode": "0o644"
+  },
+  {
+    "path": "tests/job_manager/test_store.py",
+    "bytes": 43045,
+    "sha256": "5febdd004e0e6db8a83acf4c2489107f9d5eebb3ebb5945949a59b746bc787c6",
+    "mode": "0o664"
+  },
+  {
+    "path": "tests/job_manager/test_scheduling.py",
+    "bytes": 72565,
+    "sha256": "d61e968e11dd6bd8904631b577f25ceafc9e231b811294ea7f81ae681e88b03e",
+    "mode": "0o664"
+  },
+  {
+    "path": "tests/job_manager/test_execution_limits.py",
+    "bytes": 33089,
+    "sha256": "9df0c9078bfa7a0d47c95cb4c5be7349569875579bfabd90457d0620a186e465",
+    "mode": "0o664"
+  }
+]

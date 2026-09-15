@@ -1,5 +1,27 @@
 # Plan: local OCI negative and race endings
 
+## Complete — independent review claim168683
+
+review-2026-09-14T11-10-46Z.md accepts the exact changed test candidate and the composed
+parent matrix. W32576/W32577/W32648/W32649 are all closed satisfying. Prior
+accepted child crossings and verification remain applicable; the parent now
+asserts deadline cleanup and refusal of successor reuse before settlement.
+No selected parent source/test/verification step remains. Canonical closure168717
+records satisfying outcome; detail at168719 confirms closed status and no claim.
+W3 and W33755 retain independent completion requirements.
+
+Current evidence: review-audit-168683.json. Author fresh engine results remain
+attributed reports; no new reviewer engine run or broad-suite pass is claimed.
+W168703 separately owns the20 unregistered modules and preservation of explicitly
+gated execution. Do not bypass the guard or register supervised engine tests
+blindly. No new dependency is installed for this separate limitation.
+
+All historical incomplete provider/order/deadline statements below are superseded
+by this final review; their decision history is retained.
+
+## Historical plan and implementation reports
+
+
 1. Revalidate W6636's final one-container, provider and cleanup contracts.
 2. Add offer-expiry and post-create non-duplication real-engine regressions.
 3. Drive `plan-rejected`, `unsupported-version`, and deadline through the
@@ -64,3 +86,25 @@
 - [sequencing required] W32649's impl Route installs a dependency on W16823
   before implementation so the lane consumes canonical principal/scope context
   rather than endpoint spelling.
+
+## 2026-09-14 - providers landed; the two deferred items are closed out
+
+- [done] The successor/lane ordering is now ENFORCED rather than witnessed.
+  W32649's cross-attempt lane owner exists, so the case attempts a real
+  successor attempt BEFORE the predecessor's ending is proved, asserts the
+  exact predecessor refusal, asserts nothing was created, and only then lets
+  the settled predecessor hand the lane over to one winner.
+- [done] The runtime deadline takes the same cleanup crossing, asserted in the
+  ORDINARY serial registry beside `plan-rejected`: observation alone touches
+  nothing, then fence, exact removal, positive absence, both provider
+  teardowns, settlement, lane release and a replaying proof.
+- [revalidated, not duplicated] `unsupported-version` is proved on a real
+  daemon by W32576's `test_refused_session_engine`, which sits in the same
+  serial registry on the same fixture. Ran it rather than copying it.
+- [reported] `tools/parallel_test.py` will not start in this tree: twenty
+  modules owned by other in-flight Works are unregistered and its guard
+  refuses. Focused module, fixture neighbour and all four child seams were run
+  instead; registering those modules belongs to the Works that own them.
+
+All four mandatory children are closed `satisfying`. Returned for independent
+review rather than closed.

@@ -1,0 +1,41 @@
+..............E.....
+======================================================================
+ERROR: test_provider_unresolved_is_retryable_and_does_not_release_gate (tests.manager.test_runtime_deadlines.Deadlines.test_provider_unresolved_is_retryable_and_does_not_release_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_runtime_deadlines.py", line 245, in test_provider_unresolved_is_retryable_and_does_not_release_gate
+    answer = self.advance()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_runtime_deadlines.py", line 74, in advance
+    return advance_deadline(self.store, self.port, self.agent, self.adapter, **args)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/deadlines.py", line 332, in advance_deadline
+    cleanup = intake._authorize_deadline_cleanup(store, adapter, command=command, fence=fence)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 3619, in _authorize_deadline_cleanup
+    observed = deadlines._destroy_observation(
+        adapter.destroy_deadline({**documents.deadline_destroy_command(**taken), "operation": operation}),
+        taken["runtime_id"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/deadlines.py", line 262, in _destroy_observation
+    intake._provider_ending(held[provider], provider)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/intake.py", line 3929, in _provider_ending
+    taken = boundaries.document(ending, f"a {provider} teardown ending",
+                                required=required, optional=optional)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 202, in _members
+    _refuse(f"{what} also carries {', '.join(extra)}, which this build's "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"contract for it does not name; an unrecognised member is "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"refused rather than ignored, because ignoring one silently "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"assumes the members we do recognise still mean what they did")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a launch teardown ending also carries reason, which this build's contract for it does not name; an unrecognised member is refused rather than ignored, because ignoring one silently assumes the members we do recognise still mean what they did
+
+----------------------------------------------------------------------
+Ran 20 tests in 0.123s
+
+FAILED (errors=1)

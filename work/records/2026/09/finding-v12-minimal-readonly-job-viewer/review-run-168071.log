@@ -1,0 +1,121 @@
+test_a_known_start_produces_a_real_elapsed (tests.tools.test_job_viewer.NothingIsInvented.test_a_known_start_produces_a_real_elapsed)
+And the reversal of the case above: when the source time IS there, ... ok
+test_activity_is_unknown_until_a_trusted_source_exists (tests.tools.test_job_viewer.NothingIsInvented.test_activity_is_unknown_until_a_trusted_source_exists)
+W61599 owns the activity source. Until it exists this says ... ok
+test_an_unread_manager_says_nobody_looked (tests.tools.test_job_viewer.NothingIsInvented.test_an_unread_manager_says_nobody_looked)
+`canonical: false` is the difference between "nothing is running" ... ok
+test_elapsed_comes_from_source_times_and_not_the_wall_clock (tests.tools.test_job_viewer.NothingIsInvented.test_elapsed_comes_from_source_times_and_not_the_wall_clock)
+A stage whose start nobody recorded has an UNKNOWN elapsed. The ... ok
+test_a_foreign_schema_refuses (tests.tools.test_job_viewer.TheBoundsAreHonest.test_a_foreign_schema_refuses) ... ok
+test_a_locator_read_is_bounded_and_visibly_truncated (tests.tools.test_job_viewer.TheBoundsAreHonest.test_a_locator_read_is_bounded_and_visibly_truncated) ... ok
+test_a_stage_with_no_frozen_output_says_unavailable (tests.tools.test_job_viewer.TheBoundsAreHonest.test_a_stage_with_no_frozen_output_says_unavailable) ... ok
+test_an_artifact_without_a_locator_is_unavailable_not_guessed (tests.tools.test_job_viewer.TheBoundsAreHonest.test_an_artifact_without_a_locator_is_unavailable_not_guessed) ... ok
+test_an_oversize_snapshot_refuses_rather_than_omitting_jobs (tests.tools.test_job_viewer.TheBoundsAreHonest.test_an_oversize_snapshot_refuses_rather_than_omitting_jobs)
+A view that dropped the tail would silently omit Jobs -- and a Job ... ok
+test_the_locator_is_the_snapshots_and_never_the_callers (tests.tools.test_job_viewer.TheBoundsAreHonest.test_the_locator_is_the_snapshots_and_never_the_callers)
+There is no operand here an operator could point elsewhere, which ... ok
+test_a_detail_request_for_an_absent_job_refuses_with_status_two (tests.tools.test_job_viewer.TheCommandIsOrdinary.test_a_detail_request_for_an_absent_job_refuses_with_status_two) ... ok
+test_it_reads_a_status_document_an_operator_already_has (tests.tools.test_job_viewer.TheCommandIsOrdinary.test_it_reads_a_status_document_an_operator_already_has) ... ok
+test_a_failed_read_disconnects_and_keeps_saying_so (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_a_failed_read_disconnects_and_keeps_saying_so)
+The last good reading is kept because it was true once -- as long ... ok
+test_a_fresh_reading_shows_when_it_was_observed (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_a_fresh_reading_shows_when_it_was_observed) ... ok
+test_a_reconnect_clears_the_warning (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_a_reconnect_clears_the_warning) ... ok
+test_an_unrefreshed_view_becomes_conspicuously_stale (tests.tools.test_job_viewer.TheViewNeverHidesItsOwnAge.test_an_unrefreshed_view_becomes_conspicuously_stale) ... ok
+test_a_foreign_identity_refuses_instead_of_rendering_empty (tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere.test_a_foreign_identity_refuses_instead_of_rendering_empty)
+An empty detail view for a Job that is not here reads exactly like ... ok
+test_the_exact_identities_are_shown_not_summarised (tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere.test_the_exact_identities_are_shown_not_summarised)
+An operator chasing a stuck Job has to be able to hand somebody ... ok
+test_two_independent_jobs_are_both_visible_and_distinct (tests.tools.test_job_viewer.TheViewShowsTheJobsThatAreThere.test_two_independent_jobs_are_both_visible_and_distinct)
+The whole reason this Work exists: V12 runs Jobs in parallel and an ... ok
+test_a_changed_observation_is_visible_on_the_next_tick (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_a_changed_observation_is_visible_on_the_next_tick)
+THE REFRESH LATENCY, TESTED LOGICALLY RATHER THAN BY WAITING. ... ok
+test_refreshing_only_reads (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_refreshing_only_reads) ... ok
+test_the_loop_sleeps_between_reads_and_does_not_spin (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_the_loop_sleeps_between_reads_and_does_not_spin) ... ok
+test_the_module_constructs_no_serving_factory (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_the_module_constructs_no_serving_factory)
+Read the imports rather than the paragraph promising the absence. ... ok
+test_the_store_is_unchanged_by_being_viewed (tests.tools.test_job_viewer.TheViewerPerformsNoAct.test_the_store_is_unchanged_by_being_viewed)
+The disposable owner state is established before and compared ... ok
+test_known_worker_and_assignment_are_visible (__main__.RequiredBehavior.test_known_worker_and_assignment_are_visible) ... FAIL
+test_local_file_uri_locator_uses_supported_local_locator_semantics (__main__.RequiredBehavior.test_local_file_uri_locator_uses_supported_local_locator_semantics) ... ERROR
+test_malformed_refresh_preserves_last_good_disconnected_view (__main__.RequiredBehavior.test_malformed_refresh_preserves_last_good_disconnected_view) ... ERROR
+test_rereading_unchanged_snapshot_does_not_make_it_fresh (__main__.RequiredBehavior.test_rereading_unchanged_snapshot_does_not_make_it_fresh) ... FAIL
+
+======================================================================
+ERROR: test_local_file_uri_locator_uses_supported_local_locator_semantics (__main__.RequiredBehavior.test_local_file_uri_locator_uses_supported_local_locator_semantics)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tools/job_viewer.py", line 373, in read_locator
+    with opener(locator, "rb") as handle:
+         ~~~~~~^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'file:///tmp/v12-job-viewer-3uno8d1d/retained-result.log'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-minimal-readonly-job-viewer/probe-168071.py", line 27, in test_local_file_uri_locator_uses_supported_local_locator_semantics
+    self.assertEqual(view.read_locator({"locator": target.as_uri()}), "retained result")
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/job_viewer.py", line 376, in read_locator
+    _refuse("this locator could not be read (" + type(failure).__name__
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            + "); the view does not go looking elsewhere for it")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/job_viewer.py", line 72, in _refuse
+    raise ViewerRefusal(message)
+tools.job_viewer.ViewerRefusal: this locator could not be read (FileNotFoundError); the view does not go looking elsewhere for it
+
+======================================================================
+ERROR: test_malformed_refresh_preserves_last_good_disconnected_view (__main__.RequiredBehavior.test_malformed_refresh_preserves_last_good_disconnected_view)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tools/job_viewer.py", line 128, in read_snapshot
+    held = json.loads(bytes(source).decode("utf-8"))
+  File "/usr/lib/python3.13/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/lib/python3.13/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/json/decoder.py", line 361, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ~~~~~~~~~~~~~~^^^^^^^^
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-minimal-readonly-job-viewer/probe-168071.py", line 20, in test_malformed_refresh_preserves_last_good_disconnected_view
+    viewer.refresh()
+    ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tools/job_viewer.py", line 424, in refresh
+    self.snapshot = read_snapshot(taken, received_at=self._clock())
+                    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/job_viewer.py", line 130, in read_snapshot
+    _refuse("this status document is not readable as one document")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/job_viewer.py", line 72, in _refuse
+    raise ViewerRefusal(message)
+tools.job_viewer.ViewerRefusal: this status document is not readable as one document
+
+======================================================================
+FAIL: test_known_worker_and_assignment_are_visible (__main__.RequiredBehavior.test_known_worker_and_assignment_are_visible)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-minimal-readonly-job-viewer/probe-168071.py", line 36, in test_known_worker_and_assignment_are_visible
+    self.assertIn("worker-proof-a", shown)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'worker-proof-a' not found in 'observed at 2026-09-02T00:00:00.000Z   read 0s ago   [the manager was NOT read: absences here mean nobody looked]\n\nJOB job-a\n  submission   sub-1\n  input        sha256:1111111111111111111111111111111111111111111111111111111111111111\n  policy       sha256:2222222222222222222222222222222222222222222222222222222222222222\n  terminal     report-and-hold\n\n  STAGE job-a/implementation  [queued]\n    work         0000000a-W1\n    episode      1\n    offer        offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1\n    attempt      attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1\n    started      2026-09-02T00:00:00.000Z\n    elapsed      0s\n    activity     unknown\n    corrections  0\n    reason       held: no attempt in progress\n    results      unavailable (no frozen output in this snapshot)\n\n  STAGE job-a/review  [blocked]\n    work         0000000a-W2\n    episode      1\n    offer        offer-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7\n    attempt      attempt-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7\n    started      2026-09-02T00:00:00.000Z\n    elapsed      0s\n    activity     unknown\n    corrections  0\n    reason       held: waiting on job-a/implementation (queued)\n    results      unavailable (no frozen output in this snapshot)'
+
+======================================================================
+FAIL: test_rereading_unchanged_snapshot_does_not_make_it_fresh (__main__.RequiredBehavior.test_rereading_unchanged_snapshot_does_not_make_it_fresh)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-minimal-readonly-job-viewer/probe-168071.py", line 14, in test_rereading_unchanged_snapshot_does_not_make_it_fresh
+    self.assertIn("!! STALE", "\n".join(view.render_list(viewer.snapshot, now=self.now)))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '!! STALE' not found in 'observed at 2026-09-02T00:00:00.000Z   read 0s ago   [the manager was NOT read: absences here mean nobody looked]\n\nJOB job-a   submission sub-1\n  implementation   queued           elapsed 0s       activity unknown  job-a/implementation\n      held: no attempt in progress\n  review           blocked          elapsed 0s       activity unknown  job-a/review\n      held: waiting on job-a/implementation (queued)\n\nJOB job-b   submission sub-1\n  implementation   queued           elapsed 0s       activity unknown  job-b/implementation\n      held: no attempt in progress'
+
+----------------------------------------------------------------------
+Ran 28 tests in 0.101s
+
+FAILED (failures=2, errors=2)

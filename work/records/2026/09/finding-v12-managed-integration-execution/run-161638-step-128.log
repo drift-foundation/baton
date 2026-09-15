@@ -1,0 +1,205 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration tests.integration.test_managed_storage tests.integration.test_managed_execution tests.integration.test_reconciliation tests.integration.test_coordinator tests.integration.test_execution tests.integration.test_driver tests.integration.test_admission tests.integration.test_recovery tests.integration.test_runtime tests.job_manager.test_managed_integration_capacity tests.job_manager.test_store tests.job_manager.test_scheduling tests.job_manager.test_execution_limits tests.manager.test_reconciliation_worker
+...............................................EE..........................................E.F...FEE.............................................................................................................................................................................................................................................../home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3538: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-2o9audyl/prose.txt'>
+  before = open(prose, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3545: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-2o9audyl/prose.txt'>
+  self.assertEqual(open(prose, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3416: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-s9_tiwl7/theirs.sqlite3'>
+  before = open(foreign, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3421: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-s9_tiwl7/theirs.sqlite3'>
+  self.assertEqual(open(foreign, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-3oyd1c54/integration.sqlite3'>
+  return {name: (open(os.path.join(self.root, name), "rb").read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-63nhlg6m/integration.sqlite3'>
+  return {name: (open(os.path.join(self.root, name), "rb").read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3559: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-2v04cue7/older.sqlite3'>
+  before = open(path, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3563: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-2v04cue7/older.sqlite3'>
+  self.assertEqual(open(path, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-dwddoajr/integration.sqlite3'>
+  return {name: (open(os.path.join(self.root, name), "rb").read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3431: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-pwp6cja2/other-kind.sqlite3'>
+  before = open(foreign, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3435: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-pwp6cja2/other-kind.sqlite3'>
+  self.assertEqual(open(foreign, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.../home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3404: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-5gqtrffl/empty.sqlite3'>
+  before = open(empty, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3409: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-5gqtrffl/empty.sqlite3'>
+  self.assertEqual(open(empty, "rb").read(), before)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....../home/sl/src/baton/v12/python/tests/integration/test_coordinator.py:3338: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/v12-integration-dlu7tnyt/integration.sqlite3'>
+  return {name: (open(os.path.join(self.root, name), "rb").read(),
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+........................................................................................................................................................................................................................................................................................................................s....................................................................................................................................................................................................................................................................................................................................
+======================================================================
+ERROR: test_a_schema_five_coordinator_reads_and_is_not_upgraded (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_a_schema_five_coordinator_reads_and_is_not_upgraded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 450, in test_a_schema_five_coordinator_reads_and_is_not_upgraded
+    reader = IntegrationStore.open_readonly(self.path, incarnation="c-2",
+                                            clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 526, in open_readonly
+    store._schema_version = cls._adopt(connection, path,
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                                       READABLE_VERSIONS)
+                                       ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 687, in _adopt
+    _refuse(f"the integration coordinator store at {name_value(path)} "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carries {', '.join(extra)}, which this build does not "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"own; a store this process cannot reason about entirely "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is not one it adopts. Nothing was changed")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 180, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the integration coordinator store at '/tmp/v12-integration-_vuy3_y5/integration.sqlite3' carries table managed_publications, which this build does not own; a store this process cannot reason about entirely is not one it adopts. Nothing was changed
+
+======================================================================
+ERROR: test_asking_an_older_store_for_managed_results_is_answered (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_asking_an_older_store_for_managed_results_is_answered)
+Absence is an ANSWER. A reader that discovered it as `no such
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 461, in test_asking_an_older_store_for_managed_results_is_answered
+    reader = IntegrationStore.open_readonly(self.path, incarnation="c-2",
+                                            clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 526, in open_readonly
+    store._schema_version = cls._adopt(connection, path,
+                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+                                       READABLE_VERSIONS)
+                                       ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 687, in _adopt
+    _refuse(f"the integration coordinator store at {name_value(path)} "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carries {', '.join(extra)}, which this build does not "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"own; a store this process cannot reason about entirely "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is not one it adopts. Nothing was changed")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 180, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the integration coordinator store at '/tmp/v12-integration-xvogvksy/integration.sqlite3' carries table managed_publications, which this build does not own; a store this process cannot reason about entirely is not one it adopts. Nothing was changed
+
+======================================================================
+ERROR: test_a_real_result_and_its_history_survive_the_upgrade (tests.integration.test_managed_storage.TheUpgradeCarriesAGenuineLegacyResult.test_a_real_result_and_its_history_survive_the_upgrade)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1066, in test_a_real_result_and_its_history_survive_the_upgrade
+    answer = upgrade_store(self.path, incarnation="c-2",
+                           clock=lambda: fixtures.NOW)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 121, in upgrade_store
+    found = IntegrationStore._adopt(connection, path, READABLE_VERSIONS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 687, in _adopt
+    _refuse(f"the integration coordinator store at {name_value(path)} "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carries {', '.join(extra)}, which this build does not "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"own; a store this process cannot reason about entirely "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is not one it adopts. Nothing was changed")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 180, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the integration coordinator store at '/tmp/v12-reconciliation-gmedjkb5/coordinator.sqlite3' carries table managed_publications, which this build does not own; a store this process cannot reason about entirely is not one it adopts. Nothing was changed
+
+======================================================================
+ERROR: test_the_step_preserves_the_records_and_leases_it_found (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_step_preserves_the_records_and_leases_it_found)
+WHAT IT PRESERVES IT PRESERVES BY NOT TOUCHING -- and this compares
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 334, in test_the_step_preserves_the_records_and_leases_it_found
+    upgrade_store(self.path, incarnation="c-2", clock=self.clock)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 121, in upgrade_store
+    found = IntegrationStore._adopt(connection, path, READABLE_VERSIONS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 687, in _adopt
+    _refuse(f"the integration coordinator store at {name_value(path)} "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carries {', '.join(extra)}, which this build does not "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"own; a store this process cannot reason about entirely "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is not one it adopts. Nothing was changed")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 180, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the integration coordinator store at '/tmp/v12-integration-5m17o4x6/integration.sqlite3' carries table managed_publications, which this build does not own; a store this process cannot reason about entirely is not one it adopts. Nothing was changed
+
+======================================================================
+ERROR: test_the_upgrade_carries_it_forward_once (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_upgrade_carries_it_forward_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 289, in test_the_upgrade_carries_it_forward_once
+    answer = upgrade_store(self.path, incarnation="c-2", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 121, in upgrade_store
+    found = IntegrationStore._adopt(connection, path, READABLE_VERSIONS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 687, in _adopt
+    _refuse(f"the integration coordinator store at {name_value(path)} "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carries {', '.join(extra)}, which this build does not "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"own; a store this process cannot reason about entirely "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is not one it adopts. Nothing was changed")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 180, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the integration coordinator store at '/tmp/v12-integration-em4ezth9/integration.sqlite3' carries table managed_publications, which this build does not own; a store this process cannot reason about entirely is not one it adopts. Nothing was changed
+
+======================================================================
+FAIL: test_a_concurrent_shape_change_is_caught_under_the_lock (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_a_concurrent_shape_change_is_caught_under_the_lock)
+[P2] Review 2026-09-13T18:51:48Z: the preflight ran BEFORE the lock
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 389, in test_a_concurrent_shape_change_is_caught_under_the_lock
+    self.assertTrue(dropped)
+    ~~~~~~~~~~~~~~~^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_the_older_shape_is_derived_not_restated (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_older_shape_is_derived_not_restated)
+`shape_for(5)` is this build's own script minus exactly what the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 439, in test_the_older_shape_is_derived_not_restated
+    self.assertEqual(sorted(key for key in current if key not in older),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     [("index", "managed_results_by_orchestration"),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      ("table", "managed_integration_phases"),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      ("table", "managed_integration_results")])
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('in[97 chars]naged_integration_results'), ('table', 'managed_publications')] != [('in[97 chars]naged_integration_results')]
+
+First list contains 1 additional elements.
+First extra element 3:
+('table', 'managed_publications')
+
+  [('index', 'managed_results_by_orchestration'),
+   ('table', 'managed_integration_phases'),
+-  ('table', 'managed_integration_results'),
+?                                          ^
+
++  ('table', 'managed_integration_results')]
+?                                          ^
+
+-  ('table', 'managed_publications')]
+
+----------------------------------------------------------------------
+Ran 991 tests in 14.875s
+
+FAILED (failures=2, errors=5, skipped=1)

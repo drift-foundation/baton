@@ -1,0 +1,29 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_preparation
+...F.....F...........
+======================================================================
+FAIL: test_a_tampered_published_artifact_never_reaches_execution (tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_a_tampered_published_artifact_never_reaches_execution)
+THE VERIFICATION IS IN THE PATH, not merely available beside it.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 350, in test_a_tampered_published_artifact_never_reaches_execution
+    with self.assertRaises(task.PreparationRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_the_launched_bound_is_the_one_the_commands_actually_run_under (tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_the_launched_bound_is_the_one_the_commands_actually_run_under)
+AND IT IS OBSERVABLE, not asserted about a helper.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 389, in test_the_launched_bound_is_the_one_the_commands_actually_run_under
+    self.assertEqual(report["kind"], "collected-without-status")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'measured' != 'collected-without-status'
+- measured
++ collected-without-status
+
+
+----------------------------------------------------------------------
+Ran 21 tests in 60.232s
+
+FAILED (failures=2)

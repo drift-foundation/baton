@@ -1,0 +1,32 @@
+test_missing_root_operand_skips_recovery_observed (__main__.RecoveryResearch.test_missing_root_operand_skips_recovery_observed) ... ok
+test_moved_target_fails_resolver_before_recovery_observed (__main__.RecoveryResearch.test_moved_target_fails_resolver_before_recovery_observed) ... ok
+test_recovered_request_restores_target_and_derived_digests (__main__.RecoveryResearch.test_recovered_request_restores_target_and_derived_digests) ... ok
+test_a_checkpoint_without_evidence_paths_refuses (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_checkpoint_without_evidence_paths_refuses)
+A preparation runs the paths an accepted verdict authorized. A ... ok
+test_a_moved_target_is_a_different_preparation (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_moved_target_is_a_different_preparation)
+The target revision is PINNED at intent time. A preparation is about ... ok
+test_a_published_bundle_for_another_request_refuses (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_published_bundle_for_another_request_refuses)
+THE BUNDLE A WORKER READS AND THE REQUEST ITS INTENT COMMITS ARE ONE ... ok
+test_a_tampered_published_request_does_not_survive_its_composer (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_tampered_published_request_does_not_survive_its_composer)
+Recovery is not a trusting read. The document is adopted through ... ok
+test_an_absent_publication_is_an_answer_rather_than_an_empty_request (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_an_absent_publication_is_an_answer_rather_than_an_empty_request)
+A published input that is not there is not an empty request: it ... ok
+test_the_child_identities_are_derived_and_not_minted (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_child_identities_are_derived_and_not_minted)
+A restart must reach the SAME three. Identities minted on a second ... ok
+test_the_input_digest_is_the_producers_measurement (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_input_digest_is_the_producers_measurement)
+`compose_preparation_input` measures the bundle it wrote; a caller ... ok
+test_the_published_request_is_recoverable (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_published_request_is_recoverable)
+THE BUNDLE IS THE DURABLE RECORD OF WHAT WAS ASKED. ... ok
+test_the_resolver_consumes_the_real_readers_answer (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_resolver_consumes_the_real_readers_answer)
+THE ACTUAL OWNER, not my idea of it. ... ok
+test_the_source_is_the_accepted_checkpoints_own_evidence (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_source_is_the_accepted_checkpoints_own_evidence)
+The base and the candidate are the checkpoint's, not this ... ok
+test_the_task_digest_is_the_requests_own_name (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_the_task_digest_is_the_requests_own_name)
+A membership's task digest is what a later adoption compares the ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.477s
+
+OK
+OBSERVED: resolver supplies no published_root; recovery silently passes supplied operands through without it.
+OBSERVED: fresh-target resolver plus retained publication refuses before ManagedPreparation recovery. Composition must recover before resolving first-sweep operands.

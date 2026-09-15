@@ -1,0 +1,15 @@
+test_a_released_reservation_is_refused_by_its_own_owner (tests.job_manager.test_managed_integration_capacity.ThePreparationIsAdmittedBeforeTheParentOffer.test_a_released_reservation_is_refused_by_its_own_owner)
+MEASURED, and it changed this case. `release` leaves the allocation ... ok
+test_a_stage_with_no_allocation_is_refused_before_anything (tests.job_manager.test_managed_integration_capacity.ThePreparationIsAdmittedBeforeTheParentOffer.test_a_stage_with_no_allocation_is_refused_before_anything)
+The wrapper runs INSIDE the pooled admit, which reserves FIRST. A ... ok
+test_an_already_claimed_parent_refuses_managed_conversion (tests.job_manager.test_managed_integration_capacity.ThePreparationIsAdmittedBeforeTheParentOffer.test_an_already_claimed_parent_refuses_managed_conversion)
+A stage whose parent already holds the claim has already taken this ... ok
+test_an_unselected_deployment_gets_the_operations_it_always_had (tests.job_manager.test_managed_integration_capacity.ThePreparationIsAdmittedBeforeTheParentOffer.test_an_unselected_deployment_gets_the_operations_it_always_had)
+No managed preparation configured means this adds nothing. The ... ok
+test_the_wrapper_admits_preparation_and_defers_the_parent (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_wrapper_admits_preparation_and_defers_the_parent)
+THE SELECTED SEAM, END TO END, and the deferral actually reached. ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.032s
+
+OK

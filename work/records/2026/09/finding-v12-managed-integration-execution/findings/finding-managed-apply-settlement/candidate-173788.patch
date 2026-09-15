@@ -1,0 +1,2746 @@
+--- a/v12/python/tools/integration_bundle.py
++++ b/v12/python/tools/integration_bundle.py
+@@ -67,7 +67,7 @@
+ import stat
+ 
+ from baton_v12.checkpoint_profiles import GIT_PROFILE
+-from baton_v12.contracts import (ContractRefusal, check_relative_path, digest,
++from baton_v12.contracts import (ContractRefusal, canonical_text, check_relative_path, digest,
+                                  digest_of_bytes)
+ from baton_v12.contracts.errors import name_value
+ from baton_v12.integration import admission, driver, runtime
+@@ -667,7 +667,7 @@
+ 
+ 
+ def _measured_tree(holder, what, *, prefix="", entries=None, content=None,
+-                   depth=0):
++                   depth=0, max_files=MAX_REVIEW_FILES, max_bytes=MAX_REVIEW_BYTES):
+     """Every regular file under a HELD directory, measured as it is read.
+ 
+     ONE PASS AND NO SECOND LOOK. The bytes that are digested are the bytes
+@@ -698,7 +698,7 @@
+                         f"link ({failed.errno})")
+             try:
+                 _measured_tree(child, what, prefix=relative, entries=entries,
+-                               content=content, depth=depth + 1)
++                               content=content, depth=depth + 1, max_files=max_files, max_bytes=max_bytes)
+             finally:
+                 os.close(child)
+             continue
+@@ -706,24 +706,144 @@
+             _denied(f"{what} carries {relative!r}, which is neither a "
+                     f"directory nor a regular file; custody this producer "
+                     f"cannot account for is not custody it publishes")
+-        if len(entries) >= MAX_REVIEW_FILES:
++        if len(entries) >= max_files:
+             _refuse(f"{what} holds more than the bound of "
+-                    f"{MAX_REVIEW_FILES} files")
+-        payload = _read_held(holder, name, relative, what)
++                    f"{max_files} files")
++        payload = _read_held(holder, name, relative, what, max_bytes=max_bytes)
+         entries.append({"path": relative, "bytes": len(payload),
+                         "content_digest": digest_of_bytes(payload)})
+         content[relative] = payload
+     entries.sort(key=lambda one: one["path"].encode("utf-8"))
+     total = sum(one["bytes"] for one in entries)
+-    if total > MAX_REVIEW_BYTES:
++    if total > max_bytes:
+         _refuse(f"{what} holds {total} bytes, above the bound of "
+-                f"{MAX_REVIEW_BYTES}")
++                f"{max_bytes}")
+     return {"entries": entries, "entry_count": len(entries),
+             "total_bytes": total, "tree_digest": digest(entries),
+             "content": content}
+ 
+ 
+-def _read_held(holder, name, relative, what):
++def retained_preparation_objects(manager, preparation):
++    """Read exact object/candidate bytes through frozen, accepted custody."""
++    from urllib.parse import urlsplit, unquote
++    from baton_v12.worker_manager import frozen_output_of
++    from baton_v12.worker_manager.intake import intake_receipt_of
++    from baton_v12.worker_manager.manifests import load_manifest
++
++    attempt = preparation["execution_attempt_id"]
++    frozen = frozen_output_of(manager, attempt)
++    intake = intake_receipt_of(manager, attempt)
++    if frozen is None or intake is None or intake["custody"] != "accepted":
++        _gap("the preparation has no frozen output in accepted custody")
++    for key in ("result_id", "manifest_digest", "disposition"):
++        if frozen[key] != preparation["collected"][key]:
++            _drifted("the retained preparation collection changed")
++    manifest = load_manifest(manager, frozen["manifest_digest"], "resultManifest")
++    material = {}
++    for name, expected in (("prepared-objects", preparation.get("objects")),
++                           ("prepared-candidate", preparation["candidate"]),
++                           ("preparation-report", preparation["collected"]["report"])):
++        if expected is None:
++            _gap(f"preparation {attempt} has no retained prepared-objects artifact; exact apply needs operator disposition of this older result, without automatic rerun or scratch recovery")
++        outputs = [one for one in manifest["outputs"] if one["name"] == name]
++        if len(outputs) != 1 or outputs[0]["artifact"] is None:
++            _gap(f"the preparation declares no retained {name}")
++        artifact = outputs[0]["artifact"]
++        taken = [one for one in intake["artifacts"] if one["artifact_id"] == artifact["artifact_id"]]
++        if len(taken) != 1 or any(artifact[key] != expected[key] or taken[0][key] != expected[key]
++                                  for key in ("artifact_id", "content_digest", "bytes")):
++            _drifted(f"the {name} artifact disagrees with accepted custody")
++        locator = urlsplit(taken[0]["custody_locator"])
++        if locator.scheme != "file" or locator.netloc or locator.query or locator.fragment:
++            _gap("the preparation object consumer requires local accepted custody")
++        holder = _held_directory(unquote(locator.path), name)
++        try:
++            measured = _measured_tree(holder, name, max_files=len(outputs[0]["content_manifest"]["entries"]), max_bytes=expected["bytes"])
++        finally:
++            os.close(holder)
++        if measured["tree_digest"] != expected["content_digest"] or measured["total_bytes"] != expected["bytes"]:
++            _drifted(f"the retained {name} bytes differ from their frozen identity")
++        material[name] = measured["content"]
++    if set(material["prepared-objects"]) != {"objects.bundle"} or set(material["preparation-report"]) != {"report.json"}:
++        _drifted("the preparation object/report outputs have unexpected files")
++    report = json.loads(material["preparation-report"]["report.json"])
++    if report.get("derived_candidate") != preparation.get("derived_candidate"):
++        _drifted("the retained report and adopted derived Git identity disagree")
++    return {"bundle": material["prepared-objects"]["objects.bundle"],
++            "candidate": material["prepared-candidate"], "derived": report["derived_candidate"]}
++
++
++def compose_managed_apply_input(destination, *, manager, result, task, output_name):
++    from baton_v12.integration import managed_execution
++    from baton_v12.worker_manager.source_boundary import nominate_source
++
++    preparation = result["prepared"]["preparation"]
++    material = retained_preparation_objects(manager, preparation)
++    request = managed_execution.adopt_apply_request({
++        "schema": managed_execution.APPLY_REQUEST_SCHEMA, "purpose": "managed-apply", "job_id": result["job_id"],
++        "managed_result_id": result["managed_result_id"], "task": task,
++        "derived_proposal_id": result["derived_proposal_id"], "derived_result_id": result["derived_result_id"],
++        "derived_result_digest": result["derived_result_digest"], "candidate": result["prepared"]["head"],
++        "tree": result["prepared"]["tree"], "candidate_content_digest": result["content_digest"],
++        "objects_digest": digest_of_bytes(material["bundle"]), "objects_bytes": len(material["bundle"]), "output_name": output_name})
++    files = {"managed-apply.json": canonical_text(request).encode(), "objects.bundle": material["bundle"]}
++    os.makedirs(os.path.dirname(destination), exist_ok=True)
++    if os.path.lexists(destination):
++        holder = _held_directory(destination, "the retained managed apply input")
++        try:
++            measured = _measured_tree(holder, "the retained managed apply input", max_files=2, max_bytes=sum(map(len, files.values())))
++        finally:
++            os.close(holder)
++        if measured["content"] != files:
++            _drifted("the immutable managed apply input differs from its retained owners")
++    else:
++        _publish(destination, _destination(destination), [([name], body) for name, body in files.items()])
++    return {"request": request, "source": nominate_source(destination)}
++
++
++def retained_apply_report(manager, request):
++    from urllib.parse import unquote, urlsplit
++    from baton_v12.worker_manager import frozen_output_of
++    from baton_v12.worker_manager.intake import intake_receipt_of
++    from baton_v12.worker_manager.manifests import load_manifest
++    from baton_v12.integration import managed_execution
++
++    attempt = request["task"]["execution_attempt_id"]
++    frozen, intake = frozen_output_of(manager, attempt), intake_receipt_of(manager, attempt)
++    if frozen is None or intake is None or intake["custody"] != "accepted":
++        _gap("the managed apply has no accepted frozen report")
++    manifest = load_manifest(manager, frozen["manifest_digest"], "resultManifest")
++    if any(intake[name] != frozen[name] for name in ("result_id", "manifest_digest")) or manifest["assignment_ref"] != request["task"]["assignment"] or manifest["input_manifest_digest"] != request["task"]["input_digest"]:
++        _drifted("the managed apply collection names another fixed assignment or input")
++    outputs = [one for one in manifest["outputs"] if one["name"] == request["output_name"] and one["artifact"] is not None]
++    if len(outputs) != 1:
++        _gap("the managed apply did not retain its declared report")
++    output = outputs[0]
++    artifacts = [one for one in intake["artifacts"] if one["artifact_id"] == output["artifact"]["artifact_id"]]
++    if len(artifacts) != 1 or any(artifacts[0][name] != output["artifact"][name] for name in ("artifact_id", "content_digest", "bytes")):
++        _drifted("the managed apply report differs from accepted custody")
++    locator = urlsplit(artifacts[0]["custody_locator"])
++    if locator.scheme != "file" or locator.netloc or locator.query or locator.fragment:
++        _gap("the managed apply report requires local accepted custody")
++    holder = _held_directory(unquote(locator.path), "the managed apply report")
++    try:
++        measured = _measured_tree(holder, "the managed apply report", max_files=1, max_bytes=output["artifact"]["bytes"])
++    finally:
++        os.close(holder)
++    if measured["tree_digest"] != output["artifact"]["content_digest"] or set(measured["content"]) != {"managed-apply.json"}:
++        _drifted("the managed apply report no longer matches its frozen artifact")
++    report = boundaries.document(json.loads(measured["content"]["managed-apply.json"]), "the measured managed apply", required=managed_execution.APPLY_REPORT_MEMBERS)
++    expected = {"schema": managed_execution.APPLY_REPORT_SCHEMA, "request_digest": digest(request), "candidate": request["candidate"],
++                "tree": request["tree"], "harness_digest": request["task"]["harness_digest"], "command": ["python3", "harness.py"],
++                "seconds": request["task"]["execution_limits"]["boundaries"]["host_verification"]["seconds"]}
++    if any(report[name] != value for name, value in expected.items()) or type(report["unchanged"]) is not bool:
++        _drifted("the managed apply report names another request, candidate, harness or command bound")
++    if report["status"] is not None and type(report["status"]) is not int:
++        _drifted("the managed apply report has no measured integer status")
++    return report, {name: frozen[name] for name in ("result_id", "manifest_digest", "disposition")}
++
++
++def _read_held(holder, name, relative, what, *, max_bytes=MAX_REVIEW_BYTES):
+     """One regular file, proved on the descriptor that reads it."""
+     try:
+         handle = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+@@ -736,9 +856,9 @@
+         if not stat.S_ISREG(held.st_mode):
+             _denied(f"{what} carries {relative!r}, which is not a regular "
+                     f"file")
+-        if held.st_size > MAX_REVIEW_BYTES:
++        if held.st_size > max_bytes:
+             _refuse(f"{what} carries {relative!r} at {held.st_size} bytes, "
+-                    f"above the bound of {MAX_REVIEW_BYTES}")
++                    f"above the bound of {max_bytes}")
+         os.set_blocking(handle, True)
+         payload = b""
+         while True:
+@@ -746,9 +866,9 @@
+             if not chunk:
+                 break
+             payload += chunk
+-            if len(payload) > MAX_REVIEW_BYTES:
++            if len(payload) > max_bytes:
+                 _refuse(f"{what} carries {relative!r} above the bound of "
+-                        f"{MAX_REVIEW_BYTES}")
++                        f"{max_bytes}")
+         if len(payload) != held.st_size:
+             _refuse(f"{what} carries {relative!r}, which changed size while "
+                     f"it was read")
+--- a/v12/python/tools/integration_worker.py
++++ b/v12/python/tools/integration_worker.py
+@@ -1146,6 +1146,116 @@
+         return getattr(self._operations, name)
+ 
+ 
++def prepare_managed_parent(operations, stage, job):
++    """Activate the existing parent offer before publication, starting nothing."""
++    worker = operations._worker
++    worker._matches(stage, job)
++    row = worker._claim(stage)
++    given = worker.given
++    record_attempt(worker.control, attempt_id=stage["attempt_id"],
++                   adapter_name=given["adapter_name"], adapter_digest=given["adapter_digest"],
++                   profile_digest=given["profile_digest"], input_digest=given["input_manifest"]["manifest_digest"],
++                   policy_digest=given["policy_digest"], image_digest=given["image_digest"],
++                   toolchain_digest=given["input_manifest"]["toolchain_digest"])
++    expect = {"work_ref": {"authority_uuid": row["authority_uuid"], "work_id": row["work_id"]},
++              "participant": row["participant"], "generation": row["claim_generation"]}
++    activate_assignment(worker.control, worker.port, attempt_id=stage["attempt_id"], expect=expect)
++    return expect
++
++
++class ManagedApplyRuntime:
++    """The parent's ordinary runtime with a private managed source and ending."""
++
++    def __init__(self, deployment, parent_operations, request, source):
++        from . import single_worker
++
++        self.deployment = deployment
++        self.request = request
++        worker = parent_operations._worker
++        given = dict(deployment.integration_served(request["job_id"]), source_nomination=source)
++        self.operations = single_worker.worker_operations(
++            given, deployment.control, deployment.authority, worker.credential_provider,
++            engine_run=worker.engine, clock=worker.clock, stage=self, dispose=lambda: None,
++            execution_context=single_worker.job_execution_reader(deployment.jobs))
++
++    def close(self):
++        self.operations.close()
++
++    def mount(self, worker, stage, roots):
++        return {"roots": roots, "boundary": source_boundary.compose_source_boundary(
++            worker.given["source_nomination"], roots, worker.given["workspace_capacity"])}
++
++    def historical(self, stage, assignment):
++        from baton_v12.worker_manager import attempt_runtime_of
++        state = attempt_runtime_of(self.deployment.control, stage["attempt_id"])
++        if state is not None and state["cleanup"] in ("complete", "retained"):
++            return {"attempt_id": stage["attempt_id"], "assignment": assignment}
++        return None
++
++    def end(self, worker, stage, job, context):
++        from baton_v12.worker_manager import (observe, reconcile_runtime, request_freeze, request_intake,
++                                              decide_retention, authorize_cleanup, load_manifest, attempt_runtime_of)
++        from baton_v12.job_manager.integration_capacity import begin_integration_ending, end_integration_execution
++        from baton_v12.integration import managed_execution, reconciliation
++        from . import integration_bundle
++
++        attempt = stage["attempt_id"]
++        control = self.deployment.control
++        state = attempt_runtime_of(control, attempt)
++        if state["cleanup"] not in ("complete", "retained"):
++            adapter = context["adapter"]
++            stopped = adapter.stop({"runtime_id": state["runtime_id"], "operation_id": "managed-apply-quiesce:" + attempt})
++            if stopped.get("state") != "quiescent":
++                _denied("the managed apply runtime has not positively stopped writing")
++            reconcile_runtime(control, adapter, attempt_id=attempt)
++            observe(control, attempt_id=attempt, axis="worker_disposition", value=context["disposition"])
++            frozen = request_freeze(control, worker.port, adapter, attempt_id=attempt, disposition=context["disposition"])
++            sealed = load_manifest(control, frozen["manifest_digest"], "resultManifest")
++            if sealed["completion_manifest_digest"] != context["terminal"]["manifest_digest"]:
++                _denied("the managed apply terminal and sealed completion disagree")
++            receipt = request_intake(control, worker.port, adapter, attempt_id=attempt)
++            decide_retention(control, worker.port, adapter, attempt_id=attempt,
++                             artifact_ids=[one["artifact_id"] for one in receipt["artifacts"]],
++                             disposition=worker.given["retention_disposition"], retention_policy_digest=worker.given["retention_policy_digest"])
++            # The root stays open (and therefore unreleasable) until the
++            # target, result and parent route have a final owned account.
++            worker.session.cancel({"expect": context["assignment"], "operation_id": "managed-apply-fence:" + attempt,
++                                   "reason": "managed apply collected; final settlement owed"})
++            authorize_cleanup(control, worker.port, adapter, attempt_id=attempt, retention_policy_digest=worker.given["retention_policy_digest"])
++        report, collected = integration_bundle.retained_apply_report(control, self.request)
++        task = self.request["task"]
++        if report["status"] is None:
++            _denied(f"managed apply {attempt} retained a report without a command status; manual inspection is required and its root remains held")
++        account = managed_execution.collected_report(task, kind="measured",
++                                                     completed=[{"name": "post-import", "status": report["status"]}],
++                                                     not_run=[], status=report["status"], tag=report["tag"])
++        result = managed_execution.managed_result(task, account, collected=collected)
++        reconciliation.attach_managed_phase(self.deployment.integration, managed_result_id=self.request["managed_result_id"], task=task, result=result)
++        succeeded = report["status"] == 0 and report["unchanged"]
++        end_integration_execution(self.deployment.jobs, control, execution_attempt_id=attempt,
++                                  outcome="succeeded" if succeeded else "failed", exclusion="runtime-destroyed")
++        return {"report": report, "collected": collected, "succeeded": succeeded}
++
++    def poll(self, stage, job):
++        operations = self.operations
++        view = operations.observe(stage)
++        state = view["runtime"]
++        if state is not None and state["cleanup"] in ("complete", "retained"):
++            return operations.conclude(stage, job)
++        if view["start_failure"] is not None or view["preparation_failure"] is not None:
++            _denied(f"managed apply {stage['attempt_id']} requires its recorded failure ending; no replacement start is permitted")
++        if state is None or state["runtime_id"] is None:
++            operations.launch(stage, job)
++        operations.dispatch(stage, job)
++        operations.refresh_runtime(stage)
++        terminal = (operations.observe(stage)["exchange"] or {}).get("terminal")
++        if terminal is None:
++            return None
++        if terminal["ending"] != "answered":
++            _denied("the managed apply did not answer its ordinary command")
++        return operations.conclude(stage, job)
++
++
+ class ManagedPreparation:
+     """The act the wrapper performs when a deployment selects preparation.
+ 
+@@ -1200,7 +1310,8 @@
+     def admit(self, operations, stage, job):
+         from baton_v12.job_manager.integration_capacity import (
+             preparation_intent_of, register_integration_capacity,
+-            recover_preparation_reservation)
++            recover_preparation_reservation, failed_integration_of,
++            settle_failed_integration)
+         from baton_v12.job_manager.scheduler import allocation_of
+ 
+         allocation = allocation_of(self._jobs, stage["attempt_id"])
+@@ -1208,6 +1319,10 @@
+             _denied("this stage holds no scheduler allocation; a managed "
+                     "preparation runs inside the reservation its parent "
+                     "already owns, and there is none to run inside")
++        failed = failed_integration_of(self._jobs, allocation["stage_id"], allocation["episode"])
++        if failed is not None:
++            settle_failed_integration(self._jobs, self._control, orchestration_id=failed["orchestration_id"], phase=failed["phase"])
++            _denied("this managed integration has settled its recorded failure")
+         if stage.get("state") == "claimed":
+             _denied("this stage is already claimed, so its parent holds this "
+                     "principal's one live Authority claim; a managed "
+@@ -1227,10 +1342,11 @@
+         # defer forever with a live worker still running.
+         if intent is not None and self._runtime is not None \
+                 and self._failed_start(intent, held):
++            settle_failed_integration(self._jobs, self._control, orchestration_id=intent["orchestration_id"], phase="prepare")
+             _denied(f"the managed preparation for "
+                     f"{name_value(intent['orchestration_id'])} failed its "
+                     f"start after creating a runtime; that execution is ended "
+-                    f"and its root stays held for its own owner to settle")
++                    f"and the parent has settled exceptionally")
+         plan = self.planned(stage, held)
+         if intent is None and allocation["allocation_state"] == "recovery-required":
+             recover_preparation_reservation(
+@@ -1261,6 +1377,8 @@
+             result = self._runtime.poll(held, stage, job, execution)
+             if result is not None:
+                 self.adopted[held["orchestration_id"]] = result
++                if self._runtime.parent_ready(held, stage, job):
++                    return operations.admit(stage, job)
+         # AND THE PARENT IS DEFERRED WITH NO RECEIPT. Nondurable on purpose:
+         # nothing about the parent was journalled, so `_delegate` records this
+         # as `deferred`, the admit stays owed, and a later sweep asks again
+@@ -1481,7 +1599,7 @@
+                  "execution_offer_id": stage["offer_id"],
+                  "participant": held["participant"],
+                  "task_digest": held["apply_task_digest"],
+-                 "input_digest": held["input_digest"],
++                 "input_digest": held.get("apply_input_digest", held["input_digest"]),
+                  "profile_digest": held["profile_digest"]}]
+ 
+ 
+--- a/v12/python/tools/stage_execution.py
++++ b/v12/python/tools/stage_execution.py
+@@ -2475,12 +2475,151 @@
+ 
+     def run(self, stage, job):
+         answered = self._run(stage, job)
+-        if answered.get("outcome") == "integrated":
++        if answered.get("outcome") == "integrated" and not _prepares(self.deployment.given):
+             self.finish(stage)
+         return answered
+ 
++    def managed(self, stage, job):
++        from . import integration_worker, integration_placement
++
++        deployment = self.deployment
++        result_id = "integration:" + stage["attempt_id"]
++        preparation = reconciliation.retained_managed_preparation(deployment.integration, result_id)
++        operations = deployment._integration_operations
++        if isinstance(operations, _PerJobIntegration):
++            operations = operations._serving(stage)
++        if attempt_runtime_of(deployment.control, stage["attempt_id"]) is None:
++            integration_worker.prepare_managed_parent(operations, stage, job)
++        repository = os.path.join(deployment.given["state_root"], "managed-results", digest(result_id)[7:], "objects")
++        integration_placement.managed_storage(deployment, job["job_id"], repository, deployment._place("integration_target")["path"])
++        integration_placement.materialize_prepared_objects(deployment.control, preparation, repository=repository,
++                                                          profile=deployment.reconciliation_profile, reader=deployment.integration_object_runner)
++        result = reconciliation.managed_result_of(deployment.integration, result_id)
++        if result["state"] == "awaiting-evidence":
++            result = reconciliation.publish_managed_result(deployment.integration, deployment.control, deployment.jobs,
++                                                           deployment.sessions["integrator"], managed_result_id=result_id, attempt_id=stage["attempt_id"])
++        if result["state"] == "published":
++            deployment.judge_managed_result(result_id, repository)
++            result = reconciliation.record_managed_evidence(deployment.integration, deployment.authority,
++                                                            deployment.sessions["verification"], deployment.sessions["review"], deployment.sessions["approval"],
++                                                            managed_result_id=result_id)
++        return self.apply_managed(stage, job, result, repository, operations)
++
++    def apply_managed(self, stage, job, result, repository, operations):
++        from baton_v12.integration import managed_execution, execution, queue
++        from baton_v12.job_manager.integration_capacity import integration_capacity_of, admit_integration_execution
++        from . import integration_bundle, integration_worker, integration_placement
++
++        deployment, attempt = self.deployment, stage["attempt_id"]
++        result_id = result["managed_result_id"]
++        if result["state"] == "imported":
++            self.finish_managed(stage, operations)
++            return {"outcome": "integrated"}
++        if result["state"] != "authorized":
++            _refuse("the managed apply awaits independent acceptance")
++        capacity = integration_capacity_of(deployment.jobs, result_id)
++        planned = next(one for one in capacity["members"] if one["phase"] == "apply")
++        fixed = attempt_runtime_of(deployment.control, attempt)["assignment"]
++        preparation = reconciliation.retained_managed_preparation(deployment.integration, result_id)
++        before = result["phases"]["prepare"]["task"]
++        task = managed_execution.managed_task(
++            phase="apply", orchestration_id=result_id, canonical_target_id=result["canonical_target_id"],
++            execution_attempt_id=attempt, assignment=fixed, task_digest=planned["task_digest"], input_digest=planned["input_digest"],
++            harness_digest=before["harness_digest"], execution_limits=before["execution_limits"], commands=["post-import"],
++            parent={"execution_attempt_id": before["execution_attempt_id"], "collected_digest": preparation["collected"]["manifest_digest"]})
++        manifest = operations._worker.given["input_manifest"]
++        outputs = [one for one in manifest["outputs"] if one["type"] == "directory-result"]
++        if not outputs:
++            _refuse("managed apply requires a declared directory-result for its measured report")
++        published = integration_bundle.compose_managed_apply_input(
++            os.path.join(deployment.given["state_root"], "managed-results", digest(result_id)[7:], "apply-input"),
++            manager=deployment.control, result=result, task=task, output_name=outputs[0]["name"])
++        runtimes = self.__dict__.setdefault("managed_runtimes", {})
++        if attempt not in runtimes:
++            runtimes[attempt] = integration_worker.ManagedApplyRuntime(deployment, operations, published["request"], published["source"])
++        active = runtimes[attempt]
++        authorization = integration_placement.ManagedAuthorization(deployment, result_id, published["request"])
++        entry_id, lease_id = "managed-entry:" + attempt, "managed-lease:" + attempt
++        target_id = result["canonical_target_id"]
++        profile = deployment.reconciliation_profile
++        target = deployment._place("integration_target")["path"]
++        reference = deployment.given["integration_target_reference"]
++        granted = queue.lease_of(deployment.integration, lease_id)
++        if granted is None:
++            eligibility = execution.managed_result_eligibility(deployment.integration, deployment.control, deployment.jobs,
++                                                              deployment.authority, authorization, managed_result_id=result_id)
++            if profile.revision(target, reference) != result["target_revision"]:
++                _refuse("the dedicated target changed before managed apply admission")
++            queue.enqueue(deployment.integration, canonical_target_id=target_id, entry_id=entry_id, eligibility=eligibility)
++            answer = queue.grant_lease(deployment.integration, canonical_target_id=target_id, entry_id=entry_id, lease_id=lease_id,
++                                       integrator_participant=fixed["participant"], attempt_id=attempt)
++            if answer is None:
++                return {"outcome": "pending"}
++            granted = answer["lease"]
++        grant = {name: granted[name] for name in ("canonical_target_id", "entry_id", "lease_id", "fence")}
++        publication = reconciliation.publication_of(deployment.integration, result_id, "apply")
++        if publication is not None and publication["state"] == "settled" and deployment.authority.receipt(result["derived_proposal_id"], "integration") is not None:
++            historical = reconciliation.managed_publication_view(deployment.integration, result_id)
++            reconciliation._integrated_entry(deployment.integration, historical, entry_id)
++            reconciliation._integration_receipt(deployment.authority, historical)
++            queue.release_lease(deployment.integration, **grant, ending={"outcome": "integrated"})
++            reconciliation.record_managed_imported(deployment.integration, deployment.authority, managed_result_id=result_id, entry_id=entry_id)
++            self.finish_managed(stage, operations)
++            return {"outcome": "integrated"}
++        if planned["state"] == "planned":
++            admit_integration_execution(deployment.jobs, deployment.control, orchestration_id=result_id, phase="apply",
++                                        execution_attempt_id=attempt, assignment=fixed, coordinator=deployment.integration,
++                                        authorization=authorization, grant=grant)
++        if attempt_runtime_of(deployment.control, attempt)["runtime_id"] is None:
++            queue.live_grant(deployment.integration, **grant)
++            authorization.authorized({"managed_result_id": result_id, "canonical_target_id": target_id,
++                                      "content_digest": preparation["collected"]["manifest_digest"]})
++            if profile.revision(target, reference) != result["target_revision"]:
++                _refuse("the dedicated target changed before the managed apply start")
++        answered = active.poll(stage, job)
++        if answered is None:
++            return {"outcome": "pending"}
++        if not answered["succeeded"]:
++            from baton_v12.job_manager.integration_capacity import settle_failed_integration
++            if publication is not None:
++                _refuse("the failed apply has a target publication requiring manual inspection")
++            queue.refuse_entry(deployment.integration, **grant, settlement={"reason": "managed apply failed", "detail": answered["report"]})
++            settle_failed_integration(deployment.jobs, deployment.control, orchestration_id=result_id, phase="apply", coordinator=deployment.integration)
++            return {"outcome": "failed"}
++        exclusion = integration_placement.ManagedExclusion(active)
++        target_owner = integration_placement.LocalGitTargetOwner(
++            coordinator=deployment.integration, manager=deployment.control, profile=profile, execution_owner=exclusion,
++            authorization=authorization, repository=target, reference=reference, managed_result_id=result_id)
++        placement = integration_placement.LocalTargetPlacement(
++            coordinator=deployment.integration, manager=deployment.control, profile=profile, execution_owner=exclusion,
++            authorization=authorization, repository=target, reference=reference, target_owner=target_owner,
++            materializer=integration_placement.ManagedMaterializer(deployment, published["request"], repository, target))
++        integration_placement.publish_collected_integration(
++            placement, **grant, admitted_old_revision=result["target_revision"], managed_result_id=result_id,
++            settlement={"imported_paths": [], "verification": answered["report"]})
++        deployment.sessions["integrator"].integrate({"proposal_id": result["derived_proposal_id"],
++            "integration_id": "managed-integration:" + attempt, "operation_id": "managed-integrate:" + attempt})
++        queue.release_lease(deployment.integration, **grant, ending={"outcome": "integrated"})
++        reconciliation.record_managed_imported(deployment.integration, deployment.authority, managed_result_id=result_id, entry_id=entry_id)
++        self.finish_managed(stage, operations)
++        return {"outcome": "integrated"}
++
++    def finish_managed(self, stage, operations):
++        from baton_v12.job_manager.integration_capacity import begin_integration_ending
++
++        worker, attempt = operations._worker, stage["attempt_id"]
++        fixed = attempt_runtime_of(self.deployment.control, attempt)["assignment"]
++        worker.session.route_fenced({"expect": fixed, "operation_id": "managed-integration-handoff:" + attempt,
++                                     "fence_operation_id": "managed-apply-fence:" + attempt,
++                                     "from_route": worker._claim(stage)["work_route"], "to_route": worker.given["review_route"]})
++        discharge_quiescence_gate(self.deployment.control, worker.port, attempt_id=attempt,
++                                  retention_policy_digest=worker.given["retention_policy_digest"])
++        begin_integration_ending(self.deployment.jobs, orchestration_id="integration:" + attempt, reason="managed integration settled")
++
+     def _run(self, stage, job):
+         deployment = self.deployment
++        if _prepares(deployment.given):
++            return self.managed(stage, job)
+         port = self.port_for(stage, job)
+         # W133129: THE PORT REFUSAL IS DEFERRED UNTIL THE BRANCH IS KNOWN.
+         # It used to fire here, before anything had asked WHICH integration
+@@ -2898,6 +3037,8 @@
+             return None
+         deployment = self.deployment
+         row = attempt_runtime_of(deployment.control, stage["attempt_id"])
++        if _prepares(deployment.given):
++            return None if row is None else self.managed_account(stage, row)
+         # W133129 review 2026-09-10T21:10:42Z [P1]: WHICH BRANCH THIS IS, ASKED
+         # BEFORE ANY RUNTIME-ONLY PREREQUISITE. The reconciled branch composes
+         # no model, so `port.prepare` is never called for it and the manager
+@@ -3181,6 +3322,60 @@
+         account = self.account(stage)
+         return None if account is None else account["document"]
+ 
++    def managed_account(self, stage, row):
++        from baton_v12.job_manager.integration_capacity import integration_capacity_of
++
++        deployment, attempt = self.deployment, stage["attempt_id"]
++        result_id = "integration:" + attempt
++        held = reconciliation.managed_publication_view(deployment.integration, result_id)
++        worker, work_id, target_id = _bound(deployment, stage)
++        fixed = row["assignment"]
++        claims = claimed_offers_for(deployment.control, attempt)
++        if fixed is None or len(claims) != 1 or claims[0]["offer_id"] != stage["offer_id"] or fixed["participant"] != worker["participant"] or fixed["work_ref"] != {"authority_uuid": deployment.given["authority_uuid"], "work_id": work_id} or held["canonical_target_id"] != target_id:
++            _refuse("the managed integration observation has no exact parent claim and target")
++        document = {"schema": INTEGRATION_OBSERVATION_SCHEMA, **{name: stage[name] for name in ("stage_id", "episode", "attempt_id", "offer_id")},
++                    "assignment": fixed, "state": "unstarted" if row["runtime_id"] is None else "pending", "completion": None}
++        account = {"document": document, "runtime": row, "committed": False}
++        from baton_v12.integration.queue import entries_of
++        entry = next((one for one in entries_of(deployment.integration, target_id) if one["entry_id"] == "managed-entry:" + attempt), None)
++        if entry is not None and entry["state"] == "held":
++            document["state"] = "held"
++            return account
++        operations = deployment._integration_operations
++        if isinstance(operations, _PerJobIntegration):
++            operations = operations._serving(stage)
++        exchanged = operations._worker.observed_exchange(stage)
++        if exchanged is not None and exchanged.get("terminal") is not None:
++            document["state"] = "answered" if exchanged["terminal"]["ending"] == "answered" else "held"
++        if held["state"] != "imported":
++            return account
++        reconciliation.managed_import_account(deployment.integration, deployment.authority, managed_result_id=result_id, entry_id=held["entry_id"])
++        publication = reconciliation.publication_of(deployment.integration, result_id, "apply")
++        capacity = integration_capacity_of(deployment.jobs, result_id)
++        if row["execution_runtime"] != "destroyed" or row["cleanup"] not in ("complete", "retained") or any(one["state"] != "ended" or one["outcome"] != "succeeded" for one in capacity["members"]):
++            _refuse("the managed completion has not settled both actual executions")
++        document["state"] = "answered"
++        if capacity["root"]["lifecycle"] == "open":
++            return account
++        operation_id = "managed-integration-handoff:" + attempt
++        passed = deployment.authority.operation_result(operation_id)
++        discharged = gate_discharge_of(deployment.control, attempt)
++        if passed is None or discharged is None:
++            return account
++        if passed != {"assignment": fixed, "fence_operation_id": "managed-apply-fence:" + attempt,
++                      "from_route": claims[0]["work_route"], "to_route": worker["review_route"],
++                      "phase": "block", "gate": "runtime-quiescence:" + str(fixed["generation"])}:
++            _refuse("the managed parent handoff differs from its fixed assignment and route")
++        receipt = reconciliation._integration_receipt(deployment.authority, held)
++        document["state"] = "completed"
++        document["completion"] = {"proposal_id": held["derived_proposal_id"], "source_proposal_id": held["source_proposal_id"],
++                                  "result_id": result_id, "managed_result_id": result_id, "integration_receipt_id": receipt["receipt_id"],
++                                  "entry_id": held["entry_id"], "lease_id": publication["lease_id"], "fence": publication["fence"],
++                                  "handoff_operation_id": operation_id, "to_route": worker["review_route"],
++                                  "runtime_id": row["runtime_id"], "execution_runtime": "destroyed"}
++        account["committed"] = True
++        return account
++
+     def finish(self, stage):
+         account = self.account(stage)
+         if account is None or not account["committed"]:
+@@ -3641,9 +3836,12 @@
+             return None
+         return configured[job_id]
+ 
+-    def judge_result(self, result_id):
++    def judge_managed_result(self, result_id, repository):
++        return self.judge_result(result_id, _managed_repository=repository)
++
++    def judge_result(self, result_id, *, _managed_repository=None):
+         """Dispatch and adopt real judgments before current-policy receipts."""
+-        subject = self.judgment_subject(result_id)
++        subject = self.judgment_subject(result_id, managed=_managed_repository is not None)
+         configured = self.judgment_executions(subject["job_id"])
+         if configured is None:
+             return None
+@@ -3673,12 +3871,13 @@
+                 os.fsync(stream.fileno())
+         source = os.path.join(home, "source")
+         if not os.path.lexists(source):
+-            held = reconciliation.result_of(self.integration, result_id)
+-            cloned = _git_run(tuple(clone_vector(held["workspace"]["path"], source)))
++            origin = (_managed_repository if _managed_repository is not None
++                      else reconciliation.result_of(self.integration, result_id)["workspace"]["path"])
++            cloned = _git_run(tuple(clone_vector(origin, source)))
+             if cloned["returncode"] != 0:
+                 _refuse("the derived judgment snapshot could not be cloned",
+                         category="refused", code="precondition")
+-            imported = _git_run(tuple(git_profile.import_vector(source, held["workspace"]["path"], subject["candidate"])))
++            imported = _git_run(tuple(git_profile.import_vector(source, origin, subject["candidate"])))
+             if imported["returncode"] != 0:
+                 _refuse("the derived judgment snapshot could not import its candidate",
+                         category="refused", code="precondition")
+@@ -3733,7 +3932,7 @@
+                                                  policy_generation=subject["policy_generation"]))
+         return answers
+ 
+-    def judgment_subject(self, result_id):
++    def judgment_subject(self, result_id, *, managed=False):
+         """The exact immutable subject a judgment is dispatched about.
+ 
+         EVERY MEMBER IS READ FROM THE COORDINATOR'S OWN CUSTODY RECORD, through
+@@ -3749,7 +3948,8 @@
+         substitute for one: `record_result_evidence` still requires three real
+         receipts, and W133117 keeps a failing combined observation `blocked`.
+         """
+-        held = reconciliation.result_of(self.integration, result_id)
++        held = (reconciliation.managed_publication_view(self.integration, result_id) if managed
++                else reconciliation.result_of(self.integration, result_id))
+         if held["state"] != "published":
+             _refuse(f"result {result_id!r} is {held['state']!r}; a judgment is "
+                     f"dispatched about a published derived candidate",
+@@ -4119,6 +4319,8 @@
+                     code="transport")
+ 
+     def _closers(self):
++        for active in getattr(self.integrator, "managed_runtimes", {}).values():
++            yield "the managed apply worker", active.close
+         # WHAT A FAILED OBSERVATION LEFT BEHIND, FIRST. It is this
+         # deployment's own scratch under its own integration root, and it is
+         # released before the handles because a store or Authority failure
+@@ -4197,11 +4399,11 @@
+     return profile
+ 
+ 
+-def _git_run(argv):
++def _git_run(argv, *, input=None):
+     """The production Git runner, in the closed shape the profile requires."""
+     import subprocess
+ 
+-    answer = subprocess.run(list(argv), capture_output=True, check=False,
++    answer = subprocess.run(list(argv), input=input, capture_output=True, check=False,
+                             timeout=GIT_SECONDS)
+     return {"returncode": answer.returncode,
+             "stdout": answer.stdout.decode("utf-8", "replace"),
+@@ -4904,13 +5106,14 @@
+             bytes=len(body), content_digest=digest_of_bytes(body))
+         output = manifest["outputs"][0]
+         manifest["outputs"] = [dict(output, name=name, path=name, type="directory-result", required=True)
+-                               for name in ("preparation-report", "prepared-candidate")]
++                               for name in ("preparation-report", "prepared-candidate", "prepared-objects")]
+         manifest["sources"][0]["consumption"] = source_boundary.source_consumption("generic")
+         manifest.pop("manifest_digest")
+         manifest["manifest_digest"] = digest(manifest)
+         given = dict(self.worker, input_manifest=manifest, task_bytes=body,
+                      source_nomination=source_boundary.nominate_source(held["published_root"]))
+         return dict(held, input_digest=manifest["manifest_digest"],
++                    apply_input_digest=self.deployment.integration_served(held["request"]["job_id"])["input_manifest"]["manifest_digest"],
+                     retention_policy_digest=given["retention_policy_digest"],
+                     identity=dict(held["identity"], input_digest=manifest["manifest_digest"]),
+                     runtime_configuration=given)
+@@ -4919,6 +5122,25 @@
+         for operations in self.operations.values():
+             operations.close()
+         self.operations.clear()
++
++    def parent_ready(self, held, stage, job):
++        from baton_v12.integration.reconciliation import retained_managed_preparation, managed_result_of
++        from baton_v12.job_manager.integration_capacity import integration_capacity_of
++
++        result_id = held["orchestration_id"]
++        preparation = retained_managed_preparation(self.deployment.integration, result_id)
++        capacity = integration_capacity_of(self.deployment.jobs, result_id)
++        members = {one["phase"]: one for one in capacity["members"]}
++        if members["prepare"]["state"] != "ended" or members["prepare"]["outcome"] != "succeeded" or members["apply"]["execution_attempt_id"] != stage["attempt_id"]:
++            _refuse("the parent cannot continue before its actual preparation ends")
++        if self.authority.assignment_of(preparation["assignment"]["work_ref"]["work_id"]) is not None:
++            _refuse("the preparation still holds its child assignment")
++        result = managed_result_of(self.deployment.integration, result_id)
++        if result["state"] == "blocked":
++            from baton_v12.job_manager.integration_capacity import settle_failed_integration
++            settle_failed_integration(self.deployment.jobs, self.deployment.control, orchestration_id=result_id, phase="prepare", coordinator=self.deployment.integration)
++            _refuse("the preparation failed causal verification; the parent settled exceptionally", category="refused", code="precondition")
++        return True
+ 
+     def _operations(self, held):
+         attempt = held["execution_attempt_id"]
+--- a/v12/python/tools/integration_placement.py
++++ b/v12/python/tools/integration_placement.py
+@@ -35,6 +35,7 @@
+ 
+ import json
+ import os
++import tempfile
+ 
+ from baton_v12.contracts import ContractRefusal
+ from baton_v12.contracts.errors import name_value
+@@ -132,6 +133,57 @@
+ 
+ def _denied(message):
+     raise ContractRefusal("policy", "denied", message)
++
++
++def materialize_prepared_objects(manager, preparation, *, repository, profile, reader):
++    """Materialize retained Git objects without merging or executing content.
++
++    Candidate bytes are re-read from accepted custody and compared with every
++    blob in the exact reported commit. Git tree modes, not custody modes, define
++    the executable candidate. The resulting private object store is reusable.
++    """
++    from tools import integration_bundle
++    material = integration_bundle.retained_preparation_objects(manager, preparation)
++    derived = material["derived"]
++    if not isinstance(derived, dict) or set(derived) != {"revision", "tree", "base", "candidate", "target_revision"}:
++        _denied("the preparation carries no exact derived Git identity")
++    if any(derived[name] != preparation["source"][name] for name in ("base", "candidate", "target_revision")):
++        _denied("the preparation object identity names different source revisions")
++    source = material["candidate"]
++
++    def verify(place):
++        held = profile.held(place, derived["revision"])
++        if held["tree"] != derived["tree"]:
++            _denied("the retained derived commit has a different Git tree")
++        content = profile.content(place, derived["revision"])
++        if set(content) != set(source):
++            _denied("the retained Git tree and candidate files have different paths")
++        handle = integration_bundle._held_directory(place, "the preparation object store")
++        try:
++            for path, blob in content.items():
++                body = reader(("git", "--no-optional-locks", "cat-file", "blob", blob["object"]), directory=handle)
++                if body["returncode"] != 0 or body["stdout"] != source[path]:
++                    _denied("the retained Git blob differs from candidate content: " + path)
++        finally:
++            os.close(handle)
++        return {"head": derived["revision"], "tree": derived["tree"], "content": content}
++
++    if os.path.lexists(repository):
++        answer = verify(repository)
++    else:
++        parent = os.path.dirname(repository)
++        os.makedirs(parent, exist_ok=True)
++        with tempfile.TemporaryDirectory(prefix=".prepared-objects-", dir=parent) as scratch:
++            bundle = os.path.join(scratch, "objects.bundle")
++            with open(bundle, "xb") as stream:
++                stream.write(material["bundle"])
++            place = os.path.join(scratch, "repository")
++            profile._run(("git", "init", "--quiet", "--bare", place), "private preparation object store")
++            profile._run(("git", "-C", place, "fetch", "--quiet", bundle,
++                          "refs/baton/prepared/candidate:refs/baton/prepared/candidate"), "retained preparation objects")
++            answer = verify(place)
++            os.rename(place, repository)
++    return answer
+ 
+ 
+ class LocalTargetPlacement:
+@@ -191,6 +243,191 @@
+                     f"{name_value(self.repository)}; a placement publishes "
+                     f"into the target it was configured with and creates none")
+         return self.profile.revision(self.repository, self.reference)
++
++
++class ManagedAuthorization:
++    """Bind either collection to the same independently approved candidate."""
++
++    def __init__(self, deployment, result_id, request=None):
++        self.deployment, self.result_id, self.request = deployment, result_id, request
++
++    def authorized(self, operands):
++        from baton_v12.integration import reconciliation
++        from tools import integration_bundle
++
++        deployment = self.deployment
++        held = reconciliation.managed_result_of(deployment.integration, self.result_id)
++        if held["state"] != "authorized":
++            _denied("the managed candidate has no current independent authorization")
++        held = reconciliation.record_managed_evidence(deployment.integration, deployment.authority,
++                                                      deployment.sessions["verification"], deployment.sessions["review"], deployment.sessions["approval"],
++                                                      managed_result_id=self.result_id)
++        preparation = reconciliation.retained_managed_preparation(deployment.integration, self.result_id)
++        integration_bundle.retained_preparation_objects(deployment.control, preparation)
++        expected = preparation["collected"]["manifest_digest"]
++        if operands.get("content_digest") != expected:
++            if self.request is None:
++                _denied("no managed apply request maps this collection to the approved preparation")
++            report, collected = integration_bundle.retained_apply_report(deployment.control, self.request)
++            if operands.get("content_digest") != collected["manifest_digest"] or report["status"] != 0 or not report["unchanged"]:
++                _denied("the managed apply collection did not verify the unchanged approved candidate")
++            if (self.request["candidate"], self.request["tree"], self.request["derived_result_digest"]) != (held["prepared"]["head"], held["prepared"]["tree"], held["derived_result_digest"]):
++                _denied("the managed apply request maps to a different approved candidate")
++        if operands.get("managed_result_id") != self.result_id or operands.get("canonical_target_id") != held["canonical_target_id"]:
++            _denied("the collection authorization names another managed result or target")
++        return {"schema": AUTHORIZATION_SCHEMA, "managed_result_id": self.result_id, "canonical_target_id": held["canonical_target_id"],
++                "content_digest": operands["content_digest"], "approved": True,
++                **{name: held[name] for name in ("derived_proposal_id", "derived_result_id", "derived_result_digest")}}
++
++
++class ManagedExclusion:
++    def __init__(self, runtime):
++        self.runtime = runtime
++
++    def exclusion_of(self, operands):
++        from baton_v12.worker_manager import attempts
++
++        worker = self.runtime.operations._worker
++        attempt = self.runtime.request["task"]["execution_attempt_id"]
++        state = attempt_runtime_of(worker.control, attempt)
++        if operands["attempt_id"] != attempt or operands["assignment"] != state["assignment"] or state["execution_runtime"] != "destroyed" or state["cleanup"] not in ("complete", "retained"):
++            _denied("the exact managed apply runtime has not completed its ordinary cleanup")
++        fixed = state["assignment"]
++        # Reuse the manager's identity function, with the public fixed claim
++        # and this adapter's configured profile. The journal below must prove it.
++        row = {"runtime_attempt_id": attempt, "profile_digest": worker.given["profile_digest"],
++               "authority_uuid": fixed["work_ref"]["authority_uuid"], "work_id": fixed["work_ref"]["work_id"],
++               "assignment_participant": fixed["participant"], "assignment_generation": fixed["generation"]}
++        start = attempts._start_operation_id(row)
++        recorded = worker.control.operation_record(start)
++        if recorded is None or recorded["kind"] != "runtime.start" or recorded["state"] != "committed":
++            _denied("the execution owner cannot prove its managed runtime start")
++        roots = {name: os.path.join(worker.given["workspace_storage"], attempt, name) for name in ("inputs", "workspace")}
++        # Observation accepts names of removed roots and creates none. This is
++        # the same configured engine/adapter that ran the attempt, without any
++        # launch, credential or source delivery capability.
++        adapter = worker._adapter(roots, None, None, None)
++        observed = adapter.observe(state["runtime_id"])
++        if observed.get("state") != "absent":
++            _denied(f"managed apply {attempt} runtime {state['runtime_id']} is not positively absent; manual inspection is required")
++        return {"schema": EXCLUSION_SCHEMA, "attempt_id": attempt, "assignment": fixed, "start_operation_id": start,
++                "runtime_id": state["runtime_id"], "content_digest": operands["content_digest"], "excluded": True}
++
++
++def managed_storage(deployment, job_id, repository, target):
++    """Prove the private object store and target are separate from the line."""
++    profile = deployment.reconciliation_profile
++    line = deployment.line_for(job_id)
++    protected = {place for place in (line["line_path"], line["source_path"]) if place is not None and os.path.exists(place)}
++    target_identity = profile.storage(target)
++    private = os.path.realpath(repository)
++    for place in protected | {target}:
++        resolved = os.path.realpath(place)
++        if os.path.commonpath((private, resolved)) in (private, resolved):
++            _denied("managed private storage overlaps a target or protected source")
++        identity = profile.storage(place)
++        if place in protected and identity == target_identity:
++            _denied("the managed target shares Git storage with the producer's source or line")
++        if os.path.exists(repository) and profile.storage(repository) == identity:
++            _denied("managed private objects share Git storage with the target or producer")
++
++
++class ManagedMaterializer:
++    def __init__(self, deployment, request, repository, target):
++        self.deployment, self.request, self.repository, self.target = deployment, request, repository, target
++
++    def materialize(self, operands):
++        from tools import integration_bundle
++        from baton_v12.integration import reconciliation, git_profile
++
++        request, deployment = self.request, self.deployment
++        managed_storage(deployment, request["job_id"], self.repository, self.target)
++        report, collected = integration_bundle.retained_apply_report(deployment.control, request)
++        expected = {"canonical_target_id": request["task"]["canonical_target_id"], "managed_result_id": request["managed_result_id"],
++                    "phase": "apply", "content_digest": collected["manifest_digest"], "result_id": collected["result_id"]}
++        if operands != expected or report["status"] != 0 or not report["unchanged"]:
++            _denied("the local materializer requires the exact successful managed apply collection")
++        preparation = reconciliation.retained_managed_preparation(deployment.integration, request["managed_result_id"])
++        proved = materialize_prepared_objects(deployment.control, preparation, repository=self.repository,
++                                              profile=deployment.reconciliation_profile, reader=deployment.integration_object_runner)
++        if (proved["head"], proved["tree"]) != (request["candidate"], request["tree"]):
++            _denied("the retained objects differ from the approved apply candidate")
++        deployment.reconciliation_profile._run(tuple(git_profile.import_vector(self.target, self.repository, proved["head"])), "import the verified managed objects")
++        return proved["head"]
++
++
++class LocalGitTargetOwner:
++    """The local target effect and its receipt share one Git transaction.
++
++    Configuration and all receipt operands come from the node's owners. The
++    worker supplies neither a repository/ref nor an effect receipt. Recovery
++    reads the receipt without retrying a target transaction.
++    """
++
++    def __init__(self, *, coordinator, manager, profile, execution_owner,
++                 authorization, repository, reference, managed_result_id):
++        self.coordinator = coordinator
++        self.manager = manager
++        self.profile = profile
++        self.execution_owner = execution_owner
++        self.authorization = authorization
++        self.repository = repository
++        self.reference = reference
++        self.managed_result_id = managed_result_id
++
++    def _binding(self, operands):
++        request = boundaries.document(operands, "the local target publication", required=(
++            "publication_id", "canonical_target_id", "admitted_old_revision",
++            "imported_revision", "content_digest", "derived_proposal_id"))
++        published = publication_of(self.coordinator, self.managed_result_id, "apply")
++        if published is None or any(published[name] != value for name, value in request.items()):
++            _denied("the target request does not match its journalled publication")
++        result = managed_result_of(self.coordinator, self.managed_result_id)
++        account = result["phases"].get("apply")
++        if account is None or account["result"]["collected"] is None:
++            _denied("the target publication has no collected apply")
++        collected = account["result"]["collected"]
++        excluded = _excluded(self, account, collected)
++        authorized = _authorized(self, self.managed_result_id, request["canonical_target_id"], collected)
++        if authorized["derived_proposal_id"] != request["derived_proposal_id"]:
++            _denied("the publication and authorization name different derived proposals")
++        return {"schema": "baton.v12.local-target-receipt/1", "publication": request,
++                "repository": self.profile.storage(self.repository), "reference": self.reference,
++                "managed_result_id": self.managed_result_id,
++                "entry_id": published["entry_id"], "lease_id": published["lease_id"], "fence": published["fence"],
++                "authorization": authorized, "exclusion": excluded,
++                "preparation": result["phases"].get("prepare"), "apply": account}
++
++    @staticmethod
++    def _answer(binding, receipt):
++        return {"schema": TARGET_SCHEMA, **binding["publication"],
++                "answer": "unknown" if receipt is None else "applied",
++                "receipt": None if receipt is None else receipt["object"]}
++
++    def recover(self, operands):
++        binding = self._binding(operands)
++        receipt = self.profile.publication_receipt(self.repository, publication_id=operands["publication_id"])
++        if receipt is not None and receipt["document"] != binding:
++            _denied("the target publication receipt has different bound operands")
++        return self._answer(binding, receipt)
++
++    def apply(self, operands):
++        binding = self._binding(operands)
++        receipt = self.profile.publication_receipt(self.repository, publication_id=operands["publication_id"])
++        if receipt is not None:
++            if receipt["document"] != binding:
++                _denied("the target publication receipt has different bound operands")
++            return self._answer(binding, receipt)
++
++        def current_grant():
++            live_grant(self.coordinator, canonical_target_id=operands["canonical_target_id"],
++                       entry_id=binding["entry_id"], lease_id=binding["lease_id"], fence=binding["fence"])
++
++        receipt = self.profile.publish_with_receipt(
++            self.repository, reference=self.reference, imported=operands["imported_revision"],
++            reviewed=operands["admitted_old_revision"], publication_id=operands["publication_id"],
++            receipt=binding, before_commit=current_grant)
++        return self._answer(binding, receipt)
+ 
+ 
+ def _target_answer(placement, act, operands):
+@@ -391,7 +628,10 @@
+                          ("source_result_id", "result_id"),
+                          ("source_result_digest", "result_digest"),
+                          ("source_checkpoint_digest", "checkpoint_digest")):
+-        if held[mine] != account.get(theirs):
++        expected = held[mine]
++        if held["state"] in ("authorized", "imported"):
++            expected = {"proposal_id": held["derived_proposal_id"], "result_id": held["derived_result_id"], "result_digest": held["derived_result_digest"]}.get(theirs, expected)
++        if expected != account.get(theirs):
+             _denied(f"entry {name_value(entry['entry_id'])} is queued for "
+                     f"{theirs} {name_value(account.get(theirs))} and this "
+                     f"managed result is for {name_value(held[mine])}; a live "
+@@ -618,6 +858,13 @@
+             found = _target_answer(placement, placement.target_owner.recover,
+                                    request)
+             if found["answer"] == "unknown":
++                if held["state"] == "authorized":
++                    from baton_v12.integration.queue import block_target
++                    block_target(placement.coordinator, canonical_target_id=canonical_target_id, entry_id=entry_id,
++                                 lease_id=lease_id, fence=fence, reason="managed publication effect unknown",
++                                 detail={"publication_id": recorded["publication_id"], "managed_result_id": managed_result_id,
++                                         "attempt_id": account["task"]["execution_attempt_id"],
++                                         "next_action": "Human inspection of the configured target and exact publication receipt is required; retain the lease and root and do not repeat the CAS."})
+                 # NO "NOTHING WAS CHANGED" HERE. The recovery has already been
+                 # called, and an effect-capable owner may have done something
+                 # this interface did not observe -- claiming otherwise would
+--- a/v12/python/src/baton_v12/integration/managed_execution.py
++++ b/v12/python/src/baton_v12/integration/managed_execution.py
+@@ -95,6 +95,32 @@
+ # digest of itself: everything here is either already true or is the immutable
+ # material the preparation is about.
+ REQUEST_SCHEMA = "baton.v12.managed-preparation-request/1"
++
++APPLY_REQUEST_SCHEMA = "baton.v12.managed-apply-request/1"
++APPLY_REQUEST_MEMBERS = ("schema", "purpose", "job_id", "managed_result_id", "task",
++                         "derived_proposal_id", "derived_result_id", "derived_result_digest",
++                         "candidate", "tree", "candidate_content_digest", "objects_digest", "objects_bytes", "output_name")
++APPLY_REPORT_SCHEMA = "baton.v12.managed-apply-report/1"
++APPLY_REPORT_MEMBERS = ("schema", "request_digest", "candidate", "tree", "harness_digest",
++                        "command", "seconds", "status", "tag", "unchanged")
++
++
++def adopt_apply_request(value):
++    held = boundaries.document(value, "a managed apply request", required=APPLY_REQUEST_MEMBERS)
++    if held["schema"] != APPLY_REQUEST_SCHEMA or held["purpose"] != "managed-apply":
++        _refuse("a managed apply request names its distinct schema and purpose")
++    task = adopt_managed_task(held["task"])
++    if task["phase"] != "apply" or task["orchestration_id"] != held["managed_result_id"] or task["commands"] != ["post-import"]:
++        _refuse("this apply request does not describe its managed post-import task")
++    for name in ("job_id", "managed_result_id", "derived_proposal_id", "derived_result_id", "output_name"):
++        boundaries.identity(held[name], "the apply " + name)
++    for name in ("derived_result_digest", "candidate_content_digest", "objects_digest"):
++        boundaries.text(held[name], "the apply " + name)
++    for name in ("candidate", "tree"):
++        _object_name(held[name], "the apply " + name)
++    if type(held["objects_bytes"]) is not int or held["objects_bytes"] < 1:
++        _refuse("a managed apply names the positive measured object bundle length")
++    return dict(held, task=task)
+ 
+ # THE SUBMISSION'S OWN OBJECTS, bound by identity rather than by location. A
+ # base and a candidate are what the preparation merges; the target snapshot is
+--- a/v12/python/src/baton_v12/integration/reconciliation.py
++++ b/v12/python/src/baton_v12/integration/reconciliation.py
+@@ -2377,7 +2377,96 @@
+ # sitting in another state is therefore a row whose transition nobody
+ # recorded, and it is refused rather than reported. The mapping is here, and
+ # not a `!= "preparing"` test, so a later act slots into it by being named.
+-_MANAGED_STATE_ACT = {"preparing": None}
++_MANAGED_FIELDS = ("state", "reason", "prepared", "content_digest", "evidence",
++                   "causal_observations", "observed_by", "policy_generation",
++                   "derived_proposal_id", "derived_result_id", "derived_result_digest", "entry_id")
++_MANAGED_JSON = ("prepared", "evidence", "causal_observations")
++_MANAGED_TRANSITIONS = {
++    "retain": (("preparing",), ("awaiting-evidence", "blocked")),
++    "publish": (("awaiting-evidence",), ("published",)),
++    "authorize": (("published",), ("authorized",)),
++    "import": (("authorized",), ("imported",))}
++
++
++def _managed_snapshot(row):
++    return {name: (json.loads(row[name]) if name in _MANAGED_JSON and row[name] is not None else row[name]) for name in _MANAGED_FIELDS}
++
++
++def _managed_proof(snapshot):
++    # Hash each typed value separately, so custody nesting never increases the
++    # frozen serializer's depth. The state itself is needed to prove ordering.
++    return {name: value if name == "state" else digest(value) for name, value in snapshot.items()}
++
++
++def _managed_transition_id(result_id, action):
++    return _creation_id(result_id) + "/transition/" + action
++
++
++def _prove_managed_lifecycle(store, row):
++    """Reconstruct every state transition, including its exact predecessor.
++
++    Creation remains immutable. Phase attachment and publication effects have
++    their own acts; neither is allowed to stand in for a result transition.
++    """
++    result_id = row["managed_result_id"]
++    current = _managed_proof({name: ("preparing" if name == "state" else None) for name in _MANAGED_FIELDS})
++    records = list(store._connection.execute("SELECT * FROM operations WHERE kind = ? AND state = 'committed'", (MANAGED_KIND,)))
++    if store._pending is not None and store._pending["kind"] == MANAGED_KIND:
++        records.append(store._pending)
++    transitions = {}
++    for record in records:
++        if _signed_result(record) != result_id:
++            continue
++        operands = json.loads(record["signature"])["operands"]
++        if "transition" not in operands:
++            continue
++        action = operands["transition"]
++        if action not in _MANAGED_TRANSITIONS or action in transitions or record["operation_id"] != _managed_transition_id(result_id, action):
++            _refuse("the managed result has an unknown, duplicate or misidentified transition", category="integrity", code="schema")
++        transitions[action] = (record, operands)
++    for action, (allowed, reached) in _MANAGED_TRANSITIONS.items():
++        if action not in transitions:
++            continue
++        record, operands = transitions[action]
++        changes = operands.get("changes")
++        if type(changes) is not dict or not set(changes) <= set(_MANAGED_FIELDS) or changes.get("state") not in reached or current["state"] not in allowed or operands.get("before") != current:
++            _refuse("the managed result transition does not follow its journalled predecessor", category="integrity", code="schema")
++        expected = {"managed_result_id": result_id, "transition": action, "before": current, "changes": changes}
++        _committed_act(store, record["operation_id"], _signature(MANAGED_KIND, expected))
++        current = dict(current, **changes)
++    if _managed_proof(_managed_snapshot(row)) != current:
++        _refuse("the managed result has no committed act for its current fields in the transition chain", category="integrity", code="schema")
++
++
++def _transition_managed(store, result_id, action, changes):
++    held = managed_result_of(store, result_id)
++    if not set(changes) <= set(_MANAGED_FIELDS):
++        _refuse("a managed transition may change only its closed state fields")
++    proof = _managed_proof(changes)
++    operation_id = _managed_transition_id(result_id, action)
++    previous = _recorded(store, operation_id)
++    if previous is not None:
++        operands = json.loads(previous["signature"])["operands"]
++        if operands.get("changes") != proof:
++            _refuse("this managed result transition was already recorded with different operands", code="operation-collision")
++        store.replay(operation_id, previous["signature"], kind=MANAGED_KIND, witness=_managed_witness)
++        return managed_result_of(store, result_id)
++    allowed, reached = _MANAGED_TRANSITIONS[action]
++    if held["state"] not in allowed or changes.get("state") not in reached:
++        _refuse("the managed result is not ready for " + action)
++    before = {name: held[name] for name in _MANAGED_FIELDS}
++    signature = _signature(MANAGED_KIND, {"managed_result_id": result_id, "transition": action, "before": _managed_proof(before), "changes": proof})
++
++    def act(connection):
++        row = connection.execute("SELECT * FROM managed_integration_results WHERE managed_result_id = ?", (result_id,)).fetchone()
++        if row is None or _managed_snapshot(row) != before:
++            _refuse("the managed result changed before its transition", code="operation-collision")
++        names = sorted(changes)
++        values = [canonical_text(changes[name]) if name in _MANAGED_JSON and changes[name] is not None else changes[name] for name in names]
++        connection.execute("UPDATE managed_integration_results SET " + ", ".join(name + " = ?" for name in names) + " WHERE managed_result_id = ?", (*values, result_id))
++        return managed_result_of(store, result_id)
++
++    return store.transact(operation_id, MANAGED_KIND, signature, act, witness=_managed_witness)
+ 
+ 
+ def record_managed_result(store, submission, *, orchestration_id,
+@@ -2545,7 +2634,8 @@
+ PREPARED_CANDIDATE_MEMBERS = (
+     "schema", "managed_result_id", "orchestration_id", "canonical_target_id",
+     "target_revision", "execution_attempt_id", "assignment", "request_digest",
+-    "harness_digest", "source", "states", "report", "collected", "candidate")
++    "harness_digest", "source", "states", "report", "collected", "candidate",
++    "derived_candidate", "objects")
+ 
+ 
+ def _ended_preparation(jobs, orchestration_id):
+@@ -2960,6 +3050,8 @@
+                                  PREPARATION_REPORT_OUTPUT, attempt_id)
+     candidate = _adopted_artifact(retained, indexed, custody,
+                                   PREPARED_CANDIDATE_OUTPUT, attempt_id)
++    objects = (_adopted_artifact(retained, indexed, custody, "prepared-objects", attempt_id)
++               if any(one["name"] == "prepared-objects" and one["artifact"] is not None for one in retained["outputs"]) else None)
+     output = next(one for one in retained["outputs"] if one["name"] == PREPARATION_REPORT_OUTPUT)
+     entries = [one for one in output["content_manifest"]["entries"] if one["path"] == "report.json"]
+     if len(entries) != 1:
+@@ -2981,7 +3073,7 @@
+                           target_revision=target_revision)
+     held = attach_managed_phase(store, managed_result_id=orchestration_id,
+                                 task=owned_task, result=result)
+-    return {"schema": PREPARED_CANDIDATE_SCHEMA,
++    adoption = {"schema": PREPARED_CANDIDATE_SCHEMA,
+             "managed_result_id": held["managed_result_id"],
+             "orchestration_id": orchestration_id,
+             "canonical_target_id": owned_request["canonical_target_id"],
+@@ -2995,6 +3087,8 @@
+             # summarized: a later judgment asks which revision and which
+             # content each state had, and a digest alone answers neither.
+             "states": raw.get("states"),
++            "derived_candidate": raw.get("derived_candidate"),
++            "objects": objects,
+             "report": account,
+             "collected": {"result_id": collected["result_id"],
+                           "manifest_digest": collected["manifest_digest"],
+@@ -3002,6 +3096,123 @@
+                           "custody": collected["custody"],
+                           "report": reported},
+             "candidate": candidate}
++    if objects is not None:
++        derived = boundaries.document(raw.get("derived_candidate"), "the retained derived candidate", required=("revision", "tree", "base", "candidate", "target_revision"))
++        for name in ("base", "candidate", "target_revision"):
++            if derived[name] != owned_request["source"][name]:
++                _refuse("the retained derived identity names a different source or target")
++        passed = account["kind"] == "measured" and account["status"] == 0
++        _transition_managed(store, orchestration_id, "retain", {
++            "state": "awaiting-evidence" if passed else "blocked",
++            "reason": None if passed else "the retained preparation did not pass its combined command",
++            "prepared": {"head": _object(derived["revision"], "the derived commit"), "tree": _object(derived["tree"], "the derived tree"), "preparation": adoption},
++            "content_digest": digest({"tree": derived["tree"], "candidate_artifact": candidate["content_digest"]}),
++            "causal_observations": raw, "observed_by": owned_task["assignment"]["participant"]})
++    return adoption
++
++
++def retained_managed_preparation(store, managed_result_id):
++    """Read the journalled adoption after apply admission, without re-adopting."""
++    held = managed_result_of(store, managed_result_id)
++    if held["prepared"] is None or "preparation" not in held["prepared"]:
++        _refuse("this managed result retains no exact preparation object output; operator disposition is required, without automatic rerun")
++    preparation = held["prepared"]["preparation"]
++    phase = held["phases"].get("prepare")
++    if phase is None or phase["task"]["execution_attempt_id"] != preparation["execution_attempt_id"] or phase["result"]["collected"] != {name: preparation["collected"][name] for name in ("result_id", "manifest_digest", "disposition")}:
++        _refuse("the retained preparation differs from its attached execution", category="integrity", code="schema")
++    return preparation
++
++
++def managed_publication_view(store, managed_result_id):
++    """Explicit adapter for the common Authority proposal/receipt validators."""
++    held = managed_result_of(store, managed_result_id)
++    if held["prepared"] is None:
++        _refuse("the managed candidate has not been retained")
++    return dict(held, result_id=managed_result_id, integration_assignment=held["prepared"].get("integration_assignment"))
++
++
++def _managed_custody_basis(held, derived_result_id, input_digest, policy_digest):
++    basis = _custody_basis(held, derived_result_id, input_digest, policy_digest)
++    basis["schema"] = "baton.v12.managed-derived-custody/1"
++    basis["preparation"] = held["prepared"]["preparation"]
++    basis["prepare_execution"] = held["phases"]["prepare"]
++    return basis
++
++
++def publish_managed_result(store, control, jobs, publisher, *, managed_result_id, attempt_id):
++    """Publish this custody through the actual claimed parent assignment."""
++    from ..worker_manager import assignment_of
++    from ..job_manager.integration_capacity import integration_capacity_of
++
++    held = managed_publication_view(store, managed_result_id)
++    capacity = integration_capacity_of(jobs, held["orchestration_id"])
++    apply = next(one for one in capacity["members"] if one["phase"] == "apply")
++    if apply["execution_attempt_id"] != attempt_id:
++        _refuse("the derived proposal must use the planned parent's actual attempt")
++    actual = assignment_of(control, attempt_id)
++    assignment = {"work_ref": {"authority_uuid": actual["authority_uuid"], "work_id": actual["work_id"]}, "participant": actual["participant"], "generation": actual["generation"]}
++    if held["integration_assignment"] is not None and held["integration_assignment"] != assignment:
++        _refuse("the retained parent assignment changed")
++    if assignment["participant"] != held["observed_by"] or getattr(publisher, "participant", None) != assignment["participant"]:
++        _refuse("the same integration actor must publish its child's derived preparation")
++    held["integration_assignment"] = assignment
++    prepared = dict(held["prepared"], integration_assignment=assignment)
++    held["prepared"] = prepared
++    if held["state"] not in ("awaiting-evidence", "published", "authorized"):
++        _refuse("the managed result is not a passing candidate awaiting publication")
++    _live_assignment(publisher, assignment)
++    input_digest, policy_digest = _accepted_digests(publisher, held)
++    derived_result_id = "derived-managed-" + managed_result_id
++    proposal_id = "proposal-managed-" + managed_result_id
++    result_digest = digest(_managed_custody_basis(held, derived_result_id, input_digest, policy_digest))
++    proposal = publisher.publish({"expect": assignment, "operation_id": "integration-managed-publish:" + managed_result_id,
++                                  "proposal_id": proposal_id, "result_id": derived_result_id, "result_digest": result_digest,
++                                  "candidate_digest": prepared["head"], "input_digest": input_digest, "policy_digest": policy_digest,
++                                  "target": held["target_revision"]})
++    _published(proposal, held, proposal_id, derived_result_id, result_digest)
++    return _transition_managed(store, managed_result_id, "publish", {
++        "state": "published", "prepared": prepared, "derived_proposal_id": proposal_id,
++        "derived_result_id": derived_result_id, "derived_result_digest": result_digest})
++
++
++def record_managed_evidence(store, authority, verification, reviewer, approver, *, managed_result_id):
++    held = managed_publication_view(store, managed_result_id)
++    if held["state"] not in ("published", "authorized"):
++        _refuse("independent receipts are adopted only after managed publication")
++    document = _derived_still_stands(authority, held)
++    input_digest, policy_digest = _accepted_digests(authority, held)
++    if (document["input_digest"], document["policy_digest"]) != (input_digest, policy_digest):
++        _refuse("the managed derived proposal no longer names the accepted Job digests")
++    basis = digest(_managed_custody_basis(held, held["derived_result_id"], input_digest, policy_digest))
++    actors = {kind: _owner_participant(owner, kind, held) for kind, owner in zip(_EVIDENCE_KINDS, (verification, reviewer, approver))}
++    if len(set(actors.values())) != 3 or held["observed_by"] in actors.values():
++        _refuse("the managed result needs three independent judges", category="policy", code="denied")
++    evidence = {kind: _adopted_receipt(authority, kind, actor, held, basis) for kind, actor in actors.items()}
++    generation = evidence["approval"]["policy_generation"]
++    boundaries.generation(generation, "the managed approval generation")
++    if generation != authority.policy_generation():
++        _refuse("the managed approval names a superseded policy generation", category="policy", code="denied")
++    return _transition_managed(store, managed_result_id, "authorize", {"state": "authorized", "evidence": evidence, "policy_generation": generation})
++
++
++def managed_import_account(store, authority, *, managed_result_id, entry_id):
++    from .queue import lease_of
++
++    held = managed_publication_view(store, managed_result_id)
++    _integrated_entry(store, held, entry_id)
++    _integration_receipt(authority, held)
++    published = publication_of(store, managed_result_id, "apply")
++    if published is None or published["state"] != "settled" or published["entry_id"] != entry_id:
++        _refuse("the managed import has no settled target publication")
++    lease = lease_of(store, published["lease_id"])
++    if lease is None or lease["state"] != "released" or lease["ending"] != {"outcome": "integrated"}:
++        _refuse("the managed import has not released its integrated grant")
++    return held
++
++
++def record_managed_imported(store, authority, *, managed_result_id, entry_id):
++    managed_import_account(store, authority, managed_result_id=managed_result_id, entry_id=entry_id)
++    return _transition_managed(store, managed_result_id, "import", {"state": "imported", "entry_id": entry_id})
+ 
+ 
+ def managed_result_of(store, managed_result_id):
+@@ -3130,16 +3341,7 @@
+                 f"this store committed {', '.join(missing)} and retains no "
+                 f"phase for {'it' if len(missing) == 1 else 'them'}; an act "
+                 f"with nothing materialized is a row somebody removed")
+-        if row["state"] not in _MANAGED_STATE_ACT:
+-            raise ContractRefusal(
+-                "integrity", "schema",
+-                f"managed result {name_value(managed_result_id)} is "
+-                f"{name_value(row['state'])}, which this build holds no "
+-                f"committed act for; a state nobody journalled a transition "
+-                f"to is not one this result reached")
+-        held = _MANAGED_STATE_ACT[row["state"]]
+-        if held is not None:                              # pragma: no cover
+-            _committed_act(store, held + ":" + managed_result_id, None)
++        _prove_managed_lifecycle(store, row)
+         # AND THE STATE'S OWN REQUIRED FIELDS, carried rather than dropped. A
+         # reader returning selected members could not report a held reason, a
+         # blocked record's retained observations or an authorization at all.
+--- a/v12/python/src/baton_v12/integration/execution.py
++++ b/v12/python/src/baton_v12/integration/execution.py
+@@ -547,6 +547,26 @@
+         _refuse("a reconciled result's eligibility account is the queue's own "
+                 "closed member set")
+     return account, eligibility
++
++
++def managed_result_eligibility(store, manager, jobs, authority, authorization, *, managed_result_id):
++    held = reconciliation.managed_publication_view(store, managed_result_id)
++    preparation = reconciliation.retained_managed_preparation(store, managed_result_id)
++    authorization.authorized({"managed_result_id": managed_result_id, "canonical_target_id": held["canonical_target_id"],
++                              "content_digest": preparation["collected"]["manifest_digest"]})
++    reconciliation._live_assignment(authority, held["integration_assignment"])
++    submitted = reconciliation.admission.source_submission(manager, jobs, authority, line_id=held["line_id"], proposal_id=held["source_proposal_id"])
++    if any(held[name] != value for name, value in submitted.items()):
++        _denied("the managed result's accepted source changed")
++    if authority.canonical_target() != held["target_revision"]:
++        _denied("the managed result's admitted target snapshot changed")
++    source = source_account(manager, jobs, authority, line_id=held["line_id"], proposal_id=held["source_proposal_id"])
++    eligibility = {name: source[name] for name in _SOURCE_MEMBERS}
++    eligibility.update({"proposal_id": held["derived_proposal_id"], "result_id": held["derived_result_id"],
++                        "result_digest": held["derived_result_digest"], "candidate_digest": held["prepared"]["head"],
++                        "expected_target_revision": held["target_revision"], "path_set_digest": held["content_digest"],
++                        "profile_kind": source["profile_kind"]})
++    return eligibility
+ 
+ 
+ def _delivered(runner, argv, what):
+--- a/v12/python/src/baton_v12/integration/git_profile.py
++++ b/v12/python/src/baton_v12/integration/git_profile.py
+@@ -31,6 +31,8 @@
+ 
+ import os
+ import stat
++import hashlib
++import json
+ 
+ __all__ = ["GitIntegrationProfile", "IntegrationProfileRefusal",
+            "PREPARED_NAMESPACE", "PROFILE_NAME", "PROFILE_VERSION",
+@@ -47,6 +49,7 @@
+ # reference at all. A separate namespace makes that a property of the name
+ # check rather than of the caller's care.
+ PREPARED_NAMESPACE = "refs/baton/integration/prepared/"
++RECEIPT_NAMESPACE = "refs/baton/integration/publications/"
+ 
+ # The identity a prepared commit is recorded under. It is the INTEGRATION
+ # ROLE's and deliberately not the producing worker's: nobody authored these
+@@ -267,8 +270,8 @@
+             _refuse("a Git integration profile needs a command runner")
+         self._runner = runner
+ 
+-    def _answer(self, argv, what):
+-        answer = self._runner(tuple(argv))
++    def _answer(self, argv, what, *, input=None):
++        answer = self._runner(tuple(argv)) if input is None else self._runner(tuple(argv), input=input)
+         if type(answer) is not dict or set(answer) != {
+                 "returncode", "stdout", "stderr"}:
+             _refuse(f"the Git runner's {what} answer has the closed "
+@@ -519,6 +522,65 @@
+                     "imported result")
+         return held
+ 
++    def publication_receipt(self, repository, *, publication_id):
++        """Read the immutable receipt, never infer an effect from the target."""
++        reference = self.publication_reference(publication_id)
++        named = self._answer(["git", "-C", _path(repository, "the target repository"),
++                              "rev-parse", "--verify", "--quiet", reference], "publication receipt lookup")
++        if named["returncode"] == 1 and not named["stdout"]:
++            return None
++        if named["returncode"] != 0:
++            _refuse("the publication receipt cannot be read")
++        oid = _object_name(named["stdout"].strip(), "the publication receipt")
++        body = self._run(["git", "-C", repository, "cat-file", "blob", oid], "publication receipt content")
++        try:
++            document = json.loads(body)
++        except (ValueError, TypeError):
++            _refuse("the publication receipt is not a JSON document")
++        return {"object": oid, "reference": reference, "document": document}
++
++    @staticmethod
++    def publication_reference(publication_id):
++        if type(publication_id) is not str or not publication_id or "\x00" in publication_id:
++            _refuse("a publication needs a nonempty identity")
++        return RECEIPT_NAMESPACE + hashlib.sha256(publication_id.encode("utf-8")).hexdigest()
++
++    def publish_with_receipt(self, repository, *, reference, imported, reviewed,
++                             publication_id, receipt, before_commit):
++        """Atomically CAS the configured target and create its exact receipt.
++
++        Receipt object preparation precedes the live grant check. A failed or
++        lost transaction answer remains an unknown effect until receipt recovery.
++        This operation never retries a transaction or rewrites an existing receipt.
++        """
++        repository = _path(repository, "the target repository")
++        reference = _configured_reference(reference)
++        receipt_ref = self.publication_reference(publication_id)
++        if reference.startswith(RECEIPT_NAMESPACE):
++            _refuse("a target reference cannot be a publication receipt")
++        # These names enter the update-ref line protocol, so reject whitespace
++        # and every other invalid ref spelling through Git's own validator.
++        self._run(["git", "check-ref-format", reference], "target reference validation")
++        imported = _object_name(imported, "the imported revision")
++        reviewed = _object_name(reviewed, "the admitted revision")
++        self.held(repository, imported)
++        if not callable(before_commit):
++            _refuse("a publication requires its current-grant check")
++        body = json.dumps(receipt, sort_keys=True, separators=(",", ":"), ensure_ascii=True) + "\n"
++        written = self._answer(["git", "-C", repository, "hash-object", "-w", "--stdin"],
++                               "receipt object creation", input=body.encode("utf-8"))
++        if written["returncode"] != 0:
++            _refuse("the publication receipt object could not be written")
++        oid = _object_name(written["stdout"].strip(), "the receipt object")
++        commands = (f"start\noption no-deref\nupdate {reference} {imported} {reviewed}\n"
++                    f"create {receipt_ref} {oid}\nprepare\ncommit\n").encode("ascii")
++        before_commit()
++        committed = self._answer(["git", "-C", repository, "update-ref", "--stdin"],
++                                 "atomic target publication", input=commands)
++        if committed["returncode"] != 0:
++            _refuse("the target publication did not answer committed; inspect its receipt before any further action")
++        return {"object": oid, "reference": receipt_ref, "document": receipt}
++
+ 
+ def _conflicted(stdout):
+     """The conflicted paths the reconciliation reported, as a sorted set.
+--- a/v12/python/src/baton_v12/job_manager/integration_capacity.py
++++ b/v12/python/src/baton_v12/job_manager/integration_capacity.py
+@@ -1505,6 +1505,111 @@
+                           signature, perform)
+ 
+ 
++def release_blocker(store, assignment_id):
++    """Read whether automatic release should wait for this root's owner.
++
++    Scheduling advice only; the scheduler repeats the authoritative guard
++    inside its release transaction. Malformed state is never caught as pending.
++    """
++    boundaries.identity(assignment_id, "a stage assignment id")
++    return releasable(store._connection, assignment_id)
++
++
++def _failed_parent(store, root):
++    allocation = allocation_of(store, root["root_assignment_id"])
++    stage = _row(store._connection, "SELECT * FROM stages WHERE stage_id = ?", (root["stage_id"],))
++    episode = _row(store._connection, "SELECT * FROM episodes WHERE stage_id = ? AND episode = ?", (root["stage_id"], root["episode"]))
++    if allocation is None or stage is None or episode is None or stage["kind"] != "integration":
++        _refuse("the failed integration has no owned parent stage and allocation")
++    expected = {"stage_id": stage["stage_id"], "episode": episode["episode"], "job_id": stage["job_id"], "work_id": stage["work_id"]}
++    if any(root[name] != value for name, value in expected.items()) or root["authority_uuid"] != store.authority_uuid:
++        _refuse("the failed integration root disagrees with its parent")
++    if (allocation["stage_id"], allocation["episode"], allocation["assignment_id"]) != (stage["stage_id"], episode["episode"], episode["attempt_id"]):
++        _refuse("the failed integration allocation belongs to another episode")
++    for mine, theirs in (("pool_generation", "generation"), ("worker_id", "worker_id"), ("participant", "participant"), ("canonical_principal", "canonical_principal")):
++        if root[mine] != allocation[theirs]:
++            _refuse("the failed integration root disagrees with its allocated worker")
++    return dict(expected, attempt_id=episode["attempt_id"])
++
++
++def failed_integration_of(store, stage_id, episode):
++    """Pure, bound failure account; released capacity is a separate fact."""
++    row = _row(store._connection, "SELECT * FROM integration_capacity_roots WHERE stage_id = ? AND episode = ?", (stage_id, episode))
++    if row is None:
++        return None
++    kind = "integration-capacity.failed"
++    record = store.operation_record(kind + ":" + row["orchestration_id"])
++    if record is None:
++        return None
++    parent = _failed_parent(store, row)
++    account = boundaries.document(json.loads(record["result"]), "the owned failed integration",
++                                  required=("orchestration_id", "parent", "phase", "execution_attempt_id", "ended_operation_id", "evidence"))
++    if record["state"] != "committed" or record["kind"] != kind or record["signature"] != job_signature(kind, account) or account["parent"] != parent:
++        _refuse("the failed integration account does not prove its parent")
++    if account["orchestration_id"] != row["orchestration_id"] or account["phase"] not in PHASES:
++        _refuse("the failed integration account names another root or phase")
++    member = next((one for one in _members(store._connection, row["orchestration_id"]) if one["phase"] == account["phase"]), None)
++    if member is None or member["state"] != "ended" or member["execution_attempt_id"] != account["execution_attempt_id"] or member["ended_operation_id"] != account["ended_operation_id"]:
++        _refuse("the failed integration account does not prove its ended member")
++    ended = store.operation_record(member["ended_operation_id"])
++    if ended is None or ended["state"] != "committed" or member not in json.loads(ended["result"])["members"]:
++        _refuse("the failed integration member disagrees with its ending journal")
++    settled = row["lifecycle"] == "ended"
++    if settled and (allocation_of(store, row["root_assignment_id"])["allocation_state"] != "released" or releasable(store._connection, row["root_assignment_id"]) is not None):
++        _refuse("the failed integration reports release with unfinished capacity")
++    return dict(account, settled=settled)
++
++
++def settle_failed_integration(store, control, *, orchestration_id, phase, coordinator=None):
++    """Retain an owned failure before cancelling plans and releasing capacity."""
++    from ..worker_manager.attempts import attempt_start_failure_of
++    from ..integration import reconciliation
++    from .scheduler import release
++
++    held = integration_capacity_of(store, orchestration_id)
++    root = held["root"]
++    existing = failed_integration_of(store, root["stage_id"], root["episode"])
++    if existing is None:
++        member = next((one for one in held["members"] if one["phase"] == phase), None)
++        if member is None or member["state"] != "ended":
++            _refuse("a known integration failure requires an ended execution")
++        _resolved_exclusion(control, None, member["exclusion"], member)
++        attempt = member["execution_attempt_id"]
++        start = attempt_start_failure_of(control, attempt)
++        if start is not None and start["runtime_id"] is not None and member["outcome"] == "failed":
++            evidence = {"start_operation_id": start["start_operation_id"], "runtime_id": start["runtime_id"]}
++        else:
++            if coordinator is None:
++                _refuse("the failed integration has no owned measured phase")
++            result = reconciliation.managed_result_of(coordinator, orchestration_id)
++            measured = result["phases"].get(phase)
++            if measured is None or measured["task"]["execution_attempt_id"] != attempt:
++                _refuse("the failed integration phase belongs to another execution")
++            if phase == "prepare":
++                if result["state"] != "blocked":
++                    _refuse("the preparation has no failed causal result")
++            elif member["outcome"] != "failed" or measured["result"]["report"]["status"] == 0:
++                _refuse("the apply execution has no recorded failure")
++            if phase == "apply":
++                from ..integration.queue import entries_of, lease_of
++                entry = next((one for one in entries_of(coordinator, result["canonical_target_id"]) if one["entry_id"] == "managed-entry:" + attempt), None)
++                lease = lease_of(coordinator, "managed-lease:" + attempt)
++                if reconciliation.publication_of(coordinator, orchestration_id, "apply") is not None or entry is None or entry["state"] != "refused" or lease is None or lease["state"] != "released" or lease["ending"] != {"outcome": "entry-refused"}:
++                    _refuse("the failed apply has not settled its unchanged target entry and lease")
++            evidence = {"phase_digest": managed_execution.digest(measured)}
++        account = {"orchestration_id": orchestration_id, "parent": _failed_parent(store, root), "phase": phase,
++                   "execution_attempt_id": attempt, "ended_operation_id": member["ended_operation_id"], "evidence": evidence}
++        kind = "integration-capacity.failed"
++        store.transact(kind + ":" + orchestration_id, kind, job_signature(kind, account), lambda connection: account)
++    elif existing["phase"] != phase:
++        _refuse("another integration phase already owns this failed outcome")
++    elif existing["settled"]:
++        return existing
++    begin_integration_ending(store, orchestration_id=orchestration_id, reason="managed integration failed")
++    release(store, root["root_assignment_id"], "managed-integration-failed")
++    return failed_integration_of(store, root["stage_id"], root["episode"])
++
++
+ def releasable(connection, assignment_id):
+     """Why this registered root may not release its capacity yet, or None.
+ 
+--- a/v12/python/src/baton_v12/job_manager/delegation.py
++++ b/v12/python/src/baton_v12/job_manager/delegation.py
+@@ -582,8 +582,13 @@
+         raise ContractRefusal(
+             "integrity", "schema",
+             f"{what} reports completion and names no account of it")
++    managed = type(found) is dict and "managed_result_id" in found
+     held = boundaries.document(found, f"{what}'s completion account",
+-                               required=INTEGRATION_COMPLETION_MEMBERS)
++                               required=INTEGRATION_COMPLETION_MEMBERS + (("managed_result_id",) if managed else ()))
++    if managed:
++        boundaries.identity(held["managed_result_id"], f"{what}'s managed result")
++        if held["managed_result_id"] != held["result_id"] or held["execution_runtime"] != "destroyed":
++            raise ContractRefusal("integrity", "schema", "a managed completion binds its result and destroyed apply runtime")
+     for member in ("proposal_id", "source_proposal_id",
+                    "integration_receipt_id", "entry_id", "lease_id",
+                    "handoff_operation_id"):
+@@ -608,7 +613,7 @@
+                 f"{what} reports no runtime and names runtime "
+                 f"{name_value(held['runtime_id'])}")
+     else:
+-        if reconciled:
++        if reconciled and not managed:
+             raise ContractRefusal(
+                 "integrity", "schema",
+                 f"{what} names reconciliation result "
+--- a/v12/python/src/baton_v12/job_manager/projection.py
++++ b/v12/python/src/baton_v12/job_manager/projection.py
+@@ -117,6 +117,8 @@
+     observed = entry["observed"]
+     if entry["episode"] is None:
+         return None if replaceable(entry) else "exceptional"
++    if (entry.get("managed_failure") or {}).get("settled"):
++        return "exceptional"
+     # A DURABLY REFUSED ACT IS THE FIRST ANSWER. Whatever else is true of the
+     # stage, an act this control plane delegated and the manager refused for
+     # good is a condition an operator has to see rather than a state to keep
+@@ -485,6 +487,9 @@
+             # proof depended on who was asking.
+             "ending": (ending.ending_of(store, stage_id, live["episode"])
+                        if live is not None else None)}
++        from .integration_capacity import failed_integration_of
++        held[stage_id]["managed_failure"] = (failed_integration_of(store, stage_id, live["episode"])
++                                             if live is not None and stage["kind"] == "integration" else None)
+         held[stage_id]["state"] = _observed_state(held[stage_id])
+         if held[stage_id]["state"] is None and live is not None \
+                 and scheduler.allocation_refusal_of(
+--- a/v12/worker/integration_contract.py
++++ b/v12/worker/integration_contract.py
+@@ -62,6 +62,35 @@
+ # generation is refused by an equality test rather than left to discover that
+ # the account it was handed answers a question it does not know how to ask.
+ BUNDLE_SCHEMA = "baton.integration-input/2"
++
++APPLY_REQUEST_SCHEMA = "baton.v12.managed-apply-request/1"
++APPLY_REQUEST_DOCUMENT = "managed-apply.json"
++APPLY_REQUEST_MEMBERS = ("schema", "purpose", "job_id", "managed_result_id", "task",
++                         "derived_proposal_id", "derived_result_id", "derived_result_digest",
++                         "candidate", "tree", "candidate_content_digest", "objects_digest", "objects_bytes", "output_name")
++APPLY_REPORT_SCHEMA = "baton.v12.managed-apply-report/1"
++APPLY_REPORT_MEMBERS = ("schema", "request_digest", "candidate", "tree", "harness_digest",
++                        "command", "seconds", "status", "tag", "unchanged")
++
++
++def read_managed_apply(root):
++    holder = open_bundle_root(root)
++    try:
++        body = _read_exact(holder, [APPLY_REQUEST_DOCUMENT], limit=MAX_ENVELOPE_BYTES, what="the managed apply request")
++        request = _document(body, "the managed apply request", APPLY_REQUEST_MEMBERS)
++        if request["schema"] != APPLY_REQUEST_SCHEMA or request["purpose"] != "managed-apply":
++            _refuse("the managed apply request names another purpose")
++        for name in ("candidate", "tree"):
++            value = request[name]
++            if type(value) is not str or len(value) != 40 or any(one not in "0123456789abcdef" for one in value):
++                _refuse("a managed apply names exact Git objects")
++        _count(request["objects_bytes"], "the managed object bundle", MAX_BLOB_BYTES)
++        objects = _read_exact(holder, ["objects.bundle"], limit=request["objects_bytes"], what="the managed apply objects")
++        if len(objects) != request["objects_bytes"] or "sha256:" + sha256_hex(objects) != request["objects_digest"]:
++            _refuse("the managed apply object bundle changed")
++        return request, objects
++    finally:
++        os.close(holder)
+ 
+ # WHERE THE BUNDLE IS BOUND, and it is the accepted read-only nominated source
+ # rather than a fourth integration namespace. W110934 ruled that `/input/source`
+--- a/v12/worker/integration_workload.py
++++ b/v12/worker/integration_workload.py
+@@ -526,6 +526,92 @@
+         return {"argv": list(argv), "status": None,
+                 "why": "the verification did not answer an exit status"}
+     return {"argv": list(argv), "status": status, "why": None}
++
++
++def run_managed_verification(repository, command, seconds):
++    """Bound the private command; encode an observed signal as shell status 128+N."""
++    import signal
++
++    process = subprocess.Popen(command, cwd=repository, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True,
++                               env={"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": repository, "PYTHONDONTWRITEBYTECODE": "1"})
++    try:
++        status = process.wait(timeout=seconds)
++        return status if status >= 0 else 128 - status
++    except subprocess.TimeoutExpired:
++        for action, grace in ((signal.SIGTERM, 2), (signal.SIGKILL, 2)):
++            try:
++                os.killpg(process.pid, action)
++            except ProcessLookupError:
++                pass
++            try:
++                process.wait(timeout=grace)
++            except subprocess.TimeoutExpired:
++                continue
++            # The leader exiting does not prove its descendants exited.
++            try:
++                os.killpg(process.pid, signal.SIGKILL)
++            except ProcessLookupError:
++                pass
++            if process.returncode == 0:
++                raise WorkloadRefusal("the verification exceeded its deadline despite a zero termination status")
++            return process.returncode if process.returncode >= 0 else 128 - process.returncode
++        raise WorkloadRefusal("the managed verification could not be terminated; runtime cleanup is required")
++
++
++def managed_apply(root, launch, scratch):
++    """Verify the already approved candidate in private storage; write no target."""
++    request, objects = contract.read_managed_apply(root)
++    execution = launch.get("job_execution") or {}
++    task = request["task"]
++    limits = execution.get("execution_limits")
++    if execution.get("job_id") != request["job_id"] or limits != task.get("execution_limits"):
++        raise WorkloadRefusal("the managed apply request differs from its sealed Job execution")
++    if task.get("phase") != "apply" or task.get("orchestration_id") != request["managed_result_id"] or task.get("commands") != ["post-import"]:
++        raise WorkloadRefusal("the managed apply task has another purpose")
++    seconds = (limits.get("boundaries", {}).get("host_verification") or {}).get("seconds")
++    if type(seconds) is not int or seconds < 1:
++        raise WorkloadRefusal("the managed apply has no resolved former-host verification bound")
++    os.makedirs(scratch, mode=0o700, exist_ok=False)
++    bundle = os.path.join(scratch, "objects.bundle")
++    with open(bundle, "xb") as stream:
++        stream.write(objects)
++    repository = os.path.join(scratch, "candidate")
++
++    def git(*words):
++        done = subprocess.run(["git", "-C", repository, *words], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
++                              timeout=seconds, env={"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "GIT_CONFIG_NOSYSTEM": "1", "HOME": scratch})
++        if done.returncode:
++            raise WorkloadRefusal("the managed apply could not prove or materialize its exact Git content")
++        return done.stdout
++
++    os.mkdir(repository, 0o700)
++    git("init", "--quiet")
++    git("fetch", "--quiet", bundle, "refs/baton/prepared/candidate:refs/baton/prepared/candidate")
++    head = git("rev-parse", "--verify", "refs/baton/prepared/candidate^{commit}").decode().strip()
++    tree = git("rev-parse", "--verify", head + "^{tree}").decode().strip()
++    if (head, tree) != (request["candidate"], request["tree"]):
++        raise WorkloadRefusal("the managed apply objects name different candidate bytes or modes")
++    rows = git("ls-tree", "-rz", "--full-tree", head).split(b"\0")
++    for row in rows:
++        if not row:
++            continue
++        metadata, path = row.split(b"\t", 1)
++        mode, kind, _object = metadata.split()
++        if mode not in (b"100644", b"100755") or kind != b"blob":
++            raise WorkloadRefusal("a managed apply materializes only regular Git files")
++        contract.check_bundle_path(path.decode("utf-8"))
++    git("checkout", "--quiet", "--detach", head)
++    with open(os.path.join(repository, "harness.py"), "rb") as stream:
++        harness = stream.read(contract.MAX_BLOB_BYTES + 1)
++    measured = "sha256:" + contract.sha256_hex(harness)
++    if measured != task["harness_digest"]:
++        raise WorkloadRefusal("the managed apply candidate carries a different pinned harness")
++    command = ["python3", "harness.py"]
++    status = run_managed_verification(repository, command, seconds)
++    unchanged = not git("status", "--porcelain", "--untracked-files=all")
++    return request, {"schema": contract.APPLY_REPORT_SCHEMA, "request_digest": canonical_digest(request),
++                     "candidate": head, "tree": tree, "harness_digest": measured, "command": command,
++                     "seconds": seconds, "status": status, "tag": None, "unchanged": unchanged}
+ 
+ 
+ def _target_state(holder, path, *, limit):
+--- a/v12/worker/integration_entry.py
++++ b/v12/worker/integration_entry.py
+@@ -48,13 +48,43 @@
+ TARGET_TARGET = "/target"
+ 
+ 
++class ManagedApplyAgent:
++    def __init__(self, *, bundle_root=contract.BUNDLE_TARGET, output_root=None, scratch=None):
++        self.bundle_root = bundle_root
++        self.output_root = output_root or baton_worker.OUTPUT_ROOT
++        self.scratch = scratch
++
++    def consider(self, seen, request):
++        return {"decision": "accept", "reason": "execute the explicitly managed apply purpose"}
++
++    def work(self, seen, declared):
++        import tempfile
++        if self.scratch is None:
++            with tempfile.TemporaryDirectory(prefix="managed-apply-") as home:
++                request, report = workload.managed_apply(self.bundle_root, seen, os.path.join(home, "execution"))
++        else:
++            request, report = workload.managed_apply(self.bundle_root, seen, self.scratch)
++        found = [one for one in declared if one["name"] == request["output_name"] and one["type"] == "directory-result"]
++        if len(found) != 1:
++            raise workload.WorkloadRefusal("the managed apply report needs its declared directory output")
++        place = os.path.join(self.output_root, found[0]["path"])
++        os.makedirs(place, exist_ok=True)
++        with open(os.path.join(place, "managed-apply.json"), "xb") as stream:
++            stream.write(workload.canonical_text(report).encode())
++        return {"disposition": "completed", "recap": "managed apply verification retained",
++                "outputs": [{"name": one["name"], "status": "present" if one["name"] == request["output_name"] else "missing-optional", "result_metadata": {}} for one in declared]}
++
++
+ def main(*, agent=None, launch_place=baton_worker.LAUNCH_DOCUMENT,
+          assignment_root=contract.ASSIGNMENT_TARGET,
+          result_root=contract.RESULT_TARGET,
+          bundle_root=contract.BUNDLE_TARGET,
+          target_root=TARGET_TARGET, scratch=None, revision=None,
+-         verify=None):
++         verify=None, command_root=None, event_root=None):
+     """Read the delivery, run the workload, publish exactly one result."""
++    if os.path.lexists(os.path.join(bundle_root, contract.APPLY_REQUEST_DOCUMENT)):
++        options = {name: value for name, value in (("command_root", command_root), ("event_root", event_root)) if value is not None}
++        return baton_worker.main(agent=ManagedApplyAgent(bundle_root=bundle_root, scratch=scratch), place=launch_place, **options)
+     try:
+         launch = baton_worker.launched(baton_worker.read_launch(launch_place),
+                                        launch_place)
+--- /dev/null
++++ b/v12/python/tests/tools/test_managed_apply.py
+@@ -0,0 +1,643 @@
++"""Selected W170385 managed apply and settlement evidence.
++
++Git mutations in these cases are confined to disposable fixture repositories.
++The local receipt cases are component evidence, not complete managed execution.
++"""
++import os
++import tempfile
++import unittest
++import json
++from pathlib import Path
++
++from baton_v12.integration.git_profile import GitIntegrationProfile, IntegrationProfileRefusal
++from tools.stage_execution import _git_run
++from tests.tools.test_managed_preparation import RealLine
++
++
++class AnOrdinaryManagedIntegration(unittest.TestCase):
++    def test_failed_preparation_resumes_after_admission_is_closed(self):
++        from tests.tools.test_managed_preparation import OneManagedPreparationCompletes
++        from baton_v12.job_manager import scheduler
++        from baton_v12.contracts import ContractRefusal
++        from unittest import mock
++        case = OneManagedPreparationCompletes("run")
++        self.addCleanup(case.doCleanups)
++        release = scheduler.release
++        cuts = []
++        def interrupted(store, assignment, reason):
++            if reason == "managed-integration-failed" and not cuts:
++                cuts.append(True)
++                raise ContractRefusal("refused", "precondition", "selected failure after closing root admission")
++            return release(store, assignment, reason)
++        with mock.patch.object(scheduler, "release", interrupted):
++            case.complete(uncertain=True)
++        self.assertEqual(len(cuts), 1)
++
++    def test_preparation_judgments_apply_and_target_settle(self):
++        self.complete()
++
++    def test_reopen_after_target_effect_before_coordinator_settlement(self):
++        self.complete(cut="target-effect")
++
++    def test_a_failed_apply_is_collected_and_settles_without_a_target_effect(self):
++        self.complete(failed=True)
++
++    def test_reopen_after_retained_adoption(self):
++        self.complete(cut="adoption")
++
++    def test_reopen_after_derived_publication(self):
++        self.complete(cut="publication")
++
++    def test_unknown_target_effect_remains_a_visible_hold_after_reopen(self):
++        self.complete(cut="unknown-effect")
++
++    def test_original_job_limit_times_out_the_managed_apply(self):
++        self.complete(failed=True, timed_out=True)
++
++    def test_missing_independent_judgment_cannot_admit_apply(self):
++        self.complete(denied="missing")
++
++    def test_nonaccepting_independent_judgment_cannot_admit_apply(self):
++        self.complete(denied="rejected")
++
++    def test_changed_collection_mapping_cannot_admit_apply(self):
++        self.complete(denied="mapping")
++
++    def test_reopen_after_authority_receipt_before_final_handoff(self):
++        self.complete(cut="authority-receipt")
++
++    def test_reopen_after_failed_outcome_before_root_release(self):
++        self.complete(cut="failed-outcome", failed=True)
++
++    def test_a_grant_withdrawn_after_admission_prevents_start(self):
++        self.complete(denied="grant")
++
++    def test_target_drift_after_admission_prevents_start(self):
++        self.complete(denied="target")
++
++    def complete(self, cut=None, failed=False, timed_out=False, denied=None):
++        import subprocess
++        import sys
++        import time
++        from types import MethodType
++        from tests.tools import test_stage_execution as stage_fixture
++        from tests.tools.test_managed_preparation import OneManagedPreparationCompletes, WORKER
++        from tests.job_manager import fixtures
++        from baton_v12.job_manager import sweep
++        from baton_v12.job_manager.integration_capacity import integration_capacity_of
++        from baton_v12.integration import reconciliation
++
++        case = OneManagedPreparationCompletes("run")
++        self.addCleanup(case.doCleanups)
++
++        def configure(world):
++            if hasattr(world, "_managed_configuration"):
++                return world._managed_configuration
++            methods = stage_fixture.TwoBoundJobsTraverseServingAndCorrection
++            world.JUDGMENT_WORKS = methods.JUDGMENT_WORKS
++            for name in ("judgment_work", "judgment_execution", "judgment_task_bytes", "judgment_task_document", "judgment_workers", "judgment_turn"):
++                setattr(world, name, MethodType(getattr(methods, name), world))
++            world.manifest_over = MethodType(stage_fixture.EachJobBindsItsOwnDeploymentAndLine.manifest_over, world)
++            world.vcs_in = MethodType(methods.vcs_in, world)
++            world.deployment_of = lambda value: getattr(value, "composed", value).deployment
++            world.quiescing = lambda: stage_fixture._ConcurrentEngine()
++            if timed_out:
++                from baton_v12.job_manager import documents
++                world.submission["schema"] = documents.SUBMISSION_SCHEMA
++                world.submission["jobs"][0]["execution_limits"] = {"verification_command_seconds": 1}
++            target = os.path.join(world.root, "managed-target.git")
++            self.assertEqual(_git_run(["git", "clone", "--quiet", "--bare", world.source, target])["returncode"], 0)
++            world._managed_configuration = {"result_judgment_workers": world.judgment_workers("job-a"), "integration_target": target,
++                    "integration_target_reference": "refs/heads/main", "schema": "baton.v12.stage-execution-deployment/2",
++                    "job_bindings": [{"job_id": "job-a", "job_work_id": world.work, "review_work_id": world.work,
++                                      "line_declared_base": world.base, "canonical_target_id": "target-1", "source_worker_id": "implementation-worker"}]}
++            return world._managed_configuration
++
++        def adopted(world, held, prepared):
++            deployment = held.composed.deployment
++            processes, logs, event_homes = [], [], []
++            def cleanup():
++                for process in processes:
++                    if process.poll() is None:
++                        process.terminate()
++                    try:
++                        process.wait(timeout=5)
++                    except subprocess.TimeoutExpired:
++                        process.kill()
++                        process.wait(timeout=5)
++                for log in logs:
++                    log.close()
++            self.addCleanup(cleanup)
++            original_engine = world.engine
++            world.quiescing = lambda: original_engine
++            starts = []
++            def engine(argv, **options):
++                answer = original_engine(argv, **options)
++                if argv[1] != "run" or "--entrypoint" in argv:
++                    if argv[1] in ("stop", "rm"):
++                        for process in processes:
++                            process.wait(timeout=5)
++                    return answer
++                mounts = {}
++                for index, arg in enumerate(argv[:-1]):
++                    if arg == "--mount":
++                        parts = dict(part.split("=", 1) for part in argv[index + 1].split(",") if "=" in part)
++                        mounts[parts["target"]] = parts["source"]
++                if not os.path.isfile(os.path.join(mounts.get("/input/source", ""), "managed-apply.json")):
++                    return answer
++                capacity = integration_capacity_of(held.job, prepared["managed_result_id"])
++                phases = {one["phase"]: one for one in capacity["members"]}
++                self.assertEqual(phases["apply"]["state"], "admitted")
++                self.assertEqual(phases["prepare"]["state"], "ended")
++                self.assertNotIn(deployment.given["integration_target"], mounts.values())
++                starts.append(phases["apply"]["execution_attempt_id"])
++                event_homes.append(next(source for target, source in mounts.items() if target.endswith('/events')))
++                code = r'''
++import functools, json, sys
++sys.path.insert(0, sys.argv[1])
++import baton_worker, integration_entry
++import traceback
++original_work = integration_entry.ManagedApplyAgent.work
++def traced_work(self, *args):
++    try:
++        return original_work(self, *args)
++    except BaseException:
++        traceback.print_exc()
++        raise
++integration_entry.ManagedApplyAgent.work = traced_work
++original_handle = baton_worker.handle
++def traced_handle(*args):
++    try:
++        return original_handle(*args)
++    except BaseException:
++        traceback.print_exc()
++        raise
++baton_worker.handle = traced_handle
++mounts = json.loads(sys.argv[2])
++baton_worker.INPUT_ROOT = mounts['/input']
++baton_worker.OUTPUT_ROOT = mounts['/output']
++integration_entry.ManagedApplyAgent = functools.partial(integration_entry.ManagedApplyAgent,
++    output_root=mounts['/output'])
++launch = next(source for target, source in mounts.items() if target.endswith('launch.json'))
++command = next(source for target, source in mounts.items() if target.endswith('/command'))
++event = next(source for target, source in mounts.items() if target.endswith('/events'))
++sys.exit(integration_entry.main(launch_place=launch, command_root=command, event_root=event, bundle_root=mounts['/input/source'], scratch=sys.argv[3]))
++'''
++                log = tempfile.TemporaryFile()
++                logs.append(log)
++                processes.append(subprocess.Popen([sys.executable, "-c", code, str(WORKER), json.dumps(mounts),
++                                                    os.path.join(world.root, "apply-scratch")], stdout=log, stderr=log))
++                return answer
++            # All these are the same configured fake engine boundary. The
++            # apply process itself executes the real ordinary entry/workload.
++            operations = deployment._integration_operations
++            parent = operations.operations if hasattr(operations, "operations") else operations
++            from baton_v12.worker_manager.oci import EnginePort
++            parent._worker.engine = EnginePort(engine)
++            deployment._engine_run = engine
++            cuts, reopened, effects = [], [], []
++            from unittest import mock
++            from baton_v12.contracts import ContractRefusal
++            original_effect = GitIntegrationProfile.publish_with_receipt
++            def interrupted_effect(profile, *args, **kwargs):
++                effects.append(True)
++                answer = None if cut == "unknown-effect" else original_effect(profile, *args, **kwargs)
++                if cut in ("target-effect", "unknown-effect") and not cuts:
++                    cuts.append({"receipt": answer, "root": integration_capacity_of(held.job, prepared["managed_result_id"])["root"]["lifecycle"],
++                                 "publication": reconciliation.publication_of(deployment.integration, prepared["managed_result_id"], "apply")["state"]})
++                    raise ContractRefusal("refused", "precondition", "selected interruption after the atomic target effect")
++                return answer
++            effect_patch = mock.patch.object(GitIntegrationProfile, "publish_with_receipt", interrupted_effect)
++            effect_patch.start()
++            self.addCleanup(effect_patch.stop)
++            if cut == "authority-receipt":
++                imported = reconciliation.record_managed_imported
++                def lost_final(*args, **kwargs):
++                    if not cuts:
++                        cuts.append({"root": "open", "publication": "settled"})
++                        raise ContractRefusal("refused", "precondition", "selected loss after Authority receipt")
++                    return imported(*args, **kwargs)
++                final_patch = mock.patch.object(reconciliation, "record_managed_imported", lost_final)
++                final_patch.start()
++                self.addCleanup(final_patch.stop)
++            if cut == "failed-outcome":
++                from baton_v12.job_manager import integration_capacity
++                ending = integration_capacity.begin_integration_ending
++                def lost_failure(*args, **kwargs):
++                    if kwargs["reason"] == "managed integration failed" and not cuts:
++                        cuts.append({"root": "open", "publication": None})
++                        raise ContractRefusal("refused", "precondition", "selected loss after owned failure")
++                    return ending(*args, **kwargs)
++                failure_patch = mock.patch.object(integration_capacity, "begin_integration_ending", lost_failure)
++                failure_patch.start()
++                self.addCleanup(failure_patch.stop)
++            forbidden = []
++            def host_git(argv, **kwargs):
++                if not argv or argv[0] != "git" or "merge" in argv:
++                    forbidden.append(list(argv))
++                    raise AssertionError("managed coordinator attempted a merge or harness")
++                return _git_run(argv, **kwargs)
++            host_patch = mock.patch.object(stage_fixture.stage_execution, "_git_run", host_git)
++            host_patch.start()
++            self.addCleanup(host_patch.stop)
++            for argv in (["python3", "harness.py"], ["git", "merge", "candidate"]):
++                with self.assertRaises(AssertionError):
++                    stage_fixture.stage_execution._git_run(argv)
++            forbidden.clear()
++            if denied == "mapping":
++                from tools.integration_placement import ManagedAuthorization
++                authorize = ManagedAuthorization.authorized
++                def changed_mapping(owner, operands):
++                    return authorize(owner, dict(operands, content_digest="sha256:" + "9" * 64))
++                mapping_patch = mock.patch.object(ManagedAuthorization, "authorized", changed_mapping)
++                mapping_patch.start()
++                self.addCleanup(mapping_patch.stop)
++            if denied in ("grant", "target"):
++                from baton_v12.job_manager import integration_capacity
++                from baton_v12.integration import queue
++                admission = integration_capacity.admit_integration_execution
++                withdrawn = []
++                def after_admission(*args, **kwargs):
++                    answer = admission(*args, **kwargs)
++                    if kwargs["phase"] == "apply" and not withdrawn:
++                        if denied == "grant":
++                            queue.block_target(deployment.integration, **kwargs["grant"], reason="selected grant withdrawal", detail={"why": "pre-start gate test"})
++                        else:
++                            from baton_v12.contracts import digest
++                            source = os.path.join(deployment.given["state_root"], "managed-results", digest(prepared["managed_result_id"])[7:], "objects")
++                            self.assertEqual(_git_run(["git", "--git-dir=" + deployment.given["integration_target"], "fetch", "--quiet", source, prepared["derived_candidate"]["revision"]])["returncode"], 0)
++                            self.assertEqual(_git_run(["git", "--git-dir=" + deployment.given["integration_target"], "update-ref", "refs/heads/main", prepared["derived_candidate"]["revision"], world.base])["returncode"], 0)
++                        withdrawn.append(True)
++                    return answer
++                admission_patch = mock.patch.object(integration_capacity, "admit_integration_execution", after_admission)
++                admission_patch.start()
++                self.addCleanup(admission_patch.stop)
++            judged, reports = set(), []
++            def reopen():
++                nonlocal deployment
++                retired = held.composed
++                old_authority = retired.deployment.authority
++                retired.close()
++                held.job.close()
++                held.control.close()
++                import sqlite3
++                with self.assertRaises(sqlite3.ProgrammingError):
++                    old_authority.project_work(world.work)
++                held.job, held.control, held.composed = world.serving()
++                world._composed = held.composed
++                deployment = held.composed.deployment
++                deployment._integration_operations._worker.engine = EnginePort(engine)
++                deployment._engine_run = engine
++                reopened.append(True)
++            if cut == "adoption":
++                reopen()
++            for _ in range(10 if denied else 200):
++                reports.append(sweep(held.job, held.composed, now=fixtures.NOW))
++                if cuts and not reopened:
++                    self.assertEqual(cuts[0]["root"], "open")
++                    self.assertEqual(cuts[0]["publication"], {"authority-receipt": "settled", "failed-outcome": None}.get(cut, "intended"))
++                    reopen()
++                current = reconciliation.managed_result_of(deployment.integration, prepared["managed_result_id"])
++                if cut == "publication" and current["state"] == "published" and not reopened:
++                    reopen()
++                for key, execution in deployment.judges.items():
++                    if key not in judged:
++                        if denied == "missing" and len(judged) == 2:
++                            continue
++                        world.judgment_turn(held, execution, verdict="changes-requested" if denied == "rejected" else "accepted")
++                        judged.add(key)
++                result = reconciliation.managed_result_of(deployment.integration, prepared["managed_result_id"])
++                state = world.states(held.job, held.composed)["integration"]
++                if state == "exceptional" or (state == "completed" and integration_capacity_of(held.job, result["managed_result_id"])["root"]["lifecycle"] == "ended"):
++                    break
++                time.sleep(0.01)
++            for log in logs:
++                log.seek(0)
++            if cut == "target-effect" and state == "completed":
++                receipt = deployment.authority.receipt(result["derived_proposal_id"], "integration")
++                reopen()
++                for _ in range(2):
++                    sweep(held.job, held.composed, now=fixtures.NOW)
++                self.assertEqual(world.states(held.job, held.composed)["integration"], "completed")
++                self.assertEqual(deployment.authority.receipt(result["derived_proposal_id"], "integration"), receipt)
++            diagnostics = {"reports": [one for one in reports if one.get("started") or one.get("spoken")][-4:],
++                           "logs": [log.read().decode(errors="replace") for log in logs],
++                           "events": [[(file.name, file.read_text()) for file in Path(home).glob("*.json")] for home in event_homes],
++                           "apply": [(one.request, one.operations._worker.observed_exchange({"attempt_id": attempt})) for attempt, one in getattr(held.composed.integrator, "managed_runtimes", {}).items()]}
++            from baton_v12.job_manager.projection import stage_states, gates_of
++            self.assertEqual(forbidden, [])
++            dependent = {"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}
++            gate = gates_of(dependent, stage_states(held.job, held.composed))[0]
++            self.assertEqual(gate["open"], not failed and not denied and cut != "unknown-effect")
++            if denied:
++                self.assertNotEqual(state, "completed", diagnostics)
++                self.assertEqual(starts, [])
++                self.assertEqual(effects, [])
++                self.assertIsNone(reconciliation.publication_of(deployment.integration, result["managed_result_id"], "apply"))
++                self.assertEqual(integration_capacity_of(held.job, result["managed_result_id"])["root"]["lifecycle"], "open")
++                self.assertEqual(deployment.reconciliation_profile.revision(deployment.given["integration_target"], "refs/heads/main"), prepared["derived_candidate"]["revision"] if denied == "target" else world.base)
++                details = json.dumps(reports)
++                self.assertIn({"missing": "frozen reports", "rejected": "did not accept", "mapping": "accepted frozen report", "grant": "grant", "target": "changed before the managed apply start"}[denied], details)
++                return
++            if cut == "unknown-effect":
++                from baton_v12.integration import queue
++                target = queue.target_of(deployment.integration, result["canonical_target_id"])
++                self.assertEqual(state, "exceptional", diagnostics)
++                self.assertEqual(target["state"], "blocked")
++                self.assertIn("Human inspection", json.dumps(target))
++                self.assertEqual(len(reopened), 1)
++                self.assertEqual(len(effects), 1)
++                self.assertEqual(len(starts), 1)
++                self.assertEqual(queue.lease_of(deployment.integration, "managed-lease:" + starts[0])["state"], "live")
++                self.assertEqual(integration_capacity_of(held.job, result["managed_result_id"])["root"]["lifecycle"], "open")
++                self.assertEqual(deployment.reconciliation_profile.revision(deployment.given["integration_target"], "refs/heads/main"), world.base)
++                return
++            if failed:
++                from baton_v12.job_manager.integration_capacity import failed_integration_of
++                from baton_v12.integration import queue
++                capacity = integration_capacity_of(held.job, prepared["managed_result_id"])
++                root = capacity["root"]
++                self.assertEqual(world.states(held.job, held.composed)["integration"], "exceptional", diagnostics)
++                failure = failed_integration_of(held.job, root["stage_id"], root["episode"])
++                self.assertIsNotNone(failure, diagnostics)
++                self.assertTrue(failure["settled"])
++                self.assertEqual(root["lifecycle"], "ended")
++                self.assertEqual(len(reopened), 1 if cut else 0)
++                self.assertEqual(effects, [])
++                self.assertEqual(len(starts), 1)
++                measured = result["phases"]["apply"]["result"]["report"]["status"]
++                self.assertIn(measured, (143, 137)) if timed_out else self.assertEqual(measured, 7)
++                if timed_out:
++                    self.assertEqual(result["phases"]["apply"]["task"]["execution_limits"]["boundaries"]["host_verification"]["seconds"], 1)
++                self.assertEqual(deployment.reconciliation_profile.revision(deployment.given["integration_target"], "refs/heads/main"), world.base)
++                self.assertEqual(deployment.authority.canonical_target(), world.base)
++                self.assertIsNone(deployment.authority.receipt(result["derived_proposal_id"], "integration"))
++                self.assertEqual(queue.lease_of(deployment.integration, "managed-lease:" + starts[0])["state"], "released")
++                for _ in range(2):
++                    sweep(held.job, held.composed, now=fixtures.NOW)
++                self.assertEqual(len(starts), 1)
++                self.assertEqual(world.states(held.job, held.composed)["integration"], "exceptional")
++                return
++            self.assertEqual(world.states(held.job, held.composed)["integration"], "completed", diagnostics)
++            self.assertEqual(result["state"], "imported")
++            self.assertEqual(len(reopened), 0 if cut is None else (2 if cut == "target-effect" else 1))
++            self.assertEqual(len(judged), 3)
++            self.assertEqual(len(starts), 1)
++            self.assertEqual(len(effects), 1)
++            self.assertEqual(len(processes), 1)
++            self.assertEqual(processes[0].wait(timeout=5), 0)
++            self.assertEqual(deployment.reconciliation_profile.revision(deployment.given["integration_target"], "refs/heads/main"), result["prepared"]["head"])
++            self.assertEqual(deployment.authority.canonical_target(), result["prepared"]["head"])
++            actual = _git_run(["git", "--git-dir=" + deployment.given["integration_target"], "show", "refs/heads/main:harness.py"])
++            self.assertEqual(actual["returncode"], 0)
++            self.assertEqual(actual["stdout"], "print('the corrected harness')\n")
++            self.assertEqual(integration_capacity_of(held.job, result["managed_result_id"])["root"]["lifecycle"], "ended")
++            print(json.dumps({"proof": "ordinary-managed-integration", "judgments": len(judged), "apply_starts": len(starts),
++                              "result": result["managed_result_id"], "state": result["state"]}, sort_keys=True))
++
++        body = "import pathlib, sys\nsys.exit(7 if 'apply-scratch' in str(pathlib.Path.cwd()) else 0)\n" if failed else None
++        if timed_out:
++            body = "import pathlib, time\nif 'apply-scratch' in str(pathlib.Path.cwd()): time.sleep(30)\n"
++        case.complete(configured=configure, completed=adopted, base_harness=body)
++
++
++class ThePreparationHandoffRetainsItsGitObjects(unittest.TestCase):
++    def test_parent_publishes_retained_candidate_and_waits_for_real_receipts(self):
++        from tests.tools.test_managed_preparation import OneManagedPreparationCompletes
++        from tests.job_manager import fixtures
++        from baton_v12.job_manager import sweep
++        from baton_v12.integration import reconciliation
++
++        case = OneManagedPreparationCompletes("run")
++        self.addCleanup(case.doCleanups)
++
++        def configure(world):
++            target = os.path.join(world.root, "publication-target.git")
++            self.assertEqual(_git_run(["git", "clone", "--quiet", "--bare", world.source, target])["returncode"], 0)
++            return {"integration_target": target, "integration_target_reference": "refs/heads/main"}
++
++        def adopted(world, held, prepared):
++            result_id = prepared["managed_result_id"]
++            reports = []
++            for _ in range(6):
++                reports.append(sweep(held.job, held.composed, now=fixtures.NOW))
++                result = reconciliation.managed_result_of(held.composed.deployment.integration, result_id)
++                if result["state"] == "published":
++                    break
++            self.assertEqual(result["state"], "published", reports)
++            self.assertEqual(reconciliation.retained_managed_preparation(held.composed.deployment.integration, result_id), prepared)
++            authority = held.composed.deployment.authority
++            proposal = authority.proposal(result["derived_proposal_id"])
++            self.assertEqual(proposal["candidate_digest"], prepared["derived_candidate"]["revision"])
++            self.assertEqual(proposal["assignment_ref"]["participant"], prepared["assignment"]["participant"])
++            self.assertNotEqual(proposal["assignment_ref"], prepared["assignment"])
++            for kind in ("verification", "review", "approval"):
++                self.assertIsNone(authority.receipt(result["derived_proposal_id"], kind))
++            print(json.dumps({"proof": "managed-publication-awaits-independent-receipts", "result": result_id,
++                              "proposal": result["derived_proposal_id"], "state": result["state"]}, sort_keys=True))
++
++        case.complete(completed=adopted, configured=configure)
++
++    def test_ordinary_retained_custody_materializes_without_execution_roots(self):
++        from tests.tools.test_managed_preparation import OneManagedPreparationCompletes
++        from tools.integration_placement import materialize_prepared_objects
++
++        case = OneManagedPreparationCompletes("run")
++        self.addCleanup(case.doCleanups)
++
++        def adopted(world, held, prepared):
++            self.assertIsNotNone(prepared["objects"])
++            repository = os.path.join(world.root, "retained-derived-objects")
++            answer = materialize_prepared_objects(held.control, prepared, repository=repository,
++                                                   profile=GitIntegrationProfile(_git_run), reader=held.composed.deployment.integration_object_runner)
++            self.assertEqual(answer["head"], prepared["derived_candidate"]["revision"])
++            self.assertEqual(answer["tree"], prepared["derived_candidate"]["tree"])
++            self.assertEqual(materialize_prepared_objects(held.control, prepared, repository=repository,
++                                                          profile=GitIntegrationProfile(_git_run), reader=held.composed.deployment.integration_object_runner), answer)
++
++        case.complete(completed=adopted)
++
++    def test_exact_objects_and_git_modes_survive_the_preparation_scratch(self):
++        """Real producer/workload export; ordinary retained custody is separate."""
++        from tests.tools.test_managed_preparation import OnePreparationRunsThroughTheOrdinaryWorker
++
++        class ExecutableCandidate(OnePreparationRunsThroughTheOrdinaryWorker):
++            def history(self, conflicting=False):
++                revisions = super().history(conflicting)
++                self.line.run(["checkout", "--quiet", "-b", "executable-candidate", revisions["candidate"]])
++                self.line.write("tool.sh", "#!/bin/sh\nexit 0\n")
++                os.chmod(os.path.join(self.line.place, "tool.sh"), 0o755)
++                revisions["candidate"] = self.line.commit("candidate includes an executable")
++                return revisions
++
++        case = ExecutableCandidate("run")
++        self.addCleanup(case.doCleanups)
++        case.setUp()
++        answer = case.agent().work(case.launch(), case.declared())
++        self.assertEqual(answer["disposition"], "completed")
++        report = case.report()
++        derived = report["derived_candidate"]
++        objects = os.path.join(case.scratch, "objects")
++        tree_entry = _git_run(["git", "-C", objects, "ls-tree", derived["revision"], "--", "tool.sh"])
++        self.assertEqual(tree_entry["returncode"], 0)
++        self.assertTrue(tree_entry["stdout"].startswith("100755 blob "))
++        emitted = Path(case.output, "candidate", "tool.sh")
++        self.assertEqual(emitted.read_bytes(), b"#!/bin/sh\nexit 0\n")
++        self.assertEqual(emitted.stat().st_mode & 0o111, 0)
++        self.assertTrue(Path(case.output, "objects", "objects.bundle").is_file())
++        measured = next(one for one in report["states"]["combined"]["content"]["entries"] if one["path"] == "tool.sh")
++        self.assertEqual(set(measured), {"path", "content_digest", "bytes"})
++        portable = os.path.join(case.root.name, "input-objects-only")
++        self.assertEqual(_git_run(["git", "init", "--quiet", "--bare", portable])["returncode"], 0)
++        fetched = _git_run(["git", "-C", portable, "fetch", "--quiet", os.path.join(case.input, "source", "objects.bundle"), "refs/*:refs/input/*"])
++        self.assertEqual(fetched["returncode"], 0)
++        missing = _git_run(["git", "-C", portable, "cat-file", "-e", derived["revision"] + "^{commit}"])
++        self.assertNotEqual(missing["returncode"], 0)
++        retained = tempfile.TemporaryDirectory(prefix="v12-prepared-object-reader-")
++        self.addCleanup(retained.cleanup)
++        self.assertEqual(_git_run(["git", "init", "--quiet", "--bare", retained.name])["returncode"], 0)
++        imported = _git_run(["git", "-C", retained.name, "fetch", "--quiet", str(Path(case.output, "objects", "objects.bundle")), "refs/baton/prepared/candidate:refs/retained/candidate"])
++        self.assertEqual(imported["returncode"], 0)
++        case.doCleanups()
++        self.assertFalse(Path(case.scratch).exists())
++        self.assertEqual(_git_run(["git", "-C", retained.name, "rev-parse", "refs/retained/candidate"])["stdout"].strip(), derived["revision"])
++        self.assertEqual(_git_run(["git", "-C", retained.name, "rev-parse", "refs/retained/candidate^{tree}"])["stdout"].strip(), derived["tree"])
++        mode = _git_run(["git", "-C", retained.name, "ls-tree", derived["revision"], "--", "tool.sh"])
++        self.assertTrue(mode["stdout"].startswith("100755 blob "))
++        print(json.dumps({"proof": "exact-preparation-object-export", "derived_revision": derived["revision"],
++                          "derived_tree": derived["tree"], "git_mode": "100755", "scratch_gone": True}, sort_keys=True))
++
++
++class TheTargetEffectAndReceiptAreOneTransaction(unittest.TestCase):
++    def setUp(self):
++        self.home = tempfile.TemporaryDirectory(prefix="v12-managed-apply-")
++        self.addCleanup(self.home.cleanup)
++        self.line = RealLine(os.path.join(self.home.name, "target"))
++        self.line.write("feature.py", "VALUE = 1\n")
++        self.old = self.line.commit("base")
++        self.line.write("feature.py", "VALUE = 2\n")
++        self.new = self.line.commit("approved")
++        self.reference = "refs/baton/targets/local"
++        self.line.run(["update-ref", self.reference, self.old])
++        self.profile = GitIntegrationProfile(_git_run)
++        self.receipt = {"publication": "publication-a", "old": self.old, "new": self.new}
++        self.checks = []
++
++    def publish(self, **changed):
++        operands = dict(reference=self.reference, imported=self.new, reviewed=self.old,
++                        publication_id="publication-a", receipt=self.receipt,
++                        before_commit=lambda: self.checks.append("grant"))
++        operands.update(changed)
++        return self.profile.publish_with_receipt(self.line.place, **operands)
++
++    def test_target_and_exact_receipt_survive_a_new_owner(self):
++        before = self.profile.publication_receipt(self.line.place, publication_id="publication-a")
++        self.assertIsNone(before)
++        receipt = self.publish()
++        self.assertEqual(self.checks, ["grant"])
++        self.assertEqual(self.line.run(["show", self.reference + ":feature.py"]), "VALUE = 2")
++        reopened = GitIntegrationProfile(_git_run)
++        self.assertEqual(reopened.publication_receipt(self.line.place, publication_id="publication-a"), receipt)
++        self.assertEqual(receipt["document"], self.receipt)
++
++    def test_stale_target_cas_creates_no_receipt(self):
++        self.line.run(["update-ref", self.reference, self.new, self.old])
++        with self.assertRaises(IntegrationProfileRefusal):
++            self.publish()
++        self.assertEqual(self.profile.revision(self.line.place, self.reference), self.new)
++        self.assertIsNone(self.profile.publication_receipt(self.line.place, publication_id="publication-a"))
++
++
++    def test_receipt_collision_does_not_advance_the_target(self):
++        reference = self.profile.publication_reference("publication-a")
++        self.line.run(["update-ref", reference, self.old])
++        with self.assertRaises(IntegrationProfileRefusal):
++            self.publish()
++        self.assertEqual(self.profile.revision(self.line.place, self.reference), self.old)
++        self.assertEqual(self.line.run(["rev-parse", reference]), self.old)
++
++    def test_lost_transaction_reply_recovers_without_another_effect(self):
++        calls = []
++
++        def lost(argv, **options):
++            answer = _git_run(argv, **options)
++            if "update-ref" in argv and "--stdin" in argv:
++                calls.append(tuple(argv))
++                raise RuntimeError("reply lost after transaction")
++            return answer
++
++        self.profile = GitIntegrationProfile(lost)
++        with self.assertRaisesRegex(RuntimeError, "reply lost"):
++            self.publish()
++        recovered = GitIntegrationProfile(_git_run).publication_receipt(self.line.place, publication_id="publication-a")
++        self.assertEqual(recovered["document"], self.receipt)
++        self.assertEqual(len(calls), 1)
++        self.assertEqual(self.profile.revision(self.line.place, self.reference), self.new)
++
++    def test_grant_is_checked_after_receipt_object_work_before_transaction(self):
++        seen = []
++
++        def run(argv, **options):
++            seen.append(tuple(argv))
++            return _git_run(argv, **options)
++
++        def revoked():
++            self.assertTrue(any("hash-object" in argv for argv in seen))
++            self.assertFalse(any("update-ref" in argv for argv in seen))
++            raise RuntimeError("grant revoked")
++
++        self.profile = GitIntegrationProfile(run)
++        with self.assertRaisesRegex(RuntimeError, "grant revoked"):
++            self.publish(before_commit=revoked)
++        self.assertEqual(self.profile.revision(self.line.place, self.reference), self.old)
++        self.assertIsNone(self.profile.publication_receipt(self.line.place, publication_id="publication-a"))
++
++
++class TheLocalReceiptOwnerComposesWithPlacement(unittest.TestCase):
++    """Real target receipt; surrounding authorization/exclusion remain fixtures."""
++
++    def setUp(self):
++        from tests.tools.test_managed_integration import PlacementCase
++        self.case = PlacementCase("run")
++        self.addCleanup(self.case.doCleanups)
++        self.case.setUp()
++        self.case.custody()
++        self.case.stopped()
++        self.configure(_git_run)
++
++    def configure(self, runner):
++        from integration_placement import LocalGitTargetOwner
++        from tests.tools.test_managed_integration import ORCHESTRATION
++        case = self.case
++        case.profile = GitIntegrationProfile(runner)
++        case.target_owner = LocalGitTargetOwner(
++            coordinator=case.coordinator, manager=case.store, profile=case.profile,
++            execution_owner=case.execution_owner, authorization=case.authorization,
++            repository=case.repository, reference=case.reference, managed_result_id=ORCHESTRATION)
++
++    def test_real_receipt_publication_and_historical_replay(self):
++        first = self.case.publish()
++        self.assertEqual(first["outcome"], "published")
++        self.assertEqual(self.case.standing(), self.case.candidate)
++        self.configure(_git_run)
++        replayed = self.case.publish()
++        self.assertEqual(replayed["outcome"], "replayed")
++        self.assertEqual(replayed["imported_revision"], first["imported_revision"])
++
++    def test_lost_reply_is_settled_from_the_real_receipt(self):
++        calls = []
++
++        def lost(argv, **options):
++            answer = _git_run(argv, **options)
++            if "update-ref" in argv and "--stdin" in argv:
++                calls.append(tuple(argv))
++                raise RuntimeError("target reply lost")
++            return answer
++
++        self.configure(lost)
++        with self.assertRaisesRegex(RuntimeError, "target reply lost"):
++            self.case.publish()
++        self.configure(_git_run)
++        self.assertEqual(self.case.publish()["outcome"], "resumed")
++        self.assertEqual(len(calls), 1)
++        self.assertEqual(self.case.standing(), self.case.candidate)
+--- a/v12/python/tests/tools/test_managed_preparation.py
++++ b/v12/python/tests/tools/test_managed_preparation.py
+@@ -286,7 +286,8 @@
+ 
+     def declared(self):
+         return [{"name": entry.REPORT_OUTPUT, "path": "report"},
+-                {"name": entry.CANDIDATE_OUTPUT, "path": "candidate"}]
++                {"name": entry.CANDIDATE_OUTPUT, "path": "candidate"},
++                {"name": entry.OBJECTS_OUTPUT, "path": "objects"}]
+ 
+     def report(self, output=None):
+         with open(os.path.join(output or self.output, "report",
+@@ -1598,9 +1599,8 @@
+         stays `retained`, and the failure record still names the same runtime
+         so the identity is preserved rather than overwritten.
+ 
+-        THE HOLDS SURVIVE IT. The root allocation stays `recovery-required`,
+-        the root stays open, apply stays planned and the parent stays queued --
+-        an ending for the execution that failed, not a reset and not a success.
++        Group3 now settles this known failure: root capacity releases, planned
++        apply is cancelled and the unclaimed parent becomes exceptional.
+         "Unknown start remains held" still applies where observation is
+         genuinely inconclusive; that case is owed and is NOT this one.
+         """
+@@ -1656,16 +1656,20 @@
+                          "delivery root")
+         allocation = allocation_of(held.job,
+                                    capacity["root"]["root_assignment_id"])
+-        # THE HOLD IS PRESERVED: recovery-required, not reset to reserved and
+-        # not released.
+-        self.assertEqual(allocation["allocation_state"], "recovery-required")
+-        self.assertEqual(capacity["root"]["lifecycle"], "open")
++        # Group3 settles the known failure after the actual cleanup.
++        self.assertEqual(allocation["allocation_state"], "released")
++        self.assertEqual(capacity["root"]["lifecycle"], "ended")
+         members = {one["phase"]: one for one in capacity["members"]}
+         self.assertEqual(members["prepare"]["state"], "ended")
+-        self.assertEqual(members["apply"]["state"], "planned")
+-        # AND THE PARENT AND THE TARGET ARE UNTOUCHED.
++        self.assertEqual(members["apply"]["state"], "cancelled")
++        self.assertIsNone(attempt_runtime_of(held.control, capacity["root"]["root_assignment_id"]))
++        self.assertIsNone(held.composed.deployment.authority.assignment_of(case.work))
++        # The target remains unchanged and the parent cannot satisfy a gate.
+         self.assertEqual(case.states(held.job, held.composed)["integration"],
+-                         "queued")
++                         "exceptional")
++        from baton_v12.job_manager.projection import gates_of, stage_states
++        gate = gates_of({"depends_on": json.dumps([{"job_id": "job-a", "kind": "integration"}])}, stage_states(held.job, held.composed))[0]
++        self.assertFalse(gate["open"])
+         self.assertEqual(pathlib.Path(case.source, "harness.py").read_bytes(),
+                          target_before)
+         self.assertEqual(held.composed.deployment.authority.canonical_target(),
+@@ -1682,7 +1686,7 @@
+                           "allocation": allocation["allocation_state"],
+                           "root": capacity["root"]["lifecycle"],
+                           "apply": members["apply"]["state"],
+-                          "parent": "queued-unclaimed"}, sort_keys=True))
++                          "parent": "exceptional-unclaimed"}, sort_keys=True))
+ 
+     def test_a_restart_across_a_failed_start_still_ends_it_once(self):
+         """THE FAILED START SURVIVES LOSING THE COORDINATOR. The composition
+@@ -2235,7 +2239,7 @@
+                 "reconciliation": reconciliation}[where], method
+ 
+     def complete(self, cut=None, obstruct=False, restart=False, perturb=None,
+-                 uncertain=False):
++                 uncertain=False, completed=None, configured=None, base_harness=None):
+         import time
+         from tests.tools import test_stage_execution as fixtures_stage
+         from tests.job_manager import fixtures
+@@ -2245,11 +2249,20 @@
+         from tools import stage_execution
+ 
+         class Selected(fixtures_stage.TheComposedJobTraversesReviewAndAcceptance):
++            def implemented(self, **operands):
++                if base_harness is not None:
++                    operands["edits"] = {"harness.py": base_harness}
++                return super().implemented(**operands)
++
+             def serving(self, **members):
++                if configured is not None:
++                    members.update(configured(self))
+                 from baton_v12.authority import Authority
+                 authority = Authority.open(self.authority_path, expected_authority_uuid=self.config["authority_uuid"])
+                 try:
+-                    authority.add_route_handler("integration-preparation", "baton.integrator")
++                    if not getattr(self, "preparation_route_configured", False):
++                        authority.add_route_handler("integration-preparation", "baton.integrator")
++                        self.preparation_route_configured = True
+                     generation = authority.policy_generation()
+                 finally:
+                     authority.dispose()
+@@ -2260,7 +2273,10 @@
+         self.addCleanup(case.doCleanups)
+         held = case.reviewed()
+         deployment = held.composed.deployment
+-        preparation = deployment._integration_operations._preparation
++        parent_operations = deployment._integration_operations
++        if isinstance(parent_operations, stage_execution._PerJobIntegration):
++            parent_operations = parent_operations.held["job-a"]
++        preparation = parent_operations._preparation
+         runtime = preparation._runtime
+         original_engine = runtime.engine_run
+         # THE LIVE PREPARATION, not the one that happened to be composed when
+@@ -2400,6 +2416,9 @@
+             return original_delivery(worker, issued)
+ 
+         with contextlib.ExitStack() as stack:
++            # This fixture stops at the accepted preparation boundary. The
++            # group3 callback runs after this patch and exercises continuation.
++            stack.enter_context(mock.patch.object(stage_execution.PreparationRuntime, "parent_ready", return_value=False))
+             stack.enter_context(mock.patch.object(single_worker._SingleWorker, "admit", ordinary_admit))
+             stack.enter_context(mock.patch.object(single_worker._SingleWorker, "delivered", ordinary_delivery))
+             stack.enter_context(mock.patch.object(integration_worker, "ChildAcceptance", side_effect=AssertionError("duplicate acceptance reached")))
+@@ -2592,13 +2611,15 @@
+         original_result = preparation.adopted[orchestration]
+         preparation.adopted.clear()
+         runtime.close()  # Lose the local worker cache; durable owners remain.
+-        with trap.trapped():
++        with trap.trapped(), mock.patch.object(stage_execution.PreparationRuntime, "parent_ready", return_value=False):
+             for _ in range(3):
+                 sweep(held.job, held.composed, now=fixtures.NOW)
+         self.assertEqual(preparation.adopted[orchestration], original_result)
+         self.assertEqual(len(processes), 1)
+         self.assertEqual(case.states(held.job, held.composed)["integration"], "queued")
+         self.assertIsNone(deployment.authority.slot_holder("baton.integrator"))
++        if completed is not None:
++            completed(case, held, original_result)
+         print(json.dumps({"proof": "ordinary-managed-preparation", "cut": cut,
+                           "fixture_processes": len(processes),
+                           "worker_exit": processes[0].returncode,
+--- a/v12/python/tests/integration/test_managed_storage.py
++++ b/v12/python/tests/integration/test_managed_storage.py
+@@ -973,7 +973,7 @@
+         with self.assertRaises(ContractRefusal) as caught:
+             managed_result_of(store, ORCHESTRATION)
+         self.assertIn("no committed act for", str(caught.exception))
+-        self.assertIn("nobody journalled a transition", str(caught.exception))
++        self.assertIn("transition chain", str(caught.exception))
+ 
+     def test_a_changed_result_identity_refuses(self):
+         """The creation act signs the submission identities too, so a row
+--- a/v12/python/tests/job_manager/test_managed_integration_capacity.py
++++ b/v12/python/tests/job_manager/test_managed_integration_capacity.py
+@@ -1496,12 +1496,13 @@
+         self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+         capacity.begin_integration_ending(
+             store, orchestration_id=self.ORCHESTRATION, reason="parent done")
+-        with self.assertRaises(ContractRefusal) as caught:
+-            scheduler.reconcile_allocations(
+-                store, self.projected(stage, allocation))
++        self.assertEqual(scheduler.reconcile_allocations(
++            store, self.projected(stage, allocation)), [])
++        # Automatic reconciliation leaves the owning continuation reachable.
++        # Direct release still fails at the atomic guard.
++        with self.assertRaises(ContractRefusal) as caught:
++            scheduler.release(store, allocation["assignment_id"], "parent done")
+         self.assertIn("proved excluded", str(caught.exception))
+-        # AND THE ALLOCATION IS EXACTLY WHERE IT WAS. The guard runs inside the
+-        # release transaction, so a refused release moves nothing at all.
+         self.assertEqual(
+             scheduler.allocation_of(store, allocation["assignment_id"])
+             ["allocation_state"], "reserved")
+@@ -1527,6 +1528,41 @@
+         self.assertEqual(
+             capacity.integration_capacity_of(store, self.ORCHESTRATION)
+             ["root"]["lifecycle"], "ended")
++
++    def test_cleanup_and_pre_runtime_failure_wait_for_the_open_root(self):
++        store, stage, allocation, _answer = self.registered()
++        view = self.projected(stage, allocation)
++        view[stage["stage_id"]]["state"] = "integrating"
++        observed = view[stage["stage_id"]]["observed"]
++        observed["runtime"]["cleanup"] = "retained"
++        self.assertEqual(scheduler.reconcile_allocations(store, view), [])
++        observed["runtime"]["cleanup"] = "pending"
++        observed["start_failure"] = {"reason": "known failure"}
++        self.assertEqual(scheduler.reconcile_allocations(store, view), [])
++        self.assertEqual(scheduler.allocation_of(store, allocation["assignment_id"])["allocation_state"], "reserved")
++
++    def test_pending_cleanup_does_not_mask_runtime_quarantine(self):
++        store, stage, allocation, _answer = self.registered()
++        view = self.projected(stage, allocation)
++        view[stage["stage_id"]]["observed"]["runtime"].update(cleanup="retained", execution_runtime="uncertain")
++        moved = scheduler.reconcile_allocations(store, view)
++        self.assertEqual([one["allocation_state"] for one in moved], ["recovery-required"])
++        self.assertEqual(capacity.integration_capacity_of(store, self.ORCHESTRATION)["root"]["lifecycle"], "open")
++
++    def test_an_ended_episode_still_quarantines_its_pending_root(self):
++        from baton_v12.job_manager import episodes
++        store, stage, allocation, _answer = self.registered()
++        episodes.end_episode(store, episodes.live_of(store, stage["stage_id"]), "declined", 1)
++        view = self.projected(stage, allocation)
++        view[stage["stage_id"]]["observed"]["runtime"]["cleanup"] = "failed"
++        moved = scheduler.reconcile_allocations(store, view)
++        self.assertEqual([one["allocation_state"] for one in moved], ["recovery-required"])
++
++    def test_ordinary_cleanup_still_releases_without_a_registered_root(self):
++        store, stage, allocation = self.reserved()
++        view = self.projected(stage, allocation)
++        view[stage["stage_id"]]["observed"]["runtime"]["cleanup"] = "retained"
++        self.assertEqual([one["allocation_state"] for one in scheduler.reconcile_allocations(store, view)], ["released"])
+ 
+     def test_the_release_still_claims_nothing_about_cleanup(self):
+         """LOGICAL CAPACITY AND NOTHING ELSE, unchanged by this Work: the
+--- a/v12/worker/reconciliation_task.py
++++ b/v12/worker/reconciliation_task.py
+@@ -428,6 +428,22 @@
+                 os.chmod(target, 0o600)
+     finally:
+         os.close(holder)
++
++
++def export_derived_objects(repository, derived, states, destination, seconds):
++    """Retain the exact commit and modes; reject harness-mutated content."""
++    revision = derived["revision"]
++    _proved(repository, revision, seconds)
++    if _tree_of(repository, revision, seconds) != derived["tree"]:
++        _refuse("the derived Git tree differs from the reported candidate")
++    verified = os.path.join(os.path.dirname(repository), "exported-candidate")
++    os.mkdir(verified, 0o700)
++    _extract(repository, revision, verified, seconds)
++    if measure(verified) != measure(states["combined"]["path"]):
++        _refuse("the preparation harness changed the derived candidate; its output cannot substitute for the Git tree")
++    reference = "refs/baton/prepared/candidate"
++    _vcs_or_refuse(["-C", repository, "update-ref", reference, revision], repository, seconds, "retain the derived object identity")
++    _vcs_or_refuse(["-C", repository, "bundle", "create", destination, reference], repository, seconds, "export the derived Git objects")
+ 
+ 
+ def _vcs_or_refuse(argv, cwd, seconds, what):
+--- a/v12/worker/reconciliation_entry.py
++++ b/v12/worker/reconciliation_entry.py
+@@ -32,6 +32,7 @@
+ # nobody declared would be naming a path the manager never bound.
+ REPORT_OUTPUT = "preparation-report"
+ CANDIDATE_OUTPUT = "prepared-candidate"
++OBJECTS_OUTPUT = "prepared-objects"
+ 
+ # These causal commands moved from the coordinator into preparation. Keep
+ # their original Job-owned boundary (default300s), rather than selecting the
+@@ -107,7 +108,8 @@
+         # combined state is content this container made; saying so is what
+         # keeps a reader from mistaking it for the accepted candidate.
+         report["derived_candidate"] = derived
+-        return _written(self._output, declared, report, states)
++        return _written(self._output, declared, report, states,
++                        repository=os.path.join(self._scratch, "objects"), seconds=seconds)
+ 
+ 
+ def _conflicted(output_root, declared, request, conflict):
+@@ -157,7 +159,7 @@
+     return held["seconds"]
+ 
+ 
+-def _written(output_root, declared, report, states):
++def _written(output_root, declared, report, states, *, repository, seconds):
+     """Every DECLARED output, written where the manager said and nowhere else.
+ 
+     THE PATHS ARE THE DECLARATIONS'. An agent that chose its own would be
+@@ -176,6 +178,9 @@
+             # A preparation exists to produce one, and the state that carries
+             # the fix and its test together is the combined one.
+             _copy_out(states, "combined", place)
++        elif one["name"] == OBJECTS_OUTPUT:
++            task.export_derived_objects(repository, report["derived_candidate"], states,
++                                        os.path.join(place, task.OBJECTS_NAME), seconds)
+         else:
+             # AN OUTPUT THIS WORKLOAD DOES NOT PRODUCE IS NOT INVENTED. It is
+             # reported absent, because a manager that declared it is entitled
+--- a/v12/python/src/baton_v12/job_manager/scheduler.py
++++ b/v12/python/src/baton_v12/job_manager/scheduler.py
+@@ -561,6 +561,8 @@
+ 
+ def reconcile_allocations(store, held=None):
+     """Settle scheduler capacity only from canonical episode/runtime facts."""
++    from .integration_capacity import release_blocker
++
+     moved = []
+     held = held or {}
+     for allocation in allocation_rows(store):
+@@ -570,19 +572,21 @@
+             "SELECT ended_state FROM episodes WHERE stage_id = ? AND episode = ?",
+             (allocation["stage_id"], allocation["episode"])).fetchone()
+         if episode is not None and episode["ended_state"] in RELEASE_ENDINGS:
+-            moved.append(release(store, allocation["assignment_id"],
+-                                episode["ended_state"]))
+-            continue
++            if release_blocker(store, allocation["assignment_id"]) is None:
++                moved.append(release(store, allocation["assignment_id"],
++                                    episode["ended_state"]))
++                continue
+         entry = held.get(allocation["stage_id"])
+         if entry is None or entry.get("attempt") is None:
+             continue
+         observed = entry["observed"]
+         runtime = observed.get("runtime") or {}
+         cleanup = runtime.get("cleanup")
+-        if cleanup in ("complete", "retained"):
++        pending = release_blocker(store, allocation["assignment_id"]) is not None
++        if cleanup in ("complete", "retained") and not pending:
+             moved.append(release(store, allocation["assignment_id"],
+                                 f"cleanup-{cleanup}"))
+-        elif _completed_integration(allocation, entry) is not None:
++        elif _completed_integration(allocation, entry) is not None and not pending:
+             # W131187: AND IT IS DECIDED BEFORE THE QUARANTINE BELOW, because
+             # a validated completion is HISTORICAL COMMITTED EVIDENCE. The
+             # accepted observation contract is explicit that a later
+@@ -599,8 +603,8 @@
+                                 INTEGRATION_COMPLETED))
+         elif cleanup == "failed" or runtime.get("execution_runtime") == "uncertain":
+             moved.append(require_recovery(store, allocation["assignment_id"]))
+-        elif observed.get("start_failure") is not None or \
+-                observed.get("preparation_failure") is not None:
++        elif not pending and (observed.get("start_failure") is not None or \
++                observed.get("preparation_failure") is not None):
+             moved.append(release(store, allocation["assignment_id"],
+                                 "launch-failed-before-runtime"))
+     return moved

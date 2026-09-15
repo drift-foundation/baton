@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. env W103525_EXPECT=6 python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens
+.
+----------------------------------------------------------------------
+Ran 1 test in 1.469s
+
+OK

@@ -1,0 +1,34 @@
+{
+  "work": "W161230",
+  "claim": 162401,
+  "authority": "M161614",
+  "cap_seconds": 300.0,
+  "prior_ledger": "review-ledger-162221.json",
+  "prior_reviewer_seconds": 2.55111917200702,
+  "runs": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-162401.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "status": "finished",
+      "guard": {
+        "cap_seconds": 300.0,
+        "spent_seconds_before": 2.55111917200702,
+        "remaining_seconds_before": 297.448880827993,
+        "expected_seconds": 3.0,
+        "margin_seconds": 2.0,
+        "timeout_seconds": 20.0
+      },
+      "log": "review-run-162401-1.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.21362990100169554
+    }
+  ],
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "jsonschema": "4.19.2",
+  "qualification": "Deterministic research, not pinned4.26.0 final acceptance",
+  "reviewer_spent_seconds": 2.7647490730087156,
+  "reviewer_remaining_seconds": 297.2352509269913
+}

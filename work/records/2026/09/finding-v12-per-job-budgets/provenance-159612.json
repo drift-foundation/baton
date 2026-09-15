@@ -1,0 +1,292 @@
+[
+ {
+  "path": "v12/python/DEPLOYMENT.md",
+  "tracked_at_head": true,
+  "base_bytes": 56564,
+  "base_sha256": "6788337afc267f3026425773cd72639fb77f10ddad9998409c10211cf3442e78",
+  "candidate_bytes": 65706,
+  "candidate_sha256": "84f5dee1d005fd4af4cfc43d81f0e79896e6175bb2ab09da2daad4c8bb59b4a9",
+  "numstat": "188\t0\tv12/python/DEPLOYMENT.md",
+  "hunk_count": 1
+ },
+ {
+  "path": "v12/python/src/baton_v12/job_manager/documents.py",
+  "tracked_at_head": true,
+  "base_bytes": 33833,
+  "base_sha256": "4bbac912d0bd51cacc15b9cbc36405506e651e78d723a5a18e870f2b44688b4c",
+  "candidate_bytes": 37047,
+  "candidate_sha256": "372495aa6a29060ca22e2f693e9390d9c0b53ea630ad6db42519dd7e37dd5a1d",
+  "numstat": "64\t14\tv12/python/src/baton_v12/job_manager/documents.py",
+  "hunk_count": 13
+ },
+ {
+  "path": "v12/python/src/baton_v12/job_manager/execution_limits.py",
+  "tracked_at_head": false,
+  "base_bytes": null,
+  "base_sha256": null,
+  "candidate_bytes": 11558,
+  "candidate_sha256": "073ea7104df1aa4cf097cf12e7c7371a2cc918c95e2dd0c7de9225b734230442",
+  "numstat": "",
+  "hunk_count": 0
+ },
+ {
+  "path": "v12/python/src/baton_v12/job_manager/projection.py",
+  "tracked_at_head": true,
+  "base_bytes": 35719,
+  "base_sha256": "d22c3e7d83731e9ecf5c74255b2d40a46f8b24b858fd091226cd60e9eba91af3",
+  "candidate_bytes": 36658,
+  "candidate_sha256": "db9b3f55fc09625a2f8394ed06313a29f02699ae39440dbbf1e3c5b3faa71641",
+  "numstat": "19\t2\tv12/python/src/baton_v12/job_manager/projection.py",
+  "hunk_count": 3
+ },
+ {
+  "path": "v12/python/src/baton_v12/job_manager/schema.py",
+  "tracked_at_head": true,
+  "base_bytes": 22611,
+  "base_sha256": "1c291ddf1cd62a989fb1bd66a64a5a794ddddeb26fb92731f9ee08ddbf5915e8",
+  "candidate_bytes": 25036,
+  "candidate_sha256": "3f2afdb4f302cc929eb47aa5e73e4547d56ebaa8d69669f73df97dedde1fc452",
+  "numstat": "51\t4\tv12/python/src/baton_v12/job_manager/schema.py",
+  "hunk_count": 5
+ },
+ {
+  "path": "v12/python/src/baton_v12/job_manager/store.py",
+  "tracked_at_head": true,
+  "base_bytes": 41046,
+  "base_sha256": "5413efe1d7d25af780cba4fe421ffb4205b4e0e684ffdda1f794d3cf0d650954",
+  "candidate_bytes": 41531,
+  "candidate_sha256": "f35eb9878c7bfbcd592bc5afc816acf1a67ee01a1529fc123e2b0f89fda33c91",
+  "numstat": "18\t11\tv12/python/src/baton_v12/job_manager/store.py",
+  "hunk_count": 3
+ },
+ {
+  "path": "v12/python/src/baton_v12/job_manager/submission.py",
+  "tracked_at_head": true,
+  "base_bytes": 10324,
+  "base_sha256": "c80845d9615ec0db5e0d0d2e21d72fd7833b47985f6d5be59630a11500bd512e",
+  "candidate_bytes": 17683,
+  "candidate_sha256": "204e6eb50d955ae359cf833f5e8426bc3c2b13c63687eda3b8bf2508d440c2c1",
+  "numstat": "139\t1\tv12/python/src/baton_v12/job_manager/submission.py",
+  "hunk_count": 3
+ },
+ {
+  "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+  "tracked_at_head": true,
+  "base_bytes": 102329,
+  "base_sha256": "c575077386c81c135b337b5e5a940aeabfe2d142c15edcbade6e905bbc36af6d",
+  "candidate_bytes": 119817,
+  "candidate_sha256": "8412a5bbd07821b5f2b352a63e7f3cc6e6fa02c65312a04722ca0ac69d6ea1df",
+  "numstat": "324\t10\tv12/python/src/baton_v12/integration/reconciliation.py",
+  "hunk_count": 5
+ },
+ {
+  "path": "v12/python/src/baton_v12/integration/execution.py",
+  "tracked_at_head": true,
+  "base_bytes": 61246,
+  "base_sha256": "af356a985d6a746a59cc26049b7acd3d5f33551c1ee8752ce931434e5f7a1a04",
+  "candidate_bytes": 63312,
+  "candidate_sha256": "abba31d87a7e1250e6045f85c8a749890a54b681e148e13144fcde66b525b4dc",
+  "numstat": "33\t0\tv12/python/src/baton_v12/integration/execution.py",
+  "hunk_count": 1
+ },
+ {
+  "path": "v12/python/src/baton_v12/worker_manager/launch.py",
+  "tracked_at_head": true,
+  "base_bytes": 32151,
+  "base_sha256": "6546008fb4970b406d2a56adffc4f6a36c8c18f62e488a9b0ac74307059d7647",
+  "candidate_bytes": 42657,
+  "candidate_sha256": "d89159a36a40c383ba3e838b70e31eaa836b4e2d37b919e2020ef7b41e70e508",
+  "numstat": "208\t12\tv12/python/src/baton_v12/worker_manager/launch.py",
+  "hunk_count": 15
+ },
+ {
+  "path": "v12/python/tests/job_manager/execution_limits_fixtures/PROVENANCE.md",
+  "tracked_at_head": false,
+  "base_bytes": null,
+  "base_sha256": null,
+  "candidate_bytes": 2994,
+  "candidate_sha256": "4a6cf1ca5c4a165b7d6094c1e89edb8ce06a97de5a61a67df0d711b6a3111475",
+  "numstat": "",
+  "hunk_count": 0
+ },
+ {
+  "path": "v12/python/tests/job_manager/execution_limits_fixtures/golden-schema4.sqlite3",
+  "tracked_at_head": false,
+  "base_bytes": null,
+  "base_sha256": null,
+  "candidate_bytes": 135168,
+  "candidate_sha256": "bb9fa3aba268f461f46cc38098faed7bbe8699d0da5918f62f0fc9c44a6b7866",
+  "numstat": "",
+  "hunk_count": 0
+ },
+ {
+  "path": "v12/python/tests/job_manager/test_documents.py",
+  "tracked_at_head": true,
+  "base_bytes": 13811,
+  "base_sha256": "77883eb9808208c9e59e3d7c197705c92f29c789cec0848ff7063e51ed5ab026",
+  "candidate_bytes": 14367,
+  "candidate_sha256": "1a8c151ae2f88a47ec8b26110fdea2a5ba0cb4197ef8c76cd8d2a46c744d82f8",
+  "numstat": "9\t2\tv12/python/tests/job_manager/test_documents.py",
+  "hunk_count": 2
+ },
+ {
+  "path": "v12/python/tests/job_manager/test_exchange.py",
+  "tracked_at_head": true,
+  "base_bytes": 31991,
+  "base_sha256": "945c0b0ef55a1434e72ce51d2ac841a608b2f35bd17af160bc96123f09b07016",
+  "candidate_bytes": 31991,
+  "candidate_sha256": "f6d426f9fa9d59a30b80587751dde2e98a537c95fd4f28610411a7d5808f949e",
+  "numstat": "1\t1\tv12/python/tests/job_manager/test_exchange.py",
+  "hunk_count": 1
+ },
+ {
+  "path": "v12/python/tests/job_manager/test_execution_limits.py",
+  "tracked_at_head": false,
+  "base_bytes": null,
+  "base_sha256": null,
+  "candidate_bytes": 32824,
+  "candidate_sha256": "2271ef93151b5a331008f2a1fcad5974ae3daa539cb6d9696eac56715074f215",
+  "numstat": "",
+  "hunk_count": 0
+ },
+ {
+  "path": "v12/python/tests/job_manager/test_scheduling.py",
+  "tracked_at_head": true,
+  "base_bytes": 71619,
+  "base_sha256": "79ba448c1f21a6c92bc9230291b5bfd04273024280b00ea197d1fa700066c103",
+  "candidate_bytes": 72345,
+  "candidate_sha256": "5780dc171e4b791d0488f78b3b531c7d31e04f833878523f2f38bf518b57f0ea",
+  "numstat": "17\t6\tv12/python/tests/job_manager/test_scheduling.py",
+  "hunk_count": 6
+ },
+ {
+  "path": "v12/python/tests/job_manager/test_store.py",
+  "tracked_at_head": true,
+  "base_bytes": 42462,
+  "base_sha256": "f72245e326376d8efa10f02076f38efcbdf49ecee3bdc0524a67caf25223a1a8",
+  "candidate_bytes": 42907,
+  "candidate_sha256": "d6c9e17b5f5c5afb7f0be820533fda8e469f6b4eb566d59d524dbaeef2fc035b",
+  "numstat": "6\t0\tv12/python/tests/job_manager/test_store.py",
+  "hunk_count": 1
+ },
+ {
+  "path": "v12/python/tests/job_manager/test_tool.py",
+  "tracked_at_head": true,
+  "base_bytes": 25026,
+  "base_sha256": "02991e0256a4b71fce3e7e1cfb6429adf4caa818db6da4a5300456ff24b1b50a",
+  "candidate_bytes": 25026,
+  "candidate_sha256": "bade475f9eef10e4c3b1de3cf91989e77dfafcdcc6bd13ddbbaa9de10ca64d9b",
+  "numstat": "2\t2\tv12/python/tests/job_manager/test_tool.py",
+  "hunk_count": 2
+ },
+ {
+  "path": "v12/python/tests/manager/test_execution_limits.py",
+  "tracked_at_head": false,
+  "base_bytes": null,
+  "base_sha256": null,
+  "candidate_bytes": 17180,
+  "candidate_sha256": "95087d91d67b89b4b022a6a2a085e52ec001a24104ba20d3748b9ade76fa1afd",
+  "numstat": "",
+  "hunk_count": 0
+ },
+ {
+  "path": "v12/python/tests/tools/test_execution_limits.py",
+  "tracked_at_head": false,
+  "base_bytes": null,
+  "base_sha256": null,
+  "candidate_bytes": 141062,
+  "candidate_sha256": "39c59b88d854eee9817104b3ff2d1fdfef5bada01f9a4e654c5f5a3a1e6161f7",
+  "numstat": "",
+  "hunk_count": 0
+ },
+ {
+  "path": "v12/python/tests/tools/test_single_worker.py",
+  "tracked_at_head": true,
+  "base_bytes": 184015,
+  "base_sha256": "e61576c9b968bd4547c044320bc255faa715a4675d37974f69e57a6d998d7f5c",
+  "candidate_bytes": 185257,
+  "candidate_sha256": "409cb7b771e902cea0a28bce5635b422f92110a5a5491eb461c8982817b027f9",
+  "numstat": "18\t0\tv12/python/tests/tools/test_single_worker.py",
+  "hunk_count": 2
+ },
+ {
+  "path": "v12/python/tests/tools/test_stage_execution.py",
+  "tracked_at_head": true,
+  "base_bytes": 452071,
+  "base_sha256": "707f4c79aff798b6583866f6da62711545a8a0cf74608bf27ff268a1d2ebb2fc",
+  "candidate_bytes": 464872,
+  "candidate_sha256": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+  "numstat": "217\t1\tv12/python/tests/tools/test_stage_execution.py",
+  "hunk_count": 7
+ },
+ {
+  "path": "v12/python/tools/integration_bundle.py",
+  "tracked_at_head": true,
+  "base_bytes": 62209,
+  "base_sha256": "c7a60dcc1fc1df989153c3368aeac4677950e42c1473088c65af998f43f63058",
+  "candidate_bytes": 62814,
+  "candidate_sha256": "bd233a84c8bbd61cefb1555d6648979625b976de5ad62de2c7f8bfa47b2aba05",
+  "numstat": "9\t1\tv12/python/tools/integration_bundle.py",
+  "hunk_count": 2
+ },
+ {
+  "path": "v12/python/tools/integration_worker.py",
+  "tracked_at_head": true,
+  "base_bytes": 42887,
+  "base_sha256": "2c3156da8c4f9bf4430b325ca0e32fc9c8bfbb59f5caa7ccccdd71b4fca65796",
+  "candidate_bytes": 48146,
+  "candidate_sha256": "30fa506428cafd476bec13ec76d7901beb7f1d68ee237ba39fea063a7e9a3ed6",
+  "numstat": "87\t3\tv12/python/tools/integration_worker.py",
+  "hunk_count": 8
+ },
+ {
+  "path": "v12/python/tools/single_worker.py",
+  "tracked_at_head": true,
+  "base_bytes": 150006,
+  "base_sha256": "e2995d62dd37ca11b460451734e861b03b2dd9346d8dd577b0e921fa32554ed2",
+  "candidate_bytes": 159356,
+  "candidate_sha256": "3b78842c59a46b30a2a542cac6e7ed860e32c5e5645baed643c478a4eddd3c49",
+  "numstat": "191\t17\tv12/python/tools/single_worker.py",
+  "hunk_count": 23
+ },
+ {
+  "path": "v12/python/tools/stage_execution.py",
+  "tracked_at_head": true,
+  "base_bytes": 253583,
+  "base_sha256": "b56451dcd899e09ebc2f47505ffaf85018cd9ef003b09e60af8caf4b543553c9",
+  "candidate_bytes": 272446,
+  "candidate_sha256": "3ee83301cae8eed8eeaa30461af4e862507a846d4f36cd15f0effbca79a53629",
+  "numstat": "351\t24\tv12/python/tools/stage_execution.py",
+  "hunk_count": 23
+ },
+ {
+  "path": "v12/worker/baton_worker.py",
+  "tracked_at_head": true,
+  "base_bytes": 98926,
+  "base_sha256": "da34aa2c1dff8b9f25d748db79fc078c6082de9a13e5908c2cf247b99753a923",
+  "candidate_bytes": 113422,
+  "candidate_sha256": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+  "numstat": "277\t6\tv12/worker/baton_worker.py",
+  "hunk_count": 7
+ },
+ {
+  "path": "v12/worker/claude_agent.py",
+  "tracked_at_head": true,
+  "base_bytes": 168520,
+  "base_sha256": "489399897c3f0ae94f06be9da47adde3f05210fa0ecfd7faad295daf6accfe2a",
+  "candidate_bytes": 172402,
+  "candidate_sha256": "c7a2b746fbefc088a7670c6f1a3c6363d0faeadcb08d27c56c8f6819ae0f979c",
+  "numstat": "77\t8\tv12/worker/claude_agent.py",
+  "hunk_count": 12
+ },
+ {
+  "path": "v12/worker/integration_workload.py",
+  "tracked_at_head": true,
+  "base_bytes": 70815,
+  "base_sha256": "b2dfbafb6cc6c01b4bb88edd6e2a226eb088f99da32b50fe7e6cb6aa9d264394",
+  "candidate_bytes": 77208,
+  "candidate_sha256": "eb9bb61929304a605b5c1ba4c8087738b5c4de3b0fbaad976b1dd3cbc004ff42",
+  "numstat": "128\t7\tv12/worker/integration_workload.py",
+  "hunk_count": 10
+ }
+]

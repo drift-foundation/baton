@@ -1,0 +1,26 @@
+{
+  "work": "W170387",
+  "claim": 174420,
+  "author": "baton.tuner",
+  "authority": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-integration-acceptance/DOC-SCOPE-174271.md",
+  "authority_sha256": "bb8a0f0729840b6f1924053e31a3b4f33bb7c301c98acff7eee3063d8e63b2bd",
+  "assessment": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-integration-acceptance/ACCEPTANCE-174271.md",
+  "assessment_sha256": "59080b7bddb8a818e1146ee9324c475567f0132ff413301f19b940bd55a9a203",
+  "files": [
+    {
+      "path": "baton:v12/python/DEPLOYMENT.md",
+      "base_sha256": "48a3268e456765c02696c897558f1aed9511c39a4188480a8d194b21ac50077f",
+      "base_bytes": 94303,
+      "base_snapshot": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-integration-acceptance/DEPLOYMENT-base-174271.md",
+      "final_sha256": "5dc34d45d5b098baca7318df305f96bc02275cd3ecaaa9a20e0f4758a641c7a5",
+      "final_bytes": 101728,
+      "final_mode": "0o664",
+      "snapshot": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-integration-acceptance/candidate-174420/v12/python/DEPLOYMENT.md",
+      "custody_mode": "0o444"
+    }
+  ],
+  "patch": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-integration-acceptance/candidate-174420.patch",
+  "patch_sha256": "198398a06fd5e5f7bc2409795f32d7694e01c3765d86e74bfd913a679bb2cd24",
+  "verification": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-integration-acceptance/verification-174420.json",
+  "verification_sha256": "b6b8cd5f819b6303cc40caaee14faa64fbd7b4e1add39f79ecab49743792556e"
+}

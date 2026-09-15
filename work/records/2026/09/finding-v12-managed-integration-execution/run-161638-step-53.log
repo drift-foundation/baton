@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_managed_integration_capacity
+........................................................F....
+======================================================================
+FAIL: test_a_second_connection_waits_for_the_write_lock (tests.job_manager.test_managed_integration_capacity.TwoStoresContendForOneReservation.test_a_second_connection_waits_for_the_write_lock)
+THE CONTENTION ITSELF, deterministically ordered.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1536, in test_a_second_connection_waits_for_the_write_lock
+    self.assertNotIsInstance(done[0], BaseException)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ProgrammingError('SQLite objects created in a thread can only be used in that same thread. The object was created in thread id 138588026810688 and this is thread id 138587986826944.') is an instance of <class 'BaseException'>
+
+----------------------------------------------------------------------
+Ran 61 tests in 0.501s
+
+FAILED (failures=1)

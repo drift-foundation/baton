@@ -1,0 +1,12 @@
+{"source_sha256": "908dca6c11c452a54b224dec421aae2e420229a4cbee85dd358c910a98cb4e28", "proposed_source_sha256": "b469a3d9665f190149faca95c9aa6386555219fc247d5ad2a40d415f709c82c8", "helper": "context in repro-156801.py", "changed_adopt_sites": 1}
+test_one_submitted_job_reaches_a_completed_implementation_stage (tests.tools._w156162_review.TheComposedImplementationHalfRunsOnOrdinaryTicks.test_one_submitted_job_reaches_a_completed_implementation_stage)
+No operator transition after the submission, measured as one. ... ok
+test_the_reviewers_own_verdict_completes_the_review_stage (tests.tools._w156162_review.TheComposedJobTraversesReviewAndAcceptance.test_the_reviewers_own_verdict_completes_the_review_stage)
+The verdict is READ from the reviewer's frozen result. ... ok
+test_the_second_job_reaches_its_own_reviewer_and_verdict (tests.tools._w156162_review.TwoBoundJobsTraverseServingAndCorrection.test_the_second_job_reaches_its_own_reviewer_and_verdict)
+THE OTHER HALF OF THE OVERLAP, driven rather than assumed. ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.806s
+
+OK

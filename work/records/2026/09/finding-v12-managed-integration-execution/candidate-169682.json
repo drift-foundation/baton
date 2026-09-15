@@ -1,0 +1,81 @@
+{
+ "a_case_that_passed_its_reversal": "My release case asserted only that the refusal raised -- true whether or not anything was closed -- so removing the release left it GREEN (reversal 129). I found that by reversing, not by reading. It now holds the closed list OUTSIDE the call, since the refusal never returns, and asserts the close; reversal 130 fails it.",
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 295918,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "30c83ca30f801275efd15b16f469ea181e119e92674011402a00e7d24a2ecbc1"
+  },
+  {
+   "bytes": 67670,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "87b1f842ac7d4c44969a0aaa47ace3f03bbc050b65a69337338f457478826e1c"
+  }
+ ],
+ "claim": 169682,
+ "corrected": [
+  "the selection was TRUTHINESS: the string 'false' activated managed preparation, so a deployment spelling its refusal was opted in BY THE SPELLING. PREPARATION_SELECTIONS is now a closed boolean vocabulary and an unplaceable value refuses; six sub-cases drive it.",
+  "a selected deployment with no integrator silently became the ordinary path -- running the unmanaged branch under a managed configuration. It refuses.",
+  "a refusal while constructing released nothing: the wrapping and return were outside the guard, so a port-construction refusal left every already-composed ordinary operations object with nobody to close it. operations_from's rule applies to the whole composition.",
+  "the inspect.getsource test proved syntax only and is gone; the replacements drive the ACTUAL construction and assert selected, unselected, malformed, missing-owner and failure behaviour"
+ ],
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "runner_corrected": [
+  "evidence was destroyed by its own cleanup: out/err were bound only inside the signal loop, so a first-signal ProcessLookupError broke out before they existed and the log and ledger row were lost to a NameError. Initialised before anything can fail.",
+  "cleanup was unmeasured: elapsed was taken before signalling, so the seconds spent terminating a group were charged to nobody. Taken after.",
+  "communicate returning is NOT descendant exclusion; the log says so rather than implying the group is gone, and the signals actually sent are recorded on the ledger row"
+ ],
+ "unchanged": [
+  {
+   "bytes": 85232,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "45c840b1ab07ae9cf51d814f2c22e6524c0b1920571a22a45265d9c003740b76"
+  },
+  {
+   "bytes": 162808,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "1996f8fdc3df90cf67dc9f6636bcd079ff047e8bb2d96d873551a7bb903aefaf"
+  },
+  {
+   "bytes": 73429,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_bundle.py",
+   "sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad"
+  },
+  {
+   "bytes": 191339,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+  }
+ ],
+ "unchanged_and_owed": "no deployment configures the selection, so the managed path has no end-to-end coverage; the apply digest is measured against fixture bytes rather than a real configured workload; the worker's acceptance, the child launch and ending, the exclusion proof and adoption are unwritten; the whole-prepare replay gap is open.",
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 131 restored /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle",
+  "ledger": "131 rows, 1379.641547088849s",
+  "no": "no engine, model, image build or destructive cleanup",
+  "stage_execution": "still exactly the pre-existing 13",
+  "steps": {
+   "127": "first green, OK 411 cases",
+   "128": "REVERSAL -- truthy selection; failed all six sub-cases",
+   "129": "REVERSAL -- drop the release; PASSED, which is the defect above",
+   "130": "the same reversal after the case was repaired; failed exactly test_a_refusal_while_constructing_releases_what_it_built",
+   "131": "restored, OK 411 cases"
+  }
+ },
+ "what": "Every defect from the review's selection probe corrected, plus one of my own new cases that passed its reversal and had to be repaired.",
+ "work": "2b077949-W161230"
+}

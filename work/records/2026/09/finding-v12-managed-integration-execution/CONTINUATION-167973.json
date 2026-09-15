@@ -1,0 +1,37 @@
+{
+  "claim": 167973,
+  "handoff": 167901,
+  "purpose": "Checkpoint continuation identity check; not independent behavioral acceptance",
+  "files": [
+    {
+      "path": "v12/worker/reconciliation_task.py",
+      "sha256": "3793731b0c0fe4b7eea5f486e5dc067e6d29449a9ed100c219710fb29d6cc593",
+      "bytes": 40373,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tools/integration_bundle.py",
+      "sha256": "f5cd7f7f4fa7822470d47c9cd3a79c3bba96720218a731c197df990d362b5c52",
+      "bytes": 68599,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/manager/test_reconciliation_task.py",
+      "sha256": "aba97240578c840c1af40e5a0661d6f04e4a54b87de0d236afc53477444a9654",
+      "bytes": 39486,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "93e2e0b0351298ecab82a4ea0ca169576387dee56ca64fc3c263996882d515d1",
+      "bytes": 7106,
+      "mode": "0o644"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/DESIGN-RECONSIDERATION-166444.md",
+      "sha256": "f0bf84a6217b1f44c9c9b71c29efffa9e11e9db8d6305b5deef7b0d632f165b3",
+      "bytes": 5859,
+      "mode": "0o664"
+    }
+  ]
+}

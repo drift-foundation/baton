@@ -1,0 +1,45 @@
+test_a_principal_alias_does_not_multiply_capacity (tests.tools.test_scheduler_trace.TheEligibilityAndAliasBoundaries.test_a_principal_alias_does_not_multiply_capacity)
+Two configured participants resolving to ONE principal are one ... ok
+test_a_stage_kind_no_worker_is_eligible_for_is_refused (tests.tools.test_scheduler_trace.TheEligibilityAndAliasBoundaries.test_a_stage_kind_no_worker_is_eligible_for_is_refused)
+A wrong-role stage finds no eligible worker and says so. ... ok
+test_an_unrelated_review_is_eligible_while_implementation_is_full (tests.tools.test_scheduler_trace.TheEligibilityAndAliasBoundaries.test_an_unrelated_review_is_eligible_while_implementation_is_full)
+A capacity miss on one lane is not a stall of another. Both ... ok
+test_affinity_fallback_is_soft_and_is_recorded_as_a_gap (tests.tools.test_scheduler_trace.TheRetainedContractMismatchesAreRecordedAsGaps.test_affinity_fallback_is_soft_and_is_recorded_as_a_gap)
+MISMATCH 1. `reserve` falls back to another compatible worker when ... ok
+test_composed_continuation_is_not_observable_here (tests.tools.test_scheduler_trace.TheRetainedContractMismatchesAreRecordedAsGaps.test_composed_continuation_is_not_observable_here)
+MISMATCH 3. `stage_execution._job_workers` binds implementation ... ok
+test_stage_id_order_is_not_a_priority_contract (tests.tools.test_scheduler_trace.TheRetainedContractMismatchesAreRecordedAsGaps.test_stage_id_order_is_not_a_priority_contract)
+MISMATCH 2. `owed_acts` visits sorted stage ids and `reserve` orders ... ok
+test_a_dependent_stage_is_not_reserved_before_its_prerequisite (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_a_dependent_stage_is_not_reserved_before_its_prerequisite)
+THE EDGE IS THE PROJECTION'S, not this module's. Job B's stage ... ok
+test_no_credential_material_reaches_the_artifact (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_no_credential_material_reaches_the_artifact)
+The artifact carries identities and locators, never secrets. ... ok
+test_the_artifact_is_versioned_and_carries_its_environment (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_the_artifact_is_versioned_and_carries_its_environment)
+Every export names its schema, its scenario digest and the exact ... ok
+test_the_capacity_miss_names_its_exact_public_cause (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_the_capacity_miss_names_its_exact_public_cause)
+A third implementation stage with two slots occupied is refused, and ... ok
+test_the_two_schedules_differ_in_order_and_satisfy_one_oracle (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_the_two_schedules_differ_in_order_and_satisfy_one_oracle)
+A-before-C and C-before-A are different allowed orders of the same ... ok
+test_two_independent_jobs_take_the_two_implementation_slots (tests.tools.test_scheduler_trace.TheScriptedScenarioRunsOverRealOwners.test_two_independent_jobs_take_the_two_implementation_slots)
+C and D are independent of A/B and of each other, and the pool ... ok
+test_a_repeated_observation_changes_nothing (tests.tools.test_scheduler_trace.TheThirdScheduleReopensAtADurableBoundary.test_a_repeated_observation_changes_nothing)
+Repeated read-only observation is idempotent and adds no effect. ... ok
+test_reopening_retains_durable_identities_and_repeats_no_effect (tests.tools.test_scheduler_trace.TheThirdScheduleReopensAtADurableBoundary.test_reopening_retains_durable_identities_and_repeats_no_effect) ... ok
+test_a_claim_before_its_reserve_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_claim_before_its_reserve_is_refused) ... ok
+test_a_completion_with_no_claim_is_unprovable (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_completion_with_no_claim_is_unprovable)
+Its own statement, and a true one: a trace whose driver never drove ... ok
+test_a_duplicated_operation_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_duplicated_operation_is_refused) ... ok
+test_a_foreign_schema_is_refused_outright (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_foreign_schema_is_refused_outright) ... ok
+test_a_refusal_with_no_cause_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_refusal_with_no_cause_is_refused) ... ok
+test_a_review_by_the_producing_principal_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_review_by_the_producing_principal_is_refused) ... ok
+test_a_successor_reserved_before_its_prerequisite_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_successor_reserved_before_its_prerequisite_is_refused) ... ok
+test_a_valid_synthetic_trace_passes_the_oracle (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_valid_synthetic_trace_passes_the_oracle)
+The oracle is not vacuous: a well-formed trace produces no ... ok
+test_an_incomplete_record_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_an_incomplete_record_is_refused) ... ok
+test_an_out_of_order_act_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_an_out_of_order_act_is_refused) ... ok
+test_overlapping_occupancy_is_refused (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_overlapping_occupancy_is_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.079s
+
+OK

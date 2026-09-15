@@ -1,0 +1,116 @@
+--- baton:v12/python/tests/tools/test_managed_preparation.py@170415
++++ baton:v12/python/tests/tools/test_managed_preparation.py@170569
+@@ -1489,7 +1489,13 @@
+     def test_admitted_capacity_recovers_before_runtime_start(self):
+         self.complete("start")
+ 
+-    def complete(self, cut=None):
++    def test_unexpected_pre_intent_fault_recovers_the_held_allocation(self):
++        self.complete("unexpected-decide")
++
++    def test_pre_intent_recovery_refuses_an_existing_child_work(self):
++        self.complete("unexpected-decide", obstruct=True)
++
++    def complete(self, cut=None, obstruct=False):
+         import time
+         from tests.tools import test_stage_execution as fixtures_stage
+         from tests.job_manager import fixtures
+@@ -1590,8 +1596,33 @@
+         target_before = pathlib.Path(case.source, "harness.py").read_bytes()
+         target_revision = deployment.authority.canonical_target()
+         target_tree = case.vcs("status", "--porcelain")
+-        cut_reached = []
++        cut_reached, recovered_cuts = [], []
++        child_admits, child_deliveries = [], []
++        from tools import single_worker
++        from baton_v12.job_manager.scheduler import allocation_of
++        original_worker_admit = single_worker._SingleWorker.admit
++        original_delivery = single_worker._SingleWorker.delivered
++
++        def ordinary_admit(worker, perform, stage, inputs):
++            child_admits.append(stage["attempt_id"])
++            answer = original_worker_admit(worker, perform, stage, inputs)
++            self.assertIsNone(worker.expected_offer)
++            with self.assertRaisesRegex(ContractRefusal, "outside its one admission"):
++                original_delivery(worker, {})
++            return answer
++
++        def ordinary_delivery(worker, issued):
++            child_deliveries.append(issued["runtime_attempt_id"])
++            self.assertIsNotNone(worker.expected_offer)
++            for member in ("offer_id", "runtime_attempt_id", "work_id", "participant"):
++                with self.assertRaisesRegex(ContractRefusal, "does not match"):
++                    original_delivery(worker, dict(issued, **{member: "different"}))
++            return original_delivery(worker, issued)
++
+         with contextlib.ExitStack() as stack:
++            stack.enter_context(mock.patch.object(single_worker._SingleWorker, "admit", ordinary_admit))
++            stack.enter_context(mock.patch.object(single_worker._SingleWorker, "delivered", ordinary_delivery))
++            stack.enter_context(mock.patch.object(integration_worker, "ChildAcceptance", side_effect=AssertionError("duplicate acceptance reached")))
+             stack.enter_context(mock.patch.object(integration_worker.ManagedPreparation, "admit", traced))
+             stack.enter_context(trap.trapped())
+             # Prove the trap itself before trusting its silence in the run.
+@@ -1599,24 +1630,48 @@
+                 stage_execution._git_run(["git", "merge", "forbidden"])
+             trap.reached.clear()
+             if cut is not None:
+-                owner = integration_worker.PreparationExecution if cut in ("decide", "start") else integration_worker
+-                original = getattr(owner, cut)
++                method = "decide" if cut == "unexpected-decide" else cut
++                owner = integration_worker.PreparationExecution if method in ("decide", "start") else integration_worker
++                original = getattr(owner, method)
+                 def interrupted(*args, **kwargs):
+                     if not cut_reached:
+                         cut_reached.append(cut)
++                        if cut == "unexpected-decide":
++                            recovered_cuts.append(kwargs["orchestration_id"])
++                            if obstruct:
++                                from baton_v12.authority.identity import V12
++                                deployment.authority.create_work(kwargs["execution_work_id"], kwargs["execution_route"], operation_id="fixture-existing-child", contract=V12)
++                            raise RuntimeError("selected unexpected pre-intent fault")
+                         raise ContractRefusal("refused", "precondition", "selected interruption before " + cut)
+                     return original(*args, **kwargs)
+-                stack.enter_context(mock.patch.object(owner, cut, interrupted))
+-            for _ in range(150):
+-                last = sweep(held.job, held.composed, now=fixtures.NOW)
++                stack.enter_context(mock.patch.object(owner, method, interrupted))
++            for _ in range(8 if obstruct else 150):
++                try:
++                    last = sweep(held.job, held.composed, now=fixtures.NOW)
++                except RuntimeError as failure:
++                    if str(failure) != "selected unexpected pre-intent fault":
++                        raise
++                    last = {"interrupted": True}
++                    capacity = integration_capacity_of(held.job, recovered_cuts[0])
++                    self.assertEqual(allocation_of(held.job, capacity["root"]["root_assignment_id"])["allocation_state"], "recovery-required")
+                 if preparation.adopted:
+                     break
+                 time.sleep(0.01)
++        if obstruct:
++            self.assertFalse(preparation.adopted)
++            self.assertEqual(processes, [])
++            self.assertIn("preparation Work already exists", failures[-1])
++            self.assertIsNone(held.job.operation_record("integration-capacity.recover-pre-intent:" + recovered_cuts[0]))
++            capacity = integration_capacity_of(held.job, recovered_cuts[0])
++            self.assertEqual(allocation_of(held.job, capacity["root"]["root_assignment_id"])["allocation_state"], "recovery-required")
++            return
+         for log in outputs:
+             log.seek(0)
+         logs = [log.read().decode(errors="replace") for log in outputs]
+         self.assertTrue(preparation.adopted, (failures[:3], failures[-1:], logs, last))
+         self.assertEqual(len(processes), 1)
++        self.assertEqual(len(child_admits), 1)
++        self.assertEqual(child_deliveries, child_admits)
+         self.assertEqual(processes[0].returncode, 0)
+         self.assertEqual(trap.reached, [])
+         self.assertEqual(cut_reached, [] if cut is None else [cut])
+@@ -1626,6 +1681,9 @@
+         [orchestration] = preparation.adopted
+         capacity = integration_capacity_of(held.job, orchestration)
+         self.assertEqual(capacity["root"]["lifecycle"], "open")
++        if cut == "unexpected-decide":
++            self.assertEqual(allocation_of(held.job, capacity["root"]["root_assignment_id"])["allocation_state"], "recovery-required")
++            self.assertIsNotNone(held.job.operation_record("integration-capacity.recover-pre-intent:" + orchestration))
+         members = {one["phase"]: one for one in capacity["members"]}
+         self.assertEqual(members["prepare"]["state"], "ended")
+         self.assertEqual(members["apply"]["state"], "planned")

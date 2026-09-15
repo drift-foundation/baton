@@ -1,0 +1,10 @@
+test_actual_request_disagreement_refuses_at_window_3 (__main__.Research.test_actual_request_disagreement_refuses_at_window_3) ... ok
+test_actual_request_disagreement_refuses_at_window_4 (__main__.Research.test_actual_request_disagreement_refuses_at_window_4) ... ok
+test_unused_resolver_digest_does_not_change_authoritative_request (__main__.Research.test_unused_resolver_digest_does_not_change_authoritative_request) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.765s
+
+OK
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": "create", "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:4009d28e3435410beb9b24c2e43838ce7c2801cf66cdfe0cd1ae7db0d6b21212", "root": "open", "runtime": "destroyed", "worker_exit": 0}
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": "child_admit", "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:51c7e094093126f3baa14b6112dc297ca5cd2125b1ec5502d97c0d19e90d1ca2", "root": "open", "runtime": "destroyed", "worker_exit": 0}

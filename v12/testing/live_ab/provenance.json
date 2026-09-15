@@ -1,0 +1,30 @@
+{
+  "scenario.py": {
+    "source": "v12/testing/standalone_ab/scenario.py",
+    "sha256": "e3975f42d35e308832154eb90a59923967d874c34947274a5d302172b8a7831d"
+  },
+  "deployment.py": {
+    "source": "v12/testing/standalone_ab/deployment.py",
+    "sha256": "350888ce5312e94c4722215b8ef4c29d0a2fc46fc40fba2de0f36a2f06e11369"
+  },
+  "run.py": {
+    "source": "v12/testing/standalone_ab/run.py",
+    "sha256": "e29e7a9f50e8b9cdbac2e19263698ffe5e53a1d02802ccb679d6881e7a92af7f"
+  },
+  "accounting.py": {
+    "source": "v12/testing/standalone_ab/accounting.py",
+    "sha256": "30a984a316d76d379dde3e743037ca6d1f0bfc105ed365781b1d42fdf727c245"
+  },
+  "failure_observation.py": {
+    "source": "v12/testing/standalone_ab/failure_observation.py",
+    "sha256": "004f5fe4756c70eaf945b2ce64bcebc1b5de42b85e3da5d3963e40913755894f"
+  },
+  "target_posture.py": {
+    "source": "v12/testing/standalone_ab/target_posture.py",
+    "sha256": "62edccc553861eed2ed8f05d44ac47b6b38e8e6b86de2dd4994608028d6cfd97"
+  },
+  "final_view.py": {
+    "source": "v12/testing/standalone_ab/final_view.py",
+    "sha256": "91b67a3d01b2cf0abf067ea967075a8873b60304048959d9596d0e20a3d4667f"
+  }
+}

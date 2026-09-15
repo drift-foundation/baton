@@ -1,0 +1,15 @@
+{
+  "kind": "source registry and selected refusal only; no test imports or broad collection",
+  "counts": {
+    "discovered": 117,
+    "parallel": 97,
+    "serial": 19,
+    "supervised": 1
+  },
+  "serial_and_method_split_unchanged": true,
+  "exact_19_parallel_additions": true,
+  "default_all_refusal": "all-source acceptance is uncomposed; supervised tests require separate selection: tests.manager.test_runtime_deadline_engine (W32577; baton:work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py; Requires the reviewed supervisor, preloaded immutable image and reserved cleanup; ordinary execution is not selected.)",
+  "leaf_fixture_drift_since_start": [],
+  "elapsed_seconds": 0.02422232201206498,
+  "justfile_sha256": "e141dca0cbf80dab6dc300eeef34b0b02a2b834df398c37e64fb44e5b3822e9a"
+}

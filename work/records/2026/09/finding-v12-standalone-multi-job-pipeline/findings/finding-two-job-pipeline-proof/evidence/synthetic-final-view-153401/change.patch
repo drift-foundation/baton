@@ -1,0 +1,399 @@
+--- base/v12/testing/standalone_ab/scenario.py
++++ candidate/v12/testing/standalone_ab/scenario.py
+@@ -91,13 +91,15 @@
+ 
+ def main():
+     parser = argparse.ArgumentParser(description=__doc__)
+-    parser.add_argument('--root', type=Path, help='new absolute run root; default unique /tmp directory')
++    parser.add_argument('--root', type=Path, help='new absolute disk-backed run root; default under ~/.local/state/baton/v12')
+     args = parser.parse_args()
+     if 1001 not in os.getgroups():
+         raise RuntimeError('operator process must hold supplementary workspace gid1001')
+     root = args.root
+     if root is None:
+-        root = Path(tempfile.mkdtemp(prefix='baton-synthetic-ab-'))
++        parent = Path.home() / '.local/state/baton/v12'
++        parent.mkdir(parents=True, exist_ok=True)
++        root = Path(tempfile.mkdtemp(prefix='synthetic-ab-', dir=parent))
+     else:
+         if not root.is_absolute() or root != root.resolve():
+             raise ValueError('run root must be absolute and canonical')
+@@ -106,6 +108,8 @@
+     began = time.monotonic()
+     setup = {'provider': 'synthetic standalone-ab-v1', 'root': str(root), 'live_provider': False}
+     try:
++        from baton_v12.worker_manager.source_boundary import check_disk_backed
++        check_disk_backed(str(root), what='the synthetic scenario root')
+         selected = images(root)
+         base, tree = repositories(root)
+         settings = {'authority_uuid': uuid.uuid4().hex, 'base': base, 'tree': tree,
+--- base/v12/testing/standalone_ab/run.py
++++ candidate/v12/testing/standalone_ab/run.py
+@@ -18,6 +18,7 @@
+ from accounting import Alarm, BoundJudges, BudgetExpired, BudgetWake, evaluate, final_timeout, read_claims
+ from failure_observation import first_failure, provider_diagnostic
+ from target_posture import manager_git_environment
++from final_view import verify_view
+ from deployment import ACTORS, BASE, CONFIG, HERE, REPO, RUN, TREE, UUID, WORKS, baseline, git_read, sha, write_json
+ 
+ PYTHON = '/usr/bin/python3'
+@@ -172,7 +173,7 @@
+                     elapsed = time.monotonic() - started
+                     claims = read_claims(authority, WORKS)
+                     status = json.loads(command(STATUS)) if (RUN / 'control.sqlite3').exists() else None
+-                    failed = first_failure(status, authority_uuid=UUID, incarnation=PREFIX[PREFIX.index('--incarnation') + 1], works=WORKS)
++                    failed = first_failure(status, authority_uuid=UUID, incarnation=PREFIX[PREFIX.index('--incarnation') + 1], works=WORKS, control_path=RUN / 'control.sqlite3')
+                     exclusions, judge_observations, judge_failure = ({}, [], None) if failed is not None else judge_observation(status, claims, authority)
+                     if failed is None and judge_failure is not None:
+                         failed = dict(judge_failure, stage_id=judge_failure['job_id'] + '/judgment/' + judge_failure['kind'],
+@@ -229,19 +230,17 @@
+                     continue
+         alarm.whole()
+         stop_serving(serve)
+-        verify = subprocess.run([PYTHON, '-B', '-m', 'unittest', 'discover', '-s', 'tests', '-v'],
+-                                cwd=RUN / 'target', capture_output=True, text=True, timeout=final_timeout(time.monotonic() - started))
+-        (evidence / 'final-tests.log').write_text(verify.stdout + verify.stderr)
+-        record['final_test_exit'] = verify.returncode
+-        if verify.returncode:
+-            raise RuntimeError('whole-target final tests failed')
+         record['final_source_identity'] = git_read(RUN / 'source', 'show', '--no-patch', '--format=%H %T', 'HEAD')
+         record['final_source_status'] = git_read(RUN / 'source', 'status', '--porcelain')
+         record['final_target_identity'] = git_read(RUN / 'target', 'show', '--no-patch', '--format=%H %T', 'HEAD')
+         record['final_target_status'] = git_read(RUN / 'target', 'status', '--porcelain')
+         (evidence / 'final-target.diff').write_text(git_read(RUN / 'target', 'diff', '--binary', BASE, 'HEAD') + '\n')
+-        if record['final_source_identity'] != BASE + ' ' + TREE or record['final_source_status'] or record['final_target_status']:
+-            raise RuntimeError('source changed or final target is dirty')
++        if record['final_source_identity'] != BASE + ' ' + TREE or record['final_source_status']:
++            raise RuntimeError('original source changed')
++        record['target_checkout_is_output'] = False
++        record['final_view'] = verify_view(RUN / 'target', RUN / 'final-view', evidence,
++            expected_commit=authority.canonical_target(), timeout=lambda: final_timeout(time.monotonic() - started), persist=write_json)
++        record['final_test_exit'] = record['final_view']['checks'][-1]['status']
+         final_timeout(time.monotonic() - started)
+         record['success_wall_seconds'] = time.monotonic() - started
+         signal.setitimer(signal.ITIMER_REAL, 0)
+--- base/v12/testing/standalone_ab/failure_observation.py
++++ candidate/v12/testing/standalone_ab/failure_observation.py
+@@ -11,18 +11,27 @@
+ from urllib.parse import urlsplit
+ 
+ from baton_v12.worker_manager.exchange import FAULT_CODES
++from baton_v12.worker_manager import ControlStore, attempt_preparation_failure_of, attempt_start_failure_of
+ 
+ 
+-def first_failure(status, *, authority_uuid, incarnation, works):
++def first_failure(status, *, authority_uuid, incarnation, works, control_path=None):
+     if not status or status.get('schema') != 'baton.v12.job-status/4' or status.get('canonical') is not True or status.get('incarnation') != incarnation:
+         return None
++    if control_path is not None:
++        with ControlStore.open_readonly(str(control_path), incarnation=incarnation,
++                clock=lambda: status['observed_at']) as control:
++            return _first_failure(status, authority_uuid=authority_uuid, incarnation=incarnation, works=works, control=control)
++    return _first_failure(status, authority_uuid=authority_uuid, incarnation=incarnation, works=works, control=None)
++
++
++def _first_failure(status, *, authority_uuid, incarnation, works, control):
+     for job in status.get('jobs', []):
+         name = {'job-a': 'a', 'job-b': 'b'}.get(job.get('job_id'))
+         if name is None or job.get('submission_id') != incarnation:
+             continue
+         for stage in job.get('stages', []):
+             kind = stage.get('kind')
+-            if kind not in ('implementation', 'review') or stage.get('job_id') != job['job_id'] or stage.get('stage_id') != job['job_id'] + '/' + kind or stage.get('work_id') != works[name]:
++            if kind not in ('implementation', 'review', 'integration') or stage.get('job_id') != job['job_id'] or stage.get('stage_id') != job['job_id'] + '/' + kind or stage.get('work_id') != works[name]:
+                 continue
+             attempt, episode = stage.get('attempt_id'), stage.get('episode')
+             allocation = stage.get('allocation') or {}
+@@ -40,6 +49,21 @@
+             if not any(row.get('act') == 'claim' and row.get('state') == 'performed' and row.get('episode') == episode and row.get('stage_id') == stage['stage_id'] and ((row.get('detail') or {}).get('result') or {}).get('assignment') == assignment for row in stage.get('receipts', [])):
+                 continue
+             if not any(row.get('attempt_id') == attempt and row.get('episode') == episode and row.get('incarnation') == incarnation and row.get('ended_at') is None for row in stage.get('episodes', [])):
++                continue
++            if control is not None:
++                for ending, reader in (('preparation-failed', attempt_preparation_failure_of), ('start-failed', attempt_start_failure_of)):
++                    failure = reader(control, attempt)
++                    if failure is None or failure.get('attempt_id') != attempt or failure.get('expect') != assignment:
++                        continue
++                    return {'job_id': job['job_id'], 'stage_id': stage['stage_id'], 'kind': kind,
++                            'work_id': works[name], 'attempt_id': attempt, 'episode': episode,
++                            'assignment': assignment, 'runtime_id': failure.get('runtime_id'),
++                            'sequence_id': None, 'ending': ending, 'disposition': None,
++                            'fault_code': None, 'manifest_digest': None,
++                            'observed_at': status.get('observed_at'), 'artifacts': stage.get('artifacts') or [],
++                            'owner_failure': failure,
++                            'recovery': 'retain exact preparation/start failure; no automatic retry or repair'}
++            if kind == 'integration':
+                 continue
+             exchange = stage.get('exchange') or {}
+             terminal = exchange.get('terminal') or {}
+@@ -101,6 +125,9 @@
+               'provider_exit_status': None, 'authentication_cause': 'unknown',
+               'basis': 'supplementary published adapter report; never raw provider output',
+               'next_action': 'Preserve this attempt and request owner diagnosis before another run; no credential diagnosis is established.'}
++    if failure.get('owner_failure') is not None:
++        return dict(result, availability='not-applicable', basis='canonical manager preparation/start failure',
++                    next_action='Inspect first-failure.json owner_failure; no provider diagnosis is inferred.')
+     output, filename, schema = ('proposal', 'result.json', 'baton.dogfood-proposal/2') if failure['kind'] == 'implementation' else ('logs', 'review.json', 'baton.review-log/1')
+     matches = [row for row in failure['artifacts'] if row.get('output_name') == output and row.get('artifact_id') == failure['attempt_id'] + ':' + output]
+     if len(matches) != 1:
+--- base/v12/testing/standalone_ab/README.md
++++ candidate/v12/testing/standalone_ab/README.md
+@@ -7,12 +7,14 @@
+ ```
+ 
+ The command builds two local images from the fixed, already installed base,
+-creates a unique retained `/tmp/baton-synthetic-ab-*` root, prepares disposable
++creates a unique retained `~/.local/state/baton/v12/synthetic-ab-*` root, prepares disposable
+ Git repositories, provisions fresh public owners, submits once and serves the
+ ordinary `tools.stage_execution:factory`. It invokes `sudo chown` only for the
+ new target's initial uid65532/gid1001 ownership. Run as the normal operator with
+ Docker access, supplementary gid1001 and permission for that initial ownership
+-step. The existing resource thresholds and 1200/240/180/120-second limits apply.
++step. The root must pass the public disk-backed filesystem check before image
++or repository preparation begins; an explicit tmpfs root refuses immediately
++and records the setup failure. The existing resource thresholds and 1200/240/180/120-second limits apply.
+ `--root /absolute/new/path` chooses an explicit fresh root; existing roots refuse.
+ 
+ The provider executable is **synthetic**, selected only in these test images.
+@@ -34,10 +36,19 @@
+ 
+ Success requires both Jobs' stages completed, all three derived judges accepted,
+ no remaining labelled runtime, a clean unchanged original source, a clean final
+-target and successful whole-target tests. See `evidence/run-result.json`,
++committed final view and successful A/B behavior checks plus whole-view tests.
++Integration advances objects/reference without updating the target checkout or
++index. Those original files remain diagnostic evidence. The runner reads the
++Authority canonical target, exports that exact commit to `final-view/`, records
++its commit/tree/blob/content manifest, runs both behavior scripts and all tests,
++and requires the view to remain byte/mode clean and the committed reference
++unchanged. See `evidence/final-view.json`, `evidence/run-result.json`,
+ `evidence/terminal-status.json`, `evidence/samples.jsonl`, `evidence/serve.log`,
+-`evidence/final-tests.log` and `scenario-result.json` under the printed root.
+-Failures retain the root and exact owner evidence; containment stops only this
++`evidence/final-tests.log`, `evidence/final-greeting.log`,
++`evidence/final-hours.log` and `scenario-result.json` under the printed root.
++Canonical preparation/start failures are read through the read-only manager
++owner and correlated to the current stage assignment without requiring a runtime
++or exchange. Failures retain the root and exact owner evidence; containment stops only this
+ run's serving process and Authority-labelled containers. There is no retry,
+ state repair or fabricated independent-review marker.
+ 
+--- base/v12/python/tests/tools/test_standalone_ab.py
++++ candidate/v12/python/tests/tools/test_standalone_ab.py
+@@ -175,5 +175,133 @@
+         self.assertEqual({one['job_id'] for one in submission['jobs']}, {'job-a', 'job-b'})
+ 
+ 
++def load_helper(name):
++    selected = importlib.util.spec_from_file_location('synthetic_ab_' + name, HERE / (name + '.py'))
++    module = importlib.util.module_from_spec(selected)
++    selected.loader.exec_module(module)
++    return module
++
++
++class FinalCommittedView(unittest.TestCase):
++    def setUp(self):
++        self.temp = tempfile.TemporaryDirectory(prefix='synthetic-final-view-')
++        self.addCleanup(self.temp.cleanup)
++        self.root = Path(self.temp.name)
++        self.target = self.root / 'target'
++        shutil.copytree(HERE / 'fixtures/baseline', self.target)
++        self.helper = load_helper('final_view')
++        self.git('init', '-b', 'main')
++        self.git('add', '.')
++        self.git('commit', '-m', 'baseline')
++        original_index = (self.target / '.git/index').read_bytes()
++        self.data = provider.fixture()
++        for changes in (self.data['a'], self.data['b']):
++            for name, body in changes.items():
++                (self.target / name).write_text(body)
++        self.git('add', '.')
++        self.git('commit', '-m', 'committed A and B')
++        self.commit = self.git('rev-parse', 'HEAD').strip()
++        # Model ref-only import: the commit is current while checkout/index
++        # still reflect the earlier A file import. Only this disposable fixture.
++        for name, body in self.data['baseline'].items():
++            (self.target / name).write_text(self.data['a'].get(name, body))
++        for name in self.data['b']:
++            if name not in self.data['baseline']:
++                (self.target / name).unlink()
++        (self.target / '.git/index').write_bytes(original_index)
++        self.evidence = self.root / 'evidence'
++        self.evidence.mkdir()
++
++    def git(self, *args):
++        done = subprocess.run(['git', '--no-optional-locks', '-C', str(self.target),
++            '-c', 'user.name=Synthetic test', '-c', 'user.email=test@baton.invalid',
++            '-c', 'core.hooksPath=/dev/null', *args], capture_output=True, text=True,
++            env=dict(os.environ, GIT_CONFIG_GLOBAL='/dev/null', GIT_CONFIG_SYSTEM='/dev/null'), timeout=10)
++        self.assertEqual(done.returncode, 0, done.stderr)
++        return done.stdout
++
++    @staticmethod
++    def persist(path, value):
++        path.write_text(json.dumps(value))
++
++    def test_committed_A_B_tests_run_and_stale_checkout_is_preserved(self):
++        before = {str(p.relative_to(self.target)): p.read_bytes() for p in self.target.rglob('*') if p.is_file()}
++        self.assertFalse((self.target / 'check_hours.py').exists())
++        result = self.helper.verify_view(self.target, self.root / 'final-view', self.evidence,
++            expected_commit=self.commit, timeout=lambda: 10, persist=self.persist)
++        self.assertEqual(result['commit'], self.commit)
++        self.assertEqual(result['tree'], self.git('rev-parse', 'HEAD^{tree}').strip())
++        self.assertTrue(result['clean'])
++        self.assertEqual([one['status'] for one in result['checks']], [0, 0, 0])
++        self.assertIn('test_hours', (self.evidence / 'final-tests.log').read_text())
++        self.assertIn('test_empty', (self.evidence / 'final-tests.log').read_text())
++        self.assertEqual(before, {str(p.relative_to(self.target)): p.read_bytes() for p in self.target.rglob('*') if p.is_file()})
++
++    def test_foreign_canonical_commit_refuses_before_export(self):
++        view = self.root / 'foreign-view'
++        with self.assertRaisesRegex(RuntimeError, 'Authority canonical target'):
++            self.helper.committed_view(self.target, view, expected_commit='0' * 40, timeout=lambda: 10)
++        self.assertFalse(view.exists())
++
++    def test_verification_mutation_cannot_be_called_clean(self):
++        actual = subprocess.run
++        def run(argv, **options):
++            answer = actual(argv, **options)
++            if argv[0] == 'python3':
++                (Path(options['cwd']) / 'uncommitted.txt').write_text('unexpected test output')
++            return answer
++        with patch.object(subprocess, 'run', run), self.assertRaisesRegex(RuntimeError, 'changed the committed view'):
++            self.helper.verify_view(self.target, self.root / 'final-view', self.evidence,
++                expected_commit=self.commit, timeout=lambda: 10, persist=self.persist)
++        self.assertFalse(json.loads((self.evidence / 'final-view.json').read_text())['clean'])
++
++
++class ScenarioEarlyFailures(unittest.TestCase):
++    def test_disk_default_preflight_precedes_build_and_records_refusal(self):
++        scenario = load_helper('scenario')
++        from baton_v12.contracts import ContractRefusal
++        with tempfile.TemporaryDirectory(prefix='synthetic-root-test-') as home:
++            with patch.object(Path, 'home', return_value=Path(home)), patch.object(os, 'getgroups', return_value=[1001]), \
++                    patch.object(sys, 'argv', ['scenario.py']), patch.object(scenario, 'images') as build, \
++                    patch('baton_v12.worker_manager.source_boundary.check_disk_backed', side_effect=ContractRefusal('policy', 'denied', 'tmpfs refuses')):
++                with self.assertRaises(ContractRefusal):
++                    scenario.main()
++            build.assert_not_called()
++            [root] = (Path(home) / '.local/state/baton/v12').iterdir()
++            recorded = json.loads((root / 'scenario-result.json').read_text())
++            self.assertIn('tmpfs refuses', recorded['failure'])
++            self.assertFalse(recorded['live_provider'])
++            self.assertFalse((root / 'authority.sqlite3').exists())
++
++    def test_preparation_and_start_failures_need_exact_current_assignment(self):
++        import copy
++        failure = load_helper('failure_observation')
++        fixed = {'generation': 1, 'participant': 'worker-a', 'work_ref': {'authority_uuid': 'authority', 'work_id': 'work-a'}}
++        stage = {'kind': 'implementation', 'job_id': 'job-a', 'stage_id': 'job-a/implementation', 'work_id': 'work-a',
++                 'attempt_id': 'attempt-current', 'episode': 1,
++                 'runtime': {'runtime_id': None, 'assignment': fixed},
++                 'allocation': {'assignment_id': 'attempt-current', 'stage_id': 'job-a/implementation', 'episode': 1, 'participant': 'worker-a'},
++                 'receipts': [{'act': 'claim', 'state': 'performed', 'episode': 1, 'stage_id': 'job-a/implementation', 'detail': {'result': {'assignment': fixed}}}],
++                 'episodes': [{'attempt_id': 'attempt-current', 'episode': 1, 'incarnation': 'run', 'ended_at': None}]}
++        status = {'observed_at': '2026-09-12T15:00:00.000Z', 'jobs': [{'job_id': 'job-a', 'submission_id': 'run', 'stages': [stage]}]}
++        owned = {'attempt_id': 'attempt-current', 'expect': fixed, 'runtime_id': None,
++                 'failure': {'category': 'policy', 'code': 'denied', 'message': 'disk-backed workspace required'}}
++        for member, ending in [('attempt_preparation_failure_of', 'preparation-failed'), ('attempt_start_failure_of', 'start-failed')]:
++            with patch.object(failure, 'attempt_preparation_failure_of', return_value=None), patch.object(failure, 'attempt_start_failure_of', return_value=None):
++                with patch.object(failure, member, return_value=owned):
++                    found = failure._first_failure(status, authority_uuid='authority', incarnation='run', works={'a': 'work-a'}, control=object())
++                self.assertEqual(found['ending'], ending)
++                self.assertEqual(found['owner_failure'], owned)
++                self.assertIsNone(found['runtime_id'])
++                foreign = copy.deepcopy(owned)
++                foreign['expect']['generation'] = 2
++                with patch.object(failure, member, return_value=foreign):
++                    self.assertIsNone(failure._first_failure(status, authority_uuid='authority', incarnation='run', works={'a': 'work-a'}, control=object()))
++                stale = copy.deepcopy(status)
++                stale['jobs'][0]['stages'][0]['episodes'][0]['ended_at'] = 'ended'
++                with patch.object(failure, member, return_value=owned):
++                    self.assertIsNone(failure._first_failure(stale, authority_uuid='authority', incarnation='run', works={'a': 'work-a'}, control=object()))
++
++
+ if __name__ == '__main__':
+     unittest.main()
+--- base/v12/testing/standalone_ab/final_view.py
++++ candidate/v12/testing/standalone_ab/final_view.py
+@@ -0,0 +1,80 @@
++"""Verify the committed output without changing the target checkout or index."""
++import hashlib
++import os
++from pathlib import Path
++import stat
++import subprocess
++
++
++def git(target, *args, timeout):
++    return subprocess.run(['git', '--no-optional-locks', '-c', 'safe.directory=' + str(target),
++                           '-C', str(target), *args], check=True, capture_output=True,
++                          timeout=timeout(), env=dict(os.environ, GIT_CONFIG_GLOBAL='/dev/null',
++                          GIT_CONFIG_SYSTEM='/dev/null')).stdout
++
++
++def measure(view):
++    result = {}
++    for path in sorted(view.rglob('*')):
++        mode = path.lstat().st_mode
++        if stat.S_ISDIR(mode):
++            continue
++        if not stat.S_ISREG(mode):
++            raise RuntimeError('final view contains a non-regular file')
++        result[str(path.relative_to(view))] = {'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
++                                             'mode': stat.S_IMODE(mode)}
++    return result
++
++
++def committed_view(target, view, *, expected_commit, timeout):
++    """Export exactly one known commit, including only supported regular files."""
++    identity = git(target, 'show', '--no-patch', '--format=%H %T', 'refs/heads/main', timeout=timeout).decode().strip()
++    commit, tree = identity.split()
++    if commit != expected_commit:
++        raise RuntimeError('committed target differs from the Authority canonical target')
++    rows = git(target, 'ls-tree', '-r', '-z', '--full-tree', commit, timeout=timeout).split(b'\0')
++    files = []
++    for row in filter(None, rows):
++        metadata, name = row.split(b'\t', 1)
++        mode, kind, blob = metadata.decode().split()
++        name = name.decode('utf-8')
++        relative = Path(name)
++        if mode not in ('100644', '100755') or kind != 'blob' or relative.is_absolute() or any(part in ('.', '..', '.git') for part in relative.parts):
++            raise RuntimeError('unsupported committed final-view path')
++        files.append((name, mode, blob))
++    view.mkdir(exist_ok=False)
++    blobs = {}
++    for name, mode, blob in files:
++        path = view / name
++        path.parent.mkdir(parents=True, exist_ok=True)
++        path.write_bytes(git(target, 'cat-file', 'blob', blob, timeout=timeout))
++        path.chmod(0o755 if mode == '100755' else 0o644)
++        blobs[name] = blob
++    return {'commit': commit, 'tree': tree, 'path': str(view), 'git_blobs': blobs, 'manifest': measure(view)}
++
++
++def verify_view(target, view, evidence, *, expected_commit, timeout, persist):
++    result = committed_view(target, view, expected_commit=expected_commit, timeout=timeout)
++    result['checks'] = []
++    result['clean'] = False
++    persist(evidence / 'final-view.json', result)
++    commands = [(['python3', '-B', 'check_greeting.py'], 'final-greeting.log'),
++                (['python3', '-B', 'check_hours.py'], 'final-hours.log'),
++                (['python3', '-B', '-m', 'unittest', 'discover', '-s', 'tests', '-v'], 'final-tests.log')]
++    try:
++        for argv, log in commands:
++            done = subprocess.run(argv, cwd=view, capture_output=True, text=True, timeout=timeout(),
++                                  env=dict(os.environ, PYTHONDONTWRITEBYTECODE='1'))
++            (evidence / log).write_text(done.stdout + done.stderr)
++            result['checks'].append({'argv': argv, 'status': done.returncode, 'log': log})
++            if done.returncode:
++                raise RuntimeError('committed final-view verification failed: ' + log)
++        if measure(view) != result['manifest']:
++            raise RuntimeError('final verification changed the committed view')
++        after = git(target, 'show', '--no-patch', '--format=%H %T', 'refs/heads/main', timeout=timeout).decode().strip()
++        if after != result['commit'] + ' ' + result['tree']:
++            raise RuntimeError('committed target moved during final verification')
++        result['clean'] = True
++        return result
++    finally:
++        persist(evidence / 'final-view.json', result)

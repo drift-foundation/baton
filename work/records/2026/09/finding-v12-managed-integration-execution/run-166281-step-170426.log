@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_managed_preparation tests.job_manager.test_managed_integration_capacity tests.integration.test_managed_storage tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance tests.tools.test_stage_execution.OrdinaryTerminalLifecycle tests.manager.test_reconciliation_task tests.integration.test_managed_execution tests.tools.test_integration_bundle
+...........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 507 tests in 35.288s
+
+OK

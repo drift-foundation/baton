@@ -1,0 +1,27 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions
+F
+======================================================================
+FAIL: test_the_alternate_schedule_reaches_the_same_completions (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions)
+THE SECOND BOUNDED SCHEDULE, C BEFORE A. The same four Jobs, the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2839, in test_the_alternate_schedule_reaches_the_same_completions
+    self.b_and_terminal(held, trace)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2946, in b_and_terminal
+    second = self.reconciled_next(held, trace, {integrated})
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 3028, in reconciled_next
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        len(deployment.judges), 3,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "the reconciled branch published no derived candidate for the "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "configured judges to answer")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 3 : the reconciled branch published no derived candidate for the configured judges to answer
+
+----------------------------------------------------------------------
+Ran 1 test in 3.861s
+
+FAILED (failures=1)

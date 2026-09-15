@@ -1,0 +1,11 @@
+$ env PYTHONPATH=src:tools:. python3 -c 
+from baton_v12.job_manager.store import JobStore
+from baton_v12.job_manager import schema
+shape=JobStore._schema_three_shape()
+print('capacity objects still expected at schema 3:',
+      sorted(n for n in shape if 'capacity' in n))
+from baton_v12.job_manager.store import _statements, _created_name
+print('names created by step 5:', [_created_name(s) for s in _statements(schema.MIGRATIONS[5])])
+
+capacity objects still expected at schema 3: []
+names created by step 5: ['integration_capacity_roots', 'integration_capacity_members', 'capacity_one_active_member']

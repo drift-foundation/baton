@@ -1,0 +1,616 @@
+{
+  "parent": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.codex",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": {
+      "agent": null,
+      "available_transitions": [
+        "prioritize",
+        "reroute"
+      ],
+      "binding": {
+        "actor": "baton.prompt",
+        "created_ts": "2026-09-13T14:19:57Z",
+        "git_provenance": null,
+        "path": "work/records/2026/09/finding-v12-managed-integration-execution",
+        "prior": 0,
+        "rationale": null,
+        "revision": 1,
+        "root": "baton",
+        "seq": 161230
+      },
+      "binding_count": 1,
+      "bindings": [
+        {
+          "actor": "baton.prompt",
+          "created_ts": "2026-09-13T14:19:57Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-managed-integration-execution",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 161230
+        }
+      ],
+      "bindings_next_after": null,
+      "bindings_truncated": false,
+      "blocking": false,
+      "breadcrumb": [
+        {
+          "id": "2b077949-W161230",
+          "title": "V12: Run integration through managed relocatable execution"
+        }
+      ],
+      "claimed_at": null,
+      "classification": "design-choice",
+      "duplicate_of": null,
+      "episode_seq": 170418,
+      "first_open_blocker": "W170387",
+      "follow_up_of": null,
+      "gate": {
+        "kind": "work",
+        "message": null,
+        "obligation": null,
+        "selector": "W170387",
+        "started_at": "2026-09-14T15:36:25.376Z",
+        "started_seq": 170389,
+        "work": "2b077949-W170387"
+      },
+      "handler": null,
+      "handoff_at": "2026-09-14T15:23:36Z",
+      "heartbeat_at": null,
+      "id": "2b077949-W161230",
+      "last_change_seq": 170418,
+      "last_changed_at": "2026-09-14T15:40:20.335Z",
+      "links": {
+        "blocked_by": [
+          {
+            "handler": null,
+            "id": "2b077949-W170387",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.feat",
+              "handlers": [
+                "codex"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Accept complete managed integration and document it",
+            "via_obligation": null
+          }
+        ],
+        "blocks": [
+          {
+            "handler": null,
+            "id": "2b077949-W156162",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.feat",
+              "handlers": [
+                "codex"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Configure execution and verification budgets per Job",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W161234",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.feat",
+              "handlers": [
+                "codex"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Prove code correction and restart without duplicate execution",
+            "via_obligation": null
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W2",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.ops",
+              "handlers": [
+                "slaw"
+              ],
+              "role": "approv",
+              "route": "approv"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "Design v12 isolated agent workers",
+            "via_obligation": null
+          }
+        ],
+        "contains": [
+          {
+            "handler": {
+              "member": "tuner",
+              "participant": "baton.tuner",
+              "team": "baton"
+            },
+            "id": "2b077949-W170380",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.tune",
+              "handlers": [
+                "tuner"
+              ],
+              "role": "tuner",
+              "route": "tuner"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Complete one ordinary managed preparation"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W170382",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.impl",
+              "handlers": [
+                "claude"
+              ],
+              "role": "impl",
+              "route": "impl"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Complete managed preparation failure and restart"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W170385",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.feat",
+              "handlers": [
+                "codex"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Apply reviewed integration and settle its outcome"
+          },
+          {
+            "handler": null,
+            "id": "2b077949-W170387",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.feat",
+              "handlers": [
+                "codex"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Accept complete managed integration and document it"
+          }
+        ],
+        "duplicate_of": null,
+        "duplicates": [],
+        "follow_up_of": null,
+        "follow_ups": [],
+        "id": "2b077949-W161230",
+        "parent": null
+      },
+      "local_id": "W161230",
+      "message_count": 94,
+      "my_pending_obligations": 0,
+      "new": 94,
+      "new_breakdown": {
+        "children": [
+          {
+            "id": "2b077949-W170380",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W170382",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W170385",
+            "new": 1
+          },
+          {
+            "id": "2b077949-W170387",
+            "new": 1
+          }
+        ],
+        "id": "2b077949-W161230",
+        "overlap": 0,
+        "own": 94,
+        "snapshot_seq": 170420,
+        "subtree_total": 98
+      },
+      "next": {
+        "endpoint": "baton.ops",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "obligations": [
+        {
+          "accepted_into": null,
+          "endpoint": "baton.decide",
+          "flavor": "response",
+          "resolved_seq": 161614,
+          "seq": 161508,
+          "status": "responded",
+          "thread": "2b077949-T161230"
+        },
+        {
+          "accepted_into": null,
+          "endpoint": "baton.decide",
+          "flavor": "response",
+          "resolved_seq": 162156,
+          "seq": 161874,
+          "status": "responded",
+          "thread": "2b077949-T161230"
+        },
+        {
+          "accepted_into": null,
+          "endpoint": "baton.decide",
+          "flavor": "response",
+          "resolved_seq": 162274,
+          "seq": 162258,
+          "status": "responded",
+          "thread": "2b077949-T161230"
+        },
+        {
+          "accepted_into": null,
+          "endpoint": "baton.decide",
+          "flavor": "response",
+          "resolved_seq": 164369,
+          "seq": 163010,
+          "status": "responded",
+          "thread": "2b077949-T161230"
+        },
+        {
+          "accepted_into": null,
+          "endpoint": "baton.ops",
+          "flavor": "response",
+          "resolved_seq": 166178,
+          "seq": 166152,
+          "status": "responded",
+          "thread": "2b077949-T161230"
+        },
+        {
+          "accepted_into": null,
+          "endpoint": "baton.ops",
+          "flavor": "response",
+          "resolved_seq": 166281,
+          "seq": 166259,
+          "status": "responded",
+          "thread": "2b077949-T161230"
+        }
+      ],
+      "open_blockers": 1,
+      "open_dependents": 3,
+      "origin": "decomposition",
+      "outcome": null,
+      "phase": "block",
+      "pickup": "pending",
+      "priority": "high",
+      "progress": {
+        "children": 4,
+        "closed": 0
+      },
+      "rationale": null,
+      "ready": false,
+      "revision": null,
+      "revision_count": 0,
+      "revisions": [],
+      "revisions_next_after": null,
+      "revisions_truncated": false,
+      "route": {
+        "endpoint": "baton.ops",
+        "handlers": [
+          "slaw"
+        ],
+        "role": "approv",
+        "route": "approv"
+      },
+      "status": "open",
+      "team": "baton",
+      "thread_count": 1,
+      "threads": [
+        {
+          "added_seq": 161230,
+          "id": "2b077949-T161230",
+          "last_seq": 170369,
+          "new": 94,
+          "subject": "V12: Run integration through managed relocatable execution"
+        }
+      ],
+      "threads_next_after": null,
+      "threads_truncated": false,
+      "title": "V12: Run integration through managed relocatable execution",
+      "trials": []
+    },
+    "snapshot_seq": 170420
+  },
+  "children": {
+    "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+    "participant": "baton.codex",
+    "projection_version": "12.8",
+    "protocol_version": 11,
+    "result": [
+      {
+        "agent": {
+          "action_owner": "baton.slaw",
+          "adapter": "codex",
+          "cause": null,
+          "detail": null,
+          "episode": null,
+          "expires_at": "2026-09-14T15:44:47Z",
+          "facts": [
+            {
+              "age_seconds": 19270,
+              "key": "dispatcher",
+              "observed_at": "2026-09-14T10:19:33Z",
+              "source": "configured",
+              "value": "local/baton-tuner"
+            },
+            {
+              "age_seconds": 19270,
+              "key": "readiness",
+              "observed_at": "2026-09-14T10:19:33Z",
+              "source": "configured",
+              "value": "/home/sl/baton-v11.14aecfb/run/codex-events.sock"
+            },
+            {
+              "age_seconds": 19270,
+              "key": "service",
+              "observed_at": "2026-09-14T10:19:33Z",
+              "source": "configured",
+              "value": "codex-event-bridge pid 1544881"
+            }
+          ],
+          "incarnation": "10e499f5-8886-4f02-aff6-5db113682b61",
+          "last_contact": "2026-09-14T15:39:47Z",
+          "model": null,
+          "note": null,
+          "provenance": "reported",
+          "provider": null,
+          "refresh_generation": null,
+          "refresh_requested": null,
+          "session": "01a09f6d-9d76-7be1-bda8-89968c611448",
+          "since": "2026-09-14T15:39:47Z",
+          "stale": false,
+          "state": "working",
+          "work": null
+        },
+        "blocking": false,
+        "claimed_at": "2026-09-14T15:40:00Z",
+        "classification": "design-choice",
+        "duplicate_of": null,
+        "first_open_blocker": null,
+        "follow_up_of": null,
+        "gate": null,
+        "handler": {
+          "member": "tuner",
+          "participant": "baton.tuner",
+          "team": "baton"
+        },
+        "handoff_at": null,
+        "heartbeat_at": "2026-09-14T15:40:00Z",
+        "id": "2b077949-W170380",
+        "last_change_seq": 170415,
+        "last_changed_at": "2026-09-14T15:40:00.893Z",
+        "local_id": "W170380",
+        "message_count": 1,
+        "my_pending_obligations": 0,
+        "new": 1,
+        "next": null,
+        "open_blockers": 0,
+        "open_dependents": 1,
+        "origin": "decomposition",
+        "outcome": null,
+        "phase": "active",
+        "pickup": "claimed",
+        "priority": "high",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": null,
+        "ready": true,
+        "route": {
+          "endpoint": "baton.tune",
+          "handlers": [
+            "tuner"
+          ],
+          "role": "tuner",
+          "route": "tuner"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "V12: Complete one ordinary managed preparation"
+      },
+      {
+        "agent": null,
+        "blocking": false,
+        "claimed_at": null,
+        "classification": "design-choice",
+        "duplicate_of": null,
+        "first_open_blocker": "W170380",
+        "follow_up_of": null,
+        "gate": {
+          "kind": "work",
+          "message": null,
+          "obligation": null,
+          "selector": "W170380",
+          "started_at": "2026-09-14T15:35:43.798Z",
+          "started_seq": 170383,
+          "work": "2b077949-W170380"
+        },
+        "handler": null,
+        "handoff_at": null,
+        "heartbeat_at": null,
+        "id": "2b077949-W170382",
+        "last_change_seq": 170406,
+        "last_changed_at": "2026-09-14T15:38:51.204Z",
+        "local_id": "W170382",
+        "message_count": 1,
+        "my_pending_obligations": 0,
+        "new": 1,
+        "next": null,
+        "open_blockers": 1,
+        "open_dependents": 1,
+        "origin": "decomposition",
+        "outcome": null,
+        "phase": "block",
+        "pickup": null,
+        "priority": "high",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": null,
+        "ready": false,
+        "route": {
+          "endpoint": "baton.impl",
+          "handlers": [
+            "claude"
+          ],
+          "role": "impl",
+          "route": "impl"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "V12: Complete managed preparation failure and restart"
+      },
+      {
+        "agent": null,
+        "blocking": false,
+        "claimed_at": null,
+        "classification": "design-choice",
+        "duplicate_of": null,
+        "first_open_blocker": "W170382",
+        "follow_up_of": null,
+        "gate": {
+          "kind": "work",
+          "message": null,
+          "obligation": null,
+          "selector": "W170382",
+          "started_at": "2026-09-14T15:36:00.561Z",
+          "started_seq": 170386,
+          "work": "2b077949-W170382"
+        },
+        "handler": null,
+        "handoff_at": null,
+        "heartbeat_at": null,
+        "id": "2b077949-W170385",
+        "last_change_seq": 170386,
+        "last_changed_at": "2026-09-14T15:36:00.561Z",
+        "local_id": "W170385",
+        "message_count": 1,
+        "my_pending_obligations": 0,
+        "new": 1,
+        "next": null,
+        "open_blockers": 1,
+        "open_dependents": 1,
+        "origin": "decomposition",
+        "outcome": null,
+        "phase": "block",
+        "pickup": null,
+        "priority": "high",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": null,
+        "ready": false,
+        "route": {
+          "endpoint": "baton.feat",
+          "handlers": [
+            "codex"
+          ],
+          "role": "rview",
+          "route": "rview"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "V12: Apply reviewed integration and settle its outcome"
+      },
+      {
+        "agent": null,
+        "blocking": false,
+        "claimed_at": null,
+        "classification": "design-choice",
+        "duplicate_of": null,
+        "first_open_blocker": "W170385",
+        "follow_up_of": null,
+        "gate": {
+          "kind": "work",
+          "message": null,
+          "obligation": null,
+          "selector": "W170385",
+          "started_at": "2026-09-14T15:36:17.976Z",
+          "started_seq": 170388,
+          "work": "2b077949-W170385"
+        },
+        "handler": null,
+        "handoff_at": null,
+        "heartbeat_at": null,
+        "id": "2b077949-W170387",
+        "last_change_seq": 170388,
+        "last_changed_at": "2026-09-14T15:36:17.976Z",
+        "local_id": "W170387",
+        "message_count": 1,
+        "my_pending_obligations": 0,
+        "new": 1,
+        "next": null,
+        "open_blockers": 1,
+        "open_dependents": 1,
+        "origin": "decomposition",
+        "outcome": null,
+        "phase": "block",
+        "pickup": null,
+        "priority": "high",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": null,
+        "ready": false,
+        "route": {
+          "endpoint": "baton.feat",
+          "handlers": [
+            "codex"
+          ],
+          "role": "rview",
+          "route": "rview"
+        },
+        "status": "open",
+        "team": "baton",
+        "title": "V12: Accept complete managed integration and document it"
+      }
+    ],
+    "snapshot_seq": 170420
+  }
+}

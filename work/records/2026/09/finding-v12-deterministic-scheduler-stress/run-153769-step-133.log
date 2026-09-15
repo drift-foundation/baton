@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_reach_a_real_imported_integration
+............................................................................
+----------------------------------------------------------------------
+Ran 76 tests in 1.626s
+
+OK

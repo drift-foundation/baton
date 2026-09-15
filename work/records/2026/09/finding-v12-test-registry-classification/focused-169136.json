@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_parallel_runner.TheJobsBoundIsLowerOnly",
+    "tests.tools.test_parallel_runner.PartitioningLosesAndInventsNothing",
+    "tests.tools.test_parallel_runner.TheRegistryFailsClosed",
+    "tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed",
+    "tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_every_v12_test_module_is_registered_exactly_once",
+    "tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_the_serial_modules_are_the_ones_that_own_an_engine",
+    "tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_this_module_registered_itself",
+    "tests.tools.test_parallel_runner.TheRealRegistryDescribesTheRealTree.test_the_deadline_engine_has_only_supervised_metadata",
+    "tests.tools.test_parallel_runner.OutputDoesNotDependOnCompletionOrder",
+    "tests.tools.test_parallel_runner.AFailingShardIsReportedAndStopsTheLaterPhases",
+    "tests.tools.test_parallel_runner.TheSerialRegistryOverlapsNothing",
+    "tests.tools.test_parallel_runner.AnInterruptLeavesNothingBehind",
+    "tests.tools.test_parallel_runner.AFailingRunAlsoLeavesNothingBehind",
+    "tests.tools.test_parallel_runner.AShardThatDiesWithoutAReportIsAFailure",
+    "tests.tools.test_parallel_runner.CollectionRefusesAModuleItCannotLoad"
+  ],
+  "cwd": "v12/python",
+  "environment_overrides": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "timeout_seconds": 180,
+  "returncode": 0,
+  "elapsed_seconds": 12.925435340992408,
+  "log": "focused-169136.log",
+  "kind": "exact runner fake-suite selectors plus no-import real registry assertions; no broad collection"
+}

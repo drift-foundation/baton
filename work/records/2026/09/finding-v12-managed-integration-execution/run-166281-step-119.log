@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle
+.................................................................................................................................................................................................................................................................................................F.....................................................................................................................
+======================================================================
+FAIL: test_a_deployment_with_no_configured_workload_refuses (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_a_deployment_with_no_configured_workload_refuses)
+Absence refuses rather than defaulting. A phase label, a constant or
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 738, in test_a_deployment_with_no_configured_workload_refuses
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 407 tests in 21.220s
+
+FAILED (failures=1)

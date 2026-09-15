@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-selection-169661.py"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "wall_seconds": 0.21374120301334187,
+  "exit_code": 0,
+  "timed_out": false,
+  "timeout_seconds": 30,
+  "term_grace_seconds": 5,
+  "kill_grace_seconds": 5,
+  "previous_reviewer_seconds": 29.080372639036796,
+  "cumulative_reviewer_seconds": 29.294113842050137,
+  "evidence": "Three construction-boundary diagnostic observations with mocked resource constructors, not successful deployment or actual leak evidence."
+}

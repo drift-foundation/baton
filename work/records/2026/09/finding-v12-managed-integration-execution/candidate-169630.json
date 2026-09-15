@@ -1,0 +1,76 @@
+{
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 294037,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "2d0b3b4efff2c7729d0dead950d63b80841118e4f037b0ef175d8ad3d3fc2873"
+  },
+  {
+   "bytes": 64181,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "43d92fba5f464f0d8eadd2e062a2c7b1dc50fdaab717dad403bffcfb6cc67b84"
+  }
+ ],
+ "claim": 169630,
+ "constructed": "PreparationResolver with the INTEGRATION worker's own deployment document -- its actual apply workload bytes, kept separate from the producer per-Job material _served_deployment swaps in -- and composed.integrator.required_tests, the owner of that derivation. ManagedPreparation gets the Job store, the control store, the real Authority port for the configured integration participant, and the deployment's own bearer mint.",
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "runner_cleanup_corrected": "subprocess.run's timeout terminates the DIRECT CHILD only -- no process group, no descendants -- which is the state worker-process verification is about to start creating. The child now leads its own session and the bound signals the GROUP: TERM first, then KILL for whatever did not take it.",
+ "still_not_proved": "No deployment configures integration_preparation, so the constructed path has NO behavioural coverage. The apply digest is still measured against INVENTED FIXTURE BYTES rather than a real configured apply workload -- the review is right that this does not establish provenance. The worker's acceptance, the ordinary child launch and ending, the member ended only on its real exclusion proof and adoption are unwritten, and the whole-prepare admitted-child replay gap remains open.",
+ "the_property_i_broke": {
+  "fix": "selection is an explicit configured member, integration_preparation, in _OPTIONAL_MEMBERS; its absence is the ordinary path and nothing engages without it. test_stage_execution's failing set is back to exactly the pre-existing 13, compared against the bound baseline rather than assumed.",
+  "what": "I constructed the preparation whenever its owners existed, which made EVERY integration stage defer its parent: 44 direct and legacy cases failed in one run.",
+  "why_it_matters": "'transparent until selected' was a claim I had repeated for several rounds and never measured; the first time the wrapper was actually wired it was false."
+ },
+ "unchanged": [
+  {
+   "bytes": 85232,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "45c840b1ab07ae9cf51d814f2c22e6524c0b1920571a22a45265d9c003740b76"
+  },
+  {
+   "bytes": 162808,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "1996f8fdc3df90cf67dc9f6636bcd079ff047e8bb2d96d873551a7bb903aefaf"
+  },
+  {
+   "bytes": 73429,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_bundle.py",
+   "sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad"
+  },
+  {
+   "bytes": 191339,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+  }
+ ],
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 125 restored /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle",
+  "ledger": "125 rows, 1329.7344167568256s",
+  "no": "no engine, model, image build or destructive cleanup",
+  "stage_execution": "failing set compared against the claim169019 baseline: identical 13",
+  "steps": {
+   "122": "constructed unconditionally -- 44 extra stage_execution failures, the defect above",
+   "123": "selection gate added; OK 408 cases",
+   "124": "REVERSAL -- engage without selection; failed exactly test_preparation_engages_only_when_a_deployment_selects_it",
+   "125": "restored, OK 408 cases"
+  },
+  "stray": "root tools/ clean; all patches absolute-path"
+ },
+ "what": "_integration_operations CONSTRUCTS the resolver and preparation; a transparency property I had claimed for rounds turned out false the first time it was wired, and is now gated and measured.",
+ "work": "2b077949-W161230"
+}

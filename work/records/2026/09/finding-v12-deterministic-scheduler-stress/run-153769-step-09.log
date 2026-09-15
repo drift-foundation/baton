@@ -1,0 +1,13 @@
+### label: negatives-and-binding
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace"]
+### exit: 0
+### elapsed_seconds: 0.241854
+### STDOUT
+
+### STDERR
+...................................
+----------------------------------------------------------------------
+Ran 35 tests in 0.086s
+
+OK

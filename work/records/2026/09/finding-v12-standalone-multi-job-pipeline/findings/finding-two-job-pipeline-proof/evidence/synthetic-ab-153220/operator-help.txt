@@ -1,0 +1,8 @@
+usage: scenario.py [-h] [--root ROOT]
+
+Operator entry: fresh fixture repositories, deterministic images,
+submit/serve.
+
+options:
+  -h, --help   show this help message and exit
+  --root ROOT  new absolute run root; default unique /tmp directory

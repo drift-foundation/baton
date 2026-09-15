@@ -1,0 +1,275 @@
+{
+  "claim": 173130,
+  "files": [
+    {
+      "path": "baton:v12/python/tools/integration_bundle.py",
+      "sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad",
+      "bytes": 73429,
+      "target_mode": "0o644",
+      "baseline_sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "sha256": "dad962f38746640081d6e55a46017edb09645bae4d6354196f04ed552993a566",
+      "bytes": 98531,
+      "target_mode": "0o644",
+      "baseline_sha256": "dad962f38746640081d6e55a46017edb09645bae4d6354196f04ed552993a566",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "sha256": "04490070d5744d155514f874a69e69625a56a5874cf90bd17426572198f86272",
+      "bytes": 312424,
+      "target_mode": "0o664",
+      "baseline_sha256": "41a626f1cc52f45121e2c1c1424fd3fa3cf5fac6d6f2154924ca58974f8d61fe",
+      "baseline_exists": true,
+      "changed_this_claim": true,
+      "snapshot": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/partial-files-172988/v12/python/tools/stage_execution.py",
+      "delta": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/partial-delta-172988-stage_execution.py.patch"
+    },
+    {
+      "path": "baton:v12/python/tools/integration_placement.py",
+      "sha256": "6846388c4d5000028273f1d563406c28eb845fa72e38903934cb7b5d5576f56b",
+      "bytes": 45650,
+      "target_mode": "0o644",
+      "baseline_sha256": "db24decb3305d5b82663e77e1a3e8fb24a045dffee8e75f81d253679fb80a863",
+      "baseline_exists": true,
+      "changed_this_claim": true,
+      "snapshot": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/partial-files-172988/v12/python/tools/integration_placement.py",
+      "delta": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/partial-delta-172988-integration_placement.py.patch"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/managed_execution.py",
+      "sha256": "b61f77993862ef9925c7f4a2113da3c3f84a6c3dcc129d36938f604d5f9b2cae",
+      "bytes": 36625,
+      "target_mode": "0o644",
+      "baseline_sha256": "b61f77993862ef9925c7f4a2113da3c3f84a6c3dcc129d36938f604d5f9b2cae",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "b7c0bafd45a3d8f858936728f2a9173a57a5b625533fa21b6f95185e9ac54011",
+      "bytes": 192879,
+      "target_mode": "0o664",
+      "baseline_sha256": "b7c0bafd45a3d8f858936728f2a9173a57a5b625533fa21b6f95185e9ac54011",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/execution.py",
+      "sha256": "abba31d87a7e1250e6045f85c8a749890a54b681e148e13144fcde66b525b4dc",
+      "bytes": 63312,
+      "target_mode": "0o664",
+      "baseline_sha256": "abba31d87a7e1250e6045f85c8a749890a54b681e148e13144fcde66b525b4dc",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/queue.py",
+      "sha256": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+      "bytes": 117764,
+      "target_mode": "0o664",
+      "baseline_sha256": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/git_profile.py",
+      "sha256": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+      "bytes": 30525,
+      "target_mode": "0o664",
+      "baseline_sha256": "ccd0b048ae039df779cbb2ae468c63b8c5f43f73346b4643dd9cefdde89b7902",
+      "baseline_exists": true,
+      "changed_this_claim": true,
+      "snapshot": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/partial-files-172988/v12/python/src/baton_v12/integration/git_profile.py",
+      "delta": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/partial-delta-172988-git_profile.py.patch"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "sha256": "05a30a305f20e6ff12c2d455fb1bb2f55ac51ae9c60165021baf621e03f06360",
+      "bytes": 85291,
+      "target_mode": "0o644",
+      "baseline_sha256": "05a30a305f20e6ff12c2d455fb1bb2f55ac51ae9c60165021baf621e03f06360",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/delegation.py",
+      "sha256": "3019d7ea94db2fdd3b0e9c3933f0d2b10241fdaf64c2550129c7bbb81ecfadf6",
+      "bytes": 61606,
+      "target_mode": "0o664",
+      "baseline_sha256": "3019d7ea94db2fdd3b0e9c3933f0d2b10241fdaf64c2550129c7bbb81ecfadf6",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "db9b3f55fc09625a2f8394ed06313a29f02699ae39440dbbf1e3c5b3faa71641",
+      "bytes": 36658,
+      "target_mode": "0o664",
+      "baseline_sha256": "db9b3f55fc09625a2f8394ed06313a29f02699ae39440dbbf1e3c5b3faa71641",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/worker/integration_contract.py",
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "bytes": 57431,
+      "target_mode": "0o664",
+      "baseline_sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/worker/integration_workload.py",
+      "sha256": "eb9bb61929304a605b5c1ba4c8087738b5c4de3b0fbaad976b1dd3cbc004ff42",
+      "bytes": 77208,
+      "target_mode": "0o664",
+      "baseline_sha256": "eb9bb61929304a605b5c1ba4c8087738b5c4de3b0fbaad976b1dd3cbc004ff42",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/worker/integration_entry.py",
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "bytes": 5287,
+      "target_mode": "0o664",
+      "baseline_sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "59e8f248e07bf65b645d1bf95070b51aefd5738b0c82f0cbf283c62b71612e8c",
+      "bytes": 9846,
+      "target_mode": "0o664",
+      "baseline_sha256": null,
+      "baseline_exists": false,
+      "changed_this_claim": true,
+      "snapshot": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/partial-files-172988/v12/python/tests/tools/test_managed_apply.py",
+      "delta": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/partial-delta-172988-test_managed_apply.py.patch"
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "6d2c8e8d16efd17e6cbf815b86ef2316091d40dd28afdf50ee41a2bd3289bdbc",
+      "bytes": 138930,
+      "target_mode": "0o644",
+      "baseline_sha256": "6d2c8e8d16efd17e6cbf815b86ef2316091d40dd28afdf50ee41a2bd3289bdbc",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "bytes": 464872,
+      "target_mode": "0o664",
+      "baseline_sha256": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_integration_worker.py",
+      "sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "bytes": 56217,
+      "target_mode": "0o664",
+      "baseline_sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_integration_bundle.py",
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "bytes": 119971,
+      "target_mode": "0o664",
+      "baseline_sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_integration.py",
+      "sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "bytes": 75613,
+      "target_mode": "0o644",
+      "baseline_sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_execution_limits.py",
+      "sha256": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "bytes": 224746,
+      "target_mode": "0o664",
+      "baseline_sha256": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_execution.py",
+      "sha256": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "bytes": 38732,
+      "target_mode": "0o644",
+      "baseline_sha256": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "282d16cb5d7d4407db2dd47811db38f52e897b3c720d8bb259af360193fbbace",
+      "bytes": 94086,
+      "target_mode": "0o644",
+      "baseline_sha256": "282d16cb5d7d4407db2dd47811db38f52e897b3c720d8bb259af360193fbbace",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_execution.py",
+      "sha256": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "bytes": 77373,
+      "target_mode": "0o664",
+      "baseline_sha256": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "sha256": "c4461810b38c9bdee0c67e59d55fb14846624f1cd6db920f23a127ce284ad0dd",
+      "bytes": 166328,
+      "target_mode": "0o644",
+      "baseline_sha256": "c4461810b38c9bdee0c67e59d55fb14846624f1cd6db920f23a127ce284ad0dd",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_delegation.py",
+      "sha256": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "bytes": 32154,
+      "target_mode": "0o664",
+      "baseline_sha256": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_integration_worker.py",
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "bytes": 79007,
+      "target_mode": "0o664",
+      "baseline_sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "baseline_exists": true,
+      "changed_this_claim": false
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_task.py",
+      "sha256": "69860bdfdc63e5144db973ddd70c7b101bde707ba97c8c99779b3ae6ce992eb6",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_entry.py",
+      "sha256": "5b9abe961c1551b2754c173611f5b3d1815dee32e7bf0881630e0ec4b05f7075",
+      "unchanged": true
+    }
+  ]
+}

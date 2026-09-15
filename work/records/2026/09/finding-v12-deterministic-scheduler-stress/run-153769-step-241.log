@@ -1,0 +1,19 @@
+$ env PYTHONPATH=src:tools:. env W103525_EXPECT=12 python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs
+F
+======================================================================
+FAIL: test_the_opened_edge_and_one_integrator_serialize_four_jobs (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs)
+THE CONTINUATION, and the integration capacity the PLAN asks for.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2619, in test_the_opened_edge_and_one_integrator_serialize_four_jobs
+    self.b_and_terminal(held, trace)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2797, in b_and_terminal
+    self.assertEqual(len(live), 1, states)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : {'job-a': {'implementation': 'completed', 'review': 'completed', 'integration': 'completed'}, 'job-b': {'implementation': 'completed', 'review': 'completed', 'integration': 'queued'}, 'job-c': {'implementation': 'completed', 'review': 'completed', 'integration': 'queued'}, 'job-d': {'implementation': 'completed', 'review': 'completed', 'integration': 'queued'}}
+
+----------------------------------------------------------------------
+Ran 1 test in 2.769s
+
+FAILED (failures=1)

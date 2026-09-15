@@ -1,0 +1,207 @@
+[
+  {
+    "path": "v12/python/tools/integration_bundle.py",
+    "classification": "proposed-source-edit",
+    "bytes": 62814,
+    "sha256": "bd233a84c8bbd61cefb1555d6648979625b976de5ad62de2c7f8bfa47b2aba05",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/tools/integration_worker.py",
+    "classification": "proposed-source-edit",
+    "bytes": 48146,
+    "sha256": "30fa506428cafd476bec13ec76d7901beb7f1d68ee237ba39fea063a7e9a3ed6",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/tools/stage_execution.py",
+    "classification": "proposed-source-edit",
+    "bytes": 277833,
+    "sha256": "02d83d92b6f9b0d44f42813239fb591b5d11fc13b35514665d5b4d36f6571d81",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/integration_capacity.py",
+    "classification": "proposed-source-edit",
+    "bytes": 64967,
+    "sha256": "4186730ed6f43ed34491e08d379440a3120f6fffa62cfd9adfa80520df8e73f4",
+    "mode": "0o644"
+  },
+  {
+    "path": "v12/python/src/baton_v12/integration/managed_execution.py",
+    "classification": "proposed-source-edit",
+    "bytes": 29666,
+    "sha256": "f220b688b1fe15b54b70bbea3c223e131cb5597358fcf5f00e0fe32b761747b0",
+    "mode": "0o644"
+  },
+  {
+    "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+    "classification": "proposed-source-edit",
+    "bytes": 165046,
+    "sha256": "bc82064ff4481c6d67ada769f57c93fd4fbafdcb25241eb2789cbd07f690b5e7",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/tests/tools/test_integration_bundle.py",
+    "classification": "proposed-test-edit",
+    "bytes": 119971,
+    "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/tests/tools/test_stage_execution.py",
+    "classification": "proposed-test-edit",
+    "bytes": 464872,
+    "sha256": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/tests/tools/test_execution_limits.py",
+    "classification": "proposed-test-edit",
+    "bytes": 224746,
+    "sha256": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_managed_integration_capacity.py",
+    "classification": "proposed-test-edit",
+    "bytes": 100380,
+    "sha256": "369b3793a6ec1d40c13663c291b572d293428f56f1d3686c4757e9c70811dd31",
+    "mode": "0o644"
+  },
+  {
+    "path": "v12/python/tests/integration/test_managed_execution.py",
+    "classification": "proposed-test-edit",
+    "bytes": 33696,
+    "sha256": "40da90207a98cc11507f24fcd811689406ca17afc7347f8b06cd18a20b1e872d",
+    "mode": "0o644"
+  },
+  {
+    "path": "v12/python/tests/integration/test_managed_storage.py",
+    "classification": "proposed-test-edit",
+    "bytes": 70628,
+    "sha256": "d398bda36e22a6880d54e19c7f1b67fcc4316e444d6c01c3e8f2cdb51cd51a7c",
+    "mode": "0o644"
+  },
+  {
+    "path": "v12/python/tools/single_worker.py",
+    "classification": "reuse-or-protected",
+    "bytes": 159356,
+    "sha256": "3b78842c59a46b30a2a542cac6e7ed860e32c5e5645baed643c478a4eddd3c49",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/delegation.py",
+    "classification": "reuse-or-protected",
+    "bytes": 61606,
+    "sha256": "3019d7ea94db2fdd3b0e9c3933f0d2b10241fdaf64c2550129c7bbb81ecfadf6",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/scheduler.py",
+    "classification": "reuse-or-protected",
+    "bytes": 44007,
+    "sha256": "f2066c9614a9d7511547d5ce4446bfbbf350f00df8c71ab2d8d0cfb99d6434ad",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/manager.py",
+    "classification": "reuse-or-protected",
+    "bytes": 45027,
+    "sha256": "f77a12f80c66e8dfb9ed700177b90fa4bda841788396304189f00230dfbd9c83",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/store.py",
+    "classification": "reuse-or-protected",
+    "bytes": 41531,
+    "sha256": "f35eb9878c7bfbcd592bc5afc816acf1a67ee01a1529fc123e2b0f89fda33c91",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/output.py",
+    "classification": "reuse-or-protected",
+    "bytes": 31447,
+    "sha256": "434182ab922729aaa3af5d53b0539a0fa8d6b5d34b4cad5b3a7454da594c2e1d",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+    "classification": "reuse-or-protected",
+    "bytes": 224839,
+    "sha256": "a16143a7709a842fd40369e4eafbaaa8b86fde9873648373f639739e53012a75",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/exchange.py",
+    "classification": "reuse-or-protected",
+    "bytes": 60397,
+    "sha256": "1fbff4e8bd73c44b658e5fc7ec0b5595ada498813ec5247ae2032c32543f35ce",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+    "classification": "reuse-or-protected",
+    "bytes": 184541,
+    "sha256": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6",
+    "mode": "0o644"
+  },
+  {
+    "path": "v12/python/src/baton_v12/integration/git_profile.py",
+    "classification": "reuse-or-protected",
+    "bytes": 26640,
+    "sha256": "ccd0b048ae039df779cbb2ae468c63b8c5f43f73346b4643dd9cefdde89b7902",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/worker/baton_worker.py",
+    "classification": "reuse-or-protected",
+    "bytes": 113422,
+    "sha256": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/worker/worker-control-1.0.schema.json",
+    "classification": "reuse-or-protected",
+    "bytes": 51419,
+    "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/python/DEPLOYMENT.md",
+    "classification": "reuse-or-protected",
+    "bytes": 88436,
+    "sha256": "971fba687461bf4cc0c8899b5f692d086cad3af8cd794573b2004cee1f0a7f94",
+    "mode": "0o664"
+  },
+  {
+    "path": "v12/worker/reconciliation_task.py",
+    "classification": "proposed-new-source",
+    "exists": false,
+    "mode": "0o644"
+  },
+  {
+    "path": "v12/worker/reconciliation_entry.py",
+    "classification": "proposed-new-source",
+    "exists": false,
+    "mode": "0o644"
+  },
+  {
+    "path": "v12/worker/Dockerfile.reconciliation",
+    "classification": "proposed-new-source",
+    "exists": false,
+    "mode": "0o644"
+  },
+  {
+    "path": "v12/python/tests/tools/test_managed_preparation.py",
+    "classification": "proposed-new-test",
+    "exists": false,
+    "mode": "0o644"
+  },
+  {
+    "path": "v12/python/tests/manager/test_reconciliation_task.py",
+    "classification": "proposed-new-test",
+    "exists": false,
+    "mode": "0o644"
+  }
+]

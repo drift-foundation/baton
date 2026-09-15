@@ -1,0 +1,574 @@
+{
+  "work": "W166292",
+  "claim": 167876,
+  "author": "baton.tuner",
+  "recorded_at": "2026-09-14T09:10:40.320088+00:00",
+  "source_files": [
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/historical-ledger-at-166281.json",
+      "bytes": 153837,
+      "sha256": "8f09b7f8b3f33145159389b9acedc7ccb55dff29315490027012a0985c14fd85"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/ledger-166281-prospective.json",
+      "bytes": 25837,
+      "sha256": "4de8cce2416ff2c2483bad527fb9c2b84cf92f06cad774a83199cbdc6bfd4ccc"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/run-161638-step-185.log",
+      "bytes": 1553826,
+      "sha256": "69ef04a54b269b40e6507f4da478536d2dfaeb95cfd28cf1f92e46a594c47c19"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/FINDING.md",
+      "bytes": 112526,
+      "sha256": "5fe2727230c77e31d4f532373ab3a3477bb7e38711c127dd0f8cacf30d2a8434"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/PROGRESS.md",
+      "bytes": 172405,
+      "sha256": "2e0b5dc5a994b0de74386be97182ca7ca6a7f1d41683be9a3e956402edbedef8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/review-2026-09-14T04-13-31Z.md",
+      "bytes": 7177,
+      "sha256": "5f0de20f700b96809b9282132250ea5d660614d5ca886e3a8d10aec95036e88c"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/review-2026-09-14T04-33-24Z.md",
+      "bytes": 6518,
+      "sha256": "a9049a1c54f34bc509ff55d652d77a068125c6840231c89ab72417998aa37200"
+    },
+    {
+      "path": "v12/python/tests/manager/test_credentials_engine.py",
+      "bytes": 21633,
+      "sha256": "7bd5e077bba6188d5123a1f93aea5ab25b9b6d6173e718d6ba769f09702d2da4"
+    },
+    {
+      "path": "/tmp/w184.txt",
+      "bytes": 3324,
+      "sha256": "fb37ec77ca3e0b2441225853de2698b38e0ed326e3d942a6d4a8fda7b1e30ffe"
+    }
+  ],
+  "missing_at_assessment": [
+    "work/records/2026/09/finding-managed-preparation-historical-runtime-uncertainty/PROGRESS.md",
+    "work/records/2026/09/finding-v12-managed-integration-execution/run-161638-step-183.log",
+    "work/records/2026/09/finding-v12-managed-integration-execution/run-161638-step-184.log",
+    "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-02.log",
+    "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-03.log"
+  ],
+  "historical_rows_183_to_190": [
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-t",
+        "."
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 200.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 739.954183807873,
+        "spent_seconds_before": 460.04581619212695,
+        "timeout_seconds": 738.954183807873
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 120.0,
+      "exit": 143,
+      "label": "regression-KILLED-BY-SHELL-uncharged-until-now",
+      "note": "step 183: the whole-suite discover exceeded the 120s SHELL bound and was killed before this runner could persist it. It really consumed ~120s of verification, so it is charged at the bound rather than dropped -- an uncharged run would make the cumulative figure understate what was spent."
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/manager",
+        "-t",
+        "."
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 110.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 619.954183807873,
+        "spent_seconds_before": 580.045816192127,
+        "timeout_seconds": 110.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 110.0,
+      "exit": 124,
+      "label": "manager-package-KILLED-BY-SHELL",
+      "note": "step 184: run OUTSIDE the measured runner and killed at the 110s shell bound before unittest printed its summary. Charged anyway. The dot-stream showed failures; they could NOT be named, so this run establishes nothing about them either way."
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/manager",
+        "-t",
+        "."
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 10.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 509.95418380787305,
+        "spent_seconds_before": 690.045816192127,
+        "timeout_seconds": 508.95418380787305
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 154.78453802400327,
+      "exit": 1,
+      "label": "manager-package-background",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-161638-step-185.log",
+      "ok": false,
+      "step": 185,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_dependencies",
+        "tests.manager.test_secrets",
+        "tests.manager.test_text_sweep"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 10.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 355.1696457838698,
+        "spent_seconds_before": 844.8303542161302,
+        "timeout_seconds": 354.1696457838698
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 1.7259772589895874,
+      "exit": 1,
+      "label": "failing-modules-with-my-files",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-161638-step-186.log",
+      "ok": false,
+      "step": 186,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_dependencies",
+        "tests.manager.test_secrets",
+        "tests.manager.test_text_sweep"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 10.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 353.4436685248802,
+        "spent_seconds_before": 846.5563314751198,
+        "timeout_seconds": 352.4436685248802
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 1.7413231149985222,
+      "exit": 1,
+      "label": "failing-modules-WITHOUT-my-files",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-161638-step-187.log",
+      "ok": false,
+      "step": 187,
+      "timed_out": false
+    },
+    {
+      "basis": "The whole `tests` tree is a SUPERSET of tests/manager: 115 test files / 7974909 bytes against 60 files / 3913495 bytes. Scaling the one measured package (154.78453802400327s) by the LARGER of the two ratios (bytes, 2.0378) gives ~315.4s for a completed whole-suite run; rounded up to 320.0s. 120.0s is already charged, so this delta adds the remaining 200.0s. THIS IS A BOUND, NOT A MEASUREMENT -- scaling by file size is an estimate of runtime, and it is deliberately rounded in the over-charging direction.",
+      "budget": {
+        "cap_seconds": 1200.0,
+        "remaining_seconds_before": 351.7023454098817,
+        "spent_seconds_before": 848.2976545901183
+      },
+      "corrects": "step 183 (whole-suite `discover -s tests -t .`, tool-killed, charged 120.0s nominal)",
+      "elapsed_seconds": 200.0,
+      "exit": null,
+      "kind": "accounting-correction",
+      "label": "183-RECONCILIATION-DELTA-conservative-bound"
+    },
+    {
+      "basis": "Run 184 ran the IDENTICAL scope that run 185 later measured end to end at 154.78453802400327s, and exit 124 proves it was cut at 110s without finishing. `timeout` signals the direct child only, so descendants are not excluded. The worst case is that it ran to completion, so the charge is raised to the measured full cost of that same scope; 110.0s is already charged, so this delta adds 44.78453802400327s. Unlike 183 this bound is anchored to a real measurement of the same command.",
+      "budget": {
+        "cap_seconds": 1200.0,
+        "remaining_seconds_before": 151.70234540988167,
+        "spent_seconds_before": 1048.2976545901183
+      },
+      "corrects": "step 184 (`discover -s tests/manager`, killed by `timeout 110`, charged 110.0s nominal)",
+      "elapsed_seconds": 44.78453802400327,
+      "exit": null,
+      "kind": "accounting-correction",
+      "label": "184-RECONCILIATION-DELTA-conservative-bound"
+    },
+    {
+      "basis": "Run 185 declared expected_seconds=10.0 (the runner default, because no W161230_EXPECT was set) and then consumed 154.78453802400327s. The guard's whole purpose is to refuse a run whose expectation cannot fit; a 10s declaration for a 155s run defeats it. Its ELAPSED cost is already charged exactly and is not restated here -- this entry records the guard failure, and adds nothing, so that the defect is not silently absorbed into a number that happens to be correct.",
+      "budget": {
+        "cap_seconds": 1200.0
+      },
+      "elapsed_seconds": 0.0,
+      "exit": null,
+      "kind": "accounting-note",
+      "label": "185-GUARD-DEFECT-NOTED-no-charge"
+    }
+  ],
+  "historical_recorded_total": 1106.721556888122,
+  "historical_row_count": 197,
+  "prospective_first_13_rows": [
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_reconciliation_task"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 20.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 1200.0,
+        "spent_seconds_before": 0,
+        "timeout_seconds": 1199.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 2.267633503986872,
+      "exit": 0,
+      "label": "prospective-baseline",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-01.log",
+      "ok": true,
+      "step": 1,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_reconciliation_task"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "remaining_seconds_before": 1197.7323664960131,
+        "spent_seconds_before": 2.267633503986872
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 120.0,
+      "exit": 143,
+      "label": "2-defect2-and-limits-TOOL-KILLED",
+      "note": "The focused module HUNG and was killed at the 120s tool bound. Cause found and fixed: `_bounded_read` opened entries with os.open(O_RDONLY|O_NOFOLLOW), and opening a FIFO for reading BLOCKS until a writer appears -- so the fifo case never returned. O_NONBLOCK now makes the open return so the descriptor can be refused for what it is. CHARGED AT THE TOOL BOUND, WHICH IS AN ESTIMATE AND NOT A PROVEN UPPER BOUND: per owner M166281 and review claim166235, a tool bound records when observation stopped, not when the process tree ended."
+    },
+    {
+      "budget": {
+        "cap_seconds": 1200.0,
+        "spent_seconds_before": 122.26763350398687
+      },
+      "elapsed_seconds": 2.2,
+      "exit": 1,
+      "label": "3-hang-cleared-check-OUTSIDE-runner",
+      "note": "A bare `timeout 100` confirmation that the fifo hang was gone, run outside the measured runner. Charged at its observed 2.120s unittest elapsed rounded up; it is charged rather than dropped because an uncharged run understates the cost."
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_reconciliation_task"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 20.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 1075.532366496013,
+        "spent_seconds_before": 124.46763350398687,
+        "timeout_seconds": 1074.532366496013
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 2.268765936998534,
+      "exit": 1,
+      "label": "see-failures",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-04.log",
+      "ok": false,
+      "step": 4,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_reconciliation_task"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 20.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 1073.2636005590145,
+        "spent_seconds_before": 126.73639944098541,
+        "timeout_seconds": 1072.2636005590145
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 2.2701316329912515,
+      "exit": 0,
+      "label": "defect2-cases",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-05.log",
+      "ok": true,
+      "step": 5,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_reconciliation_task"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 20.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 1070.9934689260233,
+        "spent_seconds_before": 129.00653107397665,
+        "timeout_seconds": 1069.9934689260233
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 2.27190320599766,
+      "exit": 1,
+      "label": "reversal",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-06.log",
+      "ok": false,
+      "step": 6,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_reconciliation_task"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 20.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 1068.7215657200256,
+        "spent_seconds_before": 131.2784342799743,
+        "timeout_seconds": 1067.7215657200256
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 2.272305022008368,
+      "exit": 0,
+      "label": "restored",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-07.log",
+      "ok": true,
+      "step": 7,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "/tmp/differential.py"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 15.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 1066.4492606980173,
+        "spent_seconds_before": 133.55073930198267,
+        "timeout_seconds": 1065.4492606980173
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 0.1489059909945354,
+      "exit": 0,
+      "label": "differential",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-08.log",
+      "ok": true,
+      "step": 8,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_reconciliation_task"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 30.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 1066.3003547070227,
+        "spent_seconds_before": 133.6996452929772,
+        "timeout_seconds": 1065.3003547070227
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 0.025651186995673925,
+      "exit": 1,
+      "label": "process-group",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-09.log",
+      "ok": false,
+      "step": 9,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_reconciliation_task"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 30.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 1066.274703520027,
+        "spent_seconds_before": 133.72529647997288,
+        "timeout_seconds": 1065.274703520027
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 2.3877468069986207,
+      "exit": 1,
+      "label": "process-group",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-10.log",
+      "ok": false,
+      "step": 10,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_reconciliation_task"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 40.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 1063.8869567130284,
+        "spent_seconds_before": 136.1130432869715,
+        "timeout_seconds": 1062.8869567130284
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 4.428132054003072,
+      "exit": 0,
+      "label": "process-group-cases",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-11.log",
+      "ok": true,
+      "step": 11,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_reconciliation_task"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 40.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 1059.4588246590254,
+        "spent_seconds_before": 140.54117534097458,
+        "timeout_seconds": 1058.4588246590254
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 6.4295624749938725,
+      "exit": 1,
+      "label": "process-group-reversal",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-12.log",
+      "ok": false,
+      "step": 12,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_reconciliation_task"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 40.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 1053.0292621840315,
+        "spent_seconds_before": 146.97073781596845,
+        "timeout_seconds": 1052.0292621840315
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 4.427330806007376,
+      "exit": 0,
+      "label": "restored",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-13.log",
+      "ok": true,
+      "step": 13,
+      "timed_out": false
+    }
+  ],
+  "prospective_first_13_recorded_total": 151.39806862197582,
+  "known_name_from_run185": "baton-runtime.start-76227065aaf91dc381310375f106f03f345388cdbc7f0011d2d787925c649db9",
+  "current_inspection": {
+    "command": [
+      "docker",
+      "container",
+      "inspect",
+      "--format",
+      "{{json .Id}} {{json .Name}} {{json .Created}} {{json .State}} {{json .Config.Labels}}",
+      "baton-runtime.start-76227065aaf91dc381310375f106f03f345388cdbc7f0011d2d787925c649db9"
+    ],
+    "tool_chunk_id": "115548",
+    "exit_code": 1,
+    "combined_output": "\npermission denied while trying to connect to the docker API at unix:///var/run/docker.sock\n",
+    "interpretation": "No current container identity, state or ownership obtained; not an absence response. No retry or alternate boundary used."
+  },
+  "process_inspection": "Not attempted: assessed episode records supply no retained PID/start identity/PGID or exact FIFO pathname to bind an inspection. No name-only process sweep can prove historical termination.",
+  "execution": "No tests, workload/container launches, resource mutation, image action or live models."
+}

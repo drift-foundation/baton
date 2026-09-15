@@ -992,3 +992,291 @@ continues. Do not restart its work or add a review of this workflow decision.
 The repeated preparation, reviewer context reconstruction, evidence checking and
 operator handoffs have delayed experimental feedback; the copilot owns its part
 in repeatedly prescribing that sequence.
+
+## 2026-09-12T13:58:18Z — optimize for cheap local execution, expensive model review
+
+Slawomir: "we have 16-core beast machine, runs are cheap and fast, model reviews
+are not. Pin that and let's go". This is the owner's cost and workflow priority;
+the machine description does not replace measured capacity or change existing
+resource limits. Optimize elapsed feedback time and reviewer-model spending,
+not merely the number of local test executions.
+
+For the localized fix/test loop confirmed13:54:54Z, prefer executing a focused
+bounded test on the operator's machine over another speculative reviewer turn.
+Reuse accepted code/image evidence. Preparation should mechanically verify exact
+inputs and produce truthful execution records for the authorized operator test;
+do not route deterministic hash, namespace or setup checks through another model
+solely to issue those records. This supersedes per-attempt reviewer involvement
+for mechanical preparation within that loop, not actual pipeline judgments.
+Report wall time spent on model turns and handoffs honestly; subsecond measured
+scripts do not describe the hours the owner waits for the workflow.
+
+Apply without a new planning/review gate. Preserve explicit execution scope,
+bounded clocks, genuine results and human Git ownership. Current run10 has its
+existing owner authorization; do not ask for it again. No review acceptance is
+invented, no history overwritten, and the actual A/B success obligations remain.
+
+## 2026-09-12T14:09:10Z — deterministic agent replay for coordination testing
+
+Slawomir confirms simulating the model query and asks for a "fake" ACP agent,
+possibly seeded from previous real responses per test type. Accepted direction:
+exercise the real standalone coordination path with a deterministic agent at its
+normal boundary, then use a separate live-provider run to demonstrate provider
+integration. This explicitly supersedes requiring a live model for every
+coordination-debugging attempt. A simulated-agent result must be labelled as such;
+it is useful coordination evidence and is not retroactive live-provider success.
+
+Observed source: tools/acp-baton-bridge/test/fake_acp_agent.mjs already supplies
+a real ACP subprocess for bridge tests. The current v12 proof instead composes
+baton_worker.main(agent=ClaudeAgent()) in v12/worker/dogfood_entry.py, with
+ClaudeAgent.invoke_provider/_provider as the underlying model seam. Reuse the
+appropriate existing seam; do not insert a new ACP transport into this pipeline
+solely because the requested simulator is described as a fake ACP agent.
+
+Initial scope is one fast deterministic A/B happy-path scenario. Select fixtures
+by explicit scenario and role/task contract (A/B implementation, original review,
+integration, derived verification/review/approval). Reproduce required workspace
+effects and reports, not just an accepted prose response. Keep real worker
+framing, subprocess/container boundary, private sources/workspaces, scheduling,
+ordinary merge/import, test commands, custody/intake, receipts, policy, leases
+and terminal/final-target checks. The fake never writes manager/Authority state
+or manufactures completion/authorization receipts. Provider-supplied judgments
+are simulated; actual tests and downstream validation still run.
+
+Prior retained nonsecret patches/reports may seed fixtures with their source
+provenance. Captured live text alone is insufficient where a tool call changed
+files. Bind a fixture to its expected baseline and task shape; derive current
+attempt IDs, paths and candidate identities from the current request/workspace
+rather than replaying stale receipts or hard-coded run identities. Unknown or
+incompatible scenarios refuse instead of returning universal success. Missing
+captures may be authored as explicit synthetic fixtures; no new model call is
+needed merely to obtain a fixture. Do not collect credentials or raw provider
+streams indiscriminately. Start with success; additional scenario/failure replay
+can follow demonstrated need instead of becoming a new hardening campaign.
+
+Status: implementation queued in this campaign, not built or tested by this
+record. Use the localized change -> exact operator command -> reported result
+loop; no preliminary full reviewer-model cycle solely for fixture iteration.
+Keep the current authorized run10 intact and account for its result separately.
+
+### Owner follow-up — parallel integration tests and development feedback
+
+Slawomir permits full integration tests to run in parallel, or to be launched by
+him, and prioritizes optimizing the development cycle. For the deterministic
+agent path, make the full integration scenario runnable with one command and
+parallelize independent cases using separate run roots, stores, workspaces and
+runtime identities. Do not let concurrent cases share mutable state or consume
+the active live run's allowance. Respect available host capacity and existing
+per-run limits; this is not permission for unbounded workers or model retries.
+
+Use focused tests for immediate correction feedback and the relevant full
+integration suite for end-to-end verification, concurrently where independent.
+Agents may execute within installed permissions and assigned file ownership;
+provide the exact host command when operator execution is needed. Full simulation
+tests should exercise real coordination and report useful stage/failure evidence
+without an intervening reviewer-model turn merely to launch them. Keep a separate
+live-provider check after the deterministic scenario passes, under its explicit
+run authority. This is execution/testing permission, not delegation to new agents.
+
+## 2026-09-12T14:17:40Z — run10 interrupted after completion-observation stall
+
+Observed by baton.prompt through retained run10 evidence and source inspection:
+Slawomir interrupted prepared-152826/run.py after the status projection kept B
+integration claimed. The retained evidence/run-result.json reports KeyboardInterrupt,
+wall_seconds=943.8339926240151, terminal_both=false, no exceptional container stops
+and no recorded cleanup failure. Docker's exact run10 Authority filter returned
+no running containers after interruption. Keep this as an interrupted live attempt,
+not a timeout or a successful both-Job proof; preserve all prior spending.
+
+The retained samples show A completed, all three B derived judgments accepted,
+B's integration owner pass at14:07:15.580Z, and its allocation released with reason
+integration-completed at14:07:16.626Z. Nevertheless B's projected integration remains
+claimed and runtime=null. No provider work remains to explain the polling delay.
+
+Confirmed source defect: v12/python/tools/stage_execution.py,
+StageObservation.observe_integration, returns None on missing attempt_runtime_of
+before opening the coordinator and invoking Integration.observe. The same file's
+Integration.account explicitly handles the reconciled, model-free branch BEFORE
+runtime prerequisites because that branch has no activated container. The outer
+status guard therefore prevents that owned completion account from being read.
+This explains the observed projection stall; final target and both-terminal checks
+were not reached and are not inferred from the owner pass.
+
+Next localized correction: route the read-only observer through the existing
+owned reconciled-account selection while preserving genuine unstarted/direct
+runtime handling and read-only capabilities. Add a focused regression exercising
+the outer StageObservation path with a reconciled attempt lacking a runtime;
+retain refusal/identity checks. The tuner records exact test paths in its handoff.
+Apply the13:54:54Z owner fix/test loop directly, without an intervening preparatory
+reviewer-model turn. Give Slawomir an exact deterministic test command first;
+do not silently restart or reuse the interrupted live run. Fake-provider full
+A/B coordination coverage remains the next development-cycle deliverable.
+
+## 2026-09-12T14:30:00Z — operator confirms completion-observer regression checks
+
+Slawomir reports the exact six-test command from COMPLETION-OBSERVATION-153138.md
+passed on the host: Ran 6 tests in 3.477s, OK. This covers the new outer reconciled
+completion without a runtime, bound-Job observation, fresh-process completion
+after serving closes, and the three separate read-only observation controls.
+This is operator-reported deterministic verification, not a new live run or
+retroactive run10 acceptance. It adds3.477s of reported test time to the existing
+cost record; no check was repeated by baton.prompt.
+
+The localized operator-feedback step is complete. The next implementation is
+the already accepted14:09:10Z deterministic provider A/B scenario and follow-up
+integration-test workflow: real coordination with the model/provider boundary
+simulated, one exact operator command, isolated state, explicit simulated-result
+labelling. Preserve run10 and actual terminal acceptance checks. No preparatory
+reviewer-model gate is added; the tuner receives the next bounded handoff from
+Slawomir under the existing route/claim rules.
+
+## 2026-09-12T14:55:17Z — synthetic scenario default storage refusal and missed early failure
+
+Observed operator attempt /tmp/baton-synthetic-ab-5f9zjyfc: setup completed in
+5.058890309999697s, total246.9176634180185s, execution241.82697641299455s;
+terminal_both=false. Both implementation allocations were released with reason
+launch-failed-before-runtime at14:49:48.108Z, before any container started.
+The final attempt deadline obscured an already-recorded preparation refusal.
+
+Confirmed through ControlStore.open_readonly and the public
+attempt_preparation_failure_of reader (no raw store reads): both manager records
+report policy/denied because the writable workspace under the default /tmp root
+is on tmpfs. The disk-backed workspace requirement correctly refused. The
+scenario.py default tempfile.mkdtemp root is the setup defect on this host;
+sudo retry and provider authentication did not cause this failure.
+
+Second confirmed defect: standalone_ab/failure_observation.py only recognizes
+validated exchange terminal failures. With no runtime/exchange it ignores this
+canonical preparation failure, while status already reports exceptional, so the
+runner waits until the240-second attempt limit. Next tuner correction must retain
+and surface exact public preparation/start failures immediately, bound to the
+current assignment, and add focused regression coverage. Do not weaken workspace
+policy or enlarge deadlines. Default to disk-backed state and check it before
+expensive setup; record actual affected test paths in the implementation handoff.
+
+Recorded stopgap for immediate operator feedback: use the existing supported
+--root option with a fresh path under /home/sl/.local/state/baton/v12, the prior
+disk-backed live-run location. This corrects the test input without changing
+product policy. Preserve the failed /tmp root and run10. A fresh synthetic run
+does not call a live provider; it retains all actual coordination/final checks.
+The default-path and fail-fast code corrections remain queued, not solved by
+this explicit root selection. No agent run or implementation was performed here.
+
+## 2026-09-12T15:00:00Z — synthetic second attempt completes Jobs, exposes final-view mismatch
+
+Observed retained /home/sl/.local/state/baton/v12/synthetic-ab-2 result:
+terminal_both=true at17.453996124997502s; execution18.547138238005573s;
+setup0.21600123500684276s; total18.794468152016634s. Final source identity and
+clean status match the original baseline. The run fails final target cleanliness.
+Final target HEAD9a512c976e7715bdb37405e08d3ddddf16699126 has tree
+a74cd7ab445209bc0af14e592d4b587f9624aad5. Read-only Git diffs show its checkout
+lacks committed B check_hours.py, tests/test_hours.py and hours_to_seconds in
+demo/units.py. The index also differs from HEAD and the checkout. Six final
+unittest checks passed against this stale checkout, omitting B's new tests;
+their zero exit is not full committed-target verification. No repair was made.
+
+Confirmed source contract: integration/execution.py finalize_direct_target
+explicitly advances objects/reference without updating an index or checkout;
+integration/git_profile.py's reconciliation similarly operates on objects and
+advances the configured reference. The synthetic provider performs A's approved
+file edits without Git metadata writes. standalone_ab/run.py instead tests the
+original target checkout and requires it clean against the advanced reference.
+This is a final-view/verification composition mismatch, not evidence of a
+provider failure or an altered original source. Both-Job completion is observed;
+whole scenario success is not claimed.
+
+Next bounded tuner work: reconcile the final verification/output view with the
+accepted committed target, verify both A and B behavior including the added B
+tests, and retain a clean final view with exact commit/tree provenance. Do not
+merely delete the cleanliness check, reset the failed evidence, or call the six
+stale-checkout tests success. Prefer an isolated final verification view if it
+satisfies the existing output contract; explicitly record any remaining contract
+question rather than silently widening product integration. Add focused coverage
+for committed result versus stale checkout. Include the already recorded disk
+default/preflight and canonical early preparation/start-error corrections in this
+localized scenario handoff. Return the exact operator test directly with no
+preparatory reviewer-model gate; preserve both synthetic attempts and run10.
+
+## 2026-09-12T15:17:42Z — full simulated-provider A/B scenario passes
+
+Slawomir ran the corrected scenario at retained root
+/home/sl/.local/state/baton/v12/synthetic-ab-tuapjtog. baton.prompt read the
+run-result.json and all three final test logs: both Jobs terminal at
+16.48721342202043s, full execution success17.459683960012626s, total including
+setup19.506483848002972s (operator output), setup2.015744584990898s.
+Both explicit behavior checks and all seven discovered tests passed, including
+B's test_hours. Original source commit/tree unchanged and clean. The exported
+final view is byte/mode clean at commit5d2dd432a89efb04933afb3764fc72acbe20a5a6,
+treea74cd7ab445209bc0af14e592d4b587f9624aad5. Ordinary operator transitions=0;
+exceptional_stops empty, no failure field. No tests were repeated by the copilot.
+
+This establishes the requested fast development-cycle demonstration: a full
+real coordination scenario with simulated provider behavior reaches terminal
+results and verifies the actual committed A+B output. Provider judgments remain
+explicitly simulated. It does not close live-provider acceptance or rewrite
+run10 or either failed synthetic attempt. Preserve all evidence and prior costs.
+The awaiting-full-synthetic-result state is superseded by this observed pass.
+
+Next campaign step is the remaining live-provider confirmation, reusing the
+validated observer/final-view/early-error behavior and existing scope and limits.
+The next tuner handoff should retain this success evidence and prepare an exact
+fresh operator command through the accepted direct fix/test workflow, without
+another model turn merely for mechanical identities or hashes. Do not execute
+a live retry automatically, invent independent acceptance, or reuse failed roots.
+
+## 2026-09-12T15:43:55Z — live-provider A/B confirmation passes
+
+Slawomir executed live_ab/scenario.py, retained root
+/home/sl/.local/state/baton/v12/live-ab-nup4nltc. baton.prompt read the completed
+run result, terminal stage projection, final judgments and all final test logs.
+All six A/B stages completed; all three B derived judgments were accepted and
+frozen. Both terminal at395.9120752119925s, full execution success397.0351264529745s,
+setup1.867098257993348s, total398.9336481070204s. live_provider=true; result is
+live-provider confirmation passed. No failure or exceptional stops; zero ordinary
+operator transitions. The two nonfatal docker-stats gaps remain explicit telemetry
+uncertainty and are not lifecycle failure or measurements.
+
+Final source identity is unchanged and clean. Final committed output is clean
+at62648125255cc4b460e6e185d499495ae4951b2f,
+treec959be30099a27ca4d59f126402ace0142e352fb. Both A/B behavior scripts and all
+ten discovered tests passed, including three hours tests and empty/whitespace
+greeting tests. The original target checkout remains diagnostic rather than the
+verified output under the already-recorded reference-only integration contract.
+
+Durable copies of scenario/run result, terminal status, final-view provenance and
+all three test logs, with source locator and SHA256 manifest, are retained at
+findings/finding-two-job-pipeline-proof/evidence/live-success-nup4nltc/. These are
+copies of operator execution evidence, not new tests or an independent reviewer
+claim. The prior synthetic success and failed/interrupted attempts stay intact;
+this adds397.0352161999908s of live execution wall to earlier live spending,
+with setup and total reported separately.
+
+The remaining-live-confirmation state is superseded: the live happy path is now
+demonstrated alongside the fast simulated-provider path. Recommend owner
+acceptance/closeout of the demonstrated W71879 scope with this evidence; no
+additional rerun is needed merely to reproduce success. Workflow closure and
+parent roll-up remain explicit owner actions, not effects of this finding.
+
+## 2026-09-12T15:45:09Z — deterministic-provider default for all future v12 work
+
+Slawomir directs that all future v12 work avoid live provider/model execution
+unless specifically needed, because it substantially delays feedback. This is
+a standing project rule beyond W71830, now pinned in AGENTS.md under V12
+verification defaults. It broadens the earlier campaign-specific fake-provider
+direction and supersedes blanket live-run requirements for ordinary iterations.
+
+Default to focused deterministic tests and fake/replay providers at the normal
+boundary with actual coordination and affected runtime behavior. Live execution
+needs a named provider-specific question that deterministic evidence cannot
+answer; record the reason in the owning Work without creating another approval
+or reviewer-model gate. Reuse applicable live evidence. End-to-end/integration
+labels, handoffs and regenerated IDs alone are not reasons for a live model run.
+Simulated results stay labelled and cannot replace genuine provider-specific
+acceptance evidence. Existing authority and budgets remain applicable.
+
+Observed comparison motivating the rule: full simulated-provider A/B total
+19.506483848002972s versus live-provider total398.9336481070204s, about20.5 times
+as long for these runs. Both passed their recorded checks. This is a measured
+pair, not a general provider benchmark or a claim of identical model behavior.
+The live happy-path confirmation is already retained; no repeat is needed solely
+to establish that same outcome. Status: standing policy recorded and active.

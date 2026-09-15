@@ -1,0 +1,160 @@
+--- prior-reviewed/stage_execution.py
++++ current/stage_execution.py
+@@ -1776,6 +1776,50 @@
+     return held
+ 
+ 
++def _host_scratch(deployment):
++    """The paths a failed host observation could NOT dispose of.
++
++    W156162, step 5 of the accepted host-failure proposal, and review
++    2026-09-13T11:08:02Z is what says the earlier form did not discharge it.
++    `_no_status` attempts the removal and, when the tree is still there, names
++    it in the retained diagnostic -- so it was REPORTED and still owned by
++    nobody. A deployment released its workers, its integration store and its
++    Authority and walked past the bytes.
++
++    THE REGISTRY IS THE DEPLOYMENT'S, for the same reason the retention is:
++    these owners are composed fresh every tick, so a per-instance list would
++    forget the moment the tick ended. What is held is the path AND the
++    diagnosis that named it, because the release below has to be able to say
++    what the surviving tree was.
++    """
++    held = getattr(deployment, "_host_surviving_scratch", None)
++    if held is None:
++        held = {}
++        setattr(deployment, "_host_surviving_scratch", held)
++    return held
++
++
++def _dispose_surviving(surviving):
++    """Try again to remove what a failed observation left, and report it.
++
++    RETURNS THE PATHS THAT ARE STILL THERE. Removing a path that has since
++    gone is not an error; a path that survives this attempt too is named to
++    the caller rather than dropped, which is the whole point of the registry.
++    A path is forgotten only once it is actually gone, so nothing accumulates
++    and nothing is silently abandoned.
++    """
++    import shutil
++
++    left = []
++    for where in sorted(surviving):
++        shutil.rmtree(where, ignore_errors=True)
++        if os.path.exists(where):
++            left.append(where)
++        else:
++            surviving.pop(where, None)
++    return left
++
++
+ def _host_seconds(deployment, stage):
+     """This stage's Job's host-verification ceiling, or the boundary default.
+ 
+@@ -1804,7 +1848,7 @@
+     """
+ 
+     def __init__(self, participant, argv, runner, root, *, seconds=None,
+-                 retention=None, scope=None):
++                 retention=None, scope=None, surviving=None):
+         self.participant = participant
+         self._argv = list(argv)
+         self._runner = runner
+@@ -1824,6 +1868,11 @@
+         # handed in; a per-instance memo would forget between ticks, which is
+         # precisely the repeat this exists to stop.
+         self._retention = {} if retention is None else retention
++        # AND WHERE A TREE THAT COULD NOT BE REMOVED IS HANDED ON. Same
++        # ownership as the retention and for the same reason: see
++        # `_host_scratch`. A composition given none keeps its own, which is a
++        # standalone owner whose caller holds it.
++        self._surviving = {} if surviving is None else surviving
+         # AND WHOSE WORK THIS IS. A retention shared by a deployment must not
+         # let one result's failure speak for another's, so the owning scope --
+         # the Job, the result and the phase this owner was composed for -- is
+@@ -1892,6 +1941,12 @@
+             detail = (f"{detail}. Its temporary materialization at {where!r} "
+                       f"could not be disposed of and remains")
+             self._retention[self._failure_key(revision, adding)] = detail
++            # AND IT IS HANDED TO THE RUNTIME THAT OWNS IT. Naming a surviving
++            # tree in a diagnostic tells an operator it is there and leaves
++            # nobody responsible for it; the deployment releases it with its
++            # other handles. The diagnosis is unchanged either way -- it is
++            # what this answer reports, and a later cleanup does not edit it.
++            self._surviving[where] = detail
+         return reconciliation.failed_observation(
+             phase=self._phase(), reason=reason, detail=detail,
+             seconds=self._seconds, command=list(self._argv),
+@@ -2051,9 +2106,10 @@
+ 
+     def __init__(self, participant, argv, runner, root, *, workspace,
+                  line_root, base, candidate, identity, seconds=None,
+-                 retention=None, scope=None):
++                 retention=None, scope=None, surviving=None):
+         super().__init__(participant, argv, runner, root, seconds=seconds,
+-                         retention=retention, scope=scope)
++                         retention=retention, scope=scope,
++                         surviving=surviving)
+         self._workspace = workspace
+         # BOTH SOURCE OBSERVATIONS COME OUT OF THE PRODUCER'S OWN LINE, and
+         # review 2026-09-10T15:07:43Z is why that is stated rather than
+@@ -2169,9 +2225,10 @@
+     """
+ 
+     def __init__(self, participant, argv, runner, root, *, identity,
+-                 seconds=None, retention=None, scope=None):
++                 seconds=None, retention=None, scope=None, surviving=None):
+         super().__init__(participant, argv, runner, root, seconds=seconds,
+-                         retention=retention, scope=scope)
++                         retention=retention, scope=scope,
++                         surviving=surviving)
+         self._identity = identity
+         self.asked = []
+ 
+@@ -2746,6 +2803,7 @@
+                 identity=operands["required_tests"]["task_id"],
+                 seconds=_host_seconds(deployment, stage),
+                 retention=_host_retention(deployment),
++                surviving=_host_scratch(deployment),
+                 scope=(stage.get("job_id"), held["result_id"], "causal"))
+             held = reconciliation.record_causal_observations(
+                 deployment.integration, observer,
+@@ -2790,6 +2848,7 @@
+             identity=operands["required_tests"]["task_id"],
+             seconds=_host_seconds(deployment, stage),
+             retention=_host_retention(deployment),
++            surviving=_host_scratch(deployment),
+             scope=(stage.get("job_id"), held["result_id"], "post-import"))
+         return admit_authorized_result(
+             deployment.integration, profile, _git_run, deployment.control,
+@@ -4030,6 +4089,30 @@
+                     code="transport")
+ 
+     def _closers(self):
++        # WHAT A FAILED OBSERVATION LEFT BEHIND, FIRST. It is this
++        # deployment's own scratch under its own integration root, and it is
++        # released before the handles because a store or Authority failure
++        # must not be what decides whether the bytes are cleaned up. A path
++        # that survives THIS attempt too is reported through the same failure
++        # list as any other handle -- an operator is told, rather than the
++        # tree being quietly abandoned a second time. See `_host_scratch`.
++        # IT IS READ OFF THE DEPLOYMENT, which is where the owners that made
++        # it registered it; this object is what opened that deployment and so
++        # is what releases what it left.
++        surviving = getattr(self.deployment, "_host_surviving_scratch", None)
++        if surviving:
++            def dispose():
++                left = _dispose_surviving(surviving)
++                if left:
++                    _refuse("it could not be disposed of",
++                            category="unavailable", code="transport")
++
++            # THE PATHS ARE IN THE LABEL, because `release` reports a failed
++            # closer by its NAME and the type of its error. A surviving tree
++            # an operator cannot locate is the silence this Work refuses.
++            yield ("the retained host scratch at "
++                   + ", ".join(repr(one) for one in sorted(surviving))), \
++                dispose
+         for one in reversed(self.workers):
+             operations = one.get("operations")
+             if operations is not None and hasattr(operations, "release"):

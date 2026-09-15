@@ -1,0 +1,15 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_execution
+............................E.......................
+======================================================================
+ERROR: test_a_task_binds_identity_content_and_the_jobs_own_limits (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_a_task_binds_identity_content_and_the_jobs_own_limits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_execution.py", line 67, in test_a_task_binds_identity_content_and_the_jobs_own_limits
+    self.assertEqual(composed["execution_limits"]["generation"], 1)
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+KeyError: 'generation'
+
+----------------------------------------------------------------------
+Ran 52 tests in 0.004s
+
+FAILED (errors=1)

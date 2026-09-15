@@ -1,0 +1,75 @@
+{
+  "changed_this_claim": [
+    {
+      "baseline_sha256": "see candidate-170569.json",
+      "bytes": 94737,
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "f8a410e8cc70f6832f6950078eabf6aad0ebbf0cea9892ddc6564540f91dd335",
+      "target_mode": "0o644"
+    }
+  ],
+  "claim": 170659,
+  "evidence": [
+    "restart-attempt-170659.py",
+    "witness-attempt-170659.py",
+    "ledger-170382.json"
+  ],
+  "incomplete": [
+    "store/composition restart",
+    "position discrimination (witness)",
+    "negative identity/profile/task/manifest/digest/length/source/harness matrix",
+    "missing blob, symlink/escape, frozen-only, missing/quarantined intake",
+    "causal combined/base/isolated matrix",
+    "timeout/start-failure at each position",
+    "refusal/cancellation/uncertain endings, leader-first/TERM-resistant",
+    "DEPLOYMENT-SLICE2-DRAFT.md"
+  ],
+  "prior_candidate": "findings/finding-managed-preparation-completion/candidate-170569.json",
+  "prior_files_verified_unchanged": 7,
+  "prior_manifest_sha256": "e3ba732f17fa0efb83f78dd92bb1f3692e14479bc6935389de878e85c2817fa3",
+  "reversals": [
+    {
+      "failed": 3,
+      "reversal": "ops cuts never fire on the preparation child"
+    },
+    {
+      "failed": 0,
+      "finding": "PASSES \u2014 this is why the attribution check exists",
+      "reversal": "vacuous placement (cut the first caller of that name)"
+    },
+    {
+      "failed": 0,
+      "finding": "PASSES \u2014 KNOWN WEAKNESS, cases do not discriminate position",
+      "reversal": "create cut moved to planned (wrong owner)"
+    }
+  ],
+  "runs": [
+    {
+      "checks": 425,
+      "label": "baseline-focused-five",
+      "result": "OK",
+      "seconds": 25.949488,
+      "step": "01"
+    },
+    {
+      "checks": 433,
+      "label": "group2-cut-matrix",
+      "result": "OK",
+      "seconds": 32.875,
+      "step": "03"
+    },
+    {
+      "checks": 433,
+      "label": "group2-cut-matrix-final",
+      "result": "OK",
+      "seconds": 33.161,
+      "step": "04"
+    }
+  ],
+  "sources_changed": [],
+  "spending": {
+    "this_claim_rows": 4,
+    "this_claim_seconds": 98.46251244097948
+  },
+  "work": "W170382"
+}

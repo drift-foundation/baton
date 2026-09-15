@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-four-jobs.py
+WORK 0000000a-W1 {'route': 'baton.impl', 'scope': 'scope:deployment', 'phase': 'queued', 'contract': 'v12-assignment-1'}
+WORK 0000000a-W2 {'route': 'baton.impl', 'scope': 'scope:deployment', 'phase': 'queued', 'contract': 'v12-assignment-1'}
+WORK 0000000a-W3 ABSENT: Refusal no such Work '0000000a-W3'
+WORK 0000000a-W4 ABSENT: Refusal no such Work '0000000a-W4'
+WORK 0000000a-W5 ABSENT: Refusal no such Work '0000000a-W5'
+PRINCIPAL baton.claude principal:baton.claude
+PRINCIPAL baton.second principal:baton.second
+PRINCIPAL baton.reviewer principal:baton.reviewer
+PRINCIPAL baton.reviewer-2 principal:baton.reviewer-2
+PRINCIPAL baton.integrator principal:baton.integrator
+PRINCIPAL baton.third principal:baton.third
+PRINCIPAL baton.reviewer-3 principal:baton.reviewer-3
+SOURCES: /home/sl/src/baton/v12/python/v12-w71917-wvybbgwp/source /home/sl/src/baton/v12/python/v12-w71917-wvybbgwp/source-b
+WORKER IDS: [('implementation-worker', 'implementation', 'baton.claude'), ('review-worker', 'review', 'baton.reviewer'), ('integration-worker', 'integration', 'baton.integrator'), ('implementation-worker-b', 'implementation', 'baton.second'), ('review-worker-b', 'review', 'baton.reviewer-2')]
+BINDINGS: [{'job_id': 'job-a', 'job_work_id': '0000000a-W1', 'review_work_id': '0000000a-W1', 'line_declared_base': '68ec2294c803b29e459353601aeb959a40dd4973', 'canonical_target_id': 'target-a', 'source_worker_id': 'implementation-worker'}, {'job_id': 'job-b', 'job_work_id': '0000000a-W2', 'review_work_id': '0000000a-W2', 'line_declared_base': '9daf2a17e0a468abd389dd973930ec4cf6de6bfd', 'canonical_target_id': 'target-b', 'source_worker_id': 'implementation-worker-b'}]

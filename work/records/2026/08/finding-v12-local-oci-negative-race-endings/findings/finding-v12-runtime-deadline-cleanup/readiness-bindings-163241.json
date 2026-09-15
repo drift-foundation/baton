@@ -1,0 +1,37 @@
+[
+  {
+    "path": "v12/python/tests/manager/test_runtime_deadline_engine.py",
+    "sha256": "72247570d612c4e51941b0ef138d57efa21c5d715cbde74f01116ebe65fda782",
+    "bytes": 8410
+  },
+  {
+    "path": "v12/python/tests/manager/test_lifecycle_composition.py",
+    "sha256": "3828c5bb34a2cfa81a8356af3d9f52c949770e82013d1e7e3abde5d6152be5d7",
+    "bytes": 101331
+  },
+  {
+    "path": "v12/python/pyproject.toml",
+    "sha256": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+    "bytes": 2037
+  },
+  {
+    "path": "v12/worker/Dockerfile",
+    "sha256": "0aa92e0b07c10e72bc6ca6c03c2c95f2e94da7fb9585c7a3969774f214d5cc0f",
+    "bytes": 4737
+  },
+  {
+    "path": "v12/worker/baton_worker.py",
+    "sha256": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+    "bytes": 113422
+  },
+  {
+    "path": "v12/worker/worker-control-1.0.schema.json",
+    "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+    "bytes": 51419
+  },
+  {
+    "path": "v12/python/DEPLOYMENT.md",
+    "sha256": "b6bfb940fe9186629b1c083608b26d8195ccf58abe0854deac59d1d87cb5b2e0",
+    "bytes": 78753
+  }
+]

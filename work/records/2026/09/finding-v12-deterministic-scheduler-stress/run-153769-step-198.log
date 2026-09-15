@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157538-continuation.py
+AFTER job-a {'implementation': 'completed', 'review': 'completed', 'integration': 'integrating'}
+AFTER job-b {'implementation': 'waiting', 'review': 'blocked', 'integration': 'blocked'}
+AFTER job-c {'implementation': 'completed', 'review': 'completed', 'integration': 'queued'}
+AFTER job-d {'implementation': 'completed', 'review': 'completed', 'integration': 'queued'}
+PRODUCERS {'job-a/implementation': 'implementation-worker', 'job-b/implementation': 'implementation-worker-b', 'job-c/implementation': 'implementation-worker-c', 'job-d/implementation': 'implementation-worker-d'}

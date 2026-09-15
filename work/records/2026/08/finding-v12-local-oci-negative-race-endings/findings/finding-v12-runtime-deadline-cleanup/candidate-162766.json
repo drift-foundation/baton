@@ -1,0 +1,79 @@
+{
+  "work": "W32577",
+  "author": "baton.tuner",
+  "claim": 162766,
+  "files": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/deadlines.py",
+      "sha256": "db5c44fd8c91ea943a86ab2808ba33473f36ef5ba350d782ca78994c9f3ddec6",
+      "bytes": 20199,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "sha256": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6",
+      "bytes": 184541,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/documents.py",
+      "sha256": "5f31654f699448a8e52d076f6ba517e9acfef201ada30dea0559051af474b014",
+      "bytes": 49020,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "a16143a7709a842fd40369e4eafbaaa8b86fde9873648373f639739e53012a75",
+      "bytes": 224839,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/oci.py",
+      "sha256": "b842e605671b222d467c8d5e6abdb13628946984d9a467372f01b4bec92fc9c1",
+      "bytes": 200495,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/__init__.py",
+      "sha256": "cd783420d73f237b9c8a01d63fbb1783a697efb3d87d211ed970a9994f0d5834",
+      "bytes": 14457,
+      "mode": "0o644"
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadlines.py",
+      "sha256": "318e36f080a171dc1f2d0c393ece07ff7f6980ba4b64038966904681da64006a",
+      "bytes": 27914,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_runtime_deadline_engine.py",
+      "sha256": "add7c46078ba3443bfe391ed6c2582b29aea2af6c788f34131928b13ddf3b0f0",
+      "bytes": 7965,
+      "mode": "0o664"
+    },
+    {
+      "path": "v12/python/tests/manager/test_boundary_inventory.py",
+      "sha256": "e5463543979b4d8045f88bc27bb8aac8681a84fa03df63de5dcfe9e2caaa8c00",
+      "bytes": 758067,
+      "mode": "0o644"
+    }
+  ],
+  "protected": [
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+      "sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/store.py",
+      "sha256": "d776c90cb9332e7226fe6958cbff6ed80649f1135309e546e7a1f9949d2c843b"
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/lanes.py",
+      "sha256": "f2a086de468c84d0cd7eb3cbcedec55c2cd12415a051b93bdcc8342341e2f21c"
+    },
+    {
+      "path": "v12/python/tests/manager/test_reconciliation_worker.py",
+      "sha256": "c0d7f2d1f90a1a5d024c034c83ef71fdc161888f37817e198fd318b08c67bd98"
+    }
+  ]
+}

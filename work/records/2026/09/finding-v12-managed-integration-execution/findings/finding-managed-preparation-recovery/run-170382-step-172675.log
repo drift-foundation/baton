@@ -1,0 +1,27 @@
+F
+======================================================================
+FAIL: test_failed_start_retries_an_unfinished_credential_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_failed_start_retries_an_unfinished_credential_teardown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1715, in test_failed_start_retries_an_unfinished_credential_teardown
+    self.complete(uncertain=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2476, in complete
+    return self.ended_after_failed_start(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        held, preparation, processes, uncertainty, orchestrating[0],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        target_before, target_revision, target_tree, case)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1624, in ended_after_failed_start
+    self.assertEqual(runtime["cleanup"], "retained")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'pending' != 'retained'
+- pending
++ retained
+
+
+----------------------------------------------------------------------
+Ran 1 test in 3.343s
+
+FAILED (failures=1)

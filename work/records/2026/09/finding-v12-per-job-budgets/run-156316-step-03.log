@@ -1,0 +1,91 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_execution_limits
+EE..............EE.......
+======================================================================
+ERROR: test_a_migrated_store_then_accepts_a_configured_job (tests.job_manager.test_execution_limits.TheMigrationLeavesOldJobsMeaningExactlyWhatTheyMeant.test_a_migrated_store_then_accepts_a_configured_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_execution_limits.py", line 339, in test_a_migrated_store_then_accepts_a_configured_job
+    store = JobStore.open(self.job_path, authority_uuid=UUID,
+                          incarnation="jobs-1", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table job_execution_limits already exists
+
+======================================================================
+ERROR: test_a_schema_four_store_migrates_and_its_jobs_keep_the_defaults (tests.job_manager.test_execution_limits.TheMigrationLeavesOldJobsMeaningExactlyWhatTheyMeant.test_a_schema_four_store_migrates_and_its_jobs_keep_the_defaults)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_execution_limits.py", line 319, in test_a_schema_four_store_migrates_and_its_jobs_keep_the_defaults
+    store = JobStore.open(self.job_path, authority_uuid=UUID,
+                          incarnation="jobs-1", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 605, in _migrate
+    connection.execute(statement)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+sqlite3.OperationalError: table job_execution_limits already exists
+
+======================================================================
+ERROR: test_repeated_read_only_status_changes_nothing (tests.job_manager.test_execution_limits.TheStoreKeepsWhatTheJobAskedFor.test_repeated_read_only_status_changes_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_execution_limits.py", line 271, in test_repeated_read_only_status_changes_nothing
+    first = projection.status(store, operations, observed_at=NOW)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 610, in status
+    jobs.append(documents.job_status(
+                ~~~~~~~~~~~~~~~~~~~~^
+        job_id=job["job_id"], submission_id=job["submission_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+            submission.execution_limits_of(store, job["job_id"])),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        stages=stages))
+        ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 691, in job_status
+    return _emit("job.status", members)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 648, in _emit
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{', '.join(extra)}, which its contract does not name")
+baton_v12.contracts.errors.ContractRefusal: this build assembled a job.status document carrying execution_limits, which its contract does not name
+
+======================================================================
+ERROR: test_the_public_status_reports_requested_and_effective_values (tests.job_manager.test_execution_limits.TheStoreKeepsWhatTheJobAskedFor.test_the_public_status_reports_requested_and_effective_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_execution_limits.py", line 250, in test_the_public_status_reports_requested_and_effective_values
+    held = projection.status(store, self.operations(),
+                             observed_at=NOW)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 610, in status
+    jobs.append(documents.job_status(
+                ~~~~~~~~~~~~~~~~~~~~^
+        job_id=job["job_id"], submission_id=job["submission_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+            submission.execution_limits_of(store, job["job_id"])),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        stages=stages))
+        ^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 691, in job_status
+    return _emit("job.status", members)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/documents.py", line 648, in _emit
+    raise ContractRefusal(
+    ...<2 lines>...
+        f"{', '.join(extra)}, which its contract does not name")
+baton_v12.contracts.errors.ContractRefusal: this build assembled a job.status document carrying execution_limits, which its contract does not name
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.019s
+
+FAILED (errors=4)

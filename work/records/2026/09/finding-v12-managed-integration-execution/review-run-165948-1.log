@@ -1,0 +1,7 @@
+test_every_retained_artifact_and_intake_act_matches_its_owner (__main__.IndependentCustody.test_every_retained_artifact_and_intake_act_matches_its_owner) ... ok
+test_missing_intake_refuses_without_ending_then_exact_custody_can_continue (__main__.IndependentCustody.test_missing_intake_refuses_without_ending_then_exact_custody_can_continue) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.028s
+
+OK

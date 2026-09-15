@@ -1,0 +1,46 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity
+..........................................................................................EE........E.E...........
+======================================================================
+ERROR: test_a_start_after_admission_proceeds (tests.job_manager.test_managed_integration_capacity.TheStartIsBehindTheAdmission.test_a_start_after_admission_proceeds)
+And the reversal: once capacity has admitted the member, the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2279, in test_a_start_after_admission_proceeds
+    execution_route=self.EXECUTION_ROUTE)
+                    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TheStartIsBehindTheAdmission' object has no attribute 'EXECUTION_ROUTE'. Did you mean: 'EXECUTION_WORK'?
+
+======================================================================
+ERROR: test_a_start_before_admission_refuses (tests.job_manager.test_managed_integration_capacity.TheStartIsBehindTheAdmission.test_a_start_before_admission_refuses)
+CAPACITY IS THE GATE. An intent decides; it does not admit, and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2259, in test_a_start_before_admission_refuses
+    execution_route=self.EXECUTION_ROUTE)
+                    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TheStartIsBehindTheAdmission' object has no attribute 'EXECUTION_ROUTE'. Did you mean: 'EXECUTION_WORK'?
+
+======================================================================
+ERROR: test_the_admitted_member_is_read_from_the_store_not_remembered (tests.job_manager.test_managed_integration_capacity.TheStartIsBehindTheAdmission.test_the_admitted_member_is_read_from_the_store_not_remembered)
+A composition that trusted its own bookkeeping would authorise a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2299, in test_the_admitted_member_is_read_from_the_store_not_remembered
+    execution_route=self.EXECUTION_ROUTE)
+                    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TheStartIsBehindTheAdmission' object has no attribute 'EXECUTION_ROUTE'. Did you mean: 'EXECUTION_WORK'?
+
+======================================================================
+ERROR: test_the_parent_offer_is_not_settled_by_preparing (tests.job_manager.test_managed_integration_capacity.TheStartIsBehindTheAdmission.test_the_parent_offer_is_not_settled_by_preparing)
+The same actor holds the parent while it prepares, so the root must
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 2321, in test_the_parent_offer_is_not_settled_by_preparing
+    execution_route=self.EXECUTION_ROUTE)
+                    ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TheStartIsBehindTheAdmission' object has no attribute 'EXECUTION_ROUTE'. Did you mean: 'EXECUTION_WORK'?
+
+----------------------------------------------------------------------
+Ran 114 tests in 1.105s
+
+FAILED (errors=4)

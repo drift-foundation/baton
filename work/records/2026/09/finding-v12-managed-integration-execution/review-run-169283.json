@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-W",
+    "error::ResourceWarning",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_a_resumed_sweep_that_moved_the_target_refuses",
+    "tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_a_resumed_sweep_naming_a_second_child_work_refuses",
+    "tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_an_unchanged_resumed_sweep_is_preserved",
+    "tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_first_sweep_carries_no_constraint"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "wall_seconds": 0.2135938520077616,
+  "exit_code": 0,
+  "timed_out": false,
+  "timeout_seconds": 30,
+  "term_grace_seconds": 5,
+  "kill_grace_seconds": 5,
+  "previous_reviewer_seconds": 27.083903291008028,
+  "cumulative_reviewer_seconds": 27.29749714301579,
+  "evidence": "Four direct guard checks using disposable owner fixtures; no deployment sweep, actual engine or live model."
+}

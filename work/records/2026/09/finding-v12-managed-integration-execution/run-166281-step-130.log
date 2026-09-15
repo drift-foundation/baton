@@ -1,0 +1,25 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_preparation
+...........................................F.......
+======================================================================
+FAIL: test_a_refusal_while_constructing_releases_what_it_built (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_a_refusal_while_constructing_releases_what_it_built)
+`operations_from`'s rule applies to the WHOLE composition. The first
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 799, in test_a_refusal_while_constructing_releases_what_it_built
+    self.assertEqual(closed, [0])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+AssertionError: Lists differ: [] != [0]
+
+Second list contains 1 additional elements.
+First extra element 0:
+0
+
+- []
++ [0]
+?  +
+
+
+----------------------------------------------------------------------
+Ran 51 tests in 1.472s
+
+FAILED (failures=1)

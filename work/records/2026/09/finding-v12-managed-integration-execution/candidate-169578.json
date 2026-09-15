@@ -1,0 +1,80 @@
+{
+ "apply_task_answer": {
+  "absence": "refuses rather than defaulting -- a phase label, a constant, the required-test digest and an invented future content digest are none of them the material an apply must obey",
+  "conflation_i_made": "I treated the missing collected digest as making the initial task identity impossible. It does not: managed_task takes task_digest and parent.collected_digest SEPARATELY, and capacity binds the collected content at admission rather than at planning.",
+  "not_the_producers": "_served_deployment swaps the producer's manifest and task into the per-Job view so the integration role knows which implementation it is integrating. That is the material being INTEGRATED, not the instructions the apply EXECUTES; hashing it would name the wrong document with an entirely plausible digest.",
+  "owner": "this deployment's OWN configured integration workload document, held as exact immutable bytes by single_worker._task_bytes during static configuration -- before the Authority is opened, before an offer exists, carrying the bytes rather than the path",
+  "stability": "a case asserts changed material is a changed identity, which is the reason it is measured rather than named"
+ },
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 291820,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "a8e5c4632c561fe99cd86b72c7e278ab8053cc6ebd4fadf1f02e6f2324a4e9db"
+  },
+  {
+   "bytes": 62971,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "3c597b7820b513be920009a76fa9eabdfea73322e28021b3146df1b9435f7de8"
+  }
+ ],
+ "claim": 169578,
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "runner_gate": {
+  "not_done": "no row rewritten, no total reset, no spending replenished, no cost estimate gamed; author_cap_seconds left exactly as the history wrote it so the record of the retired gate survives",
+  "now": "cumulative gate removed; a per-run timeout, cleanup and measured append-only accounting remain",
+  "was": "the header said owner M166331 had removed cumulative stopwatch caps while CAP = 1200.0 stayed an EXECUTABLE refusal -- a retired rule that still ran, so the record and the behaviour said different things"
+ },
+ "still_not_constructed": "_integration_operations passes preparation=None. With the apply digest owned, the remaining operands are the worker's acceptance and the launch/ending composition. The resolver still has NO behavioural coverage against a live deployment, and the whole-prepare admitted-child replay gap remains open.",
+ "unchanged": [
+  {
+   "bytes": 85232,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "45c840b1ab07ae9cf51d814f2c22e6524c0b1920571a22a45265d9c003740b76"
+  },
+  {
+   "bytes": 162808,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "1996f8fdc3df90cf67dc9f6636bcd079ff047e8bb2d96d873551a7bb903aefaf"
+  },
+  {
+   "bytes": 73429,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_bundle.py",
+   "sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad"
+  },
+  {
+   "bytes": 191339,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+  }
+ ],
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 120 restored /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle",
+  "ledger": "120 rows, 1261.8719327218307s; the 116-row history and the separate unledgered 405-case self-report from claim169499 are preserved unchanged beneath it",
+  "no": "no engine, model, image build or destructive cleanup",
+  "steps": {
+   "117": "runner gate retired; OK 405 cases, ledger 21.52321261598263s",
+   "118": "apply-task material measured; OK 407 cases, ledger 21.750548390991753s",
+   "119": "REVERSAL -- a constant stands in for absent material; failed exactly test_a_deployment_with_no_configured_workload_refuses",
+   "120": "restored, OK 407 cases, ledger 21.52508751300047s"
+  },
+  "stray": "root tools/ clean; all patches used absolute paths"
+ },
+ "what": "The apply-task ownership question answered from a real owner, and the stale cumulative runner gate retired on the cited owner ruling.",
+ "work": "2b077949-W161230"
+}

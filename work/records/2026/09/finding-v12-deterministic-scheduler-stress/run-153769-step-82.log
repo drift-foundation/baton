@@ -1,0 +1,22 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace
+.........................F.............................................................
+======================================================================
+FAIL: test_the_two_bound_jobs_complete_in_either_order (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_two_bound_jobs_complete_in_either_order)
+Owner155646's second requirement, first half: ALTERNATE ORDER over
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1880, in test_the_two_bound_jobs_complete_in_either_order
+    self.assertEqual(scheduler_trace.validate(second), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'code': 'successor-before-prerequisite',[712 chars]ne}}] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+{'code': 'successor-before-prerequisite', 'detail': 'job-b/review was reserved before job-b/implementation completed', 'record': {'tick': 4, 'job_id': 'job-b', 'stage_id': 'job-b/review', 'episode': 1, 'attempt_id': 'attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c', 'act': 'reserve', 'outcome': 'performed', 'worker_id': 'review-worker-b', 'participant': None, 'principal': 'principal:baton.reviewer-2', 'operation_id': 'allocation.reserve:attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c', 'runtime_id': None, 'session_id': None, 'evidence': 'allocations:attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c', 'cause': None, 'recorded_at': None, 'session': None, 'authorization': None}}
+
+Diff is 1030 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 87 tests in 3.912s
+
+FAILED (failures=1)

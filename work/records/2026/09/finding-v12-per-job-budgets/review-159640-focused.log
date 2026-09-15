@@ -1,0 +1,36 @@
+test_a_bound_that_is_not_a_positive_whole_number (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_bound_that_is_not_a_positive_whole_number) ... ok
+test_a_bound_this_deployment_did_not_apply_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_bound_this_deployment_did_not_apply_is_refused)
+THE REVIEWER'S OWN PROBE, as a case. Changing ONLY the seconds -- ... ok
+test_a_command_this_deployment_did_not_configure_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_command_this_deployment_did_not_configure_is_refused) ... ok
+test_a_completed_phase_may_not_carry_foreign_content (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_completed_phase_may_not_carry_foreign_content)
+[P1] prefix: a base failure accepted a foreign completed-combined ... ok
+test_a_foreign_commit_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_foreign_commit_is_refused) ... ok
+test_a_foreign_environment_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_foreign_environment_is_refused) ... ok
+test_a_foreign_execution_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_foreign_execution_is_refused) ... ok
+test_a_foreign_tree_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_foreign_tree_is_refused) ... ok
+test_a_harness_this_run_did_not_read_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_harness_this_run_did_not_read_is_refused)
+[P1], and the last of the trusted bindings. A probe changed ONLY ... ok
+test_a_phase_this_owner_does_not_run_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_phase_this_owner_does_not_run_is_refused) ... ok
+test_a_prefix_naming_another_task_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_prefix_naming_another_task_is_refused) ... ok
+test_a_prefix_running_another_command_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_prefix_running_another_command_is_refused)
+The base phase really has a prefix, so this is where a completed ... ok
+test_a_prefix_that_does_not_match_the_phase_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_prefix_that_does_not_match_the_phase_is_refused) ... ok
+test_a_reason_outside_the_closed_two_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_reason_outside_the_closed_two_is_refused) ... ok
+test_a_remainder_that_does_not_match_the_phase_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_remainder_that_does_not_match_the_phase_is_refused) ... ok
+test_a_task_this_deployment_did_not_configure_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_task_this_deployment_did_not_configure_is_refused) ... ok
+test_an_exit_status_is_never_carried (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_an_exit_status_is_never_carried)
+The whole point of the branch: a child that supplied none does not ... ok
+test_the_configured_answer_is_accepted (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_the_configured_answer_is_accepted) ... ok
+test_the_configured_owner_publishes_what_it_was_given (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_the_configured_owner_publishes_what_it_was_given)
+And the expectations really are the deployment's own operands, read ... ok
+test_the_owner_pins_the_harness_it_actually_read (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_the_owner_pins_the_harness_it_actually_read)
+And the pinned value is the CONTENT's, not a configured constant: ... ok
+test_the_post_import_adoption_binds_its_imported_content (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_the_post_import_adoption_binds_its_imported_content)
+The same closed semantics at the other boundary, and the same ... ok
+test_the_unaltered_answer_is_accepted (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_the_unaltered_answer_is_accepted)
+Every negative below is only worth something if this passes. ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.005s
+
+OK

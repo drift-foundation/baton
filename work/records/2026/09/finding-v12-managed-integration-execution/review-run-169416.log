@@ -1,0 +1,15 @@
+test_a_resumed_sweep_RECOVERS_rather_than_being_refused (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_resumed_sweep_RECOVERS_rather_than_being_refused)
+THE WHOLE POINT OF RECOVERING, and what my earlier guard got wrong. ... ok
+test_a_published_input_disagreeing_with_the_intent_refuses (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_published_input_disagreeing_with_the_intent_refuses)
+The durable record and the decision must name ONE request. A ... ok
+test_a_committed_intent_with_no_publication_refuses (tests.tools.test_managed_preparation.TheOperandsAreResolvedFromOwnerAnswers.test_a_committed_intent_with_no_publication_refuses)
+An intent whose publication is gone is a missing durable record, ... ok
+test_a_committed_intent_with_no_published_input_refuses (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_a_committed_intent_with_no_published_input_refuses)
+THE CASE THAT REPLACED TWO OF MINE, and the reason is the point. ... ok
+test_the_wrapper_admits_preparation_and_defers_the_parent (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_wrapper_admits_preparation_and_defers_the_parent)
+THE SELECTED SEAM, END TO END, and the deferral actually reached. ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.085s
+
+OK

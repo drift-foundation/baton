@@ -1,0 +1,17 @@
+test_readonly_reconciled_completion_without_runtime_reaches_outer_observer (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_readonly_reconciled_completion_without_runtime_reaches_outer_observer)
+A model-free import reaches status through the public read-only owner. ... FAIL
+
+======================================================================
+FAIL: test_readonly_reconciled_completion_without_runtime_reaches_outer_observer (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_readonly_reconciled_completion_without_runtime_reaches_outer_observer)
+A model-free import reaches status through the public read-only owner.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8108, in test_readonly_reconciled_completion_without_runtime_reaches_outer_observer
+    self.assertEqual(observed.observe_integration(stage), expected)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != {'schema': 'baton.v12.integration-stage-o[1281 chars]nt'}}
+
+----------------------------------------------------------------------
+Ran 1 test in 1.551s
+
+FAILED (failures=1)

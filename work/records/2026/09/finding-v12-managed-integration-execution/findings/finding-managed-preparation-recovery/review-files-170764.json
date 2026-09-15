@@ -1,0 +1,58 @@
+[
+  {
+    "path": "v12/python/tools/integration_worker.py",
+    "sha256": "2f2d559c9ac16457febf0816476f64ce0f3b37c97bcbdc87ecd910622bf9261a",
+    "bytes": 92651,
+    "mode": "0o644",
+    "same_as_group1": true
+  },
+  {
+    "path": "v12/python/tools/stage_execution.py",
+    "sha256": "a5b25db76c14b281fde5cb4110b75f77f084fd02caa65454e4000ed38b96b510",
+    "bytes": 310610,
+    "mode": "0o664",
+    "same_as_group1": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/job_manager/integration_capacity.py",
+    "sha256": "05a30a305f20e6ff12c2d455fb1bb2f55ac51ae9c60165021baf621e03f06360",
+    "bytes": 85291,
+    "mode": "0o644",
+    "same_as_group1": true
+  },
+  {
+    "path": "v12/python/src/baton_v12/integration/reconciliation.py",
+    "sha256": "b7c0bafd45a3d8f858936728f2a9173a57a5b625533fa21b6f95185e9ac54011",
+    "bytes": 192879,
+    "mode": "0o664",
+    "same_as_group1": true
+  },
+  {
+    "path": "v12/python/tests/job_manager/test_managed_integration_capacity.py",
+    "sha256": "c4461810b38c9bdee0c67e59d55fb14846624f1cd6db920f23a127ce284ad0dd",
+    "bytes": 166328,
+    "mode": "0o644",
+    "same_as_group1": true
+  },
+  {
+    "path": "v12/python/tests/integration/test_managed_storage.py",
+    "sha256": "282d16cb5d7d4407db2dd47811db38f52e897b3c720d8bb259af360193fbbace",
+    "bytes": 94086,
+    "mode": "0o644",
+    "same_as_group1": true
+  },
+  {
+    "path": "v12/worker/reconciliation_entry.py",
+    "sha256": "b3ebb8a5488e3cc361beb3c04527bad10a7bd81a98d3949b1fd75b58ae9b5620",
+    "bytes": 10466,
+    "mode": "0o644",
+    "same_as_group1": true
+  },
+  {
+    "path": "v12/python/tests/tools/test_managed_preparation.py",
+    "sha256": "f8a410e8cc70f6832f6950078eabf6aad0ebbf0cea9892ddc6564540f91dd335",
+    "bytes": 94737,
+    "mode": "0o644",
+    "same_as_group1": false
+  }
+]

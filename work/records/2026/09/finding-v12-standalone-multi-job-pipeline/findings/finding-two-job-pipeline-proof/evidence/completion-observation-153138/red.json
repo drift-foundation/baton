@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_readonly_reconciled_completion_without_runtime_reaches_outer_observer",
+    "-v"
+  ],
+  "seconds": 1.7508648919756524,
+  "returncode": 1
+}

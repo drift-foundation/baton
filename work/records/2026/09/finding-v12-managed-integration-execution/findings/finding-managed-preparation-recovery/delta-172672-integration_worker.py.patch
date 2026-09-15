@@ -1,0 +1,47 @@
+--- baseline/v12/python/tools/integration_worker.py
++++ candidate/v12/python/tools/integration_worker.py
+@@ -1310,6 +1310,7 @@
+         from baton_v12.job_manager.integration_capacity import (
+             end_integration_execution, integration_capacity_of)
+         from baton_v12.worker_manager import (assignment_of,
++                                              attempt_runtime_of,
+                                               attempt_start_failure_of)
+         from baton_v12.worker_manager.intake import (
+             authorize_failed_start_cleanup)
+@@ -1323,6 +1324,20 @@
+                       if one["execution_attempt_id"] == attempt)
+         if member["state"] == "ended":
+             return True
++        if failure["runtime_id"] is None:
++            current = attempt_runtime_of(self._control, attempt)
++            runtime_id = current["runtime_id"]
++            _denied(
++                f"managed preparation for Job {json.dumps(held['request']['job_id'])}, "
++                f"Work {json.dumps(held['execution_work_id'])}, attempt "
++                f"{json.dumps(attempt)}, start {json.dumps(failure['start_operation_id'])}: "
++                f"the failed start initially identified no runtime; a worker may "
++                f"still exist. Current runtime identity is "
++                f"{'unknown' if runtime_id is None else json.dumps(runtime_id)} "
++                f"({current['execution_runtime']}); automatic cleanup is unresolved. "
++                f"Human inspection and cleanup are required. Preparation and root "
++                f"remain held, apply remains planned; no automatic restart or "
++                f"capacity release is authorized by this report.")
+         assignment = _admissible(assignment_of(self._control, attempt))
+         self._port.cancel(
+             expect=assignment,
+@@ -1332,10 +1347,14 @@
+                    "destroyed",
+             work_id=assignment["work_ref"]["work_id"],
+             authority_uuid=assignment["work_ref"]["authority_uuid"])
+-        authorize_failed_start_cleanup(
++        cleanup = authorize_failed_start_cleanup(
+             self._control, self._port, self._runtime.adapter(held),
+             attempt_id=attempt,
+             retention_policy_digest=held["retention_policy_digest"])
++        if attempt_runtime_of(self._control, attempt)["cleanup"] not in ("retained", "complete"):
++            _denied(f"managed preparation attempt {json.dumps(attempt)} has "
++                    f"unfinished failed-start cleanup: {cleanup.get('why', 'cleanup is pending')}; "
++                    f"its membership and root remain held")
+         end_integration_execution(
+             self._jobs, self._control, execution_attempt_id=attempt,
+             outcome="failed", exclusion="runtime-destroyed")

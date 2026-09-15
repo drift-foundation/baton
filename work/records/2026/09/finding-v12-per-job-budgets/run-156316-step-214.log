@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_base_observation_that_never_finishes tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_base_observation_that_never_starts tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_an_isolated_observation_that_never_finishes tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_an_isolated_observation_that_never_starts
+....
+----------------------------------------------------------------------
+Ran 4 tests in 4.783s
+
+OK

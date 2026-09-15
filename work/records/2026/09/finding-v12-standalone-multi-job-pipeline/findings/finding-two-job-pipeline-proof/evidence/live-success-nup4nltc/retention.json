@@ -1,0 +1,12 @@
+{
+  "source_root": "/home/sl/.local/state/baton/v12/live-ab-nup4nltc",
+  "sha256": {
+    "scenario-result.json": "fd1d034c04e9892f75387eaf46095de6412e6be6bb90a0b0613915d100ca3ee7",
+    "evidence/run-result.json": "ce988d809fb70de48954c9b6255f5ac54bbf9a55041d8641a818a22ce56e7901",
+    "evidence/final-view.json": "68b520b23f08fdb48ffe5fca4c7fb72c7e2b8ba20dd96fb62b7a5a10e7f05103",
+    "evidence/terminal-status.json": "4dd65a88ee9b606c1c441ebe29ad6af696923536ee8ce3b5a4ecc867f6a219ab",
+    "evidence/final-tests.log": "9ff9492c3644f1c7c75a07a2bdc7c8367da9c88d1e3e987a7d3338d0f800de32",
+    "evidence/final-greeting.log": "ad50ed5a36ccfb5422605595068a306257656ab9ab7c4ed2ab896bc2c2bac37c",
+    "evidence/final-hours.log": "eadb9ef3b397217e544d4b9deaab0f2859a6f42087fbdb1d379cb1ec1e0fb6d8"
+  }
+}

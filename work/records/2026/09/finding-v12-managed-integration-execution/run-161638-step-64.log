@@ -1,0 +1,15 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_execution
+................F.....................................
+======================================================================
+FAIL: test_a_missing_boundary_is_refused (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_missing_boundary_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_execution.py", line 421, in test_a_missing_boundary_is_refused
+    self.assertIn("a Job's boundaries", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "a Job's boundaries" not found in "this task carries the host_verification boundary none where this Job's own resolution says a dict; a Job's limits are what its own owner resolves from the settings it requested and the generation it was admitted under, not a document that resembles one"
+
+----------------------------------------------------------------------
+Ran 54 tests in 0.004s
+
+FAILED (failures=1)

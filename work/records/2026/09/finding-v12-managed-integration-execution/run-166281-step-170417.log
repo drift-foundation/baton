@@ -1,0 +1,15 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_managed_preparation.OneManagedPreparationCompletes
+F
+======================================================================
+FAIL: test_ordinary_sweeps_retain_and_adopt_one_real_preparation (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_ordinary_sweeps_retain_and_adopt_one_real_preparation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1569, in test_ordinary_sweeps_retain_and_adopt_one_real_preparation
+    self.assertTrue(preparation.adopted, (failures[:3], failures[-1:], logs))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {} is not true : (['ContractRefusal("an authorized input root carries a colon, which is the engine\'s own separator; the failed preparation is journalled as \'runtime.preparation-failed:4f3c8065dab54b8b88913982a4677e5b…")', "ContractRefusal('the managed preparation failed preparation or start')", "ContractRefusal('the managed preparation failed preparation or start')"], ["ContractRefusal('the managed preparation failed preparation or start')"], [])
+
+----------------------------------------------------------------------
+Ran 1 test in 3.520s
+
+FAILED (failures=1)

@@ -1,0 +1,1194 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_managed_integration_capacity
+EEEEEEEEEEEEEEE..FF.....FEFFF../usr/lib/python3.13/tempfile.py:1132: ResourceWarning: Implicitly cleaning up <TemporaryDirectory '/tmp/v12-job-manager-kdr0ccq6'>
+  _warnings.warn(warn_message, ResourceWarning)
+/usr/lib/python3.13/tempfile.py:1132: ResourceWarning: Implicitly cleaning up <TemporaryDirectory '/tmp/v12-job-manager-fngw72pi'>
+  _warnings.warn(warn_message, ResourceWarning)
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x718feb1bef20>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x718feb1bcf40>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x718feb1beb60>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/sl/src/baton/v12/python/src/baton_v12/contracts/canonical.py:84: ResourceWarning: unclosed database in <sqlite3.Connection object at 0x718feb1bc5e0>
+  return any(0xD800 <= ord(character) <= 0xDFFF for character in text)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..E.EE.EEE.E..EE....EE.EE
+======================================================================
+ERROR: test_a_completed_parent_does_not_release_a_live_execution (tests.job_manager.test_managed_integration_capacity.TheCompletionBranchDoesNotSpeakForTheExecutions.test_a_completed_parent_does_not_release_a_live_execution)
+THE NAMED BRANCH, with a preparation still admitted under it. The
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1214, in test_a_completed_parent_does_not_release_a_live_execution
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_the_release_still_claims_nothing_about_cleanup (tests.job_manager.test_managed_integration_capacity.TheCompletionBranchDoesNotSpeakForTheExecutions.test_the_release_still_claims_nothing_about_cleanup)
+LOGICAL CAPACITY AND NOTHING ELSE, unchanged by this Work: the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1254, in test_the_release_still_claims_nothing_about_cleanup
+    self.prepared(store, outcome="failed")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 321, in prepared
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_the_same_branch_releases_once_after_every_member_ended (tests.job_manager.test_managed_integration_capacity.TheCompletionBranchDoesNotSpeakForTheExecutions.test_the_same_branch_releases_once_after_every_member_ended)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1229, in test_the_same_branch_releases_once_after_every_member_ended
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 321, in prepared
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_a_cancelled_execution_ends_on_the_authoritys_own_fence (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_cancelled_execution_ends_on_the_authoritys_own_fence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 703, in test_a_cancelled_execution_ends_on_the_authoritys_own_fence
+    store = self.admitted()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 699, in admitted
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_a_cancelled_plan_is_never_settled_as_an_execution (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_cancelled_plan_is_never_settled_as_an_execution)
+[P2] `cancelled` fell through both guards and was UPDATED to
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 829, in test_a_cancelled_plan_is_never_settled_as_an_execution
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_a_destroyed_runtime_ends_on_the_observed_axis (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_destroyed_runtime_ends_on_the_observed_axis)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 721, in test_a_destroyed_runtime_ends_on_the_observed_axis
+    store = self.admitted()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 699, in admitted
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_a_failed_execution_records_no_collected_content (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_failed_execution_records_no_collected_content)
+A failed execution contributes nothing an apply may import, whatever
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 876, in test_a_failed_execution_records_no_collected_content
+    store = self.admitted()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 699, in admitted
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_a_fence_is_not_a_result (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_fence_is_not_a_result)
+`succeeded` on a proof that it never started is a contradiction:
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 805, in test_a_fence_is_not_a_result
+    store = self.admitted()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 699, in admitted
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_a_fence_without_a_session_refuses_rather_than_assumes (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_fence_without_a_session_refuses_rather_than_assumes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 770, in test_a_fence_without_a_session_refuses_rather_than_assumes
+    store = self.admitted()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 699, in admitted
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_a_quiescent_runtime_is_not_a_destroyed_one (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_quiescent_runtime_is_not_a_destroyed_one)
+A runtime that stopped executing STILL EXISTS. Reading `quiescent`
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 757, in test_a_quiescent_runtime_is_not_a_destroyed_one
+    store = self.admitted()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 699, in admitted
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_a_report_at_another_disposition_collected_no_content (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_report_at_another_disposition_collected_no_content)
+The THIRD answer, kept apart from the other two: a report WAS
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 860, in test_a_report_at_another_disposition_collected_no_content
+    store = self.admitted()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 699, in admitted
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_a_running_execution_cannot_be_ended_by_saying_so (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_a_running_execution_cannot_be_ended_by_saying_so)
+THE DEFECT ITSELF. The old form took the sentence and excluded the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 743, in test_a_running_execution_cannot_be_ended_by_saying_so
+    store = self.admitted()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 699, in admitted
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_an_unfenced_cancellation_does_not_end_anything (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_an_unfenced_cancellation_does_not_end_anything)
+The Authority's fence is ITS act. A cancellation this manager
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 783, in test_an_unfenced_cancellation_does_not_end_anything
+    store = self.admitted()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 699, in admitted
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_an_unknown_exclusion_name_is_refused (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_an_unknown_exclusion_name_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 816, in test_an_unknown_exclusion_name_is_refused
+    store = self.admitted()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 699, in admitted
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_no_collected_report_is_its_own_answer (tests.job_manager.test_managed_integration_capacity.TheEndingTakesEvidenceItsOwnerResolved.test_no_collected_report_is_its_own_answer)
+[P1] Review 2026-09-13T18:02:07Z reproduced the defect exactly: a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 845, in test_no_collected_report_is_its_own_answer
+    store = self.admitted()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 699, in admitted
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_a_failed_execution_ends_without_becoming_a_success (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_a_failed_execution_ends_without_becoming_a_success)
+`failed` is an ENDING like `succeeded` is. The outcome says what the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 598, in test_a_failed_execution_ends_without_becoming_a_success
+    answer = self.prepared(store, outcome="failed")
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 321, in prepared
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_apply_is_refused_while_preparation_is_still_live (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_apply_is_refused_while_preparation_is_still_live)
+A parent apply and its preparation can never both be live under one
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 494, in test_apply_is_refused_while_preparation_is_still_live
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_the_apply_phase_is_admitted_after_preparation_ends (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_the_apply_phase_is_admitted_after_preparation_ends)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 502, in test_the_apply_phase_is_admitted_after_preparation_ends
+    self.prepared(store)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 321, in prepared
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_a_duplicate_release_does_not_release_twice (tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation.test_a_duplicate_release_does_not_release_twice)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1331, in test_a_duplicate_release_does_not_release_twice
+    self.prepared(store, outcome="failed")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 321, in prepared
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_an_ending_never_cancels_an_execution_that_was_admitted (tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation.test_an_ending_never_cancels_an_execution_that_was_admitted)
+The other order. Closing admission is not a claim that anything
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1319, in test_an_ending_never_cancels_an_execution_that_was_admitted
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_an_exact_repeat_replays_and_changed_operands_collide (tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation.test_an_exact_repeat_replays_and_changed_operands_collide)
+Every operation here is journalled under an identity derived from
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1348, in test_an_exact_repeat_replays_and_changed_operands_collide
+    first = self.admit("prepare", "prepare-attempt-1", "prepare-offer-1",
+                       store)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_the_serial_rule_survives_a_read_that_saw_free_capacity (tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation.test_the_serial_rule_survives_a_read_that_saw_free_capacity)
+THE READ IS NOT WHAT MAKES IT SAFE.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1289, in test_the_serial_rule_survives_a_read_that_saw_free_capacity
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_an_admitted_member_refuses_to_release (tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity.test_an_admitted_member_refuses_to_release)
+The named branch matters: a VALIDATED COMPLETION of the parent
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 639, in test_an_admitted_member_refuses_to_release
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_capacity_releases_once_after_a_validated_ending (tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity.test_capacity_releases_once_after_a_validated_ending)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 661, in test_capacity_releases_once_after_a_validated_ending
+    self.prepared(store, outcome="failed")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 321, in prepared
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_quarantine_still_works_while_a_member_is_open (tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity.test_quarantine_still_works_while_a_member_is_open)
+THE GUARD IS ON THE RELEASE TRANSITION ONLY. A root that could not
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 654, in test_quarantine_still_works_while_a_member_is_open
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_an_uncertain_member_blocks_release (tests.job_manager.test_managed_integration_capacity.TheUncertainExecutionHoldsItsCapacity.test_an_uncertain_member_blocks_release)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 914, in test_an_uncertain_member_blocks_release
+    store, _stage, allocation, _answer = self.uncertain()
+                                         ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 899, in uncertain
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_nothing_new_is_admitted_while_one_member_is_uncertain (tests.job_manager.test_managed_integration_capacity.TheUncertainExecutionHoldsItsCapacity.test_nothing_new_is_admitted_while_one_member_is_uncertain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 923, in test_nothing_new_is_admitted_while_one_member_is_uncertain
+    store, stage, _allocation, _answer = self.uncertain()
+                                         ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 899, in uncertain
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_recovery_holds_the_member_live_and_carries_no_outcome (tests.job_manager.test_managed_integration_capacity.TheUncertainExecutionHoldsItsCapacity.test_recovery_holds_the_member_live_and_carries_no_outcome)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 906, in test_recovery_holds_the_member_live_and_carries_no_outcome
+    _store, _stage, _allocation, answer = self.uncertain()
+                                          ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 899, in uncertain
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+ERROR: test_recovery_is_reconciled_only_by_the_owners_own_proof (tests.job_manager.test_managed_integration_capacity.TheUncertainExecutionHoldsItsCapacity.test_recovery_is_reconciled_only_by_the_owners_own_proof)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 931, in test_recovery_is_reconciled_only_by_the_owners_own_proof
+    store, _stage, allocation, _answer = self.uncertain()
+                                         ~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 899, in uncertain
+    self.admit("prepare", "prepare-attempt-1", "prepare-offer-1", store)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 309, in admit
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, control, orchestration_id=self.ORCHESTRATION, phase=phase,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        execution_attempt_id=attempt_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(attempt_id))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 657, in admit_integration_execution
+    return store.transact(operation_id, "integration-capacity.admit",
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          signature, perform)
+                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 550, in perform
+    _refuse(f"execution {name_value(execution_attempt_id)} is planned "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"on Work {name_value(member['execution_work_id'])} and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"its claim is on "
+            ^^^^^^^^^^^^^^^^^^^
+            f"{name_value(held['work_ref']['work_id'])}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 111, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'
+
+======================================================================
+FAIL: test_an_offer_settled_for_another_participant_is_refused (tests.job_manager.test_managed_integration_capacity.TheOfferIdentityIsComplete.test_an_offer_settled_for_another_participant_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1122, in test_an_offer_settled_for_another_participant_is_refused
+    self.assertIn("participant", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'participant' not found in "execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'"
+
+======================================================================
+FAIL: test_an_offer_settled_under_another_authority_is_refused (tests.job_manager.test_managed_integration_capacity.TheOfferIdentityIsComplete.test_an_offer_settled_under_another_authority_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1130, in test_an_offer_settled_under_another_authority_is_refused
+    self.assertIn("authority_uuid", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'authority_uuid' not found in "execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'"
+
+======================================================================
+FAIL: test_the_recorded_attempt_may_disagree_alone (tests.job_manager.test_managed_integration_capacity.ThePersistedEvidenceIsOwnedEndToEnd.test_the_recorded_attempt_may_disagree_alone)
+THE THIRD ACCOUNT, on its own. The two refusals added last claim
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1089, in test_the_recorded_attempt_may_disagree_alone
+    self.assertIn("was recorded with 'sha256:" + "e" * 20,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "was recorded with 'sha256:eeeeeeeeeeeeeeeeeeee" not found in "execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'"
+
+======================================================================
+FAIL: test_a_plan_naming_an_offer_nobody_issued_is_refused (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_a_plan_naming_an_offer_nobody_issued_is_refused)
+[P1] The offer the claim SETTLED is the offer that was planned.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 553, in test_a_plan_naming_an_offer_nobody_issued_is_refused
+    self.assertIn("its claim settled", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'its claim settled' not found in "execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'"
+
+======================================================================
+FAIL: test_a_plan_whose_digests_disagree_with_the_claim_is_refused (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_a_plan_whose_digests_disagree_with_the_claim_is_refused) (digest='profile_digest')
+[P1] The plan says what the phase was meant to run, the offer says
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 577, in test_a_plan_whose_digests_disagree_with_the_claim_is_refused
+    self.assertIn(f"planned with {name}", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'planned with profile_digest' not found in "execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'"
+
+======================================================================
+FAIL: test_a_plan_whose_digests_disagree_with_the_claim_is_refused (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_a_plan_whose_digests_disagree_with_the_claim_is_refused) (digest='input_digest')
+[P1] The plan says what the phase was meant to run, the offer says
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 577, in test_a_plan_whose_digests_disagree_with_the_claim_is_refused
+    self.assertIn(f"planned with {name}", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'planned with input_digest' not found in "execution 'prepare-attempt-1' is planned on Work '0000000a-W2' and its claim is on '00000000-W2'"
+
+----------------------------------------------------------------------
+Ran 55 tests in 0.414s
+
+FAILED (failures=6, errors=29)

@@ -1,0 +1,21 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+E
+======================================================================
+ERROR: test_execution_limits (unittest.loader._FailedTest.test_execution_limits)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_execution_limits
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 29, in <module>
+    import claude_agent                                             # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/claude_agent.py", line 136, in <module>
+    import source_profiles as _profiles
+ModuleNotFoundError: No module named 'source_profiles'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)

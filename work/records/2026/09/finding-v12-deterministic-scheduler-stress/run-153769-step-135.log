@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-156124-composed.py
+wrote /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-156124-composed.json
+composed-role-sessions violations: 0 records: 17 acts: ['accept', 'claim', 'complete', 'observe', 'offer', 'release', 'reserve', 'start'] sessions: 3 gaps: []
+composed-transport-loss-epoch-recovery violations: 0 records: 9 acts: ['accept', 'claim', 'observe', 'offer', 'reserve', 'start'] sessions: 2 gaps: []
+composed-correction-continuity violations: 0 records: 19 acts: ['accept', 'claim', 'complete', 'observe', 'offer', 'release', 'reserve', 'start'] sessions: 1 gaps: ['a-correction-keeps-its-worker-and-cannot-keep-its-session']
+composed-reopen-and-continue violations: 0 records: 15 acts: ['accept', 'claim', 'complete', 'observe', 'offer', 'release', 'reopen', 'reserve', 'start'] sessions: 0 gaps: []
+composed-both-jobs-imported violations: 0 records: 49 acts: ['accept', 'approve', 'claim', 'complete', 'integrate', 'offer', 'release', 'reserve', 'review', 'start', 'verify'] sessions: 0 gaps: []
+composed-two-jobs-one-integrator violations: 0 records: 44 acts: ['accept', 'approve', 'claim', 'complete', 'integrate', 'offer', 'release', 'reserve', 'review', 'start', 'verify'] sessions: 0 gaps: ['explicit-fallback-observed-in-a-composed-run', 'the-second-jobs-integration-stops-at-claimed-here']
+composed-alternate-order-job-a-first violations: 0 records: 15 acts: ['accept', 'claim', 'complete', 'offer', 'release', 'reserve', 'start'] sessions: 0 gaps: []
+composed-alternate-order-job-b-first violations: 0 records: 15 acts: ['accept', 'claim', 'complete', 'offer', 'release', 'reserve', 'start'] sessions: 0 gaps: []
+composed-accepted-review violations: 0 records: 13 acts: ['accept', 'claim', 'complete', 'offer', 'release', 'reserve', 'start'] sessions: 0 gaps: ['session-identity-not-exercised-on-this-path']
+composed-correction violations: 0 records: 19 acts: ['accept', 'claim', 'complete', 'correct', 'offer', 'release', 'reserve', 'start'] sessions: 0 gaps: []
+composed-two-repository-bindings violations: 0 records: 0 acts: [] sessions: 0 gaps: ['authority-teams-and-wrong-repository-refusal']
+composed-wrong-repository violations: 0 records: 1 acts: ['submit'] sessions: 0 gaps: []
+composed-second-team-matrix violations: 0 records: 3 acts: ['submit'] sessions: 0 gaps: []
+composed-authorization-receipts violations: 0 records: 4 acts: ['approve', 'integrate', 'review', 'verify'] sessions: 0 gaps: []

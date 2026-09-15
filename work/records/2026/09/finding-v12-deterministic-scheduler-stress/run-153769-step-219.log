@@ -1,0 +1,9 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-159520-terminal.py
+BEFORE-B {'job-a': {'implementation': 'completed', 'review': 'completed', 'integration': 'integrating'}, 'job-b': {'implementation': 'waiting', 'review': 'blocked', 'integration': 'blocked'}, 'job-c': {'implementation': 'completed', 'review': 'completed', 'integration': 'queued'}, 'job-d': {'implementation': 'completed', 'review': 'completed', 'integration': 'queued'}}
+B ATTEMPT attempt-32e40136cfde1b283a9f8ccfa354ec4d268b64ddffe3dd9c41bd1741bd66167e
+AFTER-B-TURN {'implementation': 'answering', 'review': 'blocked', 'integration': 'blocked'}
+B REFUSED AssertionError no configured worker prepared attempt 'attempt-f9cdd90eed3f470aa95c51511df0192be919613a8e9cfe5458ecfa4d968edf6c'
+FINAL job-a {'implementation': 'completed', 'review': 'completed', 'integration': 'integrating'}
+FINAL job-b {'implementation': 'answering', 'review': 'blocked', 'integration': 'blocked'}
+FINAL job-c {'implementation': 'completed', 'review': 'completed', 'integration': 'queued'}
+FINAL job-d {'implementation': 'completed', 'review': 'completed', 'integration': 'queued'}

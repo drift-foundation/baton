@@ -1,0 +1,58 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+.FEE.................F...............
+======================================================================
+ERROR: test_an_exact_retry_replays_without_materializing_or_swapping (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_an_exact_retry_replays_without_materializing_or_swapping)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 814, in test_an_exact_retry_replays_without_materializing_or_swapping
+    again = self.publish()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 358, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 383, in publish_collected_integration
+    held = managed_result_of(placement.coordinator, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2633, in managed_result_of
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"with nothing materialized is a row somebody removed")
+baton_v12.contracts.errors.ContractRefusal: this store committed result.managed:publication:sha256:941c24b7af04c670662a51bd8aa8ff45b917b7e8d0a0d932408b6ca431ee653c and retains no phase for it; an act with nothing materialized is a row somebody removed
+
+======================================================================
+ERROR: test_an_interrupted_publication_resumes_without_swapping_twice (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_an_interrupted_publication_resumes_without_swapping_twice)
+The swap committed and the settlement did not. A resume finishes
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 851, in test_an_interrupted_publication_resumes_without_swapping_twice
+    resumed = self.publish()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 358, in publish
+    return publish_collected_integration(self.placement(), **held)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 383, in publish_collected_integration
+    held = managed_result_of(placement.coordinator, managed_result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2633, in managed_result_of
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"with nothing materialized is a row somebody removed")
+baton_v12.contracts.errors.ContractRefusal: this store committed result.managed:publication:sha256:941c24b7af04c670662a51bd8aa8ff45b917b7e8d0a0d932408b6ca431ee653c and retains no phase for it; an act with nothing materialized is a row somebody removed
+
+======================================================================
+FAIL: test_a_retry_under_a_different_settlement_refuses (tests.tools.test_managed_integration.APublicationReplaysAndResumesItsOwnEffects.test_a_retry_under_a_different_settlement_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 828, in test_a_retry_under_a_different_settlement_refuses
+    self.assertIn("not a second account of it", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'not a second account of it' not found in 'this store committed result.managed:publication:sha256:941c24b7af04c670662a51bd8aa8ff45b917b7e8d0a0d932408b6ca431ee653c and retains no phase for it; an act with nothing materialized is a row somebody removed'
+
+======================================================================
+FAIL: test_the_swap_is_against_the_admitted_revision (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_the_swap_is_against_the_admitted_revision)
+NOT against whatever the reference says now. Those are the same
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 398, in test_the_swap_is_against_the_admitted_revision
+    self.assertIn("neither the admitted", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'neither the admitted' not found in "the configured target is at '2cda7869e9a9224f476a01da288f5dc890e5d72e' and this publication was admitted against '848532fe3130349e4363e566fe88e454cb98268f'; something else moved the target, and the swap is not retried against whatever is there now"
+
+----------------------------------------------------------------------
+Ran 37 tests in 0.812s
+
+FAILED (failures=2, errors=2)

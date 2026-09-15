@@ -1,0 +1,46 @@
+E
+======================================================================
+ERROR: test_reopen_after_target_effect_before_coordinator_settlement (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_target_effect_before_coordinator_settlement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 22, in test_reopen_after_target_effect_before_coordinator_settlement
+    self.complete(cut="target-effect")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 202, in complete
+    case.complete(configured=configure, completed=adopted)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2612, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 156, in adopted
+    reports.append(sweep(held.job, held.composed, now=fixtures.NOW))
+                   ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 145, in sweep
+    scheduler.reconcile_allocations(store, held)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py", line 583, in reconcile_allocations
+    moved.append(release(store, allocation["assignment_id"],
+                 ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        f"cleanup-{cleanup}"))
+                        ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py", line 485, in release
+    return _move(store, assignment_id, "released",
+                 boundaries.text(reason, "an allocation release reason"))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py", line 480, in _move
+    return store.transact(operation_id, f"allocation.{state}", signature,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          perform)
+                          ^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 702, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py", line 467, in perform
+    _refuse(withheld)
+    ~~~~~~~^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/scheduler.py", line 37, in _refuse
+    raise ContractRefusal("integrity", "schema", message, durable=durable)
+baton_v12.contracts.errors.ContractRefusal: integration capacity 'integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b83… is still open; admission is closed before its capacity is released
+
+----------------------------------------------------------------------
+Ran 1 test in 1.388s
+
+FAILED (errors=1)

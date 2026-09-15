@@ -1,0 +1,20 @@
+test_an_unselected_deployment_composes_no_preparation (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_an_unselected_deployment_composes_no_preparation) ... ok
+test_a_selection_this_build_cannot_place_refuses (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_a_selection_this_build_cannot_place_refuses)
+A STRING IS NOT A DECISION. Review claim169661: `given.get(...)` ... ok
+test_a_selected_deployment_with_no_integrator_refuses (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_a_selected_deployment_with_no_integrator_refuses)
+A SELECTED PATH THAT SILENTLY BECAME THE ORDINARY ONE would run the ... ok
+test_a_refusal_while_constructing_releases_what_it_built (tests.tools.test_managed_preparation.TheResolverCallsItsOwnersCorrectly.test_a_refusal_while_constructing_releases_what_it_built)
+`operations_from`'s rule applies to the WHOLE composition. The first ... ok
+test_invalid_selection_survives_static_configuration (__main__.StaticPreflightDiagnostic.test_invalid_selection_survives_static_configuration) ... OBSERVED static preflight accepted 'false'; constructor selection rejects it
+OBSERVED static preflight accepted 'true'; constructor selection rejects it
+OBSERVED static preflight accepted 1; constructor selection rejects it
+OBSERVED static preflight accepted 0; constructor selection rejects it
+OBSERVED static preflight accepted ''; constructor selection rejects it
+OBSERVED static preflight accepted None; constructor selection rejects it
+OBSERVED static preflight accepted 'yes'; constructor selection rejects it
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.068s
+
+OK

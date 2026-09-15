@@ -1,0 +1,94 @@
+{
+  "work": "W170382",
+  "claim": 172593,
+  "kind": "design-review-only",
+  "at": "2026-09-14T22:19:23.295492+00:00",
+  "files": [
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/LATE-START-DESIGN-172593.md",
+      "sha256": "5b77e8067048142b56c49c81b6cb8c32989a432e4f1dafd714be58d29d0e00a6",
+      "bytes": 20441,
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/DESIGN-BASELINE-172593.json",
+      "sha256": "564454ab773862f56485cb28efe896ac541e05d52e5efabdf8277223aa577985",
+      "bytes": 4548,
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/FINDING.md",
+      "sha256": "d05a827c0bbd6c28e7265ea1a840b09a3c666f300b0484a908667a136627cdd5",
+      "bytes": 24118,
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/PLAN.md",
+      "sha256": "ddb6caa95c07a266f2f98d4d2b485a324094df8b4325e693a6ad8e2fc91a86d2",
+      "bytes": 8855,
+      "mode": "0o664"
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/PROGRESS.md",
+      "sha256": "496a9a2d8db1188cc9ffa917bb827462f247e121854c1cc055450800f5f92f56",
+      "bytes": 42010,
+      "mode": "0o664"
+    }
+  ],
+  "proposed_paths_unchanged": [
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/attempts.py",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/intake.py",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/documents.py",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/oci.py",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/worker_manager/__init__.py",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_attempts.py",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_failed_start_destroy.py",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_boundary_inventory.py",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/FAILED-START-RECOVERY.md",
+      "unchanged": true
+    }
+  ],
+  "tests_run": 0,
+  "new_test_seconds": 0,
+  "prior_author_recorded_seconds": 919.4569689099153,
+  "prior_reviewer_seconds": 124.07460133001587,
+  "historical_unmeasured_experiments": "unknown; preserved",
+  "next": "baton.feat independent design review; set-next baton.tune"
+}

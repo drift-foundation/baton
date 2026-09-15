@@ -1,0 +1,9 @@
+test_a_start_that_failed_after_creating_a_runtime_is_ended (__main__.Research.test_a_start_that_failed_after_creating_a_runtime_is_ended)
+THE COMMITTED START whose adapter call fails after the runtime ... {"adopted": false, "allocation": "recovery-required", "apply": "planned", "cleanup": "retained", "credential_root": false, "fixture_processes": 1, "launch_root": false, "parent": "queued-unclaimed", "prepare": "ended", "proof": "known-failed-start-is-ended", "root": "open", "runtime": "destroyed"}
+{"credential_lifecycle": null, "credential_root_present": false, "launch_root_present": false, "proof": "delivery-state-after-product-failed-start-ending", "worker_returncodes": [-15]}
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.425s
+
+OK

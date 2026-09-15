@@ -1,0 +1,109 @@
+{
+ "acceptance_case": "Coordinator execution trap -- trap legacy prepare_result/_CausalObserver/_ConfiguredExecution or actual merge/harness runner calls in the managed coordinator process; fail if preparation escapes the worker seam; allow only declared read-only identity/object export; show the trap catches an intentionally invoked forbidden boundary.",
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 31963,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "df7534b46c45e09d04cc3bd0acd53b6ba78cb41216ade2c142bca33146e85836"
+  }
+ ],
+ "claim": 168828,
+ "how": [
+  "traps BOUNDARIES not names -- each forbidden owner is REPLACED with something that raises, so a call reaches the trap however spelled",
+  "demonstrated -- every forbidden boundary invoked on purpose inside the trap, each its own subtest",
+  "the one allowed coordinator act survives -- compose_preparation_input's injected read-only export runs inside the armed trap over a REAL line and publishes",
+  "the branch's ABSENCE is asserted, so the trap cannot be misread as evidence the branch exists"
+ ],
+ "next": "the managed branch per remaining_a4_exact; then A.5's real worker fixture process at the simulated engine boundary inside this trap; then B including probe-resume-168490's whole-prepare retry gap and DEPLOYMENT-SLICE2-DRAFT.md.",
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "not_written": "the managed branch. Composing it spans the PooledManagerOperations.admit interception, the worker_operations launch and the ordinary ending sequence -- three owners not read this turn. A half-composed branch labelled as the branch is the overclaim this Work has corrected repeatedly.",
+ "remaining_a4_exact": [
+  "1 compose the preparation input through integration_bundle.compose_preparation_input",
+  "2 integration_worker.PreparationExecution.prepare for intent/child Work/offer/acceptance/claim/activation/admission BEFORE any start",
+  "3 launch through single_worker.worker_operations",
+  "4 drive the ordinary ending: positive quiescence, freeze, intake, retention, Authority handoff, cleanup",
+  "5 end the capacity membership ONLY on its real owner exclusion proof, after that cleanup",
+  "6 call reconciliation.adopt_prepared_candidate",
+  "7 answer without settling the parent: offer pending, apply planned, one actor/root held",
+  "all of it inside TheCoordinatorHostNeverPrepares' trap"
+ ],
+ "unchanged": [
+  {
+   "bytes": 191339,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+  },
+  {
+   "bytes": 94098,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+   "sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a"
+  },
+  {
+   "bytes": 62394,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "5cb3e461d2a041824ea42718fa7cf93c95d8df4172b2348878912cbd867d8e06"
+  },
+  {
+   "bytes": 147019,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "b57ca7b7fec5236b4172fd3331432510e0c0b54e0375ba4471347514fcb7602c"
+  },
+  {
+   "bytes": 277833,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "02d83d92b6f9b0d44f42813239fb591b5d11fc13b35514665d5b4d36f6571d81"
+  },
+  {
+   "bytes": 71269,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_bundle.py",
+   "sha256": "c0e21cd6b335db084e64499f508a7cc19fd45807d3bd4a81108239806c106a93"
+  },
+  {
+   "bytes": 50721,
+   "mode": "0o644",
+   "path": "baton:v12/worker/reconciliation_task.py",
+   "sha256": "69860bdfdc63e5144db973ddd70c7b101bde707ba97c8c99779b3ae6ce992eb6"
+  },
+  {
+   "bytes": 10442,
+   "mode": "0o644",
+   "path": "baton:v12/worker/reconciliation_entry.py",
+   "sha256": "4b4e43879d76250b7745ff89e9df1eb9d7656cc0c096f1adf1feaf56c3114fc0"
+  },
+  {
+   "bytes": 4725,
+   "mode": "0o644",
+   "path": "baton:v12/worker/Dockerfile.reconciliation",
+   "sha256": "35279f5dcaa6c2c3b44df7e10aa491a35f92e1933d0b3d06bb6e61bc87f021d3"
+  }
+ ],
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 89 restored /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation",
+  "ledger": "baton:work/records/2026/09/finding-v12-managed-integration-execution/ledger-166281-prospective.json",
+  "no": "no production source changed; no engine, model, image build, broad suite or destructive cleanup",
+  "steps": {
+   "87": "first green with the trap, OK 265 cases 13.361604s",
+   "88": "REVERSAL -- leave stage_execution._git_run out of the trapped set; failed the demonstration subtest for that boundary and the read-only-export case whose closing assertion re-arms it",
+   "89": "restored, OK 265 cases 13.163198s"
+  },
+  "whitespace_check": "clean on the changed file"
+ },
+ "what": "The coordinator-host preparation trap, armed and demonstrated. The managed branch itself is NOT written this round and the reason is recorded rather than implied.",
+ "work": "2b077949-W161230"
+}

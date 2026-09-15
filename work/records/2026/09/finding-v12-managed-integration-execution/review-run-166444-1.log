@@ -1,0 +1,37 @@
+test_equal_numeric_values_do_not_replace_integer_types (__main__.Contracts.test_equal_numeric_values_do_not_replace_integer_types) ... 
+  test_equal_numeric_values_do_not_replace_integer_types (__main__.Contracts.test_equal_numeric_values_do_not_replace_integer_types) (field='compatibility_generation') ... FAIL
+  test_equal_numeric_values_do_not_replace_integer_types (__main__.Contracts.test_equal_numeric_values_do_not_replace_integer_types) (field='seconds') ... FAIL
+  test_equal_numeric_values_do_not_replace_integer_types (__main__.Contracts.test_equal_numeric_values_do_not_replace_integer_types) (field='default_seconds') ... FAIL
+test_reaped_leader_still_requires_group_observation (__main__.Contracts.test_reaped_leader_still_requires_group_observation) ... ok
+
+======================================================================
+FAIL: test_equal_numeric_values_do_not_replace_integer_types (__main__.Contracts.test_equal_numeric_values_do_not_replace_integer_types) (field='compatibility_generation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-166444.py", line 26, in test_equal_numeric_values_do_not_replace_integer_types
+    with self.assertRaises(task.PreparationRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_equal_numeric_values_do_not_replace_integer_types (__main__.Contracts.test_equal_numeric_values_do_not_replace_integer_types) (field='seconds')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-166444.py", line 26, in test_equal_numeric_values_do_not_replace_integer_types
+    with self.assertRaises(task.PreparationRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_equal_numeric_values_do_not_replace_integer_types (__main__.Contracts.test_equal_numeric_values_do_not_replace_integer_types) (field='default_seconds')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-166444.py", line 26, in test_equal_numeric_values_do_not_replace_integer_types
+    with self.assertRaises(task.PreparationRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.002s
+
+FAILED (failures=3)

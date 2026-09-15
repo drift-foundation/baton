@@ -1,0 +1,25 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+........FF..............................................
+======================================================================
+FAIL: test_an_owner_that_cannot_say_leaves_it_uncertain (tests.tools.test_managed_integration.APublicationKeepsItsOwnDurableAccount.test_an_owner_that_cannot_say_leaves_it_uncertain)
+`unknown` is one of the three answers, and this interface keeps it
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 1168, in test_an_owner_that_cannot_say_leaves_it_uncertain
+    self.assertIn("Nothing was changed", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Nothing was changed' not found in "the target owner cannot say whether publication 'publication:sha256:063672d286ec7ff0f7885c6c30e64a286239048f… was applied; this interface keeps that uncertainty rather than issuing a second compare-and-swap on the strength of the current reference"
+
+======================================================================
+FAIL: test_an_unavailable_target_owner_leaves_it_uncertain (tests.tools.test_managed_integration.APublicationKeepsItsOwnDurableAccount.test_an_unavailable_target_owner_leaves_it_uncertain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 1182, in test_an_unavailable_target_owner_leaves_it_uncertain
+    self.assertIn("Nothing was changed", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Nothing was changed' not found in "the target owner answered nothing for publication 'publication:sha256:063672d286ec7ff0f7885c6c30e64a286239048f…; an unavailable owner leaves this uncertain rather than deciding it"
+
+----------------------------------------------------------------------
+Ran 56 tests in 1.484s
+
+FAILED (failures=2)

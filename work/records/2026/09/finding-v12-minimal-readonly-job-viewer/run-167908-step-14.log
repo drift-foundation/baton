@@ -1,0 +1,37 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_job_viewer
+....................................F..F.........../home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:623: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:696: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=4, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py:632: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>
+  viewer.run(ticks=3, stream=open(os.devnull, "w"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.
+======================================================================
+FAIL: test_a_reservation_without_a_runtime_still_shows_its_worker (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_a_reservation_without_a_runtime_still_shows_its_worker)
+An assignment before a runtime exists is exactly the case an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 566, in test_a_reservation_without_a_runtime_still_shows_its_worker
+    self.assertIn(str(allocation["worker_id"]), detail)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'impl-a' not found in 'observed at 2026-09-02T00:00:00.000Z   (age unknown, read 0s ago)   [the manager was NOT read: absences here mean nobody looked]\n\nJOB job-a\n  submission   sub-1\n  input        sha256:1111111111111111111111111111111111111111111111111111111111111111\n  policy       sha256:2222222222222222222222222222222222222222222222222222222222222222\n  terminal     report-and-hold\n\n  STAGE job-a/implementation  [queued]\n    work         0000000a-W1\n    episode      1\n    offer        offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1\n    attempt      attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1\n    runtime      unknown\n    engine       unknown\n    assigned to  unknown\n    assigned work unknown\n    assigned gen unknown\n    reserved worker unknown\n    reserved as  unknown\n    reservation  unknown\n    reservation state unknown\n    lane         unknown\n    pool generation unknown\n    selection    unknown\n    started      2026-09-02T00:00:00.000Z\n    elapsed      0s\n    activity     unknown\n    corrections  0\n    reason       held: no attempt in progress\n    results      unavailable (no frozen output in this snapshot)\n\n  STAGE job-a/review  [blocked]\n    work         0000000a-W2\n    episode      1\n    offer        offer-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7\n    attempt      attempt-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7\n    runtime      unknown\n    engine       unknown\n    assigned to  unknown\n    assigned work unknown\n    assigned gen unknown\n    reserved worker unknown\n    reserved as  unknown\n    reservation  unknown\n    reservation state unknown\n    lane         unknown\n    pool generation unknown\n    selection    unknown\n    started      2026-09-02T00:00:00.000Z\n    elapsed      0s\n    activity     unknown\n    corrections  0\n    reason       held: waiting on job-a/implementation (queued)\n    results      unavailable (no frozen output in this snapshot)'
+
+======================================================================
+FAIL: test_the_real_scheduler_reservation_is_displayed (tests.tools.test_job_viewer.TheKnownIdentitiesAreShown.test_the_real_scheduler_reservation_is_displayed)
+The reservation exists BEFORE any runtime does, so its worker and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_job_viewer.py", line 551, in test_the_real_scheduler_reservation_is_displayed
+    self.assertIn(str(allocation[member]), detail,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  member + " is not shown")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'impl-a' not found in 'observed at 2026-09-02T00:00:00.000Z   (age unknown, read 0s ago)   [the manager was NOT read: absences here mean nobody looked]\n\nJOB job-a\n  submission   sub-1\n  input        sha256:1111111111111111111111111111111111111111111111111111111111111111\n  policy       sha256:2222222222222222222222222222222222222222222222222222222222222222\n  terminal     report-and-hold\n\n  STAGE job-a/implementation  [running]\n    work         0000000a-W1\n    episode      1\n    offer        offer-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1\n    attempt      attempt-e78478c409a32c432d03b34b562a793ad607897e026de4b48330983c83d400d1\n    runtime      runtime-7f3a\n    engine       oci\n    assigned to  baton.worker\n    assigned work 0000000a-W1\n    assigned gen 3\n    reserved worker unknown\n    reserved as  unknown\n    reservation  unknown\n    reservation state unknown\n    lane         unknown\n    pool generation unknown\n    selection    unknown\n    started      2026-09-02T00:00:00.000Z\n    elapsed      0s\n    activity     unknown\n    corrections  0\n    results      unavailable (no frozen output in this snapshot)\n\n  STAGE job-a/review  [blocked]\n    work         0000000a-W2\n    episode      1\n    offer        offer-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7\n    attempt      attempt-fd5b9a03db9560bf31ce9102651bbd58e08910a0f5cf2546673878741a2ea3a7\n    runtime      unknown\n    engine       unknown\n    assigned to  unknown\n    assigned work unknown\n    assigned gen unknown\n    reserved worker unknown\n    reserved as  unknown\n    reservation  unknown\n    reservation state unknown\n    lane         unknown\n    pool generation unknown\n    selection    unknown\n    started      2026-09-02T00:00:00.000Z\n    elapsed      0s\n    activity     unknown\n    corrections  0\n    reason       held: waiting on job-a/implementation (queued)\n    results      unavailable (no frozen output in this snapshot)' : worker_id is not shown
+
+----------------------------------------------------------------------
+Ran 55 tests in 2.921s
+
+FAILED (failures=2)

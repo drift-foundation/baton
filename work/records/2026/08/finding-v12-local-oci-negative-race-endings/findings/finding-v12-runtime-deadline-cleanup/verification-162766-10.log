@@ -1,0 +1,29 @@
+..E............................
+======================================================================
+ERROR: test_output_after_interrupted_cancel_intent_uses_ordinary_receipt_cleanup (tests.manager.test_runtime_deadlines.DeadlineReceiptedOutput.test_output_after_interrupted_cancel_intent_uses_ordinary_receipt_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_runtime_deadlines.py", line 541, in test_output_after_interrupted_cancel_intent_uses_ordinary_receipt_cleanup
+    answer = advance_deadline(self.store, self.port, Agent(), adapter, attempt_id=ATTEMPT,
+                              retention_policy_digest=RETENTION)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/deadlines.py", line 312, in advance_deadline
+    cancelled = attempts.request_cancellation(store, port, agent, adapter, attempt_id=attempt_id, reason=reason)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 2815, in request_cancellation
+    fenced = port.cancel(expected, authority_operation_id, reason,
+                         expected["work_ref"]["work_id"],
+                         expected["work_ref"]["authority_uuid"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 408, in cancel
+    self._assignment(answer["assignment"], work_id, authority_uuid,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "the fenced assignment")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/authority_port.py", line 592, in _assignment
+    raise ContractRefusal(
+    ...<4 lines>...
+        f"assignment another authority made is not this one's to record")
+baton_v12.contracts.errors.ContractRefusal: the fenced assignment comes from authority '0000000000000000000000000000000a' and this offer was issued from '43c55d4b1234567890abcdef12345678'; an assignment another authority made is not this one's to record
+
+----------------------------------------------------------------------
+Ran 31 tests in 0.234s
+
+FAILED (errors=1)

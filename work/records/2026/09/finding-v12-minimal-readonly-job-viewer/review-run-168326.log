@@ -1,0 +1,12 @@
+test_artifact_banner_uses_selected_interval (__main__.DrillThreshold.test_artifact_banner_uses_selected_interval) ... ok
+test_an_owner_locator_whose_file_is_gone_is_unavailable_not_invented (tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView.test_an_owner_locator_whose_file_is_gone_is_unavailable_not_invented)
+The owner recorded where it put the artifact; if that is no longer ... ok
+test_an_owner_produced_artifact_is_selected_and_read (tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView.test_an_owner_produced_artifact_is_selected_and_read) ... ok
+test_the_owners_artifact_is_shown_in_the_detail_view (tests.tools.test_job_viewer.TheOwnerProducedArtifactReachesTheView.test_the_owners_artifact_is_shown_in_the_detail_view) ... ok
+test_the_drill_down_banner_uses_the_configured_threshold (tests.tools.test_job_viewer.TheDrillDownIsWiredAndUsesLocatorSemantics.test_the_drill_down_banner_uses_the_configured_threshold)
+REVIEW claim168257 [P2]. `_drilled` called `_banner` without the ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.042s
+
+OK

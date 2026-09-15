@@ -1,0 +1,19 @@
+### label: corrected-trace-set-export
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-153855.py"]
+### exit: 1
+### elapsed_seconds: 0.188461
+### STDOUT
+
+### STDERR
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-153855.py", line 127, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-153855.py", line 61, in main
+    schedule("a-before-c", ["job-a/implementation", "job-c/implementation"])
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-153855.py", line 46, in schedule
+    trace = case.driven(order, ticks=1, order=order,
+                        reopen_at=1 if reopen else None)
+TypeError: TraceCase.driven() got multiple values for argument 'order'

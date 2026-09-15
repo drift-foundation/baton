@@ -1,0 +1,26 @@
+{
+  "observations": [
+    {
+      "selection": "false",
+      "integrator_missing": false,
+      "port_refuses": false,
+      "managed_constructed": true,
+      "ordinary_closed_after_call": false
+    },
+    {
+      "selection": true,
+      "integrator_missing": true,
+      "port_refuses": false,
+      "managed_constructed": false,
+      "ordinary_closed_after_call": false
+    },
+    {
+      "selection": true,
+      "integrator_missing": false,
+      "port_refuses": true,
+      "managed_constructed": false,
+      "ordinary_closed_after_call": false
+    }
+  ],
+  "limits": "Normal composition function, mocked resource constructors. Confirms truthy-string activation, missing-owner fallback, and missing cleanup call on port failure; not an observed real resource leak."
+}

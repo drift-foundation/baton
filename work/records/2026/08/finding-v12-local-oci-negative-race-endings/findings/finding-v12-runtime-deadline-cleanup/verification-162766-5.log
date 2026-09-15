@@ -1,0 +1,148 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 6.282s
+
+OK
+{
+  "baseline_unowned_count": 215,
+  "current_unowned_count": 241,
+  "introduced": [
+    [
+      "caller",
+      "attempts.py:request_runtime_start",
+      "deadline_policy"
+    ],
+    [
+      "caller",
+      "deadlines.py:advance_deadline",
+      "adapter"
+    ],
+    [
+      "caller",
+      "deadlines.py:advance_deadline",
+      "agent"
+    ],
+    [
+      "caller",
+      "deadlines.py:advance_deadline",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "deadlines.py:advance_deadline",
+      "retention_policy_digest"
+    ],
+    [
+      "caller",
+      "deadlines.py:deadline_cleanup_of",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "deadlines.py:deadline_cleanup_of",
+      "retention_policy_digest"
+    ],
+    [
+      "caller",
+      "deadlines.py:deadline_of",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "deadlines.py:discharge_deadline_quiescence_gate",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "deadlines.py:discharge_deadline_quiescence_gate",
+      "retention_policy_digest"
+    ],
+    [
+      "caller",
+      "deadlines.py:observe_deadline",
+      "attempt_id"
+    ],
+    [
+      "caller",
+      "documents.py:deadline_advanced",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:deadline_cleanup",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:deadline_destroy_command",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:deadline_discharge",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:deadline_pin",
+      "members"
+    ],
+    [
+      "caller",
+      "documents.py:deadline_reached",
+      "members"
+    ],
+    [
+      "injected",
+      "intake.py:_authorize_deadline_cleanup",
+      "adapter.destroy_deadline"
+    ],
+    [
+      "injected",
+      "intake.py:_authorize_deadline_cleanup",
+      "adapter.destroy_deadline.credentials"
+    ],
+    [
+      "injected",
+      "intake.py:_authorize_deadline_cleanup",
+      "adapter.destroy_deadline.credentials.lifecycle_state"
+    ],
+    [
+      "injected",
+      "intake.py:_authorize_deadline_cleanup",
+      "adapter.destroy_deadline.credentials.why"
+    ],
+    [
+      "injected",
+      "intake.py:_authorize_deadline_cleanup",
+      "adapter.destroy_deadline.launch"
+    ],
+    [
+      "injected",
+      "intake.py:_authorize_deadline_cleanup",
+      "adapter.destroy_deadline.launch.lifecycle_state"
+    ],
+    [
+      "injected",
+      "intake.py:_authorize_deadline_cleanup",
+      "adapter.destroy_deadline.launch.why"
+    ],
+    [
+      "injected",
+      "intake.py:_authorize_deadline_cleanup",
+      "adapter.destroy_deadline.state"
+    ],
+    [
+      "injected",
+      "intake.py:_authorize_deadline_cleanup",
+      "adapter.destroy_deadline.why"
+    ]
+  ],
+  "removed": [],
+  "baseline_hashes": {
+    "attempts.py": "8c321ac7d9c1c5764c4f181e50a1e99d911c481dad0c20ea1ac11d7a2b349730",
+    "documents.py": "b3fc43f26ffef5a76f1329b273ea722f04c4544b722511c681c3c1a0418b20bd",
+    "intake.py": "d326fe41d0ad8ca90950be9735f4c05b1c537e70e6827f760867969830eae7b7",
+    "oci.py": "68bb8831331ec1ac07b7b6bdb8a559573be348fe80ba796e50607d4b94af7b2f"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "v12/testing/standalone_ab/scenario.py": {
+    "sha256": "e3975f42d35e308832154eb90a59923967d874c34947274a5d302172b8a7831d",
+    "bytes": 7122
+  },
+  "v12/testing/standalone_ab/run.py": {
+    "sha256": "e29e7a9f50e8b9cdbac2e19263698ffe5e53a1d02802ccb679d6881e7a92af7f",
+    "bytes": 18290
+  },
+  "v12/testing/standalone_ab/failure_observation.py": {
+    "sha256": "004f5fe4756c70eaf945b2ce64bcebc1b5de42b85e3da5d3963e40913755894f",
+    "bytes": 12777
+  },
+  "v12/testing/standalone_ab/README.md": {
+    "sha256": "a2557771e078db821b10adb2848de67de5198d2ca1c2ff142c49c912b5dd8983",
+    "bytes": 4034
+  },
+  "v12/python/tests/tools/test_standalone_ab.py": {
+    "sha256": "15a6bcdd4f8a3516912d8c084dac829e1927d374156eed10f0e0c350b66b4dd0",
+    "bytes": 18761
+  },
+  "v12/testing/standalone_ab/final_view.py": {
+    "sha256": "91b67a3d01b2cf0abf067ea967075a8873b60304048959d9596d0e20a3d4667f",
+    "bytes": 4013
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "work": "W103525",
+  "claim": 155774,
+  "prior_review_seconds": 24.47790529599297,
+  "review_cap_seconds": 40,
+  "candidate_sha256": {
+    "v12/python/tests/tools/scheduler_trace.py": "6a67fd9c939447743fe13ba756268a55ffe7d9b98b67f24ccb010cf1b725ecfd",
+    "v12/python/tests/tools/test_scheduler_trace.py": "623c6e056a0f14a6d43ea6d1e2f28ad81722ef89fc6850144f7f4ba62fd5229c"
+  },
+  "runs": [
+    {
+      "name": "suite",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_scheduler_trace"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 4.168023946000176
+    },
+    {
+      "name": "repro",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-155774.py"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 0.6140503750000335
+    }
+  ],
+  "review_spent_seconds": 29.259979616993178,
+  "unchanged": true
+}

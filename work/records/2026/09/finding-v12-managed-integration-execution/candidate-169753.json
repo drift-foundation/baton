@@ -1,0 +1,55 @@
+{
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 296527,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "cc69d5d7c783b949bbaf0d7f6e9e427a4ecbb8abdc21b92825a414cfddbe85c0"
+  },
+  {
+   "bytes": 69284,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "1ae01893d7a5af1faf36cf85a0ead334a4e5f84a03d655b1fdbb4c2058133687"
+  }
+ ],
+ "claim": 169753,
+ "descendant_proof": {
+  "how": "the group is polled with signal 0 -- the standing 'does this exist' question, which sends nothing -- until ProcessLookupError or a bounded give-up; EITHER answer is recorded, so an unproved group reads as unproved rather than as clean",
+  "proved": "evidence/timeout-group-proof-169753.py spawns a child that spawns a 600s grandchild, runs it under a 3s bound and reads the ledger row back: timed_out True, signalled ['SIGTERM'], group_proved_gone True, elapsed INCLUDES the cleanup, and the row was appended -- so the evidence survived its own cleanup, the previous round's defect staying fixed. Ledger step 999, labelled timeout-proof: a genuine measured cost rather than a hidden one.",
+  "why": "`communicate` returning is the DIRECT child's exit and says nothing about descendants, which is the whole reason the bound signals a GROUP"
+ },
+ "evidence_added": [
+  {
+   "bytes": 1150,
+   "mode": "0o644",
+   "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/evidence/timeout-group-proof-169753.py",
+   "sha256": "8944199433951c2e12a0d234b4d42bcd38bece348cbcb0e83c0044137c7a9218"
+  }
+ ],
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "p1_corrected": "I validated the selection in _integration_operations, so held_configuration admitted seven malformed values and refused them only once workers and resources were being composed. That file's own docstring says why that is wrong: the later refusal happens with an Authority open and a workspace group configured, describing a different failure than the operator made. _prepares(given) now runs inside held_configuration, so the CONFIGURATION DOCUMENT is refused. A case drives all seven AND asserts the two placeable values are accepted -- a vocabulary, not a refusal of the member.",
+ "reviewer_probe": "probe-preflight-169721.py's diagnostic no longer runs: it asserts that preflight ACCEPTS the malformed values, which is the defect this round removed. Its four behavioural cases still pass. Preserved history, not a regression.",
+ "unchanged_and_owed": "no deployment configures the selection, so the managed path has no end-to-end coverage; the apply digest is measured against fixture bytes rather than a real configured workload; the worker's acceptance, the child launch and ending, the exclusion proof and adoption are unwritten; the whole-prepare replay gap is open.",
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 133 restored /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle",
+  "ledger": "134 rows, 1425.8296466398344s, including the step-999 proof",
+  "no": "no engine, model, image build or destructive cleanup",
+  "steps": {
+   "132": "preflight and group proof; OK 412 cases",
+   "133": "restored, OK 412 cases",
+   "999": "the descendant proof run itself, timed out by design"
+  }
+ },
+ "what": "The selection is refused at STATIC PREFLIGHT, and the runner's descendant cleanup is proved on a real grandchild rather than asserted.",
+ "work": "2b077949-W161230"
+}

@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_lost_transport_ends_the_epoch_and_never_resumes
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.152s
+
+OK

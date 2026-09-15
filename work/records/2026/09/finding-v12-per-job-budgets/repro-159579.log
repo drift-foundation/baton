@@ -1,0 +1,91 @@
+[
+  {
+    "phase": "combined",
+    "actual_owner_expectations": {
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "test_identity": "w130224-second-line-of-one-target",
+      "seconds": 77
+    },
+    "refused_substitutions": [
+      {
+        "member": "seconds",
+        "value": 78
+      },
+      {
+        "member": "seconds",
+        "value": 999999
+      },
+      {
+        "member": "command",
+        "value": [
+          "foreign-command"
+        ]
+      },
+      {
+        "member": "test_identity",
+        "value": "foreign-task"
+      }
+    ],
+    "accepted_foreign_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  },
+  {
+    "case": "foreign-harness-durably-retained",
+    "state": "blocked",
+    "actual_seconds": [
+      77
+    ]
+  },
+  {
+    "phase": "post-import",
+    "actual_owner_expectations": {
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "test_identity": "w130224-second-line-of-one-target",
+      "seconds": 77
+    },
+    "refused_substitutions": [
+      {
+        "member": "seconds",
+        "value": 78
+      },
+      {
+        "member": "seconds",
+        "value": 999999
+      },
+      {
+        "member": "command",
+        "value": [
+          "foreign-command"
+        ]
+      },
+      {
+        "member": "test_identity",
+        "value": "foreign-task"
+      }
+    ],
+    "accepted_foreign_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  },
+  {
+    "case": "foreign-harness-post-import-adopted",
+    "actual_seconds": [
+      77
+    ]
+  },
+  {
+    "prefix_refused": "input_commit",
+    "cause": "the failure's completed combined observation ran against 'ffffffffffffffffffffffffffffffffffffffff' and this result's combined content is 'cccccccccccccccccccccccccccccccccccccccc'"
+  },
+  {
+    "prefix_refused": "input_tree",
+    "cause": "the failure's completed combined observation ran against tree 'ffffffffffffffffffffffffffffffffffffffff' and this result prepared 'dddddddddddddddddddddddddddddddddddddddd'"
+  },
+  {
+    "prefix_refused": "environment",
+    "cause": "the failure's completed combined observation names environment 'foreign-environment'"
+  }
+]

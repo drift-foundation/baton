@@ -1,0 +1,36 @@
+.....................................................................FF
+======================================================================
+FAIL: test_deadline_entries_are_present_owned_once_and_probed (tests.manager.test_boundary_inventory.DeadlineBoundaryOwnership.test_deadline_entries_are_present_owned_once_and_probed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 9036, in test_deadline_entries_are_present_owned_once_and_probed
+    entries = receiving_entries()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 1265, in receiving_entries
+    crossings = _crossings()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 1414, in _crossings
+    raise AssertionError(
+        f"{member} crosses at {found[member]} and at {site}; a "
+        f"capability with two crossings has two owners")
+AssertionError: agent.cancel crosses at attempts.py:_order_quiescence and at deadlines.py:_cancel_for_deadline; a capability with two crossings has two owners
+
+======================================================================
+FAIL: test_compare_exact_prechange_source (inventory_audit_162766.Compare.test_compare_exact_prechange_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/inventory_audit_162766.py", line 59, in test_compare_exact_prechange_source
+    current, current_orphans = measure(package)
+                               ~~~~~~~^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/inventory_audit_162766.py", line 50, in measure
+    entries = inventory.receiving_entries()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 1265, in receiving_entries
+    crossings = _crossings()
+  File "/home/sl/src/baton/v12/python/tests/manager/test_boundary_inventory.py", line 1414, in _crossings
+    raise AssertionError(
+        f"{member} crosses at {found[member]} and at {site}; a "
+        f"capability with two crossings has two owners")
+AssertionError: agent.cancel crosses at attempts.py:_order_quiescence and at deadlines.py:_cancel_for_deadline; a capability with two crossings has two owners
+
+----------------------------------------------------------------------
+Ran 71 tests in 3.724s
+
+FAILED (failures=2)

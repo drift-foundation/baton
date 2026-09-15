@@ -1,0 +1,41 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_preparation
+.F.....F..F............
+======================================================================
+FAIL: test_a_real_conflict_refuses_and_is_reported_as_one (tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_a_real_conflict_refuses_and_is_reported_as_one)
+Two independent changes to one region cannot be combined, and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 365, in test_a_real_conflict_refuses_and_is_reported_as_one
+    self.assertEqual(report["kind"], "not-collected")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'measured' != 'not-collected'
+- measured
++ not-collected
+
+
+======================================================================
+FAIL: test_the_derived_candidate_is_not_the_original_candidate (tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_the_derived_candidate_is_not_the_original_candidate)
+`_CausalObserver.observe` uses `basis[candidate]` for the prepared
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 324, in test_the_derived_candidate_is_not_the_original_candidate
+    self.assertNotEqual(derived["tree"],
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+                        self.line.tree_of(self.revisions["candidate"]))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ddb1e2329d2e4d0b653d8c80c3f6f185875c9057' == 'ddb1e2329d2e4d0b653d8c80c3f6f185875c9057'
+
+======================================================================
+FAIL: test_the_targets_own_changes_survive_the_combination (tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_the_targets_own_changes_survive_the_combination)
+A preparation that took the candidate's tree wholesale would
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 338, in test_the_targets_own_changes_survive_the_combination
+    self.assertIn(self.TARGET_FILE, produced)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'target_only.py' not found in ['harness.py', 'fix.py', 'feature.py']
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.932s
+
+FAILED (failures=3)

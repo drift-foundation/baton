@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_storage
+.....................
+----------------------------------------------------------------------
+Ran 21 tests in 0.039s
+
+OK

@@ -1,0 +1,412 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection
+E..E................EEE...E...E....EEEEE.EE.E.....E.....E
+======================================================================
+ERROR: test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET)
+W131409'S WHOLE POINT, driven through the ordinary configured tick.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8588, in test_BOTH_JOBS_REACH_TERMINAL_ON_ONE_TARGET
+    held = self.integrating(before=capture)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_a_completed_integration_returns_the_integrator_to_the_next_job (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_completed_integration_returns_the_integrator_to_the_next_job)
+W131187, driven end to end: the capacity comes back.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8390, in test_a_completed_integration_returns_the_integrator_to_the_next_job
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_a_workspace_aliasing_the_target_fetches_and_writes_nothing (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_workspace_aliasing_the_target_fetches_and_writes_nothing)
+W133129: THE BRANCH-LEVEL no-fetch/no-write CONTROL.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8852, in test_a_workspace_aliasing_the_target_fetches_and_writes_nothing
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_a_workspace_that_is_the_target_is_the_same_repository (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_a_workspace_that_is_the_target_is_the_same_repository)
+The alias no-write control for the pre-write isolation guard: the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8889, in test_a_workspace_that_is_the_target_is_the_same_repository
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool)
+THE TERMINAL HALF, driven inside a deployment serving two Jobs.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8321, in test_an_accepted_job_integrates_and_hands_off_inside_a_two_job_pool
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_derived_judges_reconstruct_after_dispatch_without_second_launch (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_derived_judges_reconstruct_after_dispatch_without_second_launch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7297, in test_derived_judges_reconstruct_after_dispatch_without_second_launch
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7184, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_foreign_frozen_candidate_cannot_authorize_derived_receipts (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_foreign_frozen_candidate_cannot_authorize_derived_receipts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7275, in test_foreign_frozen_candidate_cannot_authorize_derived_receipts
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7184, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_policy_drift_cannot_reuse_or_redispatch_derived_judgments (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_policy_drift_cannot_reuse_or_redispatch_derived_judgments)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7263, in test_policy_drift_cannot_reuse_or_redispatch_derived_judgments
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7184, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_readonly_integration_observation_keeps_the_bound_job (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_readonly_integration_observation_keeps_the_bound_job)
+The public observer reaches the real two-producer completion account.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8277, in test_readonly_integration_observation_keeps_the_bound_job
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_readonly_reconciled_completion_without_runtime_reaches_outer_observer (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_readonly_reconciled_completion_without_runtime_reaches_outer_observer)
+A model-free import reaches status through the public read-only owner.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8220, in test_readonly_reconciled_completion_without_runtime_reaches_outer_observer
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7184, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7205, in test_real_B_consumer_judges_frozen_reports_and_completes_both_jobs
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7184, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_rejected_derived_judgment_cannot_authorize_import (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_rejected_derived_judgment_cannot_authorize_import)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7243, in test_rejected_derived_judgment_cannot_authorize_import
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7184, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_the_constructed_port_is_the_same_one_through_completion (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_constructed_port_is_the_same_one_through_completion)
+W103068: ONE CAPACITY FOR ONE JOB'S INTEGRATION, end to end.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7746, in test_the_constructed_port_is_the_same_one_through_completion
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_the_direct_integration_finalizes_the_dedicated_target (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_direct_integration_finalizes_the_dedicated_target)
+W133129, owner return137905: the transition the witness FOUND
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8527, in test_the_direct_integration_finalizes_the_dedicated_target
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_the_judgment_subject_is_the_derived_candidate (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_judgment_subject_is_the_derived_candidate)
+W103068: WHAT A JUDGE IS ASKED ABOUT, read from the coordinator's own
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7454, in test_the_judgment_subject_is_the_derived_candidate
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_the_second_jobs_published_proposal_survives_the_advance (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_the_second_jobs_published_proposal_survives_the_advance)
+W133129: THE FIRST HALF OF THE BOUNDARY THIS TRAVERSAL FOUND.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8453, in test_the_second_jobs_published_proposal_survives_the_advance
+    held = self.integrating()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+======================================================================
+ERROR: test_unusable_judge_report_cannot_authorize_derived_receipts (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_unusable_judge_report_cannot_authorize_derived_receipts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7254, in test_unusable_judge_report_cannot_authorize_derived_receipts
+    held, deployment, result_id, result = self.pending_judgments()
+                                          ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7184, in pending_judgments
+    held = self.integrating(result_judgment_workers=self.judgment_workers())
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8931, in integrating
+    self.assertEqual(self.integration_turn(held, held.integrated), 0)
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7963, in integration_turn
+    job_execution=self.integration_job_execution(deployment,
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                                                 attempt_id))
+                                                 ^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7907, in integration_job_execution
+    if episodes.attempting(row, live["episode"]) != attempt_id:
+       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/episodes.py", line 125, in attempting
+    held["episode"] = episode["episode"]
+                      ~~~~~~~^^^^^^^^^^^
+TypeError: 'int' object is not subscriptable
+
+----------------------------------------------------------------------
+Ran 57 tests in 22.057s
+
+FAILED (errors=17)

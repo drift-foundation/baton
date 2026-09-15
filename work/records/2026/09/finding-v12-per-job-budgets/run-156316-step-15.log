@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.manager.test_launch
+.................................
+----------------------------------------------------------------------
+Ran 33 tests in 0.002s
+
+OK

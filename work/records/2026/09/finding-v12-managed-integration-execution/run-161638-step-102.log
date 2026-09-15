@@ -1,0 +1,59 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage
+.................................F..F..F...........
+======================================================================
+FAIL: test_every_managed_act_is_read_including_the_attachments (tests.integration.test_managed_storage.TheQueueReadsAManagedCustodyAct.test_every_managed_act_is_read_including_the_attachments)
+Creation AND each phase attachment commit under this one kind, so
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 967, in test_every_managed_act_is_read_including_the_attachments
+    self.assertEqual(journalled,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+                     ["result.managed:" + ORCHESTRATION,
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "result.managed:" + ORCHESTRATION + "/apply",
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "result.managed:" + ORCHESTRATION + "/prepare"])
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['result.managed:22:integration-capacity-1', 'result.manag[83 chars]are'] != ['result.managed:integration-capacity-1', 'result.managed:[74 chars]are']
+
+First differing element 0:
+'result.managed:22:integration-capacity-1'
+'result.managed:integration-capacity-1'
+
+- ['result.managed:22:integration-capacity-1',
+?                 ---
+
++ ['result.managed:integration-capacity-1',
+-  'result.managed:22:integration-capacity-1/apply',
+?                 ---
+
++  'result.managed:integration-capacity-1/apply',
+-  'result.managed:22:integration-capacity-1/prepare']
+?                 ---
+
++  'result.managed:integration-capacity-1/prepare']
+
+======================================================================
+FAIL: test_a_result_whose_own_act_is_gone_refuses (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_a_result_whose_own_act_is_gone_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1091, in test_a_result_whose_own_act_is_gone_refuses
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_deleted_phase_rows_refuse_rather_than_answer_empty (tests.integration.test_managed_storage.TheRowsAreBoundToTheJournalThatMadeThem.test_deleted_phase_rows_refuse_rather_than_answer_empty)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1060, in test_deleted_phase_rows_refuse_rather_than_answer_empty
+    self.assertIn("result.managed:" + ORCHESTRATION + "/prepare",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'result.managed:integration-capacity-1/prepare' not found in 'this store committed result.managed:22:integration-capacity-1/prepare and retains no phase for it; an act with nothing materialized is a row somebody removed'
+
+----------------------------------------------------------------------
+Ran 51 tests in 0.257s
+
+FAILED (failures=3)

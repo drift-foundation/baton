@@ -1,0 +1,11 @@
+{
+  "new_file_count": 23,
+  "python_syntax_and_whitespace": "passed",
+  "operator_help_exit": 0,
+  "run10_manifest_only_additional_delta": [
+    "v12/README.md"
+  ],
+  "prior_observer_source_preserved": true,
+  "original_run10_result_preserved": true,
+  "seconds": 0.04231228999560699
+}

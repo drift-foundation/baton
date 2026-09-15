@@ -1,0 +1,134 @@
+{
+  "schedule": "four-jobs-a-before-c",
+  "complete": [
+    "job-a/implementation",
+    "job-c/implementation",
+    "job-d/implementation",
+    "job-a/review",
+    "job-c/review",
+    "job-d/review"
+  ],
+  "submissions": [
+    {
+      "act": "submit",
+      "attempt_id": null,
+      "authorization": null,
+      "cause": "the composition reads the Authority's CURRENT generation after its own setup acts; a pin taken before them defers every conclusion policy/denied",
+      "completion": null,
+      "correction": null,
+      "episode": null,
+      "evidence": "policy_generation:17",
+      "job_id": null,
+      "operation_id": null,
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "recorded_at": null,
+      "runtime_id": null,
+      "session": null,
+      "session_id": null,
+      "stage_id": null,
+      "tick": 9,
+      "worker_id": null
+    }
+  ],
+  "integration_starts": [
+    {
+      "act": "start",
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "authorization": null,
+      "cause": null,
+      "completion": null,
+      "correction": null,
+      "episode": 1,
+      "evidence": "attempt_runtime:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "job_id": "job-a",
+      "operation_id": "runtime.start:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "recorded_at": null,
+      "runtime_id": "runtime-single-7",
+      "session": null,
+      "session_id": null,
+      "stage_id": "job-a/integration",
+      "tick": 7,
+      "worker_id": null
+    }
+  ],
+  "gaps": []
+}
+{
+  "schedule": "four-jobs-c-before-a",
+  "complete": [
+    "job-c/implementation",
+    "job-d/implementation",
+    "job-a/implementation",
+    "job-c/review",
+    "job-d/review",
+    "job-a/review"
+  ],
+  "submissions": [],
+  "integration_starts": [
+    {
+      "act": "start",
+      "attempt_id": "attempt-cdb08ccfed6213072a1ee1dd4b754cc37a157cf4a87b032db3d352c1220a1c92",
+      "authorization": null,
+      "cause": null,
+      "completion": null,
+      "correction": null,
+      "episode": 1,
+      "evidence": "attempt_runtime:attempt-cdb08ccfed6213072a1ee1dd4b754cc37a157cf4a87b032db3d352c1220a1c92",
+      "job_id": "job-c",
+      "operation_id": "runtime.start:attempt-cdb08ccfed6213072a1ee1dd4b754cc37a157cf4a87b032db3d352c1220a1c92",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "recorded_at": null,
+      "runtime_id": "runtime-single-7",
+      "session": null,
+      "session_id": null,
+      "stage_id": "job-c/integration",
+      "tick": 7,
+      "worker_id": null
+    }
+  ],
+  "gaps": []
+}
+{
+  "schedule": "four-jobs-continued-to-integration",
+  "complete": [
+    "job-a/implementation",
+    "job-c/implementation",
+    "job-d/implementation",
+    "job-a/review",
+    "job-c/review",
+    "job-d/review"
+  ],
+  "submissions": [],
+  "integration_starts": [
+    {
+      "act": "start",
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "authorization": null,
+      "cause": null,
+      "completion": null,
+      "correction": null,
+      "episode": 1,
+      "evidence": "attempt_runtime:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "job_id": "job-a",
+      "operation_id": "runtime.start:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "outcome": "performed",
+      "participant": null,
+      "principal": null,
+      "recorded_at": null,
+      "runtime_id": "runtime-single-7",
+      "session": null,
+      "session_id": null,
+      "stage_id": "job-a/integration",
+      "tick": 7,
+      "worker_id": null
+    }
+  ],
+  "gaps": []
+}

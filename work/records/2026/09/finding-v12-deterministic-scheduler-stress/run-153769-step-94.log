@@ -1,0 +1,20 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_correction_opens_a_second_episode_on_the_same_line
+..................................................................F
+======================================================================
+FAIL: test_a_correction_opens_a_second_episode_on_the_same_line (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_correction_opens_a_second_episode_on_the_same_line)
+A requested correction is a real authorized transition too, and it
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2796, in test_a_correction_opens_a_second_episode_on_the_same_line
+    self.assertIn("mismatched-correction",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                  [one["code"] for one
+                  ^^^^^^^^^^^^^^^^^^^^
+                   in scheduler_trace.validate(relabelled)])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'mismatched-correction' not found in ['unreviewed-correction']
+
+----------------------------------------------------------------------
+Ran 67 tests in 0.476s
+
+FAILED (failures=1)

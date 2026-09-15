@@ -1,0 +1,18 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_composed_deployment_reopens_and_continues
+F
+======================================================================
+FAIL: test_the_composed_deployment_reopens_and_continues (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_composed_deployment_reopens_and_continues)
+The composed reopen, which every review since the first slice has
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 4763, in test_the_composed_deployment_reopens_and_continues
+    self.assertTrue(sessions,
+    ~~~~~~~~~~~~~~~^^^^^^^^^^
+                    "no provider session names Job A's implementation")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true : no provider session names Job A's implementation
+
+----------------------------------------------------------------------
+Ran 1 test in 0.245s
+
+FAILED (failures=1)

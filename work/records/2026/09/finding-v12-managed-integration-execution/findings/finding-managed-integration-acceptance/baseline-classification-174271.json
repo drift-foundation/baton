@@ -1,0 +1,412 @@
+{
+  "source": "baton:work/records/2026/09/finding-v12-managed-integration-execution/review-audit-170280.json",
+  "rows": [
+    {
+      "historical_index": 0,
+      "test": "ERROR: test_a_completed_or_held_integration_owes_nothing (tests.job_manager.test_exchange.AnIntegrationStageOwesConcludeAndNeverDispatch.test_a_completed_or_held_integration_owes_nothing) (state='completed')",
+      "last_exception": "baton_v12.contracts.errors.ContractRefusal: stage 'job-i/integration''s integration observation's completion account needs source_proposal_id, result_id",
+      "classification": "completion-account-fixture",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 1,
+      "test": "ERROR: test_a_completed_account_survives_a_later_uncertain_refresh (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_completed_account_survives_a_later_uncertain_refresh)",
+      "last_exception": "baton_v12.contracts.errors.ContractRefusal: stage 'job-a/integration''s integration observation's completion account needs source_proposal_id, result_id",
+      "classification": "completion-account-fixture",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 2,
+      "test": "ERROR: test_a_failed_start_still_answers_first (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_failed_start_still_answers_first)",
+      "last_exception": "baton_v12.contracts.errors.ContractRefusal: stage 'job-a/integration''s integration observation's completion account needs source_proposal_id, result_id",
+      "classification": "completion-account-fixture",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 3,
+      "test": "ERROR: test_completed_is_completed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_completed_is_completed)",
+      "last_exception": "baton_v12.contracts.errors.ContractRefusal: stage 'job-a/integration''s integration observation's completion account needs source_proposal_id, result_id",
+      "classification": "completion-account-fixture",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 4,
+      "test": "ERROR: setUpClass (tests.manager.test_runtime_deadline_engine.DeadlineDocker)",
+      "last_exception": "AssertionError: run this gate through its reviewed engine-gate.py supervisor",
+      "classification": "engine-supervisor-entry",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 5,
+      "test": "ERROR: test_a_fresh_port_prepares_that_delivery_and_then_starts_it (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_fresh_port_prepares_that_delivery_and_then_starts_it)",
+      "last_exception": "AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'",
+      "classification": "stage-fixture-contract",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 6,
+      "test": "ERROR: test_a_runtime_this_execution_did_not_start_is_still_held (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_runtime_this_execution_did_not_start_is_still_held)",
+      "last_exception": "AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'",
+      "classification": "stage-fixture-contract",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 7,
+      "test": "ERROR: test_a_second_tick_in_the_same_execution_starts_nothing_again (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_second_tick_in_the_same_execution_starts_nothing_again)",
+      "last_exception": "AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'",
+      "classification": "stage-fixture-contract",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 8,
+      "test": "ERROR: test_an_ordinary_first_tick_prepares_and_starts_exactly_once (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_ordinary_first_tick_prepares_and_starts_exactly_once)",
+      "last_exception": "AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'",
+      "classification": "stage-fixture-contract",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 9,
+      "test": "ERROR: test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick) (delivery=False)",
+      "last_exception": "AttributeError: 'object' object has no attribute 'proposal'",
+      "classification": "stage-fixture-contract",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 10,
+      "test": "ERROR: test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick) (delivery=True)",
+      "last_exception": "AttributeError: 'object' object has no attribute 'proposal'",
+      "classification": "stage-fixture-contract",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 11,
+      "test": "ERROR: test_a_delivery_with_no_started_runtime_is_not_refreshed (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed)",
+      "last_exception": "AttributeError: 'object' object has no attribute 'proposal'",
+      "classification": "stage-fixture-contract",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 12,
+      "test": "ERROR: test_a_later_tick_refreshes_before_it_continues (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_later_tick_refreshes_before_it_continues)",
+      "last_exception": "AttributeError: 'object' object has no attribute 'proposal'",
+      "classification": "stage-fixture-contract",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 13,
+      "test": "ERROR: test_a_lost_marker_falls_through_to_admission (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_lost_marker_falls_through_to_admission)",
+      "last_exception": "AttributeError: 'object' object has no attribute 'proposal'",
+      "classification": "stage-fixture-contract",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 14,
+      "test": "ERROR: test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here) (runtime='running')",
+      "last_exception": "AttributeError: 'object' object has no attribute 'proposal'",
+      "classification": "stage-fixture-contract",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 15,
+      "test": "ERROR: test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here) (runtime='uncertain')",
+      "last_exception": "AttributeError: 'object' object has no attribute 'proposal'",
+      "classification": "stage-fixture-contract",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 16,
+      "test": "ERROR: test_the_first_tick_prepares_and_then_admits (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits)",
+      "last_exception": "AttributeError: 'object' object has no attribute 'proposal'",
+      "classification": "stage-fixture-contract",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 17,
+      "test": "ERROR: test_an_integration_without_a_runtime_port_refuses_as_that (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_an_integration_without_a_runtime_port_refuses_as_that)",
+      "last_exception": "baton_v12.source_profiles.checkout.ProfileRefusal: Git line materialization failed: fatal: repository '/home/sl/src/baton/v12/python/v12-w71917-yhsg792a/source' does not exist",
+      "classification": "stage-fixture-contract",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 18,
+      "test": "FAIL: test_every_named_site_covers_the_paths_it_was_written_for (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_every_named_site_covers_the_paths_it_was_written_for)",
+      "last_exception": "AssertionError: Lists differ: [('co[642 chars]', '_connect_readonly', 'failure'), ('store.py[233 chars]no')] != [('co[642 chars]', '_describe_target', 'failure.errno'), ('sto[30 chars]no')]",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 19,
+      "test": "FAIL: test_no_refusal_renders_an_unbounded_value (tests.authority.test_boundary.EveryDiagnosticIsBoundedByTheRule.test_no_refusal_renders_an_unbounded_value)",
+      "last_exception": "AssertionError: Lists differ: [('store.py', '_writable', 378, 'what'), ([176 chars]re')] != []",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 20,
+      "test": "FAIL: test_the_bootstrap_face_configures_and_reads_and_never_acts (tests.authority.test_boundary.ExportedSurface.test_the_bootstrap_face_configures_and_reads_and_never_acts)",
+      "last_exception": "AssertionError: Lists differ: ['act[422 chars] 'open_readonly', 'operation_record', 'operati[339 chars]els'] != ['act[422 chars] 'operation_record', 'operation_result', 'perm[322 chars]els']",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 21,
+      "test": "FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'intake.py:_attempt_of', 'attempts.runtime_attempt_id'), label='a persisted attempt')",
+      "last_exception": "AssertionError: 'a persisted attempt' not found in \"no runtime attempt 'attempt-1'\" : refused, but not at 'a persisted attempt': no runtime attempt 'attempt-1'",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 22,
+      "test": "FAIL: test_every_declared_probe_reaches_its_named_boundary (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_declared_probe_reaches_its_named_boundary) (entry=('adopted', 'output.py:_attempt_of', 'attempts.runtime_attempt_id'), label='a persisted attempt')",
+      "last_exception": "AssertionError: a persisted attempt: escaped as AttributeError: 'NoneType' object has no attribute 'keys'",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 23,
+      "test": "FAIL: test_every_owned_entry_has_exactly_one_probe (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_every_owned_entry_has_exactly_one_probe)",
+      "last_exception": "AssertionError: Lists differ: [(('adopted', 'attempts.py:_attempts', 'at[19910 chars]te\")] != []",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 24,
+      "test": "FAIL: test_the_missing_probe_check_can_actually_fail (tests.manager.test_boundary_inventory.EveryProbeProvesItArrived.test_the_missing_probe_check_can_actually_fail)",
+      "last_exception": "AssertionError: Lists differ: [(('adopted', 'attempts.py:_attempts', 'at[19910 chars]te\")] != []",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 25,
+      "test": "FAIL: test_every_boundary_call_belongs_to_an_entry_or_is_declared (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_boundary_call_belongs_to_an_entry_or_is_declared)",
+      "last_exception": "AssertionError: Lists differ: [('attempts.py:_committed_record', 'docume[12727 chars]nt')] != []",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 26,
+      "test": "FAIL: test_every_receiving_entry_has_an_owning_validator (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_every_receiving_entry_has_an_owning_validator)",
+      "last_exception": "AssertionError: Lists differ: [('adopted', 'attempts.py:_decide', 'obser[14508 chars]hy')] != []",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 27,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'oci.py:OciAdapter.observe', 'document.Running'))",
+      "last_exception": "AssertionError: ('caller', 'oci.py:OciAdapter.observe', 'document.Running') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), ('adopted'",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 28,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'oci.py:OciAdapter.start', 'labels.runtime_attempt_id'))",
+      "last_exception": "AssertionError: ('caller', 'oci.py:OciAdapter.start', 'labels.runtime_attempt_id') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), ('a",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 29,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.authority_uuid'))",
+      "last_exception": "AssertionError: ('caller', 'review_cycles.py:attach_review', 'answer.authority_uuid') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), ",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 30,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.generation'))",
+      "last_exception": "AssertionError: ('caller', 'review_cycles.py:attach_review', 'answer.generation') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), ('ad",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 31,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.participant'))",
+      "last_exception": "AssertionError: ('caller', 'review_cycles.py:attach_review', 'answer.participant') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), ('a",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 32,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.principal'))",
+      "last_exception": "AssertionError: ('caller', 'review_cycles.py:attach_review', 'answer.principal') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), ('ado",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 33,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:attach_review', 'answer.work_id'))",
+      "last_exception": "AssertionError: ('caller', 'review_cycles.py:attach_review', 'answer.work_id') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), ('adopt",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 34,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.authority_uuid'))",
+      "last_exception": "AssertionError: ('caller', 'review_cycles.py:grant_writer', 'answer.authority_uuid') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), (",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 35,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.generation'))",
+      "last_exception": "AssertionError: ('caller', 'review_cycles.py:grant_writer', 'answer.generation') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), ('ado",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 36,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.participant'))",
+      "last_exception": "AssertionError: ('caller', 'review_cycles.py:grant_writer', 'answer.participant') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), ('ad",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 37,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.principal'))",
+      "last_exception": "AssertionError: ('caller', 'review_cycles.py:grant_writer', 'answer.principal') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), ('adop",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 38,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:grant_writer', 'answer.work_id'))",
+      "last_exception": "AssertionError: ('caller', 'review_cycles.py:grant_writer', 'answer.work_id') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), ('adopte",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 39,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:writer_boundary', 'answer.authority_uuid'))",
+      "last_exception": "AssertionError: ('caller', 'review_cycles.py:writer_boundary', 'answer.authority_uuid') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest')",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 40,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:writer_boundary', 'answer.generation'))",
+      "last_exception": "AssertionError: ('caller', 'review_cycles.py:writer_boundary', 'answer.generation') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), ('",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 41,
+      "test": "FAIL: test_no_declared_owner_is_stale (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_declared_owner_is_stale) (table='stated', entry=('caller', 'review_cycles.py:writer_boundary', 'answer.work_id'))",
+      "last_exception": "AssertionError: ('caller', 'review_cycles.py:writer_boundary', 'answer.work_id') not found in [('adopted', 'attempts.py:_attempts', 'attempts'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_at'), ('adopted', 'attempts.py:_attempts', 'attempts.activity_bytes'), ('adopted', 'attempts.py:_attempts', 'attempts.adapter_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_generation'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_participant'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_principal'), ('adopted', 'attempts.py:_attempts', 'attempts.assignment_scope'), ('adopted', 'attempts.py:_attempts', 'attempts.authority_uuid'), ('adopted', 'attempts.py:_attempts', 'attempts.cleanup'), ('adopted', 'attempts.py:_attempts', 'attempts.execution_runtime'), ('adopted', 'attempts.py:_attempts', 'attempts.input_digest'), ('adopted', 'attempts.py:_attempts', 'attempts.output'), ('adopted', 'attempts.py:_attempts', 'attempts.policy_digest'), ('ado",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 42,
+      "test": "FAIL: test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice) (entry=('caller', 'intake.py:discharge_abandoned_quiescence_gate', 'port'))",
+      "last_exception": "AssertionError: 2 not less than or equal to 1 : owned more than once",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 43,
+      "test": "FAIL: test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice) (entry=('caller', 'intake.py:discharge_quiescence_gate', 'port'))",
+      "last_exception": "AssertionError: 2 not less than or equal to 1 : owned more than once",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 44,
+      "test": "FAIL: test_no_entry_is_owned_twice (tests.manager.test_boundary_inventory.EveryReceivingEntryHasOneOwner.test_no_entry_is_owned_twice) (entry=('injected', 'interrogation.py:probe', 'agent.probe.diagnostics'))",
+      "last_exception": "AssertionError: 2 not less than or equal to 1 : owned more than once",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 45,
+      "test": "FAIL: test_private_lane_writer_provenance (tests.manager.test_boundary_inventory.LanesHaveCompleteReceivingCoverage.test_private_lane_writer_provenance)",
+      "last_exception": "AssertionError: 4 != 3",
+      "classification": "boundary-inventory-and-probes",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 46,
+      "test": "FAIL: test_nothing_this_module_made_survives_it (tests.manager.test_credentials_engine.ARealDaemonNeverHoldsTheBearer.test_nothing_this_module_made_survives_it)",
+      "last_exception": "AssertionError: Lists differ: ['baton-runtime.start-76227065aaf91dc38131[1273 chars]e29'] != []",
+      "classification": "engine-global-container-inventory",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 47,
+      "test": "FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='attempts.py:request_runtime_start', parameter='deadline_policy')",
+      "last_exception": "AssertionError: 'deadline_policy' not found in {'reviewer_worker_id', 'attempt_id', 'assignment_roots', 'session_epoch', 'input_manifest_digest', 'may_retire', 'network', 'columns', 'input_manifest', 'uri', 'observed_identity', 'document', 'bearer', 'contract', 'channel_port', 'declared_base', 'request', 'command', 'assignment_manifest', 'root', 'state', 'port', 'names', 'evidence', 'resolution', 'expect', 'attempt', 'source', 'issued', 'prompt', 'store', 'declared', 'scope', 'receipt_digest', 'agent_session_capabilities', 'to_state', 'signature', 'line_id', 'roots', 'identity', 'attachment_id', 'live', 'refusal', 'inputs', 'category', 'admits', 'policy_digest', 'payload', 'kind', 'mint_bearer', 'credentials_delivered', 'checkpoint_id', 'provider_session_id', 'operation_id', 'sequence', 'place', 'transport', 'clock', 'work_ref', 'worker_id', 'mounts', 'role', 'minted', 'path', 'participant', 'workspace', 'runtime_id', 'session_ref', 'engine', 'posture', 'from_state', 'intent_digest', '",
+      "classification": "dependency-security-surface-inventory",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 48,
+      "test": "FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='authority_port.py:AuthorityPort:satisfy_gate', parameter='gate')",
+      "last_exception": "AssertionError: 'gate' not found in {'reviewer_worker_id', 'attempt_id', 'assignment_roots', 'session_epoch', 'input_manifest_digest', 'may_retire', 'network', 'columns', 'input_manifest', 'uri', 'observed_identity', 'document', 'bearer', 'contract', 'channel_port', 'declared_base', 'request', 'command', 'assignment_manifest', 'root', 'state', 'port', 'names', 'evidence', 'resolution', 'expect', 'attempt', 'source', 'issued', 'prompt', 'store', 'declared', 'scope', 'receipt_digest', 'agent_session_capabilities', 'to_state', 'signature', 'line_id', 'roots', 'identity', 'attachment_id', 'live', 'refusal', 'inputs', 'category', 'admits', 'policy_digest', 'payload', 'kind', 'mint_bearer', 'credentials_delivered', 'checkpoint_id', 'provider_session_id', 'operation_id', 'sequence', 'place', 'transport', 'clock', 'work_ref', 'worker_id', 'mounts', 'role', 'minted', 'path', 'participant', 'workspace', 'runtime_id', 'session_ref', 'engine', 'posture', 'from_state', 'intent_digest', 'generation'",
+      "classification": "dependency-security-surface-inventory",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 49,
+      "test": "FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='launch.py:launch_document', parameter='job_execution')",
+      "last_exception": "AssertionError: 'job_execution' not found in {'reviewer_worker_id', 'attempt_id', 'assignment_roots', 'session_epoch', 'input_manifest_digest', 'may_retire', 'network', 'columns', 'input_manifest', 'uri', 'observed_identity', 'document', 'bearer', 'contract', 'channel_port', 'declared_base', 'request', 'command', 'assignment_manifest', 'root', 'state', 'port', 'names', 'evidence', 'resolution', 'expect', 'attempt', 'source', 'issued', 'prompt', 'store', 'declared', 'scope', 'receipt_digest', 'agent_session_capabilities', 'to_state', 'signature', 'line_id', 'roots', 'identity', 'attachment_id', 'live', 'refusal', 'inputs', 'category', 'admits', 'policy_digest', 'payload', 'kind', 'mint_bearer', 'credentials_delivered', 'checkpoint_id', 'provider_session_id', 'operation_id', 'sequence', 'place', 'transport', 'clock', 'work_ref', 'worker_id', 'mounts', 'role', 'minted', 'path', 'participant', 'workspace', 'runtime_id', 'session_ref', 'engine', 'posture', 'from_state', 'intent_digest', 'ge",
+      "classification": "dependency-security-surface-inventory",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 50,
+      "test": "FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='launch.py:materialize', parameter='job_execution')",
+      "last_exception": "AssertionError: 'job_execution' not found in {'reviewer_worker_id', 'attempt_id', 'assignment_roots', 'session_epoch', 'input_manifest_digest', 'may_retire', 'network', 'columns', 'input_manifest', 'uri', 'observed_identity', 'document', 'bearer', 'contract', 'channel_port', 'declared_base', 'request', 'command', 'assignment_manifest', 'root', 'state', 'port', 'names', 'evidence', 'resolution', 'expect', 'attempt', 'source', 'issued', 'prompt', 'store', 'declared', 'scope', 'receipt_digest', 'agent_session_capabilities', 'to_state', 'signature', 'line_id', 'roots', 'identity', 'attachment_id', 'live', 'refusal', 'inputs', 'category', 'admits', 'policy_digest', 'payload', 'kind', 'mint_bearer', 'credentials_delivered', 'checkpoint_id', 'provider_session_id', 'operation_id', 'sequence', 'place', 'transport', 'clock', 'work_ref', 'worker_id', 'mounts', 'role', 'minted', 'path', 'participant', 'workspace', 'runtime_id', 'session_ref', 'engine', 'posture', 'from_state', 'intent_digest', 'ge",
+      "classification": "dependency-security-surface-inventory",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 51,
+      "test": "FAIL: test_every_public_parameter_is_a_declared_operand (tests.manager.test_dependencies.NoPublicOperationTakesInternalState.test_every_public_parameter_is_a_declared_operand) (function='launch.py:adopt', parameter='job_execution')",
+      "last_exception": "AssertionError: 'job_execution' not found in {'reviewer_worker_id', 'attempt_id', 'assignment_roots', 'session_epoch', 'input_manifest_digest', 'may_retire', 'network', 'columns', 'input_manifest', 'uri', 'observed_identity', 'document', 'bearer', 'contract', 'channel_port', 'declared_base', 'request', 'command', 'assignment_manifest', 'root', 'state', 'port', 'names', 'evidence', 'resolution', 'expect', 'attempt', 'source', 'issued', 'prompt', 'store', 'declared', 'scope', 'receipt_digest', 'agent_session_capabilities', 'to_state', 'signature', 'line_id', 'roots', 'identity', 'attachment_id', 'live', 'refusal', 'inputs', 'category', 'admits', 'policy_digest', 'payload', 'kind', 'mint_bearer', 'credentials_delivered', 'checkpoint_id', 'provider_session_id', 'operation_id', 'sequence', 'place', 'transport', 'clock', 'work_ref', 'worker_id', 'mounts', 'role', 'minted', 'path', 'participant', 'workspace', 'runtime_id', 'session_ref', 'engine', 'posture', 'from_state', 'intent_digest', 'ge",
+      "classification": "dependency-security-surface-inventory",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 52,
+      "test": "FAIL: test_the_manager_imports_only_the_ruled_validator (tests.manager.test_dependencies.TheManagerReachesForExactlyOneDependency.test_the_manager_imports_only_the_ruled_validator) (source='store.py', module='urllib.parse')",
+      "last_exception": "AssertionError: 'urllib' not found in {'hmac', 'stat', 'typing', 'ipaddress', 'collections', 'functools', 'contextlib', 'types', 'baton_v12', 'sqlite3', 'hashlib', 'unicodedata', 'itertools', 're', 'jsonschema', 'json', 'importlib', 'os', 'threading', 'pathlib', 'datetime'}",
+      "classification": "dependency-security-surface-inventory",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 53,
+      "test": "FAIL: test_every_durable_writer_is_covered (tests.manager.test_secrets.EveryDurableWriterIsGuarded.test_every_durable_writer_is_covered)",
+      "last_exception": "AssertionError: Lists differ: [('review_cycles.py', 'restore_abandoned_c[93 chars]es')] != []",
+      "classification": "dependency-security-surface-inventory",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 54,
+      "test": "FAIL: test_every_exported_callable_is_in_exactly_one_class (tests.manager.test_secrets.EveryPublicSurfaceIsAccountedFor.test_every_exported_callable_is_in_exactly_one_class)",
+      "last_exception": "AssertionError: Lists differ: ['ControlStore.open_readonly', 'ControlSto[220 chars]ine'] != []",
+      "classification": "dependency-security-surface-inventory",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 55,
+      "test": "FAIL: test_the_table_names_every_exported_callable (tests.manager.test_text_sweep.EveryExportedOperationRefusesUnstorableText.test_the_table_names_every_exported_callable)",
+      "last_exception": "AssertionError: Lists differ: ['Aut[63 chars]', 'accept_offer', 'activate_assignment', 'ado[2120 chars]_of'] != ['Aut[63 chars]', 'abandoned_gate_discharge_of', 'abandonment[2390 chars]_of']",
+      "classification": "dependency-security-surface-inventory",
+      "rerun_this_claim": false
+    },
+    {
+      "historical_index": 56,
+      "test": "FAIL: test_a_migrated_job_with_no_limits_row_still_answers (tests.tools.test_execution_limits.TheJobOwnerAnswersOneBoundaryWithoutADelivery.test_a_migrated_job_with_no_limits_row_still_answers)",
+      "last_exception": "AssertionError: 6 != 5",
+      "classification": "obsolete-schema-expectation",
+      "rerun_this_claim": true
+    },
+    {
+      "historical_index": 57,
+      "test": "FAIL: test_worker_construction_failure_closes_every_acquired_handle (tests.tools.test_stage_execution_hardening.ConstructionUnwindsConcreteHandles.test_worker_construction_failure_closes_every_acquired_handle)",
+      "last_exception": "AssertionError: Lists differ: ['coordinator', 'authority'] != ['implementation', 'coordinator', 'authority']",
+      "classification": "known-W129838-construction-unwind",
+      "rerun_this_claim": true
+    }
+  ],
+  "note": "Historical outcomes retained verbatim; rerun refers to named methods and reproduces signatures, not a baseline/candidate causal comparison. Non-rerun rows have no current-pass claim."
+}

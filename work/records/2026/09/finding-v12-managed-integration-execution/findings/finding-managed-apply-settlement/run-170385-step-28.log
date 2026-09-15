@@ -1,0 +1,30 @@
+.F
+======================================================================
+FAIL: test_reopen_after_target_effect_before_coordinator_settlement (tests.tools.test_managed_apply.AnOrdinaryManagedIntegration.test_reopen_after_target_effect_before_coordinator_settlement)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 22, in test_reopen_after_target_effect_before_coordinator_settlement
+    self.complete(cut="target-effect")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 202, in complete
+    case.complete(configured=configure, completed=adopted)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2612, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 159, in adopted
+    self.assertEqual(cuts[0]["publication"], "intent")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'intended' != 'intent'
+- intended
+?      ^^^
++ intent
+?      ^
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.598s
+
+FAILED (failures=1)
+{"apply_starts": 1, "judgments": 3, "proof": "ordinary-managed-integration", "result": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "state": "imported"}
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:87e12d0f8b1802e43844e540587498f8172dbf76b29ee4913ff1cefe6b1d8d9b", "root": "open", "runtime": "destroyed", "worker_exit": 0}

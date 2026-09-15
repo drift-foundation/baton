@@ -1,0 +1,86 @@
+{
+  "baselined": {
+    "module": "tests.tools.test_stage_execution",
+    "verdict": "pre-existing in the working tree",
+    "with_round": 13,
+    "without_round": 13
+  },
+  "claim": 170083,
+  "files": [
+    {
+      "bytes": 90940,
+      "mode": "0o644",
+      "path": "tools/integration_worker.py",
+      "sha256": "c14e72096ccf8d2401847d6a7c2c2c05f3f622b785535b57dada7787506ee6a5"
+    },
+    {
+      "bytes": 305135,
+      "mode": "0o664",
+      "path": "tools/stage_execution.py",
+      "sha256": "b2270c362902559e95109755864c03c76cc17376b98a32873da969b912b1840b"
+    },
+    {
+      "bytes": 74687,
+      "mode": "0o644",
+      "path": "tests/tools/test_managed_preparation.py",
+      "sha256": "b6eefad9232cd3a26548603fefb663b1017acd684cef93c811391f1dc1dfbe9b"
+    },
+    {
+      "bytes": 165742,
+      "mode": "0o644",
+      "path": "tests/job_manager/test_managed_integration_capacity.py",
+      "sha256": "aff15f263046746e3f1a32280d1c0192fccd0a2dc5cfc29bdda243fb0ec61bca"
+    }
+  ],
+  "focused_run": {
+    "cases": 416,
+    "label": "preparation-records-its-own-attempt",
+    "result": "OK",
+    "step": 146
+  },
+  "full_run": {
+    "errors": 18,
+    "failures": 40,
+    "invalid_predecessor": {
+      "step": 147,
+      "why": "discover -s tests made tests the top-level dir; 20 tools loader ImportErrors were my invocation, not the tree"
+    },
+    "label": "full-suite-correct-discovery",
+    "seconds": 455.256,
+    "skipped": 20,
+    "step": 148,
+    "tests": 7094
+  },
+  "ledger": {
+    "rows": 150,
+    "seconds": 2343.9140903438265
+  },
+  "not_baselined": [
+    "manager.test_boundary_inventory",
+    "manager.test_secrets",
+    "authority.test_boundary"
+  ],
+  "reversals": [
+    {
+      "failed": 11,
+      "reversal": "delete the record_attempt call"
+    },
+    {
+      "failed": 11,
+      "reversal": "record identity unchanged (configured input digest)"
+    },
+    {
+      "failed": 0,
+      "reversal": "restored"
+    }
+  ],
+  "round": "the runtime attempt is recorded by the composition",
+  "scope": "SLICE2-SCOPE-165724.md lines 66-73",
+  "traversal": {
+    "preparations_started": 1,
+    "probe": "evidence/traversal-probe-170031.py",
+    "seconds": 0.333861,
+    "stops_at": "the parent offer is not issued while the same actor holds this reservation preparation, and this admit stays owed"
+  },
+  "work": "W161230"
+}

@@ -1,0 +1,207 @@
+{
+  "work": "W167896",
+  "source_work": "W161230",
+  "source": "baton:work/records/2026/09/finding-v12-managed-integration-execution/ledger-166281-prospective.json",
+  "basis": "author M167977 plus exact step argv; preserve original ledger; append attribution only",
+  "runs": [
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_job_viewer"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 60.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 909.3641127600101,
+        "spent_seconds_before": 290.6358872399898,
+        "timeout_seconds": 908.3641127600101
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 0.2034580269973958,
+      "exit": 1,
+      "label": "job-viewer",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-36.log",
+      "ok": false,
+      "step": 36,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_job_viewer"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 60.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 909.1606547330127,
+        "spent_seconds_before": 290.8393452669872,
+        "timeout_seconds": 908.1606547330127
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 0.20474142099556047,
+      "exit": 1,
+      "label": "job-viewer",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-37.log",
+      "ok": false,
+      "step": 37,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_job_viewer"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 60.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 908.9559133120172,
+        "spent_seconds_before": 291.04408668798277,
+        "timeout_seconds": 907.9559133120172
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 0.20180886299931444,
+      "exit": 0,
+      "label": "job-viewer",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-38.log",
+      "ok": true,
+      "step": 38,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_job_viewer"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 60.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 908.7541044490179,
+        "spent_seconds_before": 291.2458955509821,
+        "timeout_seconds": 907.7541044490179
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 0.210478883003816,
+      "exit": 0,
+      "label": "job-viewer-final",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-39.log",
+      "ok": true,
+      "step": 39,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_job_viewer"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 60.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 908.543625566014,
+        "spent_seconds_before": 291.4563744339859,
+        "timeout_seconds": 907.543625566014
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 0.20363657099369448,
+      "exit": 0,
+      "label": "viewer-final",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-40.log",
+      "ok": true,
+      "step": 40,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_job_viewer"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 60.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 908.3399889950203,
+        "spent_seconds_before": 291.6600110049796,
+        "timeout_seconds": 907.3399889950203
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 0.20558240699756425,
+      "exit": 1,
+      "label": "viewer-reversal",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-41.log",
+      "ok": false,
+      "step": 41,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_job_viewer"
+      ],
+      "budget": {
+        "cap_seconds": 1200.0,
+        "expected_seconds": 60.0,
+        "margin_seconds": 1.0,
+        "remaining_seconds_before": 908.1344065880228,
+        "spent_seconds_before": 291.86559341197716,
+        "timeout_seconds": 907.1344065880228
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 0.20875284700014163,
+      "exit": 0,
+      "label": "viewer-restored",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-42.log",
+      "ok": true,
+      "step": 42,
+      "timed_out": false
+    }
+  ],
+  "recorded_seconds": 1.438459018987487,
+  "idle_cost": {
+    "host": "slryzen",
+    "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+    "python": "3.13.7",
+    "jobs": 20,
+    "input_bytes": 39129,
+    "interval_seconds": 1.0,
+    "wall_seconds": 60.0,
+    "cpu_seconds_including_children": 0.024,
+    "target_cpu_seconds": 0.6,
+    "percent_of_one_core": 0.0407,
+    "refreshes": 60,
+    "failures": 0,
+    "meets_target": true
+  },
+  "review_seconds": 0.26381664400105365
+}

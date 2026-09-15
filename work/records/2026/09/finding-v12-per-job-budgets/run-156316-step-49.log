@@ -1,0 +1,43 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+...............................E..E
+======================================================================
+ERROR: test_a_third_version_selecting_a_transport_is_not_this_workloads (tests.tools.test_execution_limits.TheImportedVerificationUsesItsOwnBoundary.test_a_third_version_selecting_a_transport_is_not_this_workloads)
+This workload runs once from durable files; a delivery selecting an
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 454, in test_a_third_version_selecting_a_transport_is_not_this_workloads
+    self.workload.checked_launch(held)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/home/sl/src/baton/v12/worker/integration_workload.py", line 677, in checked_launch
+    _refuse("launch-uncorrelated",
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+            "this workload runs once from durable files and consumes "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "no exchange transport; a launch selecting one is not its")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/integration_workload.py", line 207, in _refuse
+    raise _Refused(reason, observed, detail)
+integration_workload._Refused: this workload runs once from durable files and consumes no exchange transport; a launch selecting one is not its
+
+======================================================================
+ERROR: test_the_workload_reads_a_third_version_launch (tests.tools.test_execution_limits.TheImportedVerificationUsesItsOwnBoundary.test_the_workload_reads_a_third_version_launch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 445, in test_the_workload_reads_a_third_version_launch
+    self.workload.checked_launch(self.integration())["role"],
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/integration_workload.py", line 681, in checked_launch
+    _refuse("launch-uncorrelated",
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+            f"this container was launched under another role and only "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{INTEGRATION_ROLE!r} integrates a canonical target")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/worker/integration_workload.py", line 207, in _refuse
+    raise _Refused(reason, observed, detail)
+integration_workload._Refused: this container was launched under another role and only 'integrator' integrates a canonical target
+
+----------------------------------------------------------------------
+Ran 35 tests in 0.011s
+
+FAILED (errors=2)

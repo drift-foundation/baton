@@ -1,0 +1,8 @@
+..........................................................................................................................................
+----------------------------------------------------------------------
+Ran 138 tests in 6.004s
+
+OK
+{"adopted": false, "allocation": "recovery-required", "apply": "planned", "cleanup": "retained", "credential_root": false, "fixture_processes": 1, "launch_root": false, "parent": "queued-unclaimed", "prepare": "ended", "proof": "known-failed-start-is-ended", "root": "open", "runtime": "destroyed"}
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:3a5d22b3c2ead20c906a052c03f31a63a2676c1a09d2e9f50cc2bf08cf2b79c5", "root": "open", "runtime": "destroyed", "worker_exit": 0}
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": "unexpected-decide", "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:69adefb12cdc82ecfbcbcfe620c44f7e1f49d1174dd8f984d5500ac900d08d83", "root": "open", "runtime": "destroyed", "worker_exit": 0}

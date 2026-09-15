@@ -1,0 +1,42 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.manager.test_reconciliation_task
+.....................EEE..........E....
+======================================================================
+ERROR: test_a_command_this_workload_does_not_run_refuses (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_command_this_workload_does_not_run_refuses) (commands=['combined', 'publish'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 236, in test_a_command_this_workload_does_not_run_refuses
+    task.read_request(self.written(_corrupted(commands=wrong)))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: read_request() missing 1 required keyword-only argument: 'owned'
+
+======================================================================
+ERROR: test_a_command_this_workload_does_not_run_refuses (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_command_this_workload_does_not_run_refuses) (commands=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 236, in test_a_command_this_workload_does_not_run_refuses
+    task.read_request(self.written(_corrupted(commands=wrong)))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: read_request() missing 1 required keyword-only argument: 'owned'
+
+======================================================================
+ERROR: test_a_command_this_workload_does_not_run_refuses (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_command_this_workload_does_not_run_refuses) (commands=['base', 'base'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 236, in test_a_command_this_workload_does_not_run_refuses
+    task.read_request(self.written(_corrupted(commands=wrong)))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: read_request() missing 1 required keyword-only argument: 'owned'
+
+======================================================================
+ERROR: test_an_unreadable_or_foreign_request_refuses (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_an_unreadable_or_foreign_request_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 203, in test_an_unreadable_or_foreign_request_refuses
+    task.read_request(self.written("{not json"))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: read_request() missing 1 required keyword-only argument: 'owned'
+
+----------------------------------------------------------------------
+Ran 37 tests in 4.192s
+
+FAILED (errors=4)

@@ -1,0 +1,88 @@
+{
+ "also_corrected": "The 13 errors are three causes, not one: 4 missing reconciles, 8 missing authority.proposal, 1 line-materialization/obsolete missing-port expectation. Closed W103068 already retains a historical 13-error baseline.",
+ "author": "baton.claude",
+ "changed": [
+  {
+   "bytes": 75321,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "88e70c0ea1cd00a71ad19ac56bda246b28fb1ccfeedc3de693b4eb136c557236"
+  },
+  {
+   "bytes": 40551,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "690629e9b8e98e93737a3807bada30e49e90f48136cf02f4a9f263f4cd9ad71c"
+  }
+ ],
+ "claim": 169105,
+ "correction_owed": "My 'untracked integration_contract' claim was FALSE. The module is v12/worker/integration_contract.py: tracked, unmodified, byte-identical to HEAD at sha256:74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92, verified this round. My export was scoped to v12/python and omitted the sibling directory. There is no commit prerequisite and no operational blocker; I manufactured one from a bad archive command and withdraw it.",
+ "next": "construct ManagedPreparation inside _integration_operations from the deployment's own readers, publishing the bundle under the integration root and injecting the worker's acceptance; then the ordinary child launch and ending; the member ended on its real exclusion proof; then adopt_prepared_candidate. Then A.5, then B.",
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "owner_answers": [
+  "accepted integration checkpoint -> base and candidate",
+  "published proposal -> proposal identity",
+  "Authority canonical target -> PINNED target revision",
+  "Job resolved limits -> execution_limits",
+  "compose_preparation_input measurement -> input_digest"
+ ],
+ "rules_enforced": [
+  "the published bundle's own request must EQUAL the composed request -- the bundle a worker reads and the request its intent commits are one document",
+  "child identities are DERIVED from the orchestration, so two sweeps ask for one child and record_preparation_intent's resumption protection is real"
+ ],
+ "still_open": "nothing in _integration_operations yet reads these answers from the deployment and constructs ManagedPreparation with them, so no deployment selects managed preparation.",
+ "unchanged": [
+  {
+   "bytes": 278874,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "63fd8c59b62beffdae3f4474c8f788a1d80fa35fea94c41d4c04bea174e52d67"
+  },
+  {
+   "bytes": 158551,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "88aace0104a6ef77e25e3a497bddc0d08666f746a8559e0f6bf8c42909828bf9"
+  },
+  {
+   "bytes": 191339,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+  },
+  {
+   "bytes": 94098,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+   "sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a"
+  },
+  {
+   "bytes": 57431,
+   "mode": "0o664",
+   "path": "baton:v12/worker/integration_contract.py",
+   "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92"
+  }
+ ],
+ "verification": {
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 98 restored /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation",
+  "ledger": "98 rows, 799.6795605339169s, quoted from the file",
+  "no": "no engine, model, image build, broad suite or destructive cleanup",
+  "steps": {
+   "95": "first green with the resolver, OK 276 cases, ledger 13.378632726991782s",
+   "96": "REVERSAL -- stop holding the published bundle to the request; failed exactly test_a_published_bundle_for_another_request_refuses",
+   "97": "REVERSAL -- mint the child identities; failed exactly test_the_child_identities_are_derived_and_not_minted",
+   "98": "restored, OK 276 cases, ledger 13.422374830988701s"
+  },
+  "whitespace": "clean on both changed files"
+ },
+ "what": "integration_worker.preparation_operands -- one managed preparation's operands composed from owner answers, with the bundle held to the request and the child identities derived rather than minted.",
+ "work": "2b077949-W161230"
+}

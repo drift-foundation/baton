@@ -1,0 +1,22 @@
+{
+  "work": "W161230",
+  "claim": 166368,
+  "authority": "M166331",
+  "prior_reviewer_seconds": 22.04422853698634,
+  "runs": [
+    {
+      "argv": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-166368.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "timeout_seconds": 15,
+      "status": "finished",
+      "log": "review-run-166368-1.log",
+      "exit_code": 1,
+      "elapsed_seconds": 0.21367159399960656
+    }
+  ],
+  "qualification": "No cumulative gate; deterministic local files and mocks, no workload child or real signals",
+  "reviewer_recorded_seconds": 22.257900130985945
+}

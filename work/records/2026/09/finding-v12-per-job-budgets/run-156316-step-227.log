@@ -1,0 +1,59 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/probe-160172-recovery.py
+{
+  "blocked_reason": "post-import-verification-no-status",
+  "account": {
+    "attempt_id": "attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e",
+    "entry_id": "integration-driver.entry:b6b033b8ac3e330da2e1b3a028da61f5ef9258604d6e635abfff9e671f7e6999",
+    "lease_id": "integration-driver.lease:7974465919edcae5b3e1aaf01fa084646ac952cb6a36daef00b3a582ad4460bd",
+    "fence": 2
+  },
+  "composed_assignments": [
+    {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "entry_id": "integration-driver.entry:d9c30c9ef0387e1f229ff94fe16ff110f452f3e66ea196d16fcd379d339685a2",
+      "lease_id": "integration-driver.lease:9871486292baf9ea146e5cfd948ad0919d2ce0e23dd559e19fb3f12df4aec8bd",
+      "fence": 1
+    },
+    {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "entry_id": "integration-driver.entry:d9c30c9ef0387e1f229ff94fe16ff110f452f3e66ea196d16fcd379d339685a2",
+      "lease_id": "integration-driver.lease:9871486292baf9ea146e5cfd948ad0919d2ce0e23dd559e19fb3f12df4aec8bd",
+      "fence": 1
+    },
+    {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "entry_id": "integration-driver.entry:d9c30c9ef0387e1f229ff94fe16ff110f452f3e66ea196d16fcd379d339685a2",
+      "lease_id": "integration-driver.lease:9871486292baf9ea146e5cfd948ad0919d2ce0e23dd559e19fb3f12df4aec8bd",
+      "fence": 1
+    },
+    {
+      "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+      "entry_id": "integration-driver.entry:d9c30c9ef0387e1f229ff94fe16ff110f452f3e66ea196d16fcd379d339685a2",
+      "lease_id": "integration-driver.lease:9871486292baf9ea146e5cfd948ad0919d2ce0e23dd559e19fb3f12df4aec8bd",
+      "fence": 1
+    }
+  ],
+  "account_was_ever_composed": false,
+  "held_status_with_composed": {
+    "category": "policy",
+    "code": "denied",
+    "message": "target 'target-a' is blocked for another integration account"
+  },
+  "abandon_with_composed": {
+    "category": "policy",
+    "code": "denied",
+    "message": "target 'target-a' is blocked for another integration account"
+  },
+  "compose_from_the_account": {
+    "category": "policy",
+    "code": "denied",
+    "message": "target 'target-a' is not open at fence 2; the grant this caller holds has been superseded or the target is blocked"
+  },
+  "target_state_after": "blocked",
+  "target_unchanged": true,
+  "result_unchanged": true,
+  "counts": [
+    1,
+    1
+  ]
+}

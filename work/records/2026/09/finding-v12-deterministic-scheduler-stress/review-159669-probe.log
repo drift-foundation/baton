@@ -1,0 +1,41 @@
+{
+  "validated_unique_schedules": 18,
+  "orders": [
+    {
+      "name": "four-jobs-continued-to-integration",
+      "records": 66,
+      "completions": {
+        "job-a/implementation": 1,
+        "job-c/implementation": 1,
+        "job-d/implementation": 1,
+        "job-a/review": 1,
+        "job-c/review": 1,
+        "job-d/review": 1,
+        "job-b/implementation": 1,
+        "job-b/review": 1,
+        "job-a/integration": 1
+      },
+      "terminal": "job-a/integration",
+      "max_tick": 24,
+      "terminal_receipt": "integration-driver.integration-receipt:d637c00ff2edcc73a99d902b16ad8d6593272c80699bf70aefeb8a1ddfa92bd9"
+    },
+    {
+      "name": "four-jobs-c-before-a",
+      "records": 66,
+      "completions": {
+        "job-c/implementation": 1,
+        "job-d/implementation": 1,
+        "job-a/implementation": 1,
+        "job-c/review": 1,
+        "job-d/review": 1,
+        "job-a/review": 1,
+        "job-b/implementation": 1,
+        "job-b/review": 1,
+        "job-c/integration": 1
+      },
+      "terminal": "job-c/integration",
+      "max_tick": 16,
+      "terminal_receipt": "integration-driver.integration-receipt:cadd7c6da48adbf78c0d6439d61118a495aa9837c8ec4acf52c1e48e45bac060"
+    }
+  ]
+}

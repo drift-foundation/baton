@@ -1,0 +1,258 @@
+{
+  "claim": 173059,
+  "at": "2026-09-14T23:32:15.808552+00:00",
+  "files": [
+    {
+      "path": "baton:v12/python/tools/integration_bundle.py",
+      "sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad",
+      "expected": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "sha256": "dad962f38746640081d6e55a46017edb09645bae4d6354196f04ed552993a566",
+      "expected": "dad962f38746640081d6e55a46017edb09645bae4d6354196f04ed552993a566",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "sha256": "04490070d5744d155514f874a69e69625a56a5874cf90bd17426572198f86272",
+      "expected": "04490070d5744d155514f874a69e69625a56a5874cf90bd17426572198f86272",
+      "unchanged": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/partial-files-172988/v12/python/tools/stage_execution.py",
+      "sha256": "04490070d5744d155514f874a69e69625a56a5874cf90bd17426572198f86272",
+      "expected": "04490070d5744d155514f874a69e69625a56a5874cf90bd17426572198f86272",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tools/integration_placement.py",
+      "sha256": "6846388c4d5000028273f1d563406c28eb845fa72e38903934cb7b5d5576f56b",
+      "expected": "6846388c4d5000028273f1d563406c28eb845fa72e38903934cb7b5d5576f56b",
+      "unchanged": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/partial-files-172988/v12/python/tools/integration_placement.py",
+      "sha256": "6846388c4d5000028273f1d563406c28eb845fa72e38903934cb7b5d5576f56b",
+      "expected": "6846388c4d5000028273f1d563406c28eb845fa72e38903934cb7b5d5576f56b",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/managed_execution.py",
+      "sha256": "b61f77993862ef9925c7f4a2113da3c3f84a6c3dcc129d36938f604d5f9b2cae",
+      "expected": "b61f77993862ef9925c7f4a2113da3c3f84a6c3dcc129d36938f604d5f9b2cae",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "sha256": "b7c0bafd45a3d8f858936728f2a9173a57a5b625533fa21b6f95185e9ac54011",
+      "expected": "b7c0bafd45a3d8f858936728f2a9173a57a5b625533fa21b6f95185e9ac54011",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/execution.py",
+      "sha256": "abba31d87a7e1250e6045f85c8a749890a54b681e148e13144fcde66b525b4dc",
+      "expected": "abba31d87a7e1250e6045f85c8a749890a54b681e148e13144fcde66b525b4dc",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/queue.py",
+      "sha256": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+      "expected": "9f2baadd0b5a030d245d02de474ac452c54db484a4ec5ba43a5610bb7c6b2bea",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/git_profile.py",
+      "sha256": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+      "expected": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+      "unchanged": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/partial-files-172988/v12/python/src/baton_v12/integration/git_profile.py",
+      "sha256": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+      "expected": "7dd8590fc988fc8f4b771464ad5d15154e515f8867bddc5170ef2db4c8097ef6",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "sha256": "05a30a305f20e6ff12c2d455fb1bb2f55ac51ae9c60165021baf621e03f06360",
+      "expected": "05a30a305f20e6ff12c2d455fb1bb2f55ac51ae9c60165021baf621e03f06360",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/delegation.py",
+      "sha256": "3019d7ea94db2fdd3b0e9c3933f0d2b10241fdaf64c2550129c7bbb81ecfadf6",
+      "expected": "3019d7ea94db2fdd3b0e9c3933f0d2b10241fdaf64c2550129c7bbb81ecfadf6",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/projection.py",
+      "sha256": "db9b3f55fc09625a2f8394ed06313a29f02699ae39440dbbf1e3c5b3faa71641",
+      "expected": "db9b3f55fc09625a2f8394ed06313a29f02699ae39440dbbf1e3c5b3faa71641",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/worker/integration_contract.py",
+      "sha256": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "expected": "74f53b031f392a615141c1d2be6552989658b6f5b15b82cc9f16294a3ee5be92",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/worker/integration_workload.py",
+      "sha256": "eb9bb61929304a605b5c1ba4c8087738b5c4de3b0fbaad976b1dd3cbc004ff42",
+      "expected": "eb9bb61929304a605b5c1ba4c8087738b5c4de3b0fbaad976b1dd3cbc004ff42",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/worker/integration_entry.py",
+      "sha256": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "expected": "0885dda09096de65eef7d454b99db07b5ff95f4bf95a0ba3be12ed4ad47329a3",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "59e8f248e07bf65b645d1bf95070b51aefd5738b0c82f0cbf283c62b71612e8c",
+      "expected": "59e8f248e07bf65b645d1bf95070b51aefd5738b0c82f0cbf283c62b71612e8c",
+      "unchanged": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/partial-files-172988/v12/python/tests/tools/test_managed_apply.py",
+      "sha256": "59e8f248e07bf65b645d1bf95070b51aefd5738b0c82f0cbf283c62b71612e8c",
+      "expected": "59e8f248e07bf65b645d1bf95070b51aefd5738b0c82f0cbf283c62b71612e8c",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "sha256": "6d2c8e8d16efd17e6cbf815b86ef2316091d40dd28afdf50ee41a2bd3289bdbc",
+      "expected": "6d2c8e8d16efd17e6cbf815b86ef2316091d40dd28afdf50ee41a2bd3289bdbc",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_stage_execution.py",
+      "sha256": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "expected": "fcdbb74e51a8f9bf1a66b414f22f4acf9180cb70ece39fa3bdf778387e9d4b86",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_integration_worker.py",
+      "sha256": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "expected": "2d58265bdb940c2f329187d2cac97ece4ccc621d38ca560daa70f3c8f1f0eb4c",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_integration_bundle.py",
+      "sha256": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "expected": "af16d77052b94aa85c707966f673ac1b1cbb26eec013b709be76f704e391bd38",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_integration.py",
+      "sha256": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "expected": "405d9819dca4568f90624b1a3ae77e7ed7eb811b07b1aced0442f2a800954d7e",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_execution_limits.py",
+      "sha256": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "expected": "66b1954ebd83781031a48170122a5014fbb63e29f4df3519300e8237d371071f",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_execution.py",
+      "sha256": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "expected": "ceaa8ff5413a77ad0af757ab865f89947d2d19f16aa8bf14b52ad9a2b8582f80",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+      "sha256": "282d16cb5d7d4407db2dd47811db38f52e897b3c720d8bb259af360193fbbace",
+      "expected": "282d16cb5d7d4407db2dd47811db38f52e897b3c720d8bb259af360193fbbace",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_execution.py",
+      "sha256": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "expected": "470609381aa070e6033360ea47969b28c09957070a907e173fafac5e878e85e0",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "sha256": "c4461810b38c9bdee0c67e59d55fb14846624f1cd6db920f23a127ce284ad0dd",
+      "expected": "c4461810b38c9bdee0c67e59d55fb14846624f1cd6db920f23a127ce284ad0dd",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_delegation.py",
+      "sha256": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "expected": "b5f762a04bae889302f976d6c186ab246e3fd9df69492f7f5d5b06e583918da9",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_integration_worker.py",
+      "sha256": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "expected": "a35013a2ad37f9079c8c653776bf1c7d76bdb7628a673268c3f0d5b3318b4f15",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_task.py",
+      "sha256": "69860bdfdc63e5144db973ddd70c7b101bde707ba97c8c99779b3ae6ce992eb6",
+      "expected": "69860bdfdc63e5144db973ddd70c7b101bde707ba97c8c99779b3ae6ce992eb6",
+      "unchanged": true
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_entry.py",
+      "sha256": "5b9abe961c1551b2754c173611f5b3d1815dee32e7bf0881630e0ec4b05f7075",
+      "expected": "5b9abe961c1551b2754c173611f5b3d1815dee32e7bf0881630e0ec4b05f7075",
+      "unchanged": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/PREPARATION-OUTPUT-AMENDMENT-172988.md",
+      "sha256": "4a5bc5118b49aec6ed132c63dd3d7e1cbd9d2e1335e2e132760ff1b84233395f",
+      "expected": "4a5bc5118b49aec6ed132c63dd3d7e1cbd9d2e1335e2e132760ff1b84233395f",
+      "unchanged": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/FINDING.md",
+      "sha256": "c339a1d329f2c19d9d876225e393818232d241baaf6a11cc566738f76e77a0e5",
+      "expected": "c339a1d329f2c19d9d876225e393818232d241baaf6a11cc566738f76e77a0e5",
+      "unchanged": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/PLAN.md",
+      "sha256": "d394c4bb5bf4ad16bb382819a5f8b529b4deef88af079a0cc20f83aa44706706",
+      "expected": "d394c4bb5bf4ad16bb382819a5f8b529b4deef88af079a0cc20f83aa44706706",
+      "unchanged": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/PROGRESS.md",
+      "sha256": "3d227f9385a6125e46394e7ed8d873b11ddd4a3be0ac95cbad7c29b7fd27949b",
+      "expected": "3d227f9385a6125e46394e7ed8d873b11ddd4a3be0ac95cbad7c29b7fd27949b",
+      "unchanged": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/ledger-170385.json",
+      "sha256": "6d017b4c2d50fbddf4721f938aa0b8ec8bd3acdd2da9ba6b7ab69334146d2f02",
+      "expected": "6d017b4c2d50fbddf4721f938aa0b8ec8bd3acdd2da9ba6b7ab69334146d2f02",
+      "unchanged": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/environment-172988.json",
+      "sha256": "01923eb1b12b898d002f946d159decb9a07e1c256e3c2b914fd937b55ae3c6a0",
+      "expected": "01923eb1b12b898d002f946d159decb9a07e1c256e3c2b914fd937b55ae3c6a0",
+      "unchanged": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/baseline-172988.json",
+      "sha256": "8e8762a4d62f2f151f58c39abedce6c5bb22fc9747bd24fc4acac64e6d84501b",
+      "expected": "8e8762a4d62f2f151f58c39abedce6c5bb22fc9747bd24fc4acac64e6d84501b",
+      "unchanged": true
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-apply-settlement/run-focused.py",
+      "sha256": "9c3a91a04142f903daecaec9dab1b3bfcf26b70946037dd8a8b6449d68944f58",
+      "expected": "9c3a91a04142f903daecaec9dab1b3bfcf26b70946037dd8a8b6449d68944f58",
+      "unchanged": true
+    }
+  ]
+}

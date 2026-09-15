@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.manager.test_reconciliation_worker
+.........................
+----------------------------------------------------------------------
+Ran 25 tests in 0.099s
+
+OK

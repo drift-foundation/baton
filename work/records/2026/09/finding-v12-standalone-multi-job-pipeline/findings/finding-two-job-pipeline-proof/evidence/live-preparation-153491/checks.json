@@ -1,0 +1,16 @@
+{
+  "seconds": 0.02881526798591949,
+  "prepared_inputs": 116,
+  "candidate_files": 25,
+  "identical_validated_helpers": [
+    "accounting.py",
+    "failure_observation.py",
+    "target_posture.py",
+    "final_view.py"
+  ],
+  "synthetic_provider_and_effect_fixture_absent": true,
+  "synthetic_success_and_failures_preserved": true,
+  "run10_preserved": true,
+  "corrected_observer_preserved": true,
+  "syntax_whitespace_help": "passed"
+}

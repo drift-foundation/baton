@@ -1,0 +1,13 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155666-correction.py
+job-b first ok
+job-a second ok
+review generation 2
+attachment {"assignment_generation": 2, "attached_at": "2026-09-02T00:00:00.000Z", "attachment_id": "review-06d28a3ea36366cee8a7ef93cae0f30df4b296ad257c818d60631020004ee84b", "checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a", "ended_at": "2026-09-02T00:00:00.000Z", "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a", "reviewer_participant": "baton.reviewer", "reviewer_principal": "principal:baton.reviewer", "reviewer_worker_id": "review-worker", "runtime_attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c", "state": "ended"}
+line {"authority_uuid": "0000000a000000000000000000000000", "created_at": "2026-09-02T00:00:00.000Z", "current_checkpoint_id": "checkpoint-f808f2198514719e45a4457cf365649561317755a17d8fbf1b3cc261026e534a", "declared_base": "3a95f52d491f3ba32369438e5b99c87e6b7c29ea", "line_device": 66306, "line_id": "line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a", "line_inode": 47986734, "line_path": "/home/sl/src/baton/v12/python/v12-w71917-_k_zopqp/storage/.baton-review-lines/line-c71b47a3a4cf6f0cc88a98e204fb287b8e95c4a293d3d7dc4990627855b92c7a/checkout", "profile_name": "git", "revision": 1, "source_device": 66306, "source_inode": 47986588, "source_path": "/home/sl/src/baton/v12/python/v12-w71917-_k_zopqp/source", "state": "writing", "work_id": "0000000a-W1"}
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155666-correction.py", line 60, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155666-correction.py", line 52, in main
+    status = review_cycles.line_status(held.control, line["line_id"])
+TypeError: line_status() missing 1 required positional argument: 'storage_usage'

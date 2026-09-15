@@ -1,0 +1,182 @@
+[
+  {
+    "scope": [
+      "job-b",
+      "result-8409ad952dfd29647c2b500295c0c7e111fe99eaea04c5e9e47e8eb7b934aa43",
+      "post-import"
+    ],
+    "actual_result_job": "job-b",
+    "seconds": 77,
+    "returned_phase": "post-import",
+    "input_commit_equals_tree": true,
+    "answer": {
+      "schema": "baton.v12.host-verification-failure/1",
+      "phase": "post-import",
+      "reason": "timeout",
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '5d0ad414942feffa3a3e793723d9aaf749cd6693'; no exit status was observed and none is invented",
+      "seconds": 77,
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "test_identity": "w130224-second-line-of-one-target",
+      "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "5d0ad414942feffa3a3e793723d9aaf749cd6693",
+      "input_tree": "5d0ad414942feffa3a3e793723d9aaf749cd6693",
+      "completed": {},
+      "not_run": []
+    }
+  },
+  {
+    "scope": [
+      "job-a",
+      "result-8409ad952dfd29647c2b500295c0c7e111fe99eaea04c5e9e47e8eb7b934aa43",
+      "post-import"
+    ],
+    "actual_result_job": "job-b",
+    "seconds": 77,
+    "returned_phase": "post-import",
+    "input_commit_equals_tree": true,
+    "answer": {
+      "schema": "baton.v12.host-verification-failure/1",
+      "phase": "post-import",
+      "reason": "timeout",
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '5d0ad414942feffa3a3e793723d9aaf749cd6693'; no exit status was observed and none is invented",
+      "seconds": 77,
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "test_identity": "w130224-second-line-of-one-target",
+      "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "5d0ad414942feffa3a3e793723d9aaf749cd6693",
+      "input_tree": "5d0ad414942feffa3a3e793723d9aaf749cd6693",
+      "completed": {},
+      "not_run": []
+    }
+  },
+  {
+    "scope": [
+      "job-b",
+      "result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+      "post-import"
+    ],
+    "actual_result_job": "REFUSED: no integration result 'result-attempt-7b5e070a732d64a31d8830d12147471913947786b9a5\u2026",
+    "seconds": 77,
+    "returned_phase": "post-import",
+    "input_commit_equals_tree": true,
+    "answer": {
+      "schema": "baton.v12.host-verification-failure/1",
+      "phase": "post-import",
+      "reason": "timeout",
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '5d0ad414942feffa3a3e793723d9aaf749cd6693'; no exit status was observed and none is invented",
+      "seconds": 77,
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "test_identity": "w130224-second-line-of-one-target",
+      "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "5d0ad414942feffa3a3e793723d9aaf749cd6693",
+      "input_tree": "5d0ad414942feffa3a3e793723d9aaf749cd6693",
+      "completed": {},
+      "not_run": []
+    }
+  },
+  {
+    "scope": [
+      "job-b",
+      "result-8409ad952dfd29647c2b500295c0c7e111fe99eaea04c5e9e47e8eb7b934aa43",
+      "causal"
+    ],
+    "actual_result_job": "job-b",
+    "seconds": 77,
+    "returned_phase": "causal",
+    "input_commit_equals_tree": true,
+    "answer": {
+      "schema": "baton.v12.host-verification-failure/1",
+      "phase": "causal",
+      "reason": "timeout",
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '5d0ad414942feffa3a3e793723d9aaf749cd6693'; no exit status was observed and none is invented",
+      "seconds": 77,
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "test_identity": "w130224-second-line-of-one-target",
+      "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "5d0ad414942feffa3a3e793723d9aaf749cd6693",
+      "input_tree": "5d0ad414942feffa3a3e793723d9aaf749cd6693",
+      "completed": {},
+      "not_run": []
+    }
+  },
+  {
+    "scope": [
+      "job-b",
+      "result-8409ad952dfd29647c2b500295c0c7e111fe99eaea04c5e9e47e8eb7b934aa43",
+      "post-import"
+    ],
+    "actual_result_job": "job-b",
+    "seconds": 300,
+    "returned_phase": "post-import",
+    "input_commit_equals_tree": true,
+    "answer": {
+      "schema": "baton.v12.host-verification-failure/1",
+      "phase": "post-import",
+      "reason": "timeout",
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 300s host_verification ceiling at '5d0ad414942feffa3a3e793723d9aaf749cd6693'; no exit status was observed and none is invented",
+      "seconds": 300,
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "test_identity": "w130224-second-line-of-one-target",
+      "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "5d0ad414942feffa3a3e793723d9aaf749cd6693",
+      "input_tree": "5d0ad414942feffa3a3e793723d9aaf749cd6693",
+      "completed": {},
+      "not_run": []
+    }
+  },
+  {
+    "scope": [
+      "job-b",
+      "result-8409ad952dfd29647c2b500295c0c7e111fe99eaea04c5e9e47e8eb7b934aa43",
+      "post-import"
+    ],
+    "actual_result_job": "job-b",
+    "seconds": 77,
+    "returned_phase": "post-import",
+    "input_commit_equals_tree": true,
+    "answer": {
+      "schema": "baton.v12.host-verification-failure/1",
+      "phase": "post-import",
+      "reason": "timeout",
+      "detail": "the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '5d0ad414942feffa3a3e793723d9aaf749cd6693'; no exit status was observed and none is invented",
+      "seconds": 77,
+      "command": [
+        "python3",
+        "feature_check.py"
+      ],
+      "test_identity": "w130224-second-line-of-one-target",
+      "test_digest": "sha256:ba9f013000dc5e09a32a55ba15a164f362205d14fceca052b4e2eaa381f77bc3",
+      "environment": "configured-required-test",
+      "execution": "baton.result-observer",
+      "input_commit": "5d0ad414942feffa3a3e793723d9aaf749cd6693",
+      "input_tree": "5d0ad414942feffa3a3e793723d9aaf749cd6693",
+      "completed": {},
+      "not_run": []
+    }
+  }
+]

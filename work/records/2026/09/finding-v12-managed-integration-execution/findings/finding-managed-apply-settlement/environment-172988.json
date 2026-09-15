@@ -1,0 +1,7 @@
+{
+  "python": "3.13.7",
+  "jsonschema": "4.26.0",
+  "interpreter": "/home/sl/src/baton/.venv/bin/python3",
+  "verification_cwd": "baton:v12/python",
+  "PYTHONPATH": "src:tools:."
+}

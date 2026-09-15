@@ -1,0 +1,1753 @@
+{
+  "note": "Read-only canonical detail snapshots; source ownership remains subject to live claim and explicit serial coordination.",
+  "snapshots": [
+    {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "agent": {
+          "action_owner": "baton.slaw",
+          "adapter": "codex",
+          "cause": null,
+          "detail": null,
+          "episode": null,
+          "expires_at": "2026-09-14T11:29:53Z",
+          "facts": [
+            {
+              "age_seconds": 3927,
+              "key": "dispatcher",
+              "observed_at": "2026-09-14T10:19:33Z",
+              "source": "configured",
+              "value": "local/baton-reviewer"
+            },
+            {
+              "age_seconds": 3927,
+              "key": "readiness",
+              "observed_at": "2026-09-14T10:19:33Z",
+              "source": "configured",
+              "value": "/home/sl/baton-v11.14aecfb/run/codex-events.sock"
+            },
+            {
+              "age_seconds": 3927,
+              "key": "service",
+              "observed_at": "2026-09-14T10:19:33Z",
+              "source": "configured",
+              "value": "codex-event-bridge pid 1544881"
+            }
+          ],
+          "incarnation": "11cff510-19c3-422c-8722-85c875bdb1eb",
+          "last_contact": "2026-09-14T11:24:53Z",
+          "model": null,
+          "note": null,
+          "provenance": "reported",
+          "provider": null,
+          "refresh_generation": null,
+          "refresh_requested": null,
+          "session": "01a09f6d-8ee7-7fd3-9d11-4e3d00720a87",
+          "since": "2026-09-14T11:23:13Z",
+          "stale": false,
+          "state": "working",
+          "work": null
+        },
+        "available_transitions": [
+          "prioritize"
+        ],
+        "binding": {
+          "actor": "baton.prompt",
+          "created_ts": "2026-09-13T14:19:57Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-managed-integration-execution",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 161230
+        },
+        "binding_count": 1,
+        "bindings": [
+          {
+            "actor": "baton.prompt",
+            "created_ts": "2026-09-13T14:19:57Z",
+            "git_provenance": null,
+            "path": "work/records/2026/09/finding-v12-managed-integration-execution",
+            "prior": 0,
+            "rationale": null,
+            "revision": 1,
+            "root": "baton",
+            "seq": 161230
+          }
+        ],
+        "bindings_next_after": null,
+        "bindings_truncated": false,
+        "blocking": false,
+        "breadcrumb": [
+          {
+            "id": "2b077949-W161230",
+            "title": "V12: Run integration through managed relocatable execution"
+          }
+        ],
+        "claimed_at": "2026-09-14T11:23:22Z",
+        "classification": "design-choice",
+        "duplicate_of": null,
+        "episode_seq": 168740,
+        "first_open_blocker": null,
+        "follow_up_of": null,
+        "gate": null,
+        "handler": {
+          "member": "codex",
+          "participant": "baton.codex",
+          "team": "baton"
+        },
+        "handoff_at": "2026-09-14T11:13:25Z",
+        "heartbeat_at": "2026-09-14T11:23:22Z",
+        "id": "2b077949-W161230",
+        "last_change_seq": 168804,
+        "last_changed_at": "2026-09-14T11:23:22.655Z",
+        "links": {
+          "blocked_by": [],
+          "blocks": [
+            {
+              "handler": null,
+              "id": "2b077949-W156162",
+              "outcome": null,
+              "route": {
+                "endpoint": "baton.feat",
+                "handlers": [
+                  "codex"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "status": "open",
+              "team": "baton",
+              "title": "V12: Configure execution and verification budgets per Job",
+              "via_obligation": null
+            },
+            {
+              "handler": null,
+              "id": "2b077949-W161234",
+              "outcome": null,
+              "route": {
+                "endpoint": "baton.feat",
+                "handlers": [
+                  "codex"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "status": "open",
+              "team": "baton",
+              "title": "V12: Prove code correction and restart without duplicate execution",
+              "via_obligation": null
+            }
+          ],
+          "contains": [],
+          "duplicate_of": null,
+          "duplicates": [],
+          "follow_up_of": null,
+          "follow_ups": [],
+          "id": "2b077949-W161230",
+          "parent": null
+        },
+        "local_id": "W161230",
+        "message_count": 69,
+        "my_pending_obligations": 0,
+        "new": 69,
+        "new_breakdown": {
+          "children": [],
+          "id": "2b077949-W161230",
+          "overlap": 0,
+          "own": 69,
+          "snapshot_seq": 168813,
+          "subtree_total": 69
+        },
+        "next": {
+          "endpoint": "baton.impl",
+          "handlers": [
+            "claude"
+          ],
+          "role": "impl",
+          "route": "impl"
+        },
+        "obligations": [
+          {
+            "accepted_into": null,
+            "endpoint": "baton.decide",
+            "flavor": "response",
+            "resolved_seq": 161614,
+            "seq": 161508,
+            "status": "responded",
+            "thread": "2b077949-T161230"
+          },
+          {
+            "accepted_into": null,
+            "endpoint": "baton.decide",
+            "flavor": "response",
+            "resolved_seq": 162156,
+            "seq": 161874,
+            "status": "responded",
+            "thread": "2b077949-T161230"
+          },
+          {
+            "accepted_into": null,
+            "endpoint": "baton.decide",
+            "flavor": "response",
+            "resolved_seq": 162274,
+            "seq": 162258,
+            "status": "responded",
+            "thread": "2b077949-T161230"
+          },
+          {
+            "accepted_into": null,
+            "endpoint": "baton.decide",
+            "flavor": "response",
+            "resolved_seq": 164369,
+            "seq": 163010,
+            "status": "responded",
+            "thread": "2b077949-T161230"
+          },
+          {
+            "accepted_into": null,
+            "endpoint": "baton.ops",
+            "flavor": "response",
+            "resolved_seq": 166178,
+            "seq": 166152,
+            "status": "responded",
+            "thread": "2b077949-T161230"
+          },
+          {
+            "accepted_into": null,
+            "endpoint": "baton.ops",
+            "flavor": "response",
+            "resolved_seq": 166281,
+            "seq": 166259,
+            "status": "responded",
+            "thread": "2b077949-T161230"
+          }
+        ],
+        "open_blockers": 0,
+        "open_dependents": 2,
+        "origin": "decomposition",
+        "outcome": null,
+        "phase": "active",
+        "pickup": "claimed",
+        "priority": "high",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": null,
+        "ready": true,
+        "revision": null,
+        "revision_count": 0,
+        "revisions": [],
+        "revisions_next_after": null,
+        "revisions_truncated": false,
+        "route": {
+          "endpoint": "baton.feat",
+          "handlers": [
+            "codex"
+          ],
+          "role": "rview",
+          "route": "rview"
+        },
+        "status": "open",
+        "team": "baton",
+        "thread_count": 1,
+        "threads": [
+          {
+            "added_seq": 161230,
+            "id": "2b077949-T161230",
+            "last_seq": 168737,
+            "new": 69,
+            "subject": "V12: Run integration through managed relocatable execution"
+          }
+        ],
+        "threads_next_after": null,
+        "threads_truncated": false,
+        "title": "V12: Run integration through managed relocatable execution",
+        "trials": []
+      },
+      "snapshot_seq": 168813
+    },
+    {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "agent": null,
+        "available_transitions": [
+          "prioritize",
+          "reroute"
+        ],
+        "binding": {
+          "actor": "baton.prompt",
+          "created_ts": "2026-09-13T00:35:14Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-per-job-budgets",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 156162
+        },
+        "binding_count": 1,
+        "bindings": [
+          {
+            "actor": "baton.prompt",
+            "created_ts": "2026-09-13T00:35:14Z",
+            "git_provenance": null,
+            "path": "work/records/2026/09/finding-v12-per-job-budgets",
+            "prior": 0,
+            "rationale": null,
+            "revision": 1,
+            "root": "baton",
+            "seq": 156162
+          }
+        ],
+        "bindings_next_after": null,
+        "bindings_truncated": false,
+        "blocking": false,
+        "breadcrumb": [
+          {
+            "id": "2b077949-W156162",
+            "title": "V12: Configure execution and verification budgets per Job"
+          }
+        ],
+        "claimed_at": null,
+        "classification": "design-choice",
+        "duplicate_of": null,
+        "episode_seq": 161137,
+        "first_open_blocker": "W161230",
+        "follow_up_of": null,
+        "gate": {
+          "kind": "work",
+          "message": null,
+          "obligation": null,
+          "selector": "W161230",
+          "started_at": "2026-09-13T14:31:24.560Z",
+          "started_seq": 161306,
+          "work": "2b077949-W161230"
+        },
+        "handler": null,
+        "handoff_at": "2026-09-13T14:04:54Z",
+        "heartbeat_at": null,
+        "id": "2b077949-W156162",
+        "last_change_seq": 161306,
+        "last_changed_at": "2026-09-13T14:31:24.560Z",
+        "links": {
+          "blocked_by": [
+            {
+              "handler": {
+                "member": "codex",
+                "participant": "baton.codex",
+                "team": "baton"
+              },
+              "id": "2b077949-W161230",
+              "outcome": null,
+              "route": {
+                "endpoint": "baton.feat",
+                "handlers": [
+                  "codex"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "status": "open",
+              "team": "baton",
+              "title": "V12: Run integration through managed relocatable execution",
+              "via_obligation": null
+            }
+          ],
+          "blocks": [],
+          "contains": [],
+          "duplicate_of": null,
+          "duplicates": [],
+          "follow_up_of": null,
+          "follow_ups": [],
+          "id": "2b077949-W156162",
+          "parent": null
+        },
+        "local_id": "W156162",
+        "message_count": 51,
+        "my_pending_obligations": 0,
+        "new": 51,
+        "new_breakdown": {
+          "children": [],
+          "id": "2b077949-W156162",
+          "overlap": 0,
+          "own": 51,
+          "snapshot_seq": 168813,
+          "subtree_total": 51
+        },
+        "next": null,
+        "obligations": [
+          {
+            "accepted_into": null,
+            "endpoint": "baton.decide",
+            "flavor": "response",
+            "resolved_seq": 159347,
+            "seq": 157653,
+            "status": "responded",
+            "thread": "2b077949-T156162"
+          },
+          {
+            "accepted_into": null,
+            "endpoint": "baton.decide",
+            "flavor": "response",
+            "resolved_seq": 161051,
+            "seq": 160528,
+            "status": "responded",
+            "thread": "2b077949-T156162"
+          }
+        ],
+        "open_blockers": 1,
+        "open_dependents": 0,
+        "origin": "external-report",
+        "outcome": null,
+        "phase": "block",
+        "pickup": "pending",
+        "priority": "normal",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": null,
+        "ready": false,
+        "revision": null,
+        "revision_count": 0,
+        "revisions": [],
+        "revisions_next_after": null,
+        "revisions_truncated": false,
+        "route": {
+          "endpoint": "baton.feat",
+          "handlers": [
+            "codex"
+          ],
+          "role": "rview",
+          "route": "rview"
+        },
+        "status": "open",
+        "team": "baton",
+        "thread_count": 1,
+        "threads": [
+          {
+            "added_seq": 156162,
+            "id": "2b077949-T156162",
+            "last_seq": 161311,
+            "new": 51,
+            "subject": "V12: Configure execution and verification budgets per Job"
+          }
+        ],
+        "threads_next_after": null,
+        "threads_truncated": false,
+        "title": "V12: Configure execution and verification budgets per Job",
+        "trials": []
+      },
+      "snapshot_seq": 168813
+    },
+    {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "agent": null,
+        "available_transitions": [
+          "prioritize",
+          "reroute"
+        ],
+        "binding": {
+          "actor": "baton.prompt",
+          "created_ts": "2026-09-06T17:30:25Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-deterministic-scheduler-stress",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 103525
+        },
+        "binding_count": 1,
+        "bindings": [
+          {
+            "actor": "baton.prompt",
+            "created_ts": "2026-09-06T17:30:25Z",
+            "git_provenance": null,
+            "path": "work/records/2026/09/finding-v12-deterministic-scheduler-stress",
+            "prior": 0,
+            "rationale": null,
+            "revision": 1,
+            "root": "baton",
+            "seq": 103525
+          }
+        ],
+        "bindings_next_after": null,
+        "bindings_truncated": false,
+        "blocking": false,
+        "breadcrumb": [
+          {
+            "id": "2b077949-W103525",
+            "title": "V12: Certify parallel scheduling with deterministic traces"
+          }
+        ],
+        "claimed_at": null,
+        "classification": "design-choice",
+        "duplicate_of": null,
+        "episode_seq": 161388,
+        "first_open_blocker": null,
+        "follow_up_of": null,
+        "gate": null,
+        "handler": null,
+        "handoff_at": "2026-09-13T14:44:15Z",
+        "heartbeat_at": null,
+        "id": "2b077949-W103525",
+        "last_change_seq": 161421,
+        "last_changed_at": "2026-09-13T14:48:36.982Z",
+        "links": {
+          "blocked_by": [
+            {
+              "handler": null,
+              "id": "2b077949-W71830",
+              "outcome": "satisfying",
+              "route": null,
+              "status": "closed",
+              "team": "baton",
+              "title": "Run a standalone multi-job v12 pipeline",
+              "via_obligation": null
+            }
+          ],
+          "blocks": [],
+          "contains": [],
+          "duplicate_of": null,
+          "duplicates": [],
+          "follow_up_of": null,
+          "follow_ups": [],
+          "id": "2b077949-W103525",
+          "parent": null
+        },
+        "local_id": "W103525",
+        "message_count": 50,
+        "my_pending_obligations": 0,
+        "new": 50,
+        "new_breakdown": {
+          "children": [],
+          "id": "2b077949-W103525",
+          "overlap": 0,
+          "own": 50,
+          "snapshot_seq": 168815,
+          "subtree_total": 50
+        },
+        "next": {
+          "endpoint": "baton.feat",
+          "handlers": [
+            "codex"
+          ],
+          "role": "rview",
+          "route": "rview"
+        },
+        "obligations": [
+          {
+            "accepted_into": null,
+            "endpoint": "baton.decide",
+            "flavor": "response",
+            "resolved_seq": 159439,
+            "seq": 157707,
+            "status": "responded",
+            "thread": "2b077949-T103525"
+          },
+          {
+            "accepted_into": null,
+            "endpoint": "baton.decide",
+            "flavor": "response",
+            "resolved_seq": 159714,
+            "seq": 159696,
+            "status": "responded",
+            "thread": "2b077949-T103525"
+          },
+          {
+            "accepted_into": null,
+            "endpoint": "baton.decide",
+            "flavor": "response",
+            "resolved_seq": 160956,
+            "seq": 160054,
+            "status": "responded",
+            "thread": "2b077949-T103525"
+          },
+          {
+            "accepted_into": null,
+            "endpoint": "baton.decide",
+            "flavor": "response",
+            "resolved_seq": 161211,
+            "seq": 161193,
+            "status": "responded",
+            "thread": "2b077949-T103525"
+          },
+          {
+            "accepted_into": null,
+            "endpoint": "baton.decide",
+            "flavor": "response",
+            "resolved_seq": 161420,
+            "seq": 161386,
+            "status": "responded",
+            "thread": "2b077949-T103525"
+          }
+        ],
+        "open_blockers": 0,
+        "open_dependents": 0,
+        "origin": "self-initiated",
+        "outcome": null,
+        "phase": "parked",
+        "pickup": "pending",
+        "priority": "normal",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": null,
+        "ready": true,
+        "revision": null,
+        "revision_count": 0,
+        "revisions": [],
+        "revisions_next_after": null,
+        "revisions_truncated": false,
+        "route": {
+          "endpoint": "baton.decide",
+          "handlers": [
+            "slaw"
+          ],
+          "role": "approv",
+          "route": "approv"
+        },
+        "status": "open",
+        "team": "baton",
+        "thread_count": 1,
+        "threads": [
+          {
+            "added_seq": 103525,
+            "id": "2b077949-T103525",
+            "last_seq": 161420,
+            "new": 50,
+            "subject": "V12: Certify parallel scheduling with deterministic traces"
+          }
+        ],
+        "threads_next_after": null,
+        "threads_truncated": false,
+        "title": "V12: Certify parallel scheduling with deterministic traces",
+        "trials": []
+      },
+      "snapshot_seq": 168815
+    },
+    {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "agent": null,
+        "available_transitions": [],
+        "binding": {
+          "actor": "baton.codex",
+          "created_ts": "2026-09-14T09:09:52Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 167896
+        },
+        "binding_count": 1,
+        "bindings": [
+          {
+            "actor": "baton.codex",
+            "created_ts": "2026-09-14T09:09:52Z",
+            "git_provenance": null,
+            "path": "work/records/2026/09/finding-v12-minimal-readonly-job-viewer",
+            "prior": 0,
+            "rationale": null,
+            "revision": 1,
+            "root": "baton",
+            "seq": 167896
+          }
+        ],
+        "bindings_next_after": null,
+        "bindings_truncated": false,
+        "blocking": false,
+        "breadcrumb": [
+          {
+            "id": "2b077949-W167896",
+            "title": "V12: Deliver the minimal read-only Job viewer"
+          }
+        ],
+        "claimed_at": null,
+        "classification": "design-choice",
+        "duplicate_of": null,
+        "episode_seq": 168339,
+        "first_open_blocker": null,
+        "follow_up_of": null,
+        "gate": null,
+        "handler": null,
+        "handoff_at": "2026-09-14T10:15:22Z",
+        "heartbeat_at": null,
+        "id": "2b077949-W167896",
+        "last_change_seq": 168427,
+        "last_changed_at": "2026-09-14T10:25:24.857Z",
+        "links": {
+          "blocked_by": [],
+          "blocks": [],
+          "contains": [],
+          "duplicate_of": null,
+          "duplicates": [],
+          "follow_up_of": null,
+          "follow_ups": [],
+          "id": "2b077949-W167896",
+          "parent": null
+        },
+        "local_id": "W167896",
+        "message_count": 5,
+        "my_pending_obligations": 0,
+        "new": 5,
+        "new_breakdown": {
+          "children": [],
+          "id": "2b077949-W167896",
+          "overlap": 0,
+          "own": 5,
+          "snapshot_seq": 168815,
+          "subtree_total": 5
+        },
+        "next": null,
+        "obligations": [],
+        "open_blockers": 0,
+        "open_dependents": 0,
+        "origin": "decomposition",
+        "outcome": "satisfying",
+        "phase": null,
+        "pickup": null,
+        "priority": "normal",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": "Owner accepts candidate-168326 and independent review dated 2026-09-14T10:15:06Z.  Minimal viewer delivery accepted; other release gates remain unchanged.",
+        "ready": false,
+        "revision": null,
+        "revision_count": 0,
+        "revisions": [],
+        "revisions_next_after": null,
+        "revisions_truncated": false,
+        "route": null,
+        "status": "closed",
+        "team": "baton",
+        "thread_count": 1,
+        "threads": [
+          {
+            "added_seq": 167896,
+            "id": "2b077949-T167896",
+            "last_seq": 168311,
+            "new": 5,
+            "subject": "V12: Deliver the minimal read-only Job viewer"
+          }
+        ],
+        "threads_next_after": null,
+        "threads_truncated": false,
+        "title": "V12: Deliver the minimal read-only Job viewer",
+        "trials": []
+      },
+      "snapshot_seq": 168815
+    },
+    {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "agent": null,
+        "available_transitions": [],
+        "binding": {
+          "actor": "baton.codex",
+          "created_ts": "2026-09-10T03:28:09Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 133117
+        },
+        "binding_count": 1,
+        "bindings": [
+          {
+            "actor": "baton.codex",
+            "created_ts": "2026-09-10T03:28:09Z",
+            "git_provenance": null,
+            "path": "work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody",
+            "prior": 0,
+            "rationale": null,
+            "revision": 1,
+            "root": "baton",
+            "seq": 133117
+          }
+        ],
+        "bindings_next_after": null,
+        "bindings_truncated": false,
+        "blocking": false,
+        "breadcrumb": [
+          {
+            "id": "2b077949-W131409",
+            "title": "V12: a second Job cannot integrate once the canonical target moves past its line"
+          },
+          {
+            "id": "2b077949-W133117",
+            "title": "V12: isolated submission and integration-result custody"
+          }
+        ],
+        "claimed_at": null,
+        "classification": "confirmed-defect",
+        "duplicate_of": null,
+        "episode_seq": 136555,
+        "first_open_blocker": null,
+        "follow_up_of": null,
+        "gate": null,
+        "handler": null,
+        "handoff_at": "2026-09-10T13:31:11Z",
+        "heartbeat_at": null,
+        "id": "2b077949-W133117",
+        "last_change_seq": 136604,
+        "last_changed_at": "2026-09-10T13:39:22.569Z",
+        "links": {
+          "blocked_by": [
+            {
+              "handler": null,
+              "id": "2b077949-W132712",
+              "outcome": "cancelled",
+              "route": null,
+              "status": "closed",
+              "team": "baton",
+              "title": "V12: target rework custody and sealed prelaunch handoff",
+              "via_obligation": null
+            }
+          ],
+          "blocks": [],
+          "contains": [],
+          "duplicate_of": null,
+          "duplicates": [],
+          "follow_up_of": null,
+          "follow_ups": [],
+          "id": "2b077949-W133117",
+          "parent": {
+            "handler": null,
+            "id": "2b077949-W131409",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "V12: a second Job cannot integrate once the canonical target moves past its line"
+          }
+        },
+        "local_id": "W133117",
+        "message_count": 10,
+        "my_pending_obligations": 0,
+        "new": 10,
+        "new_breakdown": {
+          "children": [],
+          "id": "2b077949-W133117",
+          "overlap": 0,
+          "own": 10,
+          "snapshot_seq": 168815,
+          "subtree_total": 10
+        },
+        "next": null,
+        "obligations": [],
+        "open_blockers": 0,
+        "open_dependents": 0,
+        "origin": "decomposition",
+        "outcome": "satisfying",
+        "phase": null,
+        "pickup": null,
+        "priority": "high",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": "Independent review136558 accepts exact candidate136400 for owner M136417 narrowed milestone. See baton:work/records/2026/09/finding-v12-line-rebase-after-target-advance/findings/finding-integration-result-custody/review-2026-09-10T13-36-22Z.md and evidence/review-136558/result.json: all eleven full hashes/sizes/modes match, only approved four paths changed. Independent real Git/Authority/scoped-session/store path with Authority cursor at A proves B original-base combined content, actual causal base-fail/isolated-pass/combined-pass, unapproved publication then real independent receipts then authorized import account, producer and nonempty source receipts unchanged. Unreceipted publication, combined failure and producer-workspace nomination refuse. Manager/Job fixture boundary disclosed; no actual Q import or R deployment completion claimed. Parent DELIVERY-SCOPE-2026-09-10.md pins exact essential Q/R minimum under owner M136417; separable recovery/storage/tamper/race claims are independently parked W136578 without milestone dependency and are not claimed passed. Existing tests changed: test_reconciliation/test_admission/test_coordinator at exact manifest bytes; test_driver unchanged; approved expectations match milestone. Reviewer cumulative3.122893249213803/8s. Corrected final author ledger12 runs,4 failures,20.108777135999617s measured plus unmeasured under NEW30s; old56.46s plus uncertainty remains retired, no certified remainder/transfer. Next Q actual import/terminal settlement then R A/B terminal witness, reuse W130224/W119405. Q must resolve its smallest exact source-scope omission: terminal IMPORT_KIND signature currently returns None in reconciliation.py, which Q allowlist omits. Use Q existing handoff for terminal writer/reader plus focused regression, unchanged budget, no new planning prerequisite. Product/source history and Git untouched by reviewer.",
+        "ready": false,
+        "revision": null,
+        "revision_count": 0,
+        "revisions": [],
+        "revisions_next_after": null,
+        "revisions_truncated": false,
+        "route": null,
+        "status": "closed",
+        "team": "baton",
+        "thread_count": 1,
+        "threads": [
+          {
+            "added_seq": 133117,
+            "id": "2b077949-T133117",
+            "last_seq": 136552,
+            "new": 10,
+            "subject": "V12: isolated submission and integration-result custody"
+          }
+        ],
+        "threads_next_after": null,
+        "threads_truncated": false,
+        "title": "V12: isolated submission and integration-result custody",
+        "trials": []
+      },
+      "snapshot_seq": 168815
+    },
+    {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "agent": null,
+        "available_transitions": [
+          "prioritize",
+          "reroute"
+        ],
+        "binding": {
+          "actor": "baton.prompt",
+          "created_ts": "2026-09-06T18:35:53Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-stage-composition-hardening",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 103950
+        },
+        "binding_count": 1,
+        "bindings": [
+          {
+            "actor": "baton.prompt",
+            "created_ts": "2026-09-06T18:35:53Z",
+            "git_provenance": null,
+            "path": "work/records/2026/09/finding-v12-stage-composition-hardening",
+            "prior": 0,
+            "rationale": null,
+            "revision": 1,
+            "root": "baton",
+            "seq": 103950
+          }
+        ],
+        "bindings_next_after": null,
+        "bindings_truncated": false,
+        "blocking": false,
+        "breadcrumb": [
+          {
+            "id": "2b077949-W103950",
+            "title": "V12: Extend stage composition hardening coverage"
+          }
+        ],
+        "claimed_at": null,
+        "classification": "design-choice",
+        "duplicate_of": null,
+        "episode_seq": 129856,
+        "first_open_blocker": "W129838",
+        "follow_up_of": null,
+        "gate": {
+          "kind": "work",
+          "message": null,
+          "obligation": null,
+          "selector": "W129838",
+          "started_at": "2026-09-09T18:09:08.001Z",
+          "started_seq": 129888,
+          "work": "2b077949-W129838"
+        },
+        "handler": null,
+        "handoff_at": "2026-09-09T18:05:07Z",
+        "heartbeat_at": null,
+        "id": "2b077949-W103950",
+        "last_change_seq": 129888,
+        "last_changed_at": "2026-09-09T18:09:08.001Z",
+        "links": {
+          "blocked_by": [
+            {
+              "handler": null,
+              "id": "2b077949-W103083",
+              "outcome": "satisfying",
+              "route": null,
+              "status": "closed",
+              "team": "baton",
+              "title": "V12: Assemble the standalone stage process",
+              "via_obligation": null
+            },
+            {
+              "handler": null,
+              "id": "2b077949-W129838",
+              "outcome": null,
+              "route": {
+                "endpoint": "baton.impl",
+                "handlers": [
+                  "claude"
+                ],
+                "role": "impl",
+                "route": "impl"
+              },
+              "status": "open",
+              "team": "baton",
+              "title": "V12: Close concrete worker operations during stage construction unwind",
+              "via_obligation": null
+            },
+            {
+              "handler": null,
+              "id": "2b077949-W129844",
+              "outcome": "satisfying",
+              "route": null,
+              "status": "closed",
+              "team": "baton",
+              "title": "V12: Cover composed held-state status and log locators",
+              "via_obligation": null
+            }
+          ],
+          "blocks": [],
+          "contains": [
+            {
+              "handler": null,
+              "id": "2b077949-W129838",
+              "outcome": null,
+              "route": {
+                "endpoint": "baton.impl",
+                "handlers": [
+                  "claude"
+                ],
+                "role": "impl",
+                "route": "impl"
+              },
+              "status": "open",
+              "team": "baton",
+              "title": "V12: Close concrete worker operations during stage construction unwind"
+            },
+            {
+              "handler": null,
+              "id": "2b077949-W129844",
+              "outcome": "satisfying",
+              "route": null,
+              "status": "closed",
+              "team": "baton",
+              "title": "V12: Cover composed held-state status and log locators"
+            }
+          ],
+          "duplicate_of": null,
+          "duplicates": [],
+          "follow_up_of": null,
+          "follow_ups": [],
+          "id": "2b077949-W103950",
+          "parent": null
+        },
+        "local_id": "W103950",
+        "message_count": 5,
+        "my_pending_obligations": 0,
+        "new": 2,
+        "new_breakdown": {
+          "children": [
+            {
+              "id": "2b077949-W129838",
+              "new": 3
+            },
+            {
+              "id": "2b077949-W129844",
+              "new": 0
+            }
+          ],
+          "id": "2b077949-W103950",
+          "overlap": 0,
+          "own": 2,
+          "snapshot_seq": 168816,
+          "subtree_total": 5
+        },
+        "next": null,
+        "obligations": [],
+        "open_blockers": 1,
+        "open_dependents": 0,
+        "origin": "decomposition",
+        "outcome": null,
+        "phase": "block",
+        "pickup": "pending",
+        "priority": "low",
+        "progress": {
+          "children": 2,
+          "closed": 1
+        },
+        "rationale": null,
+        "ready": false,
+        "revision": null,
+        "revision_count": 0,
+        "revisions": [],
+        "revisions_next_after": null,
+        "revisions_truncated": false,
+        "route": {
+          "endpoint": "baton.bug",
+          "handlers": [
+            "codex"
+          ],
+          "role": "rview",
+          "route": "rview"
+        },
+        "status": "open",
+        "team": "baton",
+        "thread_count": 1,
+        "threads": [
+          {
+            "added_seq": 103950,
+            "id": "2b077949-T103950",
+            "last_seq": 129970,
+            "new": 2,
+            "subject": "V12: Extend stage composition hardening coverage"
+          }
+        ],
+        "threads_next_after": null,
+        "threads_truncated": false,
+        "title": "V12: Extend stage composition hardening coverage",
+        "trials": []
+      },
+      "snapshot_seq": 168816
+    },
+    {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "agent": null,
+        "available_transitions": [],
+        "binding": {
+          "actor": "baton.tuner",
+          "created_ts": "2026-09-09T18:03:29Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-stage-composition-hardening/findings/finding-held-status-locators",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 129844
+        },
+        "binding_count": 1,
+        "bindings": [
+          {
+            "actor": "baton.tuner",
+            "created_ts": "2026-09-09T18:03:29Z",
+            "git_provenance": null,
+            "path": "work/records/2026/09/finding-v12-stage-composition-hardening/findings/finding-held-status-locators",
+            "prior": 0,
+            "rationale": null,
+            "revision": 1,
+            "root": "baton",
+            "seq": 129844
+          }
+        ],
+        "bindings_next_after": null,
+        "bindings_truncated": false,
+        "blocking": false,
+        "breadcrumb": [
+          {
+            "id": "2b077949-W103950",
+            "title": "V12: Extend stage composition hardening coverage"
+          },
+          {
+            "id": "2b077949-W129844",
+            "title": "V12: Cover composed held-state status and log locators"
+          }
+        ],
+        "claimed_at": null,
+        "classification": "design-choice",
+        "duplicate_of": null,
+        "episode_seq": 129945,
+        "first_open_blocker": null,
+        "follow_up_of": null,
+        "gate": null,
+        "handler": null,
+        "handoff_at": "2026-09-09T18:17:40Z",
+        "heartbeat_at": null,
+        "id": "2b077949-W129844",
+        "last_change_seq": 129967,
+        "last_changed_at": "2026-09-09T18:21:07.797Z",
+        "links": {
+          "blocked_by": [],
+          "blocks": [
+            {
+              "handler": null,
+              "id": "2b077949-W103950",
+              "outcome": null,
+              "route": {
+                "endpoint": "baton.bug",
+                "handlers": [
+                  "codex"
+                ],
+                "role": "rview",
+                "route": "rview"
+              },
+              "status": "open",
+              "team": "baton",
+              "title": "V12: Extend stage composition hardening coverage",
+              "via_obligation": null
+            }
+          ],
+          "contains": [],
+          "duplicate_of": null,
+          "duplicates": [],
+          "follow_up_of": null,
+          "follow_ups": [],
+          "id": "2b077949-W129844",
+          "parent": {
+            "handler": null,
+            "id": "2b077949-W103950",
+            "outcome": null,
+            "route": {
+              "endpoint": "baton.bug",
+              "handlers": [
+                "codex"
+              ],
+              "role": "rview",
+              "route": "rview"
+            },
+            "status": "open",
+            "team": "baton",
+            "title": "V12: Extend stage composition hardening coverage"
+          }
+        },
+        "local_id": "W129844",
+        "message_count": 2,
+        "my_pending_obligations": 0,
+        "new": 0,
+        "new_breakdown": {
+          "children": [],
+          "id": "2b077949-W129844",
+          "overlap": 0,
+          "own": 0,
+          "snapshot_seq": 168816,
+          "subtree_total": 0
+        },
+        "next": null,
+        "obligations": [],
+        "open_blockers": 0,
+        "open_dependents": 1,
+        "origin": "decomposition",
+        "outcome": "satisfying",
+        "phase": null,
+        "pickup": null,
+        "priority": "low",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": "Independent test-only acceptance claim129951: baton:work/records/2026/09/finding-v12-stage-composition-hardening/findings/finding-held-status-locators/review-2026-09-09T18-20-56Z.md. Exact new test_stage_execution_status_hardening.py SHAacdd44ae69d6ad2ba78567cd607ca5efb711364af544024a80de59ba2fa020af mode0664 retained in evidence/review-129951. Actual configured CLI held-integration status and missing-coordinator pair passes; same identity/allocation/assignment, held target/entry, no pass, explicit absent logs/activity shape, no serving act and protected owners/database bytes/modes unchanged.14 independent retained-readback predicates pass; no duplicate runtime. Author3.481925/20s including corrected new activity assertion. Accepted against W119403 source090c3611/fixture0141cab0; later per-Job changes own impact review. No production/existing-test/registry edit or new defect. W103950 retains joined acceptance and open W129838; standing test authority applies.",
+        "ready": false,
+        "revision": null,
+        "revision_count": 0,
+        "revisions": [],
+        "revisions_next_after": null,
+        "revisions_truncated": false,
+        "route": null,
+        "status": "closed",
+        "team": "baton",
+        "thread_count": 1,
+        "threads": [
+          {
+            "added_seq": 129844,
+            "id": "2b077949-T129844",
+            "last_seq": 129940,
+            "new": 0,
+            "subject": "V12: Cover composed held-state status and log locators"
+          }
+        ],
+        "threads_next_after": null,
+        "threads_truncated": false,
+        "title": "V12: Cover composed held-state status and log locators",
+        "trials": []
+      },
+      "snapshot_seq": 168816
+    },
+    {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "agent": null,
+        "available_transitions": [],
+        "binding": {
+          "actor": "baton.codex",
+          "created_ts": "2026-09-02T21:40:36Z",
+          "git_provenance": null,
+          "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 71879
+        },
+        "binding_count": 1,
+        "bindings": [
+          {
+            "actor": "baton.codex",
+            "created_ts": "2026-09-02T21:40:36Z",
+            "git_provenance": null,
+            "path": "work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof",
+            "prior": 0,
+            "rationale": null,
+            "revision": 1,
+            "root": "baton",
+            "seq": 71879
+          }
+        ],
+        "bindings_next_after": null,
+        "bindings_truncated": false,
+        "blocking": false,
+        "breadcrumb": [
+          {
+            "id": "2b077949-W71830",
+            "title": "Run a standalone multi-job v12 pipeline"
+          },
+          {
+            "id": "2b077949-W71879",
+            "title": "Prove the standalone two-Job v12 pipeline"
+          }
+        ],
+        "claimed_at": null,
+        "classification": "design-choice",
+        "duplicate_of": null,
+        "episode_seq": 153549,
+        "first_open_blocker": null,
+        "follow_up_of": null,
+        "gate": null,
+        "handler": null,
+        "handoff_at": "2026-09-12T15:30:02Z",
+        "heartbeat_at": null,
+        "id": "2b077949-W71879",
+        "last_change_seq": 153653,
+        "last_changed_at": "2026-09-12T15:47:52.148Z",
+        "links": {
+          "blocked_by": [
+            {
+              "handler": null,
+              "id": "2b077949-W71875",
+              "outcome": "satisfying",
+              "route": null,
+              "status": "closed",
+              "team": "baton",
+              "title": "Build the persistent v12 Job manager and submit/status API",
+              "via_obligation": null
+            },
+            {
+              "handler": null,
+              "id": "2b077949-W71877",
+              "outcome": "satisfying",
+              "route": null,
+              "status": "closed",
+              "team": "baton",
+              "title": "Schedule concurrent v12 implementation and review stages",
+              "via_obligation": null
+            },
+            {
+              "handler": null,
+              "id": "2b077949-W71878",
+              "outcome": "satisfying",
+              "route": null,
+              "status": "closed",
+              "team": "baton",
+              "title": "Serialize accepted v12 proposals through integration",
+              "via_obligation": null
+            },
+            {
+              "handler": null,
+              "id": "2b077949-W71917",
+              "outcome": "satisfying",
+              "route": null,
+              "status": "closed",
+              "team": "baton",
+              "title": "Mount immutable v12 sources and persistent disk workspaces",
+              "via_obligation": null
+            },
+            {
+              "handler": null,
+              "id": "2b077949-W71918",
+              "outcome": "satisfying",
+              "route": null,
+              "status": "closed",
+              "team": "baton",
+              "title": "Persist v12 review checkpoints and correction lines",
+              "via_obligation": null
+            },
+            {
+              "handler": null,
+              "id": "2b077949-W103068",
+              "outcome": "satisfying",
+              "route": null,
+              "status": "closed",
+              "team": "baton",
+              "title": "V12: Compose standalone stage execution",
+              "via_obligation": null
+            },
+            {
+              "handler": null,
+              "id": "2b077949-W119400",
+              "outcome": "satisfying",
+              "route": null,
+              "status": "closed",
+              "team": "baton",
+              "title": "V12: Accept multi-Job deployment composition",
+              "via_obligation": null
+            }
+          ],
+          "blocks": [],
+          "contains": [],
+          "duplicate_of": null,
+          "duplicates": [],
+          "follow_up_of": null,
+          "follow_ups": [],
+          "id": "2b077949-W71879",
+          "parent": {
+            "handler": null,
+            "id": "2b077949-W71830",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "Run a standalone multi-job v12 pipeline"
+          }
+        },
+        "local_id": "W71879",
+        "message_count": 13,
+        "my_pending_obligations": 0,
+        "new": 13,
+        "new_breakdown": {
+          "children": [],
+          "id": "2b077949-W71879",
+          "overlap": 0,
+          "own": 13,
+          "snapshot_seq": 168816,
+          "subtree_total": 13
+        },
+        "next": null,
+        "obligations": [],
+        "open_blockers": 0,
+        "open_dependents": 0,
+        "origin": "decomposition",
+        "outcome": "satisfying",
+        "phase": null,
+        "pickup": null,
+        "priority": "high",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": "Accept live-ab-nup4nltc: both Jobs completed, three derived judgments accepted, A+B checks and all10 tests passed\nagainst clean committed output; zero ordinary transitions. Evidence retained in the bound dossier at evidence/live-success-\nnup4nltc. Synthetic fast path also passed. Happy-path scope satisfied; stronger hardening remains deferred.",
+        "ready": false,
+        "revision": null,
+        "revision_count": 0,
+        "revisions": [],
+        "revisions_next_after": null,
+        "revisions_truncated": false,
+        "route": null,
+        "status": "closed",
+        "team": "baton",
+        "thread_count": 1,
+        "threads": [
+          {
+            "added_seq": 71879,
+            "id": "2b077949-T71879",
+            "last_seq": 149462,
+            "new": 13,
+            "subject": "Prove the standalone two-Job v12 pipeline"
+          }
+        ],
+        "threads_next_after": null,
+        "threads_truncated": false,
+        "title": "Prove the standalone two-Job v12 pipeline",
+        "trials": []
+      },
+      "snapshot_seq": 168816
+    },
+    {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "agent": null,
+        "available_transitions": [],
+        "binding": {
+          "actor": "baton.codex",
+          "created_ts": "2026-08-28T16:11:17Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 32577
+        },
+        "binding_count": 1,
+        "bindings": [
+          {
+            "actor": "baton.codex",
+            "created_ts": "2026-08-28T16:11:17Z",
+            "git_provenance": null,
+            "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup",
+            "prior": 0,
+            "rationale": null,
+            "revision": 1,
+            "root": "baton",
+            "seq": 32577
+          }
+        ],
+        "bindings_next_after": null,
+        "bindings_truncated": false,
+        "blocking": false,
+        "breadcrumb": [
+          {
+            "id": "2b077949-W2",
+            "title": "Design v12 isolated agent workers"
+          },
+          {
+            "id": "2b077949-W3",
+            "title": "V12 M2: Prove local isolated execution"
+          },
+          {
+            "id": "2b077949-W32382",
+            "title": "M2: Complete local OCI negative and race endings"
+          },
+          {
+            "id": "2b077949-W32577",
+            "title": "M2: Define and compose runtime deadline cleanup"
+          }
+        ],
+        "claimed_at": null,
+        "classification": "design-choice",
+        "duplicate_of": null,
+        "episode_seq": 168528,
+        "first_open_blocker": null,
+        "follow_up_of": null,
+        "gate": null,
+        "handler": null,
+        "handoff_at": "2026-09-14T10:40:36Z",
+        "heartbeat_at": null,
+        "id": "2b077949-W32577",
+        "last_change_seq": 168561,
+        "last_changed_at": "2026-09-14T10:44:49.952Z",
+        "links": {
+          "blocked_by": [],
+          "blocks": [],
+          "contains": [],
+          "duplicate_of": null,
+          "duplicates": [],
+          "follow_up_of": null,
+          "follow_ups": [],
+          "id": "2b077949-W32577",
+          "parent": {
+            "handler": null,
+            "id": "2b077949-W32382",
+            "outcome": "satisfying",
+            "route": null,
+            "status": "closed",
+            "team": "baton",
+            "title": "M2: Complete local OCI negative and race endings"
+          }
+        },
+        "local_id": "W32577",
+        "message_count": 15,
+        "my_pending_obligations": 0,
+        "new": 15,
+        "new_breakdown": {
+          "children": [],
+          "id": "2b077949-W32577",
+          "overlap": 0,
+          "own": 15,
+          "snapshot_seq": 168817,
+          "subtree_total": 15
+        },
+        "next": null,
+        "obligations": [
+          {
+            "accepted_into": null,
+            "endpoint": "baton.impl",
+            "flavor": "response",
+            "resolved_seq": 162711,
+            "seq": 162672,
+            "status": "responded",
+            "thread": "2b077949-T32577"
+          },
+          {
+            "accepted_into": null,
+            "endpoint": "baton.impl",
+            "flavor": "response",
+            "resolved_seq": 163260,
+            "seq": 163249,
+            "status": "responded",
+            "thread": "2b077949-T32577"
+          },
+          {
+            "accepted_into": null,
+            "endpoint": "baton.ops",
+            "flavor": "response",
+            "resolved_seq": 164398,
+            "seq": 163303,
+            "status": "responded",
+            "thread": "2b077949-T32577"
+          }
+        ],
+        "open_blockers": 0,
+        "open_dependents": 0,
+        "origin": "decomposition",
+        "outcome": "satisfying",
+        "phase": null,
+        "pickup": null,
+        "priority": "normal",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": "Independent final review claim168542 accepts the completed selected deadline cleanup and documentation. Canonical evidence: baton:work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/review-2026-09-14T10-44-34Z.md, current FINDING.md/PLAN.md, HANDOFF-168487.md and documentation-review-168542.json. DEPLOYMENT SHA25648a3268e456765c02696c897558f1aed9511c39a4188480a8d194b21ac50077f:109-line append preserves all88436 prior bytes including managed sections and mode0664; exact patch, two public examples,16 accepted/protected paths and five prior acceptance bindings verified. Carry review168446 acceptance of candidate164779 manifest ea2cb3557d8ac87b8198ec5bd5cc9c35545a550c0c9a8e53b3b2da11323902e5,817 focused pinned3.13.7/jsonschema4.26.0 tests, prior36 supervisor/parser cases and owner engine execution167993 actual exit0/30.81214400099998s with exact removal/absence, providers/custody, sibling, lane/gate and replay. No remaining selected source/test/documentation or verification step. Original failed evidence/resource uncertainty, inherited inventory215/165 gaps and managed Python-Docker limitation remain qualified, not retroactively resolved. No runtime/test rerun, product/test/PROGRESS/Git edit by final reviewer; static check0.008950860996264964s separately recorded. Parent W32382/W3/W2 retain independent scope; satisfying this child does not close them.",
+        "ready": false,
+        "revision": null,
+        "revision_count": 0,
+        "revisions": [],
+        "revisions_next_after": null,
+        "revisions_truncated": false,
+        "route": null,
+        "status": "closed",
+        "team": "baton",
+        "thread_count": 1,
+        "threads": [
+          {
+            "added_seq": 32577,
+            "id": "2b077949-T32577",
+            "last_seq": 165203,
+            "new": 15,
+            "subject": "M2: Define and compose runtime deadline cleanup"
+          }
+        ],
+        "threads_next_after": null,
+        "threads_truncated": false,
+        "title": "M2: Define and compose runtime deadline cleanup",
+        "trials": []
+      },
+      "snapshot_seq": 168817
+    },
+    {
+      "authority_uuid": "2b077949c86e8bef24304f59c28ec398",
+      "participant": "baton.tuner",
+      "projection_version": "12.8",
+      "protocol_version": 11,
+      "result": {
+        "agent": null,
+        "available_transitions": [],
+        "binding": {
+          "actor": "baton.prompt",
+          "created_ts": "2026-08-25T12:53:47Z",
+          "git_provenance": null,
+          "path": "work/records/2026/08/finding-v12-parallel-test-runner",
+          "prior": 0,
+          "rationale": null,
+          "revision": 1,
+          "root": "baton",
+          "seq": 9707
+        },
+        "binding_count": 1,
+        "bindings": [
+          {
+            "actor": "baton.prompt",
+            "created_ts": "2026-08-25T12:53:47Z",
+            "git_provenance": null,
+            "path": "work/records/2026/08/finding-v12-parallel-test-runner",
+            "prior": 0,
+            "rationale": null,
+            "revision": 1,
+            "root": "baton",
+            "seq": 9707
+          }
+        ],
+        "bindings_next_after": null,
+        "bindings_truncated": false,
+        "blocking": false,
+        "breadcrumb": [
+          {
+            "id": "2b077949-W9707",
+            "title": "Run safe v12 tests across all cores"
+          }
+        ],
+        "claimed_at": null,
+        "classification": "design-choice",
+        "duplicate_of": null,
+        "episode_seq": 10511,
+        "first_open_blocker": null,
+        "follow_up_of": null,
+        "gate": null,
+        "handler": null,
+        "handoff_at": "2026-08-25T16:59:39Z",
+        "heartbeat_at": null,
+        "id": "2b077949-W9707",
+        "last_change_seq": 10520,
+        "last_changed_at": "2026-08-25T17:01:56.575Z",
+        "links": {
+          "blocked_by": [],
+          "blocks": [],
+          "contains": [],
+          "duplicate_of": null,
+          "duplicates": [],
+          "follow_up_of": null,
+          "follow_ups": [],
+          "id": "2b077949-W9707",
+          "parent": null
+        },
+        "local_id": "W9707",
+        "message_count": 12,
+        "my_pending_obligations": 0,
+        "new": 12,
+        "new_breakdown": {
+          "children": [],
+          "id": "2b077949-W9707",
+          "overlap": 0,
+          "own": 12,
+          "snapshot_seq": 168821,
+          "subtree_total": 12
+        },
+        "next": null,
+        "obligations": [],
+        "open_blockers": 0,
+        "open_dependents": 0,
+        "origin": "self-initiated",
+        "outcome": "satisfying",
+        "phase": null,
+        "pickup": null,
+        "priority": "high",
+        "progress": {
+          "children": 0,
+          "closed": 0
+        },
+        "rationale": "independently signed-off safe parallel runner received final recipe documentation polish; focused runner suite passes 36/36 and git diff --check is clean; canonical gate and stated limitations remain unchanged",
+        "ready": false,
+        "revision": null,
+        "revision_count": 0,
+        "revisions": [],
+        "revisions_next_after": null,
+        "revisions_truncated": false,
+        "route": null,
+        "status": "closed",
+        "team": "baton",
+        "thread_count": 1,
+        "threads": [
+          {
+            "added_seq": 9707,
+            "id": "2b077949-T9707",
+            "last_seq": 10510,
+            "new": 12,
+            "subject": "Run safe v12 tests across all cores"
+          }
+        ],
+        "threads_next_after": null,
+        "threads_truncated": false,
+        "title": "Run safe v12 tests across all cores",
+        "trials": []
+      },
+      "snapshot_seq": 168821
+    }
+  ]
+}

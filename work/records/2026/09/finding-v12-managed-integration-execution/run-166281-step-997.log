@@ -1,0 +1,2 @@
+$ env PYTHONPATH=src:tools:. /usr/bin/python3 /tmp/w161230-term-ok-1r0xlq6u/s.py
+TIMED OUT at the per-run bound; signalled SIGTERM; group proved gone: True

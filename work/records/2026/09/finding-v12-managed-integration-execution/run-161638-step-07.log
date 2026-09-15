@@ -1,0 +1,188 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.manager.test_reconciliation_worker
+FEFFFFFEE.F.FFE.EE
+======================================================================
+ERROR: test_a_cancelled_attempt_that_never_started_is_proved (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_cancelled_attempt_that_never_started_is_proved)
+THE POSITIVE, and it names what it rests on.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 80, in test_a_cancelled_attempt_that_never_started_is_proved
+    answer = unstarted_cancellation_of(self.store, self.port, ATTEMPT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 2908, in unstarted_cancellation_of
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"attempt {name_value(attempt_id)}")
+baton_v12.contracts.errors.ContractRefusal: the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'
+
+======================================================================
+ERROR: test_a_stale_start_pre_read_loses_to_the_cancellation_axis (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_stale_start_pre_read_loses_to_the_cancellation_axis)
+ORDER ONE, AT THE REAL WINDOW. The start read `not-started`, the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 190, in test_a_stale_start_pre_read_loses_to_the_cancellation_axis
+    unstarted_cancellation_of(self.store, self.port, ATTEMPT)["state"],
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 2908, in unstarted_cancellation_of
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"attempt {name_value(attempt_id)}")
+baton_v12.contracts.errors.ContractRefusal: the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'
+
+======================================================================
+ERROR: test_a_start_after_the_cancellation_is_refused_by_the_axis (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_start_after_the_cancellation_is_refused_by_the_axis)
+ORDER TWO: the cancellation won.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 246, in test_a_start_after_the_cancellation_is_refused_by_the_axis
+    answer = unstarted_cancellation_of(self.store, self.port, ATTEMPT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 2908, in unstarted_cancellation_of
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"attempt {name_value(attempt_id)}")
+baton_v12.contracts.errors.ContractRefusal: the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'
+
+======================================================================
+ERROR: test_an_exact_repeat_answers_the_same_document (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_exact_repeat_answers_the_same_document)
+A reader has no act to replay, so two asks are one answer.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 330, in test_an_exact_repeat_answers_the_same_document
+    first = unstarted_cancellation_of(self.store, self.port, ATTEMPT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 2908, in unstarted_cancellation_of
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"attempt {name_value(attempt_id)}")
+baton_v12.contracts.errors.ContractRefusal: the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'
+
+======================================================================
+ERROR: test_the_answer_is_never_quiescence_or_a_runtime (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_the_answer_is_never_quiescence_or_a_runtime)
+It is a different fact from `quiescent` and `destroyed`, and it
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 95, in test_the_answer_is_never_quiescence_or_a_runtime
+    answer = unstarted_cancellation_of(self.store, self.port, ATTEMPT)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 2908, in unstarted_cancellation_of
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"attempt {name_value(attempt_id)}")
+baton_v12.contracts.errors.ContractRefusal: the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'
+
+======================================================================
+ERROR: test_the_reader_changes_nothing (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_the_reader_changes_nothing)
+A READER. The attempt row and the journal are what they were.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 106, in test_the_reader_changes_nothing
+    unstarted_cancellation_of(self.store, self.port, ATTEMPT)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 2908, in unstarted_cancellation_of
+    raise ContractRefusal(
+    ...<3 lines>...
+        f"attempt {name_value(attempt_id)}")
+baton_v12.contracts.errors.ContractRefusal: the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'
+
+======================================================================
+FAIL: test_a_cancellation_interrupted_before_its_axis_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_cancellation_interrupted_before_its_axis_is_refused)
+THE WINDOW THAT MAKES THE AXIS THE REQUIRED FACT.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 356, in test_a_cancellation_interrupted_before_its_axis_is_refused
+    self.assertIn("does not carry it", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'does not carry it' not found in "the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'"
+
+======================================================================
+FAIL: test_a_changed_signature_over_the_same_intent_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_changed_signature_over_the_same_intent_is_refused)
+The members can all agree and the record still be a different act:
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 295, in test_a_changed_signature_over_the_same_intent_is_refused
+    self.assertIn("signature", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'signature' not found in "the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'"
+
+======================================================================
+FAIL: test_a_committed_start_delayed_at_the_adapter_refuses_the_proof (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_committed_start_delayed_at_the_adapter_refuses_the_proof)
+ORDER TWO, AT THE REAL WINDOW. The start's operation committed and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 228, in test_a_committed_start_delayed_at_the_adapter_refuses_the_proof
+    request_runtime_start(self.store, adapter, attempt_id=ATTEMPT)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 1534, in request_runtime_start
+    started = _started(adapter.start({"labels": labels,
+                       ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+                                      "operation_id": operation_id,
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                      "input_root": inputs}))
+                                      ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 219, in delayed
+    self.assertIn("committed a runtime start", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'committed a runtime start' not found in "the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'"
+
+======================================================================
+FAIL: test_a_fence_of_another_generation_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_fence_of_another_generation_is_refused)
+Somebody else's generation ended is not this one's fence.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 314, in test_a_fence_of_another_generation_is_refused
+    self.assertIn("has not fenced generation", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'has not fenced generation' not found in "the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'"
+
+======================================================================
+FAIL: test_a_foreign_committed_intent_cannot_prove_this_attempt (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_foreign_committed_intent_cannot_prove_this_attempt)
+[P1] A committed row with a familiar kind at a key this attempt
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 272, in test_a_foreign_committed_intent_cannot_prove_this_attempt
+    self.assertIn("actually names", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'actually names' not found in "the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'"
+
+======================================================================
+FAIL: test_a_generation_both_fenced_and_live_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_generation_both_fenced_and_live_is_refused)
+Two contradictory answers from one owner, and the conservative
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 325, in test_a_generation_both_fenced_and_live_is_refused
+    self.assertIn("both fenced and live", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'both fenced and live' not found in "the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'"
+
+======================================================================
+FAIL: test_an_attached_runtime_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_attached_runtime_is_refused)
+A runtime that EXISTS is ended through its own explicit
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 144, in test_an_attached_runtime_is_refused
+    self.assertIn("attached", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'attached' not found in "the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'"
+
+======================================================================
+FAIL: test_an_authority_that_never_fenced_the_generation_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_authority_that_never_fenced_the_generation_is_refused)
+[P1] ABSENCE IS NOT EVIDENCE. The local cancellation ran to
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 306, in test_an_authority_that_never_fenced_the_generation_is_refused
+    self.assertIn("has not fenced generation", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'has not fenced generation' not found in "the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'"
+
+======================================================================
+FAIL: test_an_authority_that_still_holds_the_assignment_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_authority_that_still_holds_the_assignment_is_refused)
+The fence is the AUTHORITY's act, so the manager's own journal is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 157, in test_an_authority_that_still_holds_the_assignment_is_refused
+    self.assertIn("still holds assignment generation",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'still holds assignment generation' not found in "the cancellation recorded at 'attempt.cancel:b5e27044978b858cbbb1a153208359fae12a5ea51d8e… retained no intent document; there is nothing to relate to attempt 'attempt-1'"
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.072s
+
+FAILED (failures=9, errors=6)

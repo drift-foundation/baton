@@ -1,0 +1,144 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/probe-160341-third-job.py
+{
+ "last_five": [
+  {
+   "tick": 35,
+   "states": {
+    "job-a": "completed",
+    "job-b": "exceptional",
+    "job-c": "queued"
+   },
+   "results": [
+    [
+     "job-b",
+     "blocked"
+    ]
+   ],
+   "commands": 1,
+   "acts": [
+    [
+     "job-c/integration",
+     "admit",
+     "deferred",
+     "stage 'job-c/integration' has eligible implementation workers but every effective worker/principal capacity is reserved or recovery-required"
+    ]
+   ]
+  },
+  {
+   "tick": 36,
+   "states": {
+    "job-a": "completed",
+    "job-b": "exceptional",
+    "job-c": "queued"
+   },
+   "results": [
+    [
+     "job-b",
+     "blocked"
+    ]
+   ],
+   "commands": 1,
+   "acts": [
+    [
+     "job-c/integration",
+     "admit",
+     "deferred",
+     "stage 'job-c/integration' has eligible implementation workers but every effective worker/principal capacity is reserved or recovery-required"
+    ]
+   ]
+  },
+  {
+   "tick": 37,
+   "states": {
+    "job-a": "completed",
+    "job-b": "exceptional",
+    "job-c": "queued"
+   },
+   "results": [
+    [
+     "job-b",
+     "blocked"
+    ]
+   ],
+   "commands": 1,
+   "acts": [
+    [
+     "job-c/integration",
+     "admit",
+     "deferred",
+     "stage 'job-c/integration' has eligible implementation workers but every effective worker/principal capacity is reserved or recovery-required"
+    ]
+   ]
+  },
+  {
+   "tick": 38,
+   "states": {
+    "job-a": "completed",
+    "job-b": "exceptional",
+    "job-c": "queued"
+   },
+   "results": [
+    [
+     "job-b",
+     "blocked"
+    ]
+   ],
+   "commands": 1,
+   "acts": [
+    [
+     "job-c/integration",
+     "admit",
+     "deferred",
+     "stage 'job-c/integration' has eligible implementation workers but every effective worker/principal capacity is reserved or recovery-required"
+    ]
+   ]
+  },
+  {
+   "tick": 39,
+   "states": {
+    "job-a": "completed",
+    "job-b": "exceptional",
+    "job-c": "queued"
+   },
+   "results": [
+    [
+     "job-b",
+     "blocked"
+    ]
+   ],
+   "commands": 1,
+   "acts": [
+    [
+     "job-c/integration",
+     "admit",
+     "deferred",
+     "stage 'job-c/integration' has eligible implementation workers but every effective worker/principal capacity is reserved or recovery-required"
+    ]
+   ]
+  }
+ ],
+ "ticks": 40,
+ "commands": 1,
+ "target_state": "open",
+ "target_reason": null,
+ "entries": [
+  [
+   "result-attempt-7b5e070a7",
+   "integrated"
+  ]
+ ],
+ "retained": [
+  [
+   [
+    "job-b",
+    "result-c5f0ab4be4d8b250f963ec318a5a94b652dbcdb49b4788b17cca621c2e7764ff",
+    "causal"
+   ],
+   [
+    "python3",
+    "feature_check.py"
+   ],
+   77
+  ]
+ ]
+}

@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_same_line_correction_keeps_its_worker_and_not_its_session tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_lost_transport_ends_the_epoch_and_never_resumes
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.562s
+
+OK

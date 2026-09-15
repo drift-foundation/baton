@@ -1,0 +1,21 @@
+{
+  "euid": 1000,
+  "egid": 1000,
+  "groups": [
+    65534,
+    65534,
+    65534,
+    65534,
+    65534,
+    65534,
+    65534,
+    65534,
+    1000,
+    65534
+  ],
+  "socket_uid": 65534,
+  "socket_gid": 65534,
+  "socket_mode": "0o660",
+  "socket_read_access": true,
+  "socket_write_access": true
+}

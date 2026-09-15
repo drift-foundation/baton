@@ -1,0 +1,100 @@
+{
+  "claim": 168871,
+  "all_candidate_files_match": true,
+  "files": [
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "bytes": 31963,
+      "mode": "0o644",
+      "sha256": "df7534b46c45e09d04cc3bd0acd53b6ba78cb41216ade2c142bca33146e85836"
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "bytes": 191339,
+      "mode": "0o664",
+      "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+      "bytes": 94098,
+      "mode": "0o644",
+      "sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a"
+    },
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "bytes": 62394,
+      "mode": "0o644",
+      "sha256": "5cb3e461d2a041824ea42718fa7cf93c95d8df4172b2348878912cbd867d8e06"
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "bytes": 147019,
+      "mode": "0o644",
+      "sha256": "b57ca7b7fec5236b4172fd3331432510e0c0b54e0375ba4471347514fcb7602c"
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "bytes": 277833,
+      "mode": "0o664",
+      "sha256": "02d83d92b6f9b0d44f42813239fb591b5d11fc13b35514665d5b4d36f6571d81"
+    },
+    {
+      "path": "baton:v12/python/tools/integration_bundle.py",
+      "bytes": 71269,
+      "mode": "0o644",
+      "sha256": "c0e21cd6b335db084e64499f508a7cc19fd45807d3bd4a81108239806c106a93"
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_task.py",
+      "bytes": 50721,
+      "mode": "0o644",
+      "sha256": "69860bdfdc63e5144db973ddd70c7b101bde707ba97c8c99779b3ae6ce992eb6"
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_entry.py",
+      "bytes": 10442,
+      "mode": "0o644",
+      "sha256": "4b4e43879d76250b7745ff89e9df1eb9d7656cc0c096f1adf1feaf56c3114fc0"
+    },
+    {
+      "path": "baton:v12/worker/Dockerfile.reconciliation",
+      "bytes": 4725,
+      "mode": "0o644",
+      "sha256": "35279f5dcaa6c2c3b44df7e10aa491a35f92e1933d0b3d06bb6e61bc87f021d3"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/SLICE2-SCOPE-165724.md",
+      "sha256": "4c18e791a29516b92d5afaba93c2042f5adaefa60bd57b7c54b13a04acba4fa0"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/DESIGN-RECONSIDERATION-166444.md",
+      "sha256": "f0bf84a6217b1f44c9c9b71c29efffa9e11e9db8d6305b5deef7b0d632f165b3"
+    },
+    {
+      "path": "v12/python/DEPLOYMENT.md",
+      "bytes": 94303,
+      "sha256": "48a3268e456765c02696c897558f1aed9511c39a4188480a8d194b21ac50077f"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/scheduler.py",
+      "bytes": 44007,
+      "sha256": "f2066c9614a9d7511547d5ce4446bfbbf350f00df8c71ab2d8d0cfb99d6434ad"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/manager.py",
+      "bytes": 45027,
+      "sha256": "f77a12f80c66e8dfb9ed700177b90fa4bda841788396304189f00230dfbd9c83"
+    },
+    {
+      "path": "v12/python/src/baton_v12/job_manager/delegation.py",
+      "bytes": 61606,
+      "sha256": "3019d7ea94db2fdd3b0e9c3933f0d2b10241fdaf64c2550129c7bbb81ecfadf6"
+    },
+    {
+      "path": "v12/python/tools/single_worker.py",
+      "bytes": 159356,
+      "sha256": "3b78842c59a46b30a2a542cac6e7ed860e32c5e5645baed643c478a4eddd3c49"
+    }
+  ],
+  "tests_run": false
+}

@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.manager.test_execution_limits
+...............
+----------------------------------------------------------------------
+Ran 15 tests in 0.002s
+
+OK

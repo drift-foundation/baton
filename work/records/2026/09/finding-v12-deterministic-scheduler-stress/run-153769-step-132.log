@@ -1,0 +1,22 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_reach_a_real_imported_integration
+F
+======================================================================
+FAIL: test_both_jobs_reach_a_real_imported_integration (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_reach_a_real_imported_integration)
+BOTH Jobs to a real terminal integration, through the second Job's
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2793, in test_both_jobs_reach_a_real_imported_integration
+    self.assertEqual(scheduler_trace.validate(artifact), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'code': 'missing-prerequisite', 'detail'[688 chars]ne}}] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+{'code': 'missing-prerequisite', 'detail': 'complete for attempt attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e has no recorded start', 'record': {'tick': 13, 'job_id': 'job-b', 'stage_id': 'job-b/integration', 'episode': 1, 'attempt_id': 'attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e', 'act': 'complete', 'outcome': 'performed', 'worker_id': None, 'participant': None, 'principal': None, 'operation_id': 'stage.completed:attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e', 'runtime_id': None, 'session_id': None, 'evidence': 'stage_states:job-b/integration', 'cause': None, 'recorded_at': None, 'session': None, 'correction': None, 'authorization': None}}
+
+Diff is 1055 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 1 test in 1.558s
+
+FAILED (failures=1)

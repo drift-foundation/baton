@@ -1,0 +1,4939 @@
+{
+ "author_cap_seconds": 1200.0,
+ "author_remaining_seconds": 136.49220299002036,
+ "author_spent_seconds": 1063.5077970099796,
+ "cap_authority": "owner153764: 120s author / 30s reviewer / 100 ticks per trace; owner155646: cumulative 165s author / 40s reviewer, prior spending preserved; owner155911 (Slawomir 2026-09-12T23:50:14Z, FINDING 'Owner verification budget'): cumulative 300s author / 300s reviewer, superseding 165s/40s and the proposed 177s/40s, all prior spending preserved; owner157085 (Slawomir 2026-09-13T03:02:44Z): cumulative 600s author, reviewer unchanged at 300s, prior spending preserved, R6d and the accepted four-Job composition to be completed under it; owner159439 (Slawomir 2026-09-13T09:34:52Z) approving CONTINUATION-PROPOSAL-2026-09-13.md: cumulative 780s author, reviewer 300s unchanged, prior spending preserved; owner159714 (Slawomir 2026-09-13T10:12:58Z) approving BUDGET-DISPOSITION-2026-09-13T10-09-12Z.md after a recorded 0.8047997559610849s OVERRUN of the 780s cap: cumulative 960s author, reviewer 300s unchanged, per-command guards required, no reset or waiver; owner160956 (Slawomir 2026-09-13) approving CONTINUATION-DISPOSITION-2026-09-13T11-03-11Z.md: cumulative 1200s author, reviewer 300s unchanged, all prior spending and the historical overrun preserved, PERSISTED per-command budget operands and focused verification required, same scope, no acceptance waiver",
+ "claim": 153769,
+ "research_baseline_note": "reviewer claim153660 exploratory baseline, retained and not reset",
+ "research_baseline_seconds": 0.2879257239692379,
+ "runs": [
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.19123584401677363,
+   "exit": 1,
+   "label": "first-trace-suite",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-01.log",
+   "ok": false,
+   "step": 1
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2143192219955381,
+   "exit": 0,
+   "label": "trace-suite-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-02.log",
+   "ok": true,
+   "step": 2
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.23420670299674384,
+   "exit": 1,
+   "label": "trace-suite-3",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-03.log",
+   "ok": false,
+   "step": 3
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2314719959977083,
+   "exit": 0,
+   "label": "trace-suite-4",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-04.log",
+   "ok": true,
+   "step": 4
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-153769.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.1902745740080718,
+   "exit": 0,
+   "label": "trace-set-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-05.log",
+   "ok": true,
+   "step": 5
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_scheduling",
+    "tests.job_manager.test_sweep"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.40237911901203915,
+   "exit": 0,
+   "label": "affected-existing-fixtures",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-06.log",
+   "ok": true,
+   "step": 6
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.23588515899609774,
+   "exit": 1,
+   "label": "oracle-corrected",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-07.log",
+   "ok": false,
+   "step": 7
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.24108520499430597,
+   "exit": 1,
+   "label": "negatives-rewritten",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-08.log",
+   "ok": false,
+   "step": 8
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.24185427301563323,
+   "exit": 0,
+   "label": "negatives-and-binding",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-09.log",
+   "ok": true,
+   "step": 9
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.23688198000309058,
+   "exit": 0,
+   "label": "driver-corrections",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-10.log",
+   "ok": true,
+   "step": 10
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.24757329397834837,
+   "exit": 1,
+   "label": "r1-review-and-gap",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-11.log",
+   "ok": false,
+   "step": 11
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2503101209877059,
+   "exit": 0,
+   "label": "per-worker-principals",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-12.log",
+   "ok": true,
+   "step": 12
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2526308049855288,
+   "exit": 0,
+   "label": "fresh-driver-reopen",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-13.log",
+   "ok": true,
+   "step": 13
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-153855.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.1884609530097805,
+   "exit": 1,
+   "label": "corrected-trace-set-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-14.log",
+   "ok": false,
+   "step": 14
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-153855.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.20377212401945144,
+   "exit": 0,
+   "label": "corrected-trace-set-export-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-15.log",
+   "ok": true,
+   "step": 15
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 28.799707097990904,
+   "exit": 0,
+   "label": "composed-owner-transitions",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-16.log",
+   "ok": true,
+   "step": 16
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4183539699879475,
+   "exit": 0,
+   "label": "composed-transitions-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-17.log",
+   "ok": true,
+   "step": 17
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-153855-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.3685383499832824,
+   "exit": 0,
+   "label": "composed-artifact-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-18.log",
+   "ok": true,
+   "step": 18
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace",
+    "tests.job_manager.test_scheduling",
+    "tests.job_manager.test_sweep"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6680955039919354,
+   "exit": 0,
+   "label": "FINAL-affected-fixtures",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-19.log",
+   "ok": true,
+   "step": 19
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4069855179986916,
+   "exit": 1,
+   "label": "c1-c3-first",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-20.log",
+   "ok": false,
+   "step": 20
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4137983309919946,
+   "exit": 1,
+   "label": "c1-c3-second",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-21.log",
+   "ok": false,
+   "step": 21
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/tmp/t525c_probe.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.9276386790152173,
+   "exit": 0,
+   "label": "episode-and-receipt-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-22.log",
+   "ok": true,
+   "step": 22
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4283217790070921,
+   "exit": 1,
+   "label": "c1-c3-third",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-23.log",
+   "ok": false,
+   "step": 23
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4282620180165395,
+   "exit": 1,
+   "label": "c1-c3-fourth",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-24.log",
+   "ok": false,
+   "step": 24
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4513208889984526,
+   "exit": 1,
+   "label": "c1-c3-fifth",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-25.log",
+   "ok": false,
+   "step": 25
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.422284843021771,
+   "exit": 0,
+   "label": "c1-c3-sixth",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-26.log",
+   "ok": true,
+   "step": 26
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4574566750088707,
+   "exit": 1,
+   "label": "c2-c3-wired",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-27.log",
+   "ok": false,
+   "step": 27
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4466515990206972,
+   "exit": 1,
+   "label": "c2-c3-wired-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-28.log",
+   "ok": false,
+   "step": 28
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4365396130015142,
+   "exit": 1,
+   "label": "c2-c3-wired-3",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-29.log",
+   "ok": false,
+   "step": 29
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4400233589985874,
+   "exit": 1,
+   "label": "c2-c3-wired-4",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-30.log",
+   "ok": false,
+   "step": 30
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4445668309926987,
+   "exit": 0,
+   "label": "c2-c3-wired-5",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-31.log",
+   "ok": true,
+   "step": 31
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/tmp/t525c_repo.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2411583100038115,
+   "exit": 0,
+   "label": "repository-binding-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-32.log",
+   "ok": true,
+   "step": 32
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4677731709962245,
+   "exit": 0,
+   "label": "repository-bindings-proved",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-33.log",
+   "ok": true,
+   "step": 33
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-153951.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2286693789937999,
+   "exit": 0,
+   "label": "corrected-exports",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-34.log",
+   "ok": true,
+   "step": 34
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-153951-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.3592349259997718,
+   "exit": 0,
+   "label": "corrected-composed-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-35.log",
+   "ok": true,
+   "step": 35
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace",
+    "tests.job_manager.test_scheduling",
+    "tests.job_manager.test_sweep"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.707312896993244,
+   "exit": 0,
+   "label": "FINAL-affected-fixtures",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-36.log",
+   "ok": true,
+   "step": 36
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.481232068996178,
+   "exit": 0,
+   "label": "d1-first",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-37.log",
+   "ok": true,
+   "step": 37
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0917611560143996,
+   "exit": 1,
+   "label": "d1-observed",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-38.log",
+   "ok": false,
+   "step": 38
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0945475049957167,
+   "exit": 1,
+   "label": "d1-observed-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-39.log",
+   "ok": false,
+   "step": 39
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0933453689794987,
+   "exit": 1,
+   "label": "d1-observed-3",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-40.log",
+   "ok": false,
+   "step": 40
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0929673579812516,
+   "exit": 0,
+   "label": "d1-negatives",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-41.log",
+   "ok": true,
+   "step": 41
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.7349537170084659,
+   "exit": 0,
+   "label": "dead-extractor-removed",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-42.log",
+   "ok": true,
+   "step": 42
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0987668759771623,
+   "exit": 0,
+   "label": "accepted-review-restored",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-43.log",
+   "ok": true,
+   "step": 43
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154041.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.22884779100422747,
+   "exit": 0,
+   "label": "final-exports",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-44.log",
+   "ok": true,
+   "step": 44
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154041-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.9744212100049481,
+   "exit": 0,
+   "label": "final-composed-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-45.log",
+   "ok": true,
+   "step": 45
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0870217030169442,
+   "exit": 0,
+   "label": "d1-instants",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-46.log",
+   "ok": true,
+   "step": 46
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4928136950184125,
+   "exit": 1,
+   "label": "d1-negatives-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-47.log",
+   "ok": false,
+   "step": 47
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.5322481890034396,
+   "exit": 0,
+   "label": "d1-negatives-3",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-48.log",
+   "ok": true,
+   "step": 48
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154100.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2276466659968719,
+   "exit": 0,
+   "label": "final-exports-a",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-49.log",
+   "ok": true,
+   "step": 49
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154100-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.015708628023276,
+   "exit": 0,
+   "label": "final-exports-b",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-50.log",
+   "ok": true,
+   "step": 50
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.7019295830104966,
+   "exit": 0,
+   "label": "r1-teams-and-repository",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-51.log",
+   "ok": true,
+   "step": 51
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6914492619980592,
+   "exit": 0,
+   "label": "gap-narrowed",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-52.log",
+   "ok": true,
+   "step": 52
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154142-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.1360783689888194,
+   "exit": 0,
+   "label": "final-composed-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-53.log",
+   "ok": true,
+   "step": 53
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.7795311700028833,
+   "exit": 0,
+   "label": "team-matrix",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-54.log",
+   "ok": true,
+   "step": 54
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154186-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.2368399369879626,
+   "exit": 0,
+   "label": "team-matrix-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-55.log",
+   "ok": true,
+   "step": 55
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.7748584549990483,
+   "exit": 1,
+   "label": "acceptance-and-session",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-56.log",
+   "ok": false,
+   "step": 56
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/tmp/t525g_probe.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.40705360198626295,
+   "exit": 0,
+   "label": "offer-and-session-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-57.log",
+   "ok": true,
+   "step": 57
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.811301073001232,
+   "exit": 1,
+   "label": "acceptance-and-session-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-58.log",
+   "ok": false,
+   "step": 58
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.775852420978481,
+   "exit": 0,
+   "label": "acceptance-proved",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-59.log",
+   "ok": true,
+   "step": 59
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154200.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.22620322098373435,
+   "exit": 0,
+   "label": "final-export-a",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-60.log",
+   "ok": true,
+   "step": 60
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154200-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.2486389499972574,
+   "exit": 0,
+   "label": "final-export-b",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-61.log",
+   "ok": true,
+   "step": 61
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.7531257460068446,
+   "exit": 0,
+   "label": "authorization-evidence",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-62.log",
+   "ok": true,
+   "step": 62
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154239-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.1277870289923158,
+   "exit": 0,
+   "label": "authorization-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-63.log",
+   "ok": true,
+   "step": 63
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.8952700270165224,
+   "exit": 1,
+   "label": "authorization-corrected",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-64.log",
+   "ok": false,
+   "step": 64
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.895586896018358,
+   "exit": 0,
+   "label": "authorization-corrected-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-65.log",
+   "ok": true,
+   "step": 65
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154281-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.148378502984997,
+   "exit": 0,
+   "label": "final-authorization-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-66.log",
+   "ok": true,
+   "step": 66
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.870891862985445,
+   "exit": 0,
+   "label": "authorization-context-focused",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-67.log",
+   "ok": true,
+   "step": 67
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.9887575919856317,
+   "exit": 0,
+   "label": "FINAL-focused-module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-68.log",
+   "ok": true,
+   "step": 68
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154323-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.1562554329866543,
+   "exit": 0,
+   "label": "final-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-69.log",
+   "ok": true,
+   "step": 69
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.9756023999943864,
+   "exit": 0,
+   "label": "reference-guard-focused",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-70.log",
+   "ok": true,
+   "step": 70
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.099321547022555,
+   "exit": 0,
+   "label": "FINAL-focused-module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-71.log",
+   "ok": true,
+   "step": 71
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-154358-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.180616363999434,
+   "exit": 0,
+   "label": "final-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-72.log",
+   "ok": true,
+   "step": 72
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155666.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.3526564499999836,
+   "exit": 1,
+   "label": "session-seam-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-73.log",
+   "ok": false,
+   "step": 73
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155666.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.3243289499999946,
+   "exit": 1,
+   "label": "session-seam-probe-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-74.log",
+   "ok": false,
+   "step": 74
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155666.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.32086680600002637,
+   "exit": 1,
+   "label": "session-seam-probe-3",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-75.log",
+   "ok": false,
+   "step": 75
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155666.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.31063604099995246,
+   "exit": 0,
+   "label": "session-seam-probe-4",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-76.log",
+   "ok": true,
+   "step": 76
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155666-review.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.455836280000085,
+   "exit": 0,
+   "label": "reviewer-session-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-77.log",
+   "ok": true,
+   "step": 77
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.4583039569999983,
+   "exit": 1,
+   "label": "focused-module-sessions",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-78.log",
+   "ok": false,
+   "step": 78
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.494401487999994,
+   "exit": 1,
+   "label": "focused-module-sessions-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-79.log",
+   "ok": false,
+   "step": 79
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.474916652999923,
+   "exit": 0,
+   "label": "focused-module-sessions-3",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-80.log",
+   "ok": true,
+   "step": 80
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155666-correction.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.7297227280000698,
+   "exit": 1,
+   "label": "alternate-order-and-correction-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-81.log",
+   "ok": false,
+   "step": 81
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.099787897000169,
+   "exit": 1,
+   "label": "alternate-order-and-correction",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-82.log",
+   "ok": false,
+   "step": 82
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.081251371999997,
+   "exit": 0,
+   "label": "per-trace-clock",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-83.log",
+   "ok": true,
+   "step": 83
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.096165589999828,
+   "exit": 1,
+   "label": "correction-rule-negatives",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-84.log",
+   "ok": false,
+   "step": 84
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.102808745000175,
+   "exit": 0,
+   "label": "correction-rule-negatives-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-85.log",
+   "ok": true,
+   "step": 85
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-155666-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.006520049999835464,
+   "exit": 2,
+   "label": "composed-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-86.log",
+   "ok": false,
+   "step": 86
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-155666-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.143953824999926,
+   "exit": 0,
+   "label": "composed-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-87.log",
+   "ok": true,
+   "step": 87
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-155666.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2288082980001036,
+   "exit": 0,
+   "label": "unit-set-export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-88.log",
+   "ok": true,
+   "step": 88
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.139890636000018,
+   "exit": 0,
+   "label": "final-focused-module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-89.log",
+   "ok": true,
+   "step": 89
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_correction_opens_a_second_episode_on_the_same_line",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_producer_and_the_reviewer_hold_their_own_sessions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0282105000001138,
+   "exit": 0,
+   "label": "targeted-negatives-and-affected-composed",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-90.log",
+   "ok": true,
+   "step": 90
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-155821-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.1649414360003902,
+   "exit": 0,
+   "label": "composed-export-corrected",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-91.log",
+   "ok": true,
+   "step": 91
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-155821.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.22810307500003546,
+   "exit": 0,
+   "label": "unit-set-export-corrected",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-92.log",
+   "ok": true,
+   "step": 92
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.139097403000051,
+   "exit": 0,
+   "label": "final-focused-module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-93.log",
+   "ok": true,
+   "step": 93
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_correction_opens_a_second_episode_on_the_same_line"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6638974829998006,
+   "exit": 1,
+   "label": "r1-context-targeted",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-94.log",
+   "ok": false,
+   "step": 94
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_correction_opens_a_second_episode_on_the_same_line"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6642255330002627,
+   "exit": 0,
+   "label": "r1-context-targeted-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-95.log",
+   "ok": true,
+   "step": 95
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155914.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.46690372700004446,
+   "exit": 0,
+   "label": "composed-reopen-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-96.log",
+   "ok": true,
+   "step": 96
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_composed_deployment_reopens_and_continues"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.5788643330001833,
+   "exit": 0,
+   "label": "composed-reopen-test",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-97.log",
+   "ok": true,
+   "step": 97
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155914-session.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.3477527330001067,
+   "exit": 0,
+   "label": "session-continuity-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-98.log",
+   "ok": true,
+   "step": 98
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_lost_transport_ends_the_epoch_and_never_resumes"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.4155012250002983,
+   "exit": 1,
+   "label": "session-continuity-test",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-99.log",
+   "ok": false,
+   "step": 99
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_lost_transport_ends_the_epoch_and_never_resumes"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.3373949150000044,
+   "exit": 0,
+   "label": "session-continuity-test-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-100.log",
+   "ok": true,
+   "step": 100
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.658381212999757,
+   "exit": 0,
+   "label": "focused-module-after-continuation",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-101.log",
+   "ok": true,
+   "step": 101
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155914-integration.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.9805927760003215,
+   "exit": 1,
+   "label": "terminal-integration-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-102.log",
+   "ok": false,
+   "step": 102
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155914-integration.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4018182489999162,
+   "exit": 0,
+   "label": "terminal-integration-probe-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-103.log",
+   "ok": true,
+   "step": 103
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155914-integration.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.1785348059997887,
+   "exit": 0,
+   "label": "integration-reserve-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-104.log",
+   "ok": true,
+   "step": 104
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-155914-integration.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.176803700000164,
+   "exit": 1,
+   "label": "integration-reserve-probe-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-105.log",
+   "ok": false,
+   "step": 105
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/tmp/probe_sweep.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.9726118939997832,
+   "exit": 0,
+   "label": "sweep-report-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-106.log",
+   "ok": true,
+   "step": 106
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0155269060001046,
+   "exit": 1,
+   "label": "two-jobs-one-integrator",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-107.log",
+   "ok": false,
+   "step": 107
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0405558019997443,
+   "exit": 0,
+   "label": "two-jobs-one-integrator-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-108.log",
+   "ok": true,
+   "step": 108
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.508583171999817,
+   "exit": 0,
+   "label": "focused-module-full",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-109.log",
+   "ok": true,
+   "step": 109
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-155914-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.481225190999794,
+   "exit": 0,
+   "label": "composed-export-continuation",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-110.log",
+   "ok": true,
+   "step": 110
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-155914.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.22902458199996545,
+   "exit": 0,
+   "label": "unit-set-export-continuation",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-111.log",
+   "ok": true,
+   "step": 111
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-156029.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.1605001280004217,
+   "exit": 0,
+   "label": "capacity-handoff-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-112.log",
+   "ok": true,
+   "step": 112
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-156029.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.155918398000722,
+   "exit": 0,
+   "label": "job-b-terminal-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-113.log",
+   "ok": true,
+   "step": 113
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0395251090003512,
+   "exit": 0,
+   "label": "terminal-and-handoff",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-114.log",
+   "ok": true,
+   "step": 114
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_composed_deployment_reopens_and_continues"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.5812430549995042,
+   "exit": 0,
+   "label": "reopen-boundary-corrected",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-115.log",
+   "ok": true,
+   "step": 115
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_same_line_correction_keeps_its_worker_and_not_its_session",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_lost_transport_ends_the_epoch_and_never_resumes"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.7470112250002785,
+   "exit": 0,
+   "label": "correction-continuity",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-116.log",
+   "ok": true,
+   "step": 116
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.921248305000518,
+   "exit": 0,
+   "label": "focused-module-full",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-117.log",
+   "ok": true,
+   "step": 117
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-156029-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.940480737000144,
+   "exit": 0,
+   "label": "composed-export-corrected",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-118.log",
+   "ok": true,
+   "step": 118
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0463673170006587,
+   "exit": 0,
+   "label": "terminal-and-handoff-real",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-119.log",
+   "ok": true,
+   "step": 119
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6825387879998743,
+   "exit": 1,
+   "label": "terminal-and-handoff-real",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-120.log",
+   "ok": false,
+   "step": 120
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.7506791240002713,
+   "exit": 0,
+   "label": "handoff-occupancy",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-121.log",
+   "ok": true,
+   "step": 121
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 6.559570622999672,
+   "exit": 0,
+   "label": "focused-module-full",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-122.log",
+   "ok": true,
+   "step": 122
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-156029-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.605204681999567,
+   "exit": 0,
+   "label": "composed-export-final",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-123.log",
+   "ok": true,
+   "step": 123
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-156029.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.22815171100046427,
+   "exit": 0,
+   "label": "unit-set-export-final",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-124.log",
+   "ok": true,
+   "step": 124
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2549092549998022,
+   "exit": 1,
+   "label": "r5-occupancy-identity",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-125.log",
+   "ok": false,
+   "step": 125
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.24820198599991272,
+   "exit": 0,
+   "label": "r5-occupancy-identity-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-126.log",
+   "ok": true,
+   "step": 126
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_composed_deployment_reopens_and_continues"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.5748761240001841,
+   "exit": 0,
+   "label": "r4-duplicate-start",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-127.log",
+   "ok": true,
+   "step": 127
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6899577230005889,
+   "exit": 1,
+   "label": "r6-terminal-authorization",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-128.log",
+   "ok": false,
+   "step": 128
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6786720509999213,
+   "exit": 0,
+   "label": "r6-terminal-authorization-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-129.log",
+   "ok": true,
+   "step": 129
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-156124.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.3075836970001546,
+   "exit": 1,
+   "label": "judgment-path-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-130.log",
+   "ok": false,
+   "step": 130
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-156124.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6699087209999561,
+   "exit": 0,
+   "label": "judgment-path-probe-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-131.log",
+   "ok": true,
+   "step": 131
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_reach_a_real_imported_integration"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.7429952649999905,
+   "exit": 1,
+   "label": "both-jobs-imported",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-132.log",
+   "ok": false,
+   "step": 132
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_reach_a_real_imported_integration"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.8199365430000398,
+   "exit": 0,
+   "label": "import-without-runtime",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-133.log",
+   "ok": true,
+   "step": 133
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.1418865250007,
+   "exit": 0,
+   "label": "focused-module-full",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-134.log",
+   "ok": true,
+   "step": 134
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-156124-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.125122125999951,
+   "exit": 0,
+   "label": "composed-export-final",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-135.log",
+   "ok": true,
+   "step": 135
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-156124.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.23562791399945127,
+   "exit": 0,
+   "label": "unit-set-export-final",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-136.log",
+   "ok": true,
+   "step": 136
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_reach_a_real_imported_integration",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.2942096910001055,
+   "exit": 1,
+   "label": "completion-binding",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-137.log",
+   "ok": false,
+   "step": 137
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_reach_a_real_imported_integration",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.381374364000294,
+   "exit": 0,
+   "label": "r6-binding-negatives",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-138.log",
+   "ok": true,
+   "step": 138
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.144500364999658,
+   "exit": 0,
+   "label": "focused-module-full",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-139.log",
+   "ok": true,
+   "step": 139
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-156260-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.188395393999599,
+   "exit": 0,
+   "label": "composed-export-final",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-140.log",
+   "ok": true,
+   "step": 140
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-156260.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2287651080005162,
+   "exit": 0,
+   "label": "unit-set-export-final",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-141.log",
+   "ok": true,
+   "step": 141
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_reach_a_real_imported_integration",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.390512640000452,
+   "exit": 1,
+   "label": "r6c-branch-validation",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-142.log",
+   "ok": false,
+   "step": 142
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_reach_a_real_imported_integration",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_composed_deployment_reopens_and_continues"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.7509232900001734,
+   "exit": 0,
+   "label": "r6c-branch-validation-2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-143.log",
+   "ok": true,
+   "step": 143
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-156395-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.162436719999278,
+   "exit": 0,
+   "label": "composed-export-r6c",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-144.log",
+   "ok": true,
+   "step": 144
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheValidatorRefusesWhatItCannotJustify"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.19120401500003936,
+   "exit": 1,
+   "label": "r6d",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-145.log",
+   "ok": false,
+   "step": 145
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.25466799499918125,
+   "exit": 0,
+   "label": "r6d",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-146.log",
+   "ok": true,
+   "step": 146
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_reach_a_real_imported_integration"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.8448921870003687,
+   "exit": 0,
+   "label": "r6d",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-147.log",
+   "ok": true,
+   "step": 147
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-four-jobs.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.23830220000127156,
+   "exit": 0,
+   "label": "four-job-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-148.log",
+   "ok": true,
+   "step": 148
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-four-jobs.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.005923001001065131,
+   "exit": 2,
+   "label": "four-job-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-149.log",
+   "ok": false,
+   "step": 149
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-four-jobs.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.0061444319999282015,
+   "exit": 2,
+   "label": "four-job-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-150.log",
+   "ok": false,
+   "step": 150
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-four-jobs.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.23654768000051263,
+   "exit": 0,
+   "label": "four-job-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-151.log",
+   "ok": true,
+   "step": 151
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-binding.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.1841857159997744,
+   "exit": 1,
+   "label": "binding-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-152.log",
+   "ok": false,
+   "step": 152
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-binding.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2180859190011688,
+   "exit": 0,
+   "label": "binding-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-153.log",
+   "ok": true,
+   "step": 153
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-slots.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.33308239100006176,
+   "exit": 0,
+   "label": "slot-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-154.log",
+   "ok": true,
+   "step": 154
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-slots.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.34608522200142033,
+   "exit": 1,
+   "label": "slot-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-155.log",
+   "ok": false,
+   "step": 155
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-slots.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.3327728960011882,
+   "exit": 0,
+   "label": "slot-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-156.log",
+   "ok": true,
+   "step": 156
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-slots.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.3020724929992866,
+   "exit": 0,
+   "label": "edge-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-157.log",
+   "ok": true,
+   "step": 157
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "FOUR_JOB_OWN_WORKERS=1",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-slots.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.31764011300037964,
+   "exit": 0,
+   "label": "own-worker-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-158.log",
+   "ok": true,
+   "step": 158
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_on_two_repositories_code_in_parallel",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_two_producer_slots_cannot_serve_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.4414417220014002,
+   "exit": 0,
+   "label": "four-job",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-159.log",
+   "ok": true,
+   "step": 159
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_four_job_contention_exports_a_clean_artifact"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.3456481610010087,
+   "exit": 0,
+   "label": "four-job",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-160.log",
+   "ok": true,
+   "step": 160
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-artifact.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.3901439500004926,
+   "exit": 1,
+   "label": "artifact-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-161.log",
+   "ok": false,
+   "step": 161
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157211-artifact.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.334139223999955,
+   "exit": 0,
+   "label": "artifact-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-162.log",
+   "ok": true,
+   "step": 162
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.734987091000221,
+   "exit": 0,
+   "label": "four-job",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-163.log",
+   "ok": true,
+   "step": 163
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.949521066999296,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-164.log",
+   "ok": true,
+   "step": 164
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-157211-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.655475652998575,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-165.log",
+   "ok": true,
+   "step": 165
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_on_two_repositories_code_in_parallel"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.22261460299705504,
+   "exit": 1,
+   "label": "second-team",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-166.log",
+   "ok": false,
+   "step": 166
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_on_two_repositories_code_in_parallel"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.3509797560000152,
+   "exit": 1,
+   "label": "second-team",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-167.log",
+   "ok": false,
+   "step": 167
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_on_two_repositories_code_in_parallel"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.34023929499744554,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-168.log",
+   "ok": false,
+   "step": 168
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157344-lines.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2832511540000269,
+   "exit": 0,
+   "label": "line-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-169.log",
+   "ok": true,
+   "step": 169
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157344-lines.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.28677487400273094,
+   "exit": 0,
+   "label": "line-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-170.log",
+   "ok": true,
+   "step": 170
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_on_two_repositories_code_in_parallel"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.3895413469981577,
+   "exit": 0,
+   "label": "second-team",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-171.log",
+   "ok": true,
+   "step": 171
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157344-claims.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.46702504699715064,
+   "exit": 0,
+   "label": "claim-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-172.log",
+   "ok": true,
+   "step": 172
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 9.202751464999892,
+   "exit": 0,
+   "label": "two-teams",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-173.log",
+   "ok": true,
+   "step": 173
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 9.22517760700066,
+   "exit": 0,
+   "label": "artifact",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-174.log",
+   "ok": true,
+   "step": 174
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 9.375986014998489,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-175.log",
+   "ok": true,
+   "step": 175
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-157344-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.7463497259996075,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-176.log",
+   "ok": true,
+   "step": 176
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157442-turns.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.8587889930022357,
+   "exit": 0,
+   "label": "turn-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-177.log",
+   "ok": true,
+   "step": 177
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157442-turns.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.9535109889984597,
+   "exit": 0,
+   "label": "review-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-178.log",
+   "ok": true,
+   "step": 178
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.7077795000004699,
+   "exit": 1,
+   "label": "schedules",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-179.log",
+   "ok": false,
+   "step": 179
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.244557292000536,
+   "exit": 1,
+   "label": "schedules",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-180.log",
+   "ok": false,
+   "step": 180
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157442-turns.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.168476959002874,
+   "exit": 0,
+   "label": "review-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-181.log",
+   "ok": true,
+   "step": 181
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157442-turns.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.144979013999546,
+   "exit": 0,
+   "label": "review-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-182.log",
+   "ok": true,
+   "step": 182
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157442-turns.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.219934262000606,
+   "exit": 0,
+   "label": "review-probe",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-183.log",
+   "ok": true,
+   "step": 183
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.961647604002792,
+   "exit": 0,
+   "label": "schedules",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-184.log",
+   "ok": true,
+   "step": 184
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.157360047000111,
+   "exit": 1,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-185.log",
+   "ok": false,
+   "step": 185
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.5517244279981242,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-186.log",
+   "ok": false,
+   "step": 186
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.7222668520007574,
+   "exit": 0,
+   "label": "schedules",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-187.log",
+   "ok": true,
+   "step": 187
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 11.905082493998634,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-188.log",
+   "ok": true,
+   "step": 188
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-157442-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.98915760700038,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-189.log",
+   "ok": true,
+   "step": 189
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 11.964543373000197,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-190.log",
+   "ok": true,
+   "step": 190
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-157442-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.213280310999835,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-191.log",
+   "ok": true,
+   "step": 191
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 11.991957099999127,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-192.log",
+   "ok": true,
+   "step": 192
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-157442-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.010130203001608606,
+   "exit": 2,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-193.log",
+   "ok": false,
+   "step": 193
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-157442-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.249705318998167,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-194.log",
+   "ok": true,
+   "step": 194
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.180088960998546,
+   "exit": 1,
+   "label": "policy",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-195.log",
+   "ok": false,
+   "step": 195
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.0175062910020642,
+   "exit": 0,
+   "label": "policy",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-196.log",
+   "ok": true,
+   "step": 196
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.281520884000201,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-197.log",
+   "ok": true,
+   "step": 197
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-157538-continuation.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.0468725040009303,
+   "exit": 0,
+   "label": "continuation",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-198.log",
+   "ok": true,
+   "step": 198
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.17502171100204578,
+   "exit": 1,
+   "label": "continuation",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-199.log",
+   "ok": false,
+   "step": 199
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.11485765299949,
+   "exit": 0,
+   "label": "continuation",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-200.log",
+   "ok": true,
+   "step": 200
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 14.158916671000043,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-201.log",
+   "ok": true,
+   "step": 201
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-157538-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.450830508001673,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-202.log",
+   "ok": true,
+   "step": 202
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.936731202000374,
+   "exit": 0,
+   "label": "accuracy",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-203.log",
+   "ok": true,
+   "step": 203
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 14.030605810999987,
+   "exit": 0,
+   "label": "accuracy",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-204.log",
+   "ok": true,
+   "step": 204
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-157605-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.425905547999719,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-205.log",
+   "ok": true,
+   "step": 205
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.1105899479989603,
+   "exit": 0,
+   "label": "accuracy",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-206.log",
+   "ok": true,
+   "step": 206
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-157605-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.456412747000286,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-207.log",
+   "ok": true,
+   "step": 207
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_wrong_repository_binding_is_refused_by_its_own_owner",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_second_team_is_authorized_by_scope_not_by_membership"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.44554864800011273,
+   "exit": 0,
+   "label": "labels",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-208.log",
+   "ok": true,
+   "step": 208
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.937954891996924,
+   "exit": 0,
+   "label": "labels",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-209.log",
+   "ok": true,
+   "step": 209
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-157712-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.484902030999365,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-210.log",
+   "ok": true,
+   "step": 210
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-159444-combined.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.28433956200024113,
+   "exit": 0,
+   "label": "combined",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-211.log",
+   "ok": true,
+   "step": 211
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-159444-combined.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.4605805239989422,
+   "exit": 0,
+   "label": "combined",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-212.log",
+   "ok": true,
+   "step": 212
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-159444-combined.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6329880600023898,
+   "exit": 0,
+   "label": "combined",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-213.log",
+   "ok": true,
+   "step": 213
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_do_bind_and_serve_across_two_repositories",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_two_repositories_do_not_make_two_slots_servable"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6466374640003778,
+   "exit": 0,
+   "label": "combined",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-214.log",
+   "ok": true,
+   "step": 214
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 14.348281829996267,
+   "exit": 0,
+   "label": "combined",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-215.log",
+   "ok": true,
+   "step": 215
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 14.51432452500012,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-216.log",
+   "ok": true,
+   "step": 216
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-159444-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.393758687998343,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-217.log",
+   "ok": true,
+   "step": 217
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_do_bind_and_serve_across_two_repositories",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_two_repositories_do_not_make_two_slots_servable"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6416690619953442,
+   "exit": 0,
+   "label": "p2",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-218.log",
+   "ok": true,
+   "step": 218
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-159520-terminal.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.6351902449969202,
+   "exit": 0,
+   "label": "terminal",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-219.log",
+   "ok": true,
+   "step": 219
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-159520-terminal.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.5959716439974727,
+   "exit": 0,
+   "label": "terminal",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-220.log",
+   "ok": true,
+   "step": 220
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-159520-terminal.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.607576212998538,
+   "exit": 0,
+   "label": "terminal",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-221.log",
+   "ok": true,
+   "step": 221
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.623327314002381,
+   "exit": 0,
+   "label": "terminal",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-222.log",
+   "ok": true,
+   "step": 222
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 15.134002275997773,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-223.log",
+   "ok": true,
+   "step": 223
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-159520-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.965650459002063,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-224.log",
+   "ok": true,
+   "step": 224
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-159582-integration.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.1551491050049663,
+   "exit": 0,
+   "label": "integration",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-225.log",
+   "ok": true,
+   "step": 225
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-159582-integration.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.8416167229952407,
+   "exit": 0,
+   "label": "integration",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-226.log",
+   "ok": true,
+   "step": 226
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/probe-159582-integration.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.224109689996112,
+   "exit": 0,
+   "label": "integration",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-227.log",
+   "ok": true,
+   "step": 227
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.8142226510026376,
+   "exit": 1,
+   "label": "terminal",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-228.log",
+   "ok": false,
+   "step": 228
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.855128518996935,
+   "exit": 1,
+   "label": "terminal",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-229.log",
+   "ok": false,
+   "step": 229
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.838028572994517,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-230.log",
+   "ok": false,
+   "step": 230
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.806303971003217,
+   "exit": 0,
+   "label": "terminal",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-231.log",
+   "ok": true,
+   "step": 231
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 15.343219813003088,
+   "exit": 0,
+   "label": "module",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-232.log",
+   "ok": true,
+   "step": 232
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-159582-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.265806554001756,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-233.log",
+   "ok": true,
+   "step": 233
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.8914973309947527,
+   "exit": 0,
+   "label": "receipts",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-234.log",
+   "ok": true,
+   "step": 234
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.192771766000078,
+   "exit": 1,
+   "label": "alternate",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-235.log",
+   "ok": false,
+   "step": 235
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.1383104720007395,
+   "exit": 0,
+   "label": "alternate",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-236.log",
+   "ok": true,
+   "step": 236
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 16.162563193996903,
+   "exit": 0,
+   "label": "affected",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-237.log",
+   "ok": true,
+   "step": 237
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-159644-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 14.14424277299986,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-238.log",
+   "ok": true,
+   "step": 238
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.134939668998413,
+   "exit": 0,
+   "label": "structure",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-239.log",
+   "ok": true,
+   "step": 239
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-159644-composed.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 14.08850110200001,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-240.log",
+   "ok": true,
+   "step": 240
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=12",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.9609220900019864,
+   "exit": 1,
+   "label": "terminals",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-241.log",
+   "ok": false,
+   "step": 241
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=14",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.276993355997547,
+   "exit": 1,
+   "label": "terminals",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-242.log",
+   "ok": false,
+   "step": 242
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=14",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.585265331996197,
+   "exit": 1,
+   "label": "terminals",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-243.log",
+   "ok": false,
+   "step": 243
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=16",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.538098427001387,
+   "exit": 1,
+   "label": "terminals",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-244.log",
+   "ok": false,
+   "step": 244
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=8",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.119706618999771,
+   "exit": 0,
+   "label": "revert",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-245.log",
+   "ok": true,
+   "step": 245
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=17",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 16.059342189000745,
+   "exit": 0,
+   "label": "class",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-246.log",
+   "ok": true,
+   "step": 246
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=10",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.22943187700002454,
+   "exit": 1,
+   "label": "judges",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-247.log",
+   "ok": false,
+   "step": 247
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=12",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2246776920001139,
+   "exit": 1,
+   "label": "judges",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-248.log",
+   "ok": false,
+   "step": 248
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=12",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.21153216200036695,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-249.log",
+   "ok": false,
+   "step": 249
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=12",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2548500220000278,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-250.log",
+   "ok": false,
+   "step": 250
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=12",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.8878603970006225,
+   "exit": 0,
+   "label": "judges",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-251.log",
+   "ok": true,
+   "step": 251
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=14",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.461502817001019,
+   "exit": 1,
+   "label": "reconciled",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-252.log",
+   "ok": false,
+   "step": 252
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=14",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.470572913000069,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-253.log",
+   "ok": false,
+   "step": 253
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=14",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.429867307000677,
+   "exit": 1,
+   "label": "reconciled",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-254.log",
+   "ok": false,
+   "step": 254
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=14",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.413771183993958,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-255.log",
+   "ok": false,
+   "step": 255
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=14",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.3969711840036325,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-256.log",
+   "ok": false,
+   "step": 256
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=14",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.483616491997964,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-257.log",
+   "ok": false,
+   "step": 257
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=14",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.494269859998894,
+   "exit": 1,
+   "label": "reconciled",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-258.log",
+   "ok": false,
+   "step": 258
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=14",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.445713123997848,
+   "exit": 1,
+   "label": "triage",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-259.log",
+   "ok": false,
+   "step": 259
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=14",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.608543794005527,
+   "exit": 1,
+   "label": "measured",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-260.log",
+   "ok": false,
+   "step": 260
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=14",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.139955654994992,
+   "exit": 0,
+   "label": "measured",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-261.log",
+   "ok": true,
+   "step": 261
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=17",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 16.120712447002006,
+   "exit": 0,
+   "label": "class",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-262.log",
+   "ok": true,
+   "step": 262
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=6",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6598907340012374,
+   "exit": 0,
+   "label": "payloads",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-263.log",
+   "ok": true,
+   "step": 263
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=8",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.175975004996872,
+   "exit": 0,
+   "label": "payloads",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-264.log",
+   "ok": true,
+   "step": 264
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "env",
+    "W103525_EXPECT=17",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 16.284238530002767,
+   "exit": 0,
+   "label": "class",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-265.log",
+   "ok": true,
+   "step": 265
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6551452160056215,
+   "exit": 0,
+   "label": "regression",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-266.log",
+   "ok": true,
+   "step": 266
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-159894-causal.py"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.0855028119985946,
+   "exit": 0,
+   "label": "causal",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-267.log",
+   "ok": true,
+   "step": 267
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.237675376003608,
+   "exit": 1,
+   "label": "continuation",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-268.log",
+   "ok": false,
+   "step": 268
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.7506396749959094,
+   "exit": 1,
+   "label": "continuation",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-269.log",
+   "ok": false,
+   "step": 269
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.7346841730031883,
+   "exit": 0,
+   "label": "continuation",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-270.log",
+   "ok": true,
+   "step": 270
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.041101927003183,
+   "exit": 1,
+   "label": "continuation",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-271.log",
+   "ok": false,
+   "step": 271
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.978638546002912,
+   "exit": 1,
+   "label": "continuation",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-272.log",
+   "ok": false,
+   "step": 272
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.323971347999759,
+   "exit": 0,
+   "label": "judges",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-273.log",
+   "ok": true,
+   "step": 273
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_two_teams_claim_three_producers_at_once",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_four_job_scenario_really_carries_two_teams",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_do_bind_and_serve_across_two_repositories",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_two_repositories_do_not_make_two_slots_servable",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_producer_bound_to_another_work_is_not_an_eligible_slot",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_four_job_contention_exports_a_clean_artifact"
+   ],
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 6.696049237005354,
+   "exit": 0,
+   "label": "four-job",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-274.log",
+   "ok": true,
+   "step": 274
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 12.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 253.75751072502453,
+    "spent_seconds_before": 946.2424892749755,
+    "timeout_seconds": 252.75751072502453
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.055899434999446,
+   "exit": 1,
+   "label": "four-terminal",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-275.log",
+   "ok": false,
+   "step": 275
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 9.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 245.70161129002508,
+    "spent_seconds_before": 954.2983887099749,
+    "timeout_seconds": 244.70161129002508
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.020179988001473,
+   "exit": 1,
+   "label": "diagnose",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-276.log",
+   "ok": false,
+   "step": 276
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 9.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 237.6814313020236,
+    "spent_seconds_before": 962.3185686979764,
+    "timeout_seconds": 236.6814313020236
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 8.023266766002052,
+   "exit": 1,
+   "label": "diagnose",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-277.log",
+   "ok": false,
+   "step": 277
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 9.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 229.65816453602156,
+    "spent_seconds_before": 970.3418354639784,
+    "timeout_seconds": 228.65816453602156
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.989372290001484,
+   "exit": 1,
+   "label": "diagnose",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-278.log",
+   "ok": false,
+   "step": 278
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 12.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 221.66879224602008,
+    "spent_seconds_before": 978.3312077539799,
+    "timeout_seconds": 220.66879224602008
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.584388930001296,
+   "exit": 0,
+   "label": "four-terminal",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-279.log",
+   "ok": true,
+   "step": 279
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 12.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 216.08440331601878,
+    "spent_seconds_before": 983.9155966839812,
+    "timeout_seconds": 215.08440331601878
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.085949307998817,
+   "exit": 0,
+   "label": "four-terminal",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-280.log",
+   "ok": true,
+   "step": 280
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_two_teams_claim_three_producers_at_once",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_four_job_scenario_really_carries_two_teams",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_do_bind_and_serve_across_two_repositories",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_two_repositories_do_not_make_two_slots_servable",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_producer_bound_to_another_work_is_not_an_eligible_slot",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_three_jobs_code_and_are_reviewed_and_the_edge_then_opens",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_four_job_contention_exports_a_clean_artifact"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 210.99845400801996,
+    "spent_seconds_before": 989.00154599198,
+    "timeout_seconds": 209.99845400801996
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.2602159020025283,
+   "exit": 0,
+   "label": "four-job",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-281.log",
+   "ok": true,
+   "step": 281
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.py"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 25.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 207.73823810601743,
+    "spent_seconds_before": 992.2617618939826,
+    "timeout_seconds": 206.73823810601743
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 19.706244533001154,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-282.log",
+   "ok": true,
+   "step": 282
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_alternate_schedule_reaches_the_same_completions"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 14.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 188.03199357301628,
+    "spent_seconds_before": 1011.9680064269837,
+    "timeout_seconds": 187.03199357301628
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.541591929002607,
+   "exit": 0,
+   "label": "named",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-283.log",
+   "ok": true,
+   "step": 283
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.py"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 28.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 177.49040164401367,
+    "spent_seconds_before": 1022.5095983559863,
+    "timeout_seconds": 176.49040164401367
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 19.732667258998845,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-284.log",
+   "ok": true,
+   "step": 284
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_composed_deployment_reopens_and_continues"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 6.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 157.75773438501483,
+    "spent_seconds_before": 1042.2422656149852,
+    "timeout_seconds": 156.75773438501483
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.4358903449974605,
+   "exit": 1,
+   "label": "reopen",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-285.log",
+   "ok": false,
+   "step": 285
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_composed_deployment_reopens_and_continues"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 6.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 157.32184404001737,
+    "spent_seconds_before": 1042.6781559599826,
+    "timeout_seconds": 156.32184404001737
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.43561657600366743,
+   "exit": 1,
+   "label": "reopen",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-286.log",
+   "ok": false,
+   "step": 286
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_composed_deployment_reopens_and_continues"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 6.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 156.8862274640137,
+    "spent_seconds_before": 1043.1137725359863,
+    "timeout_seconds": 155.8862274640137
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.6071881249954458,
+   "exit": 0,
+   "label": "reopen",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-287.log",
+   "ok": true,
+   "step": 287
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "trace-160959-composed.py"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 28.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 156.27903933901825,
+    "spent_seconds_before": 1043.7209606609817,
+    "timeout_seconds": 155.27903933901825
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.005957371002295986,
+   "exit": 2,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-288.log",
+   "ok": false,
+   "step": 288
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/trace-160959-composed.py"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 28.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 156.27308196801596,
+    "spent_seconds_before": 1043.726918031984,
+    "timeout_seconds": 155.27308196801596
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 19.7808789779956,
+   "exit": 0,
+   "label": "export",
+   "log": "work/records/2026/09/finding-v12-deterministic-scheduler-stress/run-153769-step-289.log",
+   "ok": true,
+   "step": 289
+  }
+ ],
+ "work": "W103525"
+}

@@ -1,0 +1,13 @@
+### label: reference-guard-focused
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions"]
+### exit: 0
+### elapsed_seconds: 2.975602
+### STDOUT
+
+### STDERR
+.........................
+----------------------------------------------------------------------
+Ran 25 tests in 2.788s
+
+OK

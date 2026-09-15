@@ -1,0 +1,20 @@
+test_a_composition_with_no_job_owner_still_answers_none (tests.tools.test_execution_limits.TheDerivedJudgmentCarriesItsOwningResultsJob.test_a_composition_with_no_job_owner_still_answers_none)
+And the deployment that genuinely has none is untouched. ... ok
+test_a_subject_naming_no_job_is_refused (tests.tools.test_execution_limits.TheDerivedJudgmentCarriesItsOwningResultsJob.test_a_subject_naming_no_job_is_refused)
+Not defaulted, and not looked up somewhere else: a judgment whose ... ok
+test_an_execution_naming_no_job_does_not_take_the_defaults (tests.tools.test_execution_limits.TheDerivedJudgmentCarriesItsOwningResultsJob.test_an_execution_naming_no_job_does_not_take_the_defaults)
+The serving and observing readers both refuse an execution with no ... ok
+test_the_owning_job_is_read_from_the_judged_subject (tests.tools.test_execution_limits.TheDerivedJudgmentCarriesItsOwningResultsJob.test_the_owning_job_is_read_from_the_judged_subject) ... ok
+test_the_retained_intent_is_what_the_launch_states (tests.tools.test_execution_limits.TheDerivedJudgmentCarriesItsOwningResultsJob.test_the_retained_intent_is_what_the_launch_states)
+The runtime half is the judge's OWN configured identities, not the ... ok
+test_a_configured_provider_turn_succeeds_and_imports (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_a_configured_provider_turn_succeeds_and_imports)
+The configured SUCCESS, over the real composition. A Job-bound ... ok
+test_a_configured_provider_that_cannot_start_is_held_as_that (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_a_configured_provider_that_cannot_start_is_held_as_that)
+And the start failure, under a configured context: the adapter's own ... ok
+test_a_second_turn_under_the_same_delivery_duplicates_nothing (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_a_second_turn_under_the_same_delivery_duplicates_nothing)
+REPLAY, with the configured context in it. The attempt already ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.741s
+
+OK

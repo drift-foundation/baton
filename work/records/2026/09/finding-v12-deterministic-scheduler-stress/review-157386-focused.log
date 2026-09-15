@@ -1,0 +1,13 @@
+test_four_jobs_two_teams_claim_three_producers_at_once (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_two_teams_claim_three_producers_at_once)
+THE POSITIVE, and its name now says what it asserts. ... ok
+test_the_four_job_scenario_really_carries_two_teams (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_four_job_scenario_really_carries_two_teams)
+[P1]: the first artifact called itself two-team and every configured ... ok
+test_a_producer_bound_to_another_work_is_not_an_eligible_slot (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_producer_bound_to_another_work_is_not_an_eligible_slot)
+THE GAP, MEASURED BY CONTRAST RATHER THAN ARGUED, and SCOPED. ... ok
+test_the_four_job_contention_exports_a_clean_artifact (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_four_job_contention_exports_a_clean_artifact)
+And the schedule is a TRACE, validated by the independent oracle. ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.892s
+
+OK

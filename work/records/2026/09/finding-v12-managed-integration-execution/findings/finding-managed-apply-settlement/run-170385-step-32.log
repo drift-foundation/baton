@@ -1,0 +1,9 @@
+...........
+----------------------------------------------------------------------
+Ran 11 tests in 2.895s
+
+OK
+{"apply_starts": 1, "judgments": 3, "proof": "ordinary-managed-integration", "result": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "state": "imported"}
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:b311e331a856e6b37b6c29b4a3706b46f032900cd2684dbadcf1ca1edb44b8cc", "root": "open", "runtime": "destroyed", "worker_exit": 0}
+{"apply_starts": 1, "judgments": 3, "proof": "ordinary-managed-integration", "result": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "state": "imported"}
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:9581a1df77e5d4a5c04480742f23af3f8b94740b8d97fecd90cd73504df5925b", "root": "open", "runtime": "destroyed", "worker_exit": 0}

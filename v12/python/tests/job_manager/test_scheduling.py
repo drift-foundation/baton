@@ -11,6 +11,7 @@ from baton_v12.job_manager import (POOL_SCHEMA, JobStore, PooledManagerOperation
                                    allocation_rows, check_binding, job_of,
                                    pool_workers, reserve, status, submit, sweep)
 from baton_v12.job_manager import episodes, scheduler
+from baton_v12.job_manager.schema import SCHEMA_VERSION
 from baton_v12.worker_manager import AuthorityPort, accept_offer
 
 from .fixtures import (NOW, PROFILE, UUID, FakeSession, JobManagerCase,
@@ -100,7 +101,13 @@ class PoolDocuments(PoolCase):
     def test_schema_three_migrates_atomically_to_empty_scheduler_relations(self):
         self.jobs.close()
         connection = sqlite3.connect(self.job_path, isolation_level=None)
-        for table in ("worker_affinity", "stage_allocations", "pool_workers",
+        # W156162: `job_execution_limits` is the 4 -> 5 step's object and was
+        # never in schema 3 either, so a fixture impersonating 3 by subtracting
+        # later objects has to subtract it too.
+        for table in ("integration_capacity_members",
+                      "integration_capacity_roots",
+                      "job_execution_limits", "worker_affinity",
+                      "stage_allocations", "pool_workers",
                       "pool_generations"):
             connection.execute(f"DROP TABLE {table}")
         connection.execute("UPDATE meta SET value = '3' WHERE key = ?",
@@ -420,8 +427,12 @@ class TheMigrationProvesTheSchemaItMigratesFrom(PoolCase):
         self.jobs.close()
         connection = sqlite3.connect(self.job_path, isolation_level=None)
         try:
-            for table in ("worker_affinity", "stage_allocations",
-                          "pool_workers", "pool_generations"):
+            # W156162: and the 4 -> 5 step's object, for the same reason.
+            for table in ("integration_capacity_members",
+                          "integration_capacity_roots",
+                          "job_execution_limits", "worker_affinity",
+                          "stage_allocations", "pool_workers",
+                          "pool_generations"):
                 connection.execute(f"DROP TABLE {table}")
             for statement in spoil:
                 connection.execute(statement)
@@ -455,7 +466,11 @@ class TheMigrationProvesTheSchemaItMigratesFrom(PoolCase):
         migrated = self.reopen()
         self.assertEqual(pool_workers(migrated), [])
         version, objects = self.unchanged()
-        self.assertEqual(version, "4")
+        # W156162: compared against the build's own version rather than a
+        # literal, so a later migration does not have to edit this case to
+        # keep asserting the same thing -- that the store ends at THIS
+        # build's schema.
+        self.assertEqual(version, str(SCHEMA_VERSION))
         self.assertIn("stage_allocations", objects)
 
     def test_a_missing_index_refuses_and_changes_nothing(self):
@@ -566,7 +581,7 @@ class TheMigrationProvesTheSchemaItMigratesFrom(PoolCase):
         # ... and the definition it means is the same one.
         self.assertNotIn('"', _definition(spelled))
         self.reopen()
-        self.assertEqual(self.unchanged()[0], "4")
+        self.assertEqual(self.unchanged()[0], str(SCHEMA_VERSION))
 
     def test_an_extra_object_refuses_and_changes_nothing(self):
         self.stamped_as_three([
@@ -620,7 +635,7 @@ class TheMigrationProvesTheSchemaItMigratesFrom(PoolCase):
         for thread in threads:
             self.assertFalse(thread.is_alive())
         self.assertEqual(answers, [[], []], answers)
-        self.assertEqual(self.unchanged()[0], "4")
+        self.assertEqual(self.unchanged()[0], str(SCHEMA_VERSION))
 
 
 class TheReviewedSchedulerGaps(PoolCase):

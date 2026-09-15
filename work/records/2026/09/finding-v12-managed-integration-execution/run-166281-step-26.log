@@ -1,0 +1,5 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 /tmp/differential.py
+  units->minutes                     manager=refuses  worker=refuses  AGREE
+  generation->999                    manager=refuses  worker=refuses  AGREE
+  one resolved seconds +1            manager=refuses  worker=refuses  AGREE
+  the unmodified real document       manager=ACCEPTS  worker=ACCEPTS  AGREE

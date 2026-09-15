@@ -1,0 +1,61 @@
+{
+  "reviewer_claim": 169913,
+  "at": "2026-09-14T14-19-04Z",
+  "files": [
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "bytes": 298063,
+      "mode": "0o664",
+      "sha256": "0f9843807a432c2233bec0f7025467a05c410336965aeccbf4915c7e792d58a7",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "bytes": 72421,
+      "mode": "0o644",
+      "sha256": "a345a417f76068da1301d38a1eaf131b1cf92db7746f19664ca61c4b5b5b80f2",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "bytes": 85232,
+      "mode": "0o644",
+      "sha256": "45c840b1ab07ae9cf51d814f2c22e6524c0b1920571a22a45265d9c003740b76",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "bytes": 162808,
+      "mode": "0o644",
+      "sha256": "1996f8fdc3df90cf67dc9f6636bcd079ff047e8bb2d96d873551a7bb903aefaf",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/integration_bundle.py",
+      "bytes": 73429,
+      "mode": "0o644",
+      "sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "bytes": 191339,
+      "mode": "0o664",
+      "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c",
+      "matches": true
+    },
+    {
+      "path": "/home/sl/src/baton/v12/python/DEPLOYMENT.md",
+      "bytes": 94303,
+      "sha256": "48a3268e456765c02696c897558f1aed9511c39a4188480a8d194b21ac50077f"
+    },
+    {
+      "path": "/tmp/w166281_run.py",
+      "bytes": 7648,
+      "sha256": "da98d850e68ea3535840f53f80304c54dc2c096dc3532b35154c9eb26a4b7b46"
+    }
+  ],
+  "author_ledger_rows": 139,
+  "author_ledger_sum": 1506.8876871798304,
+  "reviewer_cumulative_seconds": 31.627664178005944
+}

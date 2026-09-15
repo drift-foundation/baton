@@ -1,0 +1,84 @@
+{
+ "author": "baton.claude",
+ "boundaries_kept": [
+  "a committed intent with no published input REFUSES: a missing durable record is not permission to decide the request again",
+  "absence is an answer rather than an empty request",
+  "recovery is not a trusting read -- a member the closed request does not have is refused rather than returned"
+ ],
+ "built": [
+  "integration_bundle.published_preparation_request: one bounded, no-follow read of the immutable document compose_preparation_input wrote, ADOPTED through the request's own composer",
+  "ManagedPreparation._recovered: when an intent exists, recover the request, hold it to the intent digest, and carry it forward including the derived task digest -- the request's own name must not describe the recomposed one"
+ ],
+ "changed": [
+  {
+   "bytes": 82772,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_worker.py",
+   "sha256": "fbc4925d97af13819b1a783691ea5496174a95174588667a3b585ba0c2081ab0"
+  },
+  {
+   "bytes": 73429,
+   "mode": "0o644",
+   "path": "baton:v12/python/tools/integration_bundle.py",
+   "sha256": "8194709d7f2f5941fa2c58e52c1342c339d437e7f2da3efd25c4ccf03bed4dad"
+  },
+  {
+   "bytes": 48733,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+   "sha256": "866016d2881a2b665569dda444d2068c56128cae0e2f1c7d6594c87ad32f6a10"
+  }
+ ],
+ "claim": 169317,
+ "correction_accepted": "My 'durable resumption is done' was too broad. _preserved compared SUPPLIED operands; preparation_intent_of persists the child Work and the request DIGEST, not the document or the pinned target. A sweep that recomposed from a newer canonical target would be refused by that digest forever -- correct, and stuck. A guard that can only say no is not resumption.",
+ "not_accepted": [
+  "A.3",
+  "A.4",
+  "checkpoint A",
+  "checkpoint B",
+  "slice2",
+  "W161230"
+ ],
+ "still_next": "No deployment constructs ManagedPreparation: _integration_operations passes preparation=None. Nothing yet reads line, checkpoint, proposal, canonical target and Job limits through the deployment's own readers, publishes the bundle under the integration root, or injects the worker's acceptance. Then the ordinary child launch and ending, the member ended on its real exclusion proof, and adoption. The whole-prepare admitted-child replay gap remains open and these guards do not settle it. Then A.5, then B.",
+ "unchanged": [
+  {
+   "bytes": 278874,
+   "mode": "0o664",
+   "path": "baton:v12/python/tools/stage_execution.py",
+   "sha256": "63fd8c59b62beffdae3f4474c8f788a1d80fa35fea94c41d4c04bea174e52d67"
+  },
+  {
+   "bytes": 162659,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+   "sha256": "7cf0542e55eb0064bef55f4f12d3837c6f427793925b0d5e4120d90585a80f55"
+  },
+  {
+   "bytes": 191339,
+   "mode": "0o664",
+   "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+   "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c"
+  },
+  {
+   "bytes": 94098,
+   "mode": "0o644",
+   "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+   "sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a"
+  }
+ ],
+ "verification": {
+  "a_tamper_that_was_not_one": "My first tamper changed `commands` to a shorter list, which the composer rebuilds happily -- so the case proved nothing. Corrected before it counted: it now adds a member the closed document does not have.",
+  "cwd": "/home/sl/src/baton/v12/python",
+  "last_runnable": "python3 /tmp/w166281_run.py 109 restored /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation tests.tools.test_integration_bundle",
+  "ledger": "109 rows, 972.2722257969028s, quoted from the file",
+  "no": "no engine, model, image build, broad suite or destructive cleanup",
+  "steps": {
+   "107": "first green, OK 398 cases, ledger 21.28432466799859s, with the bundle owner's module in the run because this round changed it",
+   "108": "REVERSAL -- make recovery a trusting read; failed exactly test_a_tampered_published_request_does_not_survive_its_composer",
+   "109": "restored, OK 398 cases, ledger 21.390516160987318s"
+  },
+  "whitespace": "clean on all three changed files"
+ },
+ "what": "Recovery replaces recomposition: the resumed sweep reads back the immutable published request instead of composing a new one against a digest it can only ever fail.",
+ "work": "2b077949-W161230"
+}

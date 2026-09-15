@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheAdmittedFailureMatrix.test_a_post_import_answer_is_not_a_causal_one
+E
+======================================================================
+ERROR: test_a_post_import_answer_is_not_a_causal_one (tests.tools.test_execution_limits.TheAdmittedFailureMatrix.test_a_post_import_answer_is_not_a_causal_one)
+RESULT AND PHASE ISOLATION across the two host boundaries.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2927, in test_a_post_import_answer_is_not_a_causal_one
+    self._refused("combined", phase="post-import"))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: TheAdmittedFailureMatrix._refused() got multiple values for argument 'phase'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+FAILED (errors=1)

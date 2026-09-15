@@ -1,0 +1,12 @@
+### label: offer-and-session-probe
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "/tmp/t525g_probe.py"]
+### exit: 0
+### elapsed_seconds: 0.407054
+### STDOUT
+EPISODE 1 attempt-7b5e070a732d
+  OFFER keys ['accepted_at', 'authority_uuid', 'claim_event_seq', 'claim_generation', 'claim_grant', 'claim_operation_id', 'claim_policy_generation', 'claim_principal', 'claim_role', 'claim_scope', 'claim_signature', 'decided_at', 'decision_reason', 'expires_at', 'incarnation', 'input_digest', 'intent_digest', 'issued_at', 'offer_id', 'participant', 'policy_digest', 'profile_digest', 'runtime_attempt_id', 'settle_by', 'state', 'verifier', 'verifier_spent', 'work_id', 'work_route', 'work_scope']
+  state claimed accepted_at 2026-09-02T00:00:00.000Z
+  sessions []
+
+### STDERR

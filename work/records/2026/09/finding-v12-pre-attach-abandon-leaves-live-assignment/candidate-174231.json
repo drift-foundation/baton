@@ -1,0 +1,41 @@
+{
+  "claim": 174231,
+  "files": [
+    {
+      "bytes": 231594,
+      "path": "baton:v12/python/src/baton_v12/worker_manager/intake.py",
+      "sha256": "c6ffbd87c98c8f730961f5d01d02aaa01db7be512d00b3ecf9094173eac05c3b",
+      "target_mode": "0o664"
+    },
+    {
+      "bytes": 14551,
+      "path": "baton:v12/python/src/baton_v12/worker_manager/__init__.py",
+      "sha256": "cce4b68650b5f73c0fa1b17f8ddb16f354c45c35df8e6f983594834307b36f29",
+      "target_mode": "0o644"
+    },
+    {
+      "bytes": 257321,
+      "path": "baton:v12/python/tools/dogfood_operator.py",
+      "sha256": "335033111fffba338cc606cebbfe2470279b7786228e04f121610f0ceec1ba6b",
+      "target_mode": "0o644"
+    },
+    {
+      "bytes": 364972,
+      "path": "baton:v12/python/tests/tools/test_dogfood_operator.py",
+      "sha256": "bfdb8bc7535e75be99ed49880bc33c9e087486becfc673e94552d84cbcd75068",
+      "target_mode": "0o644"
+    }
+  ],
+  "ledger": {
+    "rows": 10,
+    "seconds": 65.02430466201622
+  },
+  "note_on_paths": "tests/manager/test_attempts.py was NOT changed - no manager-side change was needed; worker_manager/__init__.py was changed to export the new operation",
+  "selected_paths_from_M174212": [
+    "intake.py",
+    "dogfood_operator.py",
+    "tests/manager/test_attempts.py",
+    "tests/tools/test_dogfood_operator.py"
+  ],
+  "work": "W63255"
+}

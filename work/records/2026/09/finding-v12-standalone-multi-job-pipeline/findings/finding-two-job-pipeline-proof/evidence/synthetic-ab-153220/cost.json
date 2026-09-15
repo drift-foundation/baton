@@ -1,0 +1,10 @@
+{
+  "claim": 153220,
+  "claim_started_at": "2026-09-12T14:33:13Z",
+  "recorded_at": "2026-09-12T14:47:58.305965+00:00",
+  "claim_wall_seconds_to_record": 885.305965,
+  "measured_checks_seconds": 0.939145608979743,
+  "cumulative_preparation_checks_seconds_including_operator_3_477": 121.97802351189604,
+  "failed_and_interrupted_live_wall_seconds": 2945.8728742020467,
+  "qualification": "Claim wall includes reading, reasoning, editing and checks; not model billing time. Canonical pass supplies final handoff latency. Prior unmetered coordination/preparation uncertainty remains."
+}

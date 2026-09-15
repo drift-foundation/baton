@@ -1,0 +1,12 @@
+{
+  "claim": 152976,
+  "reviewed_files": 359,
+  "all_five_helpers_bound": true,
+  "actual_inputs_bound": 33,
+  "markers": {
+    "selected-images.json": "sha256:d0da4684accfa0cba16dc712d2456745de56ef3632f315a7c17a6649407a8f5f",
+    "execution-review.json": "sha256:746813adc4b5bc8d91b47b1fc48f1345548a7cba1f2711eeaa70a91605b82423"
+  },
+  "review_locator": "baton:work/records/2026/09/finding-v12-standalone-multi-job-pipeline/findings/finding-two-job-pipeline-proof/review-2026-09-12T13-55-45Z.md",
+  "seconds": 0.029916589992353693
+}

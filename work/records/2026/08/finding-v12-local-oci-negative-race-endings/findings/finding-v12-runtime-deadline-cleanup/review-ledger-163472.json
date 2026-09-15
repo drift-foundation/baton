@@ -1,0 +1,38 @@
+{
+  "work": "W32577",
+  "claim": 163472,
+  "cap_seconds": 60.0,
+  "authority": "review-2026-09-13T18-26-19Z.md",
+  "prior_reviewer_seconds": 4.971617716990295,
+  "runs": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-W",
+        "error",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.manager.test_runtime_deadline_engine_budget"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "status": "finished",
+      "guard": {
+        "cap_seconds": 60.0,
+        "spent_seconds_before": 4.971617716990295,
+        "remaining_seconds_before": 55.028382283009705,
+        "expected_seconds": 10.0,
+        "margin_seconds": 3.0,
+        "timeout_seconds": 35.0
+      },
+      "log": "review-run-163472-1.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.3137910350051243
+    }
+  ],
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "jsonschema": "4.19.2",
+  "qualification": "Deterministic only; pinned4.26.0 and Docker gate not satisfied",
+  "reviewer_spent_seconds": 5.285408751995419,
+  "reviewer_remaining_seconds": 54.71459124800458
+}

@@ -1,0 +1,50 @@
+import hashlib
+import json
+import os
+import pathlib
+import subprocess
+import time
+
+record = pathlib.Path(__file__).resolve().parent
+root = pathlib.Path('/home/sl/src/baton')
+names = ['v12/python/' + name for name in json.loads((record / 'review-156862.json').read_text())['candidate_after']]
+names += ['v12/worker/baton_worker.py', 'v12/worker/claude_agent.py',
+          'v12/python/tests/tools/test_execution_limits.py', 'v12/python/DEPLOYMENT.md']
+
+
+def hashes():
+    return {name: {'sha256': hashlib.sha256((root / name).read_bytes()).hexdigest(),
+                   'bytes': (root / name).stat().st_size} for name in names}
+
+
+ledger = {'work': 'W156162', 'claim': 156931,
+          'author_spent_seconds': 260.81187214799684,
+          'author_unmeasured_activities': ['original baseline', 'golden generation', 'isolated-copy attribution attempt', 'in-place injection-removal attribution experiment'],
+          'prior_review_seconds': 5.593950847996894,
+          'candidate_before': hashes(), 'runs': []}
+
+
+def save():
+    ledger['review_spent_seconds'] = ledger['prior_review_seconds'] + sum(run['elapsed_seconds'] for run in ledger['runs'])
+    (record / 'review-156931.json').write_text(json.dumps(ledger, indent=2) + '\n')
+
+
+for label, argv in [
+        ('focused', ['/usr/bin/python3', '-B', '-m', 'unittest', '-v', 'tests.tools.test_execution_limits']),
+        ('probe', ['/usr/bin/python3', '-B', str(record / 'repro-156931.py')])]:
+    ledger['pending'] = argv
+    save()
+    log = record / ('review-156931-' + label + '.log')
+    start = time.monotonic()
+    with log.open('w') as out:
+        try:
+            rc = subprocess.run(argv, cwd=root / 'v12/python', env=dict(os.environ, PYTHONPATH='src:tools:.', PYTHONDONTWRITEBYTECODE='1'), stdout=out, stderr=subprocess.STDOUT, timeout=30).returncode
+        except subprocess.TimeoutExpired:
+            rc = 124
+    ledger['runs'].append({'argv': argv, 'exit': rc, 'elapsed_seconds': time.monotonic() - start, 'log': log.name})
+    ledger.pop('pending')
+    save()
+ledger['candidate_after'] = hashes()
+ledger['candidate_unchanged'] = ledger['candidate_before'] == ledger['candidate_after']
+save()
+print(json.dumps({key: ledger[key] for key in ('runs', 'review_spent_seconds', 'candidate_unchanged')}, indent=2))

@@ -1,0 +1,44 @@
+test_a_correction_opens_a_second_episode_on_the_same_line (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_correction_opens_a_second_episode_on_the_same_line)
+A requested correction is a real authorized transition too, and it ... ok
+test_a_decision_in_a_foreign_scope_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_decision_in_a_foreign_scope_is_refused)
+Review 2026-09-12T17:37:27Z, retained mutation 1: a foreign ... ok
+test_a_decision_made_in_another_role_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_decision_made_in_another_role_is_refused)
+Retained mutation 3: a review whose decision role was `integrate` ... ok
+test_a_decision_with_no_positive_generation_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_decision_with_no_positive_generation_is_refused)
+Retained mutation 2: a missing decision.policy_generation validated ... ok
+test_a_full_positive_authorization_chain_passes (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_full_positive_authorization_chain_passes) ... ok
+test_a_nonaccepting_review_authorizes_nothing (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_nonaccepting_review_authorizes_nothing)
+The exact erasure review 2026-09-12T17:30:56Z retained: a review ... ok
+test_a_review_recorded_after_its_integration_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_review_recorded_after_its_integration_is_refused)
+The other retained erasure: a review at 00:00:02 after an integration ... ok
+test_a_second_team_is_authorized_by_scope_not_by_membership (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_second_team_is_authorized_by_scope_not_by_membership)
+R1: THE THREE-CASE TEAM MATRIX, driven through the real Authority. ... ok
+test_a_wrong_repository_binding_is_refused_by_its_own_owner (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_wrong_repository_binding_is_refused_by_its_own_owner)
+R1: THE WRONG-REPOSITORY CASE, DRIVEN, with its legal companion. ... ok
+test_an_accepted_review_is_a_real_authorized_transition (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_accepted_review_is_a_real_authorized_transition)
+Job A reaches a genuinely accepted review, observed tick by tick. ... ok
+test_an_authorization_without_its_decision_context_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_authorization_without_its_decision_context_is_refused) ... ok
+test_an_import_missing_a_judgment_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_import_missing_a_judgment_is_refused)
+All three judgments, not a review alone. ... ok
+test_an_import_of_another_candidate_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_import_of_another_candidate_is_refused) ... ok
+test_an_integration_of_another_subject_does_not_authorize_this_one (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_integration_of_another_subject_does_not_authorize_this_one)
+A review of a DIFFERENT proposal is not this candidate's ... ok
+test_an_integration_without_its_review_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_integration_without_its_review_is_refused)
+The oracle's own negative: an integration receipt whose subject has no ... ok
+test_an_unattributed_authorization_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_unattributed_authorization_is_refused)
+And a receipt that does not say who decided is not an ... ok
+test_legitimately_differing_generations_are_accepted (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_legitimately_differing_generations_are_accepted)
+And no all-generations-equal rule is invented: policy legitimately ... ok
+test_real_authorization_receipts_bind_actor_scope_and_subject (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_real_authorization_receipts_bind_actor_scope_and_subject)
+The queued item: ACTUAL review/import authorization, from the ... ok
+test_the_observer_accepts_the_owners_own_order (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_observer_accepts_the_owners_own_order)
+Its legal companion, through the same path: the real receipts, whose ... ok
+test_the_observer_refuses_an_owner_order_it_cannot_honour (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_observer_refuses_an_owner_order_it_cannot_honour)
+D1: THE SAME PAIR, THROUGH THE ACTUAL `observed()` PATH. ... ok
+test_two_independent_repository_bindings_are_configured (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_two_independent_repository_bindings_are_configured)
+C3: THE REPOSITORY BINDINGS ARE PROVED, not reported missing. ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 2.758s
+
+OK

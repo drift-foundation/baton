@@ -1,0 +1,33 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+........................................E....E.......................
+======================================================================
+ERROR: test_a_configured_provider_that_cannot_start_is_held_as_that (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_a_configured_provider_that_cannot_start_is_held_as_that)
+And the start failure, under a configured context: the adapter's own
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 924, in test_a_configured_provider_that_cannot_start_is_held_as_that
+    with open(os.path.join(self.fixture.target_place,
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           self.fixture.reviewed), "rb") as handle:
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/v12-w110774-xopi6mnn/canonical-target/round-1.txt'
+
+======================================================================
+ERROR: test_a_second_turn_under_the_same_delivery_duplicates_nothing (tests.tools.test_execution_limits.TheDirectIntegrationCarriesItsJobsOwnCeiling.test_a_second_turn_under_the_same_delivery_duplicates_nothing)
+REPLAY, with the configured context in it. The attempt already
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 936, in test_a_second_turn_under_the_same_delivery_duplicates_nothing
+    captured = self._provider_seconds(document)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 955, in _provider_seconds
+    self._turn(document)
+    ~~~~~~~~~~^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 779, in _turn
+    with open(place, "w", encoding="utf-8") as handle:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: '/tmp/v12-w110774-7xa9c23f/worker/launch.json'
+
+----------------------------------------------------------------------
+Ran 69 tests in 2.921s
+
+FAILED (errors=2)

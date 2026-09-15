@@ -1,0 +1,33 @@
+..FF
+======================================================================
+FAIL: test_reopened_failed_start_retries_unfinished_credential_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_credential_teardown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1710, in test_reopened_failed_start_retries_unfinished_credential_teardown
+    self.unfinished_delivery("_torn_down", restart=True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1729, in unfinished_delivery
+    self.assertEqual(len(deferred), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_reopened_failed_start_retries_unfinished_launch_teardown (tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_reopened_failed_start_retries_unfinished_launch_teardown)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1713, in test_reopened_failed_start_retries_unfinished_launch_teardown
+    self.unfinished_delivery("_launch_ended", restart=True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 1729, in unfinished_delivery
+    self.assertEqual(len(deferred), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 4 tests in 13.393s
+
+FAILED (failures=2)
+{"adopted": false, "allocation": "recovery-required", "apply": "planned", "cleanup": "retained", "credential_root": false, "fixture_processes": 1, "launch_root": false, "parent": "queued-unclaimed", "prepare": "ended", "proof": "known-failed-start-is-ended", "root": "open", "runtime": "destroyed"}
+{"adopted": false, "allocation": "recovery-required", "apply": "planned", "cleanup": "retained", "credential_root": false, "fixture_processes": 1, "launch_root": false, "parent": "queued-unclaimed", "prepare": "ended", "proof": "known-failed-start-is-ended", "root": "open", "runtime": "destroyed"}
+{"adopted": false, "allocation": "recovery-required", "apply": "planned", "cleanup": "retained", "credential_root": false, "fixture_processes": 1, "launch_root": false, "parent": "queued-unclaimed", "prepare": "ended", "proof": "known-failed-start-is-ended", "root": "open", "runtime": "destroyed"}
+{"adopted": false, "allocation": "recovery-required", "apply": "planned", "cleanup": "retained", "credential_root": false, "fixture_processes": 1, "launch_root": false, "parent": "queued-unclaimed", "prepare": "ended", "proof": "known-failed-start-is-ended", "root": "open", "runtime": "destroyed"}

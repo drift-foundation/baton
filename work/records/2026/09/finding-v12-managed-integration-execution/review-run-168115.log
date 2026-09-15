@@ -1,0 +1,11 @@
+test_the_derived_candidate_is_not_the_original_candidate (tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_the_derived_candidate_is_not_the_original_candidate)
+`_CausalObserver.observe` uses `basis[candidate]` for the prepared ... ok
+test_the_targets_own_changes_survive_the_combination (tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_the_targets_own_changes_survive_the_combination)
+A preparation that took the candidate's tree wholesale would ... ok
+test_a_real_conflict_refuses_and_is_reported_as_one (tests.tools.test_managed_preparation.OnePreparationRunsThroughTheOrdinaryWorker.test_a_real_conflict_refuses_and_is_reported_as_one)
+Two independent changes to one region cannot be combined, and ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.373s
+
+OK

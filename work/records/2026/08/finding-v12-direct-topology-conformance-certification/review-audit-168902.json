@@ -1,0 +1,221 @@
+{
+  "kind": "independent static planning review; no tests, test imports or runtime execution",
+  "claim": 168902,
+  "utc": "2026-09-14T11:39:14.583527+00:00",
+  "files_before_review_edits": [
+    {
+      "path": "work/records/2026/08/finding-v12-direct-topology-conformance-certification/FINDING.md",
+      "author_sha256": "a6f8f63cd23ed88378d4fbebf05f893a31a7b6b256e98a582412091b11f46618",
+      "actual_sha256": "a6f8f63cd23ed88378d4fbebf05f893a31a7b6b256e98a582412091b11f46618",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-direct-topology-conformance-certification/PLAN.md",
+      "author_sha256": "de1cac0e4ff21ed374edebbdec202f1b0b96b5bdae682ac780c99c414a944323",
+      "actual_sha256": "de1cac0e4ff21ed374edebbdec202f1b0b96b5bdae682ac780c99c414a944323",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-direct-topology-conformance-certification/PLAN-CORRECTION-168727.md",
+      "author_sha256": "eb11029fa8dc358567fbec63fa8136e838547a17595b4652cd36ddbb2fb062e9",
+      "actual_sha256": "eb11029fa8dc358567fbec63fa8136e838547a17595b4652cd36ddbb2fb062e9",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-direct-topology-conformance-certification/PROGRESS.md",
+      "author_sha256": "6f1927b1366e7c917c8c0ca4bf23122fb10c089e7938587a29045b173c1f9f20",
+      "actual_sha256": "6f1927b1366e7c917c8c0ca4bf23122fb10c089e7938587a29045b173c1f9f20",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-direct-topology-conformance-certification/review-2026-09-04T14-40-59Z.md",
+      "author_sha256": "aca5edfea08e324e5c8cc30a99f67a7d0bf3022f78016bf576070175d8ff9029",
+      "actual_sha256": "aca5edfea08e324e5c8cc30a99f67a7d0bf3022f78016bf576070175d8ff9029",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md",
+      "author_sha256": "6c683b09ecdc01964a60e9d69f7eae13150820f4f542860e13cbca72f4fdd4d1",
+      "actual_sha256": "6c683b09ecdc01964a60e9d69f7eae13150820f4f542860e13cbca72f4fdd4d1",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-assignment-state-machine/SPEC.md",
+      "author_sha256": "af55719598032353b5650d12218fa04fb44c693224b3eeeed1cff83ef0951342",
+      "actual_sha256": "af55719598032353b5650d12218fa04fb44c693224b3eeeed1cff83ef0951342",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/FINDING.md",
+      "author_sha256": "23ef41bf452073c0ca974e7cc98ec4f533acdd087f8e3da784e9e848f959c53f",
+      "actual_sha256": "23ef41bf452073c0ca974e7cc98ec4f533acdd087f8e3da784e9e848f959c53f",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/SPEC.md",
+      "author_sha256": "e7bd2d35f98918a67cb3db33d5cee07c38d6740e67f03889fd8eaae20a028cd2",
+      "actual_sha256": "e7bd2d35f98918a67cb3db33d5cee07c38d6740e67f03889fd8eaae20a028cd2",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-control-api-manifests/schema/worker-control-1.0.schema.json",
+      "author_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "actual_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/FINDING.md",
+      "author_sha256": "c7b59fe69b1b02494b77727cbacbfe65f1e595fbf42f344c19ca214baee11dfd",
+      "actual_sha256": "c7b59fe69b1b02494b77727cbacbfe65f1e595fbf42f344c19ca214baee11dfd",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/SPEC.md",
+      "author_sha256": "faeb1097e99d5b8ebb8289bc620f72b4bbe7a71589fed28e5536631704d3b1b8",
+      "actual_sha256": "faeb1097e99d5b8ebb8289bc620f72b4bbe7a71589fed28e5536631704d3b1b8",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-acp-agent-boundary/schema/agent-session-1.0.schema.json",
+      "author_sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c",
+      "actual_sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/FINDING.md",
+      "author_sha256": "89e1c69ab9e92e799e22949fda0427ac4e7a4f97bce213294c585c03a1444179",
+      "actual_sha256": "89e1c69ab9e92e799e22949fda0427ac4e7a4f97bce213294c585c03a1444179",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/SPEC.md",
+      "author_sha256": "e0a361c873d2dcb7e9072341ef27b672146686935959c9bea191828198a37cf6",
+      "actual_sha256": "e0a361c873d2dcb7e9072341ef27b672146686935959c9bea191828198a37cf6",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/schema/conformance-1.0.schema.json",
+      "author_sha256": "f542c4a5a6828796aca3c0459ff3cd5c88f098a06d622960de16c8893f4477f7",
+      "actual_sha256": "f542c4a5a6828796aca3c0459ff3cd5c88f098a06d622960de16c8893f4477f7",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/obligations.json",
+      "author_sha256": "469c4e12636ad02eca18686ab4c580f203508e4e2aa57f5326dce74c4d42d8aa",
+      "actual_sha256": "469c4e12636ad02eca18686ab4c580f203508e4e2aa57f5326dce74c4d42d8aa",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/cases.json",
+      "author_sha256": "67d58fc282ae51a4d54bce2fec971f2e4bbc12f647f8b1ced989fe5f7bed8cb4",
+      "actual_sha256": "67d58fc282ae51a4d54bce2fec971f2e4bbc12f647f8b1ced989fe5f7bed8cb4",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/build_cases.py",
+      "author_sha256": "1752ce1d11da4898febf270bb7d5546eb1ba425b469caebd853a3a7b23ea623f",
+      "actual_sha256": "1752ce1d11da4898febf270bb7d5546eb1ba425b469caebd853a3a7b23ea623f",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/findings/finding-v12-worker-contract/findings/finding-worker-runtime-conformance/evidence/conformance_model.py",
+      "author_sha256": "eb4379ebf29a1286b29bf36df573536f54eeb3ef50da830e707988372b9ce2e9",
+      "actual_sha256": "eb4379ebf29a1286b29bf36df573536f54eeb3ef50da830e707988372b9ce2e9",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/authority/identity.py",
+      "author_sha256": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189",
+      "actual_sha256": "fe3ba096d112f503379ec39fc22888794adca38adf863a7701b7ee98212ea189",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/schema.py",
+      "author_sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "actual_sha256": "56c54054b5170b49a77ef4af0b13dd7f8ff8ee14564785c449e726df48ed7df1",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/worker_manager/attempts.py",
+      "author_sha256": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6",
+      "actual_sha256": "1f7c1532372bbf714d3c7d77ebb1a3d29e6d34a98afb0a718fa9f3a9ef4853f6",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/frozen.py",
+      "author_sha256": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed",
+      "actual_sha256": "b4799c195782d854f58081fcf4bb3c6c62982c62a3bd03e258ee3e8e763920ed",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/validate.py",
+      "author_sha256": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0",
+      "actual_sha256": "f3fbd5722baca3efe7a6269e6a3a1ed36991032ae9ee045f13013a88da2ffba0",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/manifest.py",
+      "author_sha256": "53324c97c84911e571ddcffacbc8d4a312f4bdd6b0fa6649bc00c0a205071acc",
+      "actual_sha256": "53324c97c84911e571ddcffacbc8d4a312f4bdd6b0fa6649bc00c0a205071acc",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/schema/worker-control-1.0.schema.json",
+      "author_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "actual_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "matches": true
+    },
+    {
+      "path": "v12/python/src/baton_v12/contracts/schema/agent-session-1.0.schema.json",
+      "author_sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c",
+      "actual_sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c",
+      "matches": true
+    },
+    {
+      "path": "v12/worker/Dockerfile",
+      "author_sha256": "0aa92e0b07c10e72bc6ca6c03c2c95f2e94da7fb9585c7a3969774f214d5cc0f",
+      "actual_sha256": "0aa92e0b07c10e72bc6ca6c03c2c95f2e94da7fb9585c7a3969774f214d5cc0f",
+      "matches": true
+    },
+    {
+      "path": "v12/worker/baton_worker.py",
+      "author_sha256": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+      "actual_sha256": "85b48a2461e259f345ea9f984db4f2c522f83be943b40837882ce5c8241278dd",
+      "matches": true
+    },
+    {
+      "path": "v12/worker/worker-control-1.0.schema.json",
+      "author_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "actual_sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc",
+      "matches": true
+    }
+  ],
+  "additional_inputs": [
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/RELEASE-CLASSIFICATION-165799.md",
+      "sha256": "1736807124f7db975dce7a50e46ee34225f5e8f797468f75cc451f2d77799b4d"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-isolated-agent-workers/RELEASE-CHECKLIST-167877.md",
+      "sha256": "0aea8bfa24e81109ca3aba3f480ecebdbda5708866612c0ae36df9cbff2ba3e7"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/review-2026-09-14T11-10-46Z.md",
+      "sha256": "9189105b0995ef3b30985d0409ea4251841b897f25b176b2b37a9a5140b5e66f"
+    },
+    {
+      "path": "work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/review-2026-09-14T10-44-34Z.md",
+      "sha256": "d7f20174a4cf986d5cdeb631896ceddab509cebae7738784cb64c8bfa96e1c52"
+    }
+  ],
+  "cases": 136,
+  "local_oci": 135,
+  "obligations": 79,
+  "all_case_digests_valid": true,
+  "duplicate_ids": false,
+  "bidirectional_obligation_case_links_valid": true,
+  "prior_independent_static_seconds": 0.002698835014598444,
+  "this_static_seconds": 0.0027118489961139858,
+  "runtime_test_seconds": 0,
+  "other_read_only_time": "unmeasured"
+}

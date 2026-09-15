@@ -1,0 +1,19 @@
+SIMULATED provider A/B; retained root: /tmp/synthetic-root-test-_34mdlrc/.local/state/baton/v12/synthetic-ab-1mi1thxo
+{"provider": "synthetic standalone-ab-v1", "root": "/tmp/synthetic-root-test-_34mdlrc/.local/state/baton/v12/synthetic-ab-1mi1thxo", "live_provider": false, "failure": "ContractRefusal: tmpfs refuses", "total_seconds": 1.108099240809679e-05}
+test_committed_A_B_tests_run_and_stale_checkout_is_preserved (tests.tools.test_standalone_ab.FinalCommittedView.test_committed_A_B_tests_run_and_stale_checkout_is_preserved) ... ok
+test_foreign_canonical_commit_refuses_before_export (tests.tools.test_standalone_ab.FinalCommittedView.test_foreign_canonical_commit_refuses_before_export) ... ok
+test_verification_mutation_cannot_be_called_clean (tests.tools.test_standalone_ab.FinalCommittedView.test_verification_mutation_cannot_be_called_clean) ... ok
+test_disk_default_preflight_precedes_build_and_records_refusal (tests.tools.test_standalone_ab.ScenarioEarlyFailures.test_disk_default_preflight_precedes_build_and_records_refusal) ... ok
+test_preparation_and_start_failures_need_exact_current_assignment (tests.tools.test_standalone_ab.ScenarioEarlyFailures.test_preparation_and_start_failures_need_exact_current_assignment) ... ok
+test_B_check_fails_original_and_passes_isolated_and_merged (tests.tools.test_standalone_ab.SyntheticProvider.test_B_check_fails_original_and_passes_isolated_and_merged) ... ok
+test_derived_judges_bind_current_candidate_and_causal_checks (tests.tools.test_standalone_ab.SyntheticProvider.test_derived_judges_bind_current_candidate_and_causal_checks) ... ok
+test_integration_copies_exact_blobs_and_reports_current_operands (tests.tools.test_standalone_ab.SyntheticProvider.test_integration_copies_exact_blobs_and_reports_current_operands) ... ok
+test_original_review_checks_actual_tree_and_writes_ordinary_report (tests.tools.test_standalone_ab.SyntheticProvider.test_original_review_checks_actual_tree_and_writes_ordinary_report) ... ok
+test_real_provider_subprocess_writes_only_A_scope_and_tests_pass (tests.tools.test_standalone_ab.SyntheticProvider.test_real_provider_subprocess_writes_only_A_scope_and_tests_pass) ... ok
+test_rendered_configuration_is_real_isolated_and_networkless (tests.tools.test_standalone_ab.SyntheticProvider.test_rendered_configuration_is_real_isolated_and_networkless) ... ok
+test_unknown_task_or_drift_refuses_before_writes (tests.tools.test_standalone_ab.SyntheticProvider.test_unknown_task_or_drift_refuses_before_writes) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.711s
+
+OK

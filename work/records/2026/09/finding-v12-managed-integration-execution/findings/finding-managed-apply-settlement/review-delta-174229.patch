@@ -1,0 +1,209 @@
+--- baton:v12/python/src/baton_v12/integration/reconciliation.py
++++ baton:v12/python/src/baton_v12/integration/reconciliation.py
+@@ -2803,6 +2803,47 @@
+                 category="integrity", code="schema")
+ 
+ 
++def managed_apply_failure_evidence(store, control, managed_result_id, reported):
++    """Prove a failed apply report against the bytes actually taken into custody.
++
++    The refused entry retains the worker's canonical report. Its JSON is not
++    authority: weigh it against the sealed file and accepted intake, then bind
++    its measurements to the owned phase and approved candidate.
++    """
++    from ..worker_manager.intake import intake_receipt_of
++
++    result = managed_result_of(store, managed_result_id)
++    phase = result["phases"].get("apply")
++    if phase is None or phase["result"]["collected"] is None:
++        _refuse("the failed apply has no owned collected phase")
++    task, account = phase["task"], phase["result"]
++    attempt = task["execution_attempt_id"]
++    intake = intake_receipt_of(control, attempt)
++    collected = account["collected"]
++    if intake is None or intake["custody"] != "accepted" or intake["attempt_id"] != attempt or intake["assignment"] != task["assignment"] or any(intake[name] != collected[name] for name in ("result_id", "manifest_digest")):
++        _refuse("the failed apply report has no matching accepted custody")
++    retained, indexed, custody = _retained_outputs(control, dict(collected, artifacts=intake["artifacts"]), attempt)
++    if retained["assignment_ref"] != task["assignment"] or retained["input_manifest_digest"] != task["input_digest"]:
++        _refuse("the failed apply collection names another fixed assignment or input")
++    outputs = [one for one in retained["outputs"] if one["artifact"] is not None and any(entry["path"] == "managed-apply.json" for entry in one["content_manifest"]["entries"])]
++    if len(outputs) != 1 or len(outputs[0]["content_manifest"]["entries"]) != 1:
++        _refuse("the failed apply requires exactly one sealed report file")
++    output = outputs[0]
++    artifact = _adopted_artifact(retained, indexed, custody, output["name"], attempt)
++    body = canonical_text(reported).encode()
++    raw = _measured_body(body, output["content_manifest"]["entries"][0], "the failed apply report")
++    raw = boundaries.document(raw, "the failed apply report", required=managed_execution.APPLY_REPORT_MEMBERS)
++    expected = {"schema": managed_execution.APPLY_REPORT_SCHEMA, "candidate": result["prepared"]["head"], "tree": result["prepared"]["tree"],
++                "harness_digest": task["harness_digest"], "command": ["python3", "harness.py"],
++                "seconds": task["execution_limits"]["boundaries"]["host_verification"]["seconds"], "tag": None}
++    if any(raw[name] != value for name, value in expected.items()) or type(raw["unchanged"]) is not bool or type(raw["status"]) is not int or raw["status"] < 0:
++        _refuse("the failed apply report disagrees with its candidate, harness or measured command")
++    measured = managed_execution.collected_report(task, kind="measured", completed=[{"name": "post-import", "status": raw["status"]}], not_run=[], status=raw["status"])
++    if account["report"] != measured or (raw["status"] == 0 and raw["unchanged"]):
++        _refuse("the apply execution has no custody-proved verification failure")
++    return {"phase_digest": digest(phase), "report": raw, "report_digest": digest_of_bytes(body), "artifact": artifact, "collected": collected}
++
++
+ def _preparation_account(answered, owned_request, task):
+     """The workload's own report, held to what it was ASKED to do.
+ 
+--- baton:v12/python/src/baton_v12/job_manager/integration_capacity.py
++++ baton:v12/python/src/baton_v12/job_manager/integration_capacity.py
+@@ -1588,7 +1588,7 @@
+             if phase == "prepare":
+                 if result["state"] != "blocked":
+                     _refuse("the preparation has no failed causal result")
+-            elif member["outcome"] != "failed" or measured["result"]["report"]["status"] == 0:
++            elif member["outcome"] != "failed":
+                 _refuse("the apply execution has no recorded failure")
+             if phase == "apply":
+                 from ..integration.queue import entries_of, lease_of
+@@ -1596,7 +1596,9 @@
+                 lease = lease_of(coordinator, "managed-lease:" + attempt)
+                 if reconciliation.publication_of(coordinator, orchestration_id, "apply") is not None or entry is None or entry["state"] != "refused" or lease is None or lease["state"] != "released" or lease["ending"] != {"outcome": "entry-refused"}:
+                     _refuse("the failed apply has not settled its unchanged target entry and lease")
+-            evidence = {"phase_digest": managed_execution.digest(measured)}
++                evidence = reconciliation.managed_apply_failure_evidence(coordinator, control, orchestration_id, entry["settlement"]["detail"])
++            else:
++                evidence = {"phase_digest": managed_execution.digest(measured)}
+         account = {"orchestration_id": orchestration_id, "parent": _failed_parent(store, root), "phase": phase,
+                    "execution_attempt_id": attempt, "ended_operation_id": member["ended_operation_id"], "evidence": evidence}
+         kind = "integration-capacity.failed"
+--- baton:v12/worker/integration_workload.py
++++ baton:v12/worker/integration_workload.py
+@@ -578,7 +578,7 @@
+     repository = os.path.join(scratch, "candidate")
+ 
+     def git(*words):
+-        done = subprocess.run(["git", "-C", repository, *words], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
++        done = subprocess.run(["git", "--no-replace-objects", "-C", repository, *words], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                               timeout=seconds, env={"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "GIT_CONFIG_NOSYSTEM": "1", "HOME": scratch})
+         if done.returncode:
+             raise WorkloadRefusal("the managed apply could not prove or materialize its exact Git content")
+@@ -592,6 +592,7 @@
+     if (head, tree) != (request["candidate"], request["tree"]):
+         raise WorkloadRefusal("the managed apply objects name different candidate bytes or modes")
+     rows = git("ls-tree", "-rz", "--full-tree", head).split(b"\0")
++    expected_files = {}
+     for row in rows:
+         if not row:
+             continue
+@@ -600,6 +601,8 @@
+         if mode not in (b"100644", b"100755") or kind != b"blob":
+             raise WorkloadRefusal("a managed apply materializes only regular Git files")
+         contract.check_bundle_path(path.decode("utf-8"))
++        content = git("cat-file", "blob", _object.decode())
++        expected_files[path.decode("utf-8")] = (mode == b"100755", len(content), contract.sha256_hex(content))
+     git("checkout", "--quiet", "--detach", head)
+     with open(os.path.join(repository, "harness.py"), "rb") as stream:
+         harness = stream.read(contract.MAX_BLOB_BYTES + 1)
+@@ -608,7 +611,39 @@
+         raise WorkloadRefusal("the managed apply candidate carries a different pinned harness")
+     command = ["python3", "harness.py"]
+     status = run_managed_verification(repository, command, seconds)
+-    unchanged = not git("status", "--porcelain", "--untracked-files=all")
++    # A clean status can describe another revision, or hide changed bytes via
++    # index flags and ignore rules. Compare identities AND the actual files.
++    unchanged = False
++    try:
++        identities_match = (git("rev-parse", "--verify", "HEAD^{commit}").decode().strip() == head
++                            and git("rev-parse", "--verify", "HEAD^{tree}").decode().strip() == tree
++                            and git("write-tree").decode().strip() == tree)
++        actual_files = {}
++        def walk_error(error):
++            raise error
++        for directory, directories, files in os.walk(repository, onerror=walk_error, followlinks=False):
++            if directory == repository:
++                directories[:] = [name for name in directories if name != ".git"]
++            if any(os.path.islink(os.path.join(directory, name)) for name in directories):
++                raise OSError("the verified checkout contains a directory link")
++            for name in files:
++                path = os.path.join(directory, name)
++                relative = os.path.relpath(path, repository)
++                expected = expected_files.get(relative)
++                if expected is None:
++                    raise OSError("the verified checkout contains an unexpected file")
++                handle = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
++                with os.fdopen(handle, "rb") as stream:
++                    held = os.fstat(stream.fileno())
++                    if not stat.S_ISREG(held.st_mode) or held.st_size != expected[1]:
++                        raise OSError("the verified checkout changed a file type or size")
++                    content = stream.read(expected[1] + 1)
++                actual_files[relative] = (bool(held.st_mode & stat.S_IXUSR), len(content), contract.sha256_hex(content))
++        unchanged = identities_match and actual_files == expected_files and not git("status", "--porcelain", "--untracked-files=all")
++    except (OSError, WorkloadRefusal, subprocess.TimeoutExpired):
++        # The command did run. Keep its measured status when the subsequent
++        # checkout proof fails, so the retained failure can settle honestly.
++        unchanged = False
+     return request, {"schema": contract.APPLY_REPORT_SCHEMA, "request_digest": canonical_digest(request),
+                      "candidate": head, "tree": tree, "harness_digest": measured, "command": command,
+                      "seconds": seconds, "status": status, "tag": None, "unchanged": unchanged}
+--- baton:v12/python/tests/tools/test_managed_apply.py
++++ baton:v12/python/tests/tools/test_managed_apply.py
+@@ -42,6 +42,18 @@
+     def test_a_failed_apply_is_collected_and_settles_without_a_target_effect(self):
+         self.complete(failed=True)
+ 
++    def test_a_clean_checkout_of_another_revision_is_a_settled_failure(self):
++        self.complete(failed=True, changed="head")
++
++    def test_a_zero_exit_worktree_change_is_a_settled_failure(self):
++        self.complete(failed=True, changed="untracked")
++
++    def test_a_change_hidden_from_git_status_is_a_settled_failure(self):
++        self.complete(failed=True, changed="hidden")
++
++    def test_reopen_after_zero_exit_failure_before_root_release(self):
++        self.complete(cut="failed-outcome", failed=True, changed="untracked")
++
+     def test_reopen_after_retained_adoption(self):
+         self.complete(cut="adoption")
+ 
+@@ -75,7 +87,7 @@
+     def test_target_drift_after_admission_prevents_start(self):
+         self.complete(denied="target")
+ 
+-    def complete(self, cut=None, failed=False, timed_out=False, denied=None):
++    def complete(self, cut=None, failed=False, timed_out=False, denied=None, changed=None):
+         import subprocess
+         import sys
+         import time
+@@ -366,7 +378,22 @@
+                 self.assertEqual(effects, [])
+                 self.assertEqual(len(starts), 1)
+                 measured = result["phases"]["apply"]["result"]["report"]["status"]
+-                self.assertIn(measured, (143, 137)) if timed_out else self.assertEqual(measured, 7)
++                self.assertIn(measured, (143, 137)) if timed_out else self.assertEqual(measured, 0 if changed else 7)
++                evidence = failure["evidence"]
++                self.assertEqual(evidence["report"]["status"], measured)
++                self.assertEqual(evidence["collected"], result["phases"]["apply"]["result"]["collected"])
++                if changed:
++                    self.assertFalse(evidence["report"]["unchanged"])
++                    self.assertEqual(evidence["report"]["candidate"], result["prepared"]["head"])
++                    # These two cases deliberately leave Git status clean.
++                    if changed in ("head", "hidden"):
++                        witness = json.loads((Path(world.root) / "apply-scratch" / "checkout-witness.json").read_text())
++                        self.assertEqual(witness["status"], "")
++                        self.assertNotEqual(witness["head"], result["prepared"]["head"]) if changed == "head" else self.assertEqual(witness["head"], result["prepared"]["head"])
++                    from baton_v12.contracts import ContractRefusal
++                    for field, forged in (("unchanged", True), ("status", 7), ("candidate", "0" * 40), ("request_digest", "sha256:" + "0" * 64)):
++                        with self.assertRaises(ContractRefusal):
++                            reconciliation.managed_apply_failure_evidence(deployment.integration, deployment.control, result["managed_result_id"], dict(evidence["report"], **{field: forged}))
+                 if timed_out:
+                     self.assertEqual(result["phases"]["apply"]["task"]["execution_limits"]["boundaries"]["host_verification"]["seconds"], 1)
+                 self.assertEqual(deployment.reconciliation_profile.revision(deployment.given["integration_target"], "refs/heads/main"), world.base)
+@@ -398,6 +425,13 @@
+         body = "import pathlib, sys\nsys.exit(7 if 'apply-scratch' in str(pathlib.Path.cwd()) else 0)\n" if failed else None
+         if timed_out:
+             body = "import pathlib, time\nif 'apply-scratch' in str(pathlib.Path.cwd()): time.sleep(30)\n"
++        if changed:
++            mutations = {
++                "head": "subprocess.run(['git', 'checkout', '--quiet', '--detach', 'HEAD^'], check=True)",
++                "untracked": "pathlib.Path('unexpected-file.txt').write_text('changed')",
++                "hidden": "subprocess.run(['git', 'update-index', '--assume-unchanged', 'harness.py'], check=True); pathlib.Path('harness.py').write_text('changed after execution')",
++            }
++            body = "import json, pathlib, subprocess\nif 'apply-scratch' in str(pathlib.Path.cwd()):\n    " + mutations[changed] + "\n    (pathlib.Path.cwd().parent / 'checkout-witness.json').write_text(json.dumps({'head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(), 'status': subprocess.check_output(['git', 'status', '--porcelain'], text=True)}))\n"
+         case.complete(configured=configure, completed=adopted, base_harness=body)
+ 
+ 

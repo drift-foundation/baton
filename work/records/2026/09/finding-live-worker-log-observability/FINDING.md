@@ -325,3 +325,47 @@ all still ahead. This slice needed none of them, which is why it went first:
 what crosses from the observing loop is a LENGTH, so M61707's credential-free
 durable surface holds by construction rather than by a redaction boundary that
 does not exist yet.
+
+## 2026-09-14 — selected minimum v12 activity subset, W165782 claim167877
+
+Owner W2 ruling09:04:44Z/reroute167871 selects the minimum release subset here:
+positive provider-safe native-session growth and manager-owned last-activity
+instant, without raw transcript content. Correct the existing outer-stderr
+misclassification, synchronous publisher backpressure and zero-byte EOF stamp.
+Use bounded/coalescing publication so mandatory drain cannot block. Preserve
+absence/partial state honestly across restart; do not invent reattachment.
+
+This supersedes treating all PLAN items5–9 as minimum v12 release gates. Native
+stream follow, safe-progress log sink expansion, coloring, pause, search/filter,
+retention policy and rich telemetry remain deferred v13 scope here; no raw
+transcript authorization. Current source dogfood_operator._activity_observer
+still publishes counts from _Channel outer stderr; no supersession established.
+The existing Work owns this correction, not new viewer W167896. The viewer
+consumes trusted activity or displays unknown and edits only its three new files.
+
+Before changing shared source, revalidate the supported stage/provider producer
+and retain focused actual-boundary fixtures (fake provider, no live model).
+Acceptance is positive growth before completion, no unrelated-stderr/EOF false
+activity, no blocked-publisher drain deadlock, and restart preserving unknown/
+partial facts. Necessary tests within this subset are authorized by standing
+policy. No generic telemetry, model run, engine test or cumulative-time gate.
+W165782 only pins scope and requests scheduling; this entry is not a claim or
+implementation by the reviewer. Rich remainder is preserved, never waived.
+
+### Minimum-outcome gate clarification
+
+For release ordering, current W61599 completion is the independently accepted
+minimum activity correction above. Earlier follow/color/search/retention/native
+stream expansion remains historical deferred design material for W39649/v13
+scope selection, not a condition of this minimum Work outcome. This supersedes
+the earlier PLAN assumption that every rich-stream item must finish before
+W61599 can close. Closing the narrowed outcome must explicitly name the deferred
+items and does not assert their implementation. No v13 execution is authorized.
+
+## 2026-09-15 — owner selects concrete activity design after W63255 handoff
+
+Slawomir agreed to prioritize Claude implementation of W63255, followed by concrete W61599 activity-source and safe-transport design. This supersedes pending scheduling for design only, not the minimum product outcome or rich-UX deferrals. After passing W63255 for independent review, the configured baton.impl Handler may unpark and claim W61599 for this design-only turn. Do not interrupt another active claim.
+
+Read the complete existing review-2026-09-01T14-24-19Z.md, current FINDING/PLAN and corrected advisory baton:work/records/2026/09/finding-v12-live-progress-prework/PREWORK.md SHA256 65243e410ae3526b1895c7f53bfae9453b8b8e933db04953889fdd27ce5778c9. Produce one concrete design here identifying the supported incremental provider activity source, a closed count-only worker/deployment transport, bounded/coalescing nonblocking publication and positive-growth-only manager freshness. Compare actual source/test bodies and retained evidence before naming a gap. Provider stdout being final JSON is not evidence of incremental native progress. Identify the exact content-free observation operation, lifecycle/teardown ownership, proposed source/test paths and deterministic production-boundary validation.
+
+Design owns only this dossier's new design document and FINDING/PLAN updates; no product/test/main-documentation edits, tests/probes, live models/engines or protocol implementation. If a producer fact cannot be established from source and retained evidence, specify the exact unresolved question and smallest proposed validation instead of inventing it. Caller-versus-owner placement and scoped test changes need no new owner gate. No generic telemetry, rich stream UX or extra acceptance campaign is selected. Return the concrete recommendation to baton.ops for reviewable scope selection before implementation. Do not claim W61599 complete from this design.

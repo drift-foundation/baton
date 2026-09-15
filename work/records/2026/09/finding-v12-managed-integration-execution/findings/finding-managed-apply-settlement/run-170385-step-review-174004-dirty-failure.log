@@ -1,0 +1,7 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 2.485s
+
+OK
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:ace32523fa8a29f7027a9e15d315be45ce7154c0db7e7aef2bb0d0cf55d543d2", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:5bcb7da52c630c33e75c2441231ac11afd682113b57b01e1d6d6b25e9ecfd5fd", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:c3e69198ae824776322d7305905a7b9ddd4b0405bd8f5b84b4a0843bb0120c64", "root": "open", "runtime": "destroyed", "worker_exit": 0}
+{"cleanup": "retained", "confirmed_defect": "known dirty apply cannot settle", "failure": null, "lease": "released", "member": "failed", "publication": null, "report": {"candidate": "087fafc7df17835cffbce6ee289feaa14ddf4c1c", "command": ["python3", "harness.py"], "harness_digest": "sha256:5bcb7da52c630c33e75c2441231ac11afd682113b57b01e1d6d6b25e9ecfd5fd", "request_digest": "sha256:e02123ddee1ea9cd763a2a6bb1398b8bc5b09aa7d7dc868c984e56d7ed391958", "schema": "baton.v12.managed-apply-report/1", "seconds": 300, "status": 0, "tag": null, "tree": "75e71a1e5ff1f27e8e1c8c7884193f3f7a359d9a", "unchanged": false}, "root": "open", "runtime": "destroyed", "stage": "answering"}

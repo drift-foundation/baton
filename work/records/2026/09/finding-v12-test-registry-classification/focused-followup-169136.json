@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_empty_evidence_destination_allows_the_leaf_and_serial_does_not_import_it",
+    "tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_leaked_supervised_ids_refuse_the_whole_collection_before_shards"
+  ],
+  "returncode": 0,
+  "elapsed_seconds": 0.21375008099130355,
+  "timeout_seconds": 30,
+  "cwd": "v12/python",
+  "environment_overrides": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  }
+}

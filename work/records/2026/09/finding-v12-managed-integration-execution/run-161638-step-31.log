@@ -1,0 +1,118 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_managed_integration_capacity
+EFFEEE..EE....
+======================================================================
+ERROR: test_a_failed_execution_ends_without_becoming_a_success (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_a_failed_execution_ends_without_becoming_a_success)
+`failed` is an ENDING like `succeeded` is. The outcome says what the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 284, in test_a_failed_execution_ends_without_becoming_a_success
+    assignment=self.claim_of("prepare-attempt-1"))
+               ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 140, in claim_of
+    held = assignment_of(self._control, attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 654, in assignment_of
+    raise ContractRefusal(
+        "refused", "precondition",
+        f"attempt {name_value(attempt_id)} has not activated an assignment")
+baton_v12.contracts.errors.ContractRefusal: attempt 'prepare-attempt-1' has not activated an assignment
+
+======================================================================
+ERROR: test_apply_is_refused_while_preparation_is_still_live (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_apply_is_refused_while_preparation_is_still_live)
+A parent apply and its preparation can never both be live under one
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 223, in test_apply_is_refused_while_preparation_is_still_live
+    assignment=self.claim_of("prepare-attempt-1"))
+               ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 140, in claim_of
+    held = assignment_of(self._control, attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 654, in assignment_of
+    raise ContractRefusal(
+        "refused", "precondition",
+        f"attempt {name_value(attempt_id)} has not activated an assignment")
+baton_v12.contracts.errors.ContractRefusal: attempt 'prepare-attempt-1' has not activated an assignment
+
+======================================================================
+ERROR: test_the_apply_phase_is_admitted_after_preparation_ends (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_the_apply_phase_is_admitted_after_preparation_ends)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 239, in test_the_apply_phase_is_admitted_after_preparation_ends
+    assignment=self.claim_of("prepare-attempt-1"))
+               ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 140, in claim_of
+    held = assignment_of(self._control, attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 654, in assignment_of
+    raise ContractRefusal(
+        "refused", "precondition",
+        f"attempt {name_value(attempt_id)} has not activated an assignment")
+baton_v12.contracts.errors.ContractRefusal: attempt 'prepare-attempt-1' has not activated an assignment
+
+======================================================================
+ERROR: test_an_admitted_member_refuses_to_release (tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity.test_an_admitted_member_refuses_to_release)
+The named branch matters: a VALIDATED COMPLETION of the parent
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 314, in test_an_admitted_member_refuses_to_release
+    assignment=self.claim_of("prepare-attempt-1"))
+               ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 140, in claim_of
+    held = assignment_of(self._control, attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 654, in assignment_of
+    raise ContractRefusal(
+        "refused", "precondition",
+        f"attempt {name_value(attempt_id)} has not activated an assignment")
+baton_v12.contracts.errors.ContractRefusal: attempt 'prepare-attempt-1' has not activated an assignment
+
+======================================================================
+ERROR: test_capacity_releases_once_after_a_validated_ending (tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity.test_capacity_releases_once_after_a_validated_ending)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 344, in test_capacity_releases_once_after_a_validated_ending
+    assignment=self.claim_of("prepare-attempt-1"))
+               ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 140, in claim_of
+    held = assignment_of(self._control, attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 654, in assignment_of
+    raise ContractRefusal(
+        "refused", "precondition",
+        f"attempt {name_value(attempt_id)} has not activated an assignment")
+baton_v12.contracts.errors.ContractRefusal: attempt 'prepare-attempt-1' has not activated an assignment
+
+======================================================================
+ERROR: test_quarantine_still_works_while_a_member_is_open (tests.job_manager.test_managed_integration_capacity.TheRegisteredRootHoldsItsCapacity.test_quarantine_still_works_while_a_member_is_open)
+THE GUARD IS ON THE RELEASE TRANSITION ONLY. A root that could not
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 333, in test_quarantine_still_works_while_a_member_is_open
+    assignment=self.claim_of("prepare-attempt-1"))
+               ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 140, in claim_of
+    held = assignment_of(self._control, attempt_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/attempts.py", line 654, in assignment_of
+    raise ContractRefusal(
+        "refused", "precondition",
+        f"attempt {name_value(attempt_id)} has not activated an assignment")
+baton_v12.contracts.errors.ContractRefusal: attempt 'prepare-attempt-1' has not activated an assignment
+
+======================================================================
+FAIL: test_an_admission_naming_another_participant_is_refused (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_an_admission_naming_another_participant_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 264, in test_an_admission_naming_another_participant_is_refused
+    self.assertIn("is planned for", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'is planned for' not found in "attempt 'prepare-attempt-1' has not activated an assignment"
+
+======================================================================
+FAIL: test_an_unplanned_execution_cannot_be_admitted (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_an_unplanned_execution_cannot_be_admitted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 274, in test_an_unplanned_execution_cannot_be_admitted
+    self.assertIn("is not a planned member", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'is not a planned member' not found in "attempt 'prepare-attempt-1' has not activated an assignment"
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.057s
+
+FAILED (failures=2, errors=6)

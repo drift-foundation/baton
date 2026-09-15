@@ -1,0 +1,22 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs
+F
+======================================================================
+FAIL: test_the_opened_edge_and_one_integrator_serialize_four_jobs (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs)
+THE CONTINUATION, and the integration capacity the PLAN asks for.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2712, in test_the_opened_edge_and_one_integrator_serialize_four_jobs
+    self.assertEqual(scheduler_trace.validate(trace.artifact(SOURCES)), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'code': 'unauthorized-integration', 'det[1336 chars]ne}}] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+{'code': 'unauthorized-integration', 'detail': "job-a/integration is recorded completed and names imported proposal 'integration-driver.proposal:edc323d7ef91f62f295fb229dc44c4bb0f091beff05253415a10fd81540ea0c3' and this trace carries no performed integration authorization of it; a completed import proves its own subject or it proves nothing", 'record': {'tick': 23, 'job_id': 'job-a', 'stage_id': 'job-a/integration', 'episode': 1, 'attempt_id': 'attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0', 'act': 'complete', 'outcome': 'performed', 'worker_id': None, 'participant': None, 'principal': None, 'operation_id': 'stage.completed:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0', 'runtime_id': None, 'session_id': None, 'evidence': 'stage_states:job-a/integration', 'cause': None, 'recorded_at': None, 'session': None, 'correction': None, 'completion': {'proposal_id': 'integration-driver.proposal:edc323d7ef91f62f295fb229dc44c4bb0f091beff05253415a10fd81540ea0c3', 'source_proposal_id': 'integration-driver.proposal:edc323d7ef91f62f295fb229dc44c4bb0f091beff05253415a10fd81540ea0c3', 'result_id': None, 'integration_receipt_id': 'integration-driver.integration-receipt:a176ee5543c4155af1c0a567ab93b6a238d857a584b29391bfe17aa5b7233483', 'runtime_id': 'runtime-single-7', 'execution_runtime': 'quiescent'}, 'authorization': None}}
+
+Diff is 1919 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 1 test in 2.666s
+
+FAILED (failures=1)

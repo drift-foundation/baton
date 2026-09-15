@@ -1,0 +1,13 @@
+### label: FINAL-affected-fixtures
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace", "tests.job_manager.test_scheduling", "tests.job_manager.test_sweep"]
+### exit: 0
+### elapsed_seconds: 1.668096
+### STDOUT
+
+### STDERR
+............................................................................................................................
+----------------------------------------------------------------------
+Ran 124 tests in 1.489s
+
+OK

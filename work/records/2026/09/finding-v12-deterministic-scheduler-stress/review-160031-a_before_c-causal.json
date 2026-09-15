@@ -1,0 +1,57 @@
+[
+  {
+    "result_id": "result-b1e8fe31905930824e8efd457a0083704aabea141e2d4a993657cceabe2ed3cf",
+    "content_digest": "sha256:9f303fce572e0f3db78f308feff915e5a13e8845eb36f311b5a79f92f545ea09",
+    "candidate": "214e0176aedfb04e1d8985ecefd03578dc32b9d8",
+    "tree": "724103571c4e0e2cb3204f171f7a674abebbefc9",
+    "target": "5554cb1999877bb9660db99e559f440c39ee24d0",
+    "execution": "baton.result-observer",
+    "observations": {
+      "base": {
+        "command": [
+          "python3",
+          "feature_check.py"
+        ],
+        "test_identity": "w130224-second-line-of-one-target",
+        "input_commit": "74ba4eff4427ea57241f016840bf01005266b70e",
+        "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb",
+        "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+        "environment": "configured-required-test",
+        "status": 1,
+        "output": "ModuleNotFoundError: No module named 'feature'",
+        "execution": "baton.result-observer",
+        "harness_added": true
+      },
+      "isolated": {
+        "command": [
+          "python3",
+          "feature_check.py"
+        ],
+        "test_identity": "w130224-second-line-of-one-target",
+        "input_commit": "cb3519bff992361edb1649f488e7957664048871",
+        "input_tree": "1a89022e1694cc0bcec87c5d4c5cd8a85f662384",
+        "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+        "environment": "configured-required-test",
+        "status": 0,
+        "output": "the second job feature check passed",
+        "execution": "baton.result-observer",
+        "harness_added": false
+      },
+      "combined": {
+        "command": [
+          "python3",
+          "feature_check.py"
+        ],
+        "test_identity": "w130224-second-line-of-one-target",
+        "input_commit": "214e0176aedfb04e1d8985ecefd03578dc32b9d8",
+        "input_tree": "724103571c4e0e2cb3204f171f7a674abebbefc9",
+        "test_digest": "sha256:38deeee1e89b9d04e866235c17091d320f60ebe00bdb8f7b039719437ab89e40",
+        "environment": "configured-required-test",
+        "status": 0,
+        "output": "the second job feature check passed",
+        "execution": "baton.result-observer",
+        "harness_added": false
+      }
+    }
+  }
+]

@@ -1,0 +1,43 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits
+.................................................EEEE
+======================================================================
+ERROR: test_a_boundary_this_build_does_not_own_is_refused (tests.tools.test_execution_limits.TheJobOwnerAnswersOneBoundaryWithoutADelivery.test_a_boundary_this_build_does_not_own_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 853, in setUp
+    self.store = JobStore.open(":memory:")
+                 ~~~~~~~~~~~~~^^^^^^^^^^^^
+TypeError: JobStore.open() missing 3 required keyword-only arguments: 'authority_uuid', 'incarnation', and 'clock'
+
+======================================================================
+ERROR: test_a_configured_job_answers_its_own_number (tests.tools.test_execution_limits.TheJobOwnerAnswersOneBoundaryWithoutADelivery.test_a_configured_job_answers_its_own_number)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 853, in setUp
+    self.store = JobStore.open(":memory:")
+                 ~~~~~~~~~~~~~^^^^^^^^^^^^
+TypeError: JobStore.open() missing 3 required keyword-only arguments: 'authority_uuid', 'incarnation', and 'clock'
+
+======================================================================
+ERROR: test_an_unconfigured_job_answers_the_preserved_default (tests.tools.test_execution_limits.TheJobOwnerAnswersOneBoundaryWithoutADelivery.test_an_unconfigured_job_answers_the_preserved_default)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 853, in setUp
+    self.store = JobStore.open(":memory:")
+                 ~~~~~~~~~~~~~^^^^^^^^^^^^
+TypeError: JobStore.open() missing 3 required keyword-only arguments: 'authority_uuid', 'incarnation', and 'clock'
+
+======================================================================
+ERROR: test_every_owned_boundary_can_be_asked_for (tests.tools.test_execution_limits.TheJobOwnerAnswersOneBoundaryWithoutADelivery.test_every_owned_boundary_can_be_asked_for)
+The refusal above is only safe if the owner's own boundary names all
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 853, in setUp
+    self.store = JobStore.open(":memory:")
+                 ~~~~~~~~~~~~~^^^^^^^^^^^^
+TypeError: JobStore.open() missing 3 required keyword-only arguments: 'authority_uuid', 'incarnation', and 'clock'
+
+----------------------------------------------------------------------
+Ran 53 tests in 6.129s
+
+FAILED (errors=4)

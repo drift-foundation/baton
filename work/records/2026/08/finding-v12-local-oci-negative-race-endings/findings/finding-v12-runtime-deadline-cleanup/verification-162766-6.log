@@ -1,0 +1,14 @@
+.........................E......
+======================================================================
+ERROR: test_unknown_committed_start_never_becomes_a_no_start_proof (tests.manager.test_runtime_deadlines.Deadlines.test_unknown_committed_start_never_becomes_a_no_start_proof)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_runtime_deadlines.py", line 415, in test_unknown_committed_start_never_becomes_a_no_start_proof
+    self.store._connection.execute("UPDATE runtime_attempts SET runtime_id = NULL WHERE runtime_attempt_id = ?", (ATTEMPT,))
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: runtime_attempts
+
+----------------------------------------------------------------------
+Ran 32 tests in 0.254s
+
+FAILED (errors=1)

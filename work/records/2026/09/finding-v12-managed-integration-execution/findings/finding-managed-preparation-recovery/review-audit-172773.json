@@ -1,0 +1,101 @@
+{
+  "claim": 172773,
+  "run": {
+    "command": [
+      "/home/sl/src/baton/.venv/bin/python3",
+      "-m",
+      "unittest",
+      "tests.tools.test_managed_preparation",
+      "tests.manager.test_reconciliation_task"
+    ],
+    "cwd": "/home/sl/src/baton/v12/python",
+    "PYTHONPATH": "src:tools:.",
+    "seconds": 65.82415766999475,
+    "exit": 0,
+    "timed_out": false,
+    "signals": [],
+    "limits_seconds": [
+      180,
+      5,
+      5
+    ],
+    "process_group_gone": true
+  },
+  "test_count": 148,
+  "unittest_seconds": 65.603,
+  "passed": true,
+  "post_run_files": [
+    {
+      "path": "baton:v12/python/tools/integration_bundle.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/managed_execution.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_task.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_entry.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/Dockerfile.reconciliation",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/manager/test_reconciliation_task.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_integration_bundle.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_stage_execution.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_execution_limits.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_execution.py",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+      "matches": true
+    }
+  ],
+  "prior_reviewer_seconds": 124.07460133001587,
+  "reviewer_cumulative_seconds": 189.8987590000106,
+  "author_recorded_subset_seconds": 1048.7394133608905,
+  "older_unknowns_preserved": true
+}

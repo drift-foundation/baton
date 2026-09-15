@@ -1,0 +1,19 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_this_deployment_can_admit_only_one_derived_result tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_the_retention_key_distinguishes_its_operands_at_the_unit
+E.
+======================================================================
+ERROR: test_this_deployment_can_admit_only_one_derived_result (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_this_deployment_can_admit_only_one_derived_result)
+THE SETUP SEAM, measured rather than asserted.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2439, in test_this_deployment_can_admit_only_one_derived_result
+    self.case.judgment_turn(held, execution)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7190, in judgment_turn
+    os.symlink(source, os.path.join(staged, name))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: '/home/sl/src/baton/v12/python/v12-w71917-n_27p5qz/storage/judgment-d310c0d24e7c3ab01fd6a70bf5e154a087e275c7db4d97b740a64648ea9ae016/inputs/judgment.json' -> '/home/sl/src/baton/v12/python/v12-w71917-n_27p5qz/mounted-judgment-d310c0d24e7c3ab01fd6a70bf5e154a087e275c7db4d97b740a64648ea9ae016/judgment.json'
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.496s
+
+FAILED (errors=1)

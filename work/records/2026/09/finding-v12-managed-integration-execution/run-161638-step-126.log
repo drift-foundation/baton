@@ -1,0 +1,15 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+................F............................
+======================================================================
+FAIL: test_an_entry_admitted_against_another_snapshot_refuses (tests.tools.test_managed_integration.TheEntryThisSettlesIsThisSubmissionsOwn.test_an_entry_admitted_against_another_snapshot_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 958, in test_an_entry_admitted_against_another_snapshot_refuses
+    self.assertIn("expects target revision", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'expects target revision' not found in "the enqueue of entry 'entry-1' recorded expected_target_revision 'f37dd489321f7b2c36c3d0e5975d2710f41b5753' and it is now 'ffffffffffffffffffffffffffffffffffffffff'"
+
+----------------------------------------------------------------------
+Ran 45 tests in 1.166s
+
+FAILED (failures=1)

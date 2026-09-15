@@ -1,0 +1,35 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_on_two_repositories_code_in_parallel
+E
+======================================================================
+ERROR: test_four_jobs_on_two_repositories_code_in_parallel (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_on_two_repositories_code_in_parallel)
+THE POSITIVE HALF, and it is a real one: three independent Jobs are
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2069, in test_four_jobs_on_two_repositories_code_in_parallel
+    held = self.four_job_deployment(own_workers=True)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2031, in four_job_deployment
+    self.four_works()
+    ~~~~~~~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1935, in four_works
+    authority.grant_capability(who, capability,
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+                               scope=self.case.scope)
+                               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/api.py", line 150, in grant_capability
+    return self._core.grant_capability(participant, capability,
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+                                       scope=scope)
+                                       ^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 511, in grant_capability
+    self._require_known_capability(capability)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/authority/core.py", line 591, in _require_known_capability
+    raise Refusal(
+    ...<2 lines>...
+        f"grants what §7 names and not a word of its own")
+baton_v12.authority.errors.Refusal: 'implement' is not one of the configured capabilities (verify, review, approve, integrate, close, manage-work-labels); a deployment grants what §7 names and not a word of its own
+
+----------------------------------------------------------------------
+Ran 1 test in 0.034s
+
+FAILED (errors=1)

@@ -1,0 +1,35 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches
+.F.
+======================================================================
+FAIL: test_an_absent_delivery_is_answered_and_never_repaired (tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches.test_an_absent_delivery_is_answered_and_never_repaired)
+ABSENT ARTIFACT: an attempt whose launch root does not exist is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1811, in test_an_absent_delivery_is_answered_and_never_repaired
+    answered = reader.observe_exchange(stages["job-a"])
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4755, in observe_exchange
+    return reader.observe_exchange(stage)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/single_worker.py", line 2859, in observe_exchange
+    launched = launch.adopt(
+        self.launch_home, attempt_id=attempt_id,
+    ...<4 lines>...
+        job_execution=self._job_execution(stage),
+        workspace_group=self.group)
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1668, in watched
+    self.assertIsNotNone(answered)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+AssertionError: unexpectedly None
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.495s
+
+FAILED (failures=1)

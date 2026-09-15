@@ -1,0 +1,13 @@
+### label: FINAL-focused-module
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace"]
+### exit: 0
+### elapsed_seconds: 3.099322
+### STDOUT
+
+### STDERR
+......................................................................
+----------------------------------------------------------------------
+Ran 70 tests in 2.923s
+
+OK

@@ -1,0 +1,201 @@
+--- a/v12/python/tests/manager/test_runtime_deadlines.py
++++ b/v12/python/tests/manager/test_runtime_deadlines.py
+@@ -75,6 +75,16 @@
+         args = {"attempt_id": ATTEMPT, "retention_policy_digest": RETENTION}
+         args.update(changes)
+         return advance_deadline(self.store, self.port, self.agent, self.adapter, **args)
++
++    def assert_lane_held(self):
++        lane = runtime_lane(self.store, ATTEMPT)
++        self.assertEqual(lane["holder"], ATTEMPT)
++        self.assertIs(lane["held_by_this_attempt"], True)
++
++    def assert_lane_released(self):
++        lane = runtime_lane(self.store, ATTEMPT)
++        self.assertIsNone(lane["holder"])
++        self.assertIs(lane["held_by_this_attempt"], False)
+ 
+     def test_pin_precedes_adapter_and_clock_and_policy_survive_restart(self):
+         self.activated()
+@@ -189,7 +199,7 @@
+         def destroy(command):
+             self.assertTrue(any(name == "cancel" for name, _ in self.session.calls))
+             self.assertEqual(self.session._work["gate"], "runtime-quiescence:1")
+-            self.assertIsNotNone(runtime_lane(self.store, ATTEMPT))
++            self.assert_lane_held()
+             return original(command)
+ 
+         self.adapter.destroy_deadline = destroy
+@@ -198,10 +208,12 @@
+         self.assertEqual(self.row()["worker_disposition"], "none")
+         self.assertEqual(self.row()["output"], "open")
+         self.assertIsNone(self.session._work["gate"])
++        self.assert_lane_released()
+         proof = deadline_cleanup_of(self.store, attempt_id=ATTEMPT, retention_policy_digest=RETENTION)
+         self.assertEqual(proof, answer["cleanup"])
+         count = len(self.adapter.removed)
+         self.assertEqual(self.advance(), answer)
++        self.assert_lane_released()
+         self.assertEqual(len(self.adapter.removed), count)
+ 
+     def test_authority_refusal_makes_no_destructive_calls(self):
+@@ -248,9 +260,11 @@
+         answer = self.advance()
+         self.assertIsNone(answer["discharge"])
+         self.assertEqual(self.row()["cleanup"], "pending")
++        self.assert_lane_held()
+         self.assertIsNone(deadline_cleanup_of(self.store, attempt_id=ATTEMPT, retention_policy_digest=RETENTION))
+         self.adapter.destroy_answer = None
+         self.assertEqual(self.advance()["cleanup"]["cleanup"]["cleanup"], "retained")
++        self.assert_lane_released()
+         self.assertEqual(len(self.adapter.removed), 2)
+ 
+     def test_engine_uncertainty_keeps_cleanup_retryable(self):
+@@ -262,8 +276,10 @@
+         answer = self.advance()
+         self.assertIsNone(answer["discharge"])
+         self.assertEqual(self.row()["cleanup"], "pending")
++        self.assert_lane_held()
+         self.adapter.destroy_answer = None
+         self.assertEqual(self.advance()["cleanup"]["cleanup"]["cleanup"], "retained")
++        self.assert_lane_released()
+ 
+     def test_no_start_uses_six_fact_proof_not_fabricated_absence(self):
+         self.activated()
+@@ -373,10 +389,11 @@
+                 with self.subTest(answer=bad), self.assertRaises(ContractRefusal):
+                     self.advance()
+             self.assertEqual(self.row()["cleanup"], "pending")
+-            self.assertIsNotNone(runtime_lane(self.store, ATTEMPT))
++            self.assert_lane_held()
+             self.assertEqual(self.session._work["gate"], "runtime-quiescence:1")
+         self.adapter.destroy_answer = None
+         self.assertIsNotNone(self.advance()["discharge"])
++        self.assert_lane_released()
+ 
+     def test_crash_after_removal_before_commit_reuses_exact_command(self):
+         self.started()
+@@ -387,9 +404,10 @@
+                 self.advance()
+         first = self.adapter.removed[0]
+         self.assertIsNone(deadline_cleanup_of(self.store, attempt_id=ATTEMPT, retention_policy_digest=RETENTION))
+-        self.assertIsNotNone(runtime_lane(self.store, ATTEMPT))
++        self.assert_lane_held()
+         self.assertIsNotNone(self.advance()["discharge"])
+         self.assertEqual(self.adapter.removed, [first, first])
++        self.assert_lane_released()
+ 
+     def test_remote_discharge_replays_after_local_receipt_commit_interruption(self):
+         self.started()
+@@ -405,6 +423,7 @@
+             with self.assertRaises(OSError):
+                 self.advance()
+         self.assertIsNone(self.session._work["gate"])
++        self.assert_lane_released()
+         self.assertIsNotNone(deadline_cleanup_of(self.store, attempt_id=ATTEMPT, retention_policy_digest=RETENTION))
+         count = len(self.adapter.removed)
+         self.assertIsNotNone(self.advance()["discharge"])
+@@ -420,7 +439,7 @@
+             with self.assertRaises(ContractRefusal):
+                 self.advance()
+         self.assertEqual(self.adapter.removed, [])
+-        self.assertIsNotNone(runtime_lane(self.store, ATTEMPT))
++        self.assert_lane_held()
+         self.assertEqual(self.session._work["gate"], "runtime-quiescence:1")
+ 
+     def test_missing_authorization_cannot_be_replaced_by_cleanup_axes(self):
+@@ -475,7 +494,7 @@
+         with mock.patch.object(self.agent, "cancel", side_effect=OSError("agent unreachable")) as cancel:
+             first = self.advance()
+             self.assertIsNone(first["discharge"])
+-            self.assertIsNotNone(runtime_lane(self.store, ATTEMPT))
++            self.assert_lane_held()
+             self.assertEqual(self.session._work["gate"], "runtime-quiescence:1")
+             self.adapter.destroy_answer = None
+             with ControlStore.open(self.path, incarnation="deadline-recovery", clock=lambda: LATER) as restarted:
+@@ -483,6 +502,7 @@
+                     attempt_id=ATTEMPT, retention_policy_digest=RETENTION)
+             self.assertEqual(cancel.call_count, 1)
+             self.assertIsNotNone(final["discharge"])
++            self.assert_lane_released()
+             self.assertEqual(self.advance(), final)
+             self.assertEqual(cancel.call_count, 1)
+         self.assertEqual(len(self.adapter.stopped), 1)
+@@ -505,11 +525,12 @@
+                 with self.assertRaisesRegex(OSError, "remove interrupted"):
+                     self.advance()
+             self.assertEqual(self.row()["cleanup"], "pending")
+-            self.assertIsNotNone(runtime_lane(self.store, ATTEMPT))
++            self.assert_lane_held()
+             with ControlStore.open(self.path, incarnation="deadline-both-recovery", clock=lambda: LATER) as restarted:
+                 result = advance_deadline(restarted, self.port, self.agent, self.adapter,
+                     attempt_id=ATTEMPT, retention_policy_digest=RETENTION)
+         self.assertIsNotNone(result["discharge"])
++        self.assert_lane_released()
+         self.assertEqual({one["stage"] for one in self.failure_records()}, {"agent.cancel", "adapter.stop"})
+         self.assertEqual(len(self.failure_records()), 2)
+         self.assertEqual(self.row()["worker_disposition"], "none")
+@@ -520,6 +541,7 @@
+         with mock.patch.object(self.adapter, "stop", side_effect=OSError("stop unavailable")):
+             result = self.advance()
+         self.assertIsNotNone(result["discharge"])
++        self.assert_lane_released()
+         self.assertEqual([one["stage"] for one in self.failure_records()], ["adapter.stop"])
+         self.assertEqual(len(self.adapter.removed), 1)
+ 
+@@ -555,7 +577,7 @@
+         self.assertEqual(calls[0], calls[1])
+         self.assertEqual(len(self.failure_records()), 1)
+         self.assertEqual(self.adapter.removed, [])
+-        self.assertIsNotNone(runtime_lane(self.store, ATTEMPT))
++        self.assert_lane_held()
+ 
+     def test_changed_runtime_during_advisory_failure_holds_before_recovery(self):
+         self.started()
+@@ -602,7 +624,7 @@
+                 self.advance()
+         self.assertEqual(self.adapter.removed, [])
+         self.assertEqual(self.row()["worker_disposition"], "completed")
+-        self.assertIsNotNone(runtime_lane(self.store, ATTEMPT))
++        self.assert_lane_held()
+ 
+     def test_advisory_fault_diagnostic_cannot_persist_a_held_credential(self):
+         from baton_v12.contracts import held_secret
+@@ -700,7 +722,7 @@
+             with self.assertRaises(ContractRefusal):
+                 self.advance()
+         self.assertEqual(self.adapter.removed, [])
+-        self.assertIsNotNone(runtime_lane(self.store, ATTEMPT))
++        self.assert_lane_held()
+ 
+ 
+ class DeadlineDocuments(unittest.TestCase):
+--- a/v12/python/tests/manager/test_runtime_deadline_engine.py
++++ b/v12/python/tests/manager/test_runtime_deadline_engine.py
+@@ -104,6 +104,9 @@
+         request_runtime_start(self.store, adapter, attempt_id=self.attempt, inputs=inputs, deadline_policy=policy)
+         runtime_id = self.attempt_row()["runtime_id"]
+         self.assertEqual(adapter.observe(runtime_id)["state"], "running")
++        held_lane = runtime_lane(self.store, self.attempt)
++        self.assertEqual(held_lane["holder"], self.attempt)
++        self.assertIs(held_lane["held_by_this_attempt"], True)
+         sibling = "w32577-sibling-" + uuid.uuid4().hex[:10]
+         self.made.append(sibling)
+         created = self.docker(["run", "--detach", "--network", "none", "--name", sibling,
+@@ -125,7 +128,10 @@
+         for provider in ("credentials", "launch"):
+             self.assertEqual(proof["observed"][provider]["lifecycle_state"], "torn-down")
+         self.assertEqual(proof["cleanup"]["cleanup"], "retained")
+-        self.assertIsNone(runtime_lane(self.store, self.attempt))
++        released_lane = runtime_lane(self.store, self.attempt)
++        self.assertEqual(released_lane["lane"], held_lane["lane"])
++        self.assertIsNone(released_lane["holder"])
++        self.assertIs(released_lane["held_by_this_attempt"], False)
+         self.assertIsNotNone(result["discharge"])
+         self.assertIsNone(self.session._work["gate"])
+         self.assertEqual(self.attempt_row()["worker_disposition"], "none")
+@@ -142,3 +148,4 @@
+         self.assertEqual(advance_deadline(self.store, self.port, Agent(), adapter, attempt_id=self.attempt,
+                                         retention_policy_digest=RETENTION), result)
+         self.assertEqual(self.trace, before)
++        self.assertEqual(runtime_lane(self.store, self.attempt), released_lane)

@@ -1,0 +1,6 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.159s
+
+OK
+{"derived_commit_in_input_bundle": false, "derived_revision": "998a8368c33f6904af7cd8a223eec6fe7e07fdde", "derived_tree": "e75b85b6c985a0cf4eacad6cfff393915e79c11e", "git_mode": "100755", "output_executable": false, "output_paths": ["candidate/feature.py", "candidate/fix.py", "candidate/harness.py", "candidate/target_only.py", "candidate/tool.sh", "report/report.json"], "proof": "preparation-handoff-scope-blocker"}

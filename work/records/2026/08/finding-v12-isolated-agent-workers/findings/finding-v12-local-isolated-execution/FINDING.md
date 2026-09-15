@@ -298,3 +298,98 @@ dependencies on W32382 and W32391: the first transitively includes W16823
 through W32649, and the second represents the confirmed external engine gate.
 Only after both close can PLAN item 6 reconcile the complete child results
 against the frozen M1 contract and ask for M2 approval.
+
+## 2026-09-14 — optional Podman gate removed from local milestone
+
+Owner W2 release ruling09:04:44Z, W165782 reroute167871 and classification
+RELEASE-CLASSIFICATION-165799.md select Podman certification as v13 hardening.
+This supersedes the2026-08-28 requirement to wait for W32391 as a direct
+minimum local-release dependency. Reviewer planning claim167877 removes the
+W3-on-W32391 dependency through W3 route authority. W32391 and its evidence
+remain open and contained; W3 still cannot close with open children. W32382
+and other true technical dependencies remain. No engine certification claim,
+implementation or cancelled work is implied.
+
+
+## 2026-09-14T11:29:00Z — technical gates satisfied; historical umbrella stays open
+
+Reviewer claim168829 consumed the complete current W3 event history and T3.
+W6 and W32382 are closed satisfying; W32382 closure168717 released the recorded
+technical gate. W16821/W16823 and the other accepted children are also closed.
+Current detail168828 records14 of15 children closed, with W32391 still
+open/parked and contained. This supersedes the earlier pending-W16823/W32382
+state. It does not permit parent closure or full local-OCI certification.
+
+review-2026-09-14T11-29-00Z.md maps the bounded final W6, W32385 and W32382
+reviews and their limitations. W6 remains not-certified, its original pack
+unrecoverable, and later failed/unobserved results unchanged. Docker evidence
+is not Podman evidence. W32391 FINDING already supersedes total Podman absence
+with partial nested Podman5.8.4 evidence and unresolved compatibility; do not
+launch engine discovery merely to settle this historical umbrella.
+
+W2 owner09:04:44Z adopted RELEASE-CLASSIFICATION-165799.md, whose exact W32391
+AND W33755 rows select v13. Historical containment remains by explicit ruling;
+W106052 and the approved documentary membership remain the reparenting stopgap.
+Do not reinstall W3-on-W32391, cancel/close that child, or request the release
+strategy again. Current W2 detail168838 still has only W3 as blocker, so its
+already-selected provider-first gate replacement remains an owner action under
+RELEASE-GATE-COMMANDS-167877.md. W2 is baton.ops-owned; no unauthorized edge
+change was made here. W7/W8/W16830 ordering remains as selected.
+
+The review also corrects this reviewer's recent W33755 claim168727 scheduling
+inference: its v13 classification is already selected, not merely proposed.
+The new expanded2.0/assignment-2 product proposal remains subject to independent
+technical review and scope selection; classification alone never approved it.
+Its current tuner is notified, preserving the immutable proposal bytes.
+
+Operational finding: this bound umbrella's PROGRESS.md is absent (ENOENT);
+root search found no alternate progress file. Required author history is not
+fabricated or substituted with child progress. Full M2 acceptance cannot be
+reported without resolving that missing account, independently of the open
+child closure rule. A guessed September release-classification locator also
+failed; search resolved the real W2-root artifact, which was read. No required
+release decision remains unreadable.
+
+Pass this limited reconciliation and exact outstanding owner bookkeeping to
+baton.ops. No product/test/PROGRESS/Git mutation, new runtime verification,
+model/engine/image run or destructive cleanup occurred. New verification
+spending is zero; prior child spending remains in those durable records.
+
+## 2026-09-14T12:23:19Z — owner selects parking the historical milestone
+
+Slawomir directs: "for now let's park W3". Defer further umbrella execution;
+retain W3 open with its historical containment, accepted child evidence,
+uncertified results and missing umbrella PROGRESS account explicitly unresolved.
+This supersedes the queued owner-reconciliation action above. It does not close
+W32391 or change W7/W8/W16830 dependencies. The broad W2-on-W3 release gate was
+already removed by owner follow-through, confirmed in canonical reads at
+168916 and 169200; its earlier pending bookkeeping text is historical.
+
+At snapshot169209 W3 is still queued/unclaimed: the phase mutation requires the
+owner identity and is not claimed completed by this record. No tests, runtime
+discovery or source changes are needed for this disposition.
+
+Slawomir separately states that the v12 ecosystem will implement notifier
+reminders. Record that follow-up under W2; parking W3 does not implement or
+select changes to the current v11 notifier.
+
+## 2026-09-14T12:25:15Z — Docker is the owner's goal; Podman is not a proof gate
+
+Slawomir clarifies: "Podman wasn't the goal, we use Docker". The prompt's
+preceding explanation incorrectly counted unfinished Podman certification as
+a reason the intended Docker milestone could not be proven. That interpretation
+is explicitly superseded. Assess the selected local-execution goal against
+Docker requirements; Podman certification is outside that goal.
+
+Historical W32391 containment and its open state remain ledger facts, not
+technical evidence against Docker. This clarification does not assert Podman
+success or cancel its retained Work. Any eventual graph/closure reconciliation
+must distinguish that historical relationship from the selected Docker outcome.
+
+On future W3 reassessment, map accepted child evidence and surviving gaps to
+the selected Docker acceptance. The historical W6 failed/unobserved counts do
+not by themselves establish how many current Docker requirements remain unmet;
+later accepted evidence and superseding scope must be considered. The missing
+umbrella PROGRESS file is an account gap, not an observed runtime defect. Do not
+fabricate old evidence or infer full certification from bounded child closure.
+The owner's parking selection remains in force; no new execution is selected.

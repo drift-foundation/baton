@@ -1,0 +1,9 @@
+test_readonly_reconciled_completion_without_runtime_reaches_outer_observer (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_readonly_reconciled_completion_without_runtime_reaches_outer_observer)
+A model-free import reaches status through the public read-only owner. ... ok
+test_readonly_integration_observation_keeps_the_bound_job (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_readonly_integration_observation_keeps_the_bound_job)
+The public observer reaches the real two-producer completion account. ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.468s
+
+OK

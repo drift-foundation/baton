@@ -1,0 +1,333 @@
+{
+  "work": "W170380",
+  "claim": 170415,
+  "runs": [
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 4.742480794986477,
+      "exit": 1,
+      "group_proved_gone": null,
+      "label": "group1-first-process",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170415.log",
+      "ok": false,
+      "signalled": null,
+      "step": 170415,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 3.707728642009897,
+      "exit": 1,
+      "group_proved_gone": null,
+      "label": "group1-manifest-binding",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170416.log",
+      "ok": false,
+      "signalled": null,
+      "step": 170416,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 3.6939561409817543,
+      "exit": 1,
+      "group_proved_gone": null,
+      "label": "group1-start-diagnostic",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170417.log",
+      "ok": false,
+      "signalled": null,
+      "step": 170417,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 4.053560130007099,
+      "exit": 1,
+      "group_proved_gone": null,
+      "label": "group1-path-binding",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170418.log",
+      "ok": false,
+      "signalled": null,
+      "step": 170418,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 5.004832909005927,
+      "exit": 1,
+      "group_proved_gone": null,
+      "label": "group1-retained-adoption",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170419.log",
+      "ok": false,
+      "signalled": null,
+      "step": 170419,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 5.907040991995018,
+      "exit": 1,
+      "group_proved_gone": null,
+      "label": "group1-source-receipts",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170420.log",
+      "ok": false,
+      "signalled": null,
+      "step": 170420,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 5.905097509006737,
+      "exit": 1,
+      "group_proved_gone": null,
+      "label": "group1-review-ending-diagnostic",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170421.log",
+      "ok": false,
+      "signalled": null,
+      "step": 170421,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 0.7839919320249464,
+      "exit": 1,
+      "group_proved_gone": null,
+      "label": "group1-provisioned-policy",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170422.log",
+      "ok": false,
+      "signalled": null,
+      "step": 170422,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation",
+        "tests.job_manager.test_managed_integration_capacity",
+        "tests.integration.test_managed_storage"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 4.218253235972952,
+      "exit": 1,
+      "group_proved_gone": null,
+      "label": "group1-focused-regressions",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170423.log",
+      "ok": false,
+      "signalled": null,
+      "step": 170423,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation",
+        "tests.job_manager.test_managed_integration_capacity",
+        "tests.integration.test_managed_storage"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 4.289677474007476,
+      "exit": 0,
+      "group_proved_gone": null,
+      "label": "group1-owner-regressions",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170424.log",
+      "ok": true,
+      "signalled": null,
+      "step": 170424,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 3.441716933011776,
+      "exit": 1,
+      "group_proved_gone": null,
+      "label": "group1-interruption-cuts",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170425.log",
+      "ok": false,
+      "signalled": null,
+      "step": 170425,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation",
+        "tests.job_manager.test_managed_integration_capacity",
+        "tests.integration.test_managed_storage",
+        "tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance",
+        "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle",
+        "tests.manager.test_reconciliation_task",
+        "tests.integration.test_managed_execution",
+        "tests.tools.test_integration_bundle"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 35.5087429509731,
+      "exit": 0,
+      "group_proved_gone": null,
+      "label": "group1-complete-owner-regressions",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170426.log",
+      "ok": true,
+      "signalled": null,
+      "step": 170426,
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "env",
+        "PYTHONPATH=src:tools:.",
+        "python3",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+      ],
+      "budget": {
+        "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+        "timeout_seconds": 300.0
+      },
+      "cwd": "/home/sl/src/baton/v12/python",
+      "elapsed_seconds": 3.4056673159939237,
+      "exit": 0,
+      "group_proved_gone": null,
+      "label": "group1-reviewable-process-proof",
+      "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170427.log",
+      "ok": true,
+      "signalled": null,
+      "step": 170427,
+      "timed_out": false
+    }
+  ],
+  "measured_seconds": 84.66274695997708,
+  "parent_ledger_measured_seconds": 2428.5768373038036,
+  "parent_historical_unknowns": "Preserved; no upper bound inferred."
+}

@@ -1,0 +1,16 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_task tests.tools.test_managed_preparation
+.....................................F............................................................................................................................................................................................................................
+======================================================================
+FAIL: test_the_report_bytes_are_weighed_against_custody (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_the_report_bytes_are_weighed_against_custody)
+A JSON report is not trusted custody. What makes this document the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 1693, in test_the_report_bytes_are_weighed_against_custody
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 258 tests in 12.847s
+
+FAILED (failures=1)

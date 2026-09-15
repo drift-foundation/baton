@@ -1,0 +1,67 @@
+--- baseline/v12/python/tests/manager/test_reconciliation_task.py
++++ candidate/v12/python/tests/manager/test_reconciliation_task.py
+@@ -21,6 +21,7 @@
+ import tempfile
+ import time
+ import unittest
++from unittest import mock
+ 
+ WORKER = pathlib.Path(__file__).resolve().parents[3] / "worker"
+ sys.path.insert(0, str(WORKER))
+@@ -662,6 +663,56 @@
+             {"combined": 0, "base": 1, "isolated": 0})
+         self.assertEqual(report["not_run"], [])
+ 
++    def test_a_combined_failure_remains_a_measured_failure(self):
++        for name in task.CAUSAL_ORDER:
++            self.harness(name, "import os\nraise SystemExit(7 if os.path.basename(os.getcwd()) == 'combined' else 0)\n")
++        report = task.compose_report(_request(), self.states,
++                                     *task.observe(_request(), self.states, 5))
++        self.assertEqual(report["kind"], "measured")
++        self.assertEqual(report["status"], 7)
++        self.assertEqual([row["status"] for row in report["completed"]], [7, 0, 0])
++        self.assertEqual(report["not_run"], [])
++
++    def test_each_causal_position_times_out_with_its_exact_prefix_and_suffix(self):
++        for index, phase in enumerate(task.CAUSAL_ORDER):
++            with self.subTest(phase=phase):
++                for name in task.CAUSAL_ORDER:
++                    self.harness(name, "import os, time\ntime.sleep(3 if os.path.basename(os.getcwd()) == " + repr(phase) + " else 0)\n")
++                report = task.compose_report(_request(), self.states,
++                                             *task.observe(_request(), self.states, 1))
++                self.assertEqual(report["kind"], "collected-without-status")
++                self.assertIsNone(report["status"])
++                self.assertEqual(report["tag"], "timeout")
++                self.assertEqual(report["phase"], phase)
++                self.assertEqual([row["name"] for row in report["completed"]], list(task.CAUSAL_ORDER[:index]))
++                self.assertEqual(report["not_run"], list(task.CAUSAL_ORDER[index + 1:]))
++
++    def test_each_causal_position_start_failure_preserves_the_real_prefix(self):
++        original = task.subprocess.Popen
++        for index, phase in enumerate(task.CAUSAL_ORDER):
++            with self.subTest(phase=phase):
++                for name in task.CAUSAL_ORDER:
++                    self.harness(name, "raise SystemExit(0)\n")
++                calls = []
++
++                def start(argv, **options):
++                    current = os.path.basename(options["cwd"])
++                    calls.append(current)
++                    if current == phase:
++                        raise FileNotFoundError("selected unavailable executable")
++                    return original(argv, **options)
++
++                with mock.patch.object(task.subprocess, "Popen", start):
++                    report = task.compose_report(_request(), self.states,
++                                                 *task.observe(_request(), self.states, 5))
++                self.assertEqual(calls, list(task.CAUSAL_ORDER[:index + 1]))
++                self.assertEqual(report["kind"], "collected-without-status")
++                self.assertIsNone(report["status"])
++                self.assertEqual(report["tag"], "start-failed")
++                self.assertEqual(report["phase"], phase)
++                self.assertEqual([row["name"] for row in report["completed"]], list(task.CAUSAL_ORDER[:index]))
++                self.assertEqual(report["not_run"], list(task.CAUSAL_ORDER[index + 1:]))
++
+     def test_a_cut_phase_is_not_counted_as_never_having_run(self):
+         """CORRECTED UNDER STANDING TEST AUTHORITY (review claim166129 defect
+         3). The first form asserted `not_run == [base, isolated]`, which says

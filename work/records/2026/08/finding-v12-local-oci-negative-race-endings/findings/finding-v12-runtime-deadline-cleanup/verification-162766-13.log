@@ -1,0 +1,14 @@
+..............................F......................................
+======================================================================
+FAIL: test_recurring_agent_fault_restarts_through_provider_hold_and_preserves_sibling (tests.manager.test_runtime_deadlines.CooperativeDeadlineFailures.test_recurring_agent_fault_restarts_through_provider_hold_and_preserves_sibling)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_runtime_deadlines.py", line 484, in test_recurring_agent_fault_restarts_through_provider_hold_and_preserves_sibling
+    self.assertEqual(cancel.call_count, 2)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2
+
+----------------------------------------------------------------------
+Ran 69 tests in 0.522s
+
+FAILED (failures=1)

@@ -2614,6 +2614,15 @@ class AFaultedTerminalSurvivesTheContainerThatWroteIt(SingleWorkerCase):
             session="session-" + digest(attempt_id)[7:31],
             contract=self.config["launch_contract"], role="implementation",
             transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+            # W156162, scheduled in PLAN by review 2026-09-13T02:10:47Z: this
+            # helper adopts the delivery ITSELF, so it must supply the same Job
+            # context the deployment composed -- adoption compares canonical
+            # bytes. Setup only: no assertion and no expected outcome changes.
+            job_execution=single_worker.job_execution_reader(job)(
+                job_id=stage["job_id"], attempt_id=attempt_id,
+                runtime_input_digest=self.config["input_manifest"][
+                    "manifest_digest"],
+                runtime_policy_digest=self.config["policy_digest"]),
             workspace_group=single_worker.configured_workspace_group(control))
         for name, value in (("INPUT_ROOT", os.path.join(home, "inputs")),
                             ("OUTPUT_ROOT", os.path.join(home, "workspace"))):
@@ -3065,6 +3074,15 @@ class TheAnsweredEndingRunsThroughTheRealOwners(SingleWorkerCase):
             session="session-" + digest(attempt_id)[7:31],
             contract=self.config["launch_contract"], role="implementation",
             transport=single_worker.exchange.EXCHANGE_TRANSPORT,
+            # W156162, scheduled in PLAN by review 2026-09-13T02:10:47Z: this
+            # helper adopts the delivery ITSELF, so it must supply the same Job
+            # context the deployment composed -- adoption compares canonical
+            # bytes. Setup only: no assertion and no expected outcome changes.
+            job_execution=single_worker.job_execution_reader(job)(
+                job_id=stage["job_id"], attempt_id=attempt_id,
+                runtime_input_digest=self.config["input_manifest"][
+                    "manifest_digest"],
+                runtime_policy_digest=self.config["policy_digest"]),
             workspace_group=single_worker.configured_workspace_group(control))
         for module, name, value in (
                 (baton_worker, "INPUT_ROOT", os.path.join(home, "inputs")),

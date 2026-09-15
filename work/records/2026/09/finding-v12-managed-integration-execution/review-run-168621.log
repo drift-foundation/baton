@@ -1,0 +1,29 @@
+test_foreign_submission_candidate_refuses (__main__.AdoptionBindings.test_foreign_submission_candidate_refuses) ... ADOPTED submission source candidate: ffffffffffffffffffffffffffffffffffffffff
+REQUEST source candidate: cccccccccccccccccccccccccccccccccccccccc
+FAIL
+test_foreign_task_digest_refuses (__main__.AdoptionBindings.test_foreign_task_digest_refuses) ... ADOPTED foreign task digest: sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+FAIL
+test_unchanged_collected_preparation_adopts (__main__.AdoptionBindings.test_unchanged_collected_preparation_adopts) ... ok
+
+======================================================================
+FAIL: test_foreign_submission_candidate_refuses (__main__.AdoptionBindings.test_foreign_submission_candidate_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-adoption-168621.py", line 26, in test_foreign_submission_candidate_refuses
+    with self.assertRaises(cases.ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_foreign_task_digest_refuses (__main__.AdoptionBindings.test_foreign_task_digest_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-adoption-168621.py", line 19, in test_foreign_task_digest_refuses
+    with self.assertRaises(cases.ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.062s
+
+FAILED (failures=2)

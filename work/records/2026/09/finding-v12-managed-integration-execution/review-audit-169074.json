@@ -1,0 +1,277 @@
+{
+  "claim": 169074,
+  "candidate": [
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "matches": true,
+      "actual": {
+        "sha256": "eb86c310365a7f083544b6488883f5f3ba0459a7635d9654e1349792180cf221",
+        "bytes": 70627,
+        "mode": "0o644"
+      }
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "matches": true,
+      "actual": {
+        "sha256": "63fd8c59b62beffdae3f4474c8f788a1d80fa35fea94c41d4c04bea174e52d67",
+        "bytes": 278874,
+        "mode": "0o664"
+      }
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "matches": true,
+      "actual": {
+        "sha256": "88aace0104a6ef77e25e3a497bddc0d08666f746a8559e0f6bf8c42909828bf9",
+        "bytes": 158551,
+        "mode": "0o644"
+      }
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "matches": true,
+      "actual": {
+        "sha256": "8067e75137b59be373c1d20eb5d0649b70e3d134c737c367f427950d06d31807",
+        "bytes": 32310,
+        "mode": "0o644"
+      }
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "matches": true,
+      "actual": {
+        "sha256": "2294369ad1ecda62af25a9d8f0d7524cf3306aa5c205265cda3a18bc1eba8f1c",
+        "bytes": 191339,
+        "mode": "0o664"
+      }
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+      "matches": true,
+      "actual": {
+        "sha256": "066cb062a75e04646ad970f37f370bfc89b23a06f5de7428f2fa3881e193424a",
+        "bytes": 94098,
+        "mode": "0o644"
+      }
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/evidence/stage-execution-failures-169019.json",
+      "matches": true,
+      "actual": {
+        "sha256": "d7205f2ecdc5bd709855debbee7ec60f0eac71a892431d8bde7aa84010c6241a",
+        "bytes": 5748,
+        "mode": "0o644"
+      }
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/evidence/stage-execution-with-wrapper-168895.log",
+      "matches": true,
+      "actual": {
+        "sha256": "7a92c4d6abfc95c082592b82e7f0f8d98d6547e81e40e58953a9bfef6fb44a0d",
+        "bytes": 35063,
+        "mode": "0o644"
+      }
+    },
+    {
+      "path": "baton:work/records/2026/09/finding-v12-managed-integration-execution/evidence/stage-execution-without-wrapper-168895.log",
+      "matches": true,
+      "actual": {
+        "sha256": "37c8a3e5c78f08fac3d38c5bcf21d22ed84a3b9f89ad97d0cdf0133bd3e1a88b",
+        "bytes": 35063,
+        "mode": "0o644"
+      }
+    }
+  ],
+  "logs": [
+    {
+      "path": "stage-execution-with-wrapper-168895.log",
+      "errors": [
+        {
+          "case": "ERROR: test_a_fresh_port_prepares_that_delivery_and_then_starts_it (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_fresh_port_prepares_that_delivery_and_then_starts_it)",
+          "exceptions": [
+            "AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_runtime_this_execution_did_not_start_is_still_held (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_runtime_this_execution_did_not_start_is_still_held)",
+          "exceptions": [
+            "AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_second_tick_in_the_same_execution_starts_nothing_again (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_second_tick_in_the_same_execution_starts_nothing_again)",
+          "exceptions": [
+            "AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'"
+          ]
+        },
+        {
+          "case": "ERROR: test_an_ordinary_first_tick_prepares_and_starts_exactly_once (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_ordinary_first_tick_prepares_and_starts_exactly_once)",
+          "exceptions": [
+            "AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick) (delivery=False)",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick) (delivery=True)",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_delivery_with_no_started_runtime_is_not_refreshed (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed)",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_later_tick_refreshes_before_it_continues (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_later_tick_refreshes_before_it_continues)",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_lost_marker_falls_through_to_admission (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_lost_marker_falls_through_to_admission)",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here) (runtime='running')",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here) (runtime='uncertain')",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_the_first_tick_prepares_and_then_admits (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits)",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_an_integration_without_a_runtime_port_refuses_as_that (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_an_integration_without_a_runtime_port_refuses_as_that)",
+          "exceptions": []
+        }
+      ],
+      "summaries": [
+        "Ran 266 tests in 53.312s",
+        "FAILED (errors=13)"
+      ]
+    },
+    {
+      "path": "stage-execution-without-wrapper-168895.log",
+      "errors": [
+        {
+          "case": "ERROR: test_a_fresh_port_prepares_that_delivery_and_then_starts_it (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_fresh_port_prepares_that_delivery_and_then_starts_it)",
+          "exceptions": [
+            "AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_runtime_this_execution_did_not_start_is_still_held (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_runtime_this_execution_did_not_start_is_still_held)",
+          "exceptions": [
+            "AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_second_tick_in_the_same_execution_starts_nothing_again (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_second_tick_in_the_same_execution_starts_nothing_again)",
+          "exceptions": [
+            "AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'"
+          ]
+        },
+        {
+          "case": "ERROR: test_an_ordinary_first_tick_prepares_and_starts_exactly_once (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_ordinary_first_tick_prepares_and_starts_exactly_once)",
+          "exceptions": [
+            "AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick) (delivery=False)",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick) (delivery=True)",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_delivery_with_no_started_runtime_is_not_refreshed (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed)",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_later_tick_refreshes_before_it_continues (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_later_tick_refreshes_before_it_continues)",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_lost_marker_falls_through_to_admission (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_lost_marker_falls_through_to_admission)",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here) (runtime='running')",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here) (runtime='uncertain')",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_the_first_tick_prepares_and_then_admits (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits)",
+          "exceptions": [
+            "AttributeError: 'object' object has no attribute 'proposal'"
+          ]
+        },
+        {
+          "case": "ERROR: test_an_integration_without_a_runtime_port_refuses_as_that (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_an_integration_without_a_runtime_port_refuses_as_that)",
+          "exceptions": []
+        }
+      ],
+      "summaries": [
+        "Ran 266 tests in 53.217s",
+        "FAILED (errors=13)"
+      ]
+    }
+  ],
+  "source_comparison": [
+    {
+      "path": "v12/python/tools/stage_execution.py",
+      "symbol": "Integration._run",
+      "equals_HEAD": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "symbol": "AFreshPortReentersANeverStartedDelivery",
+      "equals_HEAD": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_stage_execution.py",
+      "symbol": "TheIntegrationStageConsumesTheAcceptedPort",
+      "equals_HEAD": true
+    }
+  ],
+  "static_seconds": 0.12428491498576477,
+  "runtime_test_seconds": 0
+}

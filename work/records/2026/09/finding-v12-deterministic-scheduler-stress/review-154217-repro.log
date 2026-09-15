@@ -1,0 +1,208 @@
+{
+  "source_sha256": "2549b028c9b358f70e0bc6a1746b789e310be74b20fd806983bbec1354046244",
+  "original": [],
+  "synthetic_mutations": {
+    "deleted_acceptance": [
+      {
+        "code": "missing-prerequisite",
+        "detail": "claim for attempt attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571 has no recorded accept",
+        "record": {
+          "act": "claim",
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "cause": null,
+          "episode": 1,
+          "evidence": "receipts:job-a/implementation:1:claim",
+          "job_id": "job-a",
+          "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "outcome": "performed",
+          "participant": null,
+          "principal": null,
+          "recorded_at": "2026-09-02T00:00:00.000Z",
+          "runtime_id": null,
+          "session_id": null,
+          "stage_id": "job-a/implementation",
+          "tick": 1,
+          "worker_id": null
+        }
+      },
+      {
+        "code": "missing-prerequisite",
+        "detail": "complete for attempt attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571 has no recorded accept",
+        "record": {
+          "act": "complete",
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "cause": null,
+          "episode": 1,
+          "evidence": "stage_states:job-a/implementation",
+          "job_id": "job-a",
+          "operation_id": "stage.completed:attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "outcome": "performed",
+          "participant": null,
+          "principal": null,
+          "recorded_at": null,
+          "runtime_id": null,
+          "session_id": null,
+          "stage_id": "job-a/implementation",
+          "tick": 1,
+          "worker_id": null
+        }
+      },
+      {
+        "code": "missing-prerequisite",
+        "detail": "start for attempt attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571 has no recorded accept",
+        "record": {
+          "act": "start",
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "cause": null,
+          "episode": 1,
+          "evidence": "attempt_runtime:attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "job_id": "job-a",
+          "operation_id": "runtime.start:attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "outcome": "performed",
+          "participant": null,
+          "principal": null,
+          "recorded_at": null,
+          "runtime_id": "runtime-single-1",
+          "session_id": null,
+          "stage_id": "job-a/implementation",
+          "tick": 1,
+          "worker_id": null
+        }
+      }
+    ],
+    "acceptance_after_claim": [
+      {
+        "code": "instants-disagree-with-order",
+        "detail": "offer carries instant 2026-09-02T00:00:00.000Z after 2026-09-02T00:00:01.000Z; the owners' own order is not this trace's",
+        "record": {
+          "act": "offer",
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "cause": null,
+          "episode": 1,
+          "evidence": "receipts:job-a/implementation:1:admit",
+          "job_id": "job-a",
+          "operation_id": "offer.issue:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "outcome": "performed",
+          "participant": null,
+          "principal": null,
+          "recorded_at": "2026-09-02T00:00:00.000Z",
+          "runtime_id": null,
+          "session_id": null,
+          "stage_id": "job-a/implementation",
+          "tick": 1,
+          "worker_id": null
+        }
+      },
+      {
+        "code": "instants-disagree-with-order",
+        "detail": "claim carries instant 2026-09-02T00:00:00.000Z after 2026-09-02T00:00:01.000Z; the owners' own order is not this trace's",
+        "record": {
+          "act": "claim",
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "cause": null,
+          "episode": 1,
+          "evidence": "receipts:job-a/implementation:1:claim",
+          "job_id": "job-a",
+          "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "outcome": "performed",
+          "participant": null,
+          "principal": null,
+          "recorded_at": "2026-09-02T00:00:00.000Z",
+          "runtime_id": null,
+          "session_id": null,
+          "stage_id": "job-a/implementation",
+          "tick": 1,
+          "worker_id": null
+        }
+      },
+      {
+        "code": "instants-disagree-with-order",
+        "detail": "offer carries instant 2026-09-02T00:00:00.000Z after 2026-09-02T00:00:01.000Z; the owners' own order is not this trace's",
+        "record": {
+          "act": "offer",
+          "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "cause": null,
+          "episode": 1,
+          "evidence": "receipts:job-a/review:1:admit",
+          "job_id": "job-a",
+          "operation_id": "offer.issue:offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "outcome": "performed",
+          "participant": null,
+          "principal": null,
+          "recorded_at": "2026-09-02T00:00:00.000Z",
+          "runtime_id": null,
+          "session_id": null,
+          "stage_id": "job-a/review",
+          "tick": 2,
+          "worker_id": null
+        }
+      },
+      {
+        "code": "instants-disagree-with-order",
+        "detail": "accept carries instant 2026-09-02T00:00:00.000Z after 2026-09-02T00:00:01.000Z; the owners' own order is not this trace's",
+        "record": {
+          "act": "accept",
+          "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "cause": null,
+          "episode": 1,
+          "evidence": "offers:offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c:accepted",
+          "job_id": "job-a",
+          "operation_id": null,
+          "outcome": "performed",
+          "participant": "baton.reviewer",
+          "principal": null,
+          "recorded_at": "2026-09-02T00:00:00.000Z",
+          "runtime_id": null,
+          "session_id": null,
+          "stage_id": "job-a/review",
+          "tick": 3,
+          "worker_id": null
+        }
+      },
+      {
+        "code": "instants-disagree-with-order",
+        "detail": "claim carries instant 2026-09-02T00:00:00.000Z after 2026-09-02T00:00:01.000Z; the owners' own order is not this trace's",
+        "record": {
+          "act": "claim",
+          "attempt_id": "attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "cause": null,
+          "episode": 1,
+          "evidence": "receipts:job-a/review:1:claim",
+          "job_id": "job-a",
+          "operation_id": "offer.settle:offer-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c",
+          "outcome": "performed",
+          "participant": null,
+          "principal": null,
+          "recorded_at": "2026-09-02T00:00:00.000Z",
+          "runtime_id": null,
+          "session_id": null,
+          "stage_id": "job-a/review",
+          "tick": 3,
+          "worker_id": null
+        }
+      },
+      {
+        "code": "out-of-order",
+        "detail": "claim for attempt attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571 was recorded by its owner at 2026-09-02T00:00:00.000Z and its accept only at 2026-09-02T00:00:01.000Z",
+        "record": {
+          "act": "claim",
+          "attempt_id": "attempt-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "cause": null,
+          "episode": 1,
+          "evidence": "receipts:job-a/implementation:1:claim",
+          "job_id": "job-a",
+          "operation_id": "offer.settle:offer-7b5e070a732d64a31d8830d12147471913947786b9a59376be12eda0e2451571",
+          "outcome": "performed",
+          "participant": null,
+          "principal": null,
+          "recorded_at": "2026-09-02T00:00:00.000Z",
+          "runtime_id": null,
+          "session_id": null,
+          "stage_id": "job-a/implementation",
+          "tick": 1,
+          "worker_id": null
+        }
+      }
+    ]
+  }
+}

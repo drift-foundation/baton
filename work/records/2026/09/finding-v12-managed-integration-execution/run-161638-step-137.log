@@ -1,0 +1,19 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+.......F................................................
+======================================================================
+FAIL: test_an_interrupted_effect_is_resolved_by_its_receipt (tests.tools.test_managed_integration.APublicationKeepsItsOwnDurableAccount.test_an_interrupted_effect_is_resolved_by_its_receipt)
+A crash between the effect and its marker is answerable BECAUSE the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 1139, in test_an_interrupted_effect_is_resolved_by_its_receipt
+    self.assertEqual(resumed["outcome"], "published")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'resumed' != 'published'
+- resumed
++ published
+
+
+----------------------------------------------------------------------
+Ran 56 tests in 1.466s
+
+FAILED (failures=1)

@@ -1,0 +1,10 @@
+--- /home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py
++++ isolated-copy-with-_review_context-from-repro-156801.py
+@@ -2701,6 +2701,7 @@
+             session="session-" + digest(attempt_id)[7:31],
+             contract=self.config["launch_contract"], role=role,
+             transport=exchange.EXCHANGE_TRANSPORT,
++            job_execution=_review_context(self, role, attempt_id),
+             workspace_group=single_worker.configured_workspace_group(control))
+         held = []
+         for module, name, value in (

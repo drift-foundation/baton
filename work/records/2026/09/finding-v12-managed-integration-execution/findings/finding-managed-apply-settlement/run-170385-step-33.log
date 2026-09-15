@@ -1,0 +1,6 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 3.310s
+
+OK
+{"adopted": false, "allocation": "released", "apply": "cancelled", "cleanup": "retained", "credential_root": false, "fixture_processes": 1, "launch_root": false, "parent": "exceptional-unclaimed", "prepare": "ended", "proof": "known-failed-start-is-ended", "root": "ended", "runtime": "destroyed"}

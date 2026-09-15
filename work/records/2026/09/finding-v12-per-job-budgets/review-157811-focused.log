@@ -1,0 +1,11 @@
+test_a_second_reader_repeats_the_adoption_without_repairing (tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches.test_a_second_reader_repeats_the_adoption_without_repairing)
+NO DUPLICATE WORK AND NO REPAIR: the second reader in the run above ... ok
+test_an_absent_delivery_is_answered_and_never_repaired (tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches.test_an_absent_delivery_is_answered_and_never_repaired)
+ABSENT ARTIFACT: an attempt whose launch root does not exist is ... ok
+test_two_configured_jobs_are_adopted_by_a_read_only_observation (tests.tools.test_execution_limits.TheComposedObservationAdoptsTwoJobsConfiguredLaunches.test_two_configured_jobs_are_adopted_by_a_read_only_observation)
+THE WHOLE SEAM: distinct settings, real serving, a closed serving ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.525s
+
+OK

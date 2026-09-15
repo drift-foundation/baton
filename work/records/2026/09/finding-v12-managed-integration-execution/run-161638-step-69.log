@@ -1,0 +1,78 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_storage
+.E...EF..................F...
+======================================================================
+ERROR: test_a_read_only_handle_records_nothing (tests.integration.test_managed_storage.AReadOnlyOpenUnderstandsBothShapes.test_a_read_only_handle_records_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 322, in test_a_read_only_handle_records_nothing
+    record_managed_result(store, self.task(), self.result(),
+                                              ^^^^^^^^^^^
+AttributeError: 'AReadOnlyOpenUnderstandsBothShapes' object has no attribute 'result'
+
+======================================================================
+ERROR: test_an_ordinary_single_representation_reads_normally (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_an_ordinary_single_representation_reads_normally)
+The guard refuses a DOUBLE representation and nothing else: a store
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 548, in test_an_ordinary_single_representation_reads_normally
+    self.assertEqual(result_of(store, "legacy-" + "d" * 40)["state"],
+                     ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1962, in result_of
+    held = _row(store, result_id)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2423, in _row
+    held = boundaries.row(found, "a persisted integration result",
+                          schema.RESULT_COLUMNS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 448, in row
+    document(json.loads(value), f"{what}'s {name}",
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+             required=contract.members)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a persisted integration result's integration_assignment needs work_ref, participant, generation
+
+======================================================================
+FAIL: test_the_legacy_reader_refuses_it (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_legacy_reader_refuses_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 501, in test_the_legacy_reader_refuses_it
+    self.assertIn("cannot be read as either", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'cannot be read as either' not found in "a persisted integration result's integration_assignment needs work_ref, participant, generation"
+
+======================================================================
+FAIL: test_the_older_shape_is_derived_not_restated (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_older_shape_is_derived_not_restated)
+`shape_for(5)` is this build's own script minus exactly what the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 284, in test_the_older_shape_is_derived_not_restated
+    self.assertEqual(sorted(key for key in current if key not in older),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     [("index", "managed_results_by_orchestration"),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      ("table", "managed_integration_results")])
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('in[62 chars]integration_phases'), ('table', 'managed_integration_results')] != [('in[62 chars]integration_results')]
+
+First differing element 1:
+('table', 'managed_integration_phases')
+('table', 'managed_integration_results')
+
+First list contains 1 additional elements.
+First extra element 2:
+('table', 'managed_integration_results')
+
+  [('index', 'managed_results_by_orchestration'),
+-  ('table', 'managed_integration_phases'),
+   ('table', 'managed_integration_results')]
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.082s
+
+FAILED (failures=2, errors=2)

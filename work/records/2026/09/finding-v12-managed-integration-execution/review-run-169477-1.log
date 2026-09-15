@@ -1,0 +1,15 @@
+{
+  "observations": [
+    {
+      "case": "required_tests_owner",
+      "observed": "AttributeError",
+      "message": "'StageDeployment' object has no attribute 'required_tests'"
+    },
+    {
+      "case": "job_execution_reader_call",
+      "observed": "TypeError",
+      "message": "job_execution_reader.<locals>.reader() takes 0 positional arguments but 1 was given"
+    }
+  ],
+  "limit": "Real production methods/classes; deliberately uninitialized deployment sufficient because both failures precede owner work. No live deployment, owner store, worker or engine proof."
+}

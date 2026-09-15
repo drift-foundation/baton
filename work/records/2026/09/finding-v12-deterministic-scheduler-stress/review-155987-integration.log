@@ -1,0 +1,2 @@
+{"existing_integration_turn_exit": 0}
+{"continued_job_a": {"implementation": "completed", "integration": "completed", "review": "completed"}, "job_b": {"implementation": "completed", "integration": "queued", "review": "completed"}}

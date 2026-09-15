@@ -1,0 +1,37 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_rejected_derived_judgment_cannot_authorize_import
+E
+======================================================================
+ERROR: test_rejected_derived_judgment_cannot_authorize_import (tests.tools.test_stage_execution.TwoBoundJobsTraverseServingAndCorrection.test_rejected_derived_judgment_cannot_authorize_import)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7246, in test_rejected_derived_judgment_cannot_authorize_import
+    self.judgment_turn(held, execution, verdict="rejected" if kind == "review" else "accepted")
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7177, in judgment_turn
+    self.assertEqual(self.turn(held.control, "review", attempt_id, roots,
+                     ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              edits={"review-report.json": json.dumps(report)}), 0)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2699, in turn
+    delivered = launch.adopt(
+        self.config["launch_home"], attempt_id=attempt_id,
+    ...<7 lines>...
+        job_execution=self.job_execution_for(role, attempt_id),
+        workspace_group=single_worker.configured_workspace_group(control))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 747, in adopt
+    _denied(f"attempt {name_value(attempt)}'s launch document is not the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one this manager would have written for it; a document that "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is merely well formed proves which KIND of thing it is and "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"not which delivery")
+            ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/launch.py", line 223, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: attempt 'judgment-b7f92412045a379c2045c98b92043e3bff28d07f2a5b4ffbf6…'s launch document is not the one this manager would have written for it; a document that is merely well formed proves which KIND of thing it is and not which delivery
+
+----------------------------------------------------------------------
+Ran 1 test in 1.237s
+
+FAILED (errors=1)

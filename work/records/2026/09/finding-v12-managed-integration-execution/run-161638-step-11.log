@@ -1,0 +1,36 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.manager.test_reconciliation_worker
+.....F..........F.F......
+======================================================================
+FAIL: test_a_fence_entry_missing_its_reason_member_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_fence_entry_missing_its_reason_member_is_refused)
+The closed entry is generation, cause and reason. A member that is
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 376, in test_a_fence_entry_missing_its_reason_member_is_refused
+    with self.assertRaises(ContractRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+======================================================================
+FAIL: test_an_authority_that_answers_no_fences_at_all_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_authority_that_answers_no_fences_at_all_is_refused)
+[P1] The fence is the AUTHORITY's act, so the manager's own journal
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 170, in test_an_authority_that_answers_no_fences_at_all_is_refused
+    self.assertIn("carries no fenced generations", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'carries no fenced generations' not found in "the projection's Work is durable text; this is none"
+
+======================================================================
+FAIL: test_an_exact_committed_start_replays_without_running_its_action (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_exact_committed_start_replays_without_running_its_action)
+THE REPLAY THAT THE AXIS CANNOT SEE, driven rather than described.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_worker.py", line 438, in test_an_exact_committed_start_replays_without_running_its_action
+    self.assertIn("committed a runtime start", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'committed a runtime start' not found in "attempt 'attempt-1' has runtime 'runtime-1' attached; a runtime that exists is ended through its own explicit finalization with actual exclusion evidence"
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.103s
+
+FAILED (failures=3)

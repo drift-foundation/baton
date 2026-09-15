@@ -1,0 +1,21 @@
+# W32577 exact absence classification correction — awaiting independent review
+
+Owner reroute164775, baton.tuner claim164779: bounded correction prepared for independent review. inspect_owned now accepts exact Docker daemon and explicitly supported short absence diagnostics, exact requested name, integer exit1, and empty/[] stdout after surrounding whitespace normalization. Byte comparison rejects invalid encodings and additional diagnostics. Generic nonzero failures remain failures. No identity, removal, uncertainty, process, duration or completion rules changed.
+
+The fake Docker now emits the retained real prefix. Three new test methods cover both supported variants before/after immutable-ID removal, 21 refusal combinations, and digest-bound replay of all six actual parent responses through the real Calls/Inventory/cleanup code with an injected runner. All prior33 cases remain. Focused pinned verification passes36 tests in verification-162766-33.log (Python3.13.7/jsonschema4.26.0). Only this deterministic module ran; historical product/deadline/no-start evidence was not rerun.
+
+Author cumulative 68.89533569900784/120s, remaining51.104664300992155s, 33 ledger rows. Reviewer5.285408751995419/60s, remaining54.71459124800458s. Readiness0.1878712520102272/20s is already included in author spending. Owner engine30.81015891599236/180s, remaining149.18984108400764s. No reset or transfer.
+
+All44 original owner evidence files still match preservation-164779.json, including the failed receipt, result and body log. The original exit1, candidate_pass=false, independent_acceptance=false and four unresolved names remain unchanged. Replay proves classifier behavior on historical observations only; it is neither current resource absence nor retroactive gate success. No Docker/API call, container removal, engine rerun, install, build or real child process was executed by the focused tests.
+
+The other nine candidate files and five protected source/test files match candidate163413. DEPLOYMENT.md remains W161230-owned and untouched here; observed hash efb5cb8d24b7c2f7afb4592078f5fe7c9aed7faf27656437bf6172aa21198b86 differs from the prior protected hash (protected-drift-164779.json). Exact W161230 handback remains required before later documentation edits. Scoped git diff --check passes. Repository-wide check reports unrelated trailing whitespace at v12/python/tools/stage_execution.py:1909; left untouched.
+
+Next baton.feat independently reviews this correction and remaining acceptance. Original owner-execute-164414.py is consumed and must not be reused. Any later engine assignment must explicitly account for remaining149.18984108400764s, update reviewed execution bounds/provenance for this candidate and resolve the managed subprocess launch boundary or select an owner execution. The unchanged supervisor maximum180s does not itself fit the remaining bank. No further runtime authority is implied. Obligation163303 is answered; do not reopen it. Successful complete engine acceptance, required remaining pinned verification, DEPLOYMENT handback and W32577/parent closure remain open.
+
+
+Complete11-file candidate: candidate-164779.json, SHA256 ea2cb3557d8ac87b8198ec5bd5cc9c35545a550c0c9a8e53b3b2da11323902e5; immutable snapshots under candidate-164779/. Predecessor candidate-163413.json SHA256 ecd8e311806a2b781f682a75adf396c888c31411bf931030b3c8ba1fad82b896 remains preserved. Exact two-file delta correction-164779.patch SHA256 41678d144c0cd31b15cb5ab3aa3ce69d238c20796f21c4bc57f4923ac4e3011d.
+
+- v12/python/tests/manager/test_runtime_deadline_engine_budget.py: SHA256 06fc7a3366dcb985cda5db548de699618042185c6edadafd51c741bd1012c34d
+- work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py: SHA256 980911451d33acfae889a09c4ec519b355267e6466b0138e60575587bfb77a8e
+
+Owning decision/history: FINDING.md; current action: PLAN.md; implementation account: PROGRESS.md; newest independent review request: review-2026-09-13T23-59-38Z.md. Test-change authority is the explicit two-file scope in owner reroute164775 and standing policy. No existing assertion was removed or weakened; the fake diagnostic now reflects the measured Docker boundary.

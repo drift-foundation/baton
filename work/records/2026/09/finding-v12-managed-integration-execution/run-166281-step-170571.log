@@ -1,0 +1,8 @@
+$ env PYTHONPATH=src:tools:. python3 /home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/probe-real-cut-retry-170533.py
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:ecdeac02bef2928ca60d94c7620d593c13a3513ba35cfd6ab5fa14ecb0e8cf76", "root": "open", "runtime": "destroyed", "worker_exit": 0}
+test_unexpected_pre_intent_interruption_recovers (__main__.RealInterruption.test_unexpected_pre_intent_interruption_recovers) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.670s
+
+OK

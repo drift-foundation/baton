@@ -1,0 +1,49 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_host_verification_that_exceeds_it_defers_and_repeats_nothing
+E
+======================================================================
+ERROR: test_a_host_verification_that_exceeds_it_defers_and_repeats_nothing (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_host_verification_that_exceeds_it_defers_and_repeats_nothing)
+THE BOUNDED FAILURE, through the composed owners, and its REPEAT.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1437, in test_a_host_verification_that_exceeds_it_defers_and_repeats_nothing
+    report = self.case.tick(held)
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 8009, in tick
+    return sweep(held.job, held.composed, now=fixtures.NOW)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 160, in sweep
+    started = _launch(store, operations, projection.stage_states(store,
+                                                                 operations))
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/manager.py", line 340, in _launch
+    answer = operations.launch(attempt, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 3887, in launch
+    return self.integrator.run(stage, job)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2280, in run
+    answered = self._run(stage, job)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2357, in _run
+    return self.reconciled(
+           ~~~~~~~~~~~~~~~^
+        stage, job, operands,
+        ^^^^^^^^^^^^^^^^^^^^^
+        review_cycles.line_of(control, line["line_id"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2640, in reconciled
+    held = reconciliation.record_causal_observations(
+        deployment.integration, observer,
+        result_id=held["result_id"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 1028, in record_causal_observations
+    answer = boundaries.document(getattr(observer, _OBSERVE_VERB)(dict(basis)),
+                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2045, in observe
+    harness, combined = self._observation(self._workspace,
+                        ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+                                          basis["candidate"])
+                                          ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 2025, in _observation
+    return answered["body"], {
+           ~~~~~~~~^^^^^^^^
+KeyError: 'body'
+
+----------------------------------------------------------------------
+Ran 1 test in 1.076s
+
+FAILED (errors=1)

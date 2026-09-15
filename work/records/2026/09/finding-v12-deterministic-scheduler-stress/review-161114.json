@@ -1,0 +1,70 @@
+{
+  "work": "W103525",
+  "claim": 161114,
+  "prior_review_seconds": 130.96222113902036,
+  "review_cap_seconds": 300,
+  "author_cap_seconds": 1200,
+  "author_spent_seconds": 1063.5077970099796,
+  "candidate_before": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "bytes": 93492
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+      "bytes": 313954
+    }
+  },
+  "runs": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/repro-161114.py"
+      ],
+      "budget": {
+        "cap_seconds": 300,
+        "starting_spent_seconds": 130.96222113902036,
+        "starting_remaining_seconds": 169.03777886097964,
+        "expected_seconds": 14,
+        "margin_seconds": 4,
+        "timeout_seconds": 25
+      },
+      "exit": 0,
+      "elapsed_seconds": 10.87323230200127,
+      "log": "review-161114-probe.log"
+    },
+    {
+      "name": "artifact-audit",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-deterministic-scheduler-stress/audit-161114.py"
+      ],
+      "budget": {
+        "cap_seconds": 300,
+        "starting_spent_seconds": 141.83545344102163,
+        "starting_remaining_seconds": 158.16454655897837,
+        "expected_seconds": 1,
+        "margin_seconds": 2,
+        "timeout_seconds": 5
+      },
+      "exit": 0,
+      "elapsed_seconds": 0.03151493900077185,
+      "log": "audit-161114.log"
+    }
+  ],
+  "review_spent_seconds": 141.8669683800224,
+  "review_remaining_seconds": 158.1330316199776,
+  "candidate_after": {
+    "v12/python/tests/tools/scheduler_trace.py": {
+      "sha256": "fa9e69f2df32b11cd2a830dc962900796e5aeb89398c50c5175d8e8e87ccf0d5",
+      "bytes": 93492
+    },
+    "v12/python/tests/tools/test_scheduler_trace.py": {
+      "sha256": "a57c0a71e52629ee6008f054dccb1ef2d563bb886453b6bd8317daefe2437e17",
+      "bytes": 313954
+    }
+  },
+  "candidate_unchanged": true
+}

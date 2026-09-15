@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.manager.test_execution_limits tests.job_manager.test_execution_limits tests.manager.test_worker_entry tests.tools.test_integration_worker
+..................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 162 tests in 7.245s
+
+OK

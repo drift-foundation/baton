@@ -1,0 +1,9 @@
+.........................................................................
+----------------------------------------------------------------------
+Ran 73 tests in 2.316s
+
+OK
+{"derived_revision": "46f764646e67da04c60ec88474d42f5e47baca79", "derived_tree": "e75b85b6c985a0cf4eacad6cfff393915e79c11e", "git_mode": "100755", "proof": "exact-preparation-object-export", "scratch_gone": true}
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:6ebcc2ce33c5fdbe29a759f882595254b3d18f4171c64eb95a934219c9cb2345", "root": "open", "runtime": "destroyed", "worker_exit": 0}
+{"proof": "managed-publication-awaits-independent-receipts", "proposal": "proposal-managed-integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "result": "integration:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0", "state": "published"}
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:e4b2dfe0b7ca8ba579aa27ebf06be12997cc342e3e41935b2e22ef8a3b8a86b5", "root": "open", "runtime": "destroyed", "worker_exit": 0}

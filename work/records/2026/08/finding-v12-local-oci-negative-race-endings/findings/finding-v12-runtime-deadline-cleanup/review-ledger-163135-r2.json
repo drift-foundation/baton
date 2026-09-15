@@ -1,0 +1,35 @@
+{
+  "work": "W32577",
+  "claim": 163135,
+  "cap_seconds": 60.0,
+  "authority": "review-2026-09-13T18-26-19Z.md",
+  "prior_reviewer_seconds": 4.030238968000049,
+  "runs": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-W",
+        "error",
+        "/home/sl/src/baton/work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/probe-163135-r2.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "status": "finished",
+      "guard": {
+        "cap_seconds": 60.0,
+        "spent_seconds_before": 4.030238968000049,
+        "remaining_seconds_before": 55.96976103199995,
+        "expected_seconds": 10.0,
+        "margin_seconds": 3.0,
+        "timeout_seconds": 35.0
+      },
+      "log": "review-run-163135-2.log",
+      "exit_code": 0,
+      "elapsed_seconds": 0.21366362199478317
+    }
+  ],
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "jsonschema": "4.19.2",
+  "qualification": "Deterministic only; pinned4.26.0 and Docker gate not satisfied",
+  "reviewer_spent_seconds": 4.243902589994832,
+  "reviewer_remaining_seconds": 55.75609741000517
+}

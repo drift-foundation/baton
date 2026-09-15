@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage tests.integration.test_managed_execution tests.job_manager.test_managed_integration_capacity tests.manager.test_reconciliation_worker
+................................................................................................................................................................................................
+----------------------------------------------------------------------
+Ran 192 tests in 0.895s
+
+OK

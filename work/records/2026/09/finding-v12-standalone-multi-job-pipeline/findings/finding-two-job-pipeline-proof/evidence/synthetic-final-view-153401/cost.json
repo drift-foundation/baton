@@ -1,0 +1,18 @@
+{
+  "claim": 153401,
+  "measured_checks_seconds": 0.847047775023384,
+  "cumulative_preparation_checks_seconds": 122.82507128691942,
+  "claim_started_at": "2026-09-12T15:04:37Z",
+  "recorded_at": "2026-09-12T15:14:31.669295+00:00",
+  "claim_wall_seconds_to_record": 594.669295,
+  "synthetic_attempt_total_seconds": [
+    246.9176634180185,
+    18.794468152016634
+  ],
+  "synthetic_attempt_execution_seconds": [
+    241.82697641299455,
+    18.547138238005573
+  ],
+  "prior_failed_and_interrupted_live_wall_seconds": 2945.8728742020467,
+  "qualification": "Managed claim wall includes reading, reasoning, editing and checks, not model billing time. Canonical handoff supplies final interval. Prior unmetered preparation/coordination uncertainty remains."
+}

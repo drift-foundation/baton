@@ -1,0 +1,31 @@
+{
+  "stdout": "Client:\n Version:           29.1.3\n API version:       1.52\n Go version:        go1.24.4\n Git commit:        29.1.3-0ubuntu3~25.10.1\n Built:             Thu Mar  5 17:56:15 2026\n OS/Arch:           linux/amd64\n Context:           default\n",
+  "stderr": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock\n",
+  "readiness_claim": 164363,
+  "command": [
+    "docker",
+    "version"
+  ],
+  "cap": 120,
+  "readiness_cap": 20,
+  "spent_before": 68.5709876419988,
+  "remaining_before": 51.4290123580012,
+  "readiness_spent_before": 0.1772790560044814,
+  "readiness_remaining_before": 19.82272094399552,
+  "expected": 2,
+  "margin": 1,
+  "timeout": 10,
+  "state": "completed",
+  "log": "subprocess-version-164363.json",
+  "executable": "/home/sl/src/baton/.venv/bin/python3",
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "jsonschema": "4.26.0",
+  "invocation": [
+    "/home/sl/src/baton/work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/subprocess-probe-164363.py",
+    "version"
+  ],
+  "cwd": "/home/sl/src/baton",
+  "boundary": "pinned Python script via standalone managed exec, Docker via subprocess.run",
+  "returncode": 1,
+  "elapsed": 0.005444549009553157
+}

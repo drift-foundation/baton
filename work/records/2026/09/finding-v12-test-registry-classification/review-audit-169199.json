@@ -1,0 +1,67 @@
+{
+  "files": [
+    {
+      "path": "work/records/2026/09/finding-v12-test-registry-classification/base-169136/parallel_test.py",
+      "sha256": "1c1af72d611dcc6b83eb131f953d30f2e81d8d04cc46e531a7e2cbb4940c6031",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-test-registry-classification/candidate-169136/parallel_test.py",
+      "sha256": "d2f83940f5fbb3bd135ed0401d77dcd51145ccee5a18360700b2b0e583ec8002",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "sha256": "d2f83940f5fbb3bd135ed0401d77dcd51145ccee5a18360700b2b0e583ec8002",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-test-registry-classification/base-169136/test_parallel_runner.py",
+      "sha256": "690241cb9f51e1405c6d3246bd8a66620a95d4f8ecf561e8d5d4553dfd736406",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-test-registry-classification/candidate-169136/test_parallel_runner.py",
+      "sha256": "211eaa4862774147e47f513c990c2527a5a8ecf0b1f59b789e7c962f1490da14",
+      "matches": true
+    },
+    {
+      "path": "v12/python/tests/tools/test_parallel_runner.py",
+      "sha256": "211eaa4862774147e47f513c990c2527a5a8ecf0b1f59b789e7c962f1490da14",
+      "matches": true
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-test-registry-classification/candidate-169136.patch",
+      "sha256": "240cafcd52b935384e5f7dc42d7ace0d7fca33c82079122017be94fc2981f0fa",
+      "matches": true
+    }
+  ],
+  "partition": {
+    "discovered": 117,
+    "parallel": 97,
+    "serial": 19,
+    "supervised": 1
+  },
+  "parallel_additions": [
+    "tests.integration.test_managed_execution",
+    "tests.integration.test_managed_storage",
+    "tests.integration.test_reconciliation",
+    "tests.job_manager.test_execution_limits",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_execution_limits",
+    "tests.manager.test_reconciliation_task",
+    "tests.manager.test_reconciliation_worker",
+    "tests.manager.test_runtime_deadline_engine_budget",
+    "tests.manager.test_runtime_deadlines",
+    "tests.tools.test_execution_limits",
+    "tests.tools.test_job_viewer",
+    "tests.tools.test_live_ab",
+    "tests.tools.test_managed_integration",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_scheduler_trace",
+    "tests.tools.test_stage_execution_hardening",
+    "tests.tools.test_stage_execution_status_hardening",
+    "tests.tools.test_standalone_ab"
+  ],
+  "serial_and_method_split_unchanged": true
+}

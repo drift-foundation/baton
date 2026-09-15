@@ -1,0 +1,17 @@
+--- baseline/v12/worker/reconciliation_entry.py
++++ candidate/v12/worker/reconciliation_entry.py
+@@ -33,10 +33,10 @@
+ REPORT_OUTPUT = "preparation-report"
+ CANDIDATE_OUTPUT = "prepared-candidate"
+ 
+-# WHICH BOUNDARY A PREPARATION COMMAND RUNS UNDER. `baton_worker` already names
+-# these, and the verification boundaries are the Job owner's decision about
+-# what a test command gets -- not something this file decides.
+-BOUNDARY = "integration_verification"
++# These causal commands moved from the coordinator into preparation. Keep
++# their original Job-owned boundary (default300s), rather than selecting the
++# imported-candidate verification boundary (default1800s) by the new location.
++BOUNDARY = "host_verification"
+ 
+ 
+ class PreparationAgent:

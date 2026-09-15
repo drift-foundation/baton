@@ -1,0 +1,79 @@
+test_a_boolean_status_is_refused_on_adoption (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_a_boolean_status_is_refused_on_adoption) ... ok
+test_a_report_about_another_execution_is_refused_on_adoption (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_a_report_about_another_execution_is_refused_on_adoption) ... ok
+test_a_report_of_another_schema_is_refused_on_adoption (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_a_report_of_another_schema_is_refused_on_adoption) ... ok
+test_a_valid_stored_result_round_trips (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_a_valid_stored_result_round_trips) ... ok
+test_an_undeclared_command_and_dropped_suffix_are_refused (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_an_undeclared_command_and_dropped_suffix_are_refused) ... ok
+test_an_unknown_kind_is_refused_on_adoption (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_an_unknown_kind_is_refused_on_adoption) ... ok
+test_every_valid_answer_survives_the_round_trip (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_every_valid_answer_survives_the_round_trip)
+The three answers are preserved, not merely refused in their ... ok
+test_not_collected_carrying_a_status_is_refused_on_adoption (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_not_collected_carrying_a_status_is_refused_on_adoption)
+THE WORST OF THE FOUR: a report that says nothing was collected ... ok
+test_the_composer_and_the_adopter_are_one_owner (tests.integration.test_managed_execution.AStoredResultIsHeldToTheSameRules.test_the_composer_and_the_adopter_are_one_owner)
+The rules are not spelled twice. Whatever the composer refuses, ... ok
+test_a_boundary_claiming_the_job_chose_it_when_it_did_not (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_boundary_claiming_the_job_chose_it_when_it_did_not)
+`job` means the Job asked for this number. A boundary claiming it ... ok
+test_a_boundary_hiding_a_request_the_job_did_make (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_boundary_hiding_a_request_the_job_did_make) ... ok
+test_a_boundary_naming_another_boundarys_setting (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_boundary_naming_another_boundarys_setting) ... ok
+test_a_generation_this_build_cannot_reproduce_is_refused (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_generation_this_build_cannot_reproduce_is_refused)
+THE DEFECT ITSELF: 999 was accepted by a generic generation rule. ... ok
+test_a_jobs_own_request_travels_beside_the_resolution (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_jobs_own_request_travels_beside_the_resolution)
+What a Job ASKED FOR and what a boundary GETS are different facts; ... ok
+test_a_legacy_job_resolves_and_is_ordinary (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_legacy_job_resolves_and_is_ordinary)
+A Job admitted before per-Job limits existed runs under generation ... ok
+test_a_missing_boundary_is_refused (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_a_missing_boundary_is_refused) ... ok
+test_an_empty_limits_document_is_refused (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_an_empty_limits_document_is_refused)
+The other half of the same defect: `{"effective": {}}` passed a ... ok
+test_seconds_outside_the_shared_range_are_refused (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_seconds_outside_the_shared_range_are_refused) ... ok
+test_the_real_resolved_document_is_carried_whole (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_the_real_resolved_document_is_carried_whole) ... ok
+test_units_and_scope_are_the_owners_own (tests.integration.test_managed_execution.TheLimitsAreTheJobsOwnAnswer.test_units_and_scope_are_the_owners_own) ... ok
+test_a_measured_status_and_no_collected_content_is_legal (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_a_measured_status_and_no_collected_content_is_legal)
+They are separate facts: a phase can measure a status and collect ... ok
+test_a_report_about_another_execution_is_refused (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_a_report_about_another_execution_is_refused) ... ok
+test_a_result_carries_its_identity_report_and_content (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_a_result_carries_its_identity_report_and_content) ... ok
+test_an_adopted_result_for_another_orchestration_is_denied (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_an_adopted_result_for_another_orchestration_is_denied) ... ok
+test_an_adopted_result_is_held_to_the_task_it_answers (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_an_adopted_result_is_held_to_the_task_it_answers) ... ok
+test_an_adopted_result_of_another_schema_is_refused (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_an_adopted_result_of_another_schema_is_refused) ... ok
+test_content_without_a_report_is_a_contradiction (tests.integration.test_managed_execution.TheResultIsAClaimAboutOnePhase.test_content_without_a_report_is_a_contradiction) ... ok
+test_a_preparation_with_a_parent_is_refused (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_a_preparation_with_a_parent_is_refused) ... ok
+test_a_task_binds_identity_content_and_the_jobs_own_limits (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_a_task_binds_identity_content_and_the_jobs_own_limits) ... ok
+test_a_task_names_no_host_path_and_no_location (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_a_task_names_no_host_path_and_no_location)
+It says WHAT was asked for, never WHERE it runs. A task carrying a ... ok
+test_a_task_naming_one_command_twice_is_refused (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_a_task_naming_one_command_twice_is_refused) ... ok
+test_a_task_that_runs_nothing_is_not_a_task (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_a_task_that_runs_nothing_is_not_a_task) ... ok
+test_an_apply_cannot_be_its_own_parent (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_an_apply_cannot_be_its_own_parent) ... ok
+test_an_apply_names_the_real_preparation_it_follows (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_an_apply_names_the_real_preparation_it_follows) ... ok
+test_an_apply_naming_only_an_attempt_is_refused (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_an_apply_naming_only_an_attempt_is_refused)
+Both members, because an attempt alone lets an apply follow a ... ok
+test_an_apply_that_imports_nothing_is_refused (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_an_apply_that_imports_nothing_is_refused) ... ok
+test_limits_are_the_jobs_own_document_not_two_numbers (tests.integration.test_managed_execution.TheTaskSaysWhatWasAskedFor.test_limits_are_the_jobs_own_document_not_two_numbers) ... ok
+test_a_boolean_status_is_refused (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_boolean_status_is_refused)
+`True` is an `int` in this language, so an `isinstance` check would ... ok
+test_a_collected_report_without_a_status_is_tagged (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_collected_report_without_a_status_is_tagged) ... ok
+test_a_command_the_task_never_declared_is_refused (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_command_the_task_never_declared_is_refused) ... ok
+test_a_measured_nonzero_status_is_an_answer_like_any_other (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_measured_nonzero_status_is_an_answer_like_any_other) ... ok
+test_a_measured_report_carries_the_status_that_was_measured (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_measured_report_carries_the_status_that_was_measured) ... ok
+test_a_measured_report_that_ran_nothing_is_refused (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_measured_report_that_ran_nothing_is_refused) ... ok
+test_a_missing_status_is_never_zero (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_missing_status_is_never_zero)
+THE COLLAPSE THIS VOCABULARY EXISTS TO PREVENT. There is no way to ... ok
+test_a_reordered_report_describes_a_different_phase (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_reordered_report_describes_a_different_phase) ... ok
+test_a_report_that_does_not_exist_cannot_say_what_ran (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_report_that_does_not_exist_cannot_say_what_ran) ... ok
+test_a_report_that_does_not_exist_carries_no_tag (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_report_that_does_not_exist_carries_no_tag) ... ok
+test_a_status_that_is_not_an_integer_is_refused (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_status_that_is_not_an_integer_is_refused) ... ok
+test_a_tagless_no_status_report_is_refused (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_a_tagless_no_status_report_is_refused) ... ok
+test_an_unknown_kind_is_refused (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_an_unknown_kind_is_refused) ... ok
+test_nothing_collected_describes_no_run_at_all (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_nothing_collected_describes_no_run_at_all) ... ok
+test_the_completed_prefix_and_not_run_suffix_are_the_sequence (tests.integration.test_managed_execution.TheThreeAnswersAreNeverEachOther.test_the_completed_prefix_and_not_run_suffix_are_the_sequence) ... ok
+test_forged_preserved_defaults_are_still_accepted (__main__.BoundaryObservations.test_forged_preserved_defaults_are_still_accepted) ... ok
+test_prior_report_bypass_is_closed (__main__.BoundaryObservations.test_prior_report_bypass_is_closed) ... ok
+test_real_owner_generations_and_requests_are_accepted (__main__.BoundaryObservations.test_real_owner_generations_and_requests_are_accepted) ... ok
+
+----------------------------------------------------------------------
+Ran 55 tests in 0.004s
+
+OK
+DEFECT OBSERVED: accepts generation 0 provider_turn changes {'seconds': 7200} against frozen default 3600
+DEFECT OBSERVED: accepts generation 0 provider_turn changes {'default_seconds': 7200} against frozen default 3600
+DEFECT OBSERVED: accepts generation 0 provider_turn changes {'seconds': 7200, 'default_seconds': 7200} against frozen default 3600
+DEFECT OBSERVED: accepts generation 1 provider_turn changes {'seconds': 7200} against frozen default 3600
+DEFECT OBSERVED: accepts generation 1 provider_turn changes {'default_seconds': 7200} against frozen default 3600
+DEFECT OBSERVED: accepts generation 1 provider_turn changes {'seconds': 7200, 'default_seconds': 7200} against frozen default 3600

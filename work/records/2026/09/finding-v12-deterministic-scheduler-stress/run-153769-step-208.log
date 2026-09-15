@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_wrong_repository_binding_is_refused_by_its_own_owner tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_second_team_is_authorized_by_scope_not_by_membership
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.254s
+
+OK

@@ -1,0 +1,90 @@
+test_authority_refusal_makes_no_destructive_calls (tests.manager.test_runtime_deadlines.Deadlines.test_authority_refusal_makes_no_destructive_calls) ... ok
+test_bad_destroy_answers_cannot_settle_or_discharge (tests.manager.test_runtime_deadlines.Deadlines.test_bad_destroy_answers_cannot_settle_or_discharge) ... ok
+test_bad_policy_members_and_durations_refuse_before_start (tests.manager.test_runtime_deadlines.Deadlines.test_bad_policy_members_and_durations_refuse_before_start) ... ok
+test_before_boundary_then_exact_reached_is_observation_only (tests.manager.test_runtime_deadlines.Deadlines.test_before_boundary_then_exact_reached_is_observation_only) ... ok
+test_cancel_fences_before_stop_removal_and_discharge (tests.manager.test_runtime_deadlines.Deadlines.test_cancel_fences_before_stop_removal_and_discharge) ... ok
+test_changed_or_omitted_selection_refuses_before_another_start (tests.manager.test_runtime_deadlines.Deadlines.test_changed_or_omitted_selection_refuses_before_another_start) ... ok
+test_corrupt_provider_or_custody_proof_cannot_discharge (tests.manager.test_runtime_deadlines.Deadlines.test_corrupt_provider_or_custody_proof_cannot_discharge) ... ok
+test_corrupted_pin_and_reached_instants_refuse (tests.manager.test_runtime_deadlines.Deadlines.test_corrupted_pin_and_reached_instants_refuse) ... ok
+test_crash_after_removal_before_commit_reuses_exact_command (tests.manager.test_runtime_deadlines.Deadlines.test_crash_after_removal_before_commit_reuses_exact_command) ... ok
+test_engine_uncertainty_keeps_cleanup_retryable (tests.manager.test_runtime_deadlines.Deadlines.test_engine_uncertainty_keeps_cleanup_retryable) ... ok
+test_fresh_stale_observation_refuses (tests.manager.test_runtime_deadlines.Deadlines.test_fresh_stale_observation_refuses) ... ok
+test_fresh_terminal_observation_refuses (tests.manager.test_runtime_deadlines.Deadlines.test_fresh_terminal_observation_refuses) ... ok
+test_interrupted_pin_cannot_gain_a_fresh_cancel_start_window (tests.manager.test_runtime_deadlines.Deadlines.test_interrupted_pin_cannot_gain_a_fresh_cancel_start_window) ... ok
+test_legacy_committed_start_cannot_be_backfilled (tests.manager.test_runtime_deadlines.Deadlines.test_legacy_committed_start_cannot_be_backfilled) ... ok
+test_malformed_public_operands_refuse_without_external_acts (tests.manager.test_runtime_deadlines.Deadlines.test_malformed_public_operands_refuse_without_external_acts) ... ok
+test_missing_authorization_cannot_be_replaced_by_cleanup_axes (tests.manager.test_runtime_deadlines.Deadlines.test_missing_authorization_cannot_be_replaced_by_cleanup_axes) ... ok
+test_missing_capabilities_refuse_before_cancellation_intent (tests.manager.test_runtime_deadlines.Deadlines.test_missing_capabilities_refuse_before_cancellation_intent) ... ok
+test_no_start_uses_six_fact_proof_not_fabricated_absence (tests.manager.test_runtime_deadlines.Deadlines.test_no_start_uses_six_fact_proof_not_fabricated_absence) ... ok
+test_output_arriving_during_fence_holds_receiptless_cleanup (tests.manager.test_runtime_deadlines.Deadlines.test_output_arriving_during_fence_holds_receiptless_cleanup) ... ok
+test_pin_precedes_adapter_and_clock_and_policy_survive_restart (tests.manager.test_runtime_deadlines.Deadlines.test_pin_precedes_adapter_and_clock_and_policy_survive_restart) ... ok
+test_provider_unresolved_is_retryable_and_does_not_release_gate (tests.manager.test_runtime_deadlines.Deadlines.test_provider_unresolved_is_retryable_and_does_not_release_gate) ... ok
+test_reached_replay_precedes_clock_rollback_and_stale_authority (tests.manager.test_runtime_deadlines.Deadlines.test_reached_replay_precedes_clock_rollback_and_stale_authority) ... ok
+test_remote_discharge_replays_after_local_receipt_commit_interruption (tests.manager.test_runtime_deadlines.Deadlines.test_remote_discharge_replays_after_local_receipt_commit_interruption) ... ok
+test_report_only_never_uses_destructive_capabilities (tests.manager.test_runtime_deadlines.Deadlines.test_report_only_never_uses_destructive_capabilities) ... ok
+test_two_connections_converge_on_one_observation (tests.manager.test_runtime_deadlines.Deadlines.test_two_connections_converge_on_one_observation) ... ok
+test_unconfigured_start_pins_explicit_none (tests.manager.test_runtime_deadlines.Deadlines.test_unconfigured_start_pins_explicit_none) ... ok
+test_unknown_committed_start_never_becomes_a_no_start_proof (tests.manager.test_runtime_deadlines.Deadlines.test_unknown_committed_start_never_becomes_a_no_start_proof) ... ok
+test_unrelated_cancellation_cannot_be_relabelled (tests.manager.test_runtime_deadlines.Deadlines.test_unrelated_cancellation_cannot_be_relabelled) ... ok
+test_closed_constructor_members (tests.manager.test_runtime_deadlines.DeadlineDocuments.test_closed_constructor_members) ... ok
+test_exact_removal_preserves_sibling_runtime_launch_and_output (tests.manager.test_runtime_deadlines.DeadlineAdapterBoundary.test_exact_removal_preserves_sibling_runtime_launch_and_output) ... ok
+test_output_after_interrupted_cancel_intent_uses_ordinary_receipt_cleanup (tests.manager.test_runtime_deadlines.DeadlineReceiptedOutput.test_output_after_interrupted_cancel_intent_uses_ordinary_receipt_cleanup) ... ok
+test_failing_cooperative_stop_never_reaches_available_force_removal (__main__.Observations.test_failing_cooperative_stop_never_reaches_available_force_removal) ... ok
+test_unreachable_agent_permanently_prevents_force_cleanup (__main__.Observations.test_unreachable_agent_permanently_prevents_force_cleanup) ... ok
+test_a_boolean_generation_is_not_generation_one (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_boolean_generation_is_not_generation_one)
+[P1/P2] `bool` is an `int` and `True == 1`, which is exactly the ... ok
+test_a_cancellation_interrupted_before_its_axis_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_cancellation_interrupted_before_its_axis_is_refused)
+THE WINDOW THAT MAKES THE AXIS THE REQUIRED FACT. ... ok
+test_a_cancelled_attempt_that_never_started_is_proved (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_cancelled_attempt_that_never_started_is_proved)
+THE POSITIVE, and it names what it rests on. ... ok
+test_a_changed_signature_over_the_same_intent_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_changed_signature_over_the_same_intent_is_refused)
+The members can all agree and the record still be a different act: ... ok
+test_a_committed_start_delayed_at_the_adapter_refuses_the_proof (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_committed_start_delayed_at_the_adapter_refuses_the_proof)
+ORDER TWO, AT THE REAL WINDOW. The start's operation committed and ... ok
+test_a_fence_entry_carrying_an_unknown_member_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_fence_entry_carrying_an_unknown_member_is_refused)
+[P2] The entry's shape is CLOSED. The first form checked the members ... ok
+test_a_fence_entry_missing_its_reason_member_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_fence_entry_missing_its_reason_member_is_refused)
+The closed entry is generation, cause and reason. A member that is ... ok
+test_a_fence_of_another_generation_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_fence_of_another_generation_is_refused)
+Somebody else's generation ended is not this one's fence. ... ok
+test_a_foreign_committed_intent_cannot_prove_this_attempt (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_foreign_committed_intent_cannot_prove_this_attempt)
+[P1] A committed row with a familiar kind at a key this attempt ... ok
+test_a_generation_both_fenced_and_live_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_generation_both_fenced_and_live_is_refused)
+Two contradictory answers from one owner, and the conservative ... ok
+test_a_projection_naming_no_work_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_projection_naming_no_work_is_refused)
+`project_work` treats `work_id` as unread and optional, so the ... ok
+test_a_projection_of_another_work_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_projection_of_another_work_is_refused)
+[P1] Generations are LOCAL TO A WORK: another Work in the same ... ok
+test_a_stale_start_pre_read_loses_to_the_cancellation_axis (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_stale_start_pre_read_loses_to_the_cancellation_axis)
+ORDER ONE, AT THE REAL WINDOW. The start read `not-started`, the ... ok
+test_a_start_after_the_cancellation_is_refused_by_the_axis (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_a_start_after_the_cancellation_is_refused_by_the_axis)
+ORDER TWO: the cancellation won. ... ok
+test_an_activated_attempt_with_no_cancellation_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_activated_attempt_with_no_cancellation_is_refused)
+The axis is `not-started` and nothing was committed: there is ... ok
+test_an_attached_runtime_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_attached_runtime_is_refused)
+A runtime that EXISTS is ended through its own explicit ... ok
+test_an_attempt_that_was_never_activated_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_attempt_that_was_never_activated_is_refused) ... ok
+test_an_authority_that_answers_no_fences_at_all_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_authority_that_answers_no_fences_at_all_is_refused)
+[P1] The fence is the AUTHORITY's act, so the manager's own journal ... ok
+test_an_authority_that_never_fenced_the_generation_is_refused (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_authority_that_never_fenced_the_generation_is_refused)
+[P1] ABSENCE IS NOT EVIDENCE. The local cancellation ran to ... ok
+test_an_exact_committed_start_replays_without_running_its_action (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_exact_committed_start_replays_without_running_its_action)
+THE REPLAY THAT THE AXIS CANNOT SEE, driven rather than described. ... ok
+test_an_exact_repeat_answers_the_same_document (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_exact_repeat_answers_the_same_document)
+A reader has no act to replay, so two asks are one answer. ... ok
+test_an_unmatched_entry_is_owned_before_it_is_reported (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_an_unmatched_entry_is_owned_before_it_is_reported)
+EVERY entry is validated before selection, and the diagnostic does ... ok
+test_another_participants_session_cannot_ask (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_another_participants_session_cannot_ask) ... ok
+test_one_generation_fenced_twice_is_a_contradiction (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_one_generation_fenced_twice_is_a_contradiction)
+A generation is fenced once; two entries naming one are evidence ... ok
+test_the_answer_is_never_quiescence_or_a_runtime (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_the_answer_is_never_quiescence_or_a_runtime)
+It is a different fact from `quiescent` and `destroyed`, and it ... ok
+test_the_reader_changes_nothing (tests.manager.test_reconciliation_worker.TheFencedBeforeStartProof.test_the_reader_changes_nothing)
+A READER. The attempt row and the journal are what they were. ... ok
+
+----------------------------------------------------------------------
+Ran 59 tests in 0.352s
+
+OK
+OBSERVED: stop fault likewise prevents attempting separately available exact force removal
+DEFECT OBSERVED: confirmed fence and successful stop orders, but recurring agent fault vetoes every force-cleanup attempt

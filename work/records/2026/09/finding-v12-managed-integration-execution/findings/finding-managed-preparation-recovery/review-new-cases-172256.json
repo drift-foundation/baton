@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_window_3_refuses_a_changed_request_before_any_effect",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_window_4_refuses_a_changed_request_before_any_effect",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_a_committed_start_with_an_uncertain_adapter_answer_stays_held"
+  ],
+  "cwd": "/home/sl/src/baton/v12/python",
+  "PYTHONPATH": "src:tools:.",
+  "seconds": 4.917665204993682,
+  "exit": 0,
+  "timed_out": false,
+  "signals": [],
+  "limits_seconds": [
+    60,
+    5,
+    5
+  ]
+}

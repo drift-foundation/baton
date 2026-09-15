@@ -1,0 +1,89 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.manager.test_reconciliation_task
+...FFF.....F.....F......F.....
+======================================================================
+FAIL: test_a_non_regular_entry_refuses (tests.manager.test_reconciliation_task.TheMeasurementDescribesTheTreeItMeasured.test_a_non_regular_entry_refuses)
+A fifo has no content to describe, so it cannot be measured and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 349, in test_a_non_regular_entry_refuses
+    with self.assertRaises(task.PreparationRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_a_symlink_refuses_rather_than_disappearing (tests.manager.test_reconciliation_task.TheMeasurementDescribesTheTreeItMeasured.test_a_symlink_refuses_rather_than_disappearing)
+CORRECTED UNDER STANDING TEST AUTHORITY (review claim166129 defect
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 328, in test_a_symlink_refuses_rather_than_disappearing
+    with self.assertRaises(task.PreparationRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_a_symlinked_directory_refuses_too (tests.manager.test_reconciliation_task.TheMeasurementDescribesTheTreeItMeasured.test_a_symlinked_directory_refuses_too)
+`os.walk` leaves it out of the traversal on its own, so checking
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 340, in test_a_symlinked_directory_refuses_too
+    with self.assertRaises(task.PreparationRefusal) as caught:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_a_cut_phase_is_not_counted_as_never_having_run (tests.manager.test_reconciliation_task.TheReportSaysWhatItObserved.test_a_cut_phase_is_not_counted_as_never_having_run)
+CORRECTED UNDER STANDING TEST AUTHORITY (review claim166129 defect
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 437, in test_a_cut_phase_is_not_counted_as_never_having_run
+    self.assertEqual(report["not_run"], ["isolated"])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['base', 'isolated'] != ['isolated']
+
+First differing element 0:
+'base'
+'isolated'
+
+First list contains 1 additional elements.
+First extra element 1:
+'isolated'
+
+- ['base', 'isolated']
+?  --------
+
++ ['isolated']
+
+======================================================================
+FAIL: test_a_broken_limits_document_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_a_broken_limits_document_refuses_in_both) (broken='a surplus member')
+The Job's OWN resolved configuration. The worker checks the kind of
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 231, in test_a_broken_limits_document_refuses_in_both
+    self.assertBothRefuse(_corrupted(execution_limits=broken),
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          label)
+                          ^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 152, in assertBothRefuse
+    with self.assertRaises(task.PreparationRefusal) as worker_said:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+======================================================================
+FAIL: test_an_extra_member_refuses_in_both (tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused.test_an_extra_member_refuses_in_both)
+The manager rebuilds a request through its own composer, so a
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 195, in test_an_extra_member_refuses_in_both
+    _, worker = self.assertBothRefuse(_corrupted(extra="member"),
+                ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                      "a surplus member")
+                                      ^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/manager/test_reconciliation_task.py", line 152, in assertBothRefuse
+    with self.assertRaises(task.PreparationRefusal) as worker_said:
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: PreparationRefusal not raised
+
+----------------------------------------------------------------------
+Ran 30 tests in 2.097s
+
+FAILED (failures=6)

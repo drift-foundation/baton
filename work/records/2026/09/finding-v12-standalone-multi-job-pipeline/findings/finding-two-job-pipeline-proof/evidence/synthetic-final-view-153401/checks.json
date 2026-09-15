@@ -1,0 +1,22 @@
+{
+  "seconds": 0.025240673014195636,
+  "changed_files": [
+    "v12/testing/standalone_ab/scenario.py",
+    "v12/testing/standalone_ab/run.py",
+    "v12/testing/standalone_ab/failure_observation.py",
+    "v12/testing/standalone_ab/README.md",
+    "v12/python/tests/tools/test_standalone_ab.py",
+    "v12/testing/standalone_ab/final_view.py"
+  ],
+  "syntax_whitespace_help": "passed",
+  "prior_candidate_only_expected_deltas": [
+    "v12/python/tests/tools/test_standalone_ab.py",
+    "v12/testing/standalone_ab/README.md",
+    "v12/testing/standalone_ab/failure_observation.py",
+    "v12/testing/standalone_ab/run.py",
+    "v12/testing/standalone_ab/scenario.py"
+  ],
+  "both_failed_synthetic_results_preserved": true,
+  "run10_result_preserved": true,
+  "observer_product_and_test_preserved": true
+}

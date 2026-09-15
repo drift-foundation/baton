@@ -1,0 +1,23 @@
+test_a_bound_that_is_not_a_positive_whole_number (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_bound_that_is_not_a_positive_whole_number) ... ok
+test_a_foreign_commit_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_foreign_commit_is_refused) ... ok
+test_a_foreign_environment_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_foreign_environment_is_refused) ... ok
+test_a_foreign_execution_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_foreign_execution_is_refused) ... ok
+test_a_foreign_tree_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_foreign_tree_is_refused) ... ok
+test_a_phase_this_owner_does_not_run_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_phase_this_owner_does_not_run_is_refused) ... ok
+test_a_prefix_naming_another_task_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_prefix_naming_another_task_is_refused) ... ok
+test_a_prefix_running_another_command_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_prefix_running_another_command_is_refused)
+The base phase really has a prefix, so this is where a completed ... ok
+test_a_prefix_that_does_not_match_the_phase_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_prefix_that_does_not_match_the_phase_is_refused) ... ok
+test_a_reason_outside_the_closed_two_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_reason_outside_the_closed_two_is_refused) ... ok
+test_a_remainder_that_does_not_match_the_phase_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_remainder_that_does_not_match_the_phase_is_refused) ... ok
+test_an_exit_status_is_never_carried (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_an_exit_status_is_never_carried)
+The whole point of the branch: a child that supplied none does not ... ok
+test_the_post_import_adoption_binds_its_imported_content (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_the_post_import_adoption_binds_its_imported_content)
+The same closed semantics at the other boundary, and the same ... ok
+test_the_unaltered_answer_is_accepted (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_the_unaltered_answer_is_accepted)
+Every negative below is only worth something if this passes. ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.003s
+
+OK

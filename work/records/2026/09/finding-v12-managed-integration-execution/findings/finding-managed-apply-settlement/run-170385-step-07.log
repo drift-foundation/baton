@@ -1,0 +1,51 @@
+.E
+======================================================================
+ERROR: test_ordinary_retained_custody_materializes_without_execution_roots (tests.tools.test_managed_apply.ThePreparationHandoffRetainsItsGitObjects.test_ordinary_retained_custody_materializes_without_execution_roots)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 36, in test_ordinary_retained_custody_materializes_without_execution_roots
+    case.complete(completed=adopted)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_preparation.py", line 2604, in complete
+    completed(case, held, original_result)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 29, in adopted
+    answer = materialize_prepared_objects(held.control, prepared, repository=repository,
+                                           profile=GitIntegrationProfile(_git_run), reader=_export_run)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 184, in materialize_prepared_objects
+    answer = verify(place)
+  File "/home/sl/src/baton/v12/python/tools/integration_placement.py", line 164, in verify
+    body = reader(("git", "--no-optional-locks", "cat-file", "blob", blob["object"]), directory=handle)
+  File "/home/sl/src/baton/v12/python/tools/stage_execution.py", line 4226, in _export_run
+    answer = subprocess.run(list(argv), cwd=directory, capture_output=True,
+                            check=False, timeout=GIT_SECONDS)
+  File "/usr/lib/python3.13/subprocess.py", line 554, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 1902, in _execute_child
+    self.pid = _fork_exec(
+               ~~~~~~~~~~^
+            args, executable_list,
+            ^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+            process_group, gid, gids, uid, umask,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            preexec_fn, _USE_VFORK)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: expected str, bytes or os.PathLike object, not int
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.878s
+
+FAILED (errors=1)
+{"derived_revision": "af466d1617bc7085617fa122aa5c3155ac0d7458", "derived_tree": "e75b85b6c985a0cf4eacad6cfff393915e79c11e", "git_mode": "100755", "proof": "exact-preparation-object-export", "scratch_gone": true}

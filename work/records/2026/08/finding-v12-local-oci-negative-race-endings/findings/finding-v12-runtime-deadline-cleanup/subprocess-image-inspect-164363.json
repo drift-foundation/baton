@@ -1,0 +1,33 @@
+{
+  "stdout": "[]\n",
+  "stderr": "permission denied while trying to connect to the docker API at unix:///var/run/docker.sock\n",
+  "readiness_claim": 164363,
+  "command": [
+    "docker",
+    "image",
+    "inspect",
+    "sha256:9b8c98820877e33d38d33352d86cc3810e5b72d4935a181b82b512b4d3291de8"
+  ],
+  "cap": 120,
+  "readiness_cap": 20,
+  "spent_before": 68.57643219100835,
+  "remaining_before": 51.42356780899165,
+  "readiness_spent_before": 0.18272360501403456,
+  "readiness_remaining_before": 19.817276394985967,
+  "expected": 2,
+  "margin": 1,
+  "timeout": 10,
+  "state": "completed",
+  "log": "subprocess-image-inspect-164363.json",
+  "executable": "/home/sl/src/baton/.venv/bin/python3",
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "jsonschema": "4.26.0",
+  "invocation": [
+    "/home/sl/src/baton/work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/subprocess-probe-164363.py",
+    "inspect"
+  ],
+  "cwd": "/home/sl/src/baton",
+  "boundary": "pinned Python script via standalone managed exec, Docker via subprocess.run",
+  "returncode": 1,
+  "elapsed": 0.005147646996192634
+}

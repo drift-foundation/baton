@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_four_jobs_on_two_repositories_code_in_parallel
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.201s
+
+OK

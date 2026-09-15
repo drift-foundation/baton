@@ -1,0 +1,171 @@
+{
+  "invalid_claim_before_offer": {
+    "input_receipts": {
+      "admit": {
+        "state": "performed",
+        "operation_id": "offer-a",
+        "detail": null,
+        "recorded_at": "2026-09-12T00:00:02Z"
+      },
+      "claim": {
+        "state": "performed",
+        "operation_id": "claim-a",
+        "detail": null,
+        "recorded_at": "2026-09-12T00:00:01Z"
+      }
+    },
+    "records": [
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "act": "reserve",
+        "outcome": "performed",
+        "worker_id": "worker-a",
+        "participant": null,
+        "principal": "principal-a",
+        "operation_id": "allocation.reserve:attempt-a",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "allocations:attempt-a",
+        "cause": null,
+        "recorded_at": null
+      },
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "act": "claim",
+        "outcome": "performed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": "claim-a",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "receipts:job-a/implementation:1:claim",
+        "cause": null,
+        "recorded_at": "2026-09-12T00:00:01Z"
+      },
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "act": "offer",
+        "outcome": "performed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": "offer-a",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "receipts:job-a/implementation:1:admit",
+        "cause": null,
+        "recorded_at": "2026-09-12T00:00:02Z"
+      }
+    ],
+    "violations": [
+      {
+        "code": "out-of-order",
+        "detail": "claim for attempt attempt-a was recorded by its owner at 2026-09-12T00:00:01Z and its offer only at 2026-09-12T00:00:02Z",
+        "record": {
+          "tick": 1,
+          "job_id": "job-a",
+          "stage_id": "job-a/implementation",
+          "episode": 1,
+          "attempt_id": "attempt-a",
+          "act": "claim",
+          "outcome": "performed",
+          "worker_id": null,
+          "participant": null,
+          "principal": null,
+          "operation_id": "claim-a",
+          "runtime_id": null,
+          "session_id": null,
+          "evidence": "receipts:job-a/implementation:1:claim",
+          "cause": null,
+          "recorded_at": "2026-09-12T00:00:01Z"
+        }
+      }
+    ]
+  },
+  "valid_offer_before_claim": {
+    "input_receipts": {
+      "admit": {
+        "state": "performed",
+        "operation_id": "offer-a",
+        "detail": null,
+        "recorded_at": "2026-09-12T00:00:01Z"
+      },
+      "claim": {
+        "state": "performed",
+        "operation_id": "claim-a",
+        "detail": null,
+        "recorded_at": "2026-09-12T00:00:02Z"
+      }
+    },
+    "records": [
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "act": "reserve",
+        "outcome": "performed",
+        "worker_id": "worker-a",
+        "participant": null,
+        "principal": "principal-a",
+        "operation_id": "allocation.reserve:attempt-a",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "allocations:attempt-a",
+        "cause": null,
+        "recorded_at": null
+      },
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "act": "offer",
+        "outcome": "performed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": "offer-a",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "receipts:job-a/implementation:1:admit",
+        "cause": null,
+        "recorded_at": "2026-09-12T00:00:01Z"
+      },
+      {
+        "tick": 1,
+        "job_id": "job-a",
+        "stage_id": "job-a/implementation",
+        "episode": 1,
+        "attempt_id": "attempt-a",
+        "act": "claim",
+        "outcome": "performed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": "claim-a",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "receipts:job-a/implementation:1:claim",
+        "cause": null,
+        "recorded_at": "2026-09-12T00:00:02Z"
+      }
+    ],
+    "violations": []
+  }
+}

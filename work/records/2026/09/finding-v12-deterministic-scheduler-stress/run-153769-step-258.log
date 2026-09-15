@@ -1,0 +1,22 @@
+$ env PYTHONPATH=src:tools:. env W103525_EXPECT=14 python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs
+F
+======================================================================
+FAIL: test_the_opened_edge_and_one_integrator_serialize_four_jobs (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs)
+THE CONTINUATION, and the integration capacity the PLAN asks for.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2669, in test_the_opened_edge_and_one_integrator_serialize_four_jobs
+    self.assertEqual(scheduler_trace.validate(trace.artifact(SOURCES)), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'code': 'instants-disagree-with-order', [4336 chars]'}}}] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+{'code': 'instants-disagree-with-order', 'detail': "verify carries instant 2026-09-13T10:27:02.428Z after 2026-09-13T10:27:04.846Z; the owners' own order is not this trace's", 'record': {'tick': 36, 'job_id': 'job-a', 'stage_id': 'job-a/integration', 'episode': None, 'attempt_id': None, 'act': 'verify', 'outcome': 'performed', 'worker_id': None, 'participant': 'baton.verifier', 'principal': 'principal:baton.verifier', 'operation_id': 'integration-driver.ordinary-tests-verification-receipt:2b3010ceedfe579ec77be8b63c82dff24c232589ae5f08a775130f19cba6e4bd', 'runtime_id': None, 'session_id': None, 'evidence': 'proposal:integration-driver.proposal:cfe0d2e0d81d1c59bb3c9465e337ea3999b9d92440f669836ccc524405377b56', 'cause': None, 'recorded_at': '2026-09-13T10:27:02.428Z', 'session': None, 'correction': None, 'completion': None, 'authorization': {'kind': 'verification', 'disposition': 'passed', 'candidate_digest': 'be01670c3ce45a7f2da9b2e387a23dd6fb7ed845', 'target': '413d32517685ca8ead7fa499381250bad4c1b6cb', 'effective_scope': 'scope:deployment', 'policy_generation': 20, 'role': 'verify'}}}
+
+Diff is 6500 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 1 test in 4.300s
+
+FAILED (failures=1)

@@ -1,0 +1,65 @@
+[
+  {
+    "case": "empty_configuration_control",
+    "accepted": false,
+    "message": "a launch document's execution limits needs units, scope, compatibility_generation, requested, boundaries"
+  },
+  {
+    "case": "effective_float",
+    "accepted": false,
+    "message": "a launch document's job execution carries a float, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour"
+  },
+  {
+    "case": "effective_boolean",
+    "accepted": true,
+    "configuration": {
+      "units": "seconds",
+      "scope": "per-invocation",
+      "compatibility_generation": 1,
+      "requested": {
+        "provider_turn_seconds": 1
+      },
+      "boundaries": {
+        "host_verification": {
+          "seconds": 300,
+          "origin": "compatibility",
+          "setting": "verification_command_seconds",
+          "default_seconds": 300
+        },
+        "integration_verification": {
+          "seconds": 1800,
+          "origin": "compatibility",
+          "setting": "verification_command_seconds",
+          "default_seconds": 1800
+        },
+        "ordinary_verification": {
+          "seconds": 900,
+          "origin": "compatibility",
+          "setting": "verification_command_seconds",
+          "default_seconds": 900
+        },
+        "provider_turn": {
+          "seconds": true,
+          "origin": "job",
+          "setting": "provider_turn_seconds",
+          "default_seconds": 3600
+        }
+      }
+    }
+  },
+  {
+    "case": "default_float",
+    "accepted": false,
+    "message": "a launch document's job execution carries a float, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour"
+  },
+  {
+    "case": "materialize_foreign_attempt",
+    "refused": true,
+    "storage_exists": false
+  },
+  {
+    "case": "adopt_foreign_attempt",
+    "refused": true,
+    "storage_exists": false
+  }
+]

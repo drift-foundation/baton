@@ -1,0 +1,12 @@
+test_a_substituted_candidate_now_refuses_at_the_intent (review_probe.AdoptionBindings.test_a_substituted_candidate_now_refuses_at_the_intent) ... ok
+test_every_unrequested_member_comes_from_the_accepted_entry (review_probe.AdoptionBindings.test_every_unrequested_member_comes_from_the_accepted_entry) ... ok
+test_foreign_task_digest_refuses (review_probe.AdoptionBindings.test_foreign_task_digest_refuses) ... ok
+test_the_submission_operand_is_gone (review_probe.AdoptionBindings.test_the_submission_operand_is_gone) ... ok
+test_unchanged_collected_preparation_adopts (review_probe.AdoptionBindings.test_unchanged_collected_preparation_adopts) ... ok
+test_a_foreign_task_digest_refuses_and_writes_nothing (tests.integration.test_managed_storage.ThePreparationIsAdoptedFromWhatItCollected.test_a_foreign_task_digest_refuses_and_writes_nothing)
+Review [P2]: the task's own identity was not compared to the ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.111s
+
+OK

@@ -1,0 +1,52 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout
+F.....FF......
+======================================================================
+FAIL: test_a_bound_that_is_not_a_positive_whole_number (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_bound_that_is_not_a_positive_whole_number) (seconds=1.5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2564, in test_a_bound_that_is_not_a_positive_whole_number
+    self.assertIn("whole number of seconds",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  self.refused(seconds=seconds))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'whole number of seconds' not found in 'the failure carries a float, which is not JSON data; this boundary takes exact built-in documents and nothing that carries behaviour'
+
+======================================================================
+FAIL: test_a_prefix_naming_another_task_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_prefix_naming_another_task_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2606, in test_a_prefix_naming_another_task_is_refused
+    self.assertIn(
+    ~~~~~~~~~~~~~^
+        "names task", self.refused(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            phase="base", input_commit=self.HELD["source_base"],
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            input_tree="anything", completed=completed,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            not_run=["isolated"]))
+            ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'names task' not found in "the failure's completed combined observation's output is durable text; this is ''"
+
+======================================================================
+FAIL: test_a_prefix_running_another_command_is_refused (tests.tools.test_execution_limits.AFailureAnswerIsBoundToTheResultItIsAbout.test_a_prefix_running_another_command_is_refused)
+The base phase really has a prefix, so this is where a completed
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 2590, in test_a_prefix_running_another_command_is_refused
+    self.assertIn(
+    ~~~~~~~~~~~~~^
+        "one configured command is run against every state",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.refused(phase="base", input_commit=self.HELD["source_base"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     input_tree="anything", completed=completed,
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     not_run=["isolated"]))
+                     ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'one configured command is run against every state' not found in "the failure's completed combined observation's output is durable text; this is ''"
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.004s
+
+FAILED (failures=3)

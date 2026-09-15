@@ -1,0 +1,28 @@
+[
+  {
+    "case": "empty_configuration",
+    "accepted": true,
+    "configuration": {}
+  },
+  {
+    "case": "unsupported_units_and_negative_seconds",
+    "accepted": true,
+    "configuration": {
+      "units": "minutes",
+      "scope": "cumulative",
+      "compatibility_generation": 999,
+      "requested": {},
+      "boundaries": {
+        "provider_turn": {
+          "seconds": -1
+        }
+      }
+    }
+  },
+  {
+    "case": "contradictory_attempt_binding",
+    "delivery_attempt": "attempt-1",
+    "context_attempt": "attempt-other",
+    "adopted": true
+  }
+]

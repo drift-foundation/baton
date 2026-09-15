@@ -1,0 +1,9 @@
+test_a_committed_start_with_an_uncertain_adapter_answer_stays_held (__main__.Research.test_a_committed_start_with_an_uncertain_adapter_answer_stays_held)
+THE COMMITTED START INTENT with the adapter's answer never ... {"at_fault": [{"assignment": {"generation": 1, "participant": "baton.integrator", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W47984398722361"}}, "attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0", "cleanup": "pending", "execution_runtime": "start-requested", "runtime_id": null}], "current": {"assignment": {"generation": 1, "participant": "baton.integrator", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W47984398722361"}}, "attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0", "cleanup": "pending", "execution_runtime": "running", "runtime_id": "runtime-single-3"}, "failure": {"attempt_id": "prepare-2ba43d0a6538f876fc8c7fb6e28f6f2951e327e807ad11d4a6fdf3aa8de8c3d0", "execution_runtime": "running", "expect": {"generation": 1, "participant": "baton.integrator", "work_ref": {"authority_uuid": "0000000a000000000000000000000000", "work_id": "0000000a-W47984398722361"}}, "failure": {"fault": "RuntimeError", "kind": "fault", "message": "selected uncertain adapter outcome"}, "runtime_id": "runtime-single-3", "start_operation_id": "runtime.start:34c434b9436d24d88de123f3f8720ee21bf0f9916624f9ba07d95b26853a1a3e"}, "process_poll": [null], "proof": "start-state-after-fault", "start_journal": {"kind": "runtime.start", "state": "committed"}}
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.360s
+
+OK
+{"adopted": false, "allocation": "recovery-required", "apply": "planned", "fixture_processes": 1, "parent": "queued-unclaimed", "proof": "uncertain-start-remains-held", "root": "open"}

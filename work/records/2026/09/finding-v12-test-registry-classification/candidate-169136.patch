@@ -1,0 +1,408 @@
+--- a/v12/python/tools/parallel_test.py
++++ b/v12/python/tools/parallel_test.py
+@@ -15,7 +15,7 @@
+ `sys.path` and environment state, live-secret registries, SQLite handles, mocks
+ and worker-entry counters cannot cross a process boundary. The rest of the
+ proof is the registry below, which is EXPLICIT and FAILS CLOSED: a test module
+-that belongs to neither list stops the runner rather than being guessed into
++that belongs to no registry stops the runner rather than being guessed into
+ the parallel phase.
+ 
+ WHY CLASSES AND NOT MODULES. A module-level partition was measured and
+@@ -24,9 +24,8 @@
+ pole and bought much less than it looks like it would. The ordinary shard is
+ therefore one concrete `TestCase` class, and the two aggregate scan classes are
+ split one test METHOD per shard. That split is safe to state as a rule because
+-no source test outside `tests/manager/test_worker_container.py` declares
+-`setUpClass`/`tearDownClass`/`setUpModule`/`tearDownModule`, so splitting a
+-class bypasses no shared fixture — and that module is serial anyway.
++the two selected aggregate classes have no shared class/module fixtures.
++Other class fixtures remain intact; supervised engine fixtures are never shards.
+ 
+ COMPLETION ORDER NEVER DECIDES PRESENTATION. The parent drains every scheduled
+ shard before it prints anything about results, then reports in sorted shard
+@@ -39,6 +38,12 @@
+ interpreters that report exact `unittest` ids back as JSON; the parent only
+ ever partitions strings. A test module with an expensive or side-effecting
+ import therefore costs the parent nothing and cannot contaminate it.
++
++W168703 classifies separately supervised tests without granting execution.
++Default/all refuses until their acceptance is explicitly composed. Use an
++explicit parallel or serial phase for scoped results; serial still includes
++engine workloads. Supervised entries are metadata, never commands or receipts.
++Collectors may import inert fixture definitions, but cannot select their tests.
+ """
+ 
+ import argparse
+@@ -46,6 +51,7 @@
+ import json
+ import os
+ import pathlib
++import re
+ import shutil
+ import signal
+ import subprocess
+@@ -59,7 +65,7 @@
+ 
+ # -- the registries ----------------------------------------------------------
+ #
+-# Both lists are written by hand and their COMPLETENESS is checked
++# Registries are written by hand and their COMPLETENESS is checked
+ # mechanically, so a new module is a loud failure rather than a silent
+ # assumption. `tests/tools/test_parallel_runner.py` owns that check.
+ 
+@@ -365,7 +371,39 @@
+                     # network or shared name -- the leaf holds an interruption
+                     # and starts nothing. Confirmed by running both of its
+                     # classes as eight concurrent processes, all passing.
+-                    "tests.integration.test_recovery")
++                    "tests.integration.test_recovery",
++    # W168703: reviewed per-case roots/stores and deterministic external
++    # boundaries. Some cases run local Git/Python; class processes isolate
++    # imports and mocks. The dossier records leaf ownership and conditions.
++    "tests.integration.test_managed_execution",
++    "tests.integration.test_managed_storage",
++    "tests.integration.test_reconciliation",
++    "tests.job_manager.test_execution_limits",
++    "tests.job_manager.test_managed_integration_capacity",
++    "tests.manager.test_execution_limits",
++    "tests.manager.test_reconciliation_task",
++    "tests.manager.test_reconciliation_worker",
++    "tests.manager.test_runtime_deadline_engine_budget",
++    "tests.manager.test_runtime_deadlines",
++    "tests.tools.test_execution_limits",
++    "tests.tools.test_job_viewer",
++    "tests.tools.test_live_ab",
++    "tests.tools.test_managed_integration",
++    "tests.tools.test_managed_preparation",
++    "tests.tools.test_scheduler_trace",
++    "tests.tools.test_stage_execution_hardening",
++    "tests.tools.test_stage_execution_status_hardening",
++    "tests.tools.test_standalone_ab")
++
++SUPERVISED_MODULES = ({
++    "module": "tests.manager.test_runtime_deadline_engine",
++    "work": "W32577",
++    "supervisor": "baton:work/records/2026/08/finding-v12-local-oci-negative-race-endings/findings/finding-v12-runtime-deadline-cleanup/engine-gate.py",
++    "reason": "Requires the reviewed supervisor, preloaded immutable image and reserved cleanup; ordinary execution is not selected.",
++},)
++
++STATUS_EVIDENCE_MODULE = "tests.tools.test_stage_execution_status_hardening"
++STATUS_EVIDENCE_VARIABLE = "BATON_STATUS_HARDENING_EVIDENCE"
+ 
+ # ONE AT A TIME, IN THIS ORDER, AND NEVER BESIDE THE PARALLEL PHASE.
+ #
+@@ -543,17 +581,18 @@
+ 
+ 
+ class Suite:
+-    """One source tree, its two registries, and the way to run them.
++    """One source tree, its execution and supervised registries.
+ 
+     Parameterized rather than hard-coded so the runner's own regressions drive
+     THIS code over disposable fake trees instead of a re-implementation of it.
+     """
+ 
+     def __init__(self, root, parallel, serial, method_split=METHOD_SPLIT,
+-                 tests_dir="tests", pythonpath="src"):
++                 tests_dir="tests", pythonpath="src", supervised=()):
+         self.root = pathlib.Path(root)
+         self.parallel = tuple(parallel)
+         self.serial = tuple(serial)
++        self.supervised = tuple(supervised)
+         self.method_split = tuple(method_split)
+         self.tests_dir = tests_dir
+         self.pythonpath = pythonpath
+@@ -576,7 +615,17 @@
+         return tuple(found)
+ 
+     def check_registry(self):
+-        registered = list(self.parallel) + list(self.serial)
++        for entry in self.supervised:
++            if not isinstance(entry, dict) or set(entry) != {"module", "work", "supervisor", "reason"}:
++                raise RunnerRefusal("supervised metadata requires exactly module, work, supervisor and reason")
++            if any(not isinstance(value, str) or not value.strip() or value != value.strip() or any(ord(c) < 32 for c in value) for value in entry.values()):
++                raise RunnerRefusal("supervised metadata fields must be nonempty text without surrounding whitespace or control characters")
++            if not re.fullmatch(r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+", entry["module"], flags=re.ASCII) or not re.fullmatch(r"W[1-9][0-9]*", entry["work"]):
++                raise RunnerRefusal("supervised metadata requires a dotted module and Work ID")
++            locator = entry["supervisor"]
++            if not re.fullmatch(r"[a-z][a-z0-9_-]*:work/records/[0-9]{4}/(?:0[1-9]|1[0-2])/(?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+\.py", locator) or any(part in (".", "..") for part in locator.split("/")):
++                raise RunnerRefusal("supervised metadata requires a canonical repository supervisor locator")
++        registered = list(self.parallel) + list(self.serial) + [entry["module"] for entry in self.supervised]
+         repeated = sorted({one for one in registered if registered.count(one) > 1})
+         if repeated:
+             raise RunnerRefusal(f"modules registered more than once: {repeated}")
+@@ -584,11 +633,28 @@
+         unregistered = sorted(found - set(registered))
+         if unregistered:
+             raise RunnerRefusal("these test modules belong to no registry; add each to the "
+-                                "parallel or serial list in tools/parallel_test.py after "
++                                "parallel, serial or supervised registry in tools/parallel_test.py after "
+                                 f"deciding what it owns: {unregistered}")
+         missing = sorted(set(registered) - found)
+         if missing:
+             raise RunnerRefusal(f"these registered test modules are not in the tree: {missing}")
++
++    def supervised_description(self):
++        return "; ".join(f"{entry['module']} ({entry['work']}; {entry['supervisor']}; {entry['reason']})" for entry in self.supervised)
++
++    def check_selection(self, phase, print_ids):
++        if self.supervised:
++            if print_ids and phase != "parallel":
++                raise RunnerRefusal("--print-ids requires explicit --phase parallel while supervised tests are uncomposed: " + self.supervised_description())
++            if phase == "all":
++                raise RunnerRefusal("all-source acceptance is uncomposed; supervised tests require separate selection: " + self.supervised_description())
++        if phase != "serial" and STATUS_EVIDENCE_MODULE in self.parallel and self.environment().get(STATUS_EVIDENCE_VARIABLE):
++            raise RunnerRefusal(f"unset {STATUS_EVIDENCE_VARIABLE} before selecting {STATUS_EVIDENCE_MODULE}; shared evidence destinations are not supported")
++
++    def check_collected_ids(self, ids):
++        forbidden = sorted({test_id for test_id in ids for entry in self.supervised if test_id == entry["module"] or test_id.startswith(entry["module"] + ".")})
++        if forbidden:
++            raise RunnerRefusal(f"collection selected supervised-owned test IDs; no shards will run: {forbidden}")
+ 
+     # -- children ------------------------------------------------------------
+ 
+@@ -994,14 +1060,15 @@
+     parser.add_argument("--jobs", default=None,
+                         help="lower the worker count; a whole number from 1 to the host's "
+                              "available CPUs. Omitted means all of them.")
+-    parser.add_argument("--phase", choices=("all", "parallel", "serial"), default="all")
++    parser.add_argument("--phase", choices=("all", "parallel", "serial"), default="all",
++                        help="explicit scoped phase; all (default) refuses while supervised acceptance is uncomposed")
+     parser.add_argument("--print-ids", action="store_true",
+-                        help="print every collected test id and exit without running them")
++                        help="print scoped collected IDs without running them; supervised entries require explicit --phase parallel")
+     parser.add_argument("--root", default=None, help=argparse.SUPPRESS)
+     options = parser.parse_args(argv)
+ 
+     if suite is None:
+-        suite = Suite(options.root or ROOT, PARALLEL_MODULES, SERIAL_MODULES)
++        suite = Suite(options.root or ROOT, PARALLEL_MODULES, SERIAL_MODULES, supervised=SUPERVISED_MODULES)
+     run = Run(suite, options.jobs, progress=progress)
+ 
+     previous = {}
+@@ -1011,11 +1078,15 @@
+ 
+     def phases():
+         suite.check_registry()
++        suite.check_selection(options.phase, options.print_ids)
++        if suite.supervised:
++            print(f"[scope] {options.phase} only; supervised not selected: {suite.supervised_description()}", file=out)
+         run.open_result_root()
+         # Collection is bounded by the same worker count, and by the module
+         # count rather than the shard count that does not exist yet.
+         jobs = resolve_jobs(options.jobs, run.detected, len(suite.parallel))
+         ids = collect(run, jobs) if options.phase != "serial" else []
++        suite.check_collected_ids(ids)
+         shards = partition(ids, suite.method_split) if ids else []
+ 
+         if options.print_ids:
+--- a/v12/python/tests/tools/test_parallel_runner.py
++++ b/v12/python/tests/tools/test_parallel_runner.py
+@@ -33,9 +33,11 @@
+ import tempfile
+ import time
+ import unittest
+-
+-from tools.parallel_test import (METHOD_SPLIT, PARALLEL_MODULES, ROOT, RunnerRefusal,
+-                                 SERIAL_MODULES, Suite, main, partition, resolve_jobs)
++from unittest import mock
++
++from tools.parallel_test import (METHOD_SPLIT, PARALLEL_MODULES, ROOT, Run, RunnerRefusal,
++                                 SERIAL_MODULES, STATUS_EVIDENCE_MODULE, STATUS_EVIDENCE_VARIABLE,
++                                 SUPERVISED_MODULES, Suite, main, partition, resolve_jobs)
+ 
+ RUNNER = pathlib.Path(__file__).resolve().parents[2] / "tools" / "parallel_test.py"
+ 
+@@ -107,8 +109,8 @@
+         self.marks = pathlib.Path(self.home.name) / "marks"
+         self.marks.mkdir(parents=True)
+ 
+-    def suite(self, parallel, serial=(), method_split=()):
+-        return Suite(self.root, parallel, serial, method_split=method_split, pythonpath=None)
++    def suite(self, parallel, serial=(), method_split=(), supervised=()):
++        return Suite(self.root, parallel, serial, method_split=method_split, pythonpath=None, supervised=supervised)
+ 
+     def run_suite(self, suite, argv):
+         """One in-process run, returning its exit code and its exact stdout."""
+@@ -237,6 +239,166 @@
+         self.assertIn("tests.testnounderscore", output)
+ 
+ 
++class SupervisedSelectionFailsClosed(FakeTreeCase):
++    """W168703: real collector/scheduler, disposable tests, no engine capability."""
++
++    def setUp(self):
++        super().setUp()
++        self.entry = {"module": "tests.test_gated", "work": "W32577",
++                      "supervisor": "baton:work/records/2026/09/finding-example/engine-gate.py",
++                      "reason": "Requires separately selected supervision"}
++        self.imported = self.marks / "gated-imported"
++        write_tree(self.root, {
++            "test_known": case_source(self.marks, "Known", ["test_a"]),
++            "test_gated": f"from pathlib import Path\nPath({str(self.imported)!r}).touch()\nraise AssertionError('direct gated import')\n",
++        })
++
++    def selected(self, **kwargs):
++        return self.suite(("tests.test_known",), supervised=(self.entry,), **kwargs)
++
++    def assert_precollection_refusal(self, suite, argv, diagnostic):
++        with mock.patch.object(Run, "open_result_root") as opened, mock.patch.object(Suite, "spawn") as spawned:
++            code, output = self.run_suite(suite, argv)
++        self.assertEqual(code, 2, output)
++        self.assertIn(diagnostic, output)
++        self.assertNotIn("-> OK", output)
++        opened.assert_not_called()
++        spawned.assert_not_called()
++        self.assertEqual(list(self.marks.iterdir()), [])
++
++    def test_default_and_all_refuse_even_with_supervisor_environment(self):
++        with mock.patch.dict(os.environ, {"BATON_W32577_GATE_DIR": str(self.marks), "BATON_W32577_IMAGE_DIGEST": "sha256:" + "0" * 64}):
++            for argv in ([], ["--phase", "all"]):
++                with self.subTest(argv=argv):
++                    self.assert_precollection_refusal(self.selected(), argv, "all-source acceptance is uncomposed")
++
++    def test_scoped_parallel_runs_ordinary_tests_and_names_the_unselected_gate(self):
++        code, output = self.run_suite(self.selected(), ["--phase", "parallel", "--jobs", "1"])
++        self.assertEqual(code, 0, output)
++        self.assertIn("[scope] parallel only; supervised not selected: tests.test_gated (W32577;", output)
++        self.assertIn(self.entry["supervisor"], output)
++        self.assertIn("Known (1 tests)", output)
++        self.assertFalse(self.imported.exists())
++        self.assertEqual(len(self.intervals()), 1)
++
++    def test_scoped_serial_does_not_collect_parallel_or_supervised_modules(self):
++        suite = self.suite((), serial=("tests.test_known",), supervised=(self.entry,))
++        code, output = self.run_suite(suite, ["--phase", "serial", "--jobs", "1"])
++        self.assertEqual(code, 0, output)
++        self.assertIn("[scope] serial only; supervised not selected:", output)
++        self.assertIn("tests.test_known (1 tests)", output)
++        self.assertFalse(self.imported.exists())
++
++    def test_print_ids_requires_explicit_parallel_and_runs_no_test(self):
++        for argv in (["--print-ids"], ["--print-ids", "--phase", "all"], ["--print-ids", "--phase", "serial"]):
++            with self.subTest(argv=argv):
++                self.assert_precollection_refusal(self.selected(), argv, "--print-ids requires explicit --phase parallel")
++        code, output = self.run_suite(self.selected(), ["--print-ids", "--phase", "parallel", "--jobs", "1"])
++        self.assertEqual(code, 0, output)
++        self.assertIn("tests.test_known.Known.test_a", output)
++        self.assertIn("supervised not selected", output)
++        self.assertEqual(list(self.marks.iterdir()), [])
++
++    def test_supervised_metadata_is_closed_and_validated_before_side_effects(self):
++        malformed = [None, {}, dict(self.entry, command="python gate.py"),
++                     dict(self.entry, module="tests/test_gated"), dict(self.entry, work="W0"),
++                     dict(self.entry, reason=""), dict(self.entry, reason="bad\ntext"),
++                     dict(self.entry, reason=17), dict(self.entry, supervisor="/tmp/gate.py"),
++                     dict(self.entry, supervisor="baton:work/records/2026/09/../gate.py"),
++                     dict(self.entry, supervisor="baton:work/open/finding-example/gate.py")]
++        for entry in malformed:
++            with self.subTest(entry=entry):
++                suite = self.suite(("tests.test_known",), supervised=(entry,))
++                self.assert_precollection_refusal(suite, ["--phase", "parallel"], "supervised metadata")
++
++    def test_duplicates_in_every_category_and_stale_supervised_entries_refuse(self):
++        for parallel, serial, entries in (
++                (("tests.test_known", "tests.test_gated"), (), (self.entry,)),
++                (("tests.test_known",), ("tests.test_gated",), (self.entry,)),
++                (("tests.test_known",), (), (self.entry, self.entry))):
++            with self.subTest(parallel=parallel, serial=serial):
++                self.assert_precollection_refusal(self.suite(parallel, serial, supervised=entries), ["--phase", "parallel"], "registered more than once")
++        stale = dict(self.entry, module="tests.test_absent")
++        suite = self.suite(("tests.test_known",), supervised=(self.entry, stale))
++        self.assert_precollection_refusal(suite, ["--phase", "parallel"], "not in the tree")
++
++    def test_supervised_classification_does_not_hide_an_unclassified_module(self):
++        (self.root / "tests/testnounderscore.py").write_text("raise AssertionError('must not import')\n")
++        self.assert_precollection_refusal(self.selected(), ["--phase", "parallel"], "belong to no registry")
++
++    def test_configured_status_evidence_refuses_before_collection_or_output(self):
++        directory = self.root / "tests/tools"
++        directory.mkdir()
++        (directory / "__init__.py").write_text("")
++        (directory / "test_stage_execution_status_hardening.py").write_text("raise AssertionError('must not import')\n")
++        suite = self.suite(("tests.test_known", STATUS_EVIDENCE_MODULE), supervised=(self.entry,))
++        for value in (str(self.marks / "unowned"), " "):
++            with self.subTest(value=value), mock.patch.dict(os.environ, {STATUS_EVIDENCE_VARIABLE: value}):
++                self.assert_precollection_refusal(suite, ["--phase", "parallel"], "unset " + STATUS_EVIDENCE_VARIABLE)
++
++    def test_evidence_guard_is_limited_to_the_selected_parallel_leaf(self):
++        with mock.patch.dict(os.environ, {STATUS_EVIDENCE_VARIABLE: str(self.marks / "unowned")}):
++            code, output = self.run_suite(self.selected(), ["--phase", "parallel", "--jobs", "1"])
++        self.assertEqual(code, 0, output)
++        self.assertFalse((self.marks / "unowned").exists())
++
++    def test_empty_evidence_destination_allows_the_leaf_and_serial_does_not_import_it(self):
++        directory = self.root / "tests/tools"
++        directory.mkdir()
++        (directory / "__init__.py").write_text("")
++        leaf = directory / "test_stage_execution_status_hardening.py"
++        leaf.write_text(case_source(self.marks, "Status", ["test_a"]))
++        suite = self.suite((STATUS_EVIDENCE_MODULE,), serial=("tests.test_known",), supervised=(self.entry,))
++        with mock.patch.dict(os.environ, {STATUS_EVIDENCE_VARIABLE: ""}):
++            code, output = self.run_suite(suite, ["--phase", "parallel", "--jobs", "1"])
++        self.assertEqual(code, 0, output)
++        self.assertEqual([row[0] for row in self.intervals()], ["Status.test_a"])
++        leaf.write_text("raise AssertionError('serial must not collect parallel evidence leaf')\n")
++        with mock.patch.dict(os.environ, {STATUS_EVIDENCE_VARIABLE: str(self.marks / "unowned")}):
++            code, output = self.run_suite(suite, ["--phase", "serial", "--jobs", "1"])
++        self.assertEqual(code, 0, output)
++        self.assertFalse((self.marks / "unowned").exists())
++
++    def fixture_loader(self, leak):
++        (self.root / "tests/test_gated.py").write_text(
++            "from pathlib import Path\nimport unittest\n"
++            f"Path({str(self.imported)!r}).touch()\n"
++            "class Gated(unittest.TestCase):\n"
++            "    @classmethod\n    def setUpClass(cls):\n"
++            f"        Path({str(self.marks / 'forbidden-setup')!r}).touch()\n"
++            "    def test_engine(self):\n"
++            f"        Path({str(self.marks / 'forbidden-test')!r}).touch()\n")
++        source = case_source(self.marks, "Known", ["test_a"])
++        source += "\nfrom tests.test_gated import Gated\n"
++        source += "def load_tests(loader, tests, pattern):\n"
++        source += "    selected = loader.loadTestsFromTestCase(Known)\n"
++        if leak:
++            source += "    selected.addTests(loader.loadTestsFromTestCase(Gated))\n"
++        source += "    return selected\n"
++        (self.root / "tests/test_known.py").write_text(source)
++
++    def test_custom_loader_can_import_safe_supervised_definitions(self):
++        self.fixture_loader(leak=False)
++        code, output = self.run_suite(self.selected(), ["--phase", "parallel", "--jobs", "1"])
++        self.assertEqual(code, 0, output)
++        self.assertTrue(self.imported.exists())
++        self.assertIn("Known (1 tests)", output)
++        self.assertFalse((self.marks / "forbidden-setup").exists())
++        self.assertFalse((self.marks / "forbidden-test").exists())
++
++    def test_leaked_supervised_ids_refuse_the_whole_collection_before_shards(self):
++        self.fixture_loader(leak=True)
++        for extra in ([], ["--print-ids"]):
++            with self.subTest(extra=extra), mock.patch("tools.parallel_test.shard_work") as shards:
++                code, output = self.run_suite(self.selected(), ["--phase", "parallel", "--jobs", "1"] + extra)
++            self.assertEqual(code, 2, output)
++            self.assertIn("supervised-owned test IDs", output)
++            self.assertIn("tests.test_gated.Gated.test_engine", output)
++            self.assertNotIn("-> OK", output)
++            shards.assert_not_called()
++            self.assertEqual([p.name for p in self.marks.iterdir()], ["gated-imported"])
++
++
+ class TheRealRegistryDescribesTheRealTree(unittest.TestCase):
+     """The one case that fails when somebody adds a v12 test module.
+ 
+@@ -245,7 +407,12 @@
+     """
+ 
+     def test_every_v12_test_module_is_registered_exactly_once(self):
+-        Suite(ROOT, PARALLEL_MODULES, SERIAL_MODULES).check_registry()
++        Suite(ROOT, PARALLEL_MODULES, SERIAL_MODULES, supervised=SUPERVISED_MODULES).check_registry()
++
++    def test_the_deadline_engine_has_only_supervised_metadata(self):
++        self.assertEqual([entry["module"] for entry in SUPERVISED_MODULES], ["tests.manager.test_runtime_deadline_engine"])
++        self.assertEqual(SUPERVISED_MODULES[0]["work"], "W32577")
++        self.assertNotIn(SUPERVISED_MODULES[0]["module"], PARALLEL_MODULES + SERIAL_MODULES)
+ 
+     def test_the_serial_modules_are_the_ones_that_own_an_engine(self):
+         # W6636 added the third: `test_lifecycle_composition` builds this

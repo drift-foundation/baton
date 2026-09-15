@@ -1,0 +1,83 @@
+--- baseline/v12/python/tools/integration_placement.py
++++ partial/v12/python/tools/integration_placement.py
+@@ -191,6 +191,80 @@
+                     f"{name_value(self.repository)}; a placement publishes "
+                     f"into the target it was configured with and creates none")
+         return self.profile.revision(self.repository, self.reference)
++
++
++class LocalGitTargetOwner:
++    """The local target effect and its receipt share one Git transaction.
++
++    Configuration and all receipt operands come from the node's owners. The
++    worker supplies neither a repository/ref nor an effect receipt. Recovery
++    reads the receipt without retrying a target transaction.
++    """
++
++    def __init__(self, *, coordinator, manager, profile, execution_owner,
++                 authorization, repository, reference, managed_result_id):
++        self.coordinator = coordinator
++        self.manager = manager
++        self.profile = profile
++        self.execution_owner = execution_owner
++        self.authorization = authorization
++        self.repository = repository
++        self.reference = reference
++        self.managed_result_id = managed_result_id
++
++    def _binding(self, operands):
++        request = boundaries.document(operands, "the local target publication", required=(
++            "publication_id", "canonical_target_id", "admitted_old_revision",
++            "imported_revision", "content_digest", "derived_proposal_id"))
++        published = publication_of(self.coordinator, self.managed_result_id, "apply")
++        if published is None or any(published[name] != value for name, value in request.items()):
++            _denied("the target request does not match its journalled publication")
++        result = managed_result_of(self.coordinator, self.managed_result_id)
++        account = result["phases"].get("apply")
++        if account is None or account["result"]["collected"] is None:
++            _denied("the target publication has no collected apply")
++        collected = account["result"]["collected"]
++        excluded = _excluded(self, account, collected)
++        authorized = _authorized(self, self.managed_result_id, request["canonical_target_id"], collected)
++        if authorized["derived_proposal_id"] != request["derived_proposal_id"]:
++            _denied("the publication and authorization name different derived proposals")
++        return {"schema": "baton.v12.local-target-receipt/1", "publication": request,
++                "repository": self.profile.storage(self.repository), "reference": self.reference,
++                "managed_result_id": self.managed_result_id,
++                "entry_id": published["entry_id"], "lease_id": published["lease_id"], "fence": published["fence"],
++                "authorization": authorized, "exclusion": excluded,
++                "preparation": result["phases"].get("prepare"), "apply": account}
++
++    @staticmethod
++    def _answer(binding, receipt):
++        return {"schema": TARGET_SCHEMA, **binding["publication"],
++                "answer": "unknown" if receipt is None else "applied",
++                "receipt": None if receipt is None else receipt["object"]}
++
++    def recover(self, operands):
++        binding = self._binding(operands)
++        receipt = self.profile.publication_receipt(self.repository, publication_id=operands["publication_id"])
++        if receipt is not None and receipt["document"] != binding:
++            _denied("the target publication receipt has different bound operands")
++        return self._answer(binding, receipt)
++
++    def apply(self, operands):
++        binding = self._binding(operands)
++        receipt = self.profile.publication_receipt(self.repository, publication_id=operands["publication_id"])
++        if receipt is not None:
++            if receipt["document"] != binding:
++                _denied("the target publication receipt has different bound operands")
++            return self._answer(binding, receipt)
++
++        def current_grant():
++            live_grant(self.coordinator, canonical_target_id=operands["canonical_target_id"],
++                       entry_id=binding["entry_id"], lease_id=binding["lease_id"], fence=binding["fence"])
++
++        receipt = self.profile.publish_with_receipt(
++            self.repository, reference=self.reference, imported=operands["imported_revision"],
++            reviewed=operands["admitted_old_revision"], publication_id=operands["publication_id"],
++            receipt=binding, before_commit=current_grant)
++        return self._answer(binding, receipt)
+ 
+ 
+ def _target_answer(placement, act, operands):

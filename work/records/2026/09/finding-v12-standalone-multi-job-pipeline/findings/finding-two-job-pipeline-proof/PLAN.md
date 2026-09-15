@@ -1,3 +1,77 @@
+# Owner acceptance complete — 2026-09-12
+
+Canonical snapshot153659 confirms W71879 and parent W71830 closed satisfying.
+The live-ab-nup4nltc proof and final test evidence are retained with hashes under
+evidence/live-success-nup4nltc; parent FINDING records the verified result.
+This supersedes operator-execution/acceptance-pending states below. Historical
+failed/interrupted attempts and deferred stronger guarantees remain as recorded.
+
+# Historical action — fresh live operator confirmation, tuner153491 — 2026-09-12T15:27:42.986641+00:00
+
+Preparation complete: LIVE-PREPARATION-153491.md gives one exact operator command for v12/testing/live_ab, using116 bound inputs and existing pinned live images, corrected observer/final view/public early errors, real credential reference and unchanged limits. Two focused packaging tests pass. Direct ops, no mechanical reviewer-model gate. Tuner did not launch live run. Synthetic success and all prior failures preserved. Prior preparation-in-progress below is superseded; live-provider confirmation awaits operator result. Current measured 0.470730790985s, cumulative 123.295802077904s plus uncertainty.
+
+# Historical live preparation assignment
+
+# Current action — fresh live confirmation preparation, tuner153491 — 2026-09-12T15:21:45.512070+00:00
+
+Owner153483: retain synthetic success and prepare v12/testing/live_ab with corrected observer/final-view/early-error behavior and pinned live images, existing limits/credentials/scope. Add bounded packaging tests and exact operator command directly; no reviewer-model gate or tuner live launch. Prior synthetic-execution-pending state is superseded by demonstrated pass.
+
+# Historical synthetic action
+
+# Current action — corrected synthetic operator execution, tuner153401 — 2026-09-12T15:14:31.669295+00:00
+
+All owner153398 corrections ready: exact committed final-view export/provenance, A+B/full tests and clean view; disk default/preflight; current-assignment public preparation/start failures.12 focused checks and actual historical replay pass, preserving failed roots. Exact command in SYNTHETIC-FINAL-VIEW-153401.md. Pass directly to ops without preparatory reviewer-model gate. Full corrected scenario remains pending; no live-provider run. Prior implementation-in-progress below is superseded. Current measured 0.847047775023s, cumulative 122.825071286919s plus uncertainty; all synthetic/live costs retained.
+
+# Historical correction assignment
+
+# Current action — final committed view and early refusal correction, tuner153401 — 2026-09-12T15:06:34.140359+00:00
+
+Owner153398 assigns the bounded corrections pinned in the latest FINDING entry: isolated final committed output with A+B/full tests and byte/mode cleanliness, disk default/preflight, exact public early failure reporting, and additive tests. Preserve synthetic1/2 and run10; direct operator command after local checks, no preparatory reviewer-model gate. This supersedes prior operator-execution-pending state.
+
+# Historical synthetic handoff
+
+# Current action — deterministic A/B operator execution, tuner153220 — 2026-09-12T14:47:58.305965+00:00
+
+Implementation ready; exact single operator command in SYNTHETIC-AB-153220.md and v12/testing/standalone_ab/README.md. Seven focused checks pass, full real-container scenario pending. Direct ops handoff per owner153217, no preparatory reviewer-model gate. Simulate only provider effects/reports; real coordination and final checks remain. No live provider run; preserve interrupted run10. New path/test scope is recorded in report and evidence/synthetic-ab-153220/candidate-manifest.json. Current measured 0.939145608980s, cumulative 121.978023511896s including operator3.477s plus uncertainty. This supersedes implementation-in-progress below.
+
+# Historical deterministic assignment
+
+# Current action — deterministic provider A/B implementation, tuner153220 — 2026-09-12T14:35:38.132858+00:00
+
+Implement accepted owner153217 scope in v12/testing/standalone_ab with additive focused tests and command documentation. Reuse actual production factory/worker/coordination, simulate only provider executable workspace effects and reports. Provide one exact operator command directly; preserve run10. Observer feedback passed (operator6 tests/3.477s); prior awaiting-feedback action below is superseded.
+
+# Historical completion-observer action
+
+# Current action — operator test feedback, tuner153138 — 2026-09-12T14:27:37.734393+00:00
+
+Localized completion observation fix and six focused tests complete; exact one-command operator check in COMPLETION-OBSERVATION-153138.md. Pass directly to baton.ops under owner153133, no intervening reviewer-model turn. Product scope: v12/python/tools/stage_execution.py; additive regression: v12/python/tests/tools/test_stage_execution.py. Red reproduced, green6, diff check and custody passed. No live rerun; run10 interrupted evidence preserved. Current measured 5.786528437980s, cumulative 117.561877902916s plus uncertainty; claim elapsed sample 507.734s. Broader deterministic provider A/B scenario remains queued after this feedback step. This supersedes implementation-in-progress below.
+
+# Historical localized assignment
+
+# Current action — localized outer completion observation correction, tuner153138 — 2026-09-12T14:24:06.487844+00:00
+
+Owner153133 and parent FINDING/PLAN 2026-09-12T14:17:40Z authorize removing the premature runtime gate in StageObservation and additive outer-observer regression coverage in v12/python/tests/tools/test_stage_execution.py. Record red/green deterministic checks and return the exact operator test command directly to ops; no intervening reviewer-model turn. Run10 interrupted after 943.8339926240151s; preserve it and all historical packages/bindings. No live rerun. Broader fake-provider coordination delivery remains queued after this fix. This supersedes the prior run10-execution-pending action below.
+
+# Historical run10 action
+
+# Current action — run10 inputs accepted and genuinely bound; one operator attempt, reviewer152976 — 2026-09-12T13:55:45Z
+
+review-2026-09-12T13-55-45Z.md accepts358-file manifest
+4299b6db0997fdf26ceeaeb32fa3ebc88dbc73d8b43d8fab7dca4b6c2e484f21.
+Genuine prepared-152826 selection/execution markers bind359 files including the
+manifest,33 actual inputs and all five helpers; execution-review SHA256
+746813adc4b5bc8d91b47b1fc48f1345548a7cba1f2711eeaa70a91605b82423.
+Pass ops Next tune: exact separate deployment.py provision, then run.py commands
+in review, cwd v12/python with actual host gid1001. Owner152823/152925 already
+authorizes exactly one operator attempt; no new run-permission request.
+No preparation/render/rebuild repeat, agent execution, retry or repair. All real
+judgment/receipt/import/lease/causal/both-terminal/final acceptance remains due.
+Current0.25238955099484883s, cumulative111.77534946493584s plus uncertainty;
+nine failed live walls2002.0388815780316s unchanged. Prior final-review-pending
+state superseded; live proof remains unexecuted by this reviewer.
+
+# Historical actual input freeze (accepted and bound)
+
 # Current action — final actual run10 input review/bindings, tuner152932 — 2026-09-12T13:51:46.226328+00:00
 
 Review RUN10-FREEZE-152932.md and evidence/run10-freeze-152932/candidate-manifest.json;33 actual inputs match owner hashes and reconstruction, accepted source/product/images/five helpers preserved. Final reviewer creates genuine selection/execution bindings; then ops executes exact provision/run commands, one attempt already authorized152823/reaffirmed152925 with no permission repeat. Current0.087670948968s cumulative111.522959913941s plus uncertainty; nine failed runtime walls2002.0388815780316s unchanged. Previous actual input checking completed; no model attempt/repair.

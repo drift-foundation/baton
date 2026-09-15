@@ -1,0 +1,152 @@
+{
+  "budget_clock": {
+    "remaining": 1183.5126129459823,
+    "winner": {
+      "charged": 16.487387054017745,
+      "kind": "whole-run",
+      "limit": 1200,
+      "remaining": 1183.5126129459823
+    }
+  },
+  "exceptional_stops": [],
+  "final_source_identity": "b3e5f83bf40b13a9b41b1adf0d5f1b5d3eb93892 3492ba64448ab9d39bde53ee6456ce24e74ece2c",
+  "final_source_status": "",
+  "final_target_identity": "5d2dd432a89efb04933afb3764fc72acbe20a5a6 a74cd7ab445209bc0af14e592d4b587f9624aad5",
+  "final_target_status": "D  check_hours.py\nMM demo/greeting.py\nM  demo/units.py\nMM tests/test_greeting.py\nD  tests/test_hours.py",
+  "final_test_exit": 0,
+  "final_view": {
+    "checks": [
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "check_greeting.py"
+        ],
+        "log": "final-greeting.log",
+        "status": 0
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "check_hours.py"
+        ],
+        "log": "final-hours.log",
+        "status": 0
+      },
+      {
+        "argv": [
+          "python3",
+          "-B",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-v"
+        ],
+        "log": "final-tests.log",
+        "status": 0
+      }
+    ],
+    "clean": true,
+    "commit": "5d2dd432a89efb04933afb3764fc72acbe20a5a6",
+    "git_blobs": {
+      ".gitignore": "7a60b85e148f80966a550e5ab6a762a907c69ca6",
+      "README.md": "e85e850655ea70197cd455bfa8fa9b99875cd6a8",
+      "check_greeting.py": "c33c92115924021acb680949b1b736743d289cf2",
+      "check_hours.py": "7eb82c7893fef4553814290055f699eff061b108",
+      "demo/__init__.py": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+      "demo/greeting.py": "01039aaea192548edf48952cd9176c49b997038a",
+      "demo/units.py": "7115232bd561caaf1df59b6b4ce818e891a83026",
+      "tests/__init__.py": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+      "tests/test_greeting.py": "f0261c71fb2034030034dfd6992d480fbc2d1316",
+      "tests/test_guard.py": "9bef23b0be13b6b3915127349f141b9faa36e210",
+      "tests/test_hours.py": "d12bece5f595021429f56f01497c99cd97610a42",
+      "tests/test_units.py": "f5442b7ffa1723e6c0f12cdd784b786e9a788ee2"
+    },
+    "manifest": {
+      ".gitignore": {
+        "mode": 420,
+        "sha256": "862263fa1f46c20f0d1e4dac5ffcc75abd55c08211b2c3864c5f8764b9d87793"
+      },
+      "README.md": {
+        "mode": 420,
+        "sha256": "f17e4568a49779e4215d3584ad29d009d9a7a81e44a1d06a5c67eefd41c5d9bf"
+      },
+      "check_greeting.py": {
+        "mode": 420,
+        "sha256": "ef2f043ae6e449d2e23f687695d21fc21c424776efe76e18af5997081d35fbd6"
+      },
+      "check_hours.py": {
+        "mode": 420,
+        "sha256": "d501b18dae5c90d8e3c72d9b3300f7b745d319ecc3d8d61c93cf8d78274aef5c"
+      },
+      "demo/__init__.py": {
+        "mode": 420,
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      "demo/greeting.py": {
+        "mode": 420,
+        "sha256": "c3e213ac8b856c52f82e70ab24d645e19a17671250178453d6b62dcf177bcf57"
+      },
+      "demo/units.py": {
+        "mode": 420,
+        "sha256": "89be1f256e08b750484bdd0191316391e2137cfd4cb383704d5c1648b724e691"
+      },
+      "tests/__init__.py": {
+        "mode": 420,
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      "tests/test_greeting.py": {
+        "mode": 420,
+        "sha256": "98b78498707c6eaa0cf9665130ad42183843b996a814c80aa759a0ffff783f8f"
+      },
+      "tests/test_guard.py": {
+        "mode": 420,
+        "sha256": "985459697a7e04ce76b1da1afdac4996aaef8264b5c3c11ba51b2806de16a816"
+      },
+      "tests/test_hours.py": {
+        "mode": 420,
+        "sha256": "7cb3b455e57f8c0e9b9939995679fa97a1efbb41cd747b212741bd43ca2b5f1e"
+      },
+      "tests/test_units.py": {
+        "mode": 420,
+        "sha256": "26e146ea3d81b88972dc56538ee50b8ed438918c48968165e25f299701883523"
+      }
+    },
+    "path": "/home/sl/.local/state/baton/v12/synthetic-ab-tuapjtog/final-view",
+    "tree": "a74cd7ab445209bc0af14e592d4b587f9624aad5"
+  },
+  "initial": {
+    "source": {
+      "commit": "b3e5f83bf40b13a9b41b1adf0d5f1b5d3eb93892",
+      "path": "/home/sl/.local/state/baton/v12/synthetic-ab-tuapjtog/source",
+      "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+    },
+    "target": {
+      "commit": "b3e5f83bf40b13a9b41b1adf0d5f1b5d3eb93892",
+      "path": "/home/sl/.local/state/baton/v12/synthetic-ab-tuapjtog/target",
+      "tree": "3492ba64448ab9d39bde53ee6456ce24e74ece2c"
+    }
+  },
+  "live_provider": false,
+  "ordinary_operator_transitions": 0,
+  "provider": "synthetic standalone-ab-v1",
+  "result": "simulated-provider coordination passed: both terminal and final verification passed; not live-provider acceptance",
+  "started_at": "2026-09-12T15:17:05.353665+00:00",
+  "stats_observations": {
+    "available": 3,
+    "coverage": "sampled command output only; gaps are not measurements or lifecycle results",
+    "gaps": [],
+    "not-requested": 9,
+    "truncated_samples": [],
+    "unavailable": 0
+  },
+  "submitted": true,
+  "success_wall_seconds": 17.459683960012626,
+  "target_checkout_is_output": false,
+  "terminal_both": true,
+  "terminal_wall_seconds": 16.48721342202043,
+  "wall_seconds": 17.45977773400955
+}

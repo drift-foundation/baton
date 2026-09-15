@@ -1,0 +1,64 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.integration.test_managed_storage
+............FE..........................................
+======================================================================
+ERROR: test_the_public_writers_overlap_in_both_orders (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_public_writers_overlap_in_both_orders) (first='legacy')
+ACTUAL OVERLAP, both writers PUBLIC, with the block asserted.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 785, in test_the_public_writers_overlap_in_both_orders
+    case.run_one_overlap(first, Store, threading)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 849, in run_one_overlap
+    held = hold(store, store._connection)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 832, in hold
+    return holding(handle)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 814, in legacy
+    return handle.transact(
+           ~~~~~~~~~~~~~~~^
+        "probe.legacy", "probe.legacy",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+            writing="integration_results") or True,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        witness=lambda held, row: True)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 817, in <lambda>
+    lambda connection: _claim_result_key(
+                       ~~~~~~~~~~~~~~~~~^
+        connection, fixtures.TARGET, PROPOSAL, REVISION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        writing="integration_results") or True,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2145, in _claim_result_key
+    _refuse(f"target {name_value(canonical_target_id)} already holds "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"a result for proposal {name_value(source_proposal_id)} "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+            f"either representation",
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+            code="operation-collision")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 160, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: target 'target:mainline' already holds a result for proposal 'proposal-1' at revision 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' in managed_integration_results; one submission has one result per target snapshot, in either representation
+
+======================================================================
+FAIL: test_the_public_writers_overlap_in_both_orders (tests.integration.test_managed_storage.NeitherReaderAnswersADoubleRepresentation.test_the_public_writers_overlap_in_both_orders) (first='managed')
+ACTUAL OVERLAP, both writers PUBLIC, with the block asserted.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 785, in test_the_public_writers_overlap_in_both_orders
+    case.run_one_overlap(first, Store, threading)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 858, in run_one_overlap
+    self.assertIsInstance(answered[0], ContractRefusal)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not an instance of <class 'baton_v12.contracts.errors.ContractRefusal'>
+
+----------------------------------------------------------------------
+Ran 55 tests in 0.273s
+
+FAILED (failures=1, errors=1)

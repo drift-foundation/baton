@@ -1,0 +1,179 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_documents tests.job_manager.test_store tests.job_manager.test_exchange tests.job_manager.test_scheduling tests.job_manager.test_tool tests.job_manager.test_status tests.manager.test_launch tests.manager.test_worker_entry
+................................................................................................E............................................................................................................EE......E.....................................................................................................................
+======================================================================
+ERROR: test_a_completed_or_held_integration_owes_nothing (tests.job_manager.test_exchange.AnIntegrationStageOwesConcludeAndNeverDispatch.test_a_completed_or_held_integration_owes_nothing) (state='completed')
+`completed` and `exceptional` are both outside `EXCHANGE_OWED`, so
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_exchange.py", line 657, in test_a_completed_or_held_integration_owes_nothing
+    self.assertEqual(self.owed(), [])
+                     ~~~~~~~~~^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_exchange.py", line 625, in owed
+    held = stage_states(self.jobs, self.acts)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 467, in stage_states
+    "observed": (delegation.observation_of(
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, episodes.attempting(stage, live),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        submission.job_of(store, stage["job_id"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 364, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 399, in _bound
+    held["integration"] = _integration_observation(held, stage)
+                          ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 481, in _integration_observation
+    _integration_completion(document, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 585, in _integration_completion
+    held = boundaries.document(found, f"{what}'s completion account",
+                               required=INTEGRATION_COMPLETION_MEMBERS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: stage 'job-i/integration''s integration observation's completion account needs source_proposal_id, result_id
+
+======================================================================
+ERROR: test_a_completed_account_survives_a_later_uncertain_refresh (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_completed_account_survives_a_later_uncertain_refresh)
+[2]. A completed integration is HISTORICAL evidence about the fixed
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_status.py", line 429, in test_a_completed_account_survives_a_later_uncertain_refresh
+    self.projected("completed", runtime=self.runtime("uncertain"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   completion=self.completion()), "completed")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_status.py", line 342, in projected
+    return self.states(status(self.jobs, self.acts,
+                       ~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                              observed_at=NOW))[self.STAGE]
+                              ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 603, in status
+    held = stage_states(store, operations)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 467, in stage_states
+    "observed": (delegation.observation_of(
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, episodes.attempting(stage, live),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        submission.job_of(store, stage["job_id"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 364, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 399, in _bound
+    held["integration"] = _integration_observation(held, stage)
+                          ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 481, in _integration_observation
+    _integration_completion(document, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 585, in _integration_completion
+    held = boundaries.document(found, f"{what}'s completion account",
+                               required=INTEGRATION_COMPLETION_MEMBERS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: stage 'job-a/integration''s integration observation's completion account needs source_proposal_id, result_id
+
+======================================================================
+ERROR: test_a_failed_start_still_answers_first (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_a_failed_start_still_answers_first)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_status.py", line 484, in test_a_failed_start_still_answers_first
+    self.projected("completed", runtime=self.runtime("destroyed"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   completion=self.completion(),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   start_failure={"reason": "no image"}),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_status.py", line 342, in projected
+    return self.states(status(self.jobs, self.acts,
+                       ~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                              observed_at=NOW))[self.STAGE]
+                              ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 603, in status
+    held = stage_states(store, operations)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 467, in stage_states
+    "observed": (delegation.observation_of(
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, episodes.attempting(stage, live),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        submission.job_of(store, stage["job_id"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 364, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 399, in _bound
+    held["integration"] = _integration_observation(held, stage)
+                          ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 481, in _integration_observation
+    _integration_completion(document, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 585, in _integration_completion
+    held = boundaries.document(found, f"{what}'s completion account",
+                               required=INTEGRATION_COMPLETION_MEMBERS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: stage 'job-a/integration''s integration observation's completion account needs source_proposal_id, result_id
+
+======================================================================
+ERROR: test_completed_is_completed (tests.job_manager.test_status.AnIntegrationStageIsProjectedFromItsOwnObservation.test_completed_is_completed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_status.py", line 372, in test_completed_is_completed
+    self.projected("completed", runtime=self.runtime("destroyed"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   completion=self.completion()), "completed")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_status.py", line 342, in projected
+    return self.states(status(self.jobs, self.acts,
+                       ~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                              observed_at=NOW))[self.STAGE]
+                              ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 603, in status
+    held = stage_states(store, operations)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/projection.py", line 467, in stage_states
+    "observed": (delegation.observation_of(
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        operations, episodes.attempting(stage, live),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        submission.job_of(store, stage["job_id"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 364, in observation_of
+    return _bound(operations.observe(stage), stage)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 399, in _bound
+    held["integration"] = _integration_observation(held, stage)
+                          ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 481, in _integration_observation
+    _integration_completion(document, what)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/delegation.py", line 585, in _integration_completion
+    held = boundaries.document(found, f"{what}'s completion account",
+                               required=INTEGRATION_COMPLETION_MEMBERS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: stage 'job-a/integration''s integration observation's completion account needs source_proposal_id, result_id
+
+----------------------------------------------------------------------
+Ran 331 tests in 0.484s
+
+FAILED (errors=4)

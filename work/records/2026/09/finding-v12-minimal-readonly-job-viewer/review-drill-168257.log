@@ -1,0 +1,15 @@
+test_artifact_banner_uses_selected_interval (__main__.DrillThreshold.test_artifact_banner_uses_selected_interval) ... FAIL
+
+======================================================================
+FAIL: test_artifact_banner_uses_selected_interval (__main__.DrillThreshold.test_artifact_banner_uses_selected_interval)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-minimal-readonly-job-viewer/probe-drill-168257.py", line 17, in test_artifact_banner_uses_selected_interval
+    self.assertNotIn("!! STALE", out.getvalue())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '!! STALE' unexpectedly found in '!! STALE -- observed 3s ago; this view last read it 0s ago; observed at 2026-09-02T00:00:00.000Z\nARTIFACT result   20 bytes   sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\nthe retained result\n\n'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.004s
+
+FAILED (failures=1)

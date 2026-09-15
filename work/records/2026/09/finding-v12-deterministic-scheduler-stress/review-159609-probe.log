@@ -1,0 +1,68 @@
+{
+  "states": {
+    "job-a": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "completed"
+    },
+    "job-b": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "queued"
+    },
+    "job-c": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "queued"
+    },
+    "job-d": {
+      "implementation": "completed",
+      "review": "completed",
+      "integration": "queued"
+    }
+  },
+  "original_export_integration_completions": 0,
+  "observed_without_receipts": [
+    {
+      "code": "unauthorized-integration",
+      "detail": "job-a/integration is recorded completed and names imported proposal 'integration-driver.proposal:a3c9c49f9aedc01f2dedbaabb639a11f447c68e2e9291b9c15f0f65531244af0' and this trace carries no performed integration authorization of it; a completed import proves its own subject or it proves nothing",
+      "record": {
+        "tick": 23,
+        "job_id": "job-a",
+        "stage_id": "job-a/integration",
+        "episode": 1,
+        "attempt_id": "attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "act": "complete",
+        "outcome": "performed",
+        "worker_id": null,
+        "participant": null,
+        "principal": null,
+        "operation_id": "stage.completed:attempt-01128b4b2c5d1932bb6a1bcaf698a441d732b8323acd3b006b69d171f56d87a0",
+        "runtime_id": null,
+        "session_id": null,
+        "evidence": "stage_states:job-a/integration",
+        "cause": null,
+        "recorded_at": null,
+        "session": null,
+        "correction": null,
+        "completion": {
+          "proposal_id": "integration-driver.proposal:a3c9c49f9aedc01f2dedbaabb639a11f447c68e2e9291b9c15f0f65531244af0",
+          "source_proposal_id": "integration-driver.proposal:a3c9c49f9aedc01f2dedbaabb639a11f447c68e2e9291b9c15f0f65531244af0",
+          "result_id": null,
+          "integration_receipt_id": "integration-driver.integration-receipt:65c325f89405d5468988b7203270de1b33c48a62b52c418948328152f2aa0840",
+          "runtime_id": "runtime-single-7",
+          "execution_runtime": "quiescent"
+        },
+        "authorization": null
+      }
+    }
+  ],
+  "receipt_kinds": [
+    "approval",
+    "integration",
+    "review",
+    "verification"
+  ],
+  "after_public_receipts": [],
+  "qualification": "Independent final-state observation and receipt readback; omitted intervening ticks remain omitted."
+}

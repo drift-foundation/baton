@@ -1,0 +1,168 @@
+{
+  "claim": 172346,
+  "candidate_manifest_sha256": "7a05ef49afedef896caf08be76fcc33c6caaa631936ab48f09123c225a4f5eb4",
+  "files": [
+    {
+      "path": "baton:v12/python/tools/integration_worker.py",
+      "bytes": 97142,
+      "mode": "0o644",
+      "sha256": "870656c0761d056310e5c846d163f95fc1273e987f3ce01ad1523ea09a7d3491",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tools/stage_execution.py",
+      "bytes": 311452,
+      "mode": "0o664",
+      "sha256": "762c7f5542c1a44b6ded477729ae96477b18471aca59921275eb5b2a7d8d33d7",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/job_manager/integration_capacity.py",
+      "bytes": 85291,
+      "mode": "0o644",
+      "sha256": "05a30a305f20e6ff12c2d455fb1bb2f55ac51ae9c60165021baf621e03f06360",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/src/baton_v12/integration/reconciliation.py",
+      "bytes": 192879,
+      "mode": "0o664",
+      "sha256": "b7c0bafd45a3d8f858936728f2a9173a57a5b625533fa21b6f95185e9ac54011",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/job_manager/test_managed_integration_capacity.py",
+      "bytes": 166328,
+      "mode": "0o644",
+      "sha256": "c4461810b38c9bdee0c67e59d55fb14846624f1cd6db920f23a127ce284ad0dd",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/integration/test_managed_storage.py",
+      "bytes": 94086,
+      "mode": "0o644",
+      "sha256": "282d16cb5d7d4407db2dd47811db38f52e897b3c720d8bb259af360193fbbace",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/worker/reconciliation_entry.py",
+      "bytes": 10466,
+      "mode": "0o644",
+      "sha256": "b3ebb8a5488e3cc361beb3c04527bad10a7bd81a98d3949b1fd75b58ae9b5620",
+      "matches": true
+    },
+    {
+      "path": "baton:v12/python/tests/tools/test_managed_preparation.py",
+      "bytes": 127301,
+      "mode": "0o644",
+      "sha256": "c86e6f82b5543a0cc6c719a179313bb694db9c5f2d9c8df1a8d5985e644c0d12",
+      "matches": true
+    }
+  ],
+  "author_baseline_comparison": {
+    "error_count": [
+      13,
+      13
+    ],
+    "same_cases_and_normalized_final_exceptions": true,
+    "failures": [
+      {
+        "case": "test_a_fresh_port_prepares_that_delivery_and_then_starts_it (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_fresh_port_prepares_that_delivery_and_then_starts_it)",
+        "exception": "W103083 review 2026-09-08T12:41:47Z [P1], and the whole of W119113."
+      },
+      {
+        "case": "test_a_runtime_this_execution_did_not_start_is_still_held (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_runtime_this_execution_did_not_start_is_still_held)",
+        "exception": "The hold this correction must not spend: a started attempt is NOT"
+      },
+      {
+        "case": "test_a_second_tick_in_the_same_execution_starts_nothing_again (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_a_second_tick_in_the_same_execution_starts_nothing_again)",
+        "exception": "The same-execution case: this port holds the marker it made, so the"
+      },
+      {
+        "case": "test_an_ordinary_first_tick_prepares_and_starts_exactly_once (tests.tools.test_stage_execution.AFreshPortReentersANeverStartedDelivery.test_an_ordinary_first_tick_prepares_and_starts_exactly_once)",
+        "exception": "The valid initial case: nothing is published yet, so this is the"
+      },
+      {
+        "case": "test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick) (delivery=False)",
+        "exception": "Absent or unpublished: neither invents an assignment."
+      },
+      {
+        "case": "test_a_delivery_carrying_no_assignment_is_the_first_tick (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_carrying_no_assignment_is_the_first_tick) (delivery=True)",
+        "exception": "Absent or unpublished: neither invents an assignment."
+      },
+      {
+        "case": "test_a_delivery_with_no_started_runtime_is_not_refreshed (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_delivery_with_no_started_runtime_is_not_refreshed)",
+        "exception": "The namespaces are materialized before the container, so a delivery"
+      },
+      {
+        "case": "test_a_later_tick_refreshes_before_it_continues (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_later_tick_refreshes_before_it_continues)",
+        "exception": "Owner ruling M115946: refresh FIRST, then the port's own marker."
+      },
+      {
+        "case": "test_a_lost_marker_falls_through_to_admission (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_lost_marker_falls_through_to_admission)",
+        "exception": "A fresh serving incarnation holds no marker, so the driver's own"
+      },
+      {
+        "case": "test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here) (runtime='running')",
+        "exception": "The other side of that branch, which is why it IS a branch."
+      },
+      {
+        "case": "test_a_started_or_uncertain_runtime_is_never_prepared_here (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_a_started_or_uncertain_runtime_is_never_prepared_here) (runtime='uncertain')",
+        "exception": "The other side of that branch, which is why it IS a branch."
+      },
+      {
+        "case": "test_the_first_tick_prepares_and_then_admits (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits)",
+        "exception": "test_the_first_tick_prepares_and_then_admits (tests.tools.test_stage_execution.TheIntegrationStageConsumesTheAcceptedPort.test_the_first_tick_prepares_and_then_admits)"
+      },
+      {
+        "case": "test_an_integration_without_a_runtime_port_refuses_as_that (tests.tools.test_stage_execution.TheServingPathReachesTheAcceptedDrivers.test_an_integration_without_a_runtime_port_refuses_as_that)",
+        "exception": "The one capability this build does not have, reported rather than"
+      }
+    ]
+  },
+  "runs": [
+    {
+      "command": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-recovery/review-deliveries-172346.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "PYTHONPATH": "src:tools:.",
+      "seconds": 3.6165808390069287,
+      "exit": 1,
+      "timed_out": false,
+      "signals": [],
+      "limits_seconds": [
+        60,
+        5,
+        5
+      ]
+    },
+    {
+      "command": [
+        "/home/sl/src/baton/.venv/bin/python3",
+        "-m",
+        "unittest",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_ordinary_sweeps_retain_and_adopt_one_real_preparation",
+        "tests.tools.test_managed_preparation.OneManagedPreparationCompletes.test_unexpected_pre_intent_fault_recovers_the_held_allocation",
+        "tests.job_manager.test_managed_integration_capacity"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "PYTHONPATH": "src:tools:.",
+      "seconds": 2.765816930012079,
+      "exit": 0,
+      "timed_out": false,
+      "signals": [],
+      "limits_seconds": [
+        60,
+        5,
+        5
+      ]
+    }
+  ],
+  "review_seconds": 6.382397769019008,
+  "prior_review_seconds": 100.32319339301466,
+  "cumulative_review_seconds": 106.70559116203367,
+  "author_recorded_subset_seconds": 692.9514279609139,
+  "author_older_unknowns_preserved": true
+}

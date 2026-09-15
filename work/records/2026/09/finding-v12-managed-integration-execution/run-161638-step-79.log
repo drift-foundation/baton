@@ -1,0 +1,101 @@
+$ env PYTHONPATH=src:tools:. python3 -c 
+import sys, unittest
+sys.path.insert(0, '/tmp')
+import probe_162882_check as probe
+loader = unittest.TestLoader()
+suite = unittest.TestSuite()
+for name in dir(probe):
+    obj = getattr(probe, name)
+    if isinstance(obj, type) and issubclass(obj, unittest.TestCase):
+        suite.addTests(loader.loadTestsFromTestCase(obj))
+result = unittest.TextTestRunner(verbosity=1).run(suite)
+print('DEFECT OBSERVATIONS STILL TRUE:', result.wasSuccessful())
+
+DEFECT OBSERVATIONS STILL TRUE: False
+EE.EEE
+======================================================================
+ERROR: test_changed_immutable_task_replays_as_original (probe_162882_check.Observations.test_changed_immutable_task_replays_as_original)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/probe_162882_check.py", line 39, in test_changed_immutable_task_replays_as_original
+    result = self.result(task)
+             ^^^^^^^^^^^
+AttributeError: 'Observations' object has no attribute 'result'
+
+======================================================================
+ERROR: test_numeric_equality_accepts_boolean_but_float_is_refused (probe_162882_check.Observations.test_numeric_equality_accepts_boolean_but_float_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/probe_162882_check.py", line 29, in test_numeric_equality_accepts_boolean_but_float_is_refused
+    self.assertIs(self.task(execution_limits=limits)["execution_limits"]["boundaries"]["provider_turn"]["seconds"], True)
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 97, in task
+    return managed.managed_task(**held)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 290, in managed_task
+    limits = _resolved_limits(execution_limits)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 224, in _resolved_limits
+    _refuse(f"the {name} boundary's {member} is "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(value)}; a resolved ceiling is whole "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"seconds, and a value that merely compares equal to "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"one is not one")
+            ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 125, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the provider_turn boundary's seconds is true; a resolved ceiling is whole seconds, and a value that merely compares equal to one is not one
+
+======================================================================
+ERROR: test_reader_accepts_double_representation (probe_162882_check.Observations.test_reader_accepts_double_representation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/probe_162882_check.py", line 51, in test_reader_accepts_double_representation
+    record_managed_result(store, self.task(), self.result(), source_proposal_id=storage.PROPOSAL, target_revision=storage.REVISION)
+                                              ^^^^^^^^^^^
+AttributeError: 'Observations' object has no attribute 'result'
+
+======================================================================
+ERROR: test_same_snapshot_second_phase_cannot_be_recorded (probe_162882_check.Observations.test_same_snapshot_second_phase_cannot_be_recorded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/probe_162882_check.py", line 58, in test_same_snapshot_second_phase_cannot_be_recorded
+    record_managed_result(store, self.task(), self.result(), source_proposal_id=storage.PROPOSAL, target_revision=storage.REVISION)
+                                              ^^^^^^^^^^^
+AttributeError: 'Observations' object has no attribute 'result'
+
+======================================================================
+ERROR: test_upgrade_does_not_recheck_owned_shape_under_lock (probe_162882_check.Observations.test_upgrade_does_not_recheck_owned_shape_under_lock)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/probe_162882_check.py", line 74, in test_upgrade_does_not_recheck_owned_shape_under_lock
+    answer = upgrade_store(self.path, incarnation="review", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 139, in upgrade_store
+    locked = IntegrationStore._adopt(connection, path,
+                                     READABLE_VERSIONS)
+  File "/usr/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/tmp/probe_162882_check.py", line 69, in interleave
+    found = original(connection, path, accept)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 681, in _adopt
+    _refuse(f"the integration coordinator store at {name_value(path)} "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"says it is schema {adopted} and is missing "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{', '.join(missing)}. Nothing was changed")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 180, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: the integration coordinator store at '/tmp/v12-integration-mjamu0pa/integration.sqlite3' says it is schema 5 and is missing index results_by_submission. Nothing was changed
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.011s
+
+FAILED (errors=5)

@@ -1,0 +1,104 @@
+Claim170659 - partial group2. Returning INCOMPLETE through baton.bug with exact
+remaining scope; I am not passing this for acceptance.
+
+REVALIDATION. Group1's accepted candidate170569 (manifest
+e3ba732f17fa0efb83f78dd92bb1f3692e14479bc6935389de878e85c2817fa3) hashes equal
+for all eight files in the working tree right now. Zero drift. I extended that
+path and reimplemented none of it.
+
+DELIVERED - the selected cut positions. One file changed:
+v12/python/tests/tools/test_managed_preparation.py. No product source changed;
+the ordinary path already carried these positions and needed no correction to be
+interrupted at them. Cut placement became a table, and every entry names a real
+owner on the ordinary path - the capacity registrar, the ordinary
+ManagerOperations, the ending, the adoption. No hook, checkpoint or test-only
+seam was added to interrupt anything.
+
+Eight new cases, one per remaining selected cut: create (intent before Work
+creation), register (creation before registration), admit (claim before
+admission), launch (start intent before adapter return), dispatch (worker answer
+before freeze), conclude (freeze before intake, intake before attachment), end
+(cleanup before membership ending), adopt (ending before adoption). Each
+inherits group1's whole finish: one fixture process, one child admit, one
+delivery, worker exit0, host trap proved and unreached, target bytes/revision/
+tree unchanged, parent queued and unclaimed, root open, apply planned, runtime
+destroyed, cleanup retained, same adoption after the cache is dropped.
+
+MY FIRST THREE OPERATIONS CASES WERE PASSING OVER THE WRONG WORKER.
+ManagerOperations.launch/dispatch/conclude are the producer's and reviewer's
+too; cutting the first call of that name interrupted whatever ran first and then
+asserted a recovery that had nothing to do with a preparation. The reversal
+found it. `interrupts` now checks the call against the preparation's own child
+attempt.
+
+REVERSALS, run against the final file and restored:
+  ops cuts never fire on the preparation child ....... 3 cases fail
+  vacuous placement (cut first caller of that name) .. PASSES (why the check exists)
+  create cut moved to `planned` (wrong owner) ........ PASSES - see weakness
+
+A WEAKNESS IN MY OWN CASES, NOT HIDDEN. The third reversal passes, so these
+cases do not discriminate their position: "interrupt one step and recover" is
+true of every step on this path. They prove THAT the preparation recovers from
+an interruption at a named owner; they do not prove the named owner is the
+position the case name claims. The names currently promise more than the
+assertions deliver.
+
+I started the fix - witness the durable facts true only at that position
+(intent recorded and child Work absent; Work present and plan absent; claim
+committed and member not admitted; admitted and no runtime; runtime present),
+read from each owner at the instant of interruption. Preserved UNFINISHED at
+witness-attempt-170659.py: fails with KeyError 'execution_attempt_id' (the
+intent document does not carry that key where I read it) plus one case
+witnessing no-intent where intent/child-work/no-plan was expected. This is the
+first thing the next claim should finish.
+
+THE STORE/COMPOSITION RESTART IS NOT DELIVERED. Group1's restart is
+runtime.close() - the local worker cache only. I implemented the real one and it
+does not work; preserved at restart-attempt-170659.py with two measured
+obstacles so the next claim does not repeat the diagnosis:
+
+1. A restart cannot be taken inside the cut. Closing the composition while the
+   interrupted sweep is still unwinding tears the stores out from under it:
+   sqlite3.ProgrammingError "Cannot operate on a closed database" from
+   stage_execution.py:2913 in _Serving.account, several frames above. Taking the
+   restart after the sweep returns fixes this one.
+2. Releasing the retired composition kills the SUCCESSOR's Authority. With the
+   restart taken after the sweep, create_work on the new composition fails the
+   same way from authority/store.py:574. The new Authority is provably live
+   immediately after the rebuild, so something in the retired composition's
+   release reaches it. Not closing the retired composition avoids that error but
+   weakens the restart, and the post-runtime cuts then never adopt. I DID NOT
+   FIND THE CAUSE AND AM NOT GUESSING AT ONE.
+
+VERIFICATION (supervisor /tmp/w170382_run.py: 180s per-run limit, own process
+group, 5s TERM + 5s KILL; no run timed out, none signalled, every group proved
+gone):
+  step01 baseline five focused modules ... OK, 425 checks, 25.949488s
+  step03 with the matrix ................. OK, 433 checks, 32.875s
+  step04 final restored state ............ OK, 433 checks, 33.161s
+
+SPENDING: this claim 4 rows, 98.462512s (ledger-170382.json). Group1 author
+cumulative 98.710505s, parent ledger 2442.624596s and reviewer cumulative remain
+separate and preserved. No cumulative gate inferred.
+
+CANDIDATE candidate-170659.json. Changed file
+v12/python/tests/tools/test_managed_preparation.py
+sha256:f8a410e8cc70f6832f6950078eabf6aad0ebbf0cea9892ddc6564540f91dd335,
+94737 bytes, mode 0o644 unchanged. No Git mutation. Deterministic simulated
+engine/provider only - no Docker, image build, live model, install or broad
+discovery. I did not run the full suite this claim and make no clean-tree claim.
+
+REMAINING GROUP2 SCOPE IN FULL: position discrimination; the store/composition
+restart; the negative identity/profile/task/manifest/digest/length/source/
+harness matrix; missing blob, symlink/escape, frozen-only and missing/
+quarantined intake; the causal combined/base/isolated matrix including combined
+success with missing-fix base failure, conflict and combined failure; timeout or
+start failure at each position with exact completed prefix and not-run suffix;
+ordinary Job defaults/overrides and two distinct Jobs; refusal, cancellation and
+uncertain endings preserving holds and driving ordinary termination/exclusion/
+cleanup, with leader-first and TERM-resistant cases; required direct/legacy
+coverage; and DEPLOYMENT-SLICE2-DRAFT.md.
+
+Dossier: findings/finding-managed-preparation-recovery/PROGRESS.md (author-owned,
+created this claim), candidate-170659.json, ledger-170382.json,
+run-170382-step-01/03/04.log, restart-attempt-170659.py, witness-attempt-170659.py.

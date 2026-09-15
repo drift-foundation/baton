@@ -1,3 +1,144 @@
+# Milestone closed — 2026-09-12
+
+Owner closed W71879 and W71830 with satisfying outcomes, verified through canonical
+detail at snapshot153659. This supersedes the pending owner-closeout state below.
+W103525 is now queued on baton.feat, unclaimed, with zero open blockers; it owns
+the deterministic scheduling certification follow-up. No additional live run is
+needed for the completed feasibility milestone. The standing v12 deterministic
+provider default continues beyond campaign closure; historical deferrals remain.
+
+# Standing v12 default — 2026-09-12T15:45:09Z
+
+AGENTS.md now requires deterministic fake/replay providers and focused tests by
+default for all future v12 work. Live runs answer a specific provider-dependent
+question; no routine live rerun or reviewer-model gate. This applies beyond this
+campaign. The accepted live happy path below remains demonstrated; owner closeout
+is next. See matching FINDING for the ruling and measured19.506s versus398.934s.
+
+# Live happy path demonstrated; owner closeout next — 2026-09-12T15:43:55Z
+
+live-ab-nup4nltc passed: both Jobs terminal395.912s, full execution397.035s,
+total398.934s. All three B live judgments accepted, both behavior checks and all
+10 tests passed in the clean committed final view; original source unchanged,
+zero ordinary operator transitions. Durable evidence and hashes are under the
+proof record evidence/live-success-nup4nltc. Matching FINDING pins exact results
+and telemetry uncertainty. This supersedes live-confirmation-pending below.
+Next: owner acceptance/closeout of demonstrated W71879 scope and parent roll-up;
+retain the synthetic fast test and parked hardening. No automatic rerun or
+additional run merely to reproduce success. Ledger closure has not been performed.
+
+# Historical fresh live confirmation ready for operator — 2026-09-12T15:27:42.986641+00:00
+
+W71879 tuner153491 prepared v12/testing/live_ab with validated final-view/early-error behavior, pinned live images,116 bound inputs, and two passing packaging tests. Exact operator command: findings/finding-two-job-pipeline-proof/LIVE-PREPARATION-153491.md. Direct ops under owner153483; no preparatory reviewer-model gate. No live run launched. This supersedes preparation-pending below. Full synthetic success19.506s and every historical result remain preserved; actual live confirmation awaits the operator.
+
+# Historical synthetic pass/live preparation assignment
+
+# Full simulated-provider scenario passed — 2026-09-12T15:17:42Z
+
+Operator run synthetic-ab-tuapjtog passed: both terminal16.487s, full execution
+17.460s,total19.506s; both behavior checks and all7 tests pass in clean committed
+final view, original source unchanged,zero ordinary transitions. Matching FINDING
+pins result and retained root. This supersedes awaiting full synthetic execution.
+The fast deterministic development path is demonstrated. Live-provider acceptance
+remains: next tuner handoff retains evidence and prepares the exact fresh operator
+command using the validated observer/final-view/early-error behavior, existing
+limits and direct operator-feedback workflow. No automatic live run or historical
+result rewrite; no extra reviewer-model turn for mechanical preparation.
+
+# Historical synthetic final-view corrections ready for operator — 2026-09-12T15:14:31.669295+00:00
+
+W71879 tuner153401 implemented committed-output export and A+B/full tests with clean-view provenance, disk default/preflight, and exact public early preparation/start failures.12 focused tests pass. Actual historical replay sees synthetic1 refusal and runs all7 A+B tests at synthetic2's canonical commit without changing failed evidence. Exact full command: findings/finding-two-job-pipeline-proof/SYNTHETIC-FINAL-VIEW-153401.md. Direct ops, no reviewer-model gate. This supersedes queued correction below; fresh full corrected scenario remains pending. Run10 and both failed synthetic roots remain preserved.
+
+# Historical synthetic correction assignment
+
+# Synthetic both-Job completion; final verification correction next — 2026-09-12T15:00:00Z
+
+Second synthetic attempt reaches both terminal in17.454s, then fails because
+the final checkout/index do not reflect the committed target. Original source
+is unchanged. Six stale-checkout tests omitted B's new tests; full success stays
+pending. Matching FINDING records exact evidence and the reference-only import
+contract. Next tuner handoff fixes the final verification/output view with exact
+commit provenance and actual A+B tests, plus disk default/preflight and immediate
+canonical preparation/start failures. Preserve failed roots; no reset or dropped
+checks. Return an exact operator command directly under the localized test loop.
+
+# Historical synthetic first-run failure; explicit disk root next — 2026-09-12T14:55:17Z
+
+First full synthetic attempt failed before runtime: default /tmp is tmpfs and
+workspace policy requires disk. Both preparation failures were recorded within
+seconds but the runner missed them and waited240s. See matching FINDING entry.
+Use supported --root under the prior disk-backed state location for immediate
+operator feedback. Queue the localized default-storage/preflight and canonical
+preparation/start fail-fast corrections with focused tests for the next tuner
+handoff; no policy weakening, deadline increase or reviewer-model gate. Preserve
+the failed root and interrupted run10. Full synthetic success remains pending.
+
+# Historical deterministic A/B scenario ready for operator command — 2026-09-12T14:47:58.305965+00:00
+
+W71879 tuner153220 implemented v12/testing/standalone_ab and seven passing focused checks. Exact full operator command: findings/finding-two-job-pipeline-proof/SYNTHETIC-AB-153220.md. Direct ops handoff under owner153217; full real-container execution remains pending. This supersedes the queued-implementation state below. Only provider edits/reports are simulated; normal coordination/tests/final checks remain. Preserve interrupted run10; no live-provider rerun.
+
+# Historical deterministic assignment
+
+# Operator feedback passed; deterministic A/B scenario next — 2026-09-12T14:30:00Z
+
+Slawomir ran all six completion-observer checks: OK in3.477s. This supersedes
+the awaiting-operator-feedback state below. Proceed with the accepted14:09:10Z
+fake-provider A/B implementation and isolated integration-test workflow; deliver
+one exact operator command directly. Real coordination and final checks remain
+required. Run10 stays interrupted; no live rerun or retroactive acceptance.
+
+# Historical localized correction ready for operator feedback — 2026-09-12T14:27:37.734393+00:00
+
+W71879 tuner153138 removed the premature outer integration runtime guard and added one regression in v12/python/tests/tools/test_stage_execution.py. Red reproduced; six focused deterministic checks pass. Exact operator command and evidence: findings/finding-two-job-pipeline-proof/COMPLETION-OBSERVATION-153138.md. Direct ops handoff per owner153133; no intervening reviewer-model turn or new live run. This supersedes the implementation-pending state below; run10 remains interrupted with retained evidence. The full deterministic provider A/B scenario remains queued after localized operator feedback.
+
+# Historical localized assignment
+
+# Immediate localized correction — 2026-09-12T14:17:40Z
+
+Run10 is interrupted with retained evidence,943.8339926240151s,terminal_both=false;
+this supersedes the historical continuing-run10 status below. Fix the outer
+StageObservation.observe_integration runtime guard that hides the existing
+model-free reconciled completion account. Add focused coverage through that
+outer observer and provide Slawomir the deterministic test command directly under
+the accepted localized fix/test loop. No new live run or retroactive success.
+FINDING's matching entry records evidence and scope. Tuner owns implementation
+and records affected test paths after the operator passes W71879 to baton.tune.
+The deterministic agent/full A/B scenario below remains queued after this fix.
+
+# Next coordination-test implementation — 2026-09-12T14:09:10Z
+
+Implement the deterministic replay-agent direction in the matching FINDING.
+Initial deliverable: one fast A/B scenario at the actual v12 agent/provider seam,
+using replayed or explicitly synthetic patches/reports while real workers,
+containers, private workspaces, scheduler, merges, tests and settlement execute.
+Existing ACP bridge fake is a reuse reference, not evidence that v12 runs ACP.
+Match scenario/role/baseline, generate current identities, refuse unknown cases;
+never simulate Authority receipts or final coordination success. Label this as
+simulated-provider coordination proof and keep live-provider verification distinct.
+
+Status: queued implementation; existing run10 continues unchanged. Reuse suitable
+nonsecret retained evidence, no model call merely for fixture capture. Start with
+the happy path and provide the operator test directly under the localized-fix
+workflow. Do not expand into a generic simulator or failure-hardening project.
+
+Owner follow-up: provide a one-command full integration suite and run independent
+cases in parallel with isolated roots/stores/workspaces/runtime identities, within
+available capacity. Use focused tests for fast feedback, full deterministic tests
+for coordination coverage, and separately authorized live-provider checks. Agents
+run within their execution boundary; Slawomir can launch host-only commands. No
+reviewer-model turn solely to start tests; preserve current live run10 and evidence.
+
+# Cost priority — 2026-09-12T13:58:18Z
+
+Owner prioritizes fast local execution over costly reviewer-model turns on this
+machine. Apply the localized fix -> exact operator test -> reported result loop.
+Mechanical input checks and truthful operator-test execution records belong in
+preparation, not another model-review round. Reuse accepted evidence and report
+actual model/handoff elapsed cost, not just script runtimes. This supersedes
+mandatory reviewer issuance for those mechanical checks within the scoped loop.
+Do not add a planning gate or another run10 permission request. Existing resource
+limits and actual A/B judgments/success obligations remain; see matching FINDING.
+
 # Localized fix/test loop — 2026-09-12T13:54:54Z
 
 Current owner ruling: for a simple localized experimental fix, implement the

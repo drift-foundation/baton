@@ -1,0 +1,96 @@
+--- baseline/v12/python/src/baton_v12/integration/git_profile.py
++++ partial/v12/python/src/baton_v12/integration/git_profile.py
+@@ -31,6 +31,8 @@
+ 
+ import os
+ import stat
++import hashlib
++import json
+ 
+ __all__ = ["GitIntegrationProfile", "IntegrationProfileRefusal",
+            "PREPARED_NAMESPACE", "PROFILE_NAME", "PROFILE_VERSION",
+@@ -47,6 +49,7 @@
+ # reference at all. A separate namespace makes that a property of the name
+ # check rather than of the caller's care.
+ PREPARED_NAMESPACE = "refs/baton/integration/prepared/"
++RECEIPT_NAMESPACE = "refs/baton/integration/publications/"
+ 
+ # The identity a prepared commit is recorded under. It is the INTEGRATION
+ # ROLE's and deliberately not the producing worker's: nobody authored these
+@@ -267,8 +270,8 @@
+             _refuse("a Git integration profile needs a command runner")
+         self._runner = runner
+ 
+-    def _answer(self, argv, what):
+-        answer = self._runner(tuple(argv))
++    def _answer(self, argv, what, *, input=None):
++        answer = self._runner(tuple(argv)) if input is None else self._runner(tuple(argv), input=input)
+         if type(answer) is not dict or set(answer) != {
+                 "returncode", "stdout", "stderr"}:
+             _refuse(f"the Git runner's {what} answer has the closed "
+@@ -519,6 +522,65 @@
+                     "imported result")
+         return held
+ 
++    def publication_receipt(self, repository, *, publication_id):
++        """Read the immutable receipt, never infer an effect from the target."""
++        reference = self.publication_reference(publication_id)
++        named = self._answer(["git", "-C", _path(repository, "the target repository"),
++                              "rev-parse", "--verify", "--quiet", reference], "publication receipt lookup")
++        if named["returncode"] == 1 and not named["stdout"]:
++            return None
++        if named["returncode"] != 0:
++            _refuse("the publication receipt cannot be read")
++        oid = _object_name(named["stdout"].strip(), "the publication receipt")
++        body = self._run(["git", "-C", repository, "cat-file", "blob", oid], "publication receipt content")
++        try:
++            document = json.loads(body)
++        except (ValueError, TypeError):
++            _refuse("the publication receipt is not a JSON document")
++        return {"object": oid, "reference": reference, "document": document}
++
++    @staticmethod
++    def publication_reference(publication_id):
++        if type(publication_id) is not str or not publication_id or "\x00" in publication_id:
++            _refuse("a publication needs a nonempty identity")
++        return RECEIPT_NAMESPACE + hashlib.sha256(publication_id.encode("utf-8")).hexdigest()
++
++    def publish_with_receipt(self, repository, *, reference, imported, reviewed,
++                             publication_id, receipt, before_commit):
++        """Atomically CAS the configured target and create its exact receipt.
++
++        Receipt object preparation precedes the live grant check. A failed or
++        lost transaction answer remains an unknown effect until receipt recovery.
++        This operation never retries a transaction or rewrites an existing receipt.
++        """
++        repository = _path(repository, "the target repository")
++        reference = _configured_reference(reference)
++        receipt_ref = self.publication_reference(publication_id)
++        if reference.startswith(RECEIPT_NAMESPACE):
++            _refuse("a target reference cannot be a publication receipt")
++        # These names enter the update-ref line protocol, so reject whitespace
++        # and every other invalid ref spelling through Git's own validator.
++        self._run(["git", "check-ref-format", reference], "target reference validation")
++        imported = _object_name(imported, "the imported revision")
++        reviewed = _object_name(reviewed, "the admitted revision")
++        self.held(repository, imported)
++        if not callable(before_commit):
++            _refuse("a publication requires its current-grant check")
++        body = json.dumps(receipt, sort_keys=True, separators=(",", ":"), ensure_ascii=True) + "\n"
++        written = self._answer(["git", "-C", repository, "hash-object", "-w", "--stdin"],
++                               "receipt object creation", input=body.encode("utf-8"))
++        if written["returncode"] != 0:
++            _refuse("the publication receipt object could not be written")
++        oid = _object_name(written["stdout"].strip(), "the receipt object")
++        commands = (f"start\noption no-deref\nupdate {reference} {imported} {reviewed}\n"
++                    f"create {receipt_ref} {oid}\nprepare\ncommit\n").encode("ascii")
++        before_commit()
++        committed = self._answer(["git", "-C", repository, "update-ref", "--stdin"],
++                                 "atomic target publication", input=commands)
++        if committed["returncode"] != 0:
++            _refuse("the target publication did not answer committed; inspect its receipt before any further action")
++        return {"object": oid, "reference": receipt_ref, "document": receipt}
++
+ 
+ def _conflicted(stdout):
+     """The conflicted paths the reconciliation reported, as a sorted set.

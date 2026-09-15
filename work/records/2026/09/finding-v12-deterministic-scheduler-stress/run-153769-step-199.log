@@ -1,0 +1,11 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs
+E
+======================================================================
+ERROR: test_the_opened_edge_and_one_integrator_serialize_four_jobs (unittest.loader._FailedTest.test_the_opened_edge_and_one_integrator_serialize_four_jobs)
+----------------------------------------------------------------------
+AttributeError: type object 'TheComposedOwnersSupplyAuthorizedTransitions' has no attribute 'test_the_opened_edge_and_one_integrator_serialize_four_jobs'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)

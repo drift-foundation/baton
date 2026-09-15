@@ -24,7 +24,8 @@ from ..worker_manager.boundaries import Column
 __all__ = ["ALLOCATION_COLUMNS", "AFFINITY_COLUMNS", "EPISODE_COLUMNS",
            "GENERATION_COLUMNS", "MIGRATIONS", "POOL_WORKER_COLUMNS", "SCHEMA", "SCHEMA_VERSION",
            "check_authority",
-           "STORE_KIND", "TABLES", "JOB_COLUMNS", "OPERATION_COLUMNS",
+           "STORE_KIND", "TABLES", "JOB_COLUMNS",
+           "JOB_EXECUTION_LIMIT_COLUMNS", "OPERATION_COLUMNS",
            "OPERATION_STATES", "RECEIPT_COLUMNS", "RECEIPT_STATES",
            "STAGE_COLUMNS", "SUBMISSION_COLUMNS"]
 
@@ -79,9 +80,15 @@ def check_authority(value, *, what):
 # opened by this build must be pinned to an Authority in the same transaction
 # that stamps the version, and a store that predates the pin must not be read
 # as though it had one.
-SCHEMA_VERSION = 4
+# Five. W156162 added the per-Job execution limits a Job may configure. They
+# live in their OWN table rather than as columns on `jobs`, and the reason is
+# mechanical as well as tidy: `JobStore._schema_three_shape` derives the
+# schema-3 expectation by subtracting what the migrations after 3 CREATE, and a
+# step that ALTERED an existing table could not be subtracted from it.
+SCHEMA_VERSION = 6
 
-TABLES = ("meta", "operations", "submissions", "jobs", "stages", "episodes",
+TABLES = ("meta", "operations", "submissions", "jobs",
+          "job_execution_limits", "stages", "episodes",
           "receipts", "pool_generations", "pool_workers",
           "stage_allocations", "worker_affinity")
 
@@ -135,6 +142,28 @@ CREATE TABLE jobs (
 -- are currently trying to satisfy it is the episode's, and a stage that held a
 -- copy of the live episode's identities would be two accounts of one fact the
 -- moment a second episode opened.
+-- W156162: WHAT ONE JOB ASKED FOR, and nothing about what it got.
+--
+-- The requested settings are the Job's immutable intent, stored exactly as the
+-- submission stated them. The EFFECTIVE per-boundary seconds are derived at
+-- read time from these plus this build's compatibility defaults, and are
+-- deliberately NOT stored: a stored resolution would be a second account of a
+-- fact the defaults already own, and it would go stale the moment a default
+-- moved -- while the Job's own choice must never be reinterpreted.
+--
+-- A Job that configured nothing has NO ROW here, which is the same statement
+-- as a /1 submission: every boundary keeps its runner default.
+CREATE TABLE job_execution_limits (
+  job_id TEXT PRIMARY KEY REFERENCES jobs(job_id),
+  requested TEXT NOT NULL,
+  -- W156162 review 2026-09-13T01:13:49Z R1: AND THE FROZEN DEFAULTS IT WAS
+  -- ADMITTED UNDER. Resolution is derived from the Job's own settings plus this
+  -- generation's table, never from whatever the constants happen to say at read
+  -- time -- so a later default change is a new generation for new Jobs and
+  -- reinterprets nothing already admitted.
+  compatibility_generation INTEGER NOT NULL CHECK (compatibility_generation >= 0)
+);
+
 CREATE TABLE stages (
   stage_id TEXT PRIMARY KEY,
   job_id TEXT NOT NULL REFERENCES jobs(job_id),
@@ -270,6 +299,139 @@ CREATE UNIQUE INDEX allocations_one_live_per_stage_episode
   ON stage_allocations(stage_id, episode)
   WHERE allocation_state IN ('reserved', 'recovery-required');
 
+CREATE TABLE integration_capacity_roots (
+  -- W161230 slice1. ONE INTEGRATION STAGE ALLOCATION, AND THE ORCHESTRATION
+  -- THAT RUNS INSIDE IT. The root does not add capacity: it NAMES the capacity
+  -- the scheduler already reserved, so the phases that execute under it are
+  -- accounted rather than hidden. A second `stage_allocations` row would have
+  -- had to evade the live worker/principal indexes, which is exactly what this
+  -- relation exists to avoid.
+  orchestration_id TEXT PRIMARY KEY,
+  -- THE ACTUAL ALLOCATION, by foreign key. A root for an allocation nobody
+  -- reserved is not a root.
+  root_assignment_id TEXT NOT NULL UNIQUE
+    REFERENCES stage_allocations(assignment_id),
+  stage_id TEXT NOT NULL,
+  episode INTEGER NOT NULL,
+  job_id TEXT NOT NULL,
+  authority_uuid TEXT NOT NULL,
+  work_id TEXT NOT NULL,
+  -- THE POOL GENERATION THE ALLOCATION WAS MADE UNDER, and never the
+  -- Authority's assignment generation: they are different axes and are never
+  -- compared with one another.
+  pool_generation INTEGER NOT NULL CHECK (pool_generation >= 1),
+  worker_id TEXT NOT NULL,
+  participant TEXT NOT NULL,
+  canonical_principal TEXT NOT NULL,
+  lifecycle TEXT NOT NULL CHECK (lifecycle IN ('open', 'ending', 'ended')),
+  registered_operation_id TEXT NOT NULL,
+  ending_operation_id TEXT,
+  registered_at TEXT NOT NULL,
+  FOREIGN KEY (stage_id, episode) REFERENCES episodes(stage_id, episode)
+);
+CREATE TABLE integration_capacity_members (
+  -- ONE EXECUTION, and its own real identity. `execution_attempt_id` is the
+  -- attempt a Worker Manager claim actually produced; a membership never
+  -- invents one, and a planned membership carries no claimed assignment
+  -- because no claim has happened yet.
+  execution_attempt_id TEXT PRIMARY KEY,
+  orchestration_id TEXT NOT NULL
+    REFERENCES integration_capacity_roots(orchestration_id),
+  phase TEXT NOT NULL CHECK (phase IN ('prepare', 'apply')),
+  execution_work_id TEXT NOT NULL,
+  execution_offer_id TEXT NOT NULL,
+  participant TEXT NOT NULL,
+  task_digest TEXT NOT NULL,
+  input_digest TEXT NOT NULL,
+  profile_digest TEXT NOT NULL,
+  -- WHAT THE APPLY IMPORTS, BY DIGEST. An apply exists to import content a
+  -- preparation collected, so it names that content here and its admission
+  -- compares this against what the preparation's own ending recorded. A
+  -- preparation imports nothing and carries none -- which is the CHECK below,
+  -- not a convention a writer is trusted to follow.
+  parent_content_digest TEXT,
+  -- THE CLAIMED ASSIGNMENT, FIXED ONCE, from the actual successful claim. Its
+  -- absence is legal only while the membership is planned.
+  assignment TEXT,
+  -- `cancelled` IS NOT `ended`. An execution that ran and finished is ended
+  -- and carries its outcome; a plan that never ran at all is cancelled and
+  -- carries none, because there is nothing it did. Collapsing the two would
+  -- make "this failed" and "this never happened" one word.
+  state TEXT NOT NULL
+    CHECK (state IN ('planned', 'admitted', 'recovery-required', 'ended',
+                     'cancelled')),
+  -- WHAT THE EXECUTION DID, retained SEPARATELY from whether it is excluded.
+  -- A failure that is over and a success that is over are both ended; only the
+  -- outcome says which, and neither says anything about the target.
+  outcome TEXT CHECK (outcome IS NULL OR outcome IN ('succeeded', 'failed')),
+  -- HOW THIS MEMBER WAS PROVED EXCLUDED, BY NAME. Review 2026-09-13T17:38:55Z:
+  -- the ending took free TEXT, so "I stopped it" excluded capacity. The named
+  -- proof is resolved from the Worker Manager's own readers at the ending and
+  -- `ending_evidence` retains the exact document it answered with.
+  exclusion TEXT CHECK (exclusion IS NULL OR exclusion IN
+                        ('fenced-before-start', 'runtime-destroyed')),
+  -- WHAT A PREPARATION COLLECTED, RESOLVED FROM THE WORKER MANAGER'S OWN
+  -- FROZEN OUTPUT by its ending and read by the apply's admission. The digest
+  -- is the manifest's; the report beside it retains the whole answer -- result
+  -- id, disposition and freeze operation -- so a later reader re-derives the
+  -- judgment instead of trusting a bare digest. NULL for an apply and for
+  -- anything that did not succeed.
+  collected_digest TEXT,
+  collected_report TEXT,
+  -- WHY THIS MEMBER IS UNCERTAIN. `recovery-required` holds capacity, and the
+  -- reason it was entered is not the evidence that ends it.
+  recovery_reason TEXT,
+  -- THE CANDIDATE THIS APPLY WAS AUTHORIZED TO RUN, retained rather than
+  -- merely checked. Review 2026-09-14T00:55:37Z: the owner's answer was
+  -- compared and then discarded, so nothing durable said WHICH candidate had
+  -- been approved -- and a later reader could not tell an admission over an
+  -- approved candidate from one over any other. NULL for a preparation, which
+  -- has no candidate and needs no authorization.
+  authorized_proposal_id TEXT,
+  authorized_result_id TEXT,
+  authorized_result_digest TEXT,
+  ending_evidence TEXT,
+  registered_operation_id TEXT NOT NULL,
+  ended_operation_id TEXT,
+  UNIQUE (orchestration_id, phase),
+  -- THE ASSIGNMENT ARRIVES WITH ADMISSION, so the states that precede or
+  -- replace admission have none and the ones that follow it must.
+  CHECK ((state IN ('planned', 'cancelled') AND assignment IS NULL)
+      OR (state IN ('admitted', 'recovery-required', 'ended')
+          AND assignment IS NOT NULL)),
+  CHECK ((state = 'ended' AND outcome IS NOT NULL)
+      OR (state <> 'ended' AND outcome IS NULL)),
+  -- AN ENDING NAMES ITS PROOF, and nothing else may. A cancelled plan was
+  -- never excluded from anything because it never ran.
+  CHECK ((state = 'ended' AND exclusion IS NOT NULL)
+      OR (state <> 'ended' AND exclusion IS NULL)),
+  -- AND ONLY AN APPLY BINDS A PARENT. Review 2026-09-13T18:02:07Z: requiring
+  -- it at REGISTRATION made a plan predeclare a digest that the preparation
+  -- has not produced yet, so the only value a caller could supply was one it
+  -- invented. It is written by the APPLY'S ADMISSION from what the
+  -- preparation's own ending resolved, which is the only moment it exists.
+  CHECK (parent_content_digest IS NULL OR phase = 'apply'),
+  CHECK (collected_digest IS NULL OR phase = 'prepare'),
+  -- AND ONLY AN APPLY CARRIES AN AUTHORIZED CANDIDATE, all three members or
+  -- none: a proposal without its result and digest is not a candidate.
+  CHECK ((authorized_proposal_id IS NULL AND authorized_result_id IS NULL
+          AND authorized_result_digest IS NULL)
+      OR (phase = 'apply' AND authorized_proposal_id IS NOT NULL
+          AND authorized_result_id IS NOT NULL
+          AND authorized_result_digest IS NOT NULL))
+);
+CREATE UNIQUE INDEX capacity_one_active_member
+  -- SERIAL PHASES, STRUCTURALLY. At most one membership of a root may be live
+  -- at a time, so a parent apply and its preparation can never both be running
+  -- under one reservation. This is the enforcement point, not a rule stated in
+  -- prose and checked by whoever remembers.
+  --
+  -- THE COMMENT LIVES INSIDE THE STATEMENT: the migration splitter hands whole
+  -- statements to `_created_name`, which reads the leading word, so a comment
+  -- BEFORE a `CREATE` makes the step look like an unrecognised verb and every
+  -- schema-3 store refuses to migrate. Measured, step 13.
+  ON integration_capacity_members (orchestration_id)
+  WHERE state IN ('admitted', 'recovery-required');
 CREATE TABLE worker_affinity (
   development_line TEXT NOT NULL,
   lane TEXT NOT NULL CHECK (lane IN ('implementation', 'review')),
@@ -295,6 +457,155 @@ CREATE TABLE worker_affinity (
 # An entry that does not exist is a version this build refuses to migrate, so
 # the key has to be present even though its text is empty.
 MIGRATIONS = {
+    # W161230 slice1, CREATE ONLY for the same reason the 4 -> 5 step is:
+    # `_schema_three_shape` subtracts what every step after 3 creates, and an
+    # ALTER of `stage_allocations` could not be subtracted at all.
+    5: """CREATE TABLE integration_capacity_roots (
+  -- W161230 slice1. ONE INTEGRATION STAGE ALLOCATION, AND THE ORCHESTRATION
+  -- THAT RUNS INSIDE IT. The root does not add capacity: it NAMES the capacity
+  -- the scheduler already reserved, so the phases that execute under it are
+  -- accounted rather than hidden. A second `stage_allocations` row would have
+  -- had to evade the live worker/principal indexes, which is exactly what this
+  -- relation exists to avoid.
+  orchestration_id TEXT PRIMARY KEY,
+  -- THE ACTUAL ALLOCATION, by foreign key. A root for an allocation nobody
+  -- reserved is not a root.
+  root_assignment_id TEXT NOT NULL UNIQUE
+    REFERENCES stage_allocations(assignment_id),
+  stage_id TEXT NOT NULL,
+  episode INTEGER NOT NULL,
+  job_id TEXT NOT NULL,
+  authority_uuid TEXT NOT NULL,
+  work_id TEXT NOT NULL,
+  -- THE POOL GENERATION THE ALLOCATION WAS MADE UNDER, and never the
+  -- Authority's assignment generation: they are different axes and are never
+  -- compared with one another.
+  pool_generation INTEGER NOT NULL CHECK (pool_generation >= 1),
+  worker_id TEXT NOT NULL,
+  participant TEXT NOT NULL,
+  canonical_principal TEXT NOT NULL,
+  lifecycle TEXT NOT NULL CHECK (lifecycle IN ('open', 'ending', 'ended')),
+  registered_operation_id TEXT NOT NULL,
+  ending_operation_id TEXT,
+  registered_at TEXT NOT NULL,
+  FOREIGN KEY (stage_id, episode) REFERENCES episodes(stage_id, episode)
+);
+CREATE TABLE integration_capacity_members (
+  -- ONE EXECUTION, and its own real identity. `execution_attempt_id` is the
+  -- attempt a Worker Manager claim actually produced; a membership never
+  -- invents one, and a planned membership carries no claimed assignment
+  -- because no claim has happened yet.
+  execution_attempt_id TEXT PRIMARY KEY,
+  orchestration_id TEXT NOT NULL
+    REFERENCES integration_capacity_roots(orchestration_id),
+  phase TEXT NOT NULL CHECK (phase IN ('prepare', 'apply')),
+  execution_work_id TEXT NOT NULL,
+  execution_offer_id TEXT NOT NULL,
+  participant TEXT NOT NULL,
+  task_digest TEXT NOT NULL,
+  input_digest TEXT NOT NULL,
+  profile_digest TEXT NOT NULL,
+  -- WHAT THE APPLY IMPORTS, BY DIGEST. An apply exists to import content a
+  -- preparation collected, so it names that content here and its admission
+  -- compares this against what the preparation's own ending recorded. A
+  -- preparation imports nothing and carries none -- which is the CHECK below,
+  -- not a convention a writer is trusted to follow.
+  parent_content_digest TEXT,
+  -- THE CLAIMED ASSIGNMENT, FIXED ONCE, from the actual successful claim. Its
+  -- absence is legal only while the membership is planned.
+  assignment TEXT,
+  -- `cancelled` IS NOT `ended`. An execution that ran and finished is ended
+  -- and carries its outcome; a plan that never ran at all is cancelled and
+  -- carries none, because there is nothing it did. Collapsing the two would
+  -- make "this failed" and "this never happened" one word.
+  state TEXT NOT NULL
+    CHECK (state IN ('planned', 'admitted', 'recovery-required', 'ended',
+                     'cancelled')),
+  -- WHAT THE EXECUTION DID, retained SEPARATELY from whether it is excluded.
+  -- A failure that is over and a success that is over are both ended; only the
+  -- outcome says which, and neither says anything about the target.
+  outcome TEXT CHECK (outcome IS NULL OR outcome IN ('succeeded', 'failed')),
+  -- HOW THIS MEMBER WAS PROVED EXCLUDED, BY NAME. Review 2026-09-13T17:38:55Z:
+  -- the ending took free TEXT, so "I stopped it" excluded capacity. The named
+  -- proof is resolved from the Worker Manager's own readers at the ending and
+  -- `ending_evidence` retains the exact document it answered with.
+  exclusion TEXT CHECK (exclusion IS NULL OR exclusion IN
+                        ('fenced-before-start', 'runtime-destroyed')),
+  -- WHAT A PREPARATION COLLECTED, RESOLVED FROM THE WORKER MANAGER'S OWN
+  -- FROZEN OUTPUT by its ending and read by the apply's admission. The digest
+  -- is the manifest's; the report beside it retains the whole answer -- result
+  -- id, disposition and freeze operation -- so a later reader re-derives the
+  -- judgment instead of trusting a bare digest. NULL for an apply and for
+  -- anything that did not succeed.
+  collected_digest TEXT,
+  collected_report TEXT,
+  -- WHY THIS MEMBER IS UNCERTAIN. `recovery-required` holds capacity, and the
+  -- reason it was entered is not the evidence that ends it.
+  recovery_reason TEXT,
+  -- THE CANDIDATE THIS APPLY WAS AUTHORIZED TO RUN, retained rather than
+  -- merely checked. Review 2026-09-14T00:55:37Z: the owner's answer was
+  -- compared and then discarded, so nothing durable said WHICH candidate had
+  -- been approved -- and a later reader could not tell an admission over an
+  -- approved candidate from one over any other. NULL for a preparation, which
+  -- has no candidate and needs no authorization.
+  authorized_proposal_id TEXT,
+  authorized_result_id TEXT,
+  authorized_result_digest TEXT,
+  ending_evidence TEXT,
+  registered_operation_id TEXT NOT NULL,
+  ended_operation_id TEXT,
+  UNIQUE (orchestration_id, phase),
+  -- THE ASSIGNMENT ARRIVES WITH ADMISSION, so the states that precede or
+  -- replace admission have none and the ones that follow it must.
+  CHECK ((state IN ('planned', 'cancelled') AND assignment IS NULL)
+      OR (state IN ('admitted', 'recovery-required', 'ended')
+          AND assignment IS NOT NULL)),
+  CHECK ((state = 'ended' AND outcome IS NOT NULL)
+      OR (state <> 'ended' AND outcome IS NULL)),
+  -- AN ENDING NAMES ITS PROOF, and nothing else may. A cancelled plan was
+  -- never excluded from anything because it never ran.
+  CHECK ((state = 'ended' AND exclusion IS NOT NULL)
+      OR (state <> 'ended' AND exclusion IS NULL)),
+  -- AND ONLY AN APPLY BINDS A PARENT. Review 2026-09-13T18:02:07Z: requiring
+  -- it at REGISTRATION made a plan predeclare a digest that the preparation
+  -- has not produced yet, so the only value a caller could supply was one it
+  -- invented. It is written by the APPLY'S ADMISSION from what the
+  -- preparation's own ending resolved, which is the only moment it exists.
+  CHECK (parent_content_digest IS NULL OR phase = 'apply'),
+  CHECK (collected_digest IS NULL OR phase = 'prepare'),
+  -- AND ONLY AN APPLY CARRIES AN AUTHORIZED CANDIDATE, all three members or
+  -- none: a proposal without its result and digest is not a candidate.
+  CHECK ((authorized_proposal_id IS NULL AND authorized_result_id IS NULL
+          AND authorized_result_digest IS NULL)
+      OR (phase = 'apply' AND authorized_proposal_id IS NOT NULL
+          AND authorized_result_id IS NOT NULL
+          AND authorized_result_digest IS NOT NULL))
+);
+CREATE UNIQUE INDEX capacity_one_active_member
+  -- SERIAL PHASES, STRUCTURALLY. At most one membership of a root may be live
+  -- at a time, so a parent apply and its preparation can never both be running
+  -- under one reservation. This is the enforcement point, not a rule stated in
+  -- prose and checked by whoever remembers.
+  --
+  -- THE COMMENT LIVES INSIDE THE STATEMENT: the migration splitter hands whole
+  -- statements to `_created_name`, which reads the leading word, so a comment
+  -- BEFORE a `CREATE` makes the step look like an unrecognised verb and every
+  -- schema-3 store refuses to migrate. Measured, step 13.
+  ON integration_capacity_members (orchestration_id)
+  WHERE state IN ('admitted', 'recovery-required');
+""",
+    # W156162. CREATE ONLY, which `_created_name` requires of every step the
+    # schema-3 expectation subtracts, and which is why the limits are a table
+    # rather than two columns on `jobs`. An existing store's Jobs configured
+    # nothing, so an empty table is exactly their meaning -- no backfill, and
+    # no rewriting of the submission journals that recorded them.
+    4: """
+CREATE TABLE job_execution_limits (
+  job_id TEXT PRIMARY KEY REFERENCES jobs(job_id),
+  requested TEXT NOT NULL,
+  compatibility_generation INTEGER NOT NULL CHECK (compatibility_generation >= 0)
+);
+""",
     3: """
 CREATE TABLE pool_generations (
   generation INTEGER PRIMARY KEY CHECK (generation >= 1),
@@ -466,6 +777,12 @@ SUBMISSION_COLUMNS = {
     "document": Column("json"),
     "incarnation": Column("text"),
     "recorded_at": Column("instant"),
+}
+
+JOB_EXECUTION_LIMIT_COLUMNS = {
+    "job_id": Column("identity"),
+    "requested": Column("json"),
+    "compatibility_generation": Column("count"),
 }
 
 JOB_COLUMNS = {

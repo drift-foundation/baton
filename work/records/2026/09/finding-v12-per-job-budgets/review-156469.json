@@ -1,0 +1,138 @@
+{
+  "work": "W156162",
+  "claim": 156469,
+  "author_spent_seconds": 30.33542030100034,
+  "prior_review_seconds": 0.37727526699927694,
+  "candidate_before": {
+    "src/baton_v12/job_manager/execution_limits.py": {
+      "sha256": "073ea7104df1aa4cf097cf12e7c7371a2cc918c95e2dd0c7de9225b734230442",
+      "bytes": 11558
+    },
+    "src/baton_v12/job_manager/documents.py": {
+      "sha256": "372495aa6a29060ca22e2f693e9390d9c0b53ea630ad6db42519dd7e37dd5a1d",
+      "bytes": 37047
+    },
+    "src/baton_v12/job_manager/schema.py": {
+      "sha256": "3f2afdb4f302cc929eb47aa5e73e4547d56ebaa8d69669f73df97dedde1fc452",
+      "bytes": 25036
+    },
+    "src/baton_v12/job_manager/store.py": {
+      "sha256": "f35eb9878c7bfbcd592bc5afc816acf1a67ee01a1529fc123e2b0f89fda33c91",
+      "bytes": 41531
+    },
+    "src/baton_v12/job_manager/submission.py": {
+      "sha256": "874b56b90c29ba1d197a9b1e1d7f63b18de09bfcb48273e0bc61b8d797c4111b",
+      "bytes": 12862
+    },
+    "src/baton_v12/job_manager/projection.py": {
+      "sha256": "db9b3f55fc09625a2f8394ed06313a29f02699ae39440dbbf1e3c5b3faa71641",
+      "bytes": 36658
+    },
+    "tests/job_manager/test_execution_limits.py": {
+      "sha256": "bb29ba5812749dc7e19137878474742814b9aee79929050a50ec0e6cacebf627",
+      "bytes": 25495
+    },
+    "tests/job_manager/test_documents.py": {
+      "sha256": "1a8c151ae2f88a47ec8b26110fdea2a5ba0cb4197ef8c76cd8d2a46c744d82f8",
+      "bytes": 14367
+    },
+    "tests/job_manager/test_tool.py": {
+      "sha256": "bade475f9eef10e4c3b1de3cf91989e77dfafcdcc6bd13ddbbaa9de10ca64d9b",
+      "bytes": 25026
+    },
+    "tests/job_manager/test_exchange.py": {
+      "sha256": "f6d426f9fa9d59a30b80587751dde2e98a537c95fd4f28610411a7d5808f949e",
+      "bytes": 31991
+    },
+    "tests/job_manager/test_store.py": {
+      "sha256": "d6c9e17b5f5c5afb7f0be820533fda8e469f6b4eb566d59d524dbaeef2fc035b",
+      "bytes": 42907
+    },
+    "tests/job_manager/test_scheduling.py": {
+      "sha256": "5780dc171e4b791d0488f78b3b531c7d31e04f833878523f2f38bf518b57f0ea",
+      "bytes": 72345
+    }
+  },
+  "runs": [
+    {
+      "name": "focused",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "tests.job_manager.test_execution_limits",
+        "tests.job_manager.test_documents",
+        "tests.job_manager.test_submission",
+        "tests.job_manager.test_scheduling.TheMigrationProvesTheSchemaItMigratesFrom"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.26365066200014553,
+      "log": "review-156469-focused.log"
+    },
+    {
+      "name": "probe",
+      "argv": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/repro-156469.py"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.2136644329984847,
+      "log": "review-156469-probe.log"
+    }
+  ],
+  "review_spent_seconds": 0.8545903619979072,
+  "candidate_after": {
+    "src/baton_v12/job_manager/execution_limits.py": {
+      "sha256": "073ea7104df1aa4cf097cf12e7c7371a2cc918c95e2dd0c7de9225b734230442",
+      "bytes": 11558
+    },
+    "src/baton_v12/job_manager/documents.py": {
+      "sha256": "372495aa6a29060ca22e2f693e9390d9c0b53ea630ad6db42519dd7e37dd5a1d",
+      "bytes": 37047
+    },
+    "src/baton_v12/job_manager/schema.py": {
+      "sha256": "3f2afdb4f302cc929eb47aa5e73e4547d56ebaa8d69669f73df97dedde1fc452",
+      "bytes": 25036
+    },
+    "src/baton_v12/job_manager/store.py": {
+      "sha256": "f35eb9878c7bfbcd592bc5afc816acf1a67ee01a1529fc123e2b0f89fda33c91",
+      "bytes": 41531
+    },
+    "src/baton_v12/job_manager/submission.py": {
+      "sha256": "874b56b90c29ba1d197a9b1e1d7f63b18de09bfcb48273e0bc61b8d797c4111b",
+      "bytes": 12862
+    },
+    "src/baton_v12/job_manager/projection.py": {
+      "sha256": "db9b3f55fc09625a2f8394ed06313a29f02699ae39440dbbf1e3c5b3faa71641",
+      "bytes": 36658
+    },
+    "tests/job_manager/test_execution_limits.py": {
+      "sha256": "bb29ba5812749dc7e19137878474742814b9aee79929050a50ec0e6cacebf627",
+      "bytes": 25495
+    },
+    "tests/job_manager/test_documents.py": {
+      "sha256": "1a8c151ae2f88a47ec8b26110fdea2a5ba0cb4197ef8c76cd8d2a46c744d82f8",
+      "bytes": 14367
+    },
+    "tests/job_manager/test_tool.py": {
+      "sha256": "bade475f9eef10e4c3b1de3cf91989e77dfafcdcc6bd13ddbbaa9de10ca64d9b",
+      "bytes": 25026
+    },
+    "tests/job_manager/test_exchange.py": {
+      "sha256": "f6d426f9fa9d59a30b80587751dde2e98a537c95fd4f28610411a7d5808f949e",
+      "bytes": 31991
+    },
+    "tests/job_manager/test_store.py": {
+      "sha256": "d6c9e17b5f5c5afb7f0be820533fda8e469f6b4eb566d59d524dbaeef2fc035b",
+      "bytes": 42907
+    },
+    "tests/job_manager/test_scheduling.py": {
+      "sha256": "5780dc171e4b791d0488f78b3b531c7d31e04f833878523f2f38bf518b57f0ea",
+      "bytes": 72345
+    }
+  },
+  "candidate_unchanged": true
+}

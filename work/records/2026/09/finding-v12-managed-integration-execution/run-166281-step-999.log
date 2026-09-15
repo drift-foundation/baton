@@ -1,0 +1,3 @@
+$ env PYTHONPATH=src:tools:. /usr/bin/python3 /tmp/w161230-timeout-proof-_22pd2fi/spawner.py
+TIMED OUT at the per-run bound; signalled SIGTERM; group proved gone: True
+DESCENDANT 1956171

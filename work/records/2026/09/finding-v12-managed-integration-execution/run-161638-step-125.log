@@ -1,0 +1,59 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+................EE...........................
+======================================================================
+ERROR: test_an_entry_admitted_against_another_snapshot_refuses (tests.tools.test_managed_integration.TheEntryThisSettlesIsThisSubmissionsOwn.test_an_entry_admitted_against_another_snapshot_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 944, in test_an_entry_admitted_against_another_snapshot_refuses
+    self.coordinator._connection.execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        "UPDATE entries SET eligibility = ? WHERE entry_id = ?",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        (json.dumps(dict(self.eligibility,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        expected_target_revision="f" * 40),
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    sort_keys=True), "entry-1"))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: eligibility
+
+======================================================================
+ERROR: test_content_for_one_submission_cannot_settle_another_entry (tests.tools.test_managed_integration.TheEntryThisSettlesIsThisSubmissionsOwn.test_content_for_one_submission_cannot_settle_another_entry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 906, in test_content_for_one_submission_cannot_settle_another_entry
+    fence = self.unrelated()
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 893, in unrelated
+    enqueue(self.coordinator,
+    ~~~~~~~^^^^^^^^^^^^^^^^^^
+            canonical_target_id=coordinator_fixtures.TARGET,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            entry_id="entry-2", eligibility=other)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1637, in enqueue
+    return _transact(store, operation_id, "entry.enqueue", signature, perform)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 925, in _transact
+    return store.transact(operation_id, kind, signature, action,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_proved)
+                          ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 766, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 1606, in perform
+    _denied(
+    ~~~~~~~^
+        f"checkpoint {name_value(account['checkpoint_id'])} of "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        f"a second entry id for one candidate is not a second place "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f"in the queue")
+        ^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/queue.py", line 208, in _denied
+    raise ContractRefusal("policy", "denied", message)
+baton_v12.contracts.errors.ContractRefusal: checkpoint 'checkpoint-1' of authority '0000000000000000000000000000000a' already holds rank 1 on this target as entry 'entry-1'; a second entry id for one candidate is not a second place in the queue
+
+----------------------------------------------------------------------
+Ran 45 tests in 1.181s
+
+FAILED (errors=2)

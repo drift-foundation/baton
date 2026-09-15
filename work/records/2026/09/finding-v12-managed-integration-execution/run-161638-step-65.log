@@ -1,0 +1,6 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_execution
+......................................................
+----------------------------------------------------------------------
+Ran 54 tests in 0.003s
+
+OK

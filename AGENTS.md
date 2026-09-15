@@ -15,7 +15,8 @@
   Slawomir. It does not authorize an agent to mutate Git state.
 - Do not wrap long calls or expressions merely for readability; avoid
   indentation churn, especially in deeply nested code.
-- Agents may always add tests without case-specific confirmation. This includes
+- The following general test-confirmation rule is superseded until further
+  notice by the standing authority below. Agents may always add tests without case-specific confirmation. This includes
   new test files/functions and additive cases or members in existing exhaustive
   test registries. Editing or weakening an existing test's assertions or
   expected behavior still requires clear, case-specific confirmation. An
@@ -23,7 +24,31 @@
   or removing tests within a bounded scope is that confirmation; it is not
   blanket authority for a test mutation outside the scheduled scope.
 
-### W71830 standing test-change authority
+### Standing test-change authority until further notice
+
+Owner ruling 2026-09-13: do not require separate test approvals until Slawomir
+revokes this authority. This applies to all Baton Work and all implementing,
+reviewing and integrating roles, including current Work. Agents may add, edit,
+replace or remove tests, fixtures, assertions, expected behavior and registry
+entries as needed for the authorized Work outcome without per-test, per-helper
+or additional-test-path owner approval.
+
+This ruling supersedes the general case-specific test-confirmation rule above
+and older test-only approval/path restrictions in accepted plans and handoffs,
+including W161230's exact test-path amendment gates. Record affected test paths
+and reasons in the owning plan/handoff and coordinate file ownership; this is
+documentation, not another approval gate. Independent review still evaluates
+changed expectations against accepted behavior. Do not waive required acceptance
+or remove genuine defect coverage merely to obtain a pass. Product scope,
+execution budgets, claims, Git ownership and reviewed candidate/provenance
+requirements remain applicable. This standing ruling supplies test-change
+authority for integration preflight; the integrator still imports only the
+independently reviewed candidate bytes.
+
+Decision history:
+[W161230 owner ruling](work/records/2026/09/finding-v12-managed-integration-execution/OWNER-TEST-AUTHORITY-2026-09-13.md).
+
+### W71830 standing test-change authority (historical campaign ruling)
 
 Owner ruling 2026-09-09T16:36Z: until W71830 completes or Slawomir revokes this
 authority, all test changes needed for its accepted scope are preapproved.
@@ -46,6 +71,75 @@ Do not request another per-test approval or block solely on older permission
 wording. Outside this campaign, and after its completion, the general rule above
 applies. Decision history:
 [W71830 FINDING](work/records/2026/09/finding-v12-standalone-multi-job-pipeline/FINDING.md#2026-09-09t1636z--standing-test-change-authority-through-w71830-completion).
+
+## V12 delivery and v13 hardening boundary
+
+Owner ruling 2026-09-14: deliver v12's reliable parallel development Jobs and a
+lightweight read-only Job monitor, then use that parallelism to accelerate v13
+hardening. Execution correctness, isolation, recovery, context reuse and honest
+reviewed result collection remain v12 requirements. Broader stress/performance,
+advanced scheduling/shared capacity, distributed execution and richer TUI work
+belong to v13; known work-loss, duplicate-effect, isolation or false-success
+defects are not deferred merely by calling them hardening.
+
+Pin and classify remaining Work in the current v11 authority now. Preserve
+existing Work identities, canonical records and evidence; move selected execution
+to v12 after readiness, without prematurely copying the backlog or introducing a
+second coordination authority. Individual dependency/containment changes require
+an explicit recorded classification; this release ruling does not close unfinished
+Work or silently alter a live assignment. Exact decision and next planning action:
+[W2 release boundary](work/records/2026/08/finding-v12-isolated-agent-workers/FINDING.md#v12-parallel-delivery-enables-v13-hardening--confirmed-2026-09-14).
+
+## Development verification time accounting
+
+Owner ruling 2026-09-14: cumulative stopwatch budgets are not approval or
+execution gates for ordinary focused deterministic verification in the current
+v12 delivery/v13 development campaign. This supersedes earlier cumulative
+author/reviewer caps, remaining-bank admission checks and demands to reconstruct
+missing historical seconds before another ordinary test iteration, including
+W161230's prospective1200s grant in M166281. No replenishment request is needed
+solely because a cumulative test allowance is exhausted or historically unknown.
+
+Use sensible per-run timeouts appropriate to the Job and test, with process
+termination and cleanup time. Predictions guide planning; they are not exact
+evidence or additional approval gates. Record measured durations when available,
+mark unknowns and estimates honestly, and preserve existing evidence. Do not
+manufacture upper bounds or erase costs. An unproved historical total is not
+proof that old processes ended; investigate concrete resource uncertainty
+separately without turning missing seconds into a development blocker.
+
+Selected product scope, focused-test scope, execution boundaries, isolation,
+cleanup and truthful independent acceptance remain required. Materially different
+execution such as live models, actual engine operations excluded by the owning
+scope, or broad stress campaigns needs its own selection. This does not authorize
+a previously excluded run or rerun, remove a reviewed single-run supervisor's
+limits, or change product Job timeout semantics. No broad discovery merely to
+settle historical accounting. Exact decision and correction:
+[W161230 finding](work/records/2026/09/finding-v12-managed-integration-execution/FINDING.md#2026-09-14t042423z--cumulative-test-time-is-not-a-development-gate).
+
+## V12 verification defaults
+
+Owner ruling 2026-09-12: for all future v12 work, use deterministic fake/replay
+providers and focused local tests by default. Live provider/model execution is
+reserved for a specific question that needs the real provider, such as actual
+authentication, provider protocol behavior or model-dependent output. State that
+question and why deterministic coverage cannot answer it in the owning Work;
+this is a scope explanation, not an additional approval or reviewer-model gate.
+Do not run live models merely because a test is an integration/end-to-end test,
+a change was handed off, or a fresh run identity was prepared. Reuse applicable
+live evidence rather than repeating it in the normal development loop.
+
+Simulate the provider at its normal boundary while exercising the real
+coordination and affected runtime, workspace, merge, test and final-result
+behavior. Label simulated evidence accurately; never fabricate owner receipts
+or claim live-provider coverage from a fixture. Extend deterministic coverage
+when needed instead of defaulting to a live call. Existing execution authority,
+budgets and genuine provider-specific acceptance obligations still apply.
+
+This standing default applies beyond W71830 and supersedes older blanket
+live-provider verification requirements for ordinary v12 development iterations.
+Decision and measured feedback-time comparison:
+[W71830 FINDING](work/records/2026/09/finding-v12-standalone-multi-job-pipeline/FINDING.md#2026-09-12t154509z--deterministic-provider-default-for-all-future-v12-work).
 
 ## Coordination identities
 
@@ -76,13 +170,14 @@ applies. Decision history:
 - Before changing any working-tree path, `baton.merge` completes the authority
   preflight for the whole proposed path set. An accepted Work description or
   plan that explicitly schedules adding, editing, or removing tests within a
-  bounded scope grants the case-specific test-change authority; the W71830
-  standing exception above supplies that authority for its campaign. The newest
+  bounded scope grants the case-specific test-change authority; the current
+  standing test-change authority above supplies it until revoked. The newest
   independent review still binds the immutable proposal digest, enumerates
   every existing test path actually changed, and evaluates any assertion or
   expected-behaviour changes. Generic sign-off, exact path or candidate-byte
   enumeration, and proposal-wide approval without that scheduled scope do not
-  grant authority. Refuse before changing any path when scope or review is
+  grant authority on their own; the standing ruling supplies test authority
+  without another owner-approved test-path amendment. Refuse before changing any path when scope or review is
   missing, ambiguous, stale, digest-mismatched, or incomplete: the integrator
   returns the Work for clarification and will never request interactive
   approval from a managed turn. Approval is limited to the reviewed candidate

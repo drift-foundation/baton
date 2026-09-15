@@ -1,0 +1,8 @@
+{
+  "live_provider": true,
+  "provider": "Claude CLI live-ab-v1",
+  "result": "live-provider confirmation passed",
+  "root": "/home/sl/.local/state/baton/v12/live-ab-nup4nltc",
+  "setup_seconds": 1.867098257993348,
+  "total_seconds": 398.9336481070204
+}

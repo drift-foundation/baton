@@ -1,0 +1,40 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_managed_integration_capacity
+............F....E..F.......................
+======================================================================
+ERROR: test_a_record_that_never_committed_configured_nothing (tests.job_manager.test_managed_integration_capacity.ThePersistedEvidenceIsOwnedEndToEnd.test_a_record_that_never_committed_configured_nothing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 856, in test_a_record_that_never_committed_configured_nothing
+    control = self.corrupted("prepare-attempt-1", state="live")
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 782, in corrupted
+    control._connection.execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        f"UPDATE operations SET {sets} WHERE operation_id = ?",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        tuple(columns.values()) + ("attempt.record:" + attempt_id,))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: CHECK constraint failed: state IN ('committed', 'refused')
+
+======================================================================
+FAIL: test_an_offer_naming_another_attempt_is_refused (tests.job_manager.test_managed_integration_capacity.TheOfferIdentityIsComplete.test_an_offer_naming_another_attempt_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 922, in test_an_offer_naming_another_attempt_is_refused
+    self.assertIn("names attempt", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'names attempt' not found in "execution 'prepare-attempt-1' has 0 claimed offers; a membership is admitted against exactly one"
+
+======================================================================
+FAIL: test_the_recorded_attempt_may_disagree_alone (tests.job_manager.test_managed_integration_capacity.ThePersistedEvidenceIsOwnedEndToEnd.test_the_recorded_attempt_may_disagree_alone)
+THE THIRD ACCOUNT, on its own. The two refusals added last claim
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 875, in test_the_recorded_attempt_may_disagree_alone
+    self.assertIn("e" * 64, str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' not found in "execution 'prepare-attempt-1' is planned with input_digest 'sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb…, claimed an offer carrying 'sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb… and was recorded with 'sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee…"
+
+----------------------------------------------------------------------
+Ran 44 tests in 0.236s
+
+FAILED (failures=2, errors=1)

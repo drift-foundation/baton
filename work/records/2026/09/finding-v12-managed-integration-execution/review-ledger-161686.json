@@ -1,0 +1,77 @@
+{
+  "work": "W161230",
+  "claim": 161686,
+  "slice": "slice1",
+  "authority": "M161614",
+  "reviewer_cap_seconds": 300.0,
+  "prior_reviewer_seconds": 0.0,
+  "runs": [
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.manager.test_reconciliation_worker",
+        "tests.manager.test_contracts_inventory"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "guard": {
+        "cap_seconds": 300.0,
+        "spent_seconds_before": 0.0,
+        "remaining_seconds_before": 300.0,
+        "expected_seconds": 5.0,
+        "margin_seconds": 2.0,
+        "timeout_seconds": 30.0
+      },
+      "log": "review-run-161686-1.log",
+      "status": "finished",
+      "exit_code": 0,
+      "elapsed_seconds": 0.2637220000033267
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-161686.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "guard": {
+        "cap_seconds": 300.0,
+        "spent_seconds_before": 0.2637220000033267,
+        "remaining_seconds_before": 299.7362779999967,
+        "expected_seconds": 5.0,
+        "margin_seconds": 2.0,
+        "timeout_seconds": 30.0
+      },
+      "log": "review-run-161686-2.log",
+      "status": "finished",
+      "exit_code": 1,
+      "elapsed_seconds": 0.2137571800049045
+    },
+    {
+      "argv": [
+        "/usr/bin/python3",
+        "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/probe-161686.py"
+      ],
+      "cwd": "/home/sl/src/baton/v12/python",
+      "guard": {
+        "cap_seconds": 300.0,
+        "spent_seconds_before": 0.4774791800082312,
+        "remaining_seconds_before": 299.52252081999177,
+        "expected_seconds": 5.0,
+        "margin_seconds": 2.0,
+        "timeout_seconds": 30.0
+      },
+      "log": "review-run-161686-3.log",
+      "status": "finished",
+      "exit_code": 1,
+      "elapsed_seconds": 0.21366991700051585
+    }
+  ],
+  "environment": {
+    "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+    "jsonschema": "4.19.2",
+    "qualification": "Pinned jsonschema 4.26.0 required for final acceptance; no install authorized."
+  },
+  "reviewer_spent_seconds": 0.691149097008747,
+  "reviewer_remaining_seconds": 299.30885090299125
+}

@@ -1,0 +1,58 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.tools.test_managed_integration
+.......F...F....F
+======================================================================
+FAIL: test_a_lease_this_node_does_not_hold_refuses (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_lease_this_node_does_not_hold_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 497, in test_a_lease_this_node_does_not_hold_refuses
+    self.assertEqual(self.materializer.asked, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'canonical_target_id': 'target:mainline'[188 chars]-1'}] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+{'canonical_target_id': 'target:mainline', 'managed_result_id': 'integration-capacity-1', 'phase': 'apply', 'content_digest': 'sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', 'result_id': 'result-attempt-1'}
+
++ []
+- [{'canonical_target_id': 'target:mainline',
+-   'content_digest': 'sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
+-   'managed_result_id': 'integration-capacity-1',
+-   'phase': 'apply',
+-   'result_id': 'result-attempt-1'}]
+
+======================================================================
+FAIL: test_a_stale_fence_refuses_before_the_swap (tests.tools.test_managed_integration.TheGrantAndTheContentAreProvedBeforeAnyWrite.test_a_stale_fence_refuses_before_the_swap)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 488, in test_a_stale_fence_refuses_before_the_swap
+    self.assertEqual(self.materializer.asked, [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'canonical_target_id': 'target:mainline'[188 chars]-1'}] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+{'canonical_target_id': 'target:mainline', 'managed_result_id': 'integration-capacity-1', 'phase': 'apply', 'content_digest': 'sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', 'result_id': 'result-attempt-1'}
+
++ []
+- [{'canonical_target_id': 'target:mainline',
+-   'content_digest': 'sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
+-   'managed_result_id': 'integration-capacity-1',
+-   'phase': 'apply',
+-   'result_id': 'result-attempt-1'}]
+
+======================================================================
+FAIL: test_the_swap_is_against_the_admitted_revision (tests.tools.test_managed_integration.ThePublicationIsTheTargetNodesAct.test_the_swap_is_against_the_admitted_revision)
+NOT against whatever the reference says now. Those are the same
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_integration.py", line 368, in test_the_swap_is_against_the_admitted_revision
+    self.assertIn("something moved the target underneath it",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'something moved the target underneath it' not found in "the configured target is at 'e686d850d648e5b8b4f38ebab6be70b7b19d5fcf', which is neither the admitted '3f19ba4ad31a2c9a750eb845db436b6a0d8d47ff' nor this publication's own '69652e43fa7ac6fae0d0c84e0afacbe2b2b3f09d'; something else moved the target, and the swap is not retried against whatever is there now"
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.336s
+
+FAILED (failures=3)

@@ -1,0 +1,44 @@
+{
+  "job_id": "job-a",
+  "stage_id": "job-a/implementation",
+  "kind": "implementation",
+  "work_id": "58c62895-W1",
+  "attempt_id": "attempt-4f57246b3c43c78b76000b7ea874f1ad23f130c5451b3875f57aacdc7b03a2a4",
+  "episode": 1,
+  "assignment": {
+    "work_ref": {
+      "authority_uuid": "58c62895a8d9464192a6d303e5553489",
+      "work_id": "58c62895-W1"
+    },
+    "participant": "baton.synthetic-impl-a",
+    "generation": 1
+  },
+  "runtime_id": null,
+  "sequence_id": null,
+  "ending": "preparation-failed",
+  "disposition": null,
+  "fault_code": null,
+  "manifest_digest": null,
+  "observed_at": "2026-09-12T14:49:47.254Z",
+  "artifacts": [],
+  "owner_failure": {
+    "attempt_id": "attempt-4f57246b3c43c78b76000b7ea874f1ad23f130c5451b3875f57aacdc7b03a2a4",
+    "execution_runtime": "not-started",
+    "expect": {
+      "generation": 1,
+      "participant": "baton.synthetic-impl-a",
+      "work_ref": {
+        "authority_uuid": "58c62895a8d9464192a6d303e5553489",
+        "work_id": "58c62895-W1"
+      }
+    },
+    "failure": {
+      "category": "policy",
+      "code": "denied",
+      "kind": "refusal",
+      "message": "the assignment's writable workspace '/tmp/baton-synthetic-ab-5f9zjyfc/storage/.baton-review-line\u2026 is on a tmpfs filesystem, which is memory rather than storage; checkout, build-cache, test-artifacts, output, logs do not rely on scratch, and the runtime's own bounded scratch is what scratch is for"
+    },
+    "runtime_id": null
+  },
+  "recovery": "retain exact preparation/start failure; no automatic retry or repair"
+}

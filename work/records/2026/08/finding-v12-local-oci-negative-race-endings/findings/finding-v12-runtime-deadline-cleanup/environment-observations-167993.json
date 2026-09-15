@@ -1,0 +1,27 @@
+{
+  "claim": 167993,
+  "kind": "metadata observations, not engine execution",
+  "interpreter": {
+    "executable": "/home/sl/src/baton/.venv/bin/python3",
+    "version": "3.13.7",
+    "jsonschema": "4.26.0",
+    "binary_sha256": "efb29ce53d36ebaeee80e3aa44fd6c7f9d71bbded5fe1665240b2ed8ecaeee0e"
+  },
+  "image_inspection": {
+    "command": "docker image inspect sha256:9b8c98820877e33d38d33352d86cc3810e5b72d4935a181b82b512b4d3291de8",
+    "exit_code": 0,
+    "Id": "sha256:9b8c98820877e33d38d33352d86cc3810e5b72d4935a181b82b512b4d3291de8",
+    "Entrypoint": [
+      "python3",
+      "/opt/baton/baton_worker.py"
+    ],
+    "User": "65532:65532",
+    "source": "standalone direct exec output in claim167993; selected fields transcribed; no container run or content probe"
+  },
+  "deployment": {
+    "sha256": "971fba687461bf4cc0c8899b5f692d086cad3af8cd794573b2004cee1f0a7f94",
+    "matches_handback_M165203": true
+  },
+  "runtime_spending_added": 0,
+  "metadata_probe_wall_time": "not independently measured; no claimed zero-cost metadata duration"
+}

@@ -1,0 +1,81 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_storage
+.....EE.....F........
+======================================================================
+ERROR: test_a_second_managed_result_for_one_snapshot_is_refused (tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable.test_a_second_managed_result_for_one_snapshot_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 378, in test_a_second_managed_result_for_one_snapshot_is_refused
+    record_managed_result(store, other, self.result(other),
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          source_proposal_id=PROPOSAL,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          target_revision=REVISION)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2191, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, record,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 758, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2171, in record
+    connection.execute(
+    ~~~~~~~~~~~~~~~~~~^
+        "INSERT INTO managed_integration_results (managed_result_id, "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<14 lines>...
+         else _stored(adopted["collected"]),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         store._now()))
+         ^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: managed_integration_results.canonical_target_id, managed_integration_results.source_proposal_id, managed_integration_results.target_revision
+
+======================================================================
+ERROR: test_another_snapshot_of_the_same_submission_is_ordinary (tests.integration.test_managed_storage.OneResultPerTargetSnapshotInEitherTable.test_another_snapshot_of_the_same_submission_is_ordinary)
+A later target advance needs a NEW result from the same submission;
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 419, in test_another_snapshot_of_the_same_submission_is_ordinary
+    recorded = record_managed_result(store, other, self.result(other),
+                                     source_proposal_id=PROPOSAL,
+                                     target_revision="revision-2")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2191, in record_managed_result
+    return store.transact(operation_id, MANAGED_KIND, signature, record,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          witness=_managed_witness)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/store.py", line 758, in transact
+    result = action(connection)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/reconciliation.py", line 2171, in record
+    connection.execute(
+    ~~~~~~~~~~~~~~~~~~^
+        "INSERT INTO managed_integration_results (managed_result_id, "
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<14 lines>...
+         else _stored(adopted["collected"]),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         store._now()))
+         ^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: managed_integration_results.orchestration_id, managed_integration_results.phase
+
+======================================================================
+FAIL: test_an_exact_repeat_replays_and_changed_operands_collide (tests.integration.test_managed_storage.TheManagedResultGoesThroughItsOwnOwner.test_an_exact_repeat_replays_and_changed_operands_collide)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 284, in test_an_exact_repeat_replays_and_changed_operands_collide
+    self.assertEqual(
+    ~~~~~~~~~~~~~~~~^
+        record_managed_result(store, self.task(), self.result(),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              source_proposal_id=PROPOSAL,
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              target_revision=REVISION),
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+        first)
+        ^^^^^^
+AssertionError: None != {'managed_result_id': 'prepare-attempt-1'[2339 chars]1'}}}
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.040s
+
+FAILED (failures=1, errors=2)

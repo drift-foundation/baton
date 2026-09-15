@@ -1,0 +1,13 @@
+{
+  "current_measured_checks_seconds": 5.786528437980451,
+  "cumulative_measured_preparation_and_checks_seconds": 117.5618779029163,
+  "nine_failed_and_one_interrupted_live_wall_seconds": 2945.8728742020467,
+  "claim_started_at": "2026-09-12T14:19:10Z",
+  "recorded_at": "2026-09-12T14:27:37.734393+00:00",
+  "current_claim_elapsed_to_record_seconds": 507.734393,
+  "elapsed_qualification": "Managed-turn wall time, including reading, reasoning, context compaction, edits and checks; not model token/billing time. Final handoff latency follows this sample. Historical unmetered preparation/coordination uncertainty remains.",
+  "preserved_execution_markers": {
+    "selected-images.json": "d0da4684accfa0cba16dc712d2456745de56ef3632f315a7c17a6649407a8f5f",
+    "execution-review.json": "746813adc4b5bc8d91b47b1fc48f1345548a7cba1f2711eeaa70a91605b82423"
+  }
+}

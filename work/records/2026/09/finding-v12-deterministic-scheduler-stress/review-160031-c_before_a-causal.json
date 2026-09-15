@@ -1,0 +1,57 @@
+[
+  {
+    "result_id": "result-20b39455ffc0a003a115490848af091e738ddefe87a6b2cba306d33b00526ea6",
+    "content_digest": "sha256:5928e1128a398cdf5ad4c375506c1ece3e1e1a49c776eaec7a8f0ae51977670f",
+    "candidate": "264ec86ae6afe34bbc4adf3862b013d5fac989ad",
+    "tree": "07274a7610f9837974bf97ebf52cb3c61ce82cc6",
+    "target": "3223bfdaa0f3c63aa186bceb21e8e27d465a26ad",
+    "execution": "baton.result-observer",
+    "observations": {
+      "base": {
+        "command": [
+          "python3",
+          "check_job_a.py"
+        ],
+        "test_identity": "w103525-job_a-regression",
+        "input_commit": "26f2b43f7eb8640dc5f52b2370337ad523bac608",
+        "input_tree": "5b5d30b7ec542892d883931a154e12ef651d44eb",
+        "test_digest": "sha256:6f7cb4673921a58f166a9f584ddf2aab7b4464ba99eb9b8ba813980ee49fec20",
+        "environment": "configured-required-test",
+        "status": 1,
+        "output": "ModuleNotFoundError: No module named 'feature_job_a'",
+        "execution": "baton.result-observer",
+        "harness_added": true
+      },
+      "isolated": {
+        "command": [
+          "python3",
+          "check_job_a.py"
+        ],
+        "test_identity": "w103525-job_a-regression",
+        "input_commit": "8f4e6879e1ae925f73f4d668c0afc91e286ca20d",
+        "input_tree": "6a39fa3907f66066f2061872855d2202b530f3c2",
+        "test_digest": "sha256:6f7cb4673921a58f166a9f584ddf2aab7b4464ba99eb9b8ba813980ee49fec20",
+        "environment": "configured-required-test",
+        "status": 0,
+        "output": "job-a regression passed",
+        "execution": "baton.result-observer",
+        "harness_added": false
+      },
+      "combined": {
+        "command": [
+          "python3",
+          "check_job_a.py"
+        ],
+        "test_identity": "w103525-job_a-regression",
+        "input_commit": "264ec86ae6afe34bbc4adf3862b013d5fac989ad",
+        "input_tree": "07274a7610f9837974bf97ebf52cb3c61ce82cc6",
+        "test_digest": "sha256:6f7cb4673921a58f166a9f584ddf2aab7b4464ba99eb9b8ba813980ee49fec20",
+        "environment": "configured-required-test",
+        "status": 0,
+        "output": "job-a regression passed",
+        "execution": "baton.result-observer",
+        "harness_added": false
+      }
+    }
+  }
+]

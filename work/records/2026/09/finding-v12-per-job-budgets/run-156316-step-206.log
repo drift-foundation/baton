@@ -1,0 +1,36 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling
+FFF.........
+======================================================================
+FAIL: test_a_blocked_failure_can_never_be_published_or_authorized (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_failure_can_never_be_published_or_authorized) (owner='publish_result')
+BLOCKED PUBLICATION, EVIDENCE AND IMPORT, asked of the PUBLIC OWNERS.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1588, in test_a_blocked_failure_can_never_be_published_or_authorized
+    self.assertIn(result_id, str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'result-28c506f964affe2aeebb9218b3676ad65ac1c21a46f5385581c159e8ae529e6b' not found in "result 'result-28c506f964affe2aeebb9218b3676ad65ac1c21a46f5385581c1… is blocked: the combined causal observation supplied NO EXIT STATUS (timeout) under this Job's 77s host_verification ceiling; the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '41bbf51f7d6ce533a5435d0ec1b47d98802ee28f'; no exit status was observed and none is invented. The phases before it are retained with their own statuses and the phases after it did not run"
+
+======================================================================
+FAIL: test_a_blocked_failure_can_never_be_published_or_authorized (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_failure_can_never_be_published_or_authorized) (owner='record_result_evidence')
+BLOCKED PUBLICATION, EVIDENCE AND IMPORT, asked of the PUBLIC OWNERS.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1588, in test_a_blocked_failure_can_never_be_published_or_authorized
+    self.assertIn(result_id, str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'result-28c506f964affe2aeebb9218b3676ad65ac1c21a46f5385581c159e8ae529e6b' not found in "result 'result-28c506f964affe2aeebb9218b3676ad65ac1c21a46f5385581c1… is blocked: the combined causal observation supplied NO EXIT STATUS (timeout) under this Job's 77s host_verification ceiling; the configured required test 'feature_check.py' did not finish within this Job's 77s host_verification ceiling at '41bbf51f7d6ce533a5435d0ec1b47d98802ee28f'; no exit status was observed and none is invented. The phases before it are retained with their own statuses and the phases after it did not run"
+
+======================================================================
+FAIL: test_a_blocked_failure_can_never_be_published_or_authorized (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_failure_can_never_be_published_or_authorized) (owner='record_imported')
+BLOCKED PUBLICATION, EVIDENCE AND IMPORT, asked of the PUBLIC OWNERS.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_execution_limits.py", line 1588, in test_a_blocked_failure_can_never_be_published_or_authorized
+    self.assertIn(result_id, str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'result-28c506f964affe2aeebb9218b3676ad65ac1c21a46f5385581c159e8ae529e6b' not found in "result 'result-28c506f964affe2aeebb9218b3676ad65ac1c21a46f5385581c1… is 'blocked'; a terminal import is recorded for a result its own owners authorized"
+
+----------------------------------------------------------------------
+Ran 10 tests in 14.851s
+
+FAILED (failures=3)

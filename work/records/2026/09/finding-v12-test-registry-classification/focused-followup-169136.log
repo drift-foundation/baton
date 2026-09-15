@@ -1,0 +1,7 @@
+test_empty_evidence_destination_allows_the_leaf_and_serial_does_not_import_it (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_empty_evidence_destination_allows_the_leaf_and_serial_does_not_import_it) ... ok
+test_leaked_supervised_ids_refuse_the_whole_collection_before_shards (tests.tools.test_parallel_runner.SupervisedSelectionFailsClosed.test_leaked_supervised_ids_refuse_the_whole_collection_before_shards) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.156s
+
+OK

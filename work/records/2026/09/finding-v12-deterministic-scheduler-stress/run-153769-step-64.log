@@ -1,0 +1,90 @@
+### label: authorization-corrected
+### cwd: /home/sl/src/baton/v12/python
+### argv: ["env", "PYTHONPATH=src:tools:.", "python3", "-m", "unittest", "tests.tools.test_scheduler_trace"]
+### exit: 1
+### elapsed_seconds: 2.895270
+### STDOUT
+
+### STDERR
+.EEE...EEEEE....................................................
+======================================================================
+ERROR: test_a_full_positive_authorization_chain_passes (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_full_positive_authorization_chain_passes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1680, in test_a_full_positive_authorization_chain_passes
+    self.assertEqual(self.codes(self.authorized_chain()), [])
+                     ^^^^^^^^^^
+AttributeError: 'TheComposedOwnersSupplyAuthorizedTransitions' object has no attribute 'codes'
+
+======================================================================
+ERROR: test_a_nonaccepting_review_authorizes_nothing (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_nonaccepting_review_authorizes_nothing)
+The exact erasure review 2026-09-12T17:30:56Z retained: a review
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1689, in test_a_nonaccepting_review_authorizes_nothing
+    codes = self.codes(held)
+            ^^^^^^^^^^
+AttributeError: 'TheComposedOwnersSupplyAuthorizedTransitions' object has no attribute 'codes'
+
+======================================================================
+ERROR: test_a_review_recorded_after_its_integration_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_a_review_recorded_after_its_integration_is_refused)
+The other retained erasure: a review at 00:00:02 after an integration
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1700, in test_a_review_recorded_after_its_integration_is_refused
+    self.assertIn("out-of-order", self.codes(held))
+                                  ^^^^^^^^^^
+AttributeError: 'TheComposedOwnersSupplyAuthorizedTransitions' object has no attribute 'codes'
+
+======================================================================
+ERROR: test_an_authorization_without_its_decision_context_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_authorization_without_its_decision_context_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1720, in test_an_authorization_without_its_decision_context_is_refused
+    self.assertIn("unattributed-authorization", self.codes(held))
+                                                ^^^^^^^^^^
+AttributeError: 'TheComposedOwnersSupplyAuthorizedTransitions' object has no attribute 'codes'
+
+======================================================================
+ERROR: test_an_import_missing_a_judgment_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_import_missing_a_judgment_is_refused) (missing='verify')
+All three judgments, not a review alone.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1708, in test_an_import_missing_a_judgment_is_refused
+    self.assertIn("unauthorized-subject", self.codes(held))
+                                          ^^^^^^^^^^
+AttributeError: 'TheComposedOwnersSupplyAuthorizedTransitions' object has no attribute 'codes'
+
+======================================================================
+ERROR: test_an_import_missing_a_judgment_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_import_missing_a_judgment_is_refused) (missing='review')
+All three judgments, not a review alone.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1708, in test_an_import_missing_a_judgment_is_refused
+    self.assertIn("unauthorized-subject", self.codes(held))
+                                          ^^^^^^^^^^
+AttributeError: 'TheComposedOwnersSupplyAuthorizedTransitions' object has no attribute 'codes'
+
+======================================================================
+ERROR: test_an_import_missing_a_judgment_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_import_missing_a_judgment_is_refused) (missing='approve')
+All three judgments, not a review alone.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1708, in test_an_import_missing_a_judgment_is_refused
+    self.assertIn("unauthorized-subject", self.codes(held))
+                                          ^^^^^^^^^^
+AttributeError: 'TheComposedOwnersSupplyAuthorizedTransitions' object has no attribute 'codes'
+
+======================================================================
+ERROR: test_an_import_of_another_candidate_is_refused (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_an_import_of_another_candidate_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 1714, in test_an_import_of_another_candidate_is_refused
+    self.assertIn("mismatched-authorization", self.codes(held))
+                                              ^^^^^^^^^^
+AttributeError: 'TheComposedOwnersSupplyAuthorizedTransitions' object has no attribute 'codes'
+
+----------------------------------------------------------------------
+Ran 62 tests in 2.709s
+
+FAILED (errors=8)

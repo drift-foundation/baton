@@ -1,0 +1,46 @@
+E..EE
+======================================================================
+ERROR: test_grant_is_checked_after_receipt_object_work_before_transaction (tests.tools.test_managed_apply.TheTargetEffectAndReceiptAreOneTransaction.test_grant_is_checked_after_receipt_object_work_before_transaction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 96, in test_grant_is_checked_after_receipt_object_work_before_transaction
+    self.assertIsNone(self.profile.publication_receipt(self.line.place, publication_id="publication-a"))
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 533, in publication_receipt
+    _refuse("the publication receipt cannot be read")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 70, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the publication receipt cannot be read
+
+======================================================================
+ERROR: test_stale_target_cas_creates_no_receipt (tests.tools.test_managed_apply.TheTargetEffectAndReceiptAreOneTransaction.test_stale_target_cas_creates_no_receipt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 52, in test_stale_target_cas_creates_no_receipt
+    self.assertIsNone(self.profile.publication_receipt(self.line.place, publication_id="publication-a"))
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 533, in publication_receipt
+    _refuse("the publication receipt cannot be read")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 70, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the publication receipt cannot be read
+
+======================================================================
+ERROR: test_target_and_exact_receipt_survive_a_new_owner (tests.tools.test_managed_apply.TheTargetEffectAndReceiptAreOneTransaction.test_target_and_exact_receipt_survive_a_new_owner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_managed_apply.py", line 38, in test_target_and_exact_receipt_survive_a_new_owner
+    before = self.profile.publication_receipt(self.line.place, publication_id="publication-a")
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 533, in publication_receipt
+    _refuse("the publication receipt cannot be read")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/git_profile.py", line 70, in _refuse
+    raise IntegrationProfileRefusal(message)
+baton_v12.integration.git_profile.IntegrationProfileRefusal: the publication receipt cannot be read
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.058s
+
+FAILED (errors=3)

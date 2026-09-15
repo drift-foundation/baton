@@ -537,7 +537,7 @@ class ClaudeAgent:
 
     # -- the provider turn, for a workload this adapter does not own ---------
 
-    def invoke_provider(self, *, prompt, room):
+    def invoke_provider(self, *, prompt, room, seen=None):
         """One provider turn, under this adapter's existing rules.
 
         W110935. ADDITIVE, AND IT OWNS NO NEW MECHANISM. Everything that makes
@@ -563,6 +563,19 @@ class ClaudeAgent:
         document has a different prompt, and defaulting to this file's would
         hand the provider an instruction about work it is not doing.
         """
+        # AND THE LAUNCH IT WAS DELIVERED UNDER. W156162, review
+        # 2026-09-13T03:27:43Z [P1]: `_seen` is set by `work()` and this entry
+        # never calls it, so an integrator whose Job requested 60 seconds
+        # reached the production run seam with 3600 and the per-Job provider
+        # ceiling stopped at the ordinary path. The caller passes the launch it
+        # has ALREADY PROVED, and it is held for THIS TURN only: an adapter
+        # remembering one delivery's ceilings across turns would be a second
+        # account of a fact the delivery carries.
+        #
+        # `None` IS THE DELIVERY THAT CARRIES NO JOB -- `/1` and `/2` -- and it
+        # takes this module's own default exactly as before. It is not a way to
+        # opt out of a Job's ceilings: a `/3` whose boundary is missing or
+        # malformed is refused by `_bound` rather than defaulted.
         if type(prompt) is not str or not prompt:
             raise TaskRefusal("a provider turn is invoked with a prompt")
         if type(room) is not str or not room or not os.path.isabs(room):
@@ -573,13 +586,21 @@ class ClaudeAgent:
             raise TaskRefusal(
                 "a provider turn's working directory is a real directory of "
                 "its own, reached by its own canonical name")
+        if seen is not None and not isinstance(seen, dict):
+            raise TaskRefusal(
+                "a provider turn's launch delivery is the document its caller "
+                "proved, or nothing at all")
         scratch = self._scratch()
         environments = self._child_environments(scratch)
         # `task` IS UNUSED WHEN A PROMPT IS SUPPLIED -- `_provider` reads it
         # only to compose the default one -- so `None` is passed deliberately
         # rather than a document this adapter would have to invent.
-        return self._provider(None, room, scratch, environments["provider"],
-                              prompt=prompt)
+        held, self._seen = self._seen, seen
+        try:
+            return self._provider(None, room, scratch,
+                                  environments["provider"], prompt=prompt)
+        finally:
+            self._seen = held
 
     # -- the two methods `baton_worker` calls --------------------------------
 
@@ -599,6 +620,45 @@ class ClaudeAgent:
                           "operator selected the task before the container "
                           "started"}
 
+    # W156162: THE LAUNCH DOCUMENT THIS TURN WAS GIVEN, held for the two
+    # boundaries that need its ceilings. `None` is a composition that was
+    # handed none -- focused verification, and the review branch below, which
+    # runs no provider turn.
+    _seen = None
+
+    # W156162: THE CEILINGS THIS TURN ACTUALLY USES.
+    #
+    # `PROVIDER_SECONDS` and `VERIFICATION_SECONDS` are this module's defaults
+    # and stay exactly what they were. What changes is that a launch document
+    # carrying a Job context supplies the numbers instead -- which is the whole
+    # point of the Work: the operator configures a Job, and the command this
+    # container runs is given what the operator configured.
+    #
+    # THE DEFAULT IS FOR A LAUNCH WITH NO JOB BEHIND IT, not for a Job that
+    # configured nothing. A Job that configured nothing resolves to these same
+    # numbers at its own owner and delivers them explicitly, so falling back
+    # here would only ever cover a `/1` or `/2` delivery.
+    def _bound(self, seen, boundary, default):
+        held = (seen or {}).get("job_execution")
+        if not isinstance(held, dict):
+            return default
+        limits = held.get("execution_limits") or {}
+        one = (limits.get("boundaries") or {}).get(boundary) or {}
+        seconds = one.get("seconds")
+        # A JOB-BOUND DELIVERY NEVER FALLS BACK. Review 2026-09-13T02:41:57Z
+        # [P1]: this returned the module default for a boundary the delivery
+        # did not carry, so a resealed configuration missing `provider_turn`
+        # ran for an hour when the operator had written a minute. `launched`
+        # now refuses an incomplete configuration, and this refuses too rather
+        # than trusting that it did -- a silent default here is the whole
+        # defect the Work exists to remove, arriving one layer in.
+        if type(seconds) is not int or type(seconds) is bool:
+            raise TaskRefusal(
+                f"this launch carries a Job execution context and names no "
+                f"usable {boundary} bound; a configured Job does not fall "
+                f"back to this worker's own default")
+        return seconds
+
     def work(self, seen, declared):
         """Run the frozen task and author the declared proposal.
 
@@ -610,6 +670,9 @@ class ClaudeAgent:
         # W110772: WHICH JOB THIS CONTAINER WAS LAUNCHED FOR. The launch
         # document's validated `role` selects the branch; nothing here
         # inspects the filesystem to decide what kind of turn it is.
+        # HELD BEFORE ANY BRANCH, because the ceilings belong to the turn
+        # rather than to one of its shapes.
+        self._seen = seen
         if seen.get("role") == REVIEW_ROLE:
             return self._review(declared)
         if len(declared) == 1:
@@ -1672,14 +1735,16 @@ class ClaudeAgent:
         argv = [PROVIDER_PROGRAM, *PROVIDER_ARGUMENTS,
                 _prompt(task) if prompt is None else prompt]
         try:
+            seconds = self._bound(self._seen, "provider_turn",
+                                  PROVIDER_SECONDS)
             status, record, partial = self._ran_provider(
-                argv, cwd=candidate, seconds=PROVIDER_SECONDS,
+                argv, cwd=candidate, seconds=seconds,
                 env=self._revalidated_environment(scratch, environment))
         except subprocess.TimeoutExpired:
             return {"ok": False, "status": None,
                     "failure_reason": PROVIDER_TIMED_OUT,
                     "why": f"the provider did not finish within "
-                           f"{PROVIDER_SECONDS}s"}
+                           f"{self._bound(self._seen, 'provider_turn', PROVIDER_SECONDS)}s"}
         except OSError as failed:
             return {"ok": False, "status": None,
                     "failure_reason": PROVIDER_START_ERROR,
@@ -1962,14 +2027,18 @@ class ClaudeAgent:
         # command is provider-edited code.
         try:
             pass_fds = self._revalidated_directories(environment, directories)
+            seconds = self._bound(self._seen, "ordinary_verification",
+                                  VERIFICATION_SECONDS)
             status = self._ran(
                 list(task["verification"]), cwd=candidate,
-                seconds=VERIFICATION_SECONDS,
+                seconds=seconds,
                 env=environment, pass_fds=pass_fds)
         except subprocess.TimeoutExpired:
             return {"status": None,
-                    "text": _transcript(task, f"did not finish within "
-                                              f"{VERIFICATION_SECONDS}s")}
+                    "text": _transcript(
+                        task,
+                        f"did not finish within "
+                        f"{self._bound(self._seen, 'ordinary_verification', VERIFICATION_SECONDS)}s")}
         except OSError as failed:
             return {"status": None,
                     "text": _transcript(task, f"could not be started "

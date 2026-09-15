@@ -1,0 +1,7 @@
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.932s
+
+OK
+{"derived_revision": "cdfacabf256a375a02293a616b0f8bd663fa2957", "derived_tree": "e75b85b6c985a0cf4eacad6cfff393915e79c11e", "git_mode": "100755", "proof": "exact-preparation-object-export", "scratch_gone": true}
+{"apply": "planned", "cache_recovery": "same-adoption", "candidate_digest": "sha256:9cf432606593431f4d4a57ac0a6b5cca82c274a7e67bcc03c308faa8f32f371e", "cleanup": "retained", "cut": null, "fixture_processes": 1, "harness_digest": "sha256:5f89f832b8991f59da73437cc442da4c68fe759991910eaf22caa5a0eae65001", "host_trap": "proved-and-unreached", "parent": "queued-unclaimed", "proof": "ordinary-managed-preparation", "request_digest": "sha256:94fd79be8d1cf09387ce98f6ed56d06bcaf421ca33cd4c035c286618edfe9451", "root": "open", "runtime": "destroyed", "worker_exit": 0}

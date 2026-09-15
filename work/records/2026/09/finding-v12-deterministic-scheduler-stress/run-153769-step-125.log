@@ -1,0 +1,23 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces
+.....................................F..................................
+======================================================================
+FAIL: test_a_release_the_owner_timestamped_earlier_did_precede (tests.tools.test_scheduler_trace.TheValidatorRefusesSyntheticInvalidTraces.test_a_release_the_owner_timestamped_earlier_did_precede)
+Its legal companion, so the instants are not merely a refusal.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 956, in test_a_release_the_owner_timestamped_earlier_did_precede
+    self.assertEqual(self.codes(held), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['instants-disagree-with-order'] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+'instants-disagree-with-order'
+
+- ['instants-disagree-with-order']
++ []
+
+----------------------------------------------------------------------
+Ran 72 tests in 0.067s
+
+FAILED (failures=1)

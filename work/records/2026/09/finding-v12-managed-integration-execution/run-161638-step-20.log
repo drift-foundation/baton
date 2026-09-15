@@ -1,0 +1,20 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_managed_integration_capacity
+E
+======================================================================
+ERROR: test_managed_integration_capacity (unittest.loader._FailedTest.test_managed_integration_capacity)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_managed_integration_capacity
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/loader.py", line 137, in loadTestsFromName
+    module = __import__(module_name)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 12, in <module>
+    from baton_v12.job_manager import integration_capacity as capacity
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 36, in <module>
+    from . import boundaries
+ImportError: cannot import name 'boundaries' from 'baton_v12.job_manager' (/home/sl/src/baton/v12/python/src/baton_v12/job_manager/__init__.py)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)

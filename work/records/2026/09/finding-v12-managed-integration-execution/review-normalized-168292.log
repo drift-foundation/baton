@@ -1,0 +1,7 @@
+test_the_whole_sequence_runs_against_real_owners (tests.job_manager.test_managed_integration_capacity.ThePreparationIsCoordinatedEndToEnd.test_the_whole_sequence_runs_against_real_owners) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.013s
+
+OK
+REVIEW bypasses recorded skip for diagnosis: A.3 end-to-end stops at activation -- activate_assignment refuses the FakeSession claim answer: 'the claimed assignment needs work_ref'

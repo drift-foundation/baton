@@ -1,0 +1,166 @@
+$ env PYTHONPATH=src:tools:. python3 -c 
+import sys, unittest
+sys.path.insert(0, '/tmp')
+import probe_162696_check as probe
+suite = unittest.TestLoader().loadTestsFromTestCase(probe.BoundaryObservations)
+result = unittest.TextTestRunner(verbosity=2).run(suite)
+print('DEFECT OBSERVATIONS STILL TRUE:', result.wasSuccessful())
+
+DEFECT OBSERVED: adoption accepts invalid report kinds, boolean status and undeclared command accounting
+DEFECT OBSERVATIONS STILL TRUE: False
+test_invented_empty_limits_and_unknown_generation_are_accepted (probe_162696_check.BoundaryObservations.test_invented_empty_limits_and_unknown_generation_are_accepted) ... ERROR
+test_real_resolved_job_limits_are_rejected (probe_162696_check.BoundaryObservations.test_real_resolved_job_limits_are_rejected) ... FAIL
+test_untrusted_result_adoption_bypasses_report_validation (probe_162696_check.BoundaryObservations.test_untrusted_result_adoption_bypasses_report_validation) ... 
+  test_untrusted_result_adoption_bypasses_report_validation (probe_162696_check.BoundaryObservations.test_untrusted_result_adoption_bypasses_report_validation) (changes={'kind': 'unknown-kind'}) ... ERROR
+  test_untrusted_result_adoption_bypasses_report_validation (probe_162696_check.BoundaryObservations.test_untrusted_result_adoption_bypasses_report_validation) (changes={'status': True}) ... ERROR
+  test_untrusted_result_adoption_bypasses_report_validation (probe_162696_check.BoundaryObservations.test_untrusted_result_adoption_bypasses_report_validation) (changes={'completed': [{'name': 'undeclared-command', 'status': True}], 'not_run': []}) ... ERROR
+  test_untrusted_result_adoption_bypasses_report_validation (probe_162696_check.BoundaryObservations.test_untrusted_result_adoption_bypasses_report_validation) (changes={'kind': 'not-collected', 'status': 0}) ... ERROR
+
+======================================================================
+ERROR: test_invented_empty_limits_and_unknown_generation_are_accepted (probe_162696_check.BoundaryObservations.test_invented_empty_limits_and_unknown_generation_are_accepted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/probe_162696_check.py", line 23, in test_invented_empty_limits_and_unknown_generation_are_accepted
+    task = self.task(execution_limits={"effective": {}, "generation": 999})
+  File "/tmp/probe_162696_check.py", line 14, in task
+    return contracts.TheTaskSaysWhatWasAskedFor().task(**changed)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_execution.py", line 59, in task
+    return managed.managed_task(**held)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 265, in managed_task
+    limits = _resolved_limits(execution_limits)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 181, in _resolved_limits
+    held = boundaries.document(value, "a task's execution limits",
+                               required=LIMITS_MEMBERS)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 227, in document
+    _members(taken, what, required, optional)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 198, in _members
+    _refuse(f"{what} needs {', '.join(missing)}")
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/worker_manager/boundaries.py", line 83, in _refuse
+    raise ContractRefusal("integrity", "schema", message)
+baton_v12.contracts.errors.ContractRefusal: a task's execution limits needs units, scope, compatibility_generation, requested, boundaries
+
+======================================================================
+ERROR: test_untrusted_result_adoption_bypasses_report_validation (probe_162696_check.BoundaryObservations.test_untrusted_result_adoption_bypasses_report_validation) (changes={'kind': 'unknown-kind'})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/probe_162696_check.py", line 40, in test_untrusted_result_adoption_bypasses_report_validation
+    adopted = managed.adopt_managed_result(task, forged)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 485, in adopt_managed_result
+    rebuilt = managed_result(held, answer["report"],
+                             collected=answer["collected"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 444, in managed_result
+    answered = adopt_collected_report(held, report)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 401, in adopt_collected_report
+    rebuilt = collected_report(task, kind=answered["kind"],
+                               completed=answered["completed"],
+                               not_run=answered["not_run"],
+                               status=answered["status"], tag=answered["tag"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 330, in collected_report
+    _refuse(f"a collected report is one of {', '.join(REPORT_KINDS)}; "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this is {name_value(kind)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 121, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: a collected report is one of measured, collected-without-status, not-collected; this is 'unknown-kind'
+
+======================================================================
+ERROR: test_untrusted_result_adoption_bypasses_report_validation (probe_162696_check.BoundaryObservations.test_untrusted_result_adoption_bypasses_report_validation) (changes={'status': True})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/probe_162696_check.py", line 40, in test_untrusted_result_adoption_bypasses_report_validation
+    adopted = managed.adopt_managed_result(task, forged)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 485, in adopt_managed_result
+    rebuilt = managed_result(held, answer["report"],
+                             collected=answer["collected"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 444, in managed_result
+    answered = adopt_collected_report(held, report)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 401, in adopt_collected_report
+    rebuilt = collected_report(task, kind=answered["kind"],
+                               completed=answered["completed"],
+                               not_run=answered["not_run"],
+                               status=answered["status"], tag=answered["tag"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 348, in collected_report
+    _measured(status, "a measured report's status")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 133, in _measured
+    _refuse(f"{what} is the integer status this manager measured; this is "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(value)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 121, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: a measured report's status is the integer status this manager measured; this is true
+
+======================================================================
+ERROR: test_untrusted_result_adoption_bypasses_report_validation (probe_162696_check.BoundaryObservations.test_untrusted_result_adoption_bypasses_report_validation) (changes={'completed': [{'name': 'undeclared-command', 'status': True}], 'not_run': []})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/probe_162696_check.py", line 40, in test_untrusted_result_adoption_bypasses_report_validation
+    adopted = managed.adopt_managed_result(task, forged)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 485, in adopt_managed_result
+    rebuilt = managed_result(held, answer["report"],
+                             collected=answer["collected"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 444, in managed_result
+    answered = adopt_collected_report(held, report)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 401, in adopt_collected_report
+    rebuilt = collected_report(task, kind=answered["kind"],
+                               completed=answered["completed"],
+                               not_run=answered["not_run"],
+                               status=answered["status"], tag=answered["tag"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 337, in collected_report
+    _measured(one["status"], "a completed command's status")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 133, in _measured
+    _refuse(f"{what} is the integer status this manager measured; this is "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(value)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 121, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: a completed command's status is the integer status this manager measured; this is true
+
+======================================================================
+ERROR: test_untrusted_result_adoption_bypasses_report_validation (probe_162696_check.BoundaryObservations.test_untrusted_result_adoption_bypasses_report_validation) (changes={'kind': 'not-collected', 'status': 0})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/probe_162696_check.py", line 40, in test_untrusted_result_adoption_bypasses_report_validation
+    adopted = managed.adopt_managed_result(task, forged)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 485, in adopt_managed_result
+    rebuilt = managed_result(held, answer["report"],
+                             collected=answer["collected"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 444, in managed_result
+    answered = adopt_collected_report(held, report)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 401, in adopt_collected_report
+    rebuilt = collected_report(task, kind=answered["kind"],
+                               completed=answered["completed"],
+                               not_run=answered["not_run"],
+                               status=answered["status"], tag=answered["tag"])
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 363, in collected_report
+    _refuse(f"nothing was collected, and this carries status "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"{name_value(status)} and tag {name_value(tag)}; absence "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"is its own answer and describes no run")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/integration/managed_execution.py", line 121, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: nothing was collected, and this carries status 0 and tag none; absence is its own answer and describes no run
+
+======================================================================
+FAIL: test_real_resolved_job_limits_are_rejected (probe_162696_check.BoundaryObservations.test_real_resolved_job_limits_are_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/probe_162696_check.py", line 18, in test_real_resolved_job_limits_are_rejected
+    with self.assertRaises(ContractRefusal):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: ContractRefusal not raised
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.003s
+
+FAILED (failures=1, errors=5)

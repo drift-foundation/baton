@@ -1,0 +1,22 @@
+$ env PYTHONPATH=src:tools:. env W103525_EXPECT=14 python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs
+F
+======================================================================
+FAIL: test_the_opened_edge_and_one_integrator_serialize_four_jobs (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_the_opened_edge_and_one_integrator_serialize_four_jobs)
+THE CONTINUATION, and the integration capacity the PLAN asks for.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2669, in test_the_opened_edge_and_one_integrator_serialize_four_jobs
+    self.assertEqual(scheduler_trace.validate(trace.artifact(SOURCES)), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'code': 'missing-prerequisite', 'detail'[2604 chars]ne}}] != []
+
+First list contains 2 additional elements.
+First extra element 0:
+{'code': 'missing-prerequisite', 'detail': 'complete for attempt attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e has no recorded start', 'record': {'tick': 27, 'job_id': 'job-b', 'stage_id': 'job-b/integration', 'episode': 1, 'attempt_id': 'attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e', 'act': 'complete', 'outcome': 'performed', 'worker_id': None, 'participant': None, 'principal': None, 'operation_id': 'stage.completed:attempt-62796b4c802b9582b05e508e99c6a4ea1c6f1b56d2041e374ba5989a004fc63e', 'runtime_id': None, 'session_id': None, 'evidence': 'stage_states:job-b/integration', 'cause': None, 'recorded_at': None, 'session': None, 'correction': None, 'completion': {'proposal_id': 'proposal-result-d6b49bdc7f608e0556656e77ef9684d03423d4fd4c790752f0dd88e722b5f511', 'source_proposal_id': 'integration-driver.proposal:96137024ad86b1bf0d3843e3bfe6abf56c2ff5ad7926c4ea2239c4341b7b4205', 'result_id': 'result-d6b49bdc7f608e0556656e77ef9684d03423d4fd4c790752f0dd88e722b5f511', 'integration_receipt_id': 'integration-driver.integration-receipt:596dca9055f9478bacfbbd28da0e5c9b880b958c142c7ea2b2c18134852bb7e0', 'runtime_id': None, 'execution_runtime': 'absent'}, 'authorization': None}}
+
+Diff is 3667 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 1 test in 4.233s
+
+FAILED (failures=1)

@@ -1,0 +1,144 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.job_manager.test_store
+................EE.E.EE....E...................
+======================================================================
+ERROR: test_a_failed_migration_rolls_the_uuid_and_the_version_back (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_a_failed_migration_rolls_the_uuid_and_the_version_back)
+W83781 review [P1]: the promised atomicity, exercised.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 825, in test_a_failed_migration_rolls_the_uuid_and_the_version_back
+    JobStore.open(self.job_path, authority_uuid=UUID,
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  incarnation="jobs-broken", clock=self.clock)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 603, in _migrate
+    cls._exactly_schema_three(connection, path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 324, in _exactly_schema_three
+    raise ContractRefusal(
+    ...<6 lines>...
+        + ". Nothing was changed")
+baton_v12.contracts.errors.ContractRefusal: the Job store at '/tmp/v12-job-manager-eem3ykpc/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots. Nothing was changed
+
+======================================================================
+ERROR: test_a_migrated_store_keeps_every_identity_and_receipt (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_a_migrated_store_keeps_every_identity_and_receipt) (from_schema='write_schema_2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 735, in test_a_migrated_store_keeps_every_identity_and_receipt
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 603, in _migrate
+    cls._exactly_schema_three(connection, path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 324, in _exactly_schema_three
+    raise ContractRefusal(
+    ...<6 lines>...
+        + ". Nothing was changed")
+baton_v12.contracts.errors.ContractRefusal: the Job store at '/tmp/v12-job-manager-1pef3hli/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots. Nothing was changed
+
+======================================================================
+ERROR: test_a_migration_under_another_authority_pins_that_one (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_a_migration_under_another_authority_pins_that_one)
+The binding is the OPENER's, because a legacy store carries none.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 779, in test_a_migration_under_another_authority_pins_that_one
+    store = JobStore.open(self.job_path, authority_uuid=self.OTHER,
+                          incarnation="jobs-3", clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 603, in _migrate
+    cls._exactly_schema_three(connection, path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 324, in _exactly_schema_three
+    raise ContractRefusal(
+    ...<6 lines>...
+        + ". Nothing was changed")
+baton_v12.contracts.errors.ContractRefusal: the Job store at '/tmp/v12-job-manager-dgtjym0s/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots. Nothing was changed
+
+======================================================================
+ERROR: test_a_schema_two_store_is_pinned_by_the_migration (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_a_schema_two_store_is_pinned_by_the_migration)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 724, in test_a_schema_two_store_is_pinned_by_the_migration
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 603, in _migrate
+    cls._exactly_schema_three(connection, path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 324, in _exactly_schema_three
+    raise ContractRefusal(
+    ...<6 lines>...
+        + ". Nothing was changed")
+baton_v12.contracts.errors.ContractRefusal: the Job store at '/tmp/v12-job-manager-5k71sip0/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots. Nothing was changed
+
+======================================================================
+ERROR: test_a_stale_opener_cannot_rebind_the_winners_authority (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_a_stale_opener_cannot_rebind_the_winners_authority)
+W83781 review [P0], deterministically.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 873, in test_a_stale_opener_cannot_rebind_the_winners_authority
+    JobStore._migrate(first, stale, self.job_path, UUID)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 603, in _migrate
+    cls._exactly_schema_three(connection, path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 324, in _exactly_schema_three
+    raise ContractRefusal(
+    ...<6 lines>...
+        + ". Nothing was changed")
+baton_v12.contracts.errors.ContractRefusal: the Job store at '/tmp/v12-job-manager-af_dnjei/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots. Nothing was changed
+
+======================================================================
+ERROR: test_the_namespace_applies_only_after_the_migration (tests.job_manager.test_store.MigratingPinsTheAuthorityWithoutRenamingAnything.test_the_namespace_applies_only_after_the_migration)
+An episode opened AFTER the pin is namespaced; episode 1 is not.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_store.py", line 756, in test_the_namespace_applies_only_after_the_migration
+    store = self.store()
+  File "/home/sl/src/baton/v12/python/tests/job_manager/fixtures.py", line 211, in store
+    store = JobStore.open(self.job_path, authority_uuid=authority_uuid,
+                          incarnation=incarnation, clock=self.clock)
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 227, in open
+    cls._adopt(connection, path, authority_uuid)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 283, in _adopt
+    cls._migrate(connection, version, path, authority_uuid)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 603, in _migrate
+    cls._exactly_schema_three(connection, path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/store.py", line 324, in _exactly_schema_three
+    raise ContractRefusal(
+    ...<6 lines>...
+        + ". Nothing was changed")
+baton_v12.contracts.errors.ContractRefusal: the Job store at '/tmp/v12-job-manager-m42caclj/jobs.sqlite3' says it is schema 3 and its objects are not schema 3's; unexpected capacity_one_active_member, integration_capacity_members, integration_capacity_roots. Nothing was changed
+
+----------------------------------------------------------------------
+Ran 47 tests in 0.092s
+
+FAILED (errors=6)

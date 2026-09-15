@@ -1,0 +1,123 @@
+$ env PYTHONPATH=src:tools:. /home/sl/src/baton/.venv/bin/python3 -m unittest tests.job_manager.test_managed_integration_capacity
+..E.............................F.E....E...........F...F.....
+======================================================================
+ERROR: test_the_same_branch_releases_once_after_every_member_ended (tests.job_manager.test_managed_integration_capacity.TheCompletionBranchDoesNotSpeakForTheExecutions.test_the_same_branch_releases_once_after_every_member_ended)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1230, in test_the_same_branch_releases_once_after_every_member_ended
+    self.applying(store, stage)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 333, in applying
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, orchestration_id=self.ORCHESTRATION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        phase="apply", execution_attempt_id=stage["attempt_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(stage["attempt_id"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 594, in admit_integration_execution
+    _refuse(f"an apply is admitted with the coordinator, the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"authorization owner and the grant it will run under; "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this admission of {name_value(execution_attempt_id)} "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carries no {', '.join(absent)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 134, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: an apply is admitted with the coordinator, the authorization owner and the grant it will run under; this admission of 'attempt-798fa6737df416eb076eabfa574ecc443a539940e2b29dea9d3… carries no authorization, coordinator, grant
+
+======================================================================
+ERROR: test_the_apply_phase_is_admitted_after_preparation_ends (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_the_apply_phase_is_admitted_after_preparation_ends)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 503, in test_the_apply_phase_is_admitted_after_preparation_ends
+    answer = self.applying(store, stage)
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 333, in applying
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, orchestration_id=self.ORCHESTRATION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        phase="apply", execution_attempt_id=stage["attempt_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(stage["attempt_id"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 594, in admit_integration_execution
+    _refuse(f"an apply is admitted with the coordinator, the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"authorization owner and the grant it will run under; "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this admission of {name_value(execution_attempt_id)} "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carries no {', '.join(absent)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 134, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: an apply is admitted with the coordinator, the authorization owner and the grant it will run under; this admission of 'attempt-798fa6737df416eb076eabfa574ecc443a539940e2b29dea9d3… carries no authorization, coordinator, grant
+
+======================================================================
+ERROR: test_the_serial_rule_survives_a_read_that_saw_free_capacity (tests.job_manager.test_managed_integration_capacity.TheRacesUnderOneReservation.test_the_serial_rule_survives_a_read_that_saw_free_capacity)
+THE READ IS NOT WHAT MAKES IT SAFE.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1297, in test_the_serial_rule_survives_a_read_that_saw_free_capacity
+    self.applying(store, stage)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 333, in applying
+    return capacity.admit_integration_execution(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        store, self._control, orchestration_id=self.ORCHESTRATION,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        phase="apply", execution_attempt_id=stage["attempt_id"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        assignment=self.claim_of(stage["attempt_id"]))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 594, in admit_integration_execution
+    _refuse(f"an apply is admitted with the coordinator, the "
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"authorization owner and the grant it will run under; "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"this admission of {name_value(execution_attempt_id)} "
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            f"carries no {', '.join(absent)}")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/src/baton_v12/job_manager/integration_capacity.py", line 134, in _refuse
+    raise ContractRefusal(category, code, message)
+baton_v12.contracts.errors.ContractRefusal: an apply is admitted with the coordinator, the authorization owner and the grant it will run under; this admission of 'attempt-798fa6737df416eb076eabfa574ecc443a539940e2b29dea9d3… carries no authorization, coordinator, grant
+
+======================================================================
+FAIL: test_apply_is_refused_while_preparation_is_still_live (tests.job_manager.test_managed_integration_capacity.ThePhasesAreSerial.test_apply_is_refused_while_preparation_is_still_live)
+A parent apply and its preparation can never both be live under one
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 497, in test_apply_is_refused_while_preparation_is_still_live
+    self.assertIn("an apply follows a preparation that ended successfully",
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  str(caught.exception))
+                  ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'an apply follows a preparation that ended successfully' not found in "an apply is admitted with the coordinator, the authorization owner and the grant it will run under; this admission of 'attempt-798fa6737df416eb076eabfa574ecc443a539940e2b29dea9d3… carries no authorization, coordinator, grant"
+
+======================================================================
+FAIL: test_nothing_new_is_admitted_while_one_member_is_uncertain (tests.job_manager.test_managed_integration_capacity.TheUncertainExecutionHoldsItsCapacity.test_nothing_new_is_admitted_while_one_member_is_uncertain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 928, in test_nothing_new_is_admitted_while_one_member_is_uncertain
+    self.assertIn("ended successfully", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ended successfully' not found in "an apply is admitted with the coordinator, the authorization owner and the grant it will run under; this admission of 'attempt-798fa6737df416eb076eabfa574ecc443a539940e2b29dea9d3… carries no authorization, coordinator, grant"
+
+======================================================================
+FAIL: test_a_competing_admission_from_another_connection_is_refused (tests.job_manager.test_managed_integration_capacity.TwoStoresContendForOneReservation.test_a_competing_admission_from_another_connection_is_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/job_manager/test_managed_integration_capacity.py", line 1425, in test_a_competing_admission_from_another_connection_is_refused
+    self.assertIn("ended successfully", str(caught.exception))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ended successfully' not found in "an apply is admitted with the coordinator, the authorization owner and the grant it will run under; this admission of 'attempt-798fa6737df416eb076eabfa574ecc443a539940e2b29dea9d3… carries no authorization, coordinator, grant"
+
+----------------------------------------------------------------------
+Ran 61 tests in 0.509s
+
+FAILED (failures=3, errors=3)

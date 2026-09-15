@@ -1,0 +1,79 @@
+{
+  "claim": 168028,
+  "source_checks": [
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/historical-ledger-at-166281.json",
+      "matches_full": true,
+      "matches_recorded_prefix": true,
+      "current_bytes": 153837,
+      "recorded_bytes": 153837,
+      "current_sha256": "8f09b7f8b3f33145159389b9acedc7ccb55dff29315490027012a0985c14fd85"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/ledger-166281-prospective.json",
+      "matches_full": false,
+      "matches_recorded_prefix": false,
+      "current_bytes": 35737,
+      "recorded_bytes": 25837,
+      "current_sha256": "8ce567b693048c831af8a43a9c417de7ee32ebd9eba14edc68360e0b5439d186"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/run-161638-step-185.log",
+      "matches_full": true,
+      "matches_recorded_prefix": true,
+      "current_bytes": 1553826,
+      "recorded_bytes": 1553826,
+      "current_sha256": "69ef04a54b269b40e6507f4da478536d2dfaeb95cfd28cf1f92e46a594c47c19"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/FINDING.md",
+      "matches_full": false,
+      "matches_recorded_prefix": true,
+      "current_bytes": 115098,
+      "recorded_bytes": 112526,
+      "current_sha256": "20adecb7fb98fc96f24ab83b441ebbfe30b80db6546c4898a9bf622ec2e5daa1"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/PROGRESS.md",
+      "matches_full": true,
+      "matches_recorded_prefix": true,
+      "current_bytes": 172405,
+      "recorded_bytes": 172405,
+      "current_sha256": "2e0b5dc5a994b0de74386be97182ca7ca6a7f1d41683be9a3e956402edbedef8"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/review-2026-09-14T04-13-31Z.md",
+      "matches_full": true,
+      "matches_recorded_prefix": true,
+      "current_bytes": 7177,
+      "recorded_bytes": 7177,
+      "current_sha256": "5f0de20f700b96809b9282132250ea5d660614d5ca886e3a8d10aec95036e88c"
+    },
+    {
+      "path": "work/records/2026/09/finding-v12-managed-integration-execution/review-2026-09-14T04-33-24Z.md",
+      "matches_full": true,
+      "matches_recorded_prefix": true,
+      "current_bytes": 6518,
+      "recorded_bytes": 6518,
+      "current_sha256": "a9049a1c54f34bc509ff55d652d77a068125c6840231c89ab72417998aa37200"
+    },
+    {
+      "path": "v12/python/tests/manager/test_credentials_engine.py",
+      "matches_full": true,
+      "matches_recorded_prefix": true,
+      "current_bytes": 21633,
+      "recorded_bytes": 21633,
+      "current_sha256": "7bd5e077bba6188d5123a1f93aea5ab25b9b6d6173e718d6ba769f09702d2da4"
+    },
+    {
+      "path": "/tmp/w184.txt",
+      "matches_full": true,
+      "matches_recorded_prefix": true,
+      "current_bytes": 3324,
+      "recorded_bytes": 3324,
+      "current_sha256": "fb37ec77ca3e0b2441225853de2698b38e0ed326e3d942a6d4a8fda7b1e30ffe"
+    }
+  ],
+  "assessment_sha256": "12c2835789cde336319edc3ae73de9b39f8a3e56130726801ad2d613b5957bd9",
+  "evidence_sha256": "957f34b44789540a610935c83eadf21cbdae363073c6bceb67a9f76fd3a38e77"
+}

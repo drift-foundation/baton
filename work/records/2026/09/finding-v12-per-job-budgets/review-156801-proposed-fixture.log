@@ -1,0 +1,83 @@
+{"source_sha256": "908dca6c11c452a54b224dec421aae2e420229a4cbee85dd358c910a98cb4e28", "proposed_source_sha256": "b469a3d9665f190149faca95c9aa6386555219fc247d5ad2a40d415f709c82c8", "helper": "context in repro-156801.py", "changed_adopt_sites": 1}
+test_one_submitted_job_reaches_a_completed_implementation_stage (tests.tools._w156162_review.TheComposedImplementationHalfRunsOnOrdinaryTicks.test_one_submitted_job_reaches_a_completed_implementation_stage)
+No operator transition after the submission, measured as one. ... ERROR
+test_the_reviewers_own_verdict_completes_the_review_stage (tests.tools._w156162_review.TheComposedJobTraversesReviewAndAcceptance.test_the_reviewers_own_verdict_completes_the_review_stage)
+The verdict is READ from the reviewer's frozen result. ... ERROR
+test_the_second_job_reaches_its_own_reviewer_and_verdict (tests.tools._w156162_review.TwoBoundJobsTraverseServingAndCorrection.test_the_second_job_reaches_its_own_reviewer_and_verdict)
+THE OTHER HALF OF THE OVERLAP, driven rather than assumed. ... ERROR
+
+======================================================================
+ERROR: test_one_submitted_job_reaches_a_completed_implementation_stage (tests.tools._w156162_review.TheComposedImplementationHalfRunsOnOrdinaryTicks.test_one_submitted_job_reaches_a_completed_implementation_stage)
+No operator transition after the submission, measured as one.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2804, in test_one_submitted_job_reaches_a_completed_implementation_stage
+    self.assertEqual(self.states(held.job, held.composed)["implementation"],
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2781, in implemented
+                  **operands), 0)
+                  ^^^^^^^^^^^^^^^
+    self.drive(job, composed, "implementation", "completed")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2704, in turn
+    workspace_group=single_worker.configured_workspace_group(control))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/repro-156801.py", line 20, in context
+    stages = [stage for stage in submission.stage_rows(jobs) if stage['attempt_id'] == attempt_id]
+                                                                ~~~~~^^^^^^^^^^^^^^
+KeyError: 'attempt_id'
+
+======================================================================
+ERROR: test_the_reviewers_own_verdict_completes_the_review_stage (tests.tools._w156162_review.TheComposedJobTraversesReviewAndAcceptance.test_the_reviewers_own_verdict_completes_the_review_stage)
+The verdict is READ from the reviewer's frozen result.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3462, in test_the_reviewers_own_verdict_completes_the_review_stage
+    report = self.tick(held)
+           ^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 3404, in reviewed
+    self.drive(held.job, held.composed, "review", "waiting")
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2781, in implemented
+                  **operands), 0)
+                  ^^^^^^^^^^^^^^^
+    self.drive(job, composed, "implementation", "completed")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2704, in turn
+    workspace_group=single_worker.configured_workspace_group(control))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/repro-156801.py", line 20, in context
+    stages = [stage for stage in submission.stage_rows(jobs) if stage['attempt_id'] == attempt_id]
+                                                                ~~~~~^^^^^^^^^^^^^^
+KeyError: 'attempt_id'
+
+======================================================================
+ERROR: test_the_second_job_reaches_its_own_reviewer_and_verdict (tests.tools._w156162_review.TwoBoundJobsTraverseServingAndCorrection.test_the_second_job_reaches_its_own_reviewer_and_verdict)
+THE OTHER HALF OF THE OVERLAP, driven rather than assumed.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 7970, in test_the_second_job_reaches_its_own_reviewer_and_verdict
+                  "print('the second job answered')\n",
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    self.drive_job(held.job, held.composed, "job-b", "review", "waiting")
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 6906, in produced
+                  self.mounted_at(held.composed, attempt_id),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  edits=edits or {"harness.py": body}), 0)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    return self.drive_job(held.job, held.composed, job_id,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/v12/python/tests/tools/test_stage_execution.py", line 2704, in turn
+    workspace_group=single_worker.configured_workspace_group(control))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sl/src/baton/work/records/2026/09/finding-v12-per-job-budgets/repro-156801.py", line 20, in context
+    stages = [stage for stage in submission.stage_rows(jobs) if stage['attempt_id'] == attempt_id]
+                                                                ~~~~~^^^^^^^^^^^^^^
+KeyError: 'attempt_id'
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.331s
+
+FAILED (errors=3)

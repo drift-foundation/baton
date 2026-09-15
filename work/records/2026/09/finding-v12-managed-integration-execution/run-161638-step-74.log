@@ -1,0 +1,40 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.integration.test_managed_storage
+......................E....E..
+======================================================================
+ERROR: test_a_concurrent_shape_change_is_caught_under_the_lock (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_a_concurrent_shape_change_is_caught_under_the_lock)
+[P2] Review 2026-09-13T18:51:48Z: the preflight ran BEFORE the lock
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/unittest/mock.py", line 1611, in __enter__
+    setattr(self.target, self.attribute, new_attr)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot set 'execute' attribute of immutable type 'sqlite3.Connection'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 345, in test_a_concurrent_shape_change_is_caught_under_the_lock
+    with mock.patch.object(sqlite3.Connection, "execute", interleave):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1624, in __enter__
+    if not self.__exit__(*sys.exc_info()):
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/unittest/mock.py", line 1633, in __exit__
+    setattr(self.target, self.attribute, self.temp_original)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: cannot set 'execute' attribute of immutable type 'sqlite3.Connection'
+
+======================================================================
+ERROR: test_the_step_preserves_the_records_and_leases_it_found (tests.integration.test_managed_storage.TheUpgradeIsAnActSomebodyChooses.test_the_step_preserves_the_records_and_leases_it_found)
+WHAT IT PRESERVES IT PRESERVES BY NOT TOUCHING -- and this compares
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/integration/test_managed_storage.py", line 308, in test_the_step_preserves_the_records_and_leases_it_found
+    held = lease_of(reopened, lease["lease_id"])
+                              ~~~~~^^^^^^^^^^^^
+KeyError: 'lease_id'
+
+----------------------------------------------------------------------
+Ran 30 tests in 0.092s
+
+FAILED (errors=2)

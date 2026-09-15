@@ -1,0 +1,11 @@
+test_a_blocked_result_is_refused_by_the_composed_judgment_owners (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_blocked_result_is_refused_by_the_composed_judgment_owners)
+THE DIRECT JUDGMENT BOUNDARY, on the deployment's own methods. ... ok
+test_a_scratch_that_survives_disposal_is_the_deployments_to_release (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_scratch_that_survives_disposal_is_the_deployments_to_release)
+STEP 5 OF THE HOST-FAILURE PROPOSAL, through the real runtime. ... ok
+test_a_scratch_that_survives_the_release_too_is_reported (tests.tools.test_execution_limits.TheComposedHostVerificationUsesTheJobsCeiling.test_a_scratch_that_survives_the_release_too_is_reported)
+AND IT IS NOT QUIETLY ABANDONED A SECOND TIME. ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.553s
+
+OK

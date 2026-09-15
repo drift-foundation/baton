@@ -1,0 +1,22 @@
+$ env PYTHONPATH=src:tools:. python3 -m unittest tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them
+F
+======================================================================
+FAIL: test_both_jobs_traverse_and_one_integrator_serializes_them (tests.tools.test_scheduler_trace.TheComposedOwnersSupplyAuthorizedTransitions.test_both_jobs_traverse_and_one_integrator_serializes_them)
+Both whole Jobs through their producing and reviewing halves, and
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/sl/src/baton/v12/python/tests/tools/test_scheduler_trace.py", line 2329, in test_both_jobs_traverse_and_one_integrator_serializes_them
+    self.assertEqual(scheduler_trace.validate(artifact), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'code': 'successor-before-prerequisite',[2291 chars]ne}}] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+{'code': 'successor-before-prerequisite', 'detail': 'job-a/review was reserved before job-a/implementation completed', 'record': {'tick': 1, 'job_id': 'job-a', 'stage_id': 'job-a/review', 'episode': 1, 'attempt_id': 'attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'act': 'reserve', 'outcome': 'performed', 'worker_id': 'review-worker', 'participant': None, 'principal': 'principal:baton.reviewer', 'operation_id': 'allocation.reserve:attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'runtime_id': None, 'session_id': None, 'evidence': 'allocations:attempt-9e961a44d61dec01818eaa862c61ac2ec39af4ad0045fcf9bbb8654da9de4d5c', 'cause': None, 'recorded_at': None, 'session': None, 'correction': None, 'authorization': None}}
+
+Diff is 3186 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 1 test in 0.829s
+
+FAILED (failures=1)

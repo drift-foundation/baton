@@ -1,0 +1,4480 @@
+{
+ "author_cap_seconds": 1200.0,
+ "author_remaining_seconds": 24.34263286115015,
+ "author_spent_seconds": 2442.624595595803,
+ "authority": "OWNER M166281: an additional PROSPECTIVE 1200s allowance, separately measured from the next child. All historical spending is retained in ledger-161638.json and is not transferred here; this is not a reset of that ledger and not an extension of it.",
+ "cap_seconds": 1200.0,
+ "cap_seconds_note": "retained as a RECORD of the allowance that was authorized, no longer enforced as a gate",
+ "policy_166331": "OWNER M166331 removes the cumulative stopwatch budget and the prospective 1200s ceiling AS GATES. All recorded costs and the historical provisional estimates are RETAINED; nothing is zeroed, reset or transferred. Runs continue to be measured and written here because the record is useful, but no run is refused on a cumulative total and no work stops for replenishment or for reconstructing old seconds. Per-run timeouts and cleanup remain in force as a product requirement.",
+ "runs": [
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1200.0,
+    "spent_seconds_before": 0,
+    "timeout_seconds": 1199.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.267633503986872,
+   "exit": 0,
+   "label": "prospective-baseline",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-01.log",
+   "ok": true,
+   "step": 1,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "remaining_seconds_before": 1197.7323664960131,
+    "spent_seconds_before": 2.267633503986872
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 120.0,
+   "exit": 143,
+   "label": "2-defect2-and-limits-TOOL-KILLED",
+   "note": "The focused module HUNG and was killed at the 120s tool bound. Cause found and fixed: `_bounded_read` opened entries with os.open(O_RDONLY|O_NOFOLLOW), and opening a FIFO for reading BLOCKS until a writer appears -- so the fifo case never returned. O_NONBLOCK now makes the open return so the descriptor can be refused for what it is. CHARGED AT THE TOOL BOUND, WHICH IS AN ESTIMATE AND NOT A PROVEN UPPER BOUND: per owner M166281 and review claim166235, a tool bound records when observation stopped, not when the process tree ended."
+  },
+  {
+   "budget": {
+    "cap_seconds": 1200.0,
+    "spent_seconds_before": 122.26763350398687
+   },
+   "elapsed_seconds": 2.2,
+   "exit": 1,
+   "label": "3-hang-cleared-check-OUTSIDE-runner",
+   "note": "A bare `timeout 100` confirmation that the fifo hang was gone, run outside the measured runner. Charged at its observed 2.120s unittest elapsed rounded up; it is charged rather than dropped because an uncharged run understates the cost."
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1075.532366496013,
+    "spent_seconds_before": 124.46763350398687,
+    "timeout_seconds": 1074.532366496013
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.268765936998534,
+   "exit": 1,
+   "label": "see-failures",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-04.log",
+   "ok": false,
+   "step": 4,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1073.2636005590145,
+    "spent_seconds_before": 126.73639944098541,
+    "timeout_seconds": 1072.2636005590145
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.2701316329912515,
+   "exit": 0,
+   "label": "defect2-cases",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-05.log",
+   "ok": true,
+   "step": 5,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1070.9934689260233,
+    "spent_seconds_before": 129.00653107397665,
+    "timeout_seconds": 1069.9934689260233
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.27190320599766,
+   "exit": 1,
+   "label": "reversal",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-06.log",
+   "ok": false,
+   "step": 6,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1068.7215657200256,
+    "spent_seconds_before": 131.2784342799743,
+    "timeout_seconds": 1067.7215657200256
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.272305022008368,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-07.log",
+   "ok": true,
+   "step": 7,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "/tmp/differential.py"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 15.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1066.4492606980173,
+    "spent_seconds_before": 133.55073930198267,
+    "timeout_seconds": 1065.4492606980173
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.1489059909945354,
+   "exit": 0,
+   "label": "differential",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-08.log",
+   "ok": true,
+   "step": 8,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 30.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1066.3003547070227,
+    "spent_seconds_before": 133.6996452929772,
+    "timeout_seconds": 1065.3003547070227
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.025651186995673925,
+   "exit": 1,
+   "label": "process-group",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-09.log",
+   "ok": false,
+   "step": 9,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 30.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1066.274703520027,
+    "spent_seconds_before": 133.72529647997288,
+    "timeout_seconds": 1065.274703520027
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 2.3877468069986207,
+   "exit": 1,
+   "label": "process-group",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-10.log",
+   "ok": false,
+   "step": 10,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 40.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1063.8869567130284,
+    "spent_seconds_before": 136.1130432869715,
+    "timeout_seconds": 1062.8869567130284
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.428132054003072,
+   "exit": 0,
+   "label": "process-group-cases",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-11.log",
+   "ok": true,
+   "step": 11,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 40.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1059.4588246590254,
+    "spent_seconds_before": 140.54117534097458,
+    "timeout_seconds": 1058.4588246590254
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 6.4295624749938725,
+   "exit": 1,
+   "label": "process-group-reversal",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-12.log",
+   "ok": false,
+   "step": 12,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 40.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1053.0292621840315,
+    "spent_seconds_before": 146.97073781596845,
+    "timeout_seconds": 1052.0292621840315
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.427330806007376,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-13.log",
+   "ok": true,
+   "step": 13,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1048.6019313780241,
+    "spent_seconds_before": 151.39806862197582,
+    "timeout_seconds": 1047.6019313780241
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.02125737200549338,
+   "exit": 1,
+   "label": "launch-binding",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-14.log",
+   "ok": false,
+   "step": 14,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1048.5806740060186,
+    "spent_seconds_before": 151.41932599398132,
+    "timeout_seconds": 1047.5806740060186
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.354832883997005,
+   "exit": 1,
+   "label": "launch-binding",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-15.log",
+   "ok": false,
+   "step": 15,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1044.2258411220216,
+    "spent_seconds_before": 155.77415887797832,
+    "timeout_seconds": 1043.2258411220216
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.389205336003215,
+   "exit": 0,
+   "label": "launch-binding",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-16.log",
+   "ok": true,
+   "step": 16,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1039.8366357860184,
+    "spent_seconds_before": 160.16336421398154,
+    "timeout_seconds": 1038.8366357860184
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.43428006900649,
+   "exit": 1,
+   "label": "ending-cases",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-17.log",
+   "ok": false,
+   "step": 17,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1029.402355717012,
+    "spent_seconds_before": 170.59764428298803,
+    "timeout_seconds": 1028.402355717012
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.441266011999687,
+   "exit": 0,
+   "label": "ending-cases-fix",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-18.log",
+   "ok": true,
+   "step": 18,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1018.9610897050122,
+    "spent_seconds_before": 181.03891029498772,
+    "timeout_seconds": 1017.9610897050122
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 14.39411486699828,
+   "exit": 1,
+   "label": "reversal",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-19.log",
+   "ok": false,
+   "step": 19,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 1004.566974838014,
+    "spent_seconds_before": 195.433025161986,
+    "timeout_seconds": 1003.566974838014
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.475233887002105,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-20.log",
+   "ok": true,
+   "step": 20,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task.TheRequestIsReadOrRefused"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 994.0917409510118,
+    "spent_seconds_before": 205.9082590489881,
+    "timeout_seconds": 993.0917409510118
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.15685512199706864,
+   "exit": 0,
+   "label": "limits-reversal",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-21.log",
+   "ok": true,
+   "step": 21,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 993.9348858290148,
+    "spent_seconds_before": 206.06511417098517,
+    "timeout_seconds": 992.9348858290148
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.445405596998171,
+   "exit": 0,
+   "label": "limits-cases-readded",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-22.log",
+   "ok": true,
+   "step": 22,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 983.4894802320166,
+    "spent_seconds_before": 216.51051976798334,
+    "timeout_seconds": 982.4894802320166
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.435145962008392,
+   "exit": 1,
+   "label": "limits-reversal-real",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-23.log",
+   "ok": false,
+   "step": 23,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 973.0543342700082,
+    "spent_seconds_before": 226.94566572999173,
+    "timeout_seconds": 972.0543342700082
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.468306736001978,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-24.log",
+   "ok": true,
+   "step": 24,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "/tmp/differential.py"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 30.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 962.5860275340062,
+    "spent_seconds_before": 237.4139724659937,
+    "timeout_seconds": 961.5860275340062
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.14744230099313427,
+   "exit": 1,
+   "label": "differential",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-25.log",
+   "ok": false,
+   "step": 25,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "/tmp/differential.py"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 30.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 962.4385852330131,
+    "spent_seconds_before": 237.56141476698684,
+    "timeout_seconds": 961.4385852330131
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.15154471500136424,
+   "exit": 0,
+   "label": "differential",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-26.log",
+   "ok": true,
+   "step": 26,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 962.2870405180117,
+    "spent_seconds_before": 237.7129594819882,
+    "timeout_seconds": 961.2870405180117
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.497459368998534,
+   "exit": 0,
+   "label": "numeric-types",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-27.log",
+   "ok": true,
+   "step": 27,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 951.7895811490132,
+    "spent_seconds_before": 248.21041885098674,
+    "timeout_seconds": 950.7895811490132
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.41385228499712,
+   "exit": 0,
+   "label": "numeric-types",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-28.log",
+   "ok": true,
+   "step": 28,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 941.3757288640161,
+    "spent_seconds_before": 258.62427113598386,
+    "timeout_seconds": 940.3757288640161
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.431775812990963,
+   "exit": 1,
+   "label": "numeric-reversal",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-29.log",
+   "ok": false,
+   "step": 29,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 930.9439530510251,
+    "spent_seconds_before": 269.0560469489748,
+    "timeout_seconds": 929.9439530510251
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.415863546993933,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-30.log",
+   "ok": true,
+   "step": 30,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 920.5280895040312,
+    "spent_seconds_before": 279.47191049596876,
+    "timeout_seconds": 919.5280895040312
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.15534977900097147,
+   "exit": 0,
+   "label": "preparation-input",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-31.log",
+   "ok": true,
+   "step": 31,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 920.3727397250302,
+    "spent_seconds_before": 279.62726027496973,
+    "timeout_seconds": 919.3727397250302
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16212391600129195,
+   "exit": 1,
+   "label": "conformance-reversal",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-32.log",
+   "ok": false,
+   "step": 32,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 920.2106158090289,
+    "spent_seconds_before": 279.789384190971,
+    "timeout_seconds": 919.2106158090289
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16101392300333828,
+   "exit": 1,
+   "label": "exclusion-reversal",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-33.log",
+   "ok": false,
+   "step": 33,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 920.0496018860256,
+    "spent_seconds_before": 279.95039811397436,
+    "timeout_seconds": 919.0496018860256
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.16236247900815215,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-34.log",
+   "ok": true,
+   "step": 34,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 919.8872394070174,
+    "spent_seconds_before": 280.1127605929825,
+    "timeout_seconds": 918.8872394070174
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.523126647007302,
+   "exit": 0,
+   "label": "both-modules",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-35.log",
+   "ok": true,
+   "step": 35,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 909.3641127600101,
+    "spent_seconds_before": 290.6358872399898,
+    "timeout_seconds": 908.3641127600101
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2034580269973958,
+   "exit": 1,
+   "label": "job-viewer",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-36.log",
+   "ok": false,
+   "step": 36,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 909.1606547330127,
+    "spent_seconds_before": 290.8393452669872,
+    "timeout_seconds": 908.1606547330127
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.20474142099556047,
+   "exit": 1,
+   "label": "job-viewer",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-37.log",
+   "ok": false,
+   "step": 37,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 908.9559133120172,
+    "spent_seconds_before": 291.04408668798277,
+    "timeout_seconds": 907.9559133120172
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.20180886299931444,
+   "exit": 0,
+   "label": "job-viewer",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-38.log",
+   "ok": true,
+   "step": 38,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 908.7541044490179,
+    "spent_seconds_before": 291.2458955509821,
+    "timeout_seconds": 907.7541044490179
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.210478883003816,
+   "exit": 0,
+   "label": "job-viewer-final",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-39.log",
+   "ok": true,
+   "step": 39,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 908.543625566014,
+    "spent_seconds_before": 291.4563744339859,
+    "timeout_seconds": 907.543625566014
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.20363657099369448,
+   "exit": 0,
+   "label": "viewer-final",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-40.log",
+   "ok": true,
+   "step": 40,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 908.3399889950203,
+    "spent_seconds_before": 291.6600110049796,
+    "timeout_seconds": 907.3399889950203
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.20558240699756425,
+   "exit": 1,
+   "label": "viewer-reversal",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-41.log",
+   "ok": false,
+   "step": 41,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 908.1344065880228,
+    "spent_seconds_before": 291.86559341197716,
+    "timeout_seconds": 907.1344065880228
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.20875284700014163,
+   "exit": 0,
+   "label": "viewer-restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-42.log",
+   "ok": true,
+   "step": 42,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 907.9256537410226,
+    "spent_seconds_before": 292.0743462589773,
+    "timeout_seconds": 906.9256537410226
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.15418938000220805,
+   "exit": 0,
+   "label": "A2-entry",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-43.log",
+   "ok": true,
+   "step": 43,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 907.7714643610204,
+    "spent_seconds_before": 292.2285356389795,
+    "timeout_seconds": 906.7714643610204
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.31207696998899337,
+   "exit": 0,
+   "label": "A2-entry",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-44.log",
+   "ok": true,
+   "step": 44,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 907.4593873910314,
+    "spent_seconds_before": 292.5406126089685,
+    "timeout_seconds": 906.4593873910314
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.2884626710001612,
+   "exit": 1,
+   "label": "A2-reversal",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-45.log",
+   "ok": false,
+   "step": 45,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 907.1709247200313,
+    "spent_seconds_before": 292.82907527996866,
+    "timeout_seconds": 906.1709247200313
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 10.604128728999058,
+   "exit": 0,
+   "label": "A2-restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-46.log",
+   "ok": true,
+   "step": 46,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 896.5667959910322,
+    "spent_seconds_before": 303.4332040089677,
+    "timeout_seconds": 895.5667959910322
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.3226623450027546,
+   "exit": 0,
+   "label": "A2-composition",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-47.log",
+   "ok": true,
+   "step": 47,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 895.2441336460295,
+    "spent_seconds_before": 304.7558663539705,
+    "timeout_seconds": 894.2441336460295
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 60.39216327801114,
+   "exit": 1,
+   "label": "A2-reversal-again",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-48.log",
+   "ok": false,
+   "step": 48,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 834.8519703680183,
+    "spent_seconds_before": 365.1480296319816,
+    "timeout_seconds": 833.8519703680183
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 11.585379195996211,
+   "exit": 0,
+   "label": "A2-restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-49.log",
+   "ok": true,
+   "step": 49,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 200.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 823.2665911720221,
+    "spent_seconds_before": 376.7334088279778,
+    "timeout_seconds": 822.2665911720221
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.8940958419989329,
+   "exit": 1,
+   "label": "real-merge",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-50.log",
+   "ok": false,
+   "step": 50,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 200.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 822.3724953300232,
+    "spent_seconds_before": 377.62750466997676,
+    "timeout_seconds": 821.3724953300232
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.1279573229985544,
+   "exit": 1,
+   "label": "real-merge",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-51.log",
+   "ok": false,
+   "step": 51,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 200.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 821.2445380070246,
+    "spent_seconds_before": 378.7554619929753,
+    "timeout_seconds": 820.2445380070246
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0370365150010912,
+   "exit": 1,
+   "label": "real-merge",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-52.log",
+   "ok": false,
+   "step": 52,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 200.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 820.2075014920235,
+    "spent_seconds_before": 379.7924985079764,
+    "timeout_seconds": 819.2075014920235
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.0938971049909014,
+   "exit": 0,
+   "label": "real-merge",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-53.log",
+   "ok": true,
+   "step": 53,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 200.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 819.1136043870326,
+    "spent_seconds_before": 380.8863956129673,
+    "timeout_seconds": 818.1136043870326
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.091780522998306,
+   "exit": 1,
+   "label": "merge-reversal",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-54.log",
+   "ok": false,
+   "step": 54,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 200.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 818.0218238640343,
+    "spent_seconds_before": 381.9781761359656,
+    "timeout_seconds": 817.0218238640343
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 11.460793377002119,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-55.log",
+   "ok": true,
+   "step": 55,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_job_viewer"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 806.5610304870322,
+    "spent_seconds_before": 393.43896951296773,
+    "timeout_seconds": 805.5610304870322
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.20121729299717117,
+   "exit": 1,
+   "label": "viewer-corrections",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-56.log",
+   "ok": false,
+   "step": 56,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 806.359813194035,
+    "spent_seconds_before": 393.6401868059649,
+    "timeout_seconds": 805.359813194035
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.1426173689978896,
+   "exit": 1,
+   "label": "A3-ordering",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-57.log",
+   "ok": false,
+   "step": 57,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 805.2171958250372,
+    "spent_seconds_before": 394.7828041749628,
+    "timeout_seconds": 804.2171958250372
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.1816962890006835,
+   "exit": 1,
+   "label": "A3-ordering",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-58.log",
+   "ok": false,
+   "step": 58,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 804.0354995360365,
+    "spent_seconds_before": 395.9645004639635,
+    "timeout_seconds": 803.0354995360365
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.2786684419988887,
+   "exit": 1,
+   "label": "A3-ordering",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-59.log",
+   "ok": false,
+   "step": 59,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 802.7568310940376,
+    "spent_seconds_before": 397.24316890596236,
+    "timeout_seconds": 801.7568310940376
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.2494089950050693,
+   "exit": 1,
+   "label": "A3-ordering",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-60.log",
+   "ok": false,
+   "step": 60,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 801.5074220990325,
+    "spent_seconds_before": 398.49257790096743,
+    "timeout_seconds": 800.5074220990325
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.292903909998131,
+   "exit": 0,
+   "label": "A3-planned-fix",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-61.log",
+   "ok": true,
+   "step": 61,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 800.2145181890344,
+    "spent_seconds_before": 399.78548181096556,
+    "timeout_seconds": 799.2145181890344
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.2440757069998654,
+   "exit": 1,
+   "label": "A3-reversal",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-62.log",
+   "ok": false,
+   "step": 62,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 798.9704424820345,
+    "spent_seconds_before": 401.02955751796543,
+    "timeout_seconds": 797.9704424820345
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.250966559004155,
+   "exit": 1,
+   "label": "A3-gate-reversal",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-63.log",
+   "ok": false,
+   "step": 63,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 200.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 797.7194759230304,
+    "spent_seconds_before": 402.2805240769696,
+    "timeout_seconds": 796.7194759230304
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.490229176997673,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-64.log",
+   "ok": true,
+   "step": 64,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 785.2292467460327,
+    "spent_seconds_before": 414.77075325396726,
+    "timeout_seconds": 784.2292467460327
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4202913280023495,
+   "exit": 1,
+   "label": "A3-endtoend",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-65.log",
+   "ok": false,
+   "step": 65,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 783.8089554180303,
+    "spent_seconds_before": 416.1910445819696,
+    "timeout_seconds": 782.8089554180303
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.411801234993618,
+   "exit": 1,
+   "label": "A3-endtoend",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-66.log",
+   "ok": false,
+   "step": 66,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 782.3971541830367,
+    "spent_seconds_before": 417.6028458169632,
+    "timeout_seconds": 781.3971541830367
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4333684620069107,
+   "exit": 1,
+   "label": "A3-endtoend",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-67.log",
+   "ok": false,
+   "step": 67,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 120.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 780.9637857210298,
+    "spent_seconds_before": 419.03621427897014,
+    "timeout_seconds": 779.9637857210298
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.3604366479994496,
+   "exit": 0,
+   "label": "A3-recorded",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-68.log",
+   "ok": true,
+   "step": 68,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 200.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 779.6033490730304,
+    "spent_seconds_before": 420.3966509269696,
+    "timeout_seconds": 778.6033490730304
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.596377026988193,
+   "exit": 0,
+   "label": "all",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-69.log",
+   "ok": true,
+   "step": 69,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 200.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 767.0069720460422,
+    "spent_seconds_before": 432.9930279539578,
+    "timeout_seconds": 766.0069720460422
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.761026774998754,
+   "exit": 0,
+   "label": "A3-real",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-70.log",
+   "ok": true,
+   "step": 70,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 200.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 754.2459452710434,
+    "spent_seconds_before": 445.75405472895653,
+    "timeout_seconds": 753.2459452710434
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.4227152840030612,
+   "exit": 1,
+   "label": "mapping-reversal",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-71.log",
+   "ok": false,
+   "step": 71,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 200.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 752.8232299870403,
+    "spent_seconds_before": 447.1767700129596,
+    "timeout_seconds": 751.8232299870403
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.616369442999712,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-72.log",
+   "ok": true,
+   "step": 72,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 14.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 740.2068605440406,
+    "spent_seconds_before": 459.7931394559593,
+    "timeout_seconds": 739.2068605440406
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.589867411006708,
+   "exit": 0,
+   "label": "baseline-168398",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-73.log",
+   "ok": true,
+   "step": 73,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 14.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 727.6169931330339,
+    "spent_seconds_before": 472.383006866966,
+    "timeout_seconds": 726.6169931330339
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.506024845992215,
+   "exit": 0,
+   "label": "real-session-A3",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-74.log",
+   "ok": true,
+   "step": 74,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 14.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 715.1109682870417,
+    "spent_seconds_before": 484.88903171295823,
+    "timeout_seconds": 714.1109682870417
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.50703232199885,
+   "exit": 1,
+   "label": "reversal-fake-session",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-75.log",
+   "ok": false,
+   "step": 75,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 14.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 702.6039359650429,
+    "spent_seconds_before": 497.3960640349571,
+    "timeout_seconds": 701.6039359650429
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.55535024200799,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-76.log",
+   "ok": true,
+   "step": 76,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 14.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 690.0485857230349,
+    "spent_seconds_before": 509.95141427696507,
+    "timeout_seconds": 689.0485857230349
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.636307438995573,
+   "exit": 0,
+   "label": "parent-cannot-claim",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-77.log",
+   "ok": true,
+   "step": 77,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 14.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 677.4122782840393,
+    "spent_seconds_before": 522.5877217159607,
+    "timeout_seconds": 676.4122782840393
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 12.524196843005484,
+   "exit": 0,
+   "label": "final-confirm",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-78.log",
+   "ok": true,
+   "step": 78,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 664.8880814410338,
+    "spent_seconds_before": 535.1119185589662,
+    "timeout_seconds": 663.8880814410338
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.113653444001102,
+   "exit": 0,
+   "label": "a4-adoption",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-79.log",
+   "ok": true,
+   "step": 79,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 651.7744279970327,
+    "spent_seconds_before": 548.2255720029673,
+    "timeout_seconds": 650.7744279970327
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.036332043993752,
+   "exit": 1,
+   "label": "reversal-unweighed-report",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-80.log",
+   "ok": false,
+   "step": 80,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 638.738095953039,
+    "spent_seconds_before": 561.261904046961,
+    "timeout_seconds": 637.738095953039
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.027152962007676,
+   "exit": 1,
+   "label": "reversal-unchecked-harness",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-81.log",
+   "ok": false,
+   "step": 81,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 625.7109429910313,
+    "spent_seconds_before": 574.2890570089687,
+    "timeout_seconds": 624.7109429910313
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.046235485002398,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-82.log",
+   "ok": true,
+   "step": 82,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 612.6647075060289,
+    "spent_seconds_before": 587.3352924939711,
+    "timeout_seconds": 611.6647075060289
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.174722567986464,
+   "exit": 0,
+   "label": "adoption-identity-fix",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-83.log",
+   "ok": true,
+   "step": 83,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 599.4899849380424,
+    "spent_seconds_before": 600.5100150619576,
+    "timeout_seconds": 598.4899849380424
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.204905241000233,
+   "exit": 1,
+   "label": "reversal-unbound-task-digest",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-84.log",
+   "ok": false,
+   "step": 84,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 586.2850796970422,
+    "spent_seconds_before": 613.7149203029578,
+    "timeout_seconds": 585.2850796970422
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.078445022998494,
+   "exit": 1,
+   "label": "reversal-candidate-from-wrong-owner",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-85.log",
+   "ok": false,
+   "step": 85,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 573.2066346740437,
+    "spent_seconds_before": 626.7933653259563,
+    "timeout_seconds": 572.2066346740437
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.220553892999305,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-86.log",
+   "ok": true,
+   "step": 86,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 559.9860807810444,
+    "spent_seconds_before": 640.0139192189556,
+    "timeout_seconds": 558.9860807810444
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.361603958008345,
+   "exit": 0,
+   "label": "coordinator-host-trap",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-87.log",
+   "ok": true,
+   "step": 87,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 546.624476823036,
+    "spent_seconds_before": 653.375523176964,
+    "timeout_seconds": 545.624476823036
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.153685681987554,
+   "exit": 1,
+   "label": "reversal-untrapped-runner",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-88.log",
+   "ok": false,
+   "step": 88,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 533.4707911410485,
+    "spent_seconds_before": 666.5292088589515,
+    "timeout_seconds": 532.4707911410485
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.163198236987228,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-89.log",
+   "ok": true,
+   "step": 89,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 520.3075929040613,
+    "spent_seconds_before": 679.6924070959387,
+    "timeout_seconds": 519.3075929040613
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.21812467300333,
+   "exit": 0,
+   "label": "admission-wrapper",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-90.log",
+   "ok": true,
+   "step": 90,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 507.08946823105794,
+    "spent_seconds_before": 692.9105317689421,
+    "timeout_seconds": 506.08946823105794
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.333811627991963,
+   "exit": 0,
+   "label": "reversal-no-deferral",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-91.log",
+   "ok": true,
+   "step": 91,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 493.755656603066,
+    "spent_seconds_before": 706.244343396934,
+    "timeout_seconds": 492.755656603066
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.208509235992096,
+   "exit": 0,
+   "label": "wrapper-end-to-end",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-92.log",
+   "ok": true,
+   "step": 92,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 480.5471473670739,
+    "spent_seconds_before": 719.4528526329261,
+    "timeout_seconds": 479.5471473670739
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.256544485018821,
+   "exit": 1,
+   "label": "reversal-no-deferral",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-93.log",
+   "ok": false,
+   "step": 93,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 20.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 467.29060288205505,
+    "spent_seconds_before": 732.709397117945,
+    "timeout_seconds": 466.29060288205505
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.40232002097764,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-94.log",
+   "ok": true,
+   "step": 94,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 453.8882828610774,
+    "spent_seconds_before": 746.1117171389226,
+    "timeout_seconds": 452.8882828610774
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.378632726991782,
+   "exit": 0,
+   "label": "operand-resolver",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-95.log",
+   "ok": true,
+   "step": 95,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 440.50965013408563,
+    "spent_seconds_before": 759.4903498659144,
+    "timeout_seconds": 439.50965013408563
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.387262528005522,
+   "exit": 1,
+   "label": "reversal-unbound-bundle",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-96.log",
+   "ok": false,
+   "step": 96,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 427.1223876060801,
+    "spent_seconds_before": 772.8776123939199,
+    "timeout_seconds": 426.1223876060801
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.379573309008265,
+   "exit": 1,
+   "label": "reversal-minted-identities",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-97.log",
+   "ok": false,
+   "step": 97,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 413.74281429707185,
+    "spent_seconds_before": 786.2571857029282,
+    "timeout_seconds": 412.74281429707185
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.422374830988701,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-98.log",
+   "ok": true,
+   "step": 98,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 400.32043946608314,
+    "spent_seconds_before": 799.6795605339169,
+    "timeout_seconds": 399.32043946608314
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.538190139981452,
+   "exit": 0,
+   "label": "owner-shape-correction",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-99.log",
+   "ok": true,
+   "step": 99,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 386.7822493261017,
+    "spent_seconds_before": 813.2177506738983,
+    "timeout_seconds": 385.7822493261017
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.554964654002106,
+   "exit": 1,
+   "label": "reversal-top-level-pathset",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-100.log",
+   "ok": false,
+   "step": 100,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 373.2272846720996,
+    "spent_seconds_before": 826.7727153279004,
+    "timeout_seconds": 372.2272846720996
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.528643486992223,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-101.log",
+   "ok": true,
+   "step": 101,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 359.69864118510736,
+    "spent_seconds_before": 840.3013588148926,
+    "timeout_seconds": 358.69864118510736
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.594937616988318,
+   "exit": 0,
+   "label": "durable-intent-preservation",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-102.log",
+   "ok": true,
+   "step": 102,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 346.10370356811904,
+    "spent_seconds_before": 853.896296431881,
+    "timeout_seconds": 345.10370356811904
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.624390422017314,
+   "exit": 1,
+   "label": "reversal-unpinned-target",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-103.log",
+   "ok": false,
+   "step": 103,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 332.47931314610173,
+    "spent_seconds_before": 867.5206868538983,
+    "timeout_seconds": 331.47931314610173
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.558341658004792,
+   "exit": 1,
+   "label": "reversal-second-child-work",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-104.log",
+   "ok": false,
+   "step": 104,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 318.92097148809694,
+    "spent_seconds_before": 881.0790285119031,
+    "timeout_seconds": 317.92097148809694
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.514533203007886,
+   "exit": 1,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-105.log",
+   "ok": false,
+   "step": 105,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 305.40643828508905,
+    "spent_seconds_before": 894.593561714911,
+    "timeout_seconds": 304.40643828508905
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.696434626996052,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-106.log",
+   "ok": true,
+   "step": 106,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 291.710003658093,
+    "spent_seconds_before": 908.289996341907,
+    "timeout_seconds": 290.710003658093
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.28432466799859,
+   "exit": 0,
+   "label": "durable-request-recovery",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-107.log",
+   "ok": true,
+   "step": 107,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 270.4256789900944,
+    "spent_seconds_before": 929.5743210099056,
+    "timeout_seconds": 269.4256789900944
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.307388626009924,
+   "exit": 1,
+   "label": "reversal-trusting-recovery",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-108.log",
+   "ok": false,
+   "step": 108,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 22.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 249.1182903640845,
+    "spent_seconds_before": 950.8817096359155,
+    "timeout_seconds": 248.1182903640845
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.390516160987318,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-109.log",
+   "ok": true,
+   "step": 109,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 24.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 227.72777420309717,
+    "spent_seconds_before": 972.2722257969028,
+    "timeout_seconds": 226.72777420309717
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.3840957559878,
+   "exit": 0,
+   "label": "intent-first-branch",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-110.log",
+   "ok": true,
+   "step": 110,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 24.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 206.34367844710937,
+    "spent_seconds_before": 993.6563215528906,
+    "timeout_seconds": 205.34367844710937
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.400901705987053,
+   "exit": 1,
+   "label": "reversal-verify-without-recovering",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-111.log",
+   "ok": false,
+   "step": 111,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 24.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 184.94277674112232,
+    "spent_seconds_before": 1015.0572232588777,
+    "timeout_seconds": 183.94277674112232
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.454338018986164,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-112.log",
+   "ok": true,
+   "step": 112,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle",
+    "tests.tools.test_stage_execution"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 60.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 163.48843872213615,
+    "spent_seconds_before": 1036.5115612778638,
+    "timeout_seconds": 162.48843872213615
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 74.67709429599927,
+   "exit": 1,
+   "label": "resolver-composed",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-113.log",
+   "ok": false,
+   "step": 113,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 25.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 88.81134442613688,
+    "spent_seconds_before": 1111.1886555738631,
+    "timeout_seconds": 87.81134442613688
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.40951557000517,
+   "exit": 0,
+   "label": "resolver-composed-focused",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-114.log",
+   "ok": true,
+   "step": 114,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 25.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 67.40182885613171,
+    "spent_seconds_before": 1132.5981711438683,
+    "timeout_seconds": 66.40182885613171
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.49758851499064,
+   "exit": 0,
+   "label": "resolver-api-corrected",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-115.log",
+   "ok": true,
+   "step": 115,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cap_seconds": 1200.0,
+    "expected_seconds": 25.0,
+    "margin_seconds": 1.0,
+    "remaining_seconds_before": 45.904240341141076,
+    "spent_seconds_before": 1154.095759658859,
+    "timeout_seconds": 44.904240341141076
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.561607479990926,
+   "exit": 1,
+   "label": "reversal-branch-after-resolving",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-116.log",
+   "ok": false,
+   "step": 116,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 120.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.52321261598263,
+   "exit": 0,
+   "label": "runner-gate-retired",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-117.log",
+   "ok": true,
+   "step": 117,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 120.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.750548390991753,
+   "exit": 0,
+   "label": "apply-task-material",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-118.log",
+   "ok": true,
+   "step": 118,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 120.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.415717063006014,
+   "exit": 1,
+   "label": "reversal-constant-apply-material",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-119.log",
+   "ok": false,
+   "step": 119,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 120.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.52508751300047,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-120.log",
+   "ok": true,
+   "step": 120,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 120.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6837025559798349,
+   "exit": 0,
+   "label": "runner-group-cleanup",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-121.log",
+   "ok": true,
+   "step": 121,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.54854775799322,
+   "exit": 0,
+   "label": "preparation-constructed",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-122.log",
+   "ok": true,
+   "step": 122,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.424217569001485,
+   "exit": 0,
+   "label": "selection-required",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-123.log",
+   "ok": true,
+   "step": 123,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6199441680219024,
+   "exit": 1,
+   "label": "reversal-engage-without-selection",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-124.log",
+   "ok": false,
+   "step": 124,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.58607198399841,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-125.log",
+   "ok": true,
+   "step": 125,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6459687649912667,
+   "exit": 0,
+   "label": "runner-evidence-first",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-126.log",
+   "ok": true,
+   "signalled": null,
+   "step": 126,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.596824912005104,
+   "exit": 0,
+   "label": "selection-closed-and-released",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-127.log",
+   "ok": true,
+   "signalled": null,
+   "step": 127,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.7668569880188443,
+   "exit": 1,
+   "label": "reversal-truthy-selection",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-128.log",
+   "ok": false,
+   "signalled": null,
+   "step": 128,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6163782090006862,
+   "exit": 0,
+   "label": "reversal-no-release",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-129.log",
+   "ok": true,
+   "signalled": null,
+   "step": 129,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 1.6459269170009065,
+   "exit": 1,
+   "label": "reversal-no-release-again",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-130.log",
+   "ok": false,
+   "signalled": null,
+   "step": 130,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.635174541006563,
+   "exit": 0,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-131.log",
+   "ok": true,
+   "signalled": null,
+   "step": 131,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.49670748299104,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "preflight-and-group-proof",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-132.log",
+   "ok": true,
+   "signalled": null,
+   "step": 132,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/usr/bin/python3",
+    "/tmp/w161230-timeout-proof-_22pd2fi/spawner.py"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 3.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.2044164419930894,
+   "exit": null,
+   "group_proved_gone": true,
+   "label": "timeout-proof",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-999.log",
+   "ok": false,
+   "signalled": [
+    "SIGTERM"
+   ],
+   "step": 999,
+   "timed_out": true
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.486975626001367,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-133.log",
+   "ok": true,
+   "signalled": null,
+   "step": 133,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/usr/bin/python3",
+    "/tmp/w161230-term-resistant-sva2hdop/leader.py"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 3.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 13.107295797002735,
+   "exit": null,
+   "group_proved_gone": true,
+   "label": "term-resistant-proof",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-998.log",
+   "ok": false,
+   "signalled": [
+    "SIGTERM",
+    "SIGKILL"
+   ],
+   "step": 998,
+   "timed_out": true
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/usr/bin/python3",
+    "/tmp/w161230-term-ok-1r0xlq6u/s.py"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 3.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.1036346280016005,
+   "exit": null,
+   "group_proved_gone": true,
+   "label": "term-succeeds-proof",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-997.log",
+   "ok": false,
+   "signalled": [
+    "SIGTERM"
+   ],
+   "step": 997,
+   "timed_out": true
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.55892338999547,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "restored",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-134.log",
+   "ok": true,
+   "signalled": null,
+   "step": 134,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.610032750992104,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "selected-deployment-composed",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-135.log",
+   "ok": true,
+   "signalled": null,
+   "step": 135,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.67815397400409,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "traversal-reaches-acceptance",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-136.log",
+   "ok": true,
+   "signalled": null,
+   "step": 136,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.45529616100248,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "acceptance-wired",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-137.log",
+   "ok": false,
+   "signalled": null,
+   "step": 137,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.599059258005582,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "acceptance-wired",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-138.log",
+   "ok": false,
+   "signalled": null,
+   "step": 138,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.721980672009522,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "acceptance-wired",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-140.log",
+   "ok": false,
+   "signalled": null,
+   "step": 140,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.674281081010122,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "acceptance-wired",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-141.log",
+   "ok": false,
+   "signalled": null,
+   "step": 141,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.552635935979197,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "acceptance-wired",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-142.log",
+   "ok": true,
+   "signalled": null,
+   "step": 142,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.526073546003317,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "child-contract-bound",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-143.log",
+   "ok": true,
+   "signalled": null,
+   "step": 143,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 180.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.538693184003932,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "preparation-admitted-end-to-end",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-144.log",
+   "ok": false,
+   "signalled": null,
+   "step": 144,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.574607579997974,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "preparation-admitted-end-to-end",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-145.log",
+   "ok": false,
+   "signalled": null,
+   "step": 145,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "tests.integration.test_managed_storage",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.manager.test_reconciliation_task",
+    "tests.tools.test_managed_preparation",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 21.610367597982986,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "preparation-records-its-own-attempt",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-146.log",
+   "ok": true,
+   "signalled": null,
+   "step": 146,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 1500.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 187.10486528501497,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "full-suite-after-attempt-record",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-147.log",
+   "ok": false,
+   "signalled": null,
+   "step": 147,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "/home/sl/src/baton/.venv/bin/python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-t",
+    "."
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 1500.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 455.6685428629862,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "full-suite-correct-discovery",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-148.log",
+   "ok": false,
+   "signalled": null,
+   "step": 148,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.742480794986477,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "group1-first-process",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170415.log",
+   "ok": false,
+   "signalled": null,
+   "step": 170415,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.707728642009897,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "group1-manifest-binding",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170416.log",
+   "ok": false,
+   "signalled": null,
+   "step": 170416,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.6939561409817543,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "group1-start-diagnostic",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170417.log",
+   "ok": false,
+   "signalled": null,
+   "step": 170417,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.053560130007099,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "group1-path-binding",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170418.log",
+   "ok": false,
+   "signalled": null,
+   "step": 170418,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.004832909005927,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "group1-retained-adoption",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170419.log",
+   "ok": false,
+   "signalled": null,
+   "step": 170419,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.907040991995018,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "group1-source-receipts",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170420.log",
+   "ok": false,
+   "signalled": null,
+   "step": 170420,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 5.905097509006737,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "group1-review-ending-diagnostic",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170421.log",
+   "ok": false,
+   "signalled": null,
+   "step": 170421,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.7839919320249464,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "group1-provisioned-policy",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170422.log",
+   "ok": false,
+   "signalled": null,
+   "step": 170422,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.integration.test_managed_storage"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.218253235972952,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "group1-focused-regressions",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170423.log",
+   "ok": false,
+   "signalled": null,
+   "step": 170423,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.integration.test_managed_storage"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.289677474007476,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "group1-owner-regressions",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170424.log",
+   "ok": true,
+   "signalled": null,
+   "step": 170424,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.441716933011776,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "group1-interruption-cuts",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170425.log",
+   "ok": false,
+   "signalled": null,
+   "step": 170425,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.integration.test_managed_storage",
+    "tests.tools.test_stage_execution.TheComposedJobTraversesReviewAndAcceptance",
+    "tests.tools.test_stage_execution.OrdinaryTerminalLifecycle",
+    "tests.manager.test_reconciliation_task",
+    "tests.integration.test_managed_execution",
+    "tests.tools.test_integration_bundle"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 35.5087429509731,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "group1-complete-owner-regressions",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170426.log",
+   "ok": true,
+   "signalled": null,
+   "step": 170426,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 3.4056673159939237,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "group1-reviewable-process-proof",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170427.log",
+   "ok": true,
+   "signalled": null,
+   "step": 170427,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/probe-real-cut-retry-170533.py"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.006193751993123442,
+   "exit": 2,
+   "group_proved_gone": null,
+   "label": "group1-real-fault-recovery",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170569.log",
+   "ok": false,
+   "signalled": null,
+   "step": 170569,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/probe-real-cut-retry-170533.py"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.5687735480023548,
+   "exit": 1,
+   "group_proved_gone": null,
+   "label": "group1-real-fault-recovery",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170570.log",
+   "ok": false,
+   "signalled": null,
+   "step": 170570,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "/home/sl/src/baton/work/records/2026/09/finding-v12-managed-integration-execution/findings/finding-managed-preparation-completion/probe-real-cut-retry-170533.py"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 0.8470617209968623,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "group1-real-fault-recovery",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170571.log",
+   "ok": true,
+   "signalled": null,
+   "step": 170571,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation.OneManagedPreparationCompletes"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 4.628251463000197,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "group1-real-admission-and-recovery",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170572.log",
+   "ok": true,
+   "signalled": null,
+   "step": 170572,
+   "timed_out": false
+  },
+  {
+   "argv": [
+    "env",
+    "PYTHONPATH=src:tools:.",
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_managed_preparation",
+    "tests.job_manager.test_managed_integration_capacity",
+    "tests.integration.test_managed_storage"
+   ],
+   "budget": {
+    "cumulative_gate": "removed by owner M166331; this runner's stale CAP was retired at claim169578",
+    "timeout_seconds": 300.0
+   },
+   "cwd": "/home/sl/src/baton/v12/python",
+   "elapsed_seconds": 7.997477808006806,
+   "exit": 0,
+   "group_proved_gone": null,
+   "label": "group1-correction-regressions",
+   "log": "work/records/2026/09/finding-v12-managed-integration-execution/run-166281-step-170573.log",
+   "ok": true,
+   "signalled": null,
+   "step": 170573,
+   "timed_out": false
+  }
+ ],
+ "selection": "SLICE2-SCOPE-165724"
+}
