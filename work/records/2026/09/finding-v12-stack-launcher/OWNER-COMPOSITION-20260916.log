@@ -1,0 +1,8 @@
+test_a_deployment_that_does_not_compose_fails_the_start (tests.tools.test_stack.ValidIdleComposition.test_a_deployment_that_does_not_compose_fails_the_start)
+The counterexample to the case above, over the SAME machinery: a ... ok
+test_the_real_children_compose_an_empty_configured_stack (tests.tools.test_stack.ValidIdleComposition.test_the_real_children_compose_an_empty_configured_stack) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 10.535s
+
+OK

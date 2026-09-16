@@ -1,0 +1,7 @@
+{
+  "returncode": 0,
+  "stdout": "",
+  "stderr": ".............................\n----------------------------------------------------------------------\nRan 29 tests in 0.005s\n\nOK\n",
+  "seconds": 0.044590805016923696,
+  "excluded_test": "test_the_documented_form_reaches_the_helper invokes just build before refusing missing inputs; deliberately not executed"
+}

@@ -1,0 +1,39 @@
+{
+  "candidate_count": 21,
+  "candidate_hashes": {
+    "v12/STACK.md": "ae1c2ea991a43b5af30b83feedc83c9fa2651ce81a2be1ba6175e69f6cf2633c",
+    "v12/justfile": "5b261079e035f06371b6f0a88b7c0ce2bdd55a2fb8b152c4c38f101146598368",
+    "v12/python/packaging/stack.spec": "bd949228761abaff4ab339c4651c9abe6268968c88adc1a46803f4453f54aeaf",
+    "v12/python/pyproject.toml": "ac925c1f73ea3309dfd1d844978f24fc31c4d9dd9acd026f79edb275ce53ee38",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/src/baton_v12/version.py": "8f854cd7b3e8ee5ae7216f226ce484f1a3e112c453e27e1e116fe3fb8e4ffd69",
+    "v12/python/tests/tools/test_bootstrap.py": "520d6f5d4238154e0624deb878db981ec886929abe50cf226f4ed18988a13d97",
+    "v12/python/tests/tools/test_environment.py": "3a8b2fe313bb3ab97c970a61d594c164dc6c5e1d6f11872cc9b63fc695f09233",
+    "v12/python/tests/tools/test_instance.py": "ffc034af33c7e416f71851eba964818e04b2875c87547fe04ec0f76bf29101d8",
+    "v12/python/tests/tools/test_packaging.py": "f2ba0e039a9e0fa58c071506decf82958986fd17edde87e7f75ea51c87568d60",
+    "v12/python/tests/tools/test_stack.py": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+    "v12/python/tests/tools/test_version.py": "0b2e2191a99f071c65b1c39cf680e6ada8feef4eddc64773c3e0e31bbe8ca8e2",
+    "v12/python/tools/bootstrap.py": "d25c90c5221eccc0fc83d44265bb144bc929d727e8888552bd23791f403e7bd3",
+    "v12/python/tools/build_stamp.py": "6b4fed17742702e9dc3577d8f4a54a9bf01d7ca947c1eacf739b18cad7c91218",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/instance.py": "765bfd64aa9967c16741f940b5c77070bdcd268c56ae935ecc2fa6f795bfa9c9",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "ea1ef7b298f33c856b90cb73dd205d2c6cd1ee3b758bc3add063944596831085",
+    "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+    "v12/python/tools/stack_command.py": "da81a6950b4d6d9a87118816013a6a4499bdf651d78eb2845e9bc27ba124d51f",
+    "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+  },
+  "candidate_mismatches": [],
+  "build_before": "81d45b33e6009ff623737e1c330c4c4d3e662fa6811f781a13d5558fabdc6270",
+  "install_before": "32b81cd3b46149bbc90ca6116f56b2e9540d789b1a5b989600098f12be63a38a",
+  "tests": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.718s\n\nOK\n",
+    "seconds": 0.7567476470139809
+  },
+  "build_after": "81d45b33e6009ff623737e1c330c4c4d3e662fa6811f781a13d5558fabdc6270",
+  "install_after": "32b81cd3b46149bbc90ca6116f56b2e9540d789b1a5b989600098f12be63a38a",
+  "both_bundles_unchanged": true,
+  "total_seconds": 0.8180373870418407
+}

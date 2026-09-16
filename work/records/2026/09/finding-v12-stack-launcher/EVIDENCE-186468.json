@@ -1,0 +1,125 @@
+{
+  "all_owned_children_reaped": true,
+  "answers_review": "review-2026-09-16T12-35-10Z.md sha256 eb04f2ed3cca14b052eb1a3033778ead21621d854e21822eb101b48c5d767bfa (K1-K4)",
+  "candidates": {
+    "v12/justfile": "6acbd6029baaacab31da1a0f87feba3fb4876d99226ccd981ef30837b4614a32",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tools/bootstrap.py": "31bfc7025febab3ae8d651029e684bee8324b7beecce94f0871bbfd4a0bf198f",
+    "v12/python/tools/instance.py": "441df833f8c499a5a00ad8c8a648d4dc8630c71047a808ed4ea70687d1084c3b",
+    "v12/python/tools/stack.py": "0766c7c4dd27cd84ffd5aaa2a3cd6db2730f540ef3fad337129aef912a4bcbef",
+    "v12/python/tools/stack_command.py": "4f923e87142bda2667826a992c2108e63bd4ac4bea6cc01e3b9d981c4216de13",
+    "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+  },
+  "claim": 186468,
+  "corrections": {
+    "K1": {
+      "verified_against_the_real_bundle": "a forged selector at A naming B's state: exit 2, refused by name",
+      "what": "only the destination was compared, so a selector kept at A carrying A's valid runtime but B's state, stores, configuration and logs passed -- and `stop` went to B's state root. EVERY path an instance owns is DERIVED from its destination, so every path is now compared against the layout rather than believed."
+    },
+    "K2": {
+      "verified_against_the_real_bundle": "A's command with B's selector: exit 2, 'this command is .../w186468-a/distro/baton-v12-stack and the instance names .../w186468-b/...'",
+      "what": "two holes. Verifying the instance's folder said nothing about WHICH command was running, so A's executable given B's selector verified B's folder and went on dispatching as A -- the running command is now bound to the instance's when frozen. And the manifest recorded only a symlink's TEXT, so an external link's target could change while the manifest stayed identical; links pointing outside the bundle, broken links and unsupported entries are now refused, and safe internal links are still recorded."
+    },
+    "K3": {
+      "verified_against_the_real_bundle": "an already-prepared destination: refused, 'there is already a runtime at .../distro'",
+      "what": "`main` composed the Authority and wrote the configuration BEFORE discovering there was no runtime to install, and `install` would overwrite an existing corrupt selector. `admit` now settles every custody and runtime admission first -- absolute destination, outside the checkout, no existing runtime, no existing selector, a named and digestible distro -- and `install` calls it too, so a direct caller cannot skip it. The identity is also validated meaningfully: exit 0 is not an identity, so a build that is not frozen, or whose schema assets or native validator did not travel, is refused."
+    },
+    "K4": {
+      "what": "for a one-folder build `_MEIPASS` is `<distro>/_internal`, so answering it protected the libraries and left `<distro>/` itself open -- a store written beside the executable passed. Frozen, `_checkout` now answers the distro ROOT, which is the folder holding the code, and the instance's mutable siblings are outside it."
+    }
+  },
+  "cumulative_verification_seconds": {
+    "J1_history": "0.125s reversal within a 1.291s whole harness including baseline and restore; both intervals preserved rather than one erasing the other",
+    "author_claim183891": 1.195,
+    "author_claim183998": 151.908,
+    "author_claim184239": 127.816,
+    "author_claim184442": 63.532,
+    "author_claim185653": 26.94,
+    "author_claim185774": 27.256,
+    "author_claim185884": 33.299,
+    "author_claim185976": 32.661,
+    "author_claim186044": 30.937,
+    "author_claim186132": 2.476,
+    "author_claim186214": 28.576,
+    "author_claim186284": 27.262,
+    "author_claim186381": {
+      "focused": 27.19,
+      "stage_suite": 55.317
+    },
+    "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+    "owner_bootstrap_run": 0.938,
+    "owner_composition_run": 10.535,
+    "reviewer_claim183958": 1.5529989219503477,
+    "reviewer_claim184197": 12.840890395978931,
+    "reviewer_claim184197_readiness_check": 0.002758326008915901,
+    "reviewer_claim184403": 20.8455910270568,
+    "reviewer_claim184537": 15.599983819993213,
+    "reviewer_claim185739": 0.12554923997959122,
+    "reviewer_claim185857": 0.22083405102603137,
+    "reviewer_claim185945": 0.0037346489843912423,
+    "reviewer_claim186022": 0.004474725050386041,
+    "reviewer_claim186081": 0.005015750008169562,
+    "reviewer_claim186175": 0.04717645701020956,
+    "reviewer_claim186262": 0.4171164730214514,
+    "reviewer_claim186356": 1.6185368220321834,
+    "reviewer_claim186439": 0.0028278949903324246,
+    "this_claim_build_and_bundle_checks": "unknown duration; VERIFICATION rather than deployment cost",
+    "this_claim_focused_tests": 27.183
+  },
+  "focused_tests": {
+    "command": "cd v12/python && python3 -m unittest tests.tools.test_stack tests.tools.test_bootstrap tests.tools.test_environment",
+    "returncode": 0,
+    "seconds": 27.183,
+    "tests": 220
+  },
+  "not_done": {
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true,
+    "scratch_removed": "the build environment, the rebuilt bundle and both demonstration instances were removed after use"
+  },
+  "not_done_and_returned": {
+    "honest_limit": "this claim's K1-K4 evidence is a live demonstration against a bundle that has since been removed; it is reproducible from the build recipe and both locks, and it is not a substitute for the registered checks named above",
+    "remaining_scope": [
+      "an external-run fixture whose workers carry a credential registry, so start/status/monitor/stop can be demonstrated with the manager, publisher and viewer actually RUNNING through instance.json",
+      "tests/tools/test_instance.py and test_packaging.py, registered in parallel_test.py -- K1-K4 are verified by running the real bundle in this claim but are NOT yet held by committed checks, which is the single most important thing outstanding",
+      "STACK.md and the four lifecycle recipes taking an instance path; an installed monitor",
+      "the independent repo prepared from the selected immutable base; repeat/corrupt/mismatch preservation for instances",
+      "a retained artifact manifest with digests and full build/smoke/source/lock/platform provenance"
+    ],
+    "what": "the same remaining scope as claim186381, none of which this claim started"
+  },
+  "operational_findings_preserved": [
+    {
+      "note": "unchanged",
+      "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+    },
+    {
+      "note": "unchanged",
+      "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+    }
+  ],
+  "scope": "four corrections to the instance contract, verified against a real rebuilt bundle; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation",
+  "the_rebuilt_bundle": {
+    "built": "pyinstaller over the spec in a venv carrying both locks hash-enforced; exit 0",
+    "identity": {
+      "frozen": true,
+      "native_rpds": "imported from inside the bundle",
+      "schema_assets": {
+        "agent-session-1.0": 48212,
+        "worker-control-1.0": 51419
+      }
+    },
+    "ordinary_path_still_works": "status through an instance's OWN selector: exit 0"
+  },
+  "unchanged_this_claim": [
+    "v12/python/tools/stack.py",
+    "v12/python/tools/stack_command.py",
+    "v12/python/packaging/stack.spec",
+    "v12/python/requirements.build.lock",
+    "v12/justfile"
+  ],
+  "work": "W183883"
+}

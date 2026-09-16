@@ -1,0 +1,188 @@
+{
+  "all_owned_children_reaped": true,
+  "answers": "owner reroute186129 and thread message186128: add the requested `just test-bootstrap` recipe and short documentation, reusing the owner's passing run",
+  "candidates": {
+    "v12/STACK.md": "8bf73bb0bf2ad81465db6c2d453baafb166022d0ab3387ad4e1ac7d4124a1e32",
+    "v12/justfile": "d539c04b316c3d318a62d5187614f077cfa222abf114d28653eb056e650fe8f7",
+    "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+    "v12/python/tests/tools/test_environment.py": "c7737880125e3fa2688a0269ef107b961766b53c50d696f3a2b43db488d25581",
+    "v12/python/tests/tools/test_stack.py": "a2bc1a222650ecc7e5f846b5007373796bb7cc0b187dfb866eac1a400af5e1b1",
+    "v12/python/tools/bootstrap.py": "2c78a8005fd8a9e79b0ddaf0a9e8d3a8c700cf142acd77ca5e2505520d484510",
+    "v12/python/tools/environment.py": "25f781cef478247bac61b2cfa79f802577bb1b13e8c2749a0ae4d244972fd042",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136"
+  },
+  "claim": 186132,
+  "cumulative_verification_seconds": {
+    "author_claim183891": 1.195,
+    "author_claim183998": 151.908,
+    "author_claim184239": 127.816,
+    "author_claim184442": 63.532,
+    "author_claim185653": 26.94,
+    "author_claim185774": 27.256,
+    "author_claim185884": 33.299,
+    "author_claim185976": 32.661,
+    "author_claim186044": 30.937,
+    "note": "reported per actor and never summed; the real locked install of claim185653 and the earliest recipe duration remain unknown rather than erased, and none is an execution gate",
+    "owner_bootstrap_run": 0.938,
+    "owner_composition_run": 10.535,
+    "reviewer_claim183958": 1.5529989219503477,
+    "reviewer_claim184197": 12.840890395978931,
+    "reviewer_claim184197_readiness_check": 0.002758326008915901,
+    "reviewer_claim184403": 20.8455910270568,
+    "reviewer_claim184537": 15.599983819993213,
+    "reviewer_claim185739": 0.12554923997959122,
+    "reviewer_claim185857": 0.22083405102603137,
+    "reviewer_claim185945": 0.0037346489843912423,
+    "reviewer_claim186022": 0.004474725050386041,
+    "reviewer_claim186081": 0.005015750008169562,
+    "this_claim_focused_checks": 1.065,
+    "this_claim_reversal_probes": 0.443,
+    "this_claim_total": 2.476,
+    "this_claim_wrapper_run": 0.968
+  },
+  "not_done": {
+    "no_dependency_download": true,
+    "no_installation": true,
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true,
+    "scratch_removed": "the probe tree copy and the absent-environment demonstration path were removed after use"
+  },
+  "not_rerun_on_purpose": "the unchanged launcher, adjacent and stack suites, and the bootstrap suite itself beyond the one wrapper run -- the owner's 67-test pass covers the unchanged tested code and the PLAN asks that it not be repeated merely for this handoff",
+  "operational_findings_preserved": [
+    {
+      "note": "unchanged, not adopted",
+      "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+    },
+    {
+      "note": "unchanged",
+      "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+    }
+  ],
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "count": 6,
+    "harness": "probes-186132.py in this dossier; set W183883_PROBE_TREE to a COPY of the checkout's v12/",
+    "probes": [
+      {
+        "checks": [
+          "TheRecipesUseIt.test_every_stack_recipe_resolves_the_prepared_interpreter"
+        ],
+        "failed_as_required": true,
+        "probe": "the-recipe-uses-the-ambient-interpreter",
+        "returncode": 1,
+        "seconds": 0.041
+      },
+      {
+        "checks": [
+          "TheRecipesUseIt.test_no_stack_recipe_installs_anything"
+        ],
+        "failed_as_required": true,
+        "probe": "the-recipe-installs-on-the-way-through",
+        "returncode": 1,
+        "seconds": 0.04
+      },
+      {
+        "checks": [
+          "TheRecipesUseIt.test_the_bootstrap_test_recipe_carries_the_reviewed_bounds"
+        ],
+        "failed_as_required": true,
+        "probe": "the-run-is-unbounded",
+        "returncode": 1,
+        "seconds": 0.04
+      },
+      {
+        "checks": [
+          "TheRecipesUseIt.test_the_bootstrap_test_recipe_cannot_swallow_a_failure"
+        ],
+        "failed_as_required": true,
+        "probe": "a-failing-suite-is-swallowed",
+        "returncode": 1,
+        "seconds": 0.043
+      },
+      {
+        "checks": [
+          "TheInterpreterOverrideIsExecutable.test_the_bootstrap_test_root_defaults_to_a_disk_backed_place",
+          "TheInterpreterOverrideIsExecutable.test_a_named_bootstrap_test_root_reaches_the_environment",
+          "TheRecipesUseIt.test_the_bootstrap_test_recipe_carries_the_reviewed_bounds"
+        ],
+        "failed_as_required": true,
+        "probe": "the-root-is-not-forwarded",
+        "returncode": 1,
+        "seconds": 0.047
+      },
+      {
+        "checks": [
+          "TheInterpreterOverrideIsExecutable.test_the_bootstrap_test_root_defaults_to_a_disk_backed_place"
+        ],
+        "failed_as_required": true,
+        "probe": "the-root-defaults-into-a-memory-filesystem",
+        "returncode": 1,
+        "seconds": 0.043
+      }
+    ],
+    "restored_tree_matches_working_tree": true,
+    "seconds": 0.443
+  },
+  "scope": "a recipe wrapper and its documentation; no source redesign, no new harness, no installation, no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation",
+  "still_the_owner's": "the production selections by exact field name in DEPLOYMENT-INPUTS-185653.md, and the external installation and usable-stack setup that follow",
+  "the_owner_run_this_reuses": {
+    "log": "OWNER-BOOTSTRAP-20260916.log",
+    "note": "owner-executed through the prepared venv; the ten reviewed hashes were revalidated against the tree at the start of this claim and all ten match, so that run still describes this code",
+    "seconds": 0.938,
+    "tests": 67
+  },
+  "the_recipe": {
+    "bounds": "timeout --kill-after=10s 180s, the reviewed values",
+    "exit": "execs with set -euo pipefail and no `|| true` anywhere, so a failing suite and a timed-out one both reach the caller",
+    "installs": "nothing; names `just setup` when the environment is missing",
+    "interpreter": "the prepared one, resolved exactly as the other four recipes resolve it",
+    "name": "just test-bootstrap [ROOT]",
+    "root": "positional like `just setup`'s interpreter, defaulting to /var/tmp because these cases need real storage OUTSIDE the checkout: held_configuration refuses a configured mutable root inside the working tree and the workspace boundary refuses one on a memory filesystem"
+  },
+  "unchanged_this_claim": [
+    "v12/python/tools/bootstrap.py",
+    "v12/python/tests/tools/test_bootstrap.py",
+    "v12/python/tools/environment.py",
+    "v12/python/tools/parallel_test.py",
+    "v12/python/tests/tools/test_stack.py",
+    "v12/python/tools/stack.py",
+    "v12/python/tools/job_manager.py"
+  ],
+  "work": "W183883",
+  "wrapper_validation": {
+    "focused_checks": {
+      "checks": [
+        "TheRecipesUseIt.test_every_stack_recipe_resolves_the_prepared_interpreter (extended to test-bootstrap)",
+        "TheRecipesUseIt.test_no_stack_recipe_installs_anything (extended to test-bootstrap)",
+        "TheRecipesUseIt.test_the_bootstrap_test_recipe_carries_the_reviewed_bounds",
+        "TheRecipesUseIt.test_the_bootstrap_test_recipe_cannot_swallow_a_failure",
+        "TheInterpreterOverrideIsExecutable.test_the_bootstrap_test_root_defaults_to_a_disk_backed_place",
+        "TheInterpreterOverrideIsExecutable.test_a_named_bootstrap_test_root_reaches_the_environment"
+      ],
+      "command": "cd v12/python && python3 -m unittest tests.tools.test_environment tests.tools.test_bootstrap",
+      "new_this_claim": 4,
+      "returncode": 0,
+      "seconds": 1.065,
+      "tests": 110
+    },
+    "just_dry_run_default": "exec env BATON_V12_STACK_TEST_ROOT=\"/var/tmp\" PYTHONPATH=src:. timeout --kill-after=10s 180s \"$PREPARED\" -m unittest -v tests.tools.test_bootstrap",
+    "just_dry_run_with_an_operand": "BATON_V12_STACK_TEST_ROOT=\"/srv/scratch\"",
+    "the_recipe_fails_closed": {
+      "command": "BATON_V12_VENV=<absent> just test-bootstrap",
+      "exit": 2,
+      "note": "this exercises THIS recipe's own failure path end to end, rather than asserting about it",
+      "reports": "refused: the v12 Python environment ... is absent ... Run `just setup`"
+    },
+    "the_recipe_really_run": {
+      "command": "just test-bootstrap",
+      "exit": 0,
+      "note": "this validates the WRAPPER; it is not a rerun of code the owner already verified, and its result agrees with the owner's",
+      "seconds": 0.968,
+      "tests": 67
+    }
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "all_owned_children_reaped": true,
+  "answers_review": "review-2026-09-16T11-25-49Z.md sha256 1e3a807f0023de065c9274ba1c234c167e1b29e036832a8f79dd5d1f055ea6a3 (H1)",
+  "candidates": {
+    "v12/STACK.md": "525ed106a86785416c1414a686db1accbc90c2bb4ad185081cfa9b87ab8de6e7",
+    "v12/justfile": "52f7083c86dc8071531a2848fa986821de98935859d434ee8a6e1881e44dd886",
+    "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+    "v12/python/tests/tools/test_environment.py": "c0b5ce194d333494e528a0174705c2c2fdd65d2e64f1d60a59b71e33df444ecc",
+    "v12/python/tests/tools/test_stack.py": "a2bc1a222650ecc7e5f846b5007373796bb7cc0b187dfb866eac1a400af5e1b1",
+    "v12/python/tools/bootstrap.py": "2c78a8005fd8a9e79b0ddaf0a9e8d3a8c700cf142acd77ca5e2505520d484510",
+    "v12/python/tools/environment.py": "25f781cef478247bac61b2cfa79f802577bb1b13e8c2749a0ae4d244972fd042",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136"
+  },
+  "claim": 186044,
+  "correction": {
+    "H1": {
+      "checks": [
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_changed_review_work_in_the_configuration_is_refused",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_an_unsupported_schema_in_the_configuration_is_refused",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_changed_sole_producer_is_refused",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_malformed_nested_binding_is_refused_rather_than_escaping",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_multi_job_configuration_binding_another_set_is_refused",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_an_unchanged_multi_job_deployment_still_repeats",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_complete_and_agreeing_pair_still_repeats"
+      ],
+      "every_refusal_also_asserts": "no Authority composition was attempted, and the record is byte-identical",
+      "what": "`_emitted_bindings` -- my own hand-written partial projection of the emitted document -- is DELETED. It chose its representation from the truthiness of `job_bindings` rather than the schema, and dropped the review Work in both variants and the producer identity in `/1`, so a changed review Work, an unsupported schema and a renamed sole producer all passed. `_drifted` now validates the existing document through `stage_execution.held_configuration` and compares its NORMALIZED `job_bindings` -- the accepted validator already resolves /1 and /2 through `_held_bindings`, requires matching implementation and review Works, and DERIVES /1's source_worker_id from its sole producer. A document it refuses is one whose meaning cannot be established, and that refuses the repeat before composition with both files preserved."
+    }
+  },
+  "cumulative_verification_seconds": {
+    "author_claim183891": 1.195,
+    "author_claim183998": 151.908,
+    "author_claim184239": 127.816,
+    "author_claim184442": 63.532,
+    "author_claim185653": 26.94,
+    "author_claim185774": 27.256,
+    "author_claim185884": 33.299,
+    "author_claim185976": 32.661,
+    "note": "reported per actor and never summed; the real locked install of claim185653 and the earliest recipe duration remain unknown rather than erased, and none is an execution gate",
+    "owner_composition_run": 10.535,
+    "reviewer_claim183958": 1.5529989219503477,
+    "reviewer_claim184197": 12.840890395978931,
+    "reviewer_claim184197_readiness_check": 0.002758326008915901,
+    "reviewer_claim184403": 20.8455910270568,
+    "reviewer_claim184537": 15.599983819993213,
+    "reviewer_claim185739": 0.12554923997959122,
+    "reviewer_claim185857": 0.22083405102603137,
+    "reviewer_claim185945": 0.0037346489843912423,
+    "reviewer_claim186022": 0.004474725050386041,
+    "this_claim_focused_tests": 27.251,
+    "this_claim_reversal_probes": 3.686,
+    "this_claim_total": 30.937
+  },
+  "focused_tests": {
+    "bootstrap_module": {
+      "previously": 61,
+      "tests": 67
+    },
+    "command": "cd v12/python && python3 -m unittest tests.tools.test_environment tests.tools.test_bootstrap tests.tools.test_stack",
+    "returncode": 0,
+    "seconds": 27.251,
+    "tests": 202
+  },
+  "independent_success_evidence_still_needed": {
+    "exact_command": "cd /home/sl/src/baton/v12/python && BATON_V12_STACK_TEST_ROOT=/var/tmp PYTHONPATH=src:. timeout --kill-after=10s 180s python3 -m unittest -v tests.tools.test_bootstrap",
+    "note": "the owner's two-case composition run covers the UNCHANGED launcher, not this bootstrap code, and is not offered as covering it",
+    "what": "the ValidFixture success and repeat cases have never been run by an independent reviewer; /tmp is tmpfs and /var/tmp is outside the managed reviewer's write roots"
+  },
+  "not_done": {
+    "no_dependency_download": true,
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true,
+    "scratch_removed": "the probe tree copy was removed after use"
+  },
+  "operational_findings_preserved": [
+    {
+      "note": "unchanged, not adopted",
+      "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+    },
+    {
+      "note": "unchanged",
+      "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+    }
+  ],
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "count": 5,
+    "harness": "probes-186044.py in this dossier; set W183883_PROBE_TREE to a COPY of the checkout's v12/ including STACK.md and the worker-contract vectors",
+    "probes": [
+      {
+        "checks": [
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_an_unsupported_schema_in_the_configuration_is_refused",
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_changed_review_work_in_the_configuration_is_refused",
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_changed_sole_producer_is_refused",
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_malformed_nested_binding_is_refused_rather_than_escaping"
+        ],
+        "failed_as_required": true,
+        "probe": "H1-the-existing-configuration-is-not-validated",
+        "returncode": 1,
+        "seconds": 0.512
+      },
+      {
+        "checks": [
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_changed_sole_producer_is_refused"
+        ],
+        "failed_as_required": true,
+        "probe": "H1-the-producer-identity-is-not-compared",
+        "returncode": 1,
+        "seconds": 0.467
+      },
+      {
+        "checks": [
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_an_unsupported_schema_in_the_configuration_is_refused",
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_malformed_nested_binding_is_refused_rather_than_escaping"
+        ],
+        "failed_as_required": true,
+        "probe": "H1-a-refused-configuration-is-treated-as-agreeing",
+        "returncode": 1,
+        "seconds": 0.486
+      },
+      {
+        "checks": [
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_binding_a_different_number_of_jobs_is_refused"
+        ],
+        "failed_as_required": true,
+        "probe": "H1-the-one-job-record-count-is-not-held",
+        "returncode": 1,
+        "seconds": 0.439
+      },
+      {
+        "checks": [
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_multi_job_configuration_binding_another_set_is_refused"
+        ],
+        "failed_as_required": true,
+        "probe": "H1-the-multi-job-key-sets-are-not-compared",
+        "returncode": 1,
+        "seconds": 0.451
+      }
+    ],
+    "restored_tree_matches_working_tree": true,
+    "seconds": 3.686
+  },
+  "scope": "focused deterministic verification; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation, no dependency download",
+  "still_the_owner's": "the production selections by exact field name in DEPLOYMENT-INPUTS-185653.md",
+  "two_probes_first_passed_and_what_each_meant": [
+    {
+      "probe": "H1-the-review-work-is-not-compared",
+      "the_probe_that_holds_it_now": "H1-the-existing-configuration-is-not-validated",
+      "verdict": "REDUNDANT GUARD, removed",
+      "why": "`held_configuration` already refuses any document whose implementation and review Works differ, so after validation comparing `review_work_id` as well is comparing `job_work_id` twice. The comparison is gone; the mutation is still caught, by the validator, and its case still holds that."
+    },
+    {
+      "probe": "H1-the-multi-job-key-sets-are-not-compared",
+      "verdict": "TEST GAP, closed",
+      "why": "the /1 Job-count case existed but no /2 counterpart did, and the removed-Job case is caught earlier by `conflicts` rather than by this comparison. A case was ADDED for a /2 configuration edited to bind a different set of Jobs than its record, and the probe then failed as required."
+    }
+  ],
+  "unchanged_this_claim": [
+    "v12/STACK.md",
+    "v12/python/tools/environment.py",
+    "v12/python/tests/tools/test_environment.py",
+    "v12/justfile",
+    "v12/python/tools/parallel_test.py",
+    "v12/python/tests/tools/test_stack.py",
+    "v12/python/tools/stack.py",
+    "v12/python/tools/job_manager.py"
+  ],
+  "work": "W183883"
+}

@@ -1,0 +1,46 @@
+{
+  "claim": 186175,
+  "candidate_hashes": {
+    "v12/STACK.md": "8bf73bb0bf2ad81465db6c2d453baafb166022d0ab3387ad4e1ac7d4124a1e32",
+    "v12/justfile": "d539c04b316c3d318a62d5187614f077cfa222abf114d28653eb056e650fe8f7",
+    "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+    "v12/python/tests/tools/test_environment.py": "c7737880125e3fa2688a0269ef107b961766b53c50d696f3a2b43db488d25581",
+    "v12/python/tests/tools/test_stack.py": "a2bc1a222650ecc7e5f846b5007373796bb7cc0b187dfb866eac1a400af5e1b1",
+    "v12/python/tools/bootstrap.py": "2c78a8005fd8a9e79b0ddaf0a9e8d3a8c700cf142acd77ca5e2505520d484510",
+    "v12/python/tools/environment.py": "25f781cef478247bac61b2cfa79f802577bb1b13e8c2749a0ae4d244972fd042",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136"
+  },
+  "owner_log_digest_verified": "9eea305ae5ece63cec9e9c8f73e0640b94d59c5b75ccae6767b66871c02f7fdd",
+  "owner_result": "67 tests OK in0.938s, owner-executed; separate supervisor exit/resource inventory not captured",
+  "changed_since_owner_run": [
+    "v12/STACK.md",
+    "v12/justfile",
+    "v12/python/tests/tools/test_environment.py"
+  ],
+  "tests": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "test_a_named_bootstrap_test_root_reaches_the_environment (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_a_named_bootstrap_test_root_reaches_the_environment) ... ok\ntest_a_positional_interpreter_reaches_the_helper_as_a_path (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_a_positional_interpreter_reaches_the_helper_as_a_path) ... ok\ntest_nothing_recommends_the_spelling_that_does_not_work (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_nothing_recommends_the_spelling_that_does_not_work) ... ok\ntest_the_bootstrap_test_root_defaults_to_a_disk_backed_place (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_the_bootstrap_test_root_defaults_to_a_disk_backed_place)\nThese cases need a root OUTSIDE the checkout on real storage: the ... ok\ntest_the_default_is_the_ambient_python3 (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_the_default_is_the_ambient_python3) ... ok\ntest_the_named_option_spelling_would_have_been_forwarded_whole (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_the_named_option_spelling_would_have_been_forwarded_whole)\nThe defect itself, kept as a case so the documentation cannot drift ... ok\ntest_the_runbook_says_the_wrong_spelling_is_wrong (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_the_runbook_says_the_wrong_spelling_is_wrong)\nThe one place it may still appear is a warning, so an operator who ... ok\ntest_every_stack_recipe_resolves_the_prepared_interpreter (tests.tools.test_environment.TheRecipesUseIt.test_every_stack_recipe_resolves_the_prepared_interpreter) ... ok\ntest_no_recipe_asks_an_operator_to_activate_anything (tests.tools.test_environment.TheRecipesUseIt.test_no_recipe_asks_an_operator_to_activate_anything)\nOver the recipe BODIES, not the file: asserting over the whole text ... ok\ntest_no_stack_recipe_installs_anything (tests.tools.test_environment.TheRecipesUseIt.test_no_stack_recipe_installs_anything) ... ok\ntest_setup_is_its_own_recipe_and_the_node_install_is_untouched (tests.tools.test_environment.TheRecipesUseIt.test_setup_is_its_own_recipe_and_the_node_install_is_untouched) ... ok\ntest_the_bootstrap_test_recipe_cannot_swallow_a_failure (tests.tools.test_environment.TheRecipesUseIt.test_the_bootstrap_test_recipe_cannot_swallow_a_failure)\nA command whose exit status did not mean anything would be worse ... ok\ntest_the_bootstrap_test_recipe_carries_the_reviewed_bounds (tests.tools.test_environment.TheRecipesUseIt.test_the_bootstrap_test_recipe_carries_the_reviewed_bounds)\nThe command the review specified, made memorable rather than ... ok\n\n----------------------------------------------------------------------\nRan 13 tests in 0.006s\n\nOK\n"
+  },
+  "recipe_expansion": {
+    "default": {
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "#!/usr/bin/env bash\nset -euo pipefail\ncd \"$(dirname \"/home/sl/src/baton/v12/justfile\")/python\"\nPREPARED=\"$(python3 -m tools.environment interpreter)\"\nexec env BATON_V12_STACK_TEST_ROOT=\"/var/tmp\" PYTHONPATH=src:. \\\n\ttimeout --kill-after=10s 180s \\\n\t\"$PREPARED\" -m unittest -v tests.tools.test_bootstrap\n"
+    },
+    "environment_override": {
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "#!/usr/bin/env bash\nset -euo pipefail\ncd \"$(dirname \"/home/sl/src/baton/v12/justfile\")/python\"\nPREPARED=\"$(python3 -m tools.environment interpreter)\"\nexec env BATON_V12_STACK_TEST_ROOT=\"/var/tmp\" PYTHONPATH=src:. \\\n\ttimeout --kill-after=10s 180s \\\n\t\"$PREPARED\" -m unittest -v tests.tools.test_bootstrap\n"
+    },
+    "positional_override": {
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "#!/usr/bin/env bash\nset -euo pipefail\ncd \"$(dirname \"/home/sl/src/baton/v12/justfile\")/python\"\nPREPARED=\"$(python3 -m tools.environment interpreter)\"\nexec env BATON_V12_STACK_TEST_ROOT=\"/srv/explicit-root\" PYTHONPATH=src:. \\\n\ttimeout --kill-after=10s 180s \\\n\t\"$PREPARED\" -m unittest -v tests.tools.test_bootstrap\n"
+    }
+  },
+  "verification_seconds": 0.04717645701020956,
+  "scope": "Focused existing recipe tests and real just dry-run only; no external-root writes, bootstrap suite rerun, environment install, provider/engine/Job or deployment operation; all subprocesses completed."
+}

@@ -58,3 +58,290 @@ state-clean:
 	chmod -R u+w "$STATE" 2>/dev/null || true
 	rm -rf "$STATE"
 	echo "removed $STATE"
+
+# -- the persistent v12 stack, beside a running v11 (W183883) -----------------
+#
+# `proof` above is the DISPOSABLE Node proof and its throwaway state. These
+# four recipes are the opposite: a persistent Python scheduler and its
+# read-only monitor, over stores the operator names, that an operator starts
+# once and leaves running.
+#
+# They share nothing with v11 -- no service, store, configuration or port --
+# and none of them submits a Job, calls a provider, or touches Git. Starting
+# the stack selects no work; it makes a stack that CAN be given work.
+#
+# One-time setup and the four environment variables these need are in
+# v12/STACK.md. Nothing is defaulted into the checkout: runtime state lives
+# under BATON_V12_STACK_ROOT, outside the tree, which is the whole point of an
+# external state root.
+#
+# THE INTERPRETER IS THE PREPARED ONE, NEVER THE AMBIENT ONE. `just setup`
+# below creates a dedicated virtual environment with the locked dependencies;
+# these four resolve its interpreter and run it directly, so nothing has to be
+# activated and nothing installs as a side effect of starting a scheduler. If
+# the environment is missing, they say `just setup` rather than quietly running
+# against whatever `jsonschema` the machine happens to have -- which is exactly
+# the drift `v12/python/justfile` records finding in its own source stage.
+#
+# PYTHONPATH IS THE RUNTIME PREREQUISITE AND IT IS SPELLED OUT. `pyproject.toml`
+# declares `package-dir = {"" = "src"}`, so `baton_v12` is under `python/src`
+# and every DEPLOYMENT.md example reads `PYTHONPATH=src:.`. Review
+# 2026-09-16T05-15-54Z [R3] found these recipes running a bare `python3`: the
+# manager died at once on ModuleNotFoundError and `monitor` could not have
+# started either, because `job_viewer` imports the same package. `tools.stack`
+# itself is standard-library only and builds the ABSOLUTE path for its own
+# children; it is named here as well so a recipe never depends on that, and so
+# what an operator runs by hand matches what these run.
+
+# Prepare the dedicated Python environment this stack runs under. ONE TIME.
+#
+# SEPARATE ON PURPOSE, at the owner's request: start/stop/status/monitor use
+# this environment's interpreter and install NOTHING. A command that installed
+# dependencies as a side effect of starting a scheduler would be one an operator
+# cannot reason about.
+#
+# It creates a virtual environment with `python3 -m venv` (name another
+# interpreter POSITIONALLY: `just setup /usr/bin/python3.13` -- `PY=...` is a
+# recipe argument here, not a named option, and `just` would forward the whole
+# `PY=...` string as the path), holds it to the minimum
+# `python/pyproject.toml` declares, and installs `python/requirements.lock` with
+# `--require-hashes` -- so pip refuses any artifact whose SHA-256 is not the one
+# this distribution pins, wherever the index found it.
+#
+# REPEATABLE AND NEVER DESTRUCTIVE. It re-verifies an environment it created and
+# reinstalls when the lock moves. Anything else at that path is refused with the
+# path named, and is never deleted. The stack's own runtime state is untouched.
+#
+# The environment lives OUTSIDE the checkout, under the XDG state directory;
+# BATON_V12_VENV moves it. `just install` above is the NODE proof's, and is
+# unrelated to this one.
+setup PY="python3":
+	cd python && python3 -m tools.environment --python "{{PY}}" setup
+
+# Build the self-contained one-folder runtime. ONE TIME, after `just setup`.
+#
+# PyInstaller bundles the application, the Python interpreter, the dependency
+# libraries and the frozen package resources together, so a running deployment
+# reads nothing from this checkout and work can continue here while Jobs run.
+# The build tool is pinned in `python/requirements.build.lock`, separate from
+# the runtime lock, so a deployed distribution never acquires a packaging tool.
+#
+# The result is HOST-SPECIFIC: a one-folder bundle is built for the platform it
+# was built on. `<distro>/baton-v12-stack identity` records what that was.
+build OUT="build":
+	#!/usr/bin/env bash
+	set -euo pipefail
+	cd "$(dirname "{{justfile()}}")/python"
+	PREPARED="$(python3 -m tools.environment interpreter)"
+	"$PREPARED" -m pip install --no-cache-dir --disable-pip-version-check \
+		--require-hashes --ignore-installed -r requirements.build.lock
+	exec "$(dirname "$PREPARED")/pyinstaller" --noconfirm --clean \
+		--distpath "{{OUT}}/out" --workpath "{{OUT}}/work" packaging/stack.spec
+
+# Prepare the DEPLOYMENT this stack serves. ONE TIME, after `just setup`.
+#
+# `setup` prepares the interpreter; this prepares the Authority, the Works its
+# Jobs are bound to, the routes and grants those Works need, the external state
+# layout and the stage-execution configuration document -- from ONE input
+# document naming this deployment's production selections. Everything derivable
+# is derived; a selection that is missing is REFUSED by name rather than filled
+# in with a fixture.
+#
+# It selects nothing, submits no Job and executes nothing. Repeating it
+# preserves what is there and refuses a conflicting existing binding rather
+# than moving a Job's Work, line or target.
+#
+# The input document's members are in v12/STACK.md.
+# INSTALLING is the second half, and it is what makes a deployment
+# independent: name an absolute DESTINATION outside this checkout and the
+# DISTRO that `just build` produced, and the runtime is COPIED there beside the
+# deployment, with one `instance.json` that selects every lifecycle command
+# below. Without those two operands this composes the deployment in place and
+# installs nothing, which is the older form and still works.
+# EXTRA forwards operands to the helper verbatim -- `--no-repositories` when
+# you mean an installation that prepares none, or `--repository-source` when
+# the repositories should come from another checkout. The normal form is still
+# two operands.
+bootstrap INPUTS DESTINATION="" DISTRO="" EXTRA="":
+	#!/usr/bin/env bash
+	set -euo pipefail
+	# AN OPTION IN A POSITIONAL SLOT IS REFUSED, NOT BOUND. [V3]: `just bootstrap
+	# inputs.json /srv/d --no-repositories` binds that option as DISTRO, so the
+	# recipe cheerfully looked for a runtime called `--no-repositories` and the
+	# option never reached the helper. `just` has no option forwarding; the
+	# operand order is the interface, so a mistake in it is said out loud.
+	for SLOT in "{{DESTINATION}}" "{{DISTRO}}"; do
+		if [[ "$SLOT" == -* ]]; then
+			echo "refused: '$SLOT' is an option in a positional slot." >&2
+			echo "  just bootstrap INPUTS DESTINATION [DISTRO] [EXTRA]" >&2
+			echo "  options go in EXTRA, after an empty DISTRO:" >&2
+			echo "  just bootstrap {{INPUTS}} {{DESTINATION}} \"\" \"$SLOT\"" >&2
+			exit 2
+		fi
+	done
+	# RESOLVED BEFORE THE `cd`, so a path you typed means what it says. The body
+	# runs from `python/`, and a relative operand resolved AFTER that would have
+	# quietly meant `v12/python/<what you typed>`.
+	#
+	# ONLY WHAT WAS SUPPLIED. `realpath -m ""` is an error, and resolving the
+	# OPTIONAL distro unconditionally made `just bootstrap inputs.json` -- the
+	# form that installs nothing -- fail in the shell before Python ever ran.
+	# An empty operand is passed through untouched so the refusal comes from the
+	# helper, by name, as it does for every other missing selection.
+	INPUTS_HERE="{{INPUTS}}"
+	if [[ -n "{{INPUTS}}" ]]; then INPUTS_HERE="$(realpath -m "{{INPUTS}}")"; fi
+	DISTRO_HERE="{{DISTRO}}"
+	if [[ -n "{{DISTRO}}" ]]; then DISTRO_HERE="$(realpath -m "{{DISTRO}}")"; fi
+	# TWO OPERANDS, NOT THREE. OWNER-STANDALONE-INTERFACE-20260916.md: "Finish
+	# the agreed two-argument bootstrap: it creates the bundled distro, databases
+	# and independent repositories." Naming a DISTRO is a development
+	# convenience; installing without one BUILDS the distribution here, so the
+	# owner never has to know where a build lands.
+	if [[ -n "{{DESTINATION}}" && -z "{{DISTRO}}" ]]; then
+		just --justfile "{{justfile()}}" build
+		DISTRO_HERE="$(dirname "{{justfile()}}")/python/build/out/distro"
+	fi
+	cd "$(dirname "{{justfile()}}")/python"
+	PREPARED="$(python3 -m tools.environment interpreter)"
+	INSTALLING=()
+	if [[ -n "{{DESTINATION}}" ]]; then
+		INSTALLING+=(--destination "{{DESTINATION}}" --distro "$DISTRO_HERE")
+	fi
+	EXTRA=()
+	if [[ -n "{{EXTRA}}" ]]; then read -r -a EXTRA <<< "{{EXTRA}}"; fi
+	exec env PYTHONPATH=src:. "$PREPARED" -m tools.bootstrap --inputs "$INPUTS_HERE" "${INSTALLING[@]}" "${EXTRA[@]}"
+
+# Run the deployment setup's own checks. The memorable name for the command
+# the review specified, so nobody has to reconstruct it from a dossier.
+#
+# ROOT is where the fixtures put their disk-backed material, and it is
+# POSITIONAL like `just setup`'s interpreter: `just test-bootstrap /srv/scratch`.
+#
+# THE PRECEDENCE IS THE OPERATOR'S OWN ORDER: an explicit operand, then an
+# exported BATON_V12_STACK_TEST_ROOT, then /var/tmp. A `just` default cannot
+# read the environment, so the order is resolved by the same helper these
+# recipes already ask for the interpreter rather than reimplemented in shell.
+# Review 2026-09-16T11-53-00Z [I1]: the default used to be assigned over an
+# exported selection, so an operator who had chosen a root silently got a
+# different one.
+#
+# It has to be a disk-backed root OUTSIDE the checkout -- `held_configuration`
+# refuses a configured mutable root inside the working tree, and on a host whose
+# /tmp is a tmpfs the workspace boundary refuses that too.
+#
+# The timeout is the reviewed one, 180s with a 10s kill grace. It `exec`s and
+# there is no `|| true` anywhere in it: a failing suite and a timed-out one both
+# reach you as a failing exit, which is the whole point of having a command.
+#
+# It installs nothing. Like the other four, it names `just setup` if the
+# prepared environment is missing.
+test-bootstrap ROOT="":
+	#!/usr/bin/env bash
+	set -euo pipefail
+	cd "$(dirname "{{justfile()}}")/python"
+	SELECTED="$(python3 -m tools.environment test-root --chosen "{{ROOT}}")"
+	PREPARED="$(python3 -m tools.environment interpreter)"
+	exec env BATON_V12_STACK_TEST_ROOT="$SELECTED" PYTHONPATH=src:. \
+		timeout --kill-after=10s 180s \
+		"$PREPARED" -m unittest -v tests.tools.test_bootstrap
+
+# Build the bundle and then ask it what it is. The one check that cannot be
+# stood in for: `tests/tools/test_packaging.py` SKIPS without a bundle, so this
+# is the command that guarantees the real thing was examined.
+test-packaging:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	just --justfile "{{justfile()}}" build
+	cd "$(dirname "{{justfile()}}")/python"
+	PREPARED="$(python3 -m tools.environment interpreter)"
+	# BOUND TO THE BUNDLE IT JUST BUILT, and a SKIP MAY NOT PASS FOR A PASS.
+	# This inherited BATON_V12_STACK_DISTRO while building the default output, so
+	# an operator with that variable set -- or pointing at nothing -- got exit 0
+	# with nine skipped checks from the one gate that cannot be stood in for.
+	exec env PYTHONPATH=src:. \
+		BATON_V12_STACK_DISTRO="$PWD/build/out/distro" \
+		BATON_V12_STACK_PACKAGING_REQUIRED=1 \
+		timeout --kill-after=10s 600s \
+		"$PREPARED" -m unittest -v tests.tools.test_packaging
+
+# Start the persistent scheduler and its snapshot publisher. Repeatable.
+#
+# It waits for a published snapshot before reporting success, so a stack whose
+# configuration does not compose fails here with the child's own reason rather
+# than looking started.
+# AN INSTANCE IS THE WHOLE SELECTION. Given the `instance.json` a bootstrap
+# installed, this runs that deployment's OWN command out of its own distro --
+# not this checkout's interpreter, not this checkout's sources -- which is what
+# lets work continue here while Jobs run. Without it, the older form runs from
+# source against BATON_V12_STACK_ROOT.
+start DESTINATION="":
+	#!/usr/bin/env bash
+	set -euo pipefail
+	if [[ -n "{{DESTINATION}}" ]]; then
+		# THE DEPLOYED INTERFACE, from wherever this was run. The
+		# destination carries its own justfile and resolves every
+		# path from it; nothing here reaches into the deployment.
+		exec just --justfile "$(realpath -m "{{DESTINATION}}")/justfile" start
+	fi
+	cd "$(dirname "{{justfile()}}")/python"
+	PREPARED="$(python3 -m tools.environment interpreter)"
+	exec env PYTHONPATH=src:. "$PREPARED" -m tools.stack start
+
+# Stop only the processes this stack owns. Stores and evidence are retained.
+#
+# Non-zero when an owned process could not be resolved -- stopping a supervisor
+# is not evidence that what it started has finished, and this says so.
+stop DESTINATION="":
+	#!/usr/bin/env bash
+	set -euo pipefail
+	if [[ -n "{{DESTINATION}}" ]]; then
+		# THE DEPLOYED INTERFACE, from wherever this was run. The
+		# destination carries its own justfile and resolves every
+		# path from it; nothing here reaches into the deployment.
+		exec just --justfile "$(realpath -m "{{DESTINATION}}")/justfile" stop
+	fi
+	cd "$(dirname "{{justfile()}}")/python"
+	PREPARED="$(python3 -m tools.environment interpreter)"
+	exec env PYTHONPATH=src:. "$PREPARED" -m tools.stack stop
+
+# Process health, snapshot freshness, observed Jobs, the runtime boundary, the
+# prepared environment, and configuration gaps.
+status DESTINATION="":
+	#!/usr/bin/env bash
+	set -euo pipefail
+	if [[ -n "{{DESTINATION}}" ]]; then
+		# NO ENVIRONMENT REPORT HERE: an installed deployment does not run under
+		# the checkout's virtual environment, so reporting on that environment
+		# would be answering a question nobody asked about it.
+		exec just --justfile "$(realpath -m "{{DESTINATION}}")/justfile" status
+	fi
+	cd "$(dirname "{{justfile()}}")/python"
+	# The ENVIRONMENT's own state first, under the ambient interpreter, because
+	# it is the one question that can still be answered when the prepared
+	# interpreter is the thing that is missing.
+	python3 -m tools.environment status
+	PREPARED="$(python3 -m tools.environment interpreter)"
+	exec env PYTHONPATH=src:. "$PREPARED" -m tools.stack status
+
+# The read-only monitor: refreshes until you exit it.
+#
+# It reads the document the PUBLISHER writes, so quitting the monitor does not
+# stop scheduling -- that is `stop`. INTERVAL is seconds between refreshes.
+# THE INSTALLED MONITOR takes the instance too, and the snapshot path is
+# DERIVED rather than reconstructed here: `tools.stack monitor` asks
+# `snapshot_path` the same way `publish` and `status` do, so there is one
+# answer to where a deployment's snapshot is. A large tick count rather than an
+# unbounded loop: the viewer owns its own bounded refresh, and Ctrl-C is the
+# documented way out.
+monitor DESTINATION="" INTERVAL="5":
+	#!/usr/bin/env bash
+	set -euo pipefail
+	if [[ -n "{{DESTINATION}}" ]]; then
+		# THE DEPLOYED INTERFACE, from wherever this was run. The
+		# destination carries its own justfile and resolves every
+		# path from it; nothing here reaches into the deployment.
+		exec just --justfile "$(realpath -m "{{DESTINATION}}")/justfile" monitor "{{INTERVAL}}"
+	fi
+	cd "$(dirname "{{justfile()}}")/python"
+	PREPARED="$(python3 -m tools.environment interpreter)"
+	exec env PYTHONPATH=src:. "$PREPARED" -m tools.stack monitor --interval "{{INTERVAL}}"

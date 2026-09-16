@@ -1,0 +1,65 @@
+{
+  "claim": 186560,
+  "candidate_hashes": {
+    "v12/STACK.md": "5f5d0026740ad28ec19b5ad7046c6211eec2b19bda20a6d645a9ed4908c6ce7c",
+    "v12/justfile": "6acbd6029baaacab31da1a0f87feba3fb4876d99226ccd981ef30837b4614a32",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+    "v12/python/tests/tools/test_environment.py": "c05bfb4177a8cf5f8e04c34f250d5da1480d61f726d79b3b33cc7aac2a1b864a",
+    "v12/python/tests/tools/test_stack.py": "6608d603457856d92abf6600609d7e81b416a6c2642d341a824aa09a2315794b",
+    "v12/python/tools/bootstrap.py": "a71b62c3a956fe1dce538a807b6d1cc4517dde4d06a06ef291ff977034eaef59",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/instance.py": "6385c3df5c413735230e1dd38d1b29123360e1b804a26d271be4634ec16dfeb3",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "14404bcb51c08650df3b136dcc72242bb5cc2b81bb0d703de6b89fe13cbe19a4",
+    "v12/python/tools/stack.py": "0766c7c4dd27cd84ffd5aaa2a3cd6db2730f540ef3fad337129aef912a4bcbef",
+    "v12/python/tools/stack_command.py": "4f923e87142bda2667826a992c2108e63bd4ac4bea6cc01e3b9d981c4216de13",
+    "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1",
+    "v12/python/tests/tools/test_instance.py": "bb904782a982c0898976efd96cdd852feb2451c0fc7b7d67db1878356cf384d2"
+  },
+  "focused_tests": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "test_a_derived_path_that_LINKS_out_of_the_instance_is_refused (tests.tools.test_instance.EveryPathIsDerived.test_a_derived_path_that_LINKS_out_of_the_instance_is_refused)\nK1's remainder, and the subtler half: comparing RESOLVED paths made ... ok\ntest_a_path_that_is_not_text_is_refused_rather_than_raising (tests.tools.test_instance.EveryPathIsDerived.test_a_path_that_is_not_text_is_refused_rather_than_raising)\nK1's remainder: `isabs` on an integer raised TypeError out of the ... ok\ntest_a_path_the_destination_does_not_derive_is_refused (tests.tools.test_instance.EveryPathIsDerived.test_a_path_the_destination_does_not_derive_is_refused)\nThe original K1: a selector kept at A carrying B's state passed, and ... ok\ntest_a_prepared_instance_reads_back (tests.tools.test_instance.EveryPathIsDerived.test_a_prepared_instance_reads_back) ... ok\ntest_a_relative_path_is_refused (tests.tools.test_instance.EveryPathIsDerived.test_a_relative_path_is_refused) ... ok\ntest_a_selector_missing_a_member_is_refused (tests.tools.test_instance.EveryPathIsDerived.test_a_selector_missing_a_member_is_refused) ... ok\ntest_a_selector_of_another_schema_is_refused (tests.tools.test_instance.EveryPathIsDerived.test_a_selector_of_another_schema_is_refused) ... ok\ntest_a_selector_read_from_another_place_is_refused (tests.tools.test_instance.EveryPathIsDerived.test_a_selector_read_from_another_place_is_refused) ... ok\ntest_an_absent_or_unreadable_selector_is_refused (tests.tools.test_instance.EveryPathIsDerived.test_an_absent_or_unreadable_selector_is_refused) ... ok\ntest_from_source_the_running_command_is_not_compared (tests.tools.test_instance.TheRunningCommandIsBoundToo.test_from_source_the_running_command_is_not_compared)\nRunning from the checkout, `sys.executable` is an interpreter and ... ok\ntest_frozen_a_foreign_command_is_refused (tests.tools.test_instance.TheRunningCommandIsBoundToo.test_frozen_a_foreign_command_is_refused) ... ok\ntest_frozen_its_own_command_is_accepted (tests.tools.test_instance.TheRunningCommandIsBoundToo.test_frozen_its_own_command_is_accepted) ... ok\ntest_a_broken_link_is_refused (tests.tools.test_instance.TheRuntimeIsBoundWhole.test_a_broken_link_is_refused) ... ok\ntest_a_changed_runtime_is_refused_by_verify (tests.tools.test_instance.TheRuntimeIsBoundWhole.test_a_changed_runtime_is_refused_by_verify) ... ok\ntest_a_distro_that_is_itself_a_link_is_refused (tests.tools.test_instance.TheRuntimeIsBoundWhole.test_a_distro_that_is_itself_a_link_is_refused)\nK2's remainder: every link INSIDE was bound and the root was not, so ... ok\ntest_a_link_INSIDE_the_bundle_is_safe_and_is_recorded (tests.tools.test_instance.TheRuntimeIsBoundWhole.test_a_link_INSIDE_the_bundle_is_safe_and_is_recorded) ... ok\ntest_a_link_out_of_the_bundle_is_refused (tests.tools.test_instance.TheRuntimeIsBoundWhole.test_a_link_out_of_the_bundle_is_refused)\nRecording only the LINK TEXT left an external target free to change ... ok\ntest_an_absent_or_empty_runtime_is_refused (tests.tools.test_instance.TheRuntimeIsBoundWhole.test_an_absent_or_empty_runtime_is_refused) ... ok\ntest_an_unchanged_runtime_verifies (tests.tools.test_instance.TheRuntimeIsBoundWhole.test_an_unchanged_runtime_verifies) ... ok\ntest_every_file_is_digested_and_the_digest_covers_the_listing (tests.tools.test_instance.TheRuntimeIsBoundWhole.test_every_file_is_digested_and_the_digest_covers_the_listing) ... ok\ntest_bootstrap_derives_the_same_places (tests.tools.test_instance.WhatAnInstanceDerives.test_bootstrap_derives_the_same_places)\nTwo layouts that disagreed about where a Job store is would be two ... ok\ntest_publication_is_atomic (tests.tools.test_instance.WhatAnInstanceDerives.test_publication_is_atomic) ... ok\ntest_the_layout_is_all_under_one_destination (tests.tools.test_instance.WhatAnInstanceDerives.test_the_layout_is_all_under_one_destination) ... ok\ntest_the_settings_are_the_vocabulary_the_lifecycle_already_reads (tests.tools.test_instance.WhatAnInstanceDerives.test_the_settings_are_the_vocabulary_the_lifecycle_already_reads) ... ok\n\n----------------------------------------------------------------------\nRan 24 tests in 0.011s\n\nOK\n"
+  },
+  "results": {
+    "fixed_K3_identity_before_effects": true,
+    "remaining_bootstrap_containment": {
+      "install_returned_success": true,
+      "selector_published": true,
+      "later_selector_read_refusal": "/tmp/w183883-review186560-2bfwkv20/escaped/instance.json derives state '/tmp/w183883-review186560-2bfwkv20/escaped/state', which resolves to /tmp/w183883-review186560-2bfwkv20/other-state -- outside this instance at /tmp/w183883-review186560-2bfwkv20/escaped. An instance owns what is under its own destination; a link out of it is another deployment."
+    },
+    "remaining_dangling_selector_overwrite": {
+      "prior": "dangling symlink",
+      "after": "regular published selector"
+    },
+    "remaining_unbound_resource_root": {
+      "frozen": true,
+      "schema_assets": {
+        "agent-session-1.0": 48212,
+        "worker-control-1.0": 51419
+      },
+      "resources": "/",
+      "native_rpds": "/usr/lib/python3/dist-packages/rpds/__init__.py"
+    },
+    "remaining_unlisted_native_resource": {
+      "accepted_path": "/tmp/w183883-review186560-2bfwkv20/source-distro/_internal/nonexistent-rpds.so",
+      "exists": false
+    },
+    "remaining_admitted_candidate_drift": {
+      "returncode": 0,
+      "order": [
+        "identity:02092116d321b0642f1804421e068b560402b7d5c053b99efbcf49890050ea23",
+        "prepare",
+        "identity:7bd166d7af104a5bb40f607cdaed7be104e1e45c1b10d91ef2fc82395a668ecc"
+      ],
+      "first_admitted": "02092116d321b0642f1804421e068b560402b7d5c053b99efbcf49890050ea23",
+      "installed": "7bd166d7af104a5bb40f607cdaed7be104e1e45c1b10d91ef2fc82395a668ecc",
+      "note": "prepare substituted to change source; no Authority mutation"
+    }
+  },
+  "verification_seconds": 0.05098099901806563,
+  "retained_scratch": "/tmp/w183883-review186560-2bfwkv20",
+  "scope": "24 real selector unit tests plus isolated bootstrap helper calls; identity subprocess and prepare explicitly substituted. No actual bundle build, Authority, lifecycle, provider, engine, Job, external-root write or Git operation."
+}

@@ -1,0 +1,63 @@
+{
+  "all_reviewer_children_reaped": true,
+  "author_manifest_sha256": "7a4a0e18a02d2cf9d460106800777473c54e28d09a865600a72e0c1c343c5f24",
+  "claim": 184197,
+  "composition_not_run": "The two ValidIdleComposition cases require disk-backed storage outside checkout. /tmp is tmpfs; /var/tmp and ~/.cache are outside this managed reviewer's writable roots. Author evidence retained; no permission workaround or escalation attempted.",
+  "focused_tests": {
+    "output": ".............................................................\n----------------------------------------------------------------------\nRan 61 tests in 12.836s\n\nOK\n",
+    "run": 61,
+    "seconds": 12.836152499017771,
+    "success": true
+  },
+  "hashes": [
+    {
+      "actual": "eccf49c9bef6c5eb90f68270a9ea28dd6bed5659db76004e80b717bc8a92c37f",
+      "expected": "eccf49c9bef6c5eb90f68270a9ea28dd6bed5659db76004e80b717bc8a92c37f",
+      "path": "v12/STACK.md"
+    },
+    {
+      "actual": "b3ae4b4f08ab17ddce18555457c881d12f8754ee075278065b6d971c1c8f2254",
+      "expected": "b3ae4b4f08ab17ddce18555457c881d12f8754ee075278065b6d971c1c8f2254",
+      "path": "v12/justfile"
+    },
+    {
+      "actual": "6797e264d953e8d482e8be9b4fe2836cab9b71d3004e5d10e9870bb1ff9b221f",
+      "expected": "6797e264d953e8d482e8be9b4fe2836cab9b71d3004e5d10e9870bb1ff9b221f",
+      "path": "v12/python/tests/tools/test_stack.py"
+    },
+    {
+      "actual": "94cdc0f6f7933a2498b0490fd4c434409d7bae92f64a80d3ac358cfe69f91805",
+      "expected": "94cdc0f6f7933a2498b0490fd4c434409d7bae92f64a80d3ac358cfe69f91805",
+      "path": "v12/python/tools/parallel_test.py"
+    },
+    {
+      "actual": "3d5cd94351a4d5ce161710c0a6fb31464d6324bd28de8084049e30a4628518e7",
+      "expected": "3d5cd94351a4d5ce161710c0a6fb31464d6324bd28de8084049e30a4628518e7",
+      "path": "v12/python/tools/stack.py"
+    }
+  ],
+  "malformed_snapshot": {
+    "detail": "'NoneType' object has no attribute 'get'",
+    "exception": "AttributeError"
+  },
+  "partial_spawn_oserror": {
+    "exception": "injected publisher spawn failure",
+    "manager_still_live": true,
+    "output": "",
+    "publisher_record": null
+  },
+  "scope": "deterministic local process checks; no live models, engines, Jobs or v11 operations",
+  "stop_live_to_unknown": {
+    "child_alive": true,
+    "output": "stopped: manager pid 52\nnot running: publisher\nruntime   unknown: no snapshot was ever published under /tmp/w184197-review-dhkdwdo7/stop, so what is still executing was NOT resolved here\nstores and evidence retained under the configured paths\n",
+    "record_retained": false,
+    "returncode": 0
+  },
+  "total_seconds": 12.840890395978931,
+  "unwind_live_to_unknown": {
+    "child_alive": true,
+    "output": "",
+    "record_retained": false,
+    "returncode": null
+  }
+}

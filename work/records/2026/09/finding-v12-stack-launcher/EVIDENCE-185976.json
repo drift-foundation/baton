@@ -1,0 +1,214 @@
+{
+  "all_owned_children_reaped": true,
+  "answers_review": "review-2026-09-16T11-14-19Z.md sha256 2a9f9091b3a82c46d27bf682854ea011fa379807fd74c5907f8d42aa7d759b4e (G1, G2)",
+  "candidates": {
+    "v12/STACK.md": "525ed106a86785416c1414a686db1accbc90c2bb4ad185081cfa9b87ab8de6e7",
+    "v12/justfile": "52f7083c86dc8071531a2848fa986821de98935859d434ee8a6e1881e44dd886",
+    "v12/python/tests/tools/test_bootstrap.py": "f0df4d2165067cc6508b804c9abbb73d6d008289fa84c65b493e23901a4619c8",
+    "v12/python/tests/tools/test_environment.py": "c0b5ce194d333494e528a0174705c2c2fdd65d2e64f1d60a59b71e33df444ecc",
+    "v12/python/tests/tools/test_stack.py": "a2bc1a222650ecc7e5f846b5007373796bb7cc0b187dfb866eac1a400af5e1b1",
+    "v12/python/tools/bootstrap.py": "6c1eff3b428535af48a90415b135ac2e360b43433cf3b5a2cf9c0a91e4db1d34",
+    "v12/python/tools/environment.py": "25f781cef478247bac61b2cfa79f802577bb1b13e8c2749a0ae4d244972fd042",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136"
+  },
+  "claim": 185976,
+  "corrections": {
+    "G1": {
+      "checks": [
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_binding_that_says_nothing_is_refused_rather_than_trusted",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_binding_of_the_wrong_type_is_refused_rather_than_traversed",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_record_naming_no_bindings_is_refused",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_record_naming_no_readable_authority_is_refused",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_corrupt_emitted_configuration_is_refused_beside_a_good_record",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_missing_emitted_configuration_is_refused",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_that_disagrees_with_its_record_is_refused",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_naming_another_authority_is_refused",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_binding_a_different_number_of_jobs_is_refused",
+        "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_complete_and_agreeing_pair_still_repeats"
+      ],
+      "every_refusal_also_asserts": "no Authority composition was attempted, and the documents this case did not itself rewrite are byte-identical",
+      "what": "the custody record must BE evidence. `_malformed_record` validates its whole shape -- the Authority it names, a non-empty binding set, every binding a document carrying all four members as non-empty text -- and `conflicts` compares every member rather than only the ones a record happens to carry. `_drifted` then RELATES the emitted configuration to that record across both representations: missing, unreadable, not a document, another Authority, a different Job count or any disagreeing member makes the state unknown. All of it before the Authority is opened."
+    },
+    "G2": {
+      "an_honest_limit_is_now_recorded": "held_configuration holds integration_preparation and result_judgment_workers; the integration target, reference, workspace, observer and instructions are read by the consumer at composition, so an unusable one is refused there rather than here. What this helper guarantees for all of them is that present values travel verbatim and absent ones stay absent",
+      "checks": [
+        "AnOptionalSelectionTravelsOrIsRefused.test_an_absent_selection_is_omitted",
+        "AnOptionalSelectionTravelsOrIsRefused.test_a_selected_true_is_carried_as_true",
+        "AnOptionalSelectionTravelsOrIsRefused.test_a_selected_false_is_carried_as_false_rather_than_omitted",
+        "AnOptionalSelectionTravelsOrIsRefused.test_an_explicit_null_is_refused_in_the_consumers_own_words",
+        "AnOptionalSelectionTravelsOrIsRefused.test_another_optional_member_in_an_unusable_form_is_refused",
+        "AnOptionalSelectionTravelsOrIsRefused.test_an_accepted_form_of_another_optional_member_travels",
+        "AnOptionalSelectionTravelsOrIsRefused.test_where_each_optional_member_is_actually_validated_is_recorded"
+      ],
+      "the_tautology_is_gone": "test_every_supported_optional_selection_is_carried asserted each member of OPTIONAL was in OPTIONAL and tested no forwarding at all; it is replaced by the seven behaviour checks above",
+      "what": "an optional selection is carried when it is PRESENT rather than when it is non-null, so an explicit `null` reaches the accepted validator and is refused in the consumer's own words instead of being dropped and defaulted -- which turned an invalid request into a different valid one. Omission stays omission, and is a different document from an explicit `false`."
+    }
+  },
+  "cumulative_verification_seconds": {
+    "author_claim183891": 1.195,
+    "author_claim183998": 151.908,
+    "author_claim184239": 127.816,
+    "author_claim184442": 63.532,
+    "author_claim185653": 26.94,
+    "author_claim185774": 27.256,
+    "author_claim185884": 33.299,
+    "note": "reported per actor and never summed; the real locked install of claim185653 and the earliest recipe duration remain unknown rather than erased, and none is an execution gate",
+    "owner_composition_run": 10.535,
+    "reviewer_claim183958": 1.5529989219503477,
+    "reviewer_claim184197": 12.840890395978931,
+    "reviewer_claim184197_readiness_check": 0.002758326008915901,
+    "reviewer_claim184403": 20.8455910270568,
+    "reviewer_claim184537": 15.599983819993213,
+    "reviewer_claim185739": 0.12554923997959122,
+    "reviewer_claim185857": 0.22083405102603137,
+    "reviewer_claim185945": 0.0037346489843912423,
+    "this_claim_focused_tests": 26.971,
+    "this_claim_reversal_probes": 5.69,
+    "this_claim_total": 32.661
+  },
+  "focused_tests": {
+    "bootstrap_module": {
+      "previously": 46,
+      "tests": 61
+    },
+    "command": "cd v12/python && python3 -m unittest tests.tools.test_environment tests.tools.test_bootstrap tests.tools.test_stack",
+    "returncode": 0,
+    "seconds": 26.971,
+    "tests": 196
+  },
+  "independent_success_evidence_still_needed": {
+    "exact_command": "cd /home/sl/src/baton/v12/python && BATON_V12_STACK_TEST_ROOT=/var/tmp PYTHONPATH=src:. timeout --kill-after=10s 180s python3 -m unittest -v tests.tools.test_bootstrap",
+    "note": "the owner's earlier two-case composition run covers the UNCHANGED launcher, not this new bootstrap code, and is not offered as covering it",
+    "what": "the ValidFixture success and repeat cases -- now 25 plus the new custody and optional-selection classes -- have not been run by an independent reviewer; /tmp is tmpfs and /var/tmp is outside the managed reviewer's write roots"
+  },
+  "not_done": {
+    "no_dependency_download": true,
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true,
+    "scratch_removed": "the probe tree copy was removed after use"
+  },
+  "operational_findings_preserved": [
+    {
+      "note": "unchanged, not adopted",
+      "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+    },
+    {
+      "note": "unchanged",
+      "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+    }
+  ],
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "count": 9,
+    "harness": "probes-185976.py in this dossier; set W183883_PROBE_TREE to a COPY of the checkout's v12/ including STACK.md and the worker-contract vectors",
+    "one_probe_first_passed": "reverting the `_BINDING` loop bound ALONE passed and proved nothing: with the record's shape now validated, iterating the binding's own keys is an equivalent form, so the two are ONE guarantee. The probe was replaced by a combined reversal of both, which failed as required. The `_BINDING` bound is kept rather than deleted, because depending on the record's own key set is precisely the shape the defect exploited.",
+    "probes": [
+      {
+        "checks": [
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_binding_that_says_nothing_is_refused_rather_than_trusted",
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_record_naming_no_bindings_is_refused",
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_record_naming_no_readable_authority_is_refused"
+        ],
+        "failed_as_required": true,
+        "probe": "G1-the-record-shape-is-not-validated",
+        "returncode": 1,
+        "seconds": 0.471
+      },
+      {
+        "checks": [
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_binding_that_says_nothing_is_refused_rather_than_trusted"
+        ],
+        "failed_as_required": true,
+        "probe": "G1-a-binding-may-say-nothing",
+        "returncode": 1,
+        "seconds": 0.444
+      },
+      {
+        "checks": [
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_binding_of_the_wrong_type_is_refused_rather_than_traversed"
+        ],
+        "failed_as_required": true,
+        "probe": "G1-a-binding-may-be-any-type",
+        "returncode": 1,
+        "seconds": 0.436
+      },
+      {
+        "checks": [
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_binding_that_says_nothing_is_refused_rather_than_trusted",
+          "RepeatingIt.test_a_conflicting_binding_is_refused_and_nothing_is_rewritten"
+        ],
+        "failed_as_required": true,
+        "note": "the loop bound was first reverted ALONE and PASSED, proving nothing: `_malformed_record` now guarantees all four members, so iterating the binding's own keys is an equivalent form. The two are one guarantee, and this probe reverts both. The `_BINDING` bound is kept rather than deleted because depending on the record's own key set is exactly the shape the defect exploited.",
+        "probe": "G1-a-binding-may-say-nothing-AND-only-its-own-members-compared",
+        "returncode": 1,
+        "seconds": 0.464
+      },
+      {
+        "checks": [
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_corrupt_emitted_configuration_is_refused_beside_a_good_record",
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_missing_emitted_configuration_is_refused",
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_that_disagrees_with_its_record_is_refused"
+        ],
+        "failed_as_required": true,
+        "probe": "G1-the-emitted-configuration-is-never-read",
+        "returncode": 1,
+        "seconds": 0.488
+      },
+      {
+        "checks": [
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_that_disagrees_with_its_record_is_refused"
+        ],
+        "failed_as_required": true,
+        "probe": "G1-a-drifted-configuration-is-not-compared",
+        "returncode": 1,
+        "seconds": 0.444
+      },
+      {
+        "checks": [
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_naming_another_authority_is_refused"
+        ],
+        "failed_as_required": true,
+        "probe": "G1-a-configuration-naming-another-authority-passes",
+        "returncode": 1,
+        "seconds": 0.442
+      },
+      {
+        "checks": [
+          "TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_binding_a_different_number_of_jobs_is_refused"
+        ],
+        "failed_as_required": true,
+        "probe": "G1-a-different-job-count-passes",
+        "returncode": 1,
+        "seconds": 0.433
+      },
+      {
+        "checks": [
+          "AnOptionalSelectionTravelsOrIsRefused.test_an_explicit_null_is_refused_in_the_consumers_own_words",
+          "AnOptionalSelectionTravelsOrIsRefused.test_a_selected_false_is_carried_as_false_rather_than_omitted"
+        ],
+        "failed_as_required": true,
+        "probe": "G2-an-explicit-null-is-dropped-again",
+        "returncode": 1,
+        "seconds": 0.452
+      }
+    ],
+    "restored_tree_matches_working_tree": true,
+    "seconds": 5.69
+  },
+  "scope": "focused deterministic verification; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation, no dependency download",
+  "still_the_owner's": "the production selections by exact field name in DEPLOYMENT-INPUTS-185653.md",
+  "unchanged_this_claim": [
+    "v12/python/tools/environment.py",
+    "v12/python/tests/tools/test_environment.py",
+    "v12/justfile",
+    "v12/python/tools/parallel_test.py",
+    "v12/python/tests/tools/test_stack.py",
+    "v12/python/tools/stack.py",
+    "v12/python/tools/job_manager.py"
+  ],
+  "work": "W183883"
+}

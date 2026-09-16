@@ -1,0 +1,365 @@
+{
+ "all_owned_children_reaped": true,
+ "answers_review": "review-2026-09-16T15-04-03Z.md sha256 646ca24400f00a04418cd2f8d2e9e759651e019e433edf7377297bf4c1387a60 -- the H1a mixed-ownership remainder",
+ "candidates": {
+  "v12/STACK.md": "0100b24410aae8b00c49593964c6f7cac66b79989a2cfb6e650d1749a0b48946",
+  "v12/justfile": "2a541f4782b984d06747847061cebffbc28646f32cd2fb3ec92b7ee888771ae4",
+  "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+  "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+  "v12/python/tests/tools/test_bootstrap.py": "c01cbbd39f286e66e5969e8f0517351f42bd77f609383e2eb3580525ced1ec57",
+  "v12/python/tests/tools/test_environment.py": "059ea493cdb9a10b8c098c0c982a982e453c7eb2a7407c4f3ec7592a702e4cfb",
+  "v12/python/tests/tools/test_instance.py": "fdcf7b072c0af71cf672cfeb8234866eeda94c7a5739e4fb5c038f40fb726a7a",
+  "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+  "v12/python/tests/tools/test_stack.py": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+  "v12/python/tools/bootstrap.py": "533511939872f3bcb6c8e8d62a0402b9a4a43ef76d6c35e0e5b364cd7a3dbe3f",
+  "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+  "v12/python/tools/instance.py": "f9b64570771fd5c88677da687964b74be7595de885e95f072fa35f5f03e05cef",
+  "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+  "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+  "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+  "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59",
+  "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+ },
+ "claim": 187356,
+ "cumulative_verification_seconds": {
+  "J1_history": "0.125s reversal within a 1.291s whole harness; both intervals preserved",
+  "author_claim183891": 1.195,
+  "author_claim183998": 151.908,
+  "author_claim184239": 127.816,
+  "author_claim184442": 63.532,
+  "author_claim185653": 26.94,
+  "author_claim185774": 27.256,
+  "author_claim185884": 33.299,
+  "author_claim185976": 32.661,
+  "author_claim186044": 30.937,
+  "author_claim186132": 2.476,
+  "author_claim186214": 28.576,
+  "author_claim186284": 27.262,
+  "author_claim186381": {
+   "focused": 27.19,
+   "stage_suite": 55.317
+  },
+  "author_claim186468": 27.183,
+  "author_claim186523": 27.128,
+  "author_claim186583": {
+   "focused": 27.154,
+   "reversal_probes": 0.589
+  },
+  "author_claim186672": {
+   "focused": 27.202,
+   "reversal_probes": 0.625,
+   "scenarios": 0.003
+  },
+  "author_claim186742": {
+   "focused": 27.256,
+   "reversal_probes": {
+    "instance_lifecycle": 2.197,
+    "temporary_custody": 0.541
+   },
+   "scenarios": 0.003
+  },
+  "author_claim186838": {
+   "focused": 27.547,
+   "reversal_probes": 1.247
+  },
+  "author_claim186890": {
+   "builds": "four builds this claim, three of them inside the packaging probe tree; the retained one is BUILD-186890.log, 10156 bytes, exit 0",
+   "focused": 29.559,
+   "live_installed_lifecycle": 7.194,
+   "reversal_probes": {
+    "build_and_revert_packaging": 17.09,
+    "source": 3.683
+   }
+  },
+  "author_claim187015": {
+   "builds": "two builds this claim; the retained one is BUILD-187015.log, exit 0",
+   "focused": 30.191,
+   "live_installed_lifecycle": 7.219,
+   "reversal_probes": 28.886
+  },
+  "author_claim187142": {
+   "builds": "one build; BUILD-187142.log, exit 0",
+   "focused": 30.153,
+   "injected_failure_proofs": "three runs, each ~7s, retained in CLEANUP-PROOF-187142.json",
+   "live_installed_lifecycle": 7.37,
+   "reversal_probes": 28.295
+  },
+  "author_claim187223": {
+   "boundary_runs": "six injected-boundary runs of the harness, each about seven seconds, retained",
+   "builds": "none -- no product code changed, and the review said no rebuild was needed for packet/harness-only changes",
+   "focused": 30.309,
+   "live_installed_lifecycle": 7.398,
+   "packet_check_proof": "nine extracted-block scenarios, sub-second"
+  },
+  "author_claim187303": {
+   "boundary_runs": "nine injected-boundary runs of the harness, each a few seconds, retained",
+   "builds": "none; no product code changed and no rebuild was requested",
+   "focused": "not re-run: no product or test file changed, and the review said not to re-run an unchanged suite for a handoff. Every candidate hash is identical to claim187223's.",
+   "live_installed_lifecycle": 7.557,
+   "packet_check_proof": "nine extracted-block scenarios, sub-second"
+  },
+  "earlier_build_and_bundle_checks": "unknown duration, VERIFICATION rather than deployment cost",
+  "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+  "owner_bootstrap_run": 0.938,
+  "owner_composition_run": 10.535,
+  "reviewer_claim183958": 1.5529989219503477,
+  "reviewer_claim184197": 12.840890395978931,
+  "reviewer_claim184197_readiness_check": 0.002758326008915901,
+  "reviewer_claim184403": 20.8455910270568,
+  "reviewer_claim184537": 15.599983819993213,
+  "reviewer_claim185739": 0.12554923997959122,
+  "reviewer_claim185857": 0.22083405102603137,
+  "reviewer_claim185945": 0.0037346489843912423,
+  "reviewer_claim186022": 0.004474725050386041,
+  "reviewer_claim186081": 0.005015750008169562,
+  "reviewer_claim186175": 0.04717645701020956,
+  "reviewer_claim186262": 0.4171164730214514,
+  "reviewer_claim186356": 1.6185368220321834,
+  "reviewer_claim186439": 0.0028278949903324246,
+  "reviewer_claim186499": 0.003370393009390682,
+  "this_claim_builds": "none; no product code changed",
+  "this_claim_control_runs": "eleven injected control runs, each a few seconds, retained in this record",
+  "this_claim_focused_tests": "not re-run: no product or test file changed, and the review said not to re-run an unchanged suite for a handoff",
+  "this_claim_live_installed_lifecycle": 7.569
+ },
+ "edited_this_claim": [
+  "work/records/.../LIFECYCLE-HARNESS-187356.py (new)"
+ ],
+ "file": "LIFECYCLE-HARNESS-187356.py (187303, 187223, 187142 and 187015 retained)",
+ "kept_from_187303": [
+  "ownership read through the deployment's own four-state reader; unknown never read as absence",
+  "the repeated-bootstrap preservation ASSERTED",
+  "no library corruption at all -- the runtime mismatch is held by LIFECYCLE-187142.json and test_packaging"
+ ],
+ "no_probes_no_suite_no_build": "no product or test file changed -- every candidate hash is identical to claim187303's -- so there is nothing to revert and nothing an unchanged suite would establish. The harness is checked by RUNNING it: one normal path and eleven injected controls.",
+ "not_done": {
+  "no_build_this_claim": true,
+  "no_credential_registry_read": true,
+  "no_job_submitted": true,
+  "no_live_provider_or_engine_run": true,
+  "no_product_or_test_file_changed": true,
+  "no_v11_path_service_store_or_configuration_touched": true,
+  "no_version_control_mutation": true
+ },
+ "operational_findings_preserved": [
+  {
+   "modules": [
+    "tests.manager.test_claude_context",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.tools.test_correction_restart",
+    "tests.tools.test_managed_apply"
+   ],
+   "note": "unchanged; re-observed this claim",
+   "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+  },
+  {
+   "note": "unchanged, not re-run this claim",
+   "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+  }
+ ],
+ "remaining_scope": [
+  "the owner's own selections and preparation: the source, the base, the three clones, the reference and the observer participant. Creating or cloning a repository is a version-control mutation this Work does not perform, and the packet is now the exact command set for it."
+ ],
+ "scope": "one correction to the retained harness. NO product or test file changed, nothing was built, no suite was re-run.",
+ "the_controls": {
+  "after-starts": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [
+    "deployment",
+    "deployment-b"
+   ],
+   "instances_touched": [],
+   "shared_steps_ran": true,
+   "steps_that_failed": [],
+   "unclaimed_touched": [],
+   "why_it_stopped": null
+  },
+  "alive-unknown:B": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [
+    "deployment"
+   ],
+   "instances_touched": [],
+   "shared_steps_ran": false,
+   "steps_that_failed": [
+    "ownership preflight deployment-b"
+   ],
+   "unclaimed_touched": [],
+   "why_it_stopped": "the demonstration needs BOTH instances with a complete, confirmed identity; it ran none of the shared steps and will stop only what it legitimately claimed"
+  },
+  "already-running:A": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [
+    "deployment-b"
+   ],
+   "instances_touched": [],
+   "shared_steps_ran": false,
+   "steps_that_failed": [
+    "ownership preflight deployment"
+   ],
+   "unclaimed_touched": [],
+   "why_it_stopped": "the demonstration needs BOTH instances with a complete, confirmed identity; it ran none of the shared steps and will stop only what it legitimately claimed"
+  },
+  "already-running:B": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [
+    "deployment"
+   ],
+   "instances_touched": [],
+   "shared_steps_ran": false,
+   "steps_that_failed": [
+    "ownership preflight deployment-b"
+   ],
+   "unclaimed_touched": [],
+   "why_it_stopped": "the demonstration needs BOTH instances with a complete, confirmed identity; it ran none of the shared steps and will stop only what it legitimately claimed"
+  },
+  "both-running": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [],
+   "instances_touched": [],
+   "shared_steps_ran": false,
+   "steps_that_failed": [
+    "ownership preflight deployment",
+    "ownership preflight deployment-b"
+   ],
+   "unclaimed_touched": [],
+   "why_it_stopped": "the demonstration needs BOTH instances with a complete, confirmed identity; it ran none of the shared steps and will stop only what it legitimately claimed"
+  },
+  "cleanup-raises": {
+   "cleanup_resolved": false,
+   "exit": 2,
+   "instances_claimed": [
+    "deployment",
+    "deployment-b"
+   ],
+   "instances_touched": [
+    "deployment",
+    "deployment-b"
+   ],
+   "shared_steps_ran": true,
+   "steps_that_failed": [],
+   "unclaimed_touched": [],
+   "why_it_stopped": null
+  },
+  "selector-changed": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [
+    "deployment",
+    "deployment-b"
+   ],
+   "instances_touched": [
+    "deployment",
+    "deployment-b"
+   ],
+   "shared_steps_ran": true,
+   "steps_that_failed": [
+    "a repeated bootstrap"
+   ],
+   "unclaimed_touched": [],
+   "why_it_stopped": null
+  },
+  "start-silent:B": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [
+    "deployment",
+    "deployment-b"
+   ],
+   "instances_touched": [],
+   "shared_steps_ran": false,
+   "steps_that_failed": [
+    "ownership of deployment-b"
+   ],
+   "unclaimed_touched": [],
+   "why_it_stopped": "the demonstration needs BOTH instances with a complete, confirmed identity; it ran none of the shared steps and will stop only what it legitimately claimed"
+  },
+  "start-timeout:A": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [
+    "deployment",
+    "deployment-b"
+   ],
+   "instances_touched": [],
+   "shared_steps_ran": false,
+   "steps_that_failed": [
+    "start deployment",
+    "ownership of deployment"
+   ],
+   "unclaimed_touched": [],
+   "why_it_stopped": "the demonstration needs BOTH instances with a complete, confirmed identity; it ran none of the shared steps and will stop only what it legitimately claimed"
+  },
+  "start-timeout:B": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [
+    "deployment",
+    "deployment-b"
+   ],
+   "instances_touched": [],
+   "shared_steps_ran": false,
+   "steps_that_failed": [
+    "start deployment-b",
+    "ownership of deployment-b"
+   ],
+   "unclaimed_touched": [],
+   "why_it_stopped": "the demonstration needs BOTH instances with a complete, confirmed identity; it ran none of the shared steps and will stop only what it legitimately claimed"
+  },
+  "stop-nonzero": {
+   "cleanup_resolved": false,
+   "exit": 2,
+   "instances_claimed": [
+    "deployment",
+    "deployment-b"
+   ],
+   "instances_touched": [
+    "deployment",
+    "deployment-b"
+   ],
+   "shared_steps_ran": true,
+   "steps_that_failed": [],
+   "unclaimed_touched": [],
+   "why_it_stopped": null
+  }
+ },
+ "the_normal_run": {
+  "output": "LIFECYCLE-187356.json",
+  "seconds": 7.569,
+  "verdict": {
+   "cleanup_resolved": true,
+   "instances_claimed": [
+    "/var/tmp/w183883-live-186890/deployment",
+    "/var/tmp/w183883-live-186890/deployment-b"
+   ],
+   "instances_touched": [
+    "/var/tmp/w183883-live-186890/deployment",
+    "/var/tmp/w183883-live-186890/deployment-b"
+   ],
+   "ok": true,
+   "steps_failed": 0,
+   "unclaimed_touched": []
+  }
+ },
+ "what_it_does_now": [
+  "BOTH instances must be claimed with a complete, confirmed identity before ANY shared step: the demonstration reads and writes across A and B, so one side belonging to somebody else is a reason to stop rather than to carry on with the other",
+  "if either is refused or incomplete, it runs no shared step and only bounded cleanup for what it legitimately claimed",
+  "every write and every stop -- normal path and cleanup alike -- goes through ONE gate that refuses an instance this run does not own, so a later edit cannot walk around the filter the way the normal path just did",
+  "the run reports which instances it touched, and touching an unclaimed one is a failure rather than a line in a log"
+ ],
+ "what_the_controls_establish": {
+  "and_the_normal_path": "claims both, touches both, resolves, exits 0",
+  "both_refused": "both-running claims nothing, touches nothing",
+  "mixed_either_order": "already-running:B claims only A and already-running:A claims only B; NEITHER runs a shared step and NEITHER touches anything -- no write, no stop, on either side",
+  "one_side_unknown_or_timed_out": "start-timeout:A, start-timeout:B, start-silent:B and alive-unknown:B each end the demonstration with nothing touched",
+  "the_positive_controls_still_work": "selector-changed still fails on the preservation assertion, stop-nonzero and cleanup-raises still report unresolved cleanup, and every one of them shows unclaimed_touched empty"
+ },
+ "what_was_wrong": "ownership was established per instance and then asked as `if not owned:` -- 'did I claim ANYTHING?'. With A fresh and B already running, A was claimed, B was refused, and the shared lifecycle ran anyway: it corrupted B's selector and called the normal-path stop(B) on an instance this run did not own. In the reverse order it stopped an unclaimed A. The cleanup filter was right; the normal path walked around it.",
+ "work": "W183883"
+}

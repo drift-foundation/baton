@@ -1,0 +1,133 @@
+{
+  "all_owned_children_reaped": true,
+  "answers": "review-2026-09-16T12-20-20Z.md sha256 a91d00cdce8cad9374fa9aeb545280bb3f393873dee235e58230ce0b5604854a: complete the instance/deployment slice",
+  "candidates": {
+    "v12/STACK.md": "5f5d0026740ad28ec19b5ad7046c6211eec2b19bda20a6d645a9ed4908c6ce7c",
+    "v12/justfile": "6acbd6029baaacab31da1a0f87feba3fb4876d99226ccd981ef30837b4614a32",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+    "v12/python/tests/tools/test_environment.py": "c05bfb4177a8cf5f8e04c34f250d5da1480d61f726d79b3b33cc7aac2a1b864a",
+    "v12/python/tests/tools/test_stack.py": "6608d603457856d92abf6600609d7e81b416a6c2642d341a824aa09a2315794b",
+    "v12/python/tools/bootstrap.py": "792e3f4575d68b9d1c6d197fbac1315f563a40754ca65222a5e9dbe55c46b404",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/instance.py": "f632a7df81d812d2695f2472890ee1f7439adfa024e7940a71c7e9d7f134a71c",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "0766c7c4dd27cd84ffd5aaa2a3cd6db2730f540ef3fad337129aef912a4bcbef",
+    "v12/python/tools/stack_command.py": "4f923e87142bda2667826a992c2108e63bd4ac4bea6cc01e3b9d981c4216de13",
+    "v12/python/tools/stage_execution.py": "e981c0cbe18f213215e49a3e3bbcb86bb41ca4625c50bae2897be61704b15ff8"
+  },
+  "claim": 186381,
+  "cumulative_verification_seconds": {
+    "author_claim183891": 1.195,
+    "author_claim183998": 151.908,
+    "author_claim184239": 127.816,
+    "author_claim184442": 63.532,
+    "author_claim185653": 26.94,
+    "author_claim185774": 27.256,
+    "author_claim185884": 33.299,
+    "author_claim185976": 32.661,
+    "author_claim186044": 30.937,
+    "author_claim186132": 2.476,
+    "author_claim186214": 28.576,
+    "author_claim186284": 27.262,
+    "note": "reported per actor and never summed; claim186284's total is corrected to the JSON figure above, and the earlier unknowns remain unknown rather than reconstructed",
+    "owner_bootstrap_run": 0.938,
+    "owner_composition_run": 10.535,
+    "reviewer_claim183958": 1.5529989219503477,
+    "reviewer_claim184197": 12.840890395978931,
+    "reviewer_claim184197_readiness_check": 0.002758326008915901,
+    "reviewer_claim184403": 20.8455910270568,
+    "reviewer_claim184537": 15.599983819993213,
+    "reviewer_claim185739": 0.12554923997959122,
+    "reviewer_claim185857": 0.22083405102603137,
+    "reviewer_claim185945": 0.0037346489843912423,
+    "reviewer_claim186022": 0.004474725050386041,
+    "reviewer_claim186081": 0.005015750008169562,
+    "reviewer_claim186175": 0.04717645701020956,
+    "reviewer_claim186262": 0.4171164730214514,
+    "reviewer_claim186356": 1.6185368220321834,
+    "this_claim_focused_tests": 27.19,
+    "this_claim_frozen_smoke_and_build": "unknown duration, and recorded as VERIFICATION rather than reclassified as deployment cost",
+    "this_claim_stage_execution": 55.317
+  },
+  "delivered": {
+    "a copied selector is refused": "a selector names its own destination and is refused when read from anywhere else, so one cannot be used to drive a deployment it does not name",
+    "layouts_reconciled": "bootstrap and instance now derive byte-identical store paths under db/, and the stage deployment's own mutable root is deployment-state/ rather than state/ -- one path for two different things is how they collide",
+    "tools/bootstrap.py": "--destination and --distro: prepare destination/{distro,db,repo,logs,state}, copy the runtime in, ask the built command what it is, and publish instance.json atomically. An existing runtime is REFUSED rather than replaced.",
+    "tools/instance.py": "the one selector: layout derived from a destination, emission, validation, and `verify` which RECOMPUTES the whole one-folder manifest. The identity binds EVERY file under distro/ and not the executable's digest, because a bundle is a directory -- a distro whose native rpds library was replaced or whose schema assets were deleted would satisfy an executable checksum and then fail at import, inside a child a supervisor had already started.",
+    "tools/stack.py": "--instance: read, verify, then derive the four operands and the state root from it",
+    "v12/justfile": "a `build` recipe over the spec, on the prepared interpreter, installing the build lock hash-enforced"
+  },
+  "focused_tests": {
+    "command": "cd v12/python && python3 -m unittest tests.tools.test_stack tests.tools.test_environment tests.tools.test_bootstrap",
+    "returncode": 0,
+    "seconds": 27.19,
+    "stage_execution_after_the_checkout_change": {
+      "errors": 12,
+      "note": "the SAME 12 pre-existing errors reported since claim184239, in the two integration-port classes; the frozen branch of `_checkout` is unreachable from source and the source branch is unchanged",
+      "seconds": 55.317,
+      "tests": 275
+    },
+    "tests": 220
+  },
+  "new_this_claim": [
+    "v12/python/tools/instance.py"
+  ],
+  "not_done": {
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true,
+    "scratch_removed": "the build environment, the built bundle and both installed demonstration instances were removed after use"
+  },
+  "not_done_and_returned": {
+    "artifact_note": "the built bundle and its build environment were removed after use, so this claim leaves a reproducible candidate rather than a retained artifact; the review asked for one or the other and the build recipe plus both locks is the reproducible form",
+    "remaining_scope": [
+      "an external-run fixture whose workers carry a credential registry, so start/status/monitor/stop can be demonstrated with the manager, publisher and viewer actually running through instance.json",
+      "tests/tools/test_instance.py and test_packaging.py, registered in parallel_test.py: the selector contract, the manifest binding, the copied-selector refusal, the existing-runtime refusal, and a real-bundle smoke check",
+      "STACK.md rewritten around the installed command and the instance selector; the four lifecycle recipes taking an instance path",
+      "the independent repo prepared from the selected immutable base, and repeat/corrupt/mismatch preservation for instances",
+      "a retained bundle manifest with digests, and the exact build and smoke commands, exits and provenance"
+    ],
+    "what": "a SUCCESSFUL valid external lifecycle with the manager, publisher and viewer actually running",
+    "why": "`start` reached the real composition inside the bundle and was refused by `single_worker`: 'the production credential provider requires an absolute credential_sources registry path'. The ValidFixture's workers carry no credential registry -- the accepted suite adds one only in the case that needs it. That is a FIXTURE gap in my external-run harness, not a product defect, and I am not reporting a lifecycle as demonstrated when it was refused."
+  },
+  "operational_findings_preserved": [
+    {
+      "note": "unchanged; no new test module was added this claim, so no registry change was needed yet",
+      "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+    },
+    {
+      "note": "unchanged, and re-measured after the _checkout change",
+      "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+    }
+  ],
+  "scope": "the instance contract, the destination install, a real build and a real external lifecycle attempt; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation",
+  "the_defect_only_the_real_bundle_could_find": {
+    "fixed": "frozen, `_checkout` answers the BUNDLE. The rule it serves -- mutable deployment state never inside the code's own tree -- is kept exactly as strong: a store inside distro/ is still refused, the destination beside it is not.",
+    "note": "this is precisely the 'avoid checkout-relative file discovery' boundary the owner said to validate rather than assume, and it was not visible from source",
+    "observed": "ContractRefusal: the configured integration_store at '/var/tmp/w186381-instance-a/db/integration.sqlite3' is inside the checkout at '/var/tmp/w186381-instance-a'",
+    "path_added_to_this_claim": "v12/python/tools/stage_execution.py, for that reason and no other; it is the accepted owner of that rule and a second copy would be a second rule",
+    "what": "stage_execution._checkout() walked three parents up from __file__. FROZEN, __file__ is inside the bundle, so that answered the INSTANCE DESTINATION -- and the destination's own db/ was refused for being 'inside the checkout'."
+  },
+  "the_real_build_and_the_real_external_run": {
+    "built": "pyinstaller over packaging/stack.spec in a venv carrying both locks hash-enforced; exit 0; 80 files in the one-folder runtime",
+    "through_the_bundled_command_under_env_-i_from_/var/tmp": {
+      "a COPIED selector": "exit 2, refused by name: 'was prepared for .../instance-b and is being read from .../instance-a' -- a selector cannot drive a destination it does not name",
+      "b's own selector through a's command": "exit 0, and that is CORRECT rather than a leak: the two distros are byte-identical copies of one build, so the executable is not the identity -- the SELECTOR is, and it selected b's own destination",
+      "start --instance": "exit 2, and this is the honest gap below",
+      "status --instance": "exit 0; derived this instance's own state root and reported honestly",
+      "stop --instance": "exit 0; not running, runtime boundary unknown, stores retained"
+    },
+    "two_instances_installed": "/var/tmp/w186381-instance-a and -b, each with its own db/, repo/, logs/, state/ and its own copy of the runtime; identical runtime digests, as two copies of one build should have"
+  },
+  "timing_clarification_the_review_asked_for": {
+    "and_the_frozen_smoke_checks": "unmeasured frozen smoke runs are VERIFICATION with unknown duration, not excluded deployment cost. I described them last claim as deployment work and not counted; that was wrong, and they are recorded here as verification of unknown duration rather than reclassified away.",
+    "what_i_said_in_the_handoff": "J1 1.291s, this claim total 28.428s",
+    "what_the_JSON_recorded": "J1 0.125s, this claim total 27.262s",
+    "which_is_right": "the JSON. 1.291s was the wall time of the whole J1 harness run including its baseline and restore passes; 0.125s was the reversed run alone. I quoted the wrong one in prose while the machine-readable record was correct, and the totals differ by the same amount."
+  },
+  "work": "W183883"
+}

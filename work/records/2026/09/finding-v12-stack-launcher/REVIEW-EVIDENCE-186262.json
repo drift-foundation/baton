@@ -1,0 +1,136 @@
+{
+  "claim": 186262,
+  "candidate_hashes": {
+    "v12/STACK.md": "5f5d0026740ad28ec19b5ad7046c6211eec2b19bda20a6d645a9ed4908c6ce7c",
+    "v12/justfile": "b1ee92e1a33fa3c98f5b87de7262ba0d2001066c41c5400e7d93dadecb790ee6",
+    "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+    "v12/python/tests/tools/test_environment.py": "c05bfb4177a8cf5f8e04c34f250d5da1480d61f726d79b3b33cc7aac2a1b864a",
+    "v12/python/tests/tools/test_stack.py": "2bdcbcf44ee4322d0a253a11364ccff97760c6880ed0faf00ee09744b97c1a30",
+    "v12/python/tools/bootstrap.py": "2c78a8005fd8a9e79b0ddaf0a9e8d3a8c700cf142acd77ca5e2505520d484510",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136"
+  },
+  "focused_tests": {
+    "argv": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.tools.test_environment.TheBootstrapTestRootFollowsTheOperator",
+      "tests.tools.test_environment.TheInterpreterOverrideIsExecutable",
+      "tests.tools.test_environment.TheRecipesUseIt",
+      "tests.tools.test_stack.TheChosenDiskRootIsNeverSilentlyReplaced.test_a_root_inside_the_checkout_is_named",
+      "tests.tools.test_stack.TheChosenDiskRootIsNeverSilentlyReplaced.test_a_root_that_cannot_be_written_is_named_rather_than_passed_over"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "test_a_blank_exported_selection_is_not_a_selection_either (tests.tools.test_environment.TheBootstrapTestRootFollowsTheOperator.test_a_blank_exported_selection_is_not_a_selection_either) ... ok\ntest_an_empty_or_blank_operand_is_not_a_selection (tests.tools.test_environment.TheBootstrapTestRootFollowsTheOperator.test_an_empty_or_blank_operand_is_not_a_selection)\n`just` passes an empty string when the operand is omitted, so an ... ok\ntest_an_explicit_operand_beats_an_exported_selection (tests.tools.test_environment.TheBootstrapTestRootFollowsTheOperator.test_an_explicit_operand_beats_an_exported_selection)\nBoth at once: saying it here and now is the most specific thing an ... ok\ntest_an_explicit_operand_beats_the_default (tests.tools.test_environment.TheBootstrapTestRootFollowsTheOperator.test_an_explicit_operand_beats_the_default) ... ok\ntest_an_exported_selection_beats_the_default (tests.tools.test_environment.TheBootstrapTestRootFollowsTheOperator.test_an_exported_selection_beats_the_default) ... ok\ntest_nothing_selected_is_the_documented_default (tests.tools.test_environment.TheBootstrapTestRootFollowsTheOperator.test_nothing_selected_is_the_documented_default) ... ok\ntest_the_command_answers_on_stdout_for_the_recipe_to_consume (tests.tools.test_environment.TheBootstrapTestRootFollowsTheOperator.test_the_command_answers_on_stdout_for_the_recipe_to_consume) ... ok\ntest_a_named_bootstrap_test_root_reaches_the_helper (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_a_named_bootstrap_test_root_reaches_the_helper) ... ok\ntest_a_positional_interpreter_reaches_the_helper_as_a_path (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_a_positional_interpreter_reaches_the_helper_as_a_path) ... ok\ntest_nothing_recommends_the_spelling_that_does_not_work (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_nothing_recommends_the_spelling_that_does_not_work) ... ok\ntest_the_default_is_the_ambient_python3 (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_the_default_is_the_ambient_python3) ... ok\ntest_the_named_option_spelling_would_have_been_forwarded_whole (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_the_named_option_spelling_would_have_been_forwarded_whole)\nThe defect itself, kept as a case so the documentation cannot drift ... ok\ntest_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one)\n[I1]: the recipe assigned its own default over an exported ... ok\ntest_the_runbook_says_the_wrong_spelling_is_wrong (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_the_runbook_says_the_wrong_spelling_is_wrong)\nThe one place it may still appear is a warning, so an operator who ... ok\ntest_every_stack_recipe_resolves_the_prepared_interpreter (tests.tools.test_environment.TheRecipesUseIt.test_every_stack_recipe_resolves_the_prepared_interpreter) ... ok\ntest_no_recipe_asks_an_operator_to_activate_anything (tests.tools.test_environment.TheRecipesUseIt.test_no_recipe_asks_an_operator_to_activate_anything)\nOver the recipe BODIES, not the file: asserting over the whole text ... ok\ntest_no_stack_recipe_installs_anything (tests.tools.test_environment.TheRecipesUseIt.test_no_stack_recipe_installs_anything) ... ok\ntest_setup_is_its_own_recipe_and_the_node_install_is_untouched (tests.tools.test_environment.TheRecipesUseIt.test_setup_is_its_own_recipe_and_the_node_install_is_untouched) ... ok\ntest_the_bootstrap_test_recipe_cannot_swallow_a_failure (tests.tools.test_environment.TheRecipesUseIt.test_the_bootstrap_test_recipe_cannot_swallow_a_failure)\nA command whose exit status did not mean anything would be worse ... ok\ntest_the_bootstrap_test_recipe_carries_the_reviewed_bounds (tests.tools.test_environment.TheRecipesUseIt.test_the_bootstrap_test_recipe_carries_the_reviewed_bounds)\nThe command the review specified, made memorable rather than ... ok\ntest_a_root_inside_the_checkout_is_named (tests.tools.test_stack.TheChosenDiskRootIsNeverSilentlyReplaced.test_a_root_inside_the_checkout_is_named) ... ok\ntest_a_root_that_cannot_be_written_is_named_rather_than_passed_over (tests.tools.test_stack.TheChosenDiskRootIsNeverSilentlyReplaced.test_a_root_that_cannot_be_written_is_named_rather_than_passed_over) ... ok\n\n----------------------------------------------------------------------\nRan 22 tests in 0.007s\n\nOK\n"
+  },
+  "helper_cli_matrix": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "tools.environment",
+        "test-root"
+      ],
+      "returncode": 0,
+      "stdout": "/var/tmp\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "tools.environment",
+        "test-root"
+      ],
+      "returncode": 0,
+      "stdout": "/srv/exported\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "tools.environment",
+        "test-root",
+        "--chosen",
+        "/srv/explicit"
+      ],
+      "returncode": 0,
+      "stdout": "/srv/explicit\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "tools.environment",
+        "test-root",
+        "--chosen",
+        "/srv/explicit"
+      ],
+      "returncode": 0,
+      "stdout": "/srv/explicit\n",
+      "stderr": ""
+    }
+  ],
+  "isolated_resolver_controls": [
+    {
+      "filesystem": "ext4",
+      "named": "",
+      "result": "/var/tmp"
+    },
+    {
+      "filesystem": "ext4",
+      "named": "   ",
+      "result": "/var/tmp"
+    },
+    {
+      "filesystem": "ext4",
+      "named": "/srv/selected",
+      "result": "/srv/selected"
+    },
+    {
+      "filesystem": "tmpfs",
+      "named": "",
+      "result": "no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory), /home/sl/.cache (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton."
+    },
+    {
+      "filesystem": "tmpfs",
+      "named": "   ",
+      "result": "no disk-backed directory outside the checkout was found for the v12 stack composition case; tried /var/tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory), /home/sl/.cache (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory), /tmp (it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory). Set BATON_V12_STACK_TEST_ROOT to a directory on real storage outside /home/sl/src/baton."
+    },
+    {
+      "filesystem": "tmpfs",
+      "named": "/srv/selected",
+      "result": "BATON_V12_STACK_TEST_ROOT is '/srv/selected' and it is on a tmpfs filesystem, and the workspace boundary refuses a workspace on memory. An explicitly selected root is never silently passed over; choose another, or unset it to fall back."
+    }
+  ],
+  "invalid_author_probe_baseline": {
+    "argv": [
+      "python3",
+      "-m",
+      "unittest",
+      "tests.tools.test_environment.TheRecipesUseIt.test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one"
+    ],
+    "returncode": 1,
+    "stdout": "",
+    "stderr": "E\n======================================================================\nERROR: test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one (unittest.loader._FailedTest.test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one)\n----------------------------------------------------------------------\nAttributeError: type object 'TheRecipesUseIt' has no attribute 'test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one'\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nFAILED (errors=1)\n"
+  },
+  "verification_seconds": 0.4171164730214514,
+  "prior_attempt": {
+    "tests": 23,
+    "passes": 22,
+    "failures": 1,
+    "reason": "Blank/unset fallback test requires a real writable disk root outside checkout; /var/tmp and /home/sl/.cache not writable in managed boundary and /tmp tmpfs.",
+    "unittest_reported_seconds": 0.008,
+    "tool_reported_wall_seconds": 0.089884941,
+    "stopwatch_total": "not captured after assertion interrupted script"
+  },
+  "scope": "Six isolated resolver controls substitute filesystem/access observations and do not prove real external storage. No external-root writes, full suite rerun, deployment, install, provider, engine, Job or Git mutation. All subprocesses completed.",
+  "operational_read_note": "Initial tests/disk_roots.py read was reviewer locator error (absent); corrected tests/manager/disk_roots.py read fully. No unread required file remains."
+}

@@ -1,0 +1,203 @@
+{
+ "work": "2b077949-W183883",
+ "claim": 189538,
+ "actor": "baton.claude",
+ "answering": {
+  "review": "review-2026-09-16T21-31-10Z.md",
+  "sha256": "7e38ecd627c0f9f923e521d49a9151741ef4788b05e0781ef158fe825b1a5581",
+  "accepted_by_the_reviewer": [
+   "V1 explicit untracked reporting overrides the host setting",
+   "V2 narrow generated-path boundary with source and tracked-change controls",
+   "V3 the original just option-position defect is corrected",
+   "no further stamping or runtime code change requested"
+  ]
+ },
+ "B1_the_focused_recipe_check_ran_a_REAL_build": {
+  "what_was_wrong": "test_the_documented_form_reaches_the_helper called the recipe with a destination and an EMPTY distro. That is the branch that runs `just build` -- pip and PyInstaller -- and it runs BEFORE Python reads the input document, so an absent input could not prevent it. A check whose module header says DETERMINISTIC AND OFFLINE built the distribution every time it ran.",
+  "what_it_is_now": [
+   "test_the_documented_form_reaches_the_HELPER names an existing directory as DISTRO, which takes the branch that does not build, and still proves the fourth operand reaches the helper rather than the recipe.",
+   "test_the_TWO_OPERAND_form_forwards_the_built_path_without_building runs the ACTUAL recipe with a PATH whose `just`, `python3` and prepared interpreter RECORD their argv and whose pip/pip3/pyinstaller/npm and version-control tool REFUSE with exit 97. The recipe body carries its own shebang, so `just` executes it as a script and the PATH handed in is the one the body resolves against; the outer `just` is reached by absolute path and is the real one.",
+   "test_the_stand_in_would_SEE_a_real_build_tool_being_reached is the control: it reaches one of the refusing programs and asserts the log whose absence is the other case's assertion actually appears."
+  ],
+  "what_the_recorded_run_asserts": [
+   "the nested `just --justfile <v12>/justfile build` was asked for",
+   "the helper was reached exactly once, as `-m tools.bootstrap`",
+   "--destination is the operand given",
+   "--distro is <v12>/python/build/out/distro, compared by realpath",
+   "--no-repositories is forwarded verbatim and last",
+   "no pip, PyInstaller, npm or version-control program was reached",
+   "the destination was never composed",
+   "build/out is byte-identical by mtime when the checkout has one"
+  ],
+  "measured_seconds_for_the_whole_recipe_class": 0.703
+ },
+ "B2_the_guides_direct_helper_example_named_a_path_that_does_not_exist": {
+  "what_was_wrong": "`cd v12/python` followed by `--distro python/build/out/distro` resolves to v12/python/python/build/out/distro. The recipe's operand is right because the recipe resolves it from v12/; a command typed in v12/python needs the path from there.",
+  "what_it_is_now": "`--distro build/out/distro`, with the prepared interpreter `\"$(python3 -m tools.environment interpreter)\"` rather than ambient python3, consistent with the runtime-prerequisite section, and a sentence saying why the two forms differ.",
+  "held_by": "test_the_guides_DIRECT_helper_example_resolves_from_where_it_stands, which resolves every relative --distro operand in a `cd v12/python` example against that directory and requires it to equal the path `just build` produces -- compared as a PATH, so a checkout that has never been built still answers -- and requires the prepared interpreter in the same block."
+ },
+ "the_prior_no_build_claim_is_corrected": {
+  "what_was_said": "EVIDENCE-189471.json and M189503 said no rebuild happened during claim189471.",
+  "what_was_true": "A build did run: the recipe check above reached the empty-DISTRO branch. The reviewer found it and the artifacts confirm it independently.",
+  "current_build": {
+   "path": "v12/python/build/out/distro",
+   "manifest_sha256": "81d45b33e6009ff623737e1c330c4c4d3e662fa6811f781a13d5558fabdc6270",
+   "files": 81,
+   "stamp": {
+    "commit": "3c0dd08225e1691d2134e87c8a04e28c9c644b7c",
+    "dirty": true,
+    "changed_entries": 22,
+    "excused_build_output": 1
+   }
+  },
+  "retained_189383_install": {
+   "path": "/var/tmp/w183883-version-189383/deployment/distro",
+   "manifest_sha256": "32b81cd3b46149bbc90ca6116f56b2e9540d789b1a5b989600098f12be63a38a",
+   "files": 81,
+   "stamp": {
+    "commit": "3c0dd08225e1691d2134e87c8a04e28c9c644b7c",
+    "dirty": true,
+    "changed_entries": 23,
+    "excused_build_output": "absent -- the previous capture shape"
+   }
+  },
+  "what_this_does_and_does_not_prove": "The two stamps differ in shape, so the current bundle was built AFTER the [V2] correction landed and the retained install was not. That proves rebuild activity. It does not prove how many builds ran or what each cost: those durations were never measured and are not reconstructed here. The enclosing focused-test totals reported for claim189471 (38.504s focused, 8.068s probes) contained them.",
+  "this_claim": "No build ran. The corrected recipe class completed in 0.703s and the two artifacts above are unchanged."
+ },
+ "the_focused_count_is_corrected": {
+  "what_was_said": "claim189471 narrative said 420; the JSON total said 421.",
+  "what_was_true": "421. The narrative arithmetic was wrong, not the evidence.",
+  "now": 424,
+  "per_module": {
+   "test_version": 27,
+   "test_instance": 117,
+   "test_bootstrap": 72,
+   "test_stack": 122,
+   "test_environment": 75,
+   "test_packaging": 11
+  },
+  "new_this_claim": 3
+ },
+ "verification": {
+  "focused_suites": [
+   {
+    "module": "tests.tools.test_version",
+    "tests": 27,
+    "result": "OK",
+    "seconds": 0.043
+   },
+   {
+    "module": "tests.tools.test_instance",
+    "tests": 117,
+    "result": "OK",
+    "seconds": 0.445
+   },
+   {
+    "module": "tests.tools.test_bootstrap",
+    "tests": 72,
+    "result": "OK",
+    "seconds": 1.652
+   },
+   {
+    "module": "tests.tools.test_stack",
+    "tests": 122,
+    "result": "OK",
+    "seconds": 26.321
+   },
+   {
+    "module": "tests.tools.test_environment",
+    "tests": 75,
+    "result": "OK",
+    "seconds": 0.938
+   },
+   {
+    "module": "tests.tools.test_packaging",
+    "tests": 11,
+    "result": "OK",
+    "seconds": 2.235
+   }
+  ],
+  "focused_total_tests": 424,
+  "focused_total_seconds": 31.634,
+  "reversal_probes": {
+   "all_killed": true,
+   "probes": [
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_environment.TheBootstrapRecipeReachesTheHelper.test_the_TWO_OPERAND_form_forwards_the_built_path_without_building"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "B1-the-two-operand-form-forwards-the-wrong-built-path",
+     "reverted_returncode": 1,
+     "seconds": 0.107,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_environment.TheBootstrapRecipeReachesTheHelper.test_the_TWO_OPERAND_form_forwards_the_built_path_without_building"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "B2-the-two-operand-form-stops-building-at-all",
+     "reverted_returncode": 1,
+     "seconds": 0.106,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_environment.TheBootstrapRecipeReachesTheHelper.test_the_guides_DIRECT_helper_example_resolves_from_where_it_stands"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "B3-the-guide-s-direct-example-names-the-path-that-does-not-exist",
+     "reverted_returncode": 1,
+     "seconds": 0.08,
+     "valid_kill": true
+    },
+    {
+     "baseline_passes_on_pristine": true,
+     "checks": [
+      "tests.tools.test_environment.TheBootstrapRecipeReachesTheHelper.test_the_guides_DIRECT_helper_example_resolves_from_where_it_stands"
+     ],
+     "failed_on_the_intended_assertion": true,
+     "probe": "B4-the-guide-s-direct-example-uses-ambient-python-again",
+     "reverted_returncode": 1,
+     "seconds": 0.083,
+     "valid_kill": true
+    }
+   ],
+   "restored_ok": true,
+   "total_seconds": 1.212
+  },
+  "probe_seconds": 1.212,
+  "probe_script": "probes-189538.py",
+  "no_build_no_clone_no_index_reached": true
+ },
+ "changed_this_claim": {
+  "v12/python/tests/tools/test_environment.py": "3a8b2fe313bb3ab97c970a61d594c164dc6c5e1d6f11872cc9b63fc695f09233",
+  "v12/STACK.md": "ae1c2ea991a43b5af30b83feedc83c9fa2651ce81a2be1ba6175e69f6cf2633c"
+ },
+ "product_code_unchanged_this_claim": [
+  "v12/justfile",
+  "v12/python/tools/build_stamp.py",
+  "v12/python/tools/bootstrap.py",
+  "v12/python/tools/stack_command.py",
+  "v12/python/src/baton_v12/version.py",
+  "v12/python/packaging/stack.spec"
+ ],
+ "operational_findings_preserved_unchanged": [
+  "five test modules are absent from parallel_test.py's registry: tests.manager.test_claude_context, tests.manager.test_provider_context, tests.manager.test_provider_context_delivery, tests.tools.test_correction_restart, tests.tools.test_managed_apply",
+  "tests/tools/test_stage_execution.py has 12 pre-existing errors, unrelated to this Work and not touched by it",
+  "the credential registry at /home/sl/.baton/credential-sources.json was never read; the live fixture registry under /var/tmp/w183883-live-186890 is a composed 0600 fixture",
+  "external-disk fixture coverage is unchanged: no case exercises a destination on a separate filesystem"
+ ],
+ "remaining_and_returned_to_the_owner": [
+  "the actual source repository and each Job's full immutable base",
+  "the import reference and the observer participant",
+  "the complete input document for the real deployment",
+  "the owner-run two-operand bootstrap, which prepares the repositories from this checkout -- cloning is a version-control mutation this agent does not perform"
+ ],
+ "named_not_decided": "a clone carries commits, so a dirty checkout's uncommitted work does not reach the prepared repositories",
+ "no_job_provider_engine_v11_operation_or_version_control_mutation": true
+}

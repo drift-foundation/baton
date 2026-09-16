@@ -1,0 +1,501 @@
+{
+ "H1_the_harness_reported_success_it_had_not_established": {
+  "file": "LIFECYCLE-HARNESS-187223.py (187142 and 187015 retained, superseded)",
+  "proved_by_injected_boundaries": {
+   "after-starts": {
+    "cleanup_raised": [],
+    "exit": 2,
+    "json_was_emitted": true,
+    "raised": "RuntimeError: injected failure at after-starts",
+    "steps_that_failed": [],
+    "still_running": {},
+    "stops": [
+     [
+      "deployment",
+      0
+     ],
+     [
+      "deployment-b",
+      0
+     ]
+    ],
+    "undone": [],
+    "verdict": {
+     "cleanup_resolved": true,
+     "ok": false,
+     "steps_failed": 0
+    }
+   },
+   "cleanup-raises": {
+    "cleanup_raised": [
+     {
+      "action": "undo instance-b's selector",
+      "raised": "OSError(\"injected cleanup failure for instance-b's selector\")"
+     }
+    ],
+    "exit": 2,
+    "json_was_emitted": true,
+    "raised": null,
+    "steps_that_failed": [],
+    "still_running": {},
+    "stops": [
+     [
+      "deployment",
+      0
+     ],
+     [
+      "deployment-b",
+      0
+     ]
+    ],
+    "undone": [
+     {
+      "ok": true,
+      "what": "instance-b's libpython"
+     },
+     {
+      "ok": false,
+      "raised": "OSError(\"injected cleanup failure for instance-b's selector\")",
+      "what": "instance-b's selector"
+     }
+    ],
+    "verdict": {
+     "cleanup_resolved": false,
+     "ok": false,
+     "steps_failed": 0
+    }
+   },
+   "stop-nonzero": {
+    "cleanup_raised": [],
+    "exit": 2,
+    "json_was_emitted": true,
+    "raised": null,
+    "steps_that_failed": [],
+    "still_running": {},
+    "stops": [
+     [
+      "deployment",
+      1
+     ],
+     [
+      "deployment",
+      1
+     ],
+     [
+      "deployment-b",
+      1
+     ],
+     [
+      "deployment-b",
+      1
+     ]
+    ],
+    "undone": [
+     {
+      "ok": true,
+      "what": "instance-b's libpython"
+     },
+     {
+      "ok": true,
+      "what": "instance-b's selector"
+     }
+    ],
+    "verdict": {
+     "cleanup_resolved": false,
+     "ok": false,
+     "steps_failed": 0
+    }
+   },
+   "survivor": {
+    "cleanup_raised": [],
+    "exit": 2,
+    "json_was_emitted": true,
+    "raised": null,
+    "steps_that_failed": [
+     "the runtime mutation was SKIPPED"
+    ],
+    "still_running": {
+     "3907318": "an injected survivor (this process)"
+    },
+    "stops": [
+     [
+      "deployment",
+      0
+     ],
+     [
+      "deployment-b",
+      0
+     ]
+    ],
+    "undone": [
+     {
+      "ok": true,
+      "what": "instance-b's selector"
+     }
+    ],
+    "verdict": {
+     "cleanup_resolved": false,
+     "ok": false,
+     "steps_failed": 1
+    }
+   },
+   "timeout-status": {
+    "cleanup_raised": [],
+    "exit": 2,
+    "json_was_emitted": true,
+    "raised": null,
+    "steps_that_failed": [
+     "status deployment",
+     "status deployment-b",
+     "A's command, B's selector",
+     "status over a corrupt selector",
+     "status deployment-b",
+     "status deployment",
+     "status deployment-b",
+     "status over a changed runtime",
+     "status deployment-b"
+    ],
+    "still_running": {},
+    "stops": [
+     [
+      "deployment",
+      0
+     ],
+     [
+      "deployment-b",
+      0
+     ]
+    ],
+    "undone": [
+     {
+      "ok": true,
+      "what": "instance-b's libpython"
+     },
+     {
+      "ok": true,
+      "what": "instance-b's selector"
+     }
+    ],
+    "verdict": {
+     "cleanup_resolved": true,
+     "ok": false,
+     "steps_failed": 9
+    }
+   },
+   "while-the-library-is-tampered": {
+    "cleanup_raised": [],
+    "exit": 2,
+    "json_was_emitted": true,
+    "raised": "RuntimeError: injected failure at while-the-library-is-tampered",
+    "steps_that_failed": [],
+    "still_running": {},
+    "stops": [
+     [
+      "deployment",
+      0
+     ],
+     [
+      "deployment-b",
+      0
+     ]
+    ],
+    "undone": [
+     {
+      "ok": true,
+      "what": "instance-b's libpython"
+     },
+     {
+      "ok": true,
+      "what": "instance-b's selector"
+     }
+    ],
+    "verdict": {
+     "cleanup_resolved": true,
+     "ok": false,
+     "steps_failed": 0
+    }
+   }
+  },
+  "the_normal_run": {
+   "output": "LIFECYCLE-187223.json",
+   "owned_pids": {
+    "3907121": "manager of deployment",
+    "3907122": "publisher of deployment",
+    "3907126": "manager of deployment-b",
+    "3907127": "publisher of deployment-b"
+   },
+   "seconds": 7.398,
+   "verdict": {
+    "cleanup_resolved": true,
+    "ok": true,
+    "steps_failed": 0
+   }
+  },
+  "what_it_does_now": [
+   "every step declares its expected exit and a mismatch is a FAILURE with both sides recorded; a timeout is an outcome and fails the run",
+   "the pids are read from start's own output and owned BY PID; liveness is asked of those pids through /proc, and a zombie is not running",
+   "the runtime is not tampered with unless the owned pids prove both instances stopped -- and when they do not, the mutation is SKIPPED and the run says so",
+   "each cleanup action is isolated: one raising records and continues, and the stops still happen",
+   "the JSON is emitted from a finally, so the failing run has the fullest record",
+   "the exit is non-zero when any step failed OR cleanup did not resolve"
+  ],
+  "what_the_review_found": [
+   "a status that TIMED OUT was recorded and the run returned 0 with failure null -- an outcome nobody asked for, reported as evidence",
+   "stops that exited non-zero, with a survivor named, still let the library be tampered with and still returned 0",
+   "a FileNotFoundError on the first cleanup stop escaped, skipped the second instance's stop, and emitted NO JSON -- so the run that went wrong left no record",
+   "'nothing owned is still running' was a GLOBAL pgrep, which answers about every deployment on the host"
+  ]
+ },
+ "O1_the_packet_contradicted_the_owner_rulings": {
+  "the_order_is_concrete": "three clones (the only commands that create anything), before or after `just bootstrap`, with both orders stated",
+  "what_it_says_now": "every role lives under the destination: <D>/repo/target.git, <D>/repo/workspace, <D>/repo/source-<worker_id>, and <D>/workers/<worker_id>/storage. integration_workspace is named explicitly as <D>/repo/workspace -- supported, and refused if outside the destination -- which leaves <D>/repo holding all three repositories. The credential registry is the one path deliberately NOT under the destination: it is the owner's, not the deployment's.",
+  "what_stays_a_parameter": "the source and the base are production selections; nothing here picks them or says a particular repository is the right one",
+  "what_was_wrong": "it mandated an external target and workspace and mapped workspace_storage outside the destination -- against OWNER-INSTANCE-DESTINATION-20260916.md and OWNER-PYINSTALLER-20260916.md, which select a self-contained distro/db/repo"
+ },
+ "O2_the_check_block_passed_when_its_reads_failed": {
+  "proved_by_extraction": {
+   "cases": [
+    {
+     "case": "everything holds",
+     "exit": 0,
+     "refused": []
+    },
+    {
+     "case": "the workspace directory is absent",
+     "exit": 2,
+     "refused": [
+      "REFUSED: common directory is absent: /tmp/w183883-packet-wl4t5sbp/deployment/repo/workspace"
+     ]
+    },
+    {
+     "case": "the workspace is not a repository the tool can identify",
+     "exit": 2,
+     "refused": [
+      "REFUSED: not a repository this profile can identify: /tmp/w183883-packet-5itnanix/deployment/repo/workspace"
+     ]
+    },
+    {
+     "case": "the workspace shares the target's repository",
+     "exit": 2,
+     "refused": [
+      "REFUSED: the workspace IS the target repository"
+     ]
+    },
+    {
+     "case": "the workspace borrows objects from elsewhere",
+     "exit": 2,
+     "refused": [
+      "REFUSED: borrows objects from elsewhere: /tmp/w183883-packet-eypvr7zf/deployment/repo/workspace"
+     ]
+    },
+    {
+     "case": "the target borrows objects from elsewhere",
+     "exit": 2,
+     "refused": [
+      "REFUSED: borrows objects from elsewhere: /tmp/w183883-packet-x0yct0ak/deployment/repo/target.git"
+     ]
+    },
+    {
+     "case": "a source shares the workspace's repository",
+     "exit": 2,
+     "refused": [
+      "REFUSED: a source shares the workspace repository: /tmp/w183883-packet-55s151_n/deployment/repo/source-impl-a"
+     ]
+    },
+    {
+     "case": "the declared base is not in the target",
+     "exit": 2,
+     "refused": [
+      "REFUSED: the declared base is not a commit in the target"
+     ]
+    },
+    {
+     "case": "the import reference does not exist",
+     "exit": 2,
+     "refused": [
+      "REFUSED: the import reference does not exist in the target"
+     ]
+    }
+   ],
+   "every_bad_case_refuses": true,
+   "file": "PACKET-CHECK-PROOF-187223.py / .json",
+   "how": "the block is EXTRACTED from the packet -- the same text an operator copies -- and run with a stubbed repository tool over real directories",
+   "the_good_case_passes": true
+  },
+  "what_it_does_now": "every read is checked before it is used -- the common directory must be answered, resolve and be a directory; every path must resolve and stat -- alternates are checked on ALL THREE, and the remote listing is labelled as reporting rather than as proof that nothing can push",
+  "what_was_wrong": "it compared command OUTPUT without checking the commands succeeded, so a workspace that could not be stat-ed compared equal to nothing and passed, and alternates were only checked on the target"
+ },
+ "all_owned_children_reaped": true,
+ "answers_review": "review-2026-09-16T14-40-22Z.md sha256 4c16181edf09b312105be56116de294619d5594af4d85ca7436e622051d0ba29 -- H1, O1 and O2",
+ "candidates": {
+  "v12/STACK.md": "0100b24410aae8b00c49593964c6f7cac66b79989a2cfb6e650d1749a0b48946",
+  "v12/justfile": "2a541f4782b984d06747847061cebffbc28646f32cd2fb3ec92b7ee888771ae4",
+  "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+  "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+  "v12/python/tests/tools/test_bootstrap.py": "c01cbbd39f286e66e5969e8f0517351f42bd77f609383e2eb3580525ced1ec57",
+  "v12/python/tests/tools/test_environment.py": "059ea493cdb9a10b8c098c0c982a982e453c7eb2a7407c4f3ec7592a702e4cfb",
+  "v12/python/tests/tools/test_instance.py": "fdcf7b072c0af71cf672cfeb8234866eeda94c7a5739e4fb5c038f40fb726a7a",
+  "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+  "v12/python/tests/tools/test_stack.py": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+  "v12/python/tools/bootstrap.py": "533511939872f3bcb6c8e8d62a0402b9a4a43ef76d6c35e0e5b364cd7a3dbe3f",
+  "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+  "v12/python/tools/instance.py": "f9b64570771fd5c88677da687964b74be7595de885e95f072fa35f5f03e05cef",
+  "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+  "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+  "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+  "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59",
+  "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+ },
+ "claim": 187223,
+ "cumulative_verification_seconds": {
+  "J1_history": "0.125s reversal within a 1.291s whole harness; both intervals preserved",
+  "author_claim183891": 1.195,
+  "author_claim183998": 151.908,
+  "author_claim184239": 127.816,
+  "author_claim184442": 63.532,
+  "author_claim185653": 26.94,
+  "author_claim185774": 27.256,
+  "author_claim185884": 33.299,
+  "author_claim185976": 32.661,
+  "author_claim186044": 30.937,
+  "author_claim186132": 2.476,
+  "author_claim186214": 28.576,
+  "author_claim186284": 27.262,
+  "author_claim186381": {
+   "focused": 27.19,
+   "stage_suite": 55.317
+  },
+  "author_claim186468": 27.183,
+  "author_claim186523": 27.128,
+  "author_claim186583": {
+   "focused": 27.154,
+   "reversal_probes": 0.589
+  },
+  "author_claim186672": {
+   "focused": 27.202,
+   "reversal_probes": 0.625,
+   "scenarios": 0.003
+  },
+  "author_claim186742": {
+   "focused": 27.256,
+   "reversal_probes": {
+    "instance_lifecycle": 2.197,
+    "temporary_custody": 0.541
+   },
+   "scenarios": 0.003
+  },
+  "author_claim186838": {
+   "focused": 27.547,
+   "reversal_probes": 1.247
+  },
+  "author_claim186890": {
+   "builds": "four builds this claim, three of them inside the packaging probe tree; the retained one is BUILD-186890.log, 10156 bytes, exit 0",
+   "focused": 29.559,
+   "live_installed_lifecycle": 7.194,
+   "reversal_probes": {
+    "build_and_revert_packaging": 17.09,
+    "source": 3.683
+   }
+  },
+  "author_claim187015": {
+   "builds": "two builds this claim; the retained one is BUILD-187015.log, exit 0",
+   "focused": 30.191,
+   "live_installed_lifecycle": 7.219,
+   "reversal_probes": 28.886
+  },
+  "author_claim187142": {
+   "builds": "one build; BUILD-187142.log, exit 0",
+   "focused": 30.153,
+   "injected_failure_proofs": "three runs, each ~7s, retained in CLEANUP-PROOF-187142.json",
+   "live_installed_lifecycle": 7.37,
+   "reversal_probes": 28.295
+  },
+  "earlier_build_and_bundle_checks": "unknown duration, VERIFICATION rather than deployment cost",
+  "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+  "owner_bootstrap_run": 0.938,
+  "owner_composition_run": 10.535,
+  "reviewer_claim183958": 1.5529989219503477,
+  "reviewer_claim184197": 12.840890395978931,
+  "reviewer_claim184197_readiness_check": 0.002758326008915901,
+  "reviewer_claim184403": 20.8455910270568,
+  "reviewer_claim184537": 15.599983819993213,
+  "reviewer_claim185739": 0.12554923997959122,
+  "reviewer_claim185857": 0.22083405102603137,
+  "reviewer_claim185945": 0.0037346489843912423,
+  "reviewer_claim186022": 0.004474725050386041,
+  "reviewer_claim186081": 0.005015750008169562,
+  "reviewer_claim186175": 0.04717645701020956,
+  "reviewer_claim186262": 0.4171164730214514,
+  "reviewer_claim186356": 1.6185368220321834,
+  "reviewer_claim186439": 0.0028278949903324246,
+  "reviewer_claim186499": 0.003370393009390682,
+  "this_claim_boundary_runs": "six injected-boundary runs of the harness, each about seven seconds, retained",
+  "this_claim_builds": "none -- no product code changed, and the review said no rebuild was needed for packet/harness-only changes",
+  "this_claim_focused_tests": 30.309,
+  "this_claim_live_installed_lifecycle": 7.398,
+  "this_claim_packet_check_proof": "nine extracted-block scenarios, sub-second"
+ },
+ "edited_this_claim": [
+  "work/records/.../OPERATOR-INDEPENDENT-REPOSITORY.md (rewritten)",
+  "work/records/.../LIFECYCLE-HARNESS-187223.py (new)",
+  "work/records/.../PACKET-CHECK-PROOF-187223.py (new)",
+  "work/records/.../ARTIFACT-MANIFEST-187142.json (drift chronology)"
+ ],
+ "focused_tests": {
+  "by_module": {
+   "test_bootstrap": 69,
+   "test_environment": 68,
+   "test_instance": 70,
+   "test_packaging": 9,
+   "test_stack": 122
+  },
+  "command": "cd v12/python && PYTHONPATH=src:. python3 -m unittest tests.tools.test_instance tests.tools.test_bootstrap tests.tools.test_stack tests.tools.test_environment tests.tools.test_packaging",
+  "returncode": 0,
+  "seconds": {
+   "test_bootstrap": 1.012,
+   "test_environment": 1.017,
+   "test_instance": 0.212,
+   "test_packaging": 1.897,
+   "test_stack": 26.171
+  },
+  "tests": 338,
+  "why_run_them_at_all": "to establish that no product or test file changed: every candidate hash is identical to claim187142's"
+ },
+ "no_probes_this_claim": "no guard changed. What changed is a document, a harness and a manifest note, and each is checked by RUNNING it: the block is extracted and driven through nine scenarios, the harness through six boundaries, and the chronology is verified against the retained candidate hashes. A reversal probe over unchanged product code would prove nothing.",
+ "not_done": {
+  "correction": "this record carried `a_build_WAS_run_this_claim: true`, inherited from claim187142 rather than measured. Claim187223 changed no product file and built nothing; corrected under claim187303 at review 2026-09-16T14-54-21Z.",
+  "no_build_this_claim": true,
+  "no_credential_registry_read": true,
+  "no_job_submitted": true,
+  "no_live_provider_or_engine_run": true,
+  "no_repository_created_cloned_or_modified": true,
+  "no_v11_path_service_store_or_configuration_touched": true,
+  "no_version_control_mutation": true
+ },
+ "operational_findings_preserved": [
+  {
+   "modules": [
+    "tests.manager.test_claude_context",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.tools.test_correction_restart",
+    "tests.tools.test_managed_apply"
+   ],
+   "note": "unchanged; re-observed this claim",
+   "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+  },
+  {
+   "note": "unchanged, not re-run this claim",
+   "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+  }
+ ],
+ "remaining_scope": [
+  "the owner's own selections and preparation: the source, the base, the three clones, the reference and the observer participant. Creating or cloning a repository is a version-control mutation this Work does not perform, and the packet is now the exact command set for it."
+ ],
+ "scope": "the harness's checked outcomes and exceptional cleanup, the operator packet's destination-local roles and fail-closed block, and the manifest's chronology. NO product or test file changed this claim, and nothing was rebuilt; the focused suites were re-run to establish that.",
+ "the_manifest_chronology_corrected": {
+  "corrected": "ARTIFACT-MANIFEST-187142.json now says bootstrap.py and STACK.md drifted during claim187015, and that stack.py's different digest is claim187142's own edit -- rebuilt and re-verified there. Verified against EVIDENCE-187015.json's candidate hashes rather than from memory.",
+  "what_the_review_found": "the drift note grouped stack.py with the genuine 187015 drift. It was not: the 187015 manifest's stack.py digest IS what that claim passed (9ef3bff16d08edc4...), the repository verb was already in it, and the retained 187015 lifecycle already exercised it."
+ },
+ "work": "W183883"
+}

@@ -1,0 +1,155 @@
+{
+ "and_afterwards": {
+  "the_library_digests_as_the_bundle_s": true,
+  "the_selector_reads_as_one_document": true
+ },
+ "bounded": "each owned instance is stopped up to twice and what did not settle is reported; the harness then ASKS the process table whether anything owned is still alive rather than assuming",
+ "claim": 187142,
+ "harness": "LIFECYCLE-HARNESS-187142.py (W183883_INJECT names the step)",
+ "proofs": {
+  "after-starts": {
+   "completed_before_it": [
+    "how",
+    "identity",
+    "injected",
+    "start_a",
+    "start_b"
+   ],
+   "exit": 2,
+   "no_owned_child_left_running": true,
+   "raised": "RuntimeError: injected failure at after-starts",
+   "still_running": [],
+   "stops": [
+    {
+     "attempt": 1,
+     "exit": 0,
+     "instance": "/var/tmp/w183883-live-186890/deployment",
+     "stdout": [
+      "stopped: manager pid 3904480",
+      "stopped: publisher pid 3904481",
+      "runtime   0 open episode(s), 0 with a recorded runtime, observed 5.1s ago",
+      "stores and evidence retained under the configured paths"
+     ]
+    },
+    {
+     "attempt": 1,
+     "exit": 0,
+     "instance": "/var/tmp/w183883-live-186890/deployment-b",
+     "stdout": [
+      "stopped: manager pid 3904485",
+      "stopped: publisher pid 3904486",
+      "runtime   0 open episode(s), 0 with a recorded runtime, observed 5.0s ago",
+      "stores and evidence retained under the configured paths"
+     ]
+    }
+   ],
+   "undone": []
+  },
+  "while-the-library-is-tampered": {
+   "completed_before_it": [
+    "a_status",
+    "after_stop",
+    "b_status",
+    "changed_runtime_is_refused",
+    "corrupt_selector_is_refused",
+    "cross_instance_is_refused",
+    "how",
+    "identity",
+    "injected",
+    "isolation",
+    "monitor_a",
+    "repeat_is_refused",
+    "repository_a",
+    "repository_b",
+    "restored_selector_works",
+    "start_a",
+    "start_b",
+    "stop_a",
+    "stop_b"
+   ],
+   "exit": 2,
+   "no_owned_child_left_running": true,
+   "raised": "RuntimeError: injected failure at while-the-library-is-tampered",
+   "still_running": [],
+   "stops": [
+    {
+     "attempt": 1,
+     "exit": 0,
+     "instance": "/var/tmp/w183883-live-186890/deployment",
+     "stdout": [
+      "not running: manager",
+      "not running: publisher",
+      "runtime   0 open episode(s), 0 with a recorded runtime, observed 6.5s ago",
+      "stores and evidence retained under the configured paths"
+     ]
+    },
+    {
+     "attempt": 1,
+     "exit": 0,
+     "instance": "/var/tmp/w183883-live-186890/deployment-b",
+     "stdout": [
+      "not running: manager",
+      "not running: publisher",
+      "runtime   0 open episode(s), 0 with a recorded runtime, observed 6.1s ago",
+      "stores and evidence retained under the configured paths"
+     ]
+    }
+   ],
+   "undone": [
+    "instance-b's libpython",
+    "instance-b's selector"
+   ]
+  },
+  "while-the-selector-is-corrupt": {
+   "completed_before_it": [
+    "a_status",
+    "b_status",
+    "corrupt_selector_is_refused",
+    "cross_instance_is_refused",
+    "how",
+    "identity",
+    "injected",
+    "isolation",
+    "monitor_a",
+    "repeat_is_refused",
+    "repository_a",
+    "repository_b",
+    "start_a",
+    "start_b"
+   ],
+   "exit": 2,
+   "no_owned_child_left_running": true,
+   "raised": "RuntimeError: injected failure at while-the-selector-is-corrupt",
+   "still_running": [],
+   "stops": [
+    {
+     "attempt": 1,
+     "exit": 0,
+     "instance": "/var/tmp/w183883-live-186890/deployment",
+     "stdout": [
+      "stopped: manager pid 3904509",
+      "stopped: publisher pid 3904510",
+      "runtime   0 open episode(s), 0 with a recorded runtime, observed 5.1s ago",
+      "stores and evidence retained under the configured paths"
+     ]
+    },
+    {
+     "attempt": 1,
+     "exit": 0,
+     "instance": "/var/tmp/w183883-live-186890/deployment-b",
+     "stdout": [
+      "stopped: manager pid 3904514",
+      "stopped: publisher pid 3904515",
+      "runtime   0 open episode(s), 0 with a recorded runtime, observed 5.1s ago",
+      "stores and evidence retained under the configured paths"
+     ]
+    }
+   ],
+   "undone": [
+    "instance-b's selector"
+   ]
+  }
+ },
+ "what": "the corrected harness failing ON PURPOSE at three points, so 'cleanup happens whatever happened' is a measurement rather than a claim. Review 2026-09-16T14-26-38Z found the superseded harness escaped a mid-run timeout with ZERO stops, and restored the selector and the library on the normal path only.",
+ "work": "W183883"
+}

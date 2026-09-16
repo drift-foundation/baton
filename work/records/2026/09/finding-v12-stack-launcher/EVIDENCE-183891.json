@@ -1,0 +1,68 @@
+{
+  "claim": 183891,
+  "defects_found_by_running_it": [
+    "alive() reported a TERMINATED-BUT-UNREAPED process as running, because /proc/<pid>/stat survives until the process is reaped. stop() then sat out its whole grace period waiting for a corpse. Fixed by reading the state field: 'Z' is the difference between still running and not yet reaped. Found by the lifecycle test.",
+    "the publisher argv put --root AFTER the subcommand, argparse refused it, and the publisher exited immediately. Found by RUNNING the recipes -- every unit test called publish() directly, so nothing exercised the argv start builds. A regression now parses the argv start produces."
+  ],
+  "delivered": "v12/justfile start/stop/status/monitor over a persistent v12 scheduler beside v11",
+  "evidence_note": "an earlier write of this file used an unquoted heredoc, so a backticked word in the prose was run as a shell command and its output substituted in. Repaired here rather than left, because an evidence file with a silently emptied field is worse than an obvious error.",
+  "files": [
+    {
+      "path": "v12/python/tools/stack.py",
+      "sha256": "f7621bde465df252a8dca39b06a3d11fa4af36d0928824e162e1a8c7b71da14c"
+    },
+    {
+      "path": "v12/justfile",
+      "sha256": "3774e8c1ebdf4c0e66ed2e7f3ff8f16447728c3c7c53d17da64d4803c5d5873f"
+    },
+    {
+      "path": "v12/python/tests/tools/test_stack.py",
+      "sha256": "4f76a7c04818b8b00634e8680e0537fe24c5aedd2edf8eef02f95f9a6689802e"
+    },
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "sha256": "94cdc0f6f7933a2498b0490fd4c434409d7bae92f64a80d3ac358cfe69f91805"
+    },
+    {
+      "path": "v12/STACK.md",
+      "sha256": "06157db7c28401a1a7fc659c3ea0d6ecc0ff57228c8071e91a85f756bc5da3e0"
+    }
+  ],
+  "not_done": [
+    "v11 service, store or configuration edits",
+    "Git operations",
+    "backlog migration",
+    "Job submission",
+    "live provider or engine call",
+    "disposable proof run",
+    "rich TUI",
+    "distributed scheduling",
+    "optional session reuse W177936"
+  ],
+  "observed_lifecycle": {
+    "monitor_without_snapshot": "refused with the reason and what to run first",
+    "note": "run against a disposable state root with a STUB deployment document, so job_manager serve refuses it and exits -- which is the deployment validating its own input, not a launcher defect, and the launcher reports it as stale rather than as healthy",
+    "repeated_start": "restarted only the missing manager; the running publisher was left alone",
+    "repeated_stop": "not running: manager; not running: publisher -- not an error",
+    "start": "started: manager pid ...; started: publisher pid ...; no Job was submitted",
+    "status": "manager stale / publisher running / snapshot absent / jobs absent",
+    "stop": "stopped both; stores and evidence retained",
+    "unconfigured_start": "refused, naming all four missing operands at once"
+  },
+  "pre_existing_condition_reported_not_fixed": {
+    "evidence": "all five have mtimes from 2026-09-14/15, before this claim began at 2026-09-16T05:01Z",
+    "mine": "tests.tools.test_stack IS registered; it is not among the five",
+    "what": "tools/parallel_test.py's registry already refuses: five test modules belong to no registry -- tests.manager.test_claude_context, tests.manager.test_provider_context, tests.manager.test_provider_context_delivery, tests.tools.test_correction_restart, tests.tools.test_managed_apply",
+    "why_not_fixed": "they belong to other in-flight Works and the PLAN forbids unrelated cleanup"
+  },
+  "verification": {
+    "exit_code": 0,
+    "module": "tests.tools.test_stack",
+    "outcome": [
+      "Ran 32 tests in 1.195s",
+      "OK"
+    ],
+    "scope": "deterministic local processes this test owns; no scheduler, provider, engine, Docker, network or v11 service, and the one real job_manager invocation is injected"
+  },
+  "work": "W183883"
+}

@@ -1,0 +1,315 @@
+{
+  "all_owned_children_reaped": true,
+  "answers_review": "review-2026-09-16T06-00-07Z.md sha256 ee4fde5c8165f706a84a0582ed615f631c6ce4a88f15fda55259bc03b1ae1629 (C1-C4)",
+  "candidates": {
+    "v12/STACK.md": "a325545b477aa65e7dcec5089b421e962785bc212a44bd6b370aedd7e69ce2b9",
+    "v12/justfile": "b3ae4b4f08ab17ddce18555457c881d12f8754ee075278065b6d971c1c8f2254",
+    "v12/python/tests/tools/test_stack.py": "be651a1793fc7484b75fe198f2540b5f719f0af0d47ac9cf432e9284284b3724",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "94cdc0f6f7933a2498b0490fd4c434409d7bae92f64a80d3ac358cfe69f91805",
+    "v12/python/tools/stack.py": "377d8b4e8bd08eb44f249acdb31a9cf46936ce7ee97645892ba36da8af7daa52"
+  },
+  "claim": 184239,
+  "composition_run_here": {
+    "counterexample": "a deployment the child refuses: non-zero start carrying the child's ContractRefusal, and NO acknowledgement line in manager.log",
+    "note": "the reviewer could not run these two cases: /tmp is tmpfs and /var/tmp is outside that managed authority. They ran here, and now also check the acknowledgement end to end",
+    "observed": {
+      "acknowledgement_in_manager_log": true,
+      "open_episodes": 0,
+      "published_jobs": 0,
+      "ready": true,
+      "runtime_state": "observed",
+      "second_start": "already running x2",
+      "serving_acknowledged": true,
+      "start": 0,
+      "stop": 0,
+      "viewer_returncode": 0
+    }
+  },
+  "corrections": {
+    "C1": {
+      "checks": [
+        "VisibilityLostDuringCleanup.test_stop_does_not_announce_a_process_it_can_no_longer_see",
+        "VisibilityLostDuringCleanup.test_a_failed_start_does_not_take_back_what_it_can_no_longer_see",
+        "VisibilityLostDuringCleanup.test_a_positively_gone_process_is_still_cleared_and_announced",
+        "Lifecycle.test_a_process_that_will_not_die_fails_the_stop"
+      ],
+      "what": "both cleanup paths require a POSITIVE gone before clearing a record or announcing a stop; visibility that becomes unknown AFTER signalling retains the record and joins the unresolved set, which makes stop non-success"
+    },
+    "C2": {
+      "checks": [
+        "EveryFailedAdmissionUnwinds.test_a_publisher_spawn_failure_takes_the_manager_back",
+        "EveryFailedAdmissionUnwinds.test_a_publisher_record_failure_takes_the_manager_back_too",
+        "EveryFailedAdmissionUnwinds.test_cleanup_after_an_ordinary_failure_still_keeps_unknown_ownership",
+        "Admission.test_a_spawn_that_cannot_be_recorded_leaves_no_orphan"
+      ],
+      "what": "_start_admitted catches BaseException, unwinds what this start admitted and re-raises the ORIGINAL error unchanged; the second process's spawn failure and record failure are both covered, and interruption cleanup still retains unknown ownership"
+    },
+    "C3": {
+      "checks": [
+        "ServingAcknowledgement.test_the_observer_composes_no_deployment",
+        "ServingAcknowledgement.test_a_manager_that_never_acknowledges_fails_the_start",
+        "ServingAcknowledgement.test_a_previous_runs_acknowledgement_does_not_answer_for_this_start",
+        "ServingAcknowledgement.test_an_acknowledgement_naming_another_incarnation_is_not_this_ones",
+        "ServingAcknowledgement.test_an_acknowledgement_written_before_this_start_does_not_count",
+        "ServingAcknowledgement.test_every_manager_start_is_given_a_fresh_incarnation",
+        "ServingAcknowledgement.test_a_manager_already_running_is_not_this_starts_to_acknowledge",
+        "ServingAcknowledgement.test_status_reports_a_running_manager_that_has_not_acknowledged",
+        "ValidIdleComposition.test_the_real_children_compose_an_empty_configured_stack"
+      ],
+      "what": "readiness requires, for every manager THIS start spawned, the serving loop's own acknowledgement naming this start's incarnation and written after this start opened the log; a fresh unique incarnation per start; observer publication retained as the separate observation check and tightened to require a valid, freshly observed document; status reports `serving` separately from `running`"
+    },
+    "C4": {
+      "checks": [
+        "MalformedSnapshots.test_every_nested_shape_is_refused_before_it_is_walked",
+        "MalformedSnapshots.test_an_absent_nested_member_is_absence_rather_than_malformation",
+        "MalformedSnapshots.test_a_stop_over_a_malformed_snapshot_does_not_crash_after_signalling",
+        "MalformedSnapshots.test_a_document_that_never_says_when_it_looked_is_unreadable",
+        "MalformedSnapshots.test_a_non_canonical_snapshot_cannot_say_what_is_not_executing",
+        "MalformedSnapshots.test_a_freshly_written_but_stalely_observed_document_is_unknown",
+        "Status.test_a_freshly_written_document_can_still_be_stalely_observed",
+        "Status.test_a_document_of_another_schema_is_unreadable_not_empty",
+        "Status.test_the_pinned_status_schema_is_the_one_the_manager_writes"
+      ],
+      "what": "one local validator answers for _jobs, runtime_boundary and snapshot freshness: status schema, canonical observation, readable observed_at, and the nested shape of jobs/stages/episodes, all checked BEFORE anything traverses; age comes from the document's own observed_at with the file's write time reported beside it"
+    }
+  },
+  "cumulative_verification_seconds": {
+    "author_claim183891": 1.195,
+    "author_claim183998": 151.908,
+    "note": "reported per actor and never summed into one figure; each reviewer total already includes its own test subprocess, and the earliest recipe execution duration remains unknown rather than erased",
+    "reviewer_claim183958": 1.5529989219503477,
+    "reviewer_claim184197": 12.840890395978931,
+    "this_claim_adjacent_existing_suites": 6.339,
+    "this_claim_focused_tests": 25.008,
+    "this_claim_reversal_probes": 96.469,
+    "this_claim_total": 127.816
+  },
+  "focused_tests": {
+    "command": "cd v12/python && python3 -m unittest tests.tools.test_stack",
+    "previous": 63,
+    "returncode": 0,
+    "seconds": 25.008,
+    "tests": 86
+  },
+  "not_done": {
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true,
+    "scratch_removed": "the probe tree copy and the recipe state root were removed after use"
+  },
+  "operational_findings_preserved": [
+    {
+      "modules": [
+        "tests.manager.test_claude_context",
+        "tests.manager.test_provider_context",
+        "tests.manager.test_provider_context_delivery",
+        "tests.tools.test_correction_restart",
+        "tests.tools.test_managed_apply"
+      ],
+      "note": "unchanged since claim183891; predates this claim, belongs to other in-flight Work, not adopted",
+      "what": "tools/parallel_test.py still refuses its whole run: five discovered test modules belong to no registry"
+    },
+    {
+      "classes": [
+        "AFreshPortReentersANeverStartedDelivery",
+        "TheIntegrationStageConsumesTheAcceptedPort"
+      ],
+      "note": "integration-port Work of 14-15 Sep, not this correction's; reported rather than adopted",
+      "proved_pre_existing": "the same 4 errors in AFreshPortReentersANeverStartedDelivery occur with the job_manager line reverted in place; the file was then restored to its exact prior digest",
+      "what": "tests.tools.test_stage_execution has 12 PRE-EXISTING errors: AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles'"
+    }
+  ],
+  "recipes_exercised": {
+    "just start (unconfigured)": {
+      "exit": 2
+    },
+    "just status (unconfigured)": {
+      "exit": 0
+    },
+    "just stop (nothing running)": {
+      "exit": 0,
+      "reports": "not running x2, runtime unknown, stores retained"
+    }
+  },
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "count": 15,
+    "harness": "probes-184239.py in this dossier; set W183883_PROBE_TREE to a COPY of the checkout's v12/",
+    "probes": [
+      {
+        "checks": [
+          "Lifecycle.test_a_process_that_will_not_die_fails_the_stop"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "note": "first form named the live-to-unknown case, which never reaches this branch; re-run against the check that does",
+        "probe": "C1-stop-clears-on-anything-but-live",
+        "seconds": 1.415
+      },
+      {
+        "checks": [
+          "VisibilityLostDuringCleanup.test_stop_does_not_announce_a_process_it_can_no_longer_see"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "probe": "C1-stop-does-not-require-positive-gone",
+        "seconds": 0.409
+      },
+      {
+        "checks": [
+          "VisibilityLostDuringCleanup.test_a_failed_start_does_not_take_back_what_it_can_no_longer_see",
+          "EveryFailedAdmissionUnwinds.test_cleanup_after_an_ordinary_failure_still_keeps_unknown_ownership"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "probe": "C1-unwind-does-not-require-positive-gone",
+        "seconds": 0.609
+      },
+      {
+        "checks": [
+          "EveryFailedAdmissionUnwinds.test_a_publisher_spawn_failure_takes_the_manager_back",
+          "EveryFailedAdmissionUnwinds.test_a_publisher_record_failure_takes_the_manager_back_too",
+          "EveryFailedAdmissionUnwinds.test_cleanup_after_an_ordinary_failure_still_keeps_unknown_ownership"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "probe": "C2-only-a-refusal-unwinds",
+        "seconds": 0.412
+      },
+      {
+        "checks": [
+          "ServingAcknowledgement.test_a_manager_that_never_acknowledges_fails_the_start",
+          "ServingAcknowledgement.test_a_previous_runs_acknowledgement_does_not_answer_for_this_start",
+          "ServingAcknowledgement.test_an_acknowledgement_naming_another_incarnation_is_not_this_ones"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "probe": "C3-readiness-needs-no-serving-acknowledgement",
+        "seconds": 0.416
+      },
+      {
+        "checks": [
+          "ServingAcknowledgement.test_an_acknowledgement_naming_another_incarnation_is_not_this_ones"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "probe": "C3-acknowledgement-ignores-the-incarnation",
+        "seconds": 0.415
+      },
+      {
+        "checks": [
+          "ServingAcknowledgement.test_an_acknowledgement_written_before_this_start_does_not_count"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "note": "first form passed: no check held the offset half, because the incarnation alone distinguished every case. A check was ADDED for it rather than the guard removed",
+        "probe": "C3-acknowledgement-ignores-the-log-offset",
+        "seconds": 0.413
+      },
+      {
+        "checks": [
+          "ServingAcknowledgement.test_every_manager_start_is_given_a_fresh_incarnation"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "probe": "C3-every-start-reuses-one-incarnation",
+        "seconds": 0.429
+      },
+      {
+        "checks": [
+          "ValidIdleComposition.test_the_real_children_compose_an_empty_configured_stack"
+        ],
+        "failed_as_required": true,
+        "file": "job_manager.py",
+        "probe": "C3-the-serving-loop-says-nothing",
+        "seconds": 62.714
+      },
+      {
+        "checks": [
+          "MalformedSnapshots.test_every_nested_shape_is_refused_before_it_is_walked",
+          "MalformedSnapshots.test_a_stop_over_a_malformed_snapshot_does_not_crash_after_signalling"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "probe": "C4-traverse-without-validating",
+        "seconds": 0.459
+      },
+      {
+        "checks": [
+          "Status.test_a_document_of_another_schema_is_unreadable_not_empty"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "probe": "C4-any-schema-is-a-status-document",
+        "seconds": 0.407
+      },
+      {
+        "checks": [
+          "MalformedSnapshots.test_a_document_that_never_says_when_it_looked_is_unreadable"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "probe": "C4-no-observation-time-is-required",
+        "seconds": 0.408
+      },
+      {
+        "checks": [
+          "Status.test_a_freshly_written_document_can_still_be_stalely_observed",
+          "MalformedSnapshots.test_a_freshly_written_but_stalely_observed_document_is_unknown"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "probe": "C4-freshness-ignores-the-observation-time",
+        "seconds": 0.405
+      },
+      {
+        "checks": [
+          "MalformedSnapshots.test_a_non_canonical_snapshot_cannot_say_what_is_not_executing"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "probe": "C4-a-partial-observation-speaks-for-every-job",
+        "seconds": 0.407
+      },
+      {
+        "checks": [
+          "Status.test_the_pinned_status_schema_is_the_one_the_manager_writes"
+        ],
+        "failed_as_required": true,
+        "file": "stack.py",
+        "probe": "C4-the-pinned-schema-may-drift",
+        "seconds": 0.41
+      }
+    ],
+    "restored_tree_matches_working_tree": true,
+    "seconds": 96.469,
+    "two_probes_first_passed": "C1-stop-clears-on-anything-but-live named a check that never reaches that branch, and was re-run against the one that does. C3-acknowledgement-ignores-the-log-offset passed because no check held the offset half -- a check was ADDED for it rather than the guard quietly removed, and it then failed as required."
+  },
+  "scope": "focused deterministic verification; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation",
+  "the_one_delta_outside_the_owned_five": {
+    "existing_expectations_rechecked": {
+      "modules": [
+        "tests.job_manager.test_tool",
+        "tests.job_manager.test_recovery",
+        "tests.tools.test_job_viewer",
+        "tests.tools.test_stage_execution_status_hardening"
+      ],
+      "returncode": 0,
+      "run": 168,
+      "seconds": 6.339
+    },
+    "nothing_else_changes": "no operand, exit status, report content or behaviour of job_manager",
+    "on_stderr_because": "stdout is that tool's machine-readable report; a diagnostic line in front of it would not be one",
+    "path": "v12/python/tools/job_manager.py",
+    "pinned_before_editing": "PLAN.md, 'Pinned correction decisions, W183883 claim184239 (review C1-C4)'",
+    "what": "ONE print, on stderr, in _serve, after _operations_from returns and before the loop: `serving initialization complete: incarnation=... operations=...`",
+    "why": "C3 cannot be corrected from inside this Work's paths. observation_from composes no deployment, so no published snapshot can acknowledge that a SERVING process initialized. Only the serving loop can speak for itself."
+  },
+  "unchanged_this_claim": [
+    "v12/justfile",
+    "v12/python/tools/parallel_test.py"
+  ],
+  "work": "W183883"
+}

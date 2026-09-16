@@ -1,0 +1,35 @@
+{
+  "candidate_mismatches": [],
+  "current_build": {
+    "digest": "81d45b33e6009ff623737e1c330c4c4d3e662fa6811f781a13d5558fabdc6270",
+    "files": 81,
+    "stamp": {
+      "changed_entries": 22,
+      "commit": "3c0dd08225e1691d2134e87c8a04e28c9c644b7c",
+      "detail": null,
+      "dirty": true,
+      "excused_build_output": 1,
+      "schema": "baton.v12.build-stamp/1",
+      "source": "/home/sl/src/baton"
+    }
+  },
+  "retained_install": {
+    "digest": "32b81cd3b46149bbc90ca6116f56b2e9540d789b1a5b989600098f12be63a38a",
+    "files": 81,
+    "stamp": {
+      "changed_entries": 23,
+      "commit": "3c0dd08225e1691d2134e87c8a04e28c9c644b7c",
+      "detail": null,
+      "dirty": true,
+      "schema": "baton.v12.build-stamp/1",
+      "source": "/home/sl/src/baton"
+    }
+  },
+  "documented_helper_distro": {
+    "resolved": "/home/sl/src/baton/v12/python/python/build/out/distro",
+    "exists": false,
+    "correct_existing": "/home/sl/src/baton/v12/python/build/out/distro",
+    "correct_exists": true
+  },
+  "audit_seconds": 0.03199005004717037
+}

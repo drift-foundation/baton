@@ -1,0 +1,3535 @@
+{
+  "artifact_source_hashes": {
+    "v12/STACK.md": "0100b24410aae8b00c49593964c6f7cac66b79989a2cfb6e650d1749a0b48946",
+    "v12/justfile": "2a541f4782b984d06747847061cebffbc28646f32cd2fb3ec92b7ee888771ae4",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/pyproject.toml": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/requirements.lock": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157",
+    "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+    "v12/python/tools/bootstrap.py": "533511939872f3bcb6c8e8d62a0402b9a4a43ef76d6c35e0e5b364cd7a3dbe3f",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/instance.py": "f9b64570771fd5c88677da687964b74be7595de885e95f072fa35f5f03e05cef",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/job_viewer.py": "70fe513789786565c2ddf4d4748f830478e53f89d4a9df13fedf213153a86b6e",
+    "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+    "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59"
+  },
+  "build_log_sha256": "99f2a0a1cc378bf54084ab40fab0b449e650928021eb92d7a503a0039b26f61f",
+  "bundles": {
+    "/home/sl/src/baton/v12/python/build/out/distro": {
+      "digest": "8f4a59ea380263b3d82ec156c666b6c7c393850a401fbe75ef92321fd9bfcfd8",
+      "files": 80
+    },
+    "/var/tmp/w183883-live-186890/deployment-b/distro": {
+      "digest": "8f4a59ea380263b3d82ec156c666b6c7c393850a401fbe75ef92321fd9bfcfd8",
+      "files": 80
+    },
+    "/var/tmp/w183883-live-186890/deployment/distro": {
+      "digest": "8f4a59ea380263b3d82ec156c666b6c7c393850a401fbe75ef92321fd9bfcfd8",
+      "files": 80
+    }
+  },
+  "candidate_hashes": {
+    "v12/STACK.md": "0100b24410aae8b00c49593964c6f7cac66b79989a2cfb6e650d1749a0b48946",
+    "v12/justfile": "2a541f4782b984d06747847061cebffbc28646f32cd2fb3ec92b7ee888771ae4",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tests/tools/test_bootstrap.py": "c01cbbd39f286e66e5969e8f0517351f42bd77f609383e2eb3580525ced1ec57",
+    "v12/python/tests/tools/test_environment.py": "059ea493cdb9a10b8c098c0c982a982e453c7eb2a7407c4f3ec7592a702e4cfb",
+    "v12/python/tests/tools/test_instance.py": "fdcf7b072c0af71cf672cfeb8234866eeda94c7a5739e4fb5c038f40fb726a7a",
+    "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+    "v12/python/tests/tools/test_stack.py": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+    "v12/python/tools/bootstrap.py": "533511939872f3bcb6c8e8d62a0402b9a4a43ef76d6c35e0e5b364cd7a3dbe3f",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/instance.py": "f9b64570771fd5c88677da687964b74be7595de885e95f072fa35f5f03e05cef",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+    "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+    "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59",
+    "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+  },
+  "claim": 187184,
+  "harness_cases": {
+    "after-starts": {
+      "calls": [
+        [
+          "/tmp/w183883-review187184-w8735sfp/after-starts/a/distro/baton-v12-stack",
+          "identity"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/after-starts/a/distro/baton-v12-stack",
+          "start",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/after-starts/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/after-starts/b/distro/baton-v12-stack",
+          "start",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/after-starts/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/after-starts/a/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/after-starts/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/after-starts/b/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/after-starts/b/instance.json"
+        ]
+      ],
+      "escaped": null,
+      "exit": 2,
+      "library_restored": true,
+      "output": {
+        "commands": [
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/after-starts/a/distro/baton-v12-stack",
+              "identity"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "{}"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/after-starts/a/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/after-starts/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/after-starts/b/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/after-starts/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/after-starts/a/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/after-starts/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/after-starts/b/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/after-starts/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          }
+        ],
+        "harness": "/home/sl/src/baton/work/records/2026/09/finding-v12-stack-launcher/LIFECYCLE-HARNESS-187142.py",
+        "record": {
+          "cleanup": {
+            "attempts": {
+              "/tmp/w183883-review187184-w8735sfp/after-starts/a": 1,
+              "/tmp/w183883-review187184-w8735sfp/after-starts/b": 1
+            },
+            "no_owned_child_left_running": true,
+            "nothing_removed": "the destinations and the fixture roots are retained; only this harness's own changes are undone",
+            "still_running": [],
+            "stops": [
+              {
+                "attempt": 1,
+                "exit": 0,
+                "instance": "/tmp/w183883-review187184-w8735sfp/after-starts/a",
+                "stdout": [
+                  "mock command result"
+                ]
+              },
+              {
+                "attempt": 1,
+                "exit": 0,
+                "instance": "/tmp/w183883-review187184-w8735sfp/after-starts/b",
+                "stdout": [
+                  "mock command result"
+                ]
+              }
+            ],
+            "undone": []
+          },
+          "failure": {
+            "completed_before_it": [
+              "how",
+              "identity",
+              "injected",
+              "start_a",
+              "start_b"
+            ],
+            "raised": "RuntimeError: injected failure at after-starts",
+            "step": "after-starts"
+          },
+          "fixtures": {
+            "digests": {},
+            "retained_fixture_material": [],
+            "what_they_are": "an inputs document per instance, composed from the accepted stage fixtures; a FIXTURE credential registry naming a fixture bearer file. No owner registry was read and no provider was contacted."
+          },
+          "how": "every command below was run from / with an environment of exactly {\"HOME\": \"/root\", \"PATH\": \"/usr/bin:/bin\"}: no PYTHONPATH, no BATON_V12_* operand, no virtual environment, nothing from the checkout",
+          "identity": {},
+          "injected": "after-starts",
+          "start_a": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/after-starts/a/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/after-starts/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "start_b": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/after-starts/b/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/after-starts/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          }
+        },
+        "seconds": 0.0
+      },
+      "selector_restored": true,
+      "tamper_seen_at_commands": []
+    },
+    "positive": {
+      "calls": [
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+          "identity"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+          "start",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+          "start",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+          "monitor",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json",
+          "--interval",
+          "0.2",
+          "--ticks",
+          "2"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+          "repository",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+          "repository",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+          "bootstrap",
+          "--inputs",
+          "/tmp/w183883-review187184-w8735sfp/positive/inputs.json",
+          "--destination",
+          "/tmp/w183883-review187184-w8735sfp/positive/a",
+          "--distro",
+          "/home/sl/src/baton/v12/python/build/out/distro"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+          "start",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+        ]
+      ],
+      "escaped": null,
+      "exit": 0,
+      "library_restored": true,
+      "output": {
+        "commands": [
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "identity"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "{}"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "monitor",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json",
+              "--interval",
+              "0.2",
+              "--ticks",
+              "2"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "repository",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "repository",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "bootstrap",
+              "--inputs",
+              "/tmp/w183883-review187184-w8735sfp/positive/inputs.json",
+              "--destination",
+              "/tmp/w183883-review187184-w8735sfp/positive/a",
+              "--distro",
+              "/home/sl/src/baton/v12/python/build/out/distro"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "selector_unchanged": true,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          }
+        ],
+        "harness": "/home/sl/src/baton/work/records/2026/09/finding-v12-stack-launcher/LIFECYCLE-HARNESS-187142.py",
+        "record": {
+          "a_status": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "after_stop": {
+            "a": {
+              "argv": [
+                "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+                "status",
+                "--instance",
+                "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+              ],
+              "cwd": "/",
+              "env": {
+                "HOME": "/root",
+                "PATH": "/usr/bin:/bin"
+              },
+              "exit": 0,
+              "seconds": 0.0,
+              "stderr": [],
+              "stdout": [
+                "mock command result"
+              ],
+              "timeout_seconds": 300
+            },
+            "b": {
+              "argv": [
+                "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+                "status",
+                "--instance",
+                "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+              ],
+              "cwd": "/",
+              "env": {
+                "HOME": "/root",
+                "PATH": "/usr/bin:/bin"
+              },
+              "exit": 0,
+              "seconds": 0.0,
+              "stderr": [],
+              "stdout": [
+                "mock command result"
+              ],
+              "timeout_seconds": 300
+            }
+          },
+          "b_status": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "changed_runtime_is_refused": {
+            "start": {
+              "argv": [
+                "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+                "start",
+                "--instance",
+                "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+              ],
+              "cwd": "/",
+              "env": {
+                "HOME": "/root",
+                "PATH": "/usr/bin:/bin"
+              },
+              "exit": 2,
+              "seconds": 0.0,
+              "stderr": [],
+              "stdout": [
+                "mock command result"
+              ],
+              "timeout_seconds": 300
+            },
+            "status": {
+              "argv": [
+                "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+                "status",
+                "--instance",
+                "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+              ],
+              "cwd": "/",
+              "env": {
+                "HOME": "/root",
+                "PATH": "/usr/bin:/bin"
+              },
+              "exit": 2,
+              "seconds": 0.0,
+              "stderr": [],
+              "stdout": [
+                "mock command result"
+              ],
+              "timeout_seconds": 300
+            }
+          },
+          "cleanup": {
+            "attempts": {
+              "/tmp/w183883-review187184-w8735sfp/positive/a": 1,
+              "/tmp/w183883-review187184-w8735sfp/positive/b": 1
+            },
+            "no_owned_child_left_running": true,
+            "nothing_removed": "the destinations and the fixture roots are retained; only this harness's own changes are undone",
+            "still_running": [],
+            "stops": [
+              {
+                "attempt": 1,
+                "exit": 0,
+                "instance": "/tmp/w183883-review187184-w8735sfp/positive/a",
+                "stdout": [
+                  "mock command result"
+                ]
+              },
+              {
+                "attempt": 1,
+                "exit": 0,
+                "instance": "/tmp/w183883-review187184-w8735sfp/positive/b",
+                "stdout": [
+                  "mock command result"
+                ]
+              }
+            ],
+            "undone": [
+              "instance-b's libpython",
+              "instance-b's selector"
+            ]
+          },
+          "corrupt_selector_is_refused": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "cross_instance_is_refused": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "failure": null,
+          "fixtures": {
+            "digests": {},
+            "retained_fixture_material": [],
+            "what_they_are": "an inputs document per instance, composed from the accepted stage fixtures; a FIXTURE credential registry naming a fixture bearer file. No owner registry was read and no provider was contacted."
+          },
+          "how": "every command below was run from / with an environment of exactly {\"HOME\": \"/root\", \"PATH\": \"/usr/bin:/bin\"}: no PYTHONPATH, no BATON_V12_* operand, no virtual environment, nothing from the checkout",
+          "identity": {},
+          "injected": null,
+          "isolation": {
+            "a_stores": [],
+            "b_stores": [],
+            "distinct_state_roots": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/state",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/state"
+            ],
+            "distinct_stores": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/db",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/db"
+            ]
+          },
+          "monitor_a": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "monitor",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json",
+              "--interval",
+              "0.2",
+              "--ticks",
+              "2"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "repeat_is_refused": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "bootstrap",
+              "--inputs",
+              "/tmp/w183883-review187184-w8735sfp/positive/inputs.json",
+              "--destination",
+              "/tmp/w183883-review187184-w8735sfp/positive/a",
+              "--distro",
+              "/home/sl/src/baton/v12/python/build/out/distro"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "selector_unchanged": true,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "repository_a": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "repository",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "repository_b": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "repository",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "restored_runtime_is_accepted": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "restored_selector_works": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "start_a": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "start_b": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "stop_a": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/a/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "stop_b": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/positive/b/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/positive/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          }
+        },
+        "seconds": 0.001
+      },
+      "selector_restored": true,
+      "tamper_seen_at_commands": [
+        "status",
+        "start"
+      ]
+    },
+    "status-timeout": {
+      "calls": [
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+          "identity"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+          "start",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+          "start",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+          "monitor",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json",
+          "--interval",
+          "0.2",
+          "--ticks",
+          "2"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+          "repository",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+          "repository",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+          "bootstrap",
+          "--inputs",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/inputs.json",
+          "--destination",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a",
+          "--distro",
+          "/home/sl/src/baton/v12/python/build/out/distro"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+          "start",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+        ]
+      ],
+      "escaped": null,
+      "exit": 0,
+      "library_restored": true,
+      "output": {
+        "commands": [
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "identity"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "{}"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": null,
+            "seconds": 0.0,
+            "stderr": [
+              "Command '['/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack', 'status', '--instance', '/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json']' timed out after 300 seconds"
+            ],
+            "stdout": [],
+            "timed_out": true,
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "monitor",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json",
+              "--interval",
+              "0.2",
+              "--ticks",
+              "2"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "repository",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "repository",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "bootstrap",
+              "--inputs",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/inputs.json",
+              "--destination",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a",
+              "--distro",
+              "/home/sl/src/baton/v12/python/build/out/distro"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "selector_unchanged": true,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          }
+        ],
+        "harness": "/home/sl/src/baton/work/records/2026/09/finding-v12-stack-launcher/LIFECYCLE-HARNESS-187142.py",
+        "record": {
+          "a_status": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": null,
+            "seconds": 0.0,
+            "stderr": [
+              "Command '['/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack', 'status', '--instance', '/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json']' timed out after 300 seconds"
+            ],
+            "stdout": [],
+            "timed_out": true,
+            "timeout_seconds": 300
+          },
+          "after_stop": {
+            "a": {
+              "argv": [
+                "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+                "status",
+                "--instance",
+                "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+              ],
+              "cwd": "/",
+              "env": {
+                "HOME": "/root",
+                "PATH": "/usr/bin:/bin"
+              },
+              "exit": 0,
+              "seconds": 0.0,
+              "stderr": [],
+              "stdout": [
+                "mock command result"
+              ],
+              "timeout_seconds": 300
+            },
+            "b": {
+              "argv": [
+                "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+                "status",
+                "--instance",
+                "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+              ],
+              "cwd": "/",
+              "env": {
+                "HOME": "/root",
+                "PATH": "/usr/bin:/bin"
+              },
+              "exit": 0,
+              "seconds": 0.0,
+              "stderr": [],
+              "stdout": [
+                "mock command result"
+              ],
+              "timeout_seconds": 300
+            }
+          },
+          "b_status": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "changed_runtime_is_refused": {
+            "start": {
+              "argv": [
+                "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+                "start",
+                "--instance",
+                "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+              ],
+              "cwd": "/",
+              "env": {
+                "HOME": "/root",
+                "PATH": "/usr/bin:/bin"
+              },
+              "exit": 2,
+              "seconds": 0.0,
+              "stderr": [],
+              "stdout": [
+                "mock command result"
+              ],
+              "timeout_seconds": 300
+            },
+            "status": {
+              "argv": [
+                "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+                "status",
+                "--instance",
+                "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+              ],
+              "cwd": "/",
+              "env": {
+                "HOME": "/root",
+                "PATH": "/usr/bin:/bin"
+              },
+              "exit": 2,
+              "seconds": 0.0,
+              "stderr": [],
+              "stdout": [
+                "mock command result"
+              ],
+              "timeout_seconds": 300
+            }
+          },
+          "cleanup": {
+            "attempts": {
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a": 1,
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b": 1
+            },
+            "no_owned_child_left_running": true,
+            "nothing_removed": "the destinations and the fixture roots are retained; only this harness's own changes are undone",
+            "still_running": [],
+            "stops": [
+              {
+                "attempt": 1,
+                "exit": 0,
+                "instance": "/tmp/w183883-review187184-w8735sfp/status-timeout/a",
+                "stdout": [
+                  "mock command result"
+                ]
+              },
+              {
+                "attempt": 1,
+                "exit": 0,
+                "instance": "/tmp/w183883-review187184-w8735sfp/status-timeout/b",
+                "stdout": [
+                  "mock command result"
+                ]
+              }
+            ],
+            "undone": [
+              "instance-b's libpython",
+              "instance-b's selector"
+            ]
+          },
+          "corrupt_selector_is_refused": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "cross_instance_is_refused": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "failure": null,
+          "fixtures": {
+            "digests": {},
+            "retained_fixture_material": [],
+            "what_they_are": "an inputs document per instance, composed from the accepted stage fixtures; a FIXTURE credential registry naming a fixture bearer file. No owner registry was read and no provider was contacted."
+          },
+          "how": "every command below was run from / with an environment of exactly {\"HOME\": \"/root\", \"PATH\": \"/usr/bin:/bin\"}: no PYTHONPATH, no BATON_V12_* operand, no virtual environment, nothing from the checkout",
+          "identity": {},
+          "injected": null,
+          "isolation": {
+            "a_stores": [],
+            "b_stores": [],
+            "distinct_state_roots": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/state",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/state"
+            ],
+            "distinct_stores": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/db",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/db"
+            ]
+          },
+          "monitor_a": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "monitor",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json",
+              "--interval",
+              "0.2",
+              "--ticks",
+              "2"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "repeat_is_refused": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "bootstrap",
+              "--inputs",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/inputs.json",
+              "--destination",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a",
+              "--distro",
+              "/home/sl/src/baton/v12/python/build/out/distro"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "selector_unchanged": true,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "repository_a": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "repository",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "repository_b": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "repository",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "restored_runtime_is_accepted": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "restored_selector_works": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "start_a": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "start_b": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "stop_a": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "stop_b": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/status-timeout/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          }
+        },
+        "seconds": 0.001
+      },
+      "selector_restored": true,
+      "tamper_seen_at_commands": [
+        "status",
+        "start"
+      ]
+    },
+    "stop-failure": {
+      "calls": [
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+          "identity"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+          "start",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+          "start",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+          "monitor",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json",
+          "--interval",
+          "0.2",
+          "--ticks",
+          "2"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+          "repository",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+          "repository",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+          "bootstrap",
+          "--inputs",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/inputs.json",
+          "--destination",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a",
+          "--distro",
+          "/home/sl/src/baton/v12/python/build/out/distro"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+          "start",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+        ]
+      ],
+      "escaped": null,
+      "exit": 0,
+      "library_restored": true,
+      "output": {
+        "commands": [
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "identity"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "{}"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "monitor",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json",
+              "--interval",
+              "0.2",
+              "--ticks",
+              "2"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "repository",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "repository",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "bootstrap",
+              "--inputs",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/inputs.json",
+              "--destination",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a",
+              "--distro",
+              "/home/sl/src/baton/v12/python/build/out/distro"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "selector_unchanged": true,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          }
+        ],
+        "harness": "/home/sl/src/baton/work/records/2026/09/finding-v12-stack-launcher/LIFECYCLE-HARNESS-187142.py",
+        "record": {
+          "a_status": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "after_stop": {
+            "a": {
+              "argv": [
+                "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+                "status",
+                "--instance",
+                "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+              ],
+              "cwd": "/",
+              "env": {
+                "HOME": "/root",
+                "PATH": "/usr/bin:/bin"
+              },
+              "exit": 0,
+              "seconds": 0.0,
+              "stderr": [],
+              "stdout": [
+                "mock command result"
+              ],
+              "timeout_seconds": 300
+            },
+            "b": {
+              "argv": [
+                "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+                "status",
+                "--instance",
+                "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+              ],
+              "cwd": "/",
+              "env": {
+                "HOME": "/root",
+                "PATH": "/usr/bin:/bin"
+              },
+              "exit": 0,
+              "seconds": 0.0,
+              "stderr": [],
+              "stdout": [
+                "mock command result"
+              ],
+              "timeout_seconds": 300
+            }
+          },
+          "b_status": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "changed_runtime_is_refused": {
+            "start": {
+              "argv": [
+                "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+                "start",
+                "--instance",
+                "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+              ],
+              "cwd": "/",
+              "env": {
+                "HOME": "/root",
+                "PATH": "/usr/bin:/bin"
+              },
+              "exit": 2,
+              "seconds": 0.0,
+              "stderr": [],
+              "stdout": [
+                "mock command result"
+              ],
+              "timeout_seconds": 300
+            },
+            "status": {
+              "argv": [
+                "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+                "status",
+                "--instance",
+                "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+              ],
+              "cwd": "/",
+              "env": {
+                "HOME": "/root",
+                "PATH": "/usr/bin:/bin"
+              },
+              "exit": 2,
+              "seconds": 0.0,
+              "stderr": [],
+              "stdout": [
+                "mock command result"
+              ],
+              "timeout_seconds": 300
+            }
+          },
+          "cleanup": {
+            "attempts": {
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a": 2,
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b": 2
+            },
+            "no_owned_child_left_running": false,
+            "nothing_removed": "the destinations and the fixture roots are retained; only this harness's own changes are undone",
+            "still_running": [
+              "777"
+            ],
+            "stops": [
+              {
+                "attempt": 1,
+                "exit": 2,
+                "instance": "/tmp/w183883-review187184-w8735sfp/stop-failure/a",
+                "stdout": [
+                  "mock command result"
+                ]
+              },
+              {
+                "attempt": 2,
+                "exit": 2,
+                "instance": "/tmp/w183883-review187184-w8735sfp/stop-failure/a",
+                "stdout": [
+                  "mock command result"
+                ]
+              },
+              {
+                "attempt": 1,
+                "exit": 2,
+                "instance": "/tmp/w183883-review187184-w8735sfp/stop-failure/b",
+                "stdout": [
+                  "mock command result"
+                ]
+              },
+              {
+                "attempt": 2,
+                "exit": 2,
+                "instance": "/tmp/w183883-review187184-w8735sfp/stop-failure/b",
+                "stdout": [
+                  "mock command result"
+                ]
+              }
+            ],
+            "undone": [
+              "instance-b's libpython",
+              "instance-b's selector"
+            ]
+          },
+          "corrupt_selector_is_refused": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "cross_instance_is_refused": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "failure": null,
+          "fixtures": {
+            "digests": {},
+            "retained_fixture_material": [],
+            "what_they_are": "an inputs document per instance, composed from the accepted stage fixtures; a FIXTURE credential registry naming a fixture bearer file. No owner registry was read and no provider was contacted."
+          },
+          "how": "every command below was run from / with an environment of exactly {\"HOME\": \"/root\", \"PATH\": \"/usr/bin:/bin\"}: no PYTHONPATH, no BATON_V12_* operand, no virtual environment, nothing from the checkout",
+          "identity": {},
+          "injected": null,
+          "isolation": {
+            "a_stores": [],
+            "b_stores": [],
+            "distinct_state_roots": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/state",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/state"
+            ],
+            "distinct_stores": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/db",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/db"
+            ]
+          },
+          "monitor_a": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "monitor",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json",
+              "--interval",
+              "0.2",
+              "--ticks",
+              "2"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "repeat_is_refused": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "bootstrap",
+              "--inputs",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/inputs.json",
+              "--destination",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a",
+              "--distro",
+              "/home/sl/src/baton/v12/python/build/out/distro"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "selector_unchanged": true,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "repository_a": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "repository",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "repository_b": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "repository",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "restored_runtime_is_accepted": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "restored_selector_works": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "status",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "start_a": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "start_b": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "start",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 0,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "stop_a": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/a/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          },
+          "stop_b": {
+            "argv": [
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/distro/baton-v12-stack",
+              "stop",
+              "--instance",
+              "/tmp/w183883-review187184-w8735sfp/stop-failure/b/instance.json"
+            ],
+            "cwd": "/",
+            "env": {
+              "HOME": "/root",
+              "PATH": "/usr/bin:/bin"
+            },
+            "exit": 2,
+            "seconds": 0.0,
+            "stderr": [],
+            "stdout": [
+              "mock command result"
+            ],
+            "timeout_seconds": 300
+          }
+        },
+        "seconds": 0.001
+      },
+      "selector_restored": true,
+      "tamper_seen_at_commands": [
+        "status",
+        "start"
+      ]
+    },
+    "stop-oserror": {
+      "calls": [
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/distro/baton-v12-stack",
+          "identity"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/distro/baton-v12-stack",
+          "start",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/b/distro/baton-v12-stack",
+          "start",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/distro/baton-v12-stack",
+          "monitor",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/instance.json",
+          "--interval",
+          "0.2",
+          "--ticks",
+          "2"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/distro/baton-v12-stack",
+          "repository",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/b/distro/baton-v12-stack",
+          "repository",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/distro/baton-v12-stack",
+          "bootstrap",
+          "--inputs",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/inputs.json",
+          "--destination",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a",
+          "--distro",
+          "/home/sl/src/baton/v12/python/build/out/distro"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/b/distro/baton-v12-stack",
+          "status",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/b/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/instance.json"
+        ],
+        [
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/distro/baton-v12-stack",
+          "stop",
+          "--instance",
+          "/tmp/w183883-review187184-w8735sfp/stop-oserror/a/instance.json"
+        ]
+      ],
+      "escaped": "FileNotFoundError: injected stop executable unavailable",
+      "exit": null,
+      "library_restored": true,
+      "output": null,
+      "selector_restored": true,
+      "tamper_seen_at_commands": []
+    }
+  },
+  "packet_cases": {
+    "positive": {
+      "exit": 0,
+      "git_boundary": "simulated read responses; no actual Git operation or repository creation",
+      "script": "/tmp/w183883-review187184-w8735sfp/packet-positive/check.sh",
+      "stderr": "",
+      "stdout": "three repositories, all distinct, base and reference present\n"
+    },
+    "workspace-alternates": {
+      "exit": 0,
+      "git_boundary": "simulated read responses; no actual Git operation or repository creation",
+      "script": "/tmp/w183883-review187184-w8735sfp/packet-workspace-alternates/check.sh",
+      "stderr": "",
+      "stdout": "three repositories, all distinct, base and reference present\n"
+    },
+    "workspace-stat-error": {
+      "exit": 0,
+      "git_boundary": "simulated read responses; no actual Git operation or repository creation",
+      "script": "/tmp/w183883-review187184-w8735sfp/packet-workspace-stat-error/check.sh",
+      "stderr": "injected stat failure\ninjected stat failure\n",
+      "stdout": "three repositories, all distinct, base and reference present\n"
+    }
+  },
+  "reported_pid_check": {
+    "exit": 1,
+    "pids": [
+      "3904416",
+      "3904417",
+      "3904421",
+      "3904422",
+      "3904480",
+      "3904481",
+      "3904485",
+      "3904486",
+      "3904509",
+      "3904510",
+      "3904514",
+      "3904515"
+    ],
+    "stderr": "",
+    "stdout": ""
+  },
+  "scratch_retained": "/tmp/w183883-review187184-w8735sfp",
+  "seconds_including_audit": 2.1951854529906996,
+  "tests": {
+    "argv": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "tests.tools.test_stack.WhatTheRepositoryIS",
+      "tests.tools.test_packaging"
+    ],
+    "cwd": "/home/sl/src/baton/v12/python",
+    "environment_overrides": {
+      "BATON_V12_STACK_DISTRO": "/home/sl/src/baton/v12/python/build/out/distro",
+      "BATON_V12_STACK_PACKAGING_REQUIRED": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:.",
+      "TMPDIR": "/tmp/w183883-review187184-w8735sfp"
+    },
+    "exit": 0,
+    "seconds": 2.0952954110107385,
+    "stderr": ".....................\n----------------------------------------------------------------------\nRan 21 tests in 1.916s\n\nOK\n",
+    "stdout": "",
+    "timeout_seconds": 60
+  }
+}

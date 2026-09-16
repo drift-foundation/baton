@@ -1,0 +1,246 @@
+{
+ "all_owned_children_reaped": true,
+ "answers_review": "review-2026-09-16T19-25-41Z.md sha256 f3e0061a9c9422f37ec0b6058f10cae08fcb53efee45dfb4d408b07409c65acb -- one message correction and its regression",
+ "candidates": {
+  "v12/STACK.md": "c01d81a9173e56f2af221f2bd2eecd08df71eb2fd83abe0487cfa02eacdbeb34",
+  "v12/justfile": "8f3ed773705c5f6e636ac826601d5f7cbc9701d9a87ea8910c12c3c1dd22b96c",
+  "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+  "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+  "v12/python/tests/tools/test_bootstrap.py": "d6009a16292c09187170488d3f7c3317b011908297d67ea11ad76c7dc0d5a498",
+  "v12/python/tests/tools/test_environment.py": "84b15abc2bc81ffea8e433260c8e43b898101bb0a79b854bdb8a31461f4fa31c",
+  "v12/python/tests/tools/test_instance.py": "c05610da74539e5b544ad0fda6d1549f16805ef48235223f7791834f959b4388",
+  "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+  "v12/python/tests/tools/test_stack.py": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+  "v12/python/tools/bootstrap.py": "9f4a711bf41b3008e345031dc4b45a3ea1544c04c2f77f96fc98b51919abfc7c",
+  "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+  "v12/python/tools/instance.py": "765bfd64aa9967c16741f940b5c77070bdcd268c56ae935ecc2fa6f795bfa9c9",
+  "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+  "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+  "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+  "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59",
+  "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+ },
+ "changed_this_claim": [
+  "v12/python/tests/tools/test_instance.py",
+  "v12/python/tools/bootstrap.py"
+ ],
+ "claim": 188818,
+ "cumulative_verification_seconds": {
+  "J1_history": "0.125s reversal within a 1.291s whole harness; both intervals preserved",
+  "author_claim183891": 1.195,
+  "author_claim183998": 151.908,
+  "author_claim184239": 127.816,
+  "author_claim184442": 63.532,
+  "author_claim185653": 26.94,
+  "author_claim185774": 27.256,
+  "author_claim185884": 33.299,
+  "author_claim185976": 32.661,
+  "author_claim186044": 30.937,
+  "author_claim186132": 2.476,
+  "author_claim186214": 28.576,
+  "author_claim186284": 27.262,
+  "author_claim186381": {
+   "focused": 27.19,
+   "stage_suite": 55.317
+  },
+  "author_claim186468": 27.183,
+  "author_claim186523": 27.128,
+  "author_claim186583": {
+   "focused": 27.154,
+   "reversal_probes": 0.589
+  },
+  "author_claim186672": {
+   "focused": 27.202,
+   "reversal_probes": 0.625,
+   "scenarios": 0.003
+  },
+  "author_claim186742": {
+   "focused": 27.256,
+   "reversal_probes": {
+    "instance_lifecycle": 2.197,
+    "temporary_custody": 0.541
+   },
+   "scenarios": 0.003
+  },
+  "author_claim186838": {
+   "focused": 27.547,
+   "reversal_probes": 1.247
+  },
+  "author_claim186890": {
+   "builds": "four builds this claim, three of them inside the packaging probe tree; the retained one is BUILD-186890.log, 10156 bytes, exit 0",
+   "focused": 29.559,
+   "live_installed_lifecycle": 7.194,
+   "reversal_probes": {
+    "build_and_revert_packaging": 17.09,
+    "source": 3.683
+   }
+  },
+  "author_claim187015": {
+   "builds": "two builds this claim; the retained one is BUILD-187015.log, exit 0",
+   "focused": 30.191,
+   "live_installed_lifecycle": 7.219,
+   "reversal_probes": 28.886
+  },
+  "author_claim187142": {
+   "builds": "one build; BUILD-187142.log, exit 0",
+   "focused": 30.153,
+   "injected_failure_proofs": "three runs, each ~7s, retained in CLEANUP-PROOF-187142.json",
+   "live_installed_lifecycle": 7.37,
+   "reversal_probes": 28.295
+  },
+  "author_claim187223": {
+   "boundary_runs": "six injected-boundary runs of the harness, each about seven seconds, retained",
+   "builds": "none -- no product code changed, and the review said no rebuild was needed for packet/harness-only changes",
+   "focused": 30.309,
+   "live_installed_lifecycle": 7.398,
+   "packet_check_proof": "nine extracted-block scenarios, sub-second"
+  },
+  "author_claim187303": {
+   "boundary_runs": "nine injected-boundary runs of the harness, each a few seconds, retained",
+   "builds": "none; no product code changed and no rebuild was requested",
+   "focused": "not re-run: no product or test file changed, and the review said not to re-run an unchanged suite for a handoff. Every candidate hash is identical to claim187223's.",
+   "live_installed_lifecycle": 7.557,
+   "packet_check_proof": "nine extracted-block scenarios, sub-second"
+  },
+  "author_claim187356": {
+   "builds": "none; no product code changed",
+   "control_runs": "eleven injected control runs, each a few seconds, retained in this record",
+   "focused": "not re-run: no product or test file changed, and the review said not to re-run an unchanged suite for a handoff",
+   "live_installed_lifecycle": 7.569
+  },
+  "author_claim188434": {
+   "builds": "two builds; the install log is INSTALL-188434.log, exit 0",
+   "focused": 30.169,
+   "reversal_probes": 2.588,
+   "standalone_interface": 5.66
+  },
+  "author_claim188582": {
+   "builds": "one build, during the live two-operand install",
+   "focused": 30.199,
+   "reversal_probes": 3.239
+  },
+  "author_claim188671": {
+   "builds": "one build, during the live two-operand install",
+   "focused": 30.233,
+   "reversal_probes": 3.524
+  },
+  "author_claim188740": {
+   "builds": "none: this correction is in bootstrap.py and its focused checks, and the review asked for no live campaign",
+   "focused": 30.271,
+   "reversal_probes": 4.205
+  },
+  "author_claim188783": {
+   "builds": "none; the review asked for no rebuild for this fix",
+   "focused": 30.305,
+   "reversal_probes": 2.955
+  },
+  "earlier_build_and_bundle_checks": "unknown duration, VERIFICATION rather than deployment cost",
+  "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+  "owner_bootstrap_run": 0.938,
+  "owner_composition_run": 10.535,
+  "reviewer_claim183958": 1.5529989219503477,
+  "reviewer_claim184197": 12.840890395978931,
+  "reviewer_claim184197_readiness_check": 0.002758326008915901,
+  "reviewer_claim184403": 20.8455910270568,
+  "reviewer_claim184537": 15.599983819993213,
+  "reviewer_claim185739": 0.12554923997959122,
+  "reviewer_claim185857": 0.22083405102603137,
+  "reviewer_claim185945": 0.0037346489843912423,
+  "reviewer_claim186022": 0.004474725050386041,
+  "reviewer_claim186081": 0.005015750008169562,
+  "reviewer_claim186175": 0.04717645701020956,
+  "reviewer_claim186262": 0.4171164730214514,
+  "reviewer_claim186356": 1.6185368220321834,
+  "reviewer_claim186439": 0.0028278949903324246,
+  "reviewer_claim186499": 0.003370393009390682,
+  "this_claim_builds": "none; the review asked for no rebuild",
+  "this_claim_focused_tests": 30.241,
+  "this_claim_reversal_probes": 2.332
+ },
+ "focused_tests": {
+  "by_module": {
+   "test_bootstrap": 72,
+   "test_environment": 69,
+   "test_instance": 115,
+   "test_packaging": 9,
+   "test_stack": 122
+  },
+  "command": "cd v12/python && PYTHONPATH=src:. python3 -m unittest tests.tools.test_instance tests.tools.test_bootstrap tests.tools.test_stack tests.tools.test_environment tests.tools.test_packaging",
+  "returncode": 0,
+  "seconds": {
+   "test_bootstrap": 1.027,
+   "test_environment": 0.829,
+   "test_instance": 0.395,
+   "test_packaging": 1.903,
+   "test_stack": 26.087
+  },
+  "tests": 387
+ },
+ "held_by": "test_the_PUBLIC_refusal_never_claims_a_cleanup_that_did_not_happen -- the real main, install and cleanup with the publication failing AND the unlink refused: exit 2, the failure named, 'could not remove ... it is still there' printed, the file still there, the old blanket sentence absent and the pointer present.",
+ "not_done": {
+  "no_credential_registry_read": true,
+  "no_job_submitted": true,
+  "no_live_provider_or_engine_run": true,
+  "no_repository_created_cloned_or_modified_by_this_agent": true,
+  "no_v11_path_service_store_or_configuration_touched": true,
+  "no_version_control_mutation_by_this_agent": true
+ },
+ "operational_findings_preserved": [
+  {
+   "modules": [
+    "tests.manager.test_claude_context",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.tools.test_correction_restart",
+    "tests.tools.test_managed_apply"
+   ],
+   "note": "unchanged; re-observed this claim",
+   "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+  },
+  {
+   "note": "unchanged, not re-run this claim",
+   "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+  }
+ ],
+ "provenance": {
+  "retained_locators": {
+   "destination": "/var/tmp/w183883-standalone-188671/deployment",
+   "earlier": [
+    "/var/tmp/w183883-standalone-188434 with INSTALL-188434.log",
+    "/var/tmp/w183883-live-186890 for the two-instance evidence"
+   ],
+   "transcript": "INSTALL-188671.log"
+  },
+  "what_changed": "v12/python/tools/bootstrap.py and the focused checks; the bundle was NOT rebuilt, so the retained live evidence describes a deployment installed from the previous bootstrap.py",
+  "what_that_does_and_does_not_cover": "the live evidence still establishes the standalone interface, the two-operand install and the lifecycle -- none of which this correction touches. What it does NOT cover is this correction itself, which is an install-failure path and is covered by the focused checks above rather than by a live run."
+ },
+ "remaining_scope": [
+  "the owner's production choices -- the repository source, the immutable base, the import reference and the observer participant -- and the owner-run bootstrap that uses them. The command is built and tested; what is missing is the selection, which is not this Work's to make."
+ ],
+ "reversal_probes": {
+  "all_killed": true,
+  "harness": "probes-188818.py",
+  "note": "one probe, because one sentence changed: putting the blanket assertion back fails the new check and leaves the earlier one passing, which is exactly the shape of the defect.",
+  "restored_ok": true,
+  "results": [
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_the_PUBLIC_refusal_never_claims_a_cleanup_that_did_not_happen",
+     "tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_the_PUBLIC_command_answers_an_installation_failure"
+    ],
+    "edits": 1,
+    "failed_on_the_intended_assertion": true,
+    "probe": "Z1-the-refusal-promises-a-cleanup-it-cannot-know-happened",
+    "reverted_returncode": 1,
+    "seconds": 0.61,
+    "valid_kill": true
+   }
+  ],
+  "seconds": 2.332
+ },
+ "scope": "the wording of one refusal, and a public regression for it. No other product change, no rebuild, no live run, no Job, provider, engine, v11 operation, credential read or version-control mutation.",
+ "what_it_says_now": "it points: 'See the cleanup messages above for what was removed and what was retained; anything this attempt did not make was left exactly as it is.' The error type and text and the return of 2 are unchanged, and a programming fault still propagates.",
+ "what_was_wrong": "the refusal I added last claim asserted, unconditionally, that anything this attempt made had been unwound. When the cleanup cannot remove something it prints 'could not remove ...: it is still there' -- and the refusal then contradicted it. A promise in place of a report is worse than no summary at all.",
+ "work": "W183883"
+}

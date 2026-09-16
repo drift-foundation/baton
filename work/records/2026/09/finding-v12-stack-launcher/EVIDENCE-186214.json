@@ -1,0 +1,206 @@
+{
+  "I1": {
+    "checks": [
+      "TheBootstrapTestRootFollowsTheOperator.test_nothing_selected_is_the_documented_default",
+      "TheBootstrapTestRootFollowsTheOperator.test_an_exported_selection_beats_the_default",
+      "TheBootstrapTestRootFollowsTheOperator.test_an_explicit_operand_beats_the_default",
+      "TheBootstrapTestRootFollowsTheOperator.test_an_explicit_operand_beats_an_exported_selection",
+      "TheBootstrapTestRootFollowsTheOperator.test_an_empty_or_blank_operand_is_not_a_selection",
+      "TheBootstrapTestRootFollowsTheOperator.test_a_blank_exported_selection_is_not_a_selection_either",
+      "TheBootstrapTestRootFollowsTheOperator.test_the_command_answers_on_stdout_for_the_recipe_to_consume",
+      "TheRecipesUseIt.test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one",
+      "TheInterpreterOverrideIsExecutable.test_a_named_bootstrap_test_root_reaches_the_helper"
+    ],
+    "the_other_half_I_found_while_fixing_it": {
+      "checks": [
+        "TheChosenDiskRootIsNeverSilentlyReplaced.test_a_root_that_cannot_be_written_is_named_rather_than_passed_over",
+        "TheChosenDiskRootIsNeverSilentlyReplaced.test_a_root_inside_the_checkout_is_named",
+        "TheChosenDiskRootIsNeverSilentlyReplaced.test_an_unset_or_blank_selection_still_falls_back"
+      ],
+      "now": "AssertionError: BATON_V12_STACK_TEST_ROOT is '/srv/owner-selected' and it is not a directory this process can write. An explicitly selected root is never silently passed over",
+      "path_added_to_this_claim": "v12/python/tests/tools/test_stack.py, for that reason and no other",
+      "reproduced": "BATON_V12_STACK_TEST_ROOT=/srv/owner-selected just test-bootstrap passed 67 tests -- on /var/tmp, not on the selected root",
+      "what": "correcting the recipe alone would have left the selection silently REPLACED one layer down: `_disk_root_outside_the_checkout` fell through to the next candidate when the named root was unusable, so an operator's explicit choice was still swapped without being told. It now REFUSES by name, which is `disk_roots`' own stated policy."
+    },
+    "what": "precedence is explicit operand, then an exported BATON_V12_STACK_TEST_ROOT, then /var/tmp. It lives in `tools.environment test-root` rather than in the recipe, because a `just` default cannot read the environment and a recipe expressing the order would have had to reimplement it in shell -- and this is the same helper the recipes already ask for the interpreter."
+  },
+  "all_owned_children_reaped": true,
+  "answers_review": "review-2026-09-16T11-53-00Z.md sha256 a09d37908f602df91c09d0bf3b283c9ceb4030c1985409be876bc5d87c06389e (I1)",
+  "candidates": {
+    "v12/STACK.md": "5f5d0026740ad28ec19b5ad7046c6211eec2b19bda20a6d645a9ed4908c6ce7c",
+    "v12/justfile": "b1ee92e1a33fa3c98f5b87de7262ba0d2001066c41c5400e7d93dadecb790ee6",
+    "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+    "v12/python/tests/tools/test_environment.py": "c05bfb4177a8cf5f8e04c34f250d5da1480d61f726d79b3b33cc7aac2a1b864a",
+    "v12/python/tests/tools/test_stack.py": "2bdcbcf44ee4322d0a253a11364ccff97760c6880ed0faf00ee09744b97c1a30",
+    "v12/python/tools/bootstrap.py": "2c78a8005fd8a9e79b0ddaf0a9e8d3a8c700cf142acd77ca5e2505520d484510",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136"
+  },
+  "claim": 186214,
+  "cumulative_verification_seconds": {
+    "author_claim183891": 1.195,
+    "author_claim183998": 151.908,
+    "author_claim184239": 127.816,
+    "author_claim184442": 63.532,
+    "author_claim185653": 26.94,
+    "author_claim185774": 27.256,
+    "author_claim185884": 33.299,
+    "author_claim185976": 32.661,
+    "author_claim186044": 30.937,
+    "author_claim186132": 2.476,
+    "note": "reported per actor and never summed; the real locked install of claim185653 and the earliest recipe duration remain unknown rather than erased, and none is an execution gate",
+    "owner_bootstrap_run": 0.938,
+    "owner_composition_run": 10.535,
+    "reviewer_claim183958": 1.5529989219503477,
+    "reviewer_claim184197": 12.840890395978931,
+    "reviewer_claim184197_readiness_check": 0.002758326008915901,
+    "reviewer_claim184403": 20.8455910270568,
+    "reviewer_claim184537": 15.599983819993213,
+    "reviewer_claim185739": 0.12554923997959122,
+    "reviewer_claim185857": 0.22083405102603137,
+    "reviewer_claim185945": 0.0037346489843912423,
+    "reviewer_claim186022": 0.004474725050386041,
+    "reviewer_claim186081": 0.005015750008169562,
+    "reviewer_claim186175": 0.04717645701020956,
+    "this_claim_focused_tests": 27.146,
+    "this_claim_reversal_probes": 1.43,
+    "this_claim_total": 28.576
+  },
+  "exercised_for_real": {
+    "BATON_V12_STACK_TEST_ROOT=/srv/owner-selected just test-bootstrap": "now refused by name rather than silently run elsewhere",
+    "BATON_V12_STACK_TEST_ROOT=/var/tmp python3 -m unittest tests.tools.test_bootstrap": {
+      "returncode": 0,
+      "seconds": 0.914,
+      "tests": 67
+    },
+    "test_root resolution, all four combinations": {
+      "both": "/srv/explicit",
+      "exported only": "/srv/exported",
+      "neither": "/var/tmp",
+      "operand only": "/srv/explicit"
+    }
+  },
+  "focused_tests": {
+    "command": "cd v12/python && python3 -m unittest tests.tools.test_environment tests.tools.test_stack tests.tools.test_bootstrap",
+    "new_this_claim": 10,
+    "returncode": 0,
+    "seconds": 27.146,
+    "tests": 216
+  },
+  "not_done": {
+    "no_dependency_download_kept": true,
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true,
+    "scratch_removed": "the probe tree copy and the PyInstaller feasibility download were removed after use"
+  },
+  "not_started_and_returned": {
+    "feasibility_established_read_only": "pyinstaller==6.16.0 resolves from the configured index in this environment, so the slice is buildable here; the build is host-specific and its artifact identity is to be recorded rather than claimed portable",
+    "operator_boundary": "repository initialization and external installation outside this authority return as exact operator commands; no proof fixture is substituted for a missing production input",
+    "pinned_paths": "PLAN section 'Pinned decisions, W183883 claim186214', which names every file the slice will create or edit and what the real-bundle check must actually do",
+    "remaining_scope": [
+      "tools/instance.py: emit, read and derive every path from instance.json; refuse a mismatched or foreign one",
+      "tools/stack_command.py: the one frozen entry point and its bundled subcommands",
+      "packaging/stack.spec and requirements.build.lock: one-folder bundle with the dynamic factory imports, rpds-py's native library and the frozen schema assets; the build tool pinned OUTSIDE the runtime set",
+      "stack.py: child dispatch through the bundled command when frozen, and instance-derived paths",
+      "bootstrap.py: prepare destination/{distro,db,repo,logs} and emit instance.json, keeping its existing custody refusals",
+      "justfile and STACK.md: a build recipe and the instance-path UX",
+      "test_instance.py and test_packaging.py, registered in parallel_test.py",
+      "the real-bundle acceptance: the built command run from an unrelated directory with the checkout unavailable, an external fixture instance started/read/stopped, every child proved bundled, and two instances proved unable to cross-control"
+    ],
+    "what": "the PyInstaller one-folder packaging slice from OWNER-PYINSTALLER-20260916.md and OWNER-INSTANCE-DESTINATION-20260916.md",
+    "why": "it is a new deployment mechanism -- a frozen entry point, a bundled child dispatch replacing `sys.executable -m tools.X`, an instance.json contract that replaces the four environment operands across bootstrap, stack and every recipe, an external distro/db/repo layout, and a REAL built-bundle smoke check. I am not starting it at the end of a claim and reporting it as done; the owner explicitly sanctioned finishing the small recipe and handing off the named slice."
+  },
+  "operational_findings_preserved": [
+    {
+      "note": "unchanged, not adopted",
+      "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+    },
+    {
+      "note": "unchanged",
+      "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+    }
+  ],
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "count": 6,
+    "harness": "probes-186214.py in this dossier; set W183883_PROBE_TREE to a COPY of the checkout's v12/ including STACK.md and the worker-contract vectors",
+    "probes": [
+      {
+        "checks": [
+          "TheBootstrapTestRootFollowsTheOperator.test_an_exported_selection_beats_the_default"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "I1-the-default-is-assigned-over-an-exported-root",
+        "returncode": 1,
+        "seconds": 0.038
+      },
+      {
+        "checks": [
+          "TheBootstrapTestRootFollowsTheOperator.test_an_explicit_operand_beats_an_exported_selection"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "I1-an-exported-root-beats-an-explicit-operand",
+        "returncode": 1,
+        "seconds": 0.04
+      },
+      {
+        "checks": [
+          "TheBootstrapTestRootFollowsTheOperator.test_an_empty_or_blank_operand_is_not_a_selection"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "I1-an-empty-operand-counts-as-a-selection",
+        "returncode": 1,
+        "seconds": 0.04
+      },
+      {
+        "checks": [
+          "TheRecipesUseIt.test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one"
+        ],
+        "failed_as_required": true,
+        "file": "justfile",
+        "probe": "I1-the-recipe-assigns-its-own-root-again",
+        "returncode": 1,
+        "seconds": 0.038
+      },
+      {
+        "checks": [
+          "TheChosenDiskRootIsNeverSilentlyReplaced.test_a_root_that_cannot_be_written_is_named_rather_than_passed_over",
+          "TheChosenDiskRootIsNeverSilentlyReplaced.test_a_root_inside_the_checkout_is_named"
+        ],
+        "failed_as_required": true,
+        "file": "test_stack.py",
+        "probe": "I1-an-unusable-selection-falls-through-again",
+        "returncode": 1,
+        "seconds": 0.406
+      },
+      {
+        "checks": [
+          "TheChosenDiskRootIsNeverSilentlyReplaced.test_an_unset_or_blank_selection_still_falls_back"
+        ],
+        "failed_as_required": true,
+        "file": "test_stack.py",
+        "probe": "I1-a-blank-selection-becomes-a-selection",
+        "returncode": 1,
+        "seconds": 0.416
+      }
+    ],
+    "restored_tree_matches_working_tree": true,
+    "seconds": 1.43
+  },
+  "scope": "a recipe-precedence correction and its checks; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation, no dependency download",
+  "unchanged_this_claim": [
+    "v12/python/tools/bootstrap.py",
+    "v12/python/tests/tools/test_bootstrap.py",
+    "v12/python/tools/parallel_test.py",
+    "v12/python/tools/stack.py",
+    "v12/python/tools/job_manager.py"
+  ],
+  "work": "W183883"
+}

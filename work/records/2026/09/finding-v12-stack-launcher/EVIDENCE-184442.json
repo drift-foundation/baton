@@ -1,0 +1,225 @@
+{
+  "a_defect_this_claim_introduced_and_its_own_check_caught": {
+    "fixed": "an explicit `require_snapshot` operand",
+    "found_by": "EveryRecordWriteIsInsideTheRollback.test_one_process_that_cannot_be_unwound_does_not_hide_the_others, which stopped raising",
+    "held_by": "probe D2-a-first-start-skips-the-observation-check, which restores the wrong spelling and fails",
+    "what": "the repeated-start path was first signalled by `mark is None`, which is ALSO true on a genuine first start with no previous snapshot -- so a first start would have skipped the observation check entirely"
+  },
+  "adjacent_existing_suites": {
+    "modules": [
+      "tests.job_manager.test_tool",
+      "tests.job_manager.test_recovery",
+      "tests.tools.test_job_viewer",
+      "tests.tools.test_stage_execution_status_hardening"
+    ],
+    "returncode": 0,
+    "run": 168,
+    "seconds": 6.318
+  },
+  "all_owned_children_reaped": true,
+  "answers_review": "review-2026-09-16T06-35-51Z.md sha256 87dc04b5e488099043ae5237a203b673efcd9315c747a3a85abba6e8202ccfb5 (D1-D2)",
+  "candidates": {
+    "v12/STACK.md": "82136c94f23791f75465d624e0b08ebcd358b065e5fbde28287a92c7d1b3b56b",
+    "v12/justfile": "b3ae4b4f08ab17ddce18555457c881d12f8754ee075278065b6d971c1c8f2254",
+    "v12/python/tests/tools/test_stack.py": "e25cd80241f105207596ad98d4ccffcffe336237a957b3d321ded6742a121ae5",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "94cdc0f6f7933a2498b0490fd4c434409d7bae92f64a80d3ac358cfe69f91805",
+    "v12/python/tools/stack.py": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136"
+  },
+  "claim": 184442,
+  "composition_run_here": {
+    "note": "still unavailable to the managed reviewer (/tmp tmpfs, /var/tmp outside that authority); both cases pass here",
+    "observed": {
+      "acknowledged_from_the_managers_own_log": true,
+      "open_episodes": 0,
+      "published_jobs": 0,
+      "ready": true,
+      "runtime_state": "observed",
+      "second_start": "already running x2",
+      "start": 0,
+      "stop": 0,
+      "viewer_returncode": 0
+    }
+  },
+  "corrections": {
+    "D1": {
+      "checks": [
+        "EveryRecordWriteIsInsideTheRollback.test_the_spawned_identity_is_published_in_one_write",
+        "EveryRecordWriteIsInsideTheRollback.test_start_adds_no_record_write_of_its_own_after_a_spawn",
+        "EveryRecordWriteIsInsideTheRollback.test_a_record_write_failure_still_rolls_the_process_back",
+        "EveryRecordWriteIsInsideTheRollback.test_nothing_is_written_to_a_record_after_a_start_succeeds",
+        "EveryRecordWriteIsInsideTheRollback.test_one_process_that_cannot_be_unwound_does_not_hide_the_others",
+        "Admission.test_a_spawn_that_cannot_be_recorded_leaves_no_orphan"
+      ],
+      "what": "the fallible second record write is REMOVED, not guarded: `_spawn` publishes the complete identity in one owned transaction via `extra`, and the `serving_acknowledged` cache is gone because `acknowledged(record)` reads the manager's own log. There is now NO record write after `_spawn` at all. `_unwind` additionally contains failure per process, so one that cannot be taken back never stops the others being accounted for."
+    },
+    "D2": {
+      "checks": [
+        "AnExistingManagerNeedsEvidenceToo.test_both_live_but_unacknowledged_is_not_ready",
+        "AnExistingManagerNeedsEvidenceToo.test_replacing_only_the_publisher_still_needs_the_managers_evidence",
+        "AnExistingManagerNeedsEvidenceToo.test_an_existing_manager_that_acknowledges_late_is_waited_for",
+        "AnExistingManagerNeedsEvidenceToo.test_an_acknowledged_manager_is_never_asked_to_initialize_again",
+        "AnExistingManagerNeedsEvidenceToo.test_a_repeated_start_waits_bounded_and_then_refuses",
+        "Lifecycle.test_a_repeated_start_does_not_duplicate_the_manager"
+      ],
+      "what": "a live manager is reused only when `acknowledged` holds for that identity NOW. Both the both-live fast return and the publisher-replacement path otherwise enter the same bounded wait a freshly spawned manager does, and refuse if no acknowledgement arrives. It is never killed and never duplicated -- this start did not admit it -- and the refusal names it and the recovery. An already acknowledged manager is never asked to initialize again, and the both-live path still requires no newly published snapshot."
+    }
+  },
+  "cumulative_verification_seconds": {
+    "author_claim183891": 1.195,
+    "author_claim183998": 151.908,
+    "author_claim184239": 127.816,
+    "note": "reported per actor and never summed into one figure; each reviewer total already includes its own test components, and the earliest recipe duration remains unknown rather than erased",
+    "reviewer_claim183958": 1.5529989219503477,
+    "reviewer_claim184197": 12.840890395978931,
+    "reviewer_claim184197_readiness_check": 0.002758326008915901,
+    "reviewer_claim184403": 20.8455910270568,
+    "this_claim_adjacent_existing_suites": 6.318,
+    "this_claim_focused_tests": 26.132,
+    "this_claim_reversal_probes": 31.082,
+    "this_claim_total": 63.532
+  },
+  "focused_tests": {
+    "command": "cd v12/python && python3 -m unittest tests.tools.test_stack",
+    "previous": 86,
+    "returncode": 0,
+    "seconds": 26.132,
+    "tests": 96
+  },
+  "not_done": {
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true,
+    "scratch_removed": "probe tree copy and recipe state root removed after use"
+  },
+  "operational_findings_preserved": [
+    {
+      "note": "unchanged; other in-flight Work; not adopted",
+      "what": "tools/parallel_test.py still refuses its whole run over five unregistered test modules"
+    },
+    {
+      "note": "proved pre-existing last claim; unchanged; not adopted",
+      "what": "tests/tools/test_stage_execution.py has 12 pre-existing errors (AttributeError: 'types.SimpleNamespace' object has no attribute 'reconciles')"
+    }
+  ],
+  "recipes_exercised": {
+    "just start (unconfigured)": {
+      "exit": 2
+    },
+    "just status (unconfigured)": {
+      "exit": 0
+    },
+    "just stop (nothing running)": {
+      "exit": 0
+    }
+  },
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "count": 9,
+    "harness": "probes-184442.py in this dossier; set W183883_PROBE_TREE to a COPY of the checkout's v12/",
+    "one_probe_first_passed": "D1-register-for-rollback-after-a-second-write passed because the check named it substituted `_spawn` and so could not see the REAL one's write count. The check was rewritten against the real `_spawn`, and a second check was added for start's own writes; the probe then failed as required.",
+    "probes": [
+      {
+        "checks": [
+          "EveryRecordWriteIsInsideTheRollback.test_the_spawned_identity_is_published_in_one_write",
+          "EveryRecordWriteIsInsideTheRollback.test_start_adds_no_record_write_of_its_own_after_a_spawn"
+        ],
+        "failed_as_required": true,
+        "probe": "D1-register-for-rollback-after-a-second-write",
+        "returncode": 1,
+        "seconds": 0.409
+      },
+      {
+        "checks": [
+          "EveryRecordWriteIsInsideTheRollback.test_a_record_write_failure_still_rolls_the_process_back",
+          "Admission.test_a_spawn_that_cannot_be_recorded_leaves_no_orphan"
+        ],
+        "failed_as_required": true,
+        "probe": "D1-a-record-failure-leaves-the-process",
+        "returncode": 1,
+        "seconds": 0.411
+      },
+      {
+        "checks": [
+          "EveryRecordWriteIsInsideTheRollback.test_one_process_that_cannot_be_unwound_does_not_hide_the_others"
+        ],
+        "failed_as_required": true,
+        "probe": "D1-one-failed-unwind-stops-the-rest",
+        "returncode": 1,
+        "seconds": 0.562
+      },
+      {
+        "checks": [
+          "EveryRecordWriteIsInsideTheRollback.test_nothing_is_written_to_a_record_after_a_start_succeeds",
+          "EveryRecordWriteIsInsideTheRollback.test_start_adds_no_record_write_of_its_own_after_a_spawn"
+        ],
+        "failed_as_required": true,
+        "probe": "D1-the-acknowledgement-is-cached-in-the-record",
+        "returncode": 1,
+        "seconds": 0.413
+      },
+      {
+        "checks": [
+          "AnExistingManagerNeedsEvidenceToo.test_both_live_but_unacknowledged_is_not_ready",
+          "AnExistingManagerNeedsEvidenceToo.test_replacing_only_the_publisher_still_needs_the_managers_evidence",
+          "AnExistingManagerNeedsEvidenceToo.test_a_repeated_start_waits_bounded_and_then_refuses"
+        ],
+        "failed_as_required": true,
+        "probe": "D2-an-existing-live-manager-needs-no-evidence",
+        "returncode": 1,
+        "seconds": 0.42
+      },
+      {
+        "checks": [
+          "AnExistingManagerNeedsEvidenceToo.test_both_live_but_unacknowledged_is_not_ready",
+          "AnExistingManagerNeedsEvidenceToo.test_an_existing_manager_that_acknowledges_late_is_waited_for"
+        ],
+        "failed_as_required": true,
+        "probe": "D2-both-live-returns-without-waiting",
+        "returncode": 1,
+        "seconds": 0.414
+      },
+      {
+        "checks": [
+          "AnExistingManagerNeedsEvidenceToo.test_both_live_but_unacknowledged_is_not_ready",
+          "AnExistingManagerNeedsEvidenceToo.test_a_repeated_start_waits_bounded_and_then_refuses"
+        ],
+        "failed_as_required": true,
+        "probe": "D2-an-inherited-manager-is-not-named-in-the-refusal",
+        "returncode": 1,
+        "seconds": 0.916
+      },
+      {
+        "checks": [
+          "AnExistingManagerNeedsEvidenceToo.test_an_acknowledged_manager_is_never_asked_to_initialize_again",
+          "Lifecycle.test_a_repeated_start_does_not_duplicate_the_manager"
+        ],
+        "failed_as_required": true,
+        "probe": "D2-an-acknowledged-manager-is-re-proved",
+        "returncode": 1,
+        "seconds": 0.417
+      },
+      {
+        "checks": [
+          "Readiness.test_start_fails_when_nothing_is_ever_published",
+          "EveryRecordWriteIsInsideTheRollback.test_one_process_that_cannot_be_unwound_does_not_hide_the_others"
+        ],
+        "failed_as_required": true,
+        "probe": "D2-a-first-start-skips-the-observation-check",
+        "returncode": 1,
+        "seconds": 0.412
+      }
+    ],
+    "restored_tree_matches_working_tree": true,
+    "seconds": 31.082
+  },
+  "runbook": "the claim that an earlier start necessarily proved readiness is corrected, and the consequence of truncating a manager log -- the acknowledgement evidence is gone, so a later start waits and then refuses rather than assuming -- is documented",
+  "scope": "focused deterministic verification; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation",
+  "unchanged_this_claim": [
+    "v12/python/tools/job_manager.py",
+    "v12/justfile",
+    "v12/python/tools/parallel_test.py"
+  ],
+  "work": "W183883"
+}

@@ -1,0 +1,269 @@
+{
+  "all_owned_children_reaped": true,
+  "answers": "owner reroute185651 and thread messages185650/185655: complete the original operator deployment setup, plus a separate `just setup` Python3 venv with locked hash-verified dependencies",
+  "claim": 185653,
+  "cumulative_verification_seconds": {
+    "author_claim183891": 1.195,
+    "author_claim183998": 151.908,
+    "author_claim184239": 127.816,
+    "author_claim184442": 63.532,
+    "note": "reported per actor and never summed; the earliest recipe duration remains unknown rather than erased",
+    "note_on_the_real_install": "the one locked install that reached an index is operator setup, not a verification measurement, and is not counted here",
+    "owner_composition_run": 10.535,
+    "reviewer_claim183958": 1.5529989219503477,
+    "reviewer_claim184197": 12.840890395978931,
+    "reviewer_claim184197_readiness_check": 0.002758326008915901,
+    "reviewer_claim184403": 20.8455910270568,
+    "reviewer_claim184537": 15.599983819993213,
+    "this_claim_focused_tests": 26.249,
+    "this_claim_reversal_probes": 0.691,
+    "this_claim_total": 26.94
+  },
+  "delivered": {
+    "candidates": {
+      "v12/STACK.md": "d1a59c684227d2db3d073e6593f97713f8d252bdbfad98af003cd816b2f37f4c",
+      "v12/justfile": "1e5f7c30e89edff8de15a07bef5aed5558048a76b5b87e56912bdc7310e9c3d3",
+      "v12/python/tests/tools/test_environment.py": "56a467b207da0a84e0de9c17caa9ebd030627634b829926ddbf024567cf96672",
+      "v12/python/tests/tools/test_stack.py": "a2bc1a222650ecc7e5f846b5007373796bb7cc0b187dfb866eac1a400af5e1b1",
+      "v12/python/tools/environment.py": "00458dc7c6a10571cf908e62fd08f1f533ff5c6b7f9be741ad2c68537ab3c056",
+      "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+      "v12/python/tools/parallel_test.py": "3746114ca2577f13de16d303fdda47d32bce3576a72b683507e9c6e17336a11f",
+      "v12/python/tools/stack.py": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136"
+    },
+    "owner_requirements_met": {
+      "explicit venv interpreter for all four commands and children": "each recipe resolves the absolute path; tools/stack.py spawns with sys.executable, so the manager and publisher inherit it",
+      "install outside managed authority returns as an exact command": "a refused install carries the full pip command line and pip's own words",
+      "locked hash-verified dependencies": "requirements.lock installed with --require-hashes --ignore-installed --no-cache-dir",
+      "missing environment names just setup": "all four refuse with exit 2 naming `just setup`; checked by running them",
+      "no shell activation": "no recipe body contains `activate` or a `source` line; checked",
+      "preserve the Node proof's just install": "unchanged; checked",
+      "python >= 3.13 per pyproject": "read from pyproject by regex rather than restated, so an interpreter too old to import a TOML parser still gets a clean refusal",
+      "refuses an incompatible existing environment without deleting it": "foreign / incompatible / broken all refuse with the path named and nothing removed",
+      "repeat setup preserves stack state": "setup's executable tokens contain no BATON_V12_STACK_ROOT, rmtree, unlink or rmdir",
+      "separate just command": "`just setup`, its own recipe; start/stop/status/monitor install nothing"
+    },
+    "test_stack_change": "one correction only: the justfile body parser was attaching column-0 comments to the preceding recipe, so a recipe check could be answered by prose three recipes away. Corrected in both test modules.",
+    "unchanged_this_claim": [
+      "v12/python/tools/stack.py",
+      "v12/python/tools/job_manager.py"
+    ],
+    "what": "PART A of the owner's scope: `just setup`, the dedicated venv, and the four recipes routed through its interpreter"
+  },
+  "focused_tests": {
+    "command": "cd v12/python && python3 -m unittest tests.tools.test_environment tests.tools.test_stack",
+    "of_which_new": 29,
+    "returncode": 0,
+    "seconds": 26.249,
+    "tests": 125
+  },
+  "not_delivered": {
+    "blocked_on_owner_input": "the nine classes in DEPLOYMENT-INPUTS-185653.md: image digest, adapter identity, profile/policy digests, credential slots and profile, per-Job workload material, target repository and line, workspace gid, retention policy digest, and the nine participant endpoints",
+    "discovery_delivered": "DEPLOYMENT-INPUTS-185653.md sha256 5ad7acae7b70895a18dc6f56ade11928d7199d01cf7b1eb4f059d5ae837f8c11 -- what a bootstrap can derive over public APIs, and the nine classes of input only the owner can supply, plus the real worker capacity the accepted schemas serve",
+    "exact_remaining_scope": [
+      "a bootstrap helper that creates the Authority store, derives each principal, creates the Job and review Works, adds the three route handlers and grants verify/review/approve/integrate in the bound Work's scope",
+      "writing a stage-execution document with every derivable member filled and every owner-supplied member named rather than invented",
+      "focused deterministic tests and reversal probes for that helper",
+      "the copy-paste operator command sequence, and exact commands for the parts outside managed write authority (the workspace group's gid)",
+      "STACK.md's one-time setup section rewritten around the bootstrap"
+    ],
+    "what": "PART B of the owner's scope: the concrete deployment bootstrap (original PLAN step 3)",
+    "why": "not started. This claim delivered the setup recipe and the read-only discovery the PLAN asks for; the bootstrap tool, its tests and its probes are a further body of work and are NOT claimed as done."
+  },
+  "not_done": {
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true,
+    "scratch_removed": "probe tree copy, the demonstration venv and its stack root removed after use"
+  },
+  "operational_findings_preserved": [
+    {
+      "modules": [
+        "tests.manager.test_claude_context",
+        "tests.manager.test_provider_context",
+        "tests.manager.test_provider_context_delivery",
+        "tests.tools.test_correction_restart",
+        "tests.tools.test_managed_apply"
+      ],
+      "note": "tests.tools.test_environment IS registered by this claim; the five are unchanged and not adopted",
+      "what": "tools/parallel_test.py still refuses its whole run over the same five unregistered test modules"
+    },
+    {
+      "note": "proved pre-existing in claim184239; unchanged",
+      "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+    }
+  ],
+  "real_run_here": {
+    "ambient_jsonschema_on_this_machine": "4.19.2",
+    "four_recipes_after_setup": {
+      "children_interpreter": "the prepared environment's python",
+      "just status": 0,
+      "just stop": 0
+    },
+    "four_recipes_before_setup": {
+      "each": "refused naming `just setup`, installed nothing",
+      "just monitor": 2,
+      "just start": 2,
+      "just status": 2,
+      "just stop": 2
+    },
+    "just setup": {
+      "created": "a venv outside the checkout",
+      "exit": 0,
+      "installed": "requirements.lock with --require-hashes"
+    },
+    "repeat_just_setup": {
+      "exit": 0,
+      "installed": "nothing",
+      "reports": "already prepared"
+    },
+    "resolved_jsonschema_in_the_prepared_environment": "4.26.0",
+    "why_that_matters": "the pinned validator is what the distribution rules; the ambient one is not it, and v12/python/justfile already records finding a green source run against the wrong version"
+  },
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "count": 13,
+    "harness": "probes-185653.py in this dossier; set W183883_PROBE_TREE to a COPY of the checkout's v12/",
+    "probes": [
+      {
+        "checks": [
+          "PreparingIt.test_a_foreign_directory_is_refused_and_never_deleted",
+          "PreparingIt.test_an_incompatible_environment_is_refused_and_never_deleted"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "setup-deletes-what-it-did-not-create",
+        "returncode": 1,
+        "seconds": 0.041
+      },
+      {
+        "checks": [
+          "WhatItSeesThere.test_a_directory_this_setup_did_not_create_is_foreign",
+          "WhatItSeesThere.test_an_unreadable_marker_is_foreign_rather_than_absent"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "a-directory-without-our-marker-is-ours",
+        "returncode": 1,
+        "seconds": 0.046
+      },
+      {
+        "checks": [
+          "WhatItSeesThere.test_a_marker_naming_another_path_is_foreign"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "a-marker-naming-another-path-still-counts",
+        "returncode": 1,
+        "seconds": 0.044
+      },
+      {
+        "checks": [
+          "WhatItSeesThere.test_an_interpreter_below_the_declared_minimum_is_incompatible"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "the-declared-minimum-is-not-enforced",
+        "returncode": 1,
+        "seconds": 0.038
+      },
+      {
+        "checks": [
+          "PreparingIt.test_an_interpreter_below_the_minimum_builds_nothing"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "a-too-old-interpreter-still-builds",
+        "returncode": 1,
+        "seconds": 0.038
+      },
+      {
+        "checks": [
+          "WhereItLives.test_a_pyproject_with_no_minimum_is_refused_rather_than_guessed"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "the-minimum-is-guessed-when-undeclared",
+        "returncode": 1,
+        "seconds": 0.039
+      },
+      {
+        "checks": [
+          "PreparingIt.test_the_dependencies_are_installed_with_their_hashes_enforced"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "hashes-are-not-enforced",
+        "returncode": 1,
+        "seconds": 0.05
+      },
+      {
+        "checks": [
+          "WhatItSeesThere.test_an_environment_installed_from_another_lock_is_stale",
+          "PreparingIt.test_a_stale_environment_is_reinstalled_and_not_recreated"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "a-stale-lock-is-not-noticed",
+        "returncode": 1,
+        "seconds": 0.058
+      },
+      {
+        "checks": [
+          "PreparingIt.test_a_repeated_setup_installs_nothing_at_all"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "a-repeated-setup-reinstalls-anyway",
+        "returncode": 1,
+        "seconds": 0.05
+      },
+      {
+        "checks": [
+          "PreparingIt.test_a_refused_install_supplies_the_exact_command_and_deletes_nothing"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "a-failed-install-hides-the-command",
+        "returncode": 1,
+        "seconds": 0.048
+      },
+      {
+        "checks": [
+          "NamingTheInterpreter.test_the_refusal_never_reaches_the_stream_a_recipe_reads"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "probe": "the-refusal-goes-where-a-recipe-would-run-it",
+        "returncode": 1,
+        "seconds": 0.041
+      },
+      {
+        "checks": [
+          "TheRecipesUseIt.test_every_stack_recipe_resolves_the_prepared_interpreter"
+        ],
+        "failed_as_required": true,
+        "file": "justfile",
+        "probe": "a-recipe-falls-back-to-ambient-python",
+        "returncode": 1,
+        "seconds": 0.039
+      },
+      {
+        "checks": [
+          "TheRecipesUseIt.test_no_stack_recipe_installs_anything"
+        ],
+        "failed_as_required": true,
+        "file": "justfile",
+        "probe": "starting-installs-as-a-side-effect",
+        "returncode": 1,
+        "seconds": 0.038
+      }
+    ],
+    "restored_tree_matches_working_tree": true,
+    "seconds": 0.691,
+    "two_probes_first_did_not_apply_or_passed": "a-failed-install-hides-the-command was first anchored on prose, did not apply, then in its second form reverted only prose and PASSED -- proving nothing. It was re-anchored on the command construction the check actually reads and then failed as required."
+  },
+  "scope": "focused deterministic verification plus one real locked install; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation",
+  "secrets": "a baton.user-credential-sources/1 registry exists at /home/sl/.baton/credential-sources.json mode 0600. Its CONTENTS were not read and appear in no file this claim wrote.",
+  "work": "W183883"
+}

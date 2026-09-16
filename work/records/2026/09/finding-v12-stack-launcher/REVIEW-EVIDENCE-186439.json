@@ -1,0 +1,71 @@
+{
+  "claim": 186439,
+  "candidate_hashes": {
+    "v12/STACK.md": "5f5d0026740ad28ec19b5ad7046c6211eec2b19bda20a6d645a9ed4908c6ce7c",
+    "v12/justfile": "6acbd6029baaacab31da1a0f87feba3fb4876d99226ccd981ef30837b4614a32",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+    "v12/python/tests/tools/test_environment.py": "c05bfb4177a8cf5f8e04c34f250d5da1480d61f726d79b3b33cc7aac2a1b864a",
+    "v12/python/tests/tools/test_stack.py": "6608d603457856d92abf6600609d7e81b416a6c2642d341a824aa09a2315794b",
+    "v12/python/tools/bootstrap.py": "792e3f4575d68b9d1c6d197fbac1315f563a40754ca65222a5e9dbe55c46b404",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/instance.py": "f632a7df81d812d2695f2472890ee1f7439adfa024e7940a71c7e9d7f134a71c",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "0766c7c4dd27cd84ffd5aaa2a3cd6db2730f540ef3fad337129aef912a4bcbef",
+    "v12/python/tools/stack_command.py": "4f923e87142bda2667826a992c2108e63bd4ac4bea6cc01e3b9d981c4216de13",
+    "v12/python/tools/stage_execution.py": "e981c0cbe18f213215e49a3e3bbcb86bb41ca4625c50bae2897be61704b15ff8"
+  },
+  "results": {
+    "direct_runtime_change_refused": true,
+    "K1_cross_instance_stop_dispatch": {
+      "selector": "/tmp/w183883-review186439-2y6cthz3/a/instance.json",
+      "dispatched_state": "/tmp/w183883-review186439-2y6cthz3/b/state",
+      "returncode": 0,
+      "note": "stop substituted; no process was signalled"
+    },
+    "K2_other_runtime_dispatch": {
+      "verified_runtime_digest": "68ca76d3ec63980bb2dfefdf388323b367243b2c4a578a0e61a585e3a3aa3a19",
+      "a_digest": "312eca2e7a83badc57fb9fd4a31025fb491bd5583299dffead87a0c1360837ea",
+      "selected_command": "/tmp/w183883-review186439-2y6cthz3/b/distro/baton-v12-stack",
+      "actual_child_command": "/tmp/w183883-review186439-2y6cthz3/a/distro/baton-v12-stack"
+    },
+    "K2_external_symlink_change_accepted": {
+      "link": "/tmp/w183883-review186439-2y6cthz3/a/distro/library.so",
+      "manifest_unchanged": true,
+      "verify": "accepted after external target byte change"
+    },
+    "K3_invalid_identity_accepted": {
+      "frozen": false,
+      "schema_assets": "FileNotFoundError: absent",
+      "native_rpds": "ImportError: absent"
+    },
+    "K3_prepare_before_install_preflight": {
+      "order": [
+        "prepare",
+        "missing distro refusal"
+      ],
+      "returncode": 2,
+      "output": "refused: there is no built runtime at /tmp/w183883-review186439-2y6cthz3/absent-distro. Build one with `just build` from v12/ first.\n",
+      "note": "prepare substituted to record ordering; no Authority was opened"
+    },
+    "K3_existing_selector_overwritten": {
+      "selector": "/tmp/w183883-review186439-2y6cthz3/preexisting-selector/instance.json",
+      "identity": {
+        "frozen": false,
+        "native_rpds": "ImportError: absent",
+        "schema_assets": "FileNotFoundError: absent"
+      },
+      "note": "direct install, identity probe substituted; real file replaced inside reviewer scratch"
+    },
+    "K4_bundle_root_state_allowed": {
+      "returned_code_boundary": "/tmp/w183883-review186439-2y6cthz3/b/distro/_internal",
+      "accepted_mutable_path": "/tmp/w183883-review186439-2y6cthz3/b/distro/mutable-state"
+    },
+    "K1_wrong_type_escapes": "expected str, bytes or os.PathLike object, not int"
+  },
+  "verification_seconds": 0.0028278949903324246,
+  "retained_scratch": "/tmp/w183883-review186439-2y6cthz3",
+  "scope": "Isolated actual helper calls with explicit subprocess/control substitutes; no packaged build, Authority, provider, engine, Job or real stop/start. No external-root writes or Git operations."
+}

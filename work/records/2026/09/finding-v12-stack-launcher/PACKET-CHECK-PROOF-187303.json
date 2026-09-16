@@ -1,0 +1,82 @@
+{
+ "claim": 187223,
+ "every_bad_case_refuses": true,
+ "results": [
+  {
+   "case": "everything holds",
+   "exit": 0,
+   "refused": [],
+   "stdout_tail": [
+    "OK: three distinct repositories under /tmp/w183883-packet-5r2_a7mb/deployment, base and reference present"
+   ]
+  },
+  {
+   "case": "the workspace directory is absent",
+   "exit": 2,
+   "refused": [
+    "REFUSED: common directory is absent: /tmp/w183883-packet-d6s_y7ju/deployment/repo/workspace"
+   ],
+   "stdout_tail": []
+  },
+  {
+   "case": "the workspace is not a repository the tool can identify",
+   "exit": 2,
+   "refused": [
+    "REFUSED: not a repository this profile can identify: /tmp/w183883-packet-aoo92r9l/deployment/repo/workspace"
+   ],
+   "stdout_tail": []
+  },
+  {
+   "case": "the workspace shares the target's repository",
+   "exit": 2,
+   "refused": [
+    "REFUSED: the workspace IS the target repository"
+   ],
+   "stdout_tail": []
+  },
+  {
+   "case": "the workspace borrows objects from elsewhere",
+   "exit": 2,
+   "refused": [
+    "REFUSED: borrows objects from elsewhere: /tmp/w183883-packet-wev64rrp/deployment/repo/workspace"
+   ],
+   "stdout_tail": []
+  },
+  {
+   "case": "the target borrows objects from elsewhere",
+   "exit": 2,
+   "refused": [
+    "REFUSED: borrows objects from elsewhere: /tmp/w183883-packet-e9m16eyi/deployment/repo/target.git"
+   ],
+   "stdout_tail": []
+  },
+  {
+   "case": "a source shares the workspace's repository",
+   "exit": 2,
+   "refused": [
+    "REFUSED: a source shares the workspace repository: /tmp/w183883-packet-o2l36vcs/deployment/repo/source-impl-a"
+   ],
+   "stdout_tail": []
+  },
+  {
+   "case": "the declared base is not in the target",
+   "exit": 2,
+   "refused": [
+    "REFUSED: the declared base is not a commit in the target"
+   ],
+   "stdout_tail": []
+  },
+  {
+   "case": "the import reference does not exist",
+   "exit": 2,
+   "refused": [
+    "REFUSED: the import reference does not exist in the target"
+   ],
+   "stdout_tail": []
+  }
+ ],
+ "simulated": "the repository tool is a stub answering four reads; `realpath` and `stat` are the host's own and the directories, alternates files and missing paths are real. Nothing is created, cloned or modified.",
+ "the_good_case_passes": true,
+ "what": "the packet's own check block, extracted from OPERATOR-INDEPENDENT-REPOSITORY.md and driven against one good case and eight bad ones. Review 2026-09-16T14-40-22Z found the previous block returned 0 when the workspace could not be stat-ed and when it had alternates.",
+ "work": "W183883"
+}

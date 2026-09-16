@@ -1,0 +1,132 @@
+{
+  "claim": 186356,
+  "candidate_hashes": {
+    "v12/STACK.md": "5f5d0026740ad28ec19b5ad7046c6211eec2b19bda20a6d645a9ed4908c6ce7c",
+    "v12/justfile": "b1ee92e1a33fa3c98f5b87de7262ba0d2001066c41c5400e7d93dadecb790ee6",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+    "v12/python/tests/tools/test_environment.py": "c05bfb4177a8cf5f8e04c34f250d5da1480d61f726d79b3b33cc7aac2a1b864a",
+    "v12/python/tests/tools/test_stack.py": "6608d603457856d92abf6600609d7e81b416a6c2642d341a824aa09a2315794b",
+    "v12/python/tools/bootstrap.py": "2c78a8005fd8a9e79b0ddaf0a9e8d3a8c700cf142acd77ca5e2505520d484510",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "20b65702fc082fd786de5f7a6feba728a08866e1a93813bf0b97c80769525523",
+    "v12/python/tools/stack_command.py": "4f923e87142bda2667826a992c2108e63bd4ac4bea6cc01e3b9d981c4216de13"
+  },
+  "focused_tests": {
+    "argv": [
+      "python3",
+      "-m",
+      "unittest",
+      "-v",
+      "tests.tools.test_stack.TheChildrenAreTheOneCommand",
+      "tests.tools.test_stack.Lifecycle",
+      "tests.tools.test_stack.Publication"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "test_a_subcommand_this_command_does_not_serve_is_refused (tests.tools.test_stack.TheChildrenAreTheOneCommand.test_a_subcommand_this_command_does_not_serve_is_refused) ... ok\ntest_every_child_the_supervisor_starts_is_a_real_subcommand (tests.tools.test_stack.TheChildrenAreTheOneCommand.test_every_child_the_supervisor_starts_is_a_real_subcommand) ... ok\ntest_from_source_the_child_is_this_interpreter_and_the_module (tests.tools.test_stack.TheChildrenAreTheOneCommand.test_from_source_the_child_is_this_interpreter_and_the_module) ... ok\ntest_frozen_the_child_is_the_command_itself (tests.tools.test_stack.TheChildrenAreTheOneCommand.test_frozen_the_child_is_the_command_itself) ... ok\ntest_a_process_that_will_not_die_fails_the_stop (tests.tools.test_stack.Lifecycle.test_a_process_that_will_not_die_fails_the_stop)\nR4: this used to print the truth and return 0 anyway, so a caller ... ok\ntest_a_repeated_start_does_not_duplicate_the_manager (tests.tools.test_stack.Lifecycle.test_a_repeated_start_does_not_duplicate_the_manager) ... ok\ntest_a_repeated_stop_is_not_an_error (tests.tools.test_stack.Lifecycle.test_a_repeated_stop_is_not_an_error) ... ok\ntest_a_stale_record_is_cleared_and_replaced_not_signalled (tests.tools.test_stack.Lifecycle.test_a_stale_record_is_cleared_and_replaced_not_signalled) ... ok\ntest_first_start_runs_both_owned_processes (tests.tools.test_stack.Lifecycle.test_first_start_runs_both_owned_processes) ... ok\ntest_restart_preserves_the_configured_stores (tests.tools.test_stack.Lifecycle.test_restart_preserves_the_configured_stores) ... ok\ntest_start_refuses_an_unconfigured_stack_and_starts_nothing (tests.tools.test_stack.Lifecycle.test_start_refuses_an_unconfigured_stack_and_starts_nothing) ... ok\ntest_stop_ends_only_the_owned_processes (tests.tools.test_stack.Lifecycle.test_stop_ends_only_the_owned_processes) ... ok\ntest_stop_never_signals_a_reused_pid (tests.tools.test_stack.Lifecycle.test_stop_never_signals_a_reused_pid)\nThe record claims a pid that is now somebody else's. ... ok\ntest_a_failed_status_leaves_the_previous_snapshot_in_place (tests.tools.test_stack.Publication.test_a_failed_status_leaves_the_previous_snapshot_in_place) ... status refused (returncode 1):\nboom\nok\ntest_the_publisher_observes_read_only (tests.tools.test_stack.Publication.test_the_publisher_observes_read_only)\nIt reads with the OBSERVING factory, never the serving one. ... ok\ntest_the_publisher_refreshes_until_it_is_asked_to_stop (tests.tools.test_stack.Publication.test_the_publisher_refreshes_until_it_is_asked_to_stop) ... ok\ntest_the_snapshot_is_published_atomically (tests.tools.test_stack.Publication.test_the_snapshot_is_published_atomically)\nA viewer must never read a half-written document, so publication is ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 1.181s\n\nOK\n"
+  },
+  "entrypoint_forwarding": [
+    {
+      "command": "start",
+      "forwarded": [
+        "--root",
+        "/tmp/review-instance",
+        "start"
+      ],
+      "returncode": 17
+    },
+    {
+      "command": "stop",
+      "forwarded": [
+        "--root",
+        "/tmp/review-instance",
+        "stop"
+      ],
+      "returncode": 17
+    },
+    {
+      "command": "status",
+      "forwarded": [
+        "--root",
+        "/tmp/review-instance",
+        "status"
+      ],
+      "returncode": 17
+    },
+    {
+      "command": "publish",
+      "forwarded": [
+        "--root",
+        "/tmp/review-instance",
+        "publish"
+      ],
+      "returncode": 17
+    },
+    {
+      "command": "manager",
+      "forwarded": [
+        "--root",
+        "/tmp/review-instance"
+      ],
+      "returncode": 17
+    },
+    {
+      "command": "view",
+      "forwarded": [
+        "--root",
+        "/tmp/review-instance"
+      ],
+      "returncode": 17
+    },
+    {
+      "command": "bootstrap",
+      "forwarded": [
+        "--root",
+        "/tmp/review-instance"
+      ],
+      "returncode": 17
+    }
+  ],
+  "j1_independent_probe": [
+    {
+      "stage": "baseline",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "output": "test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one)\n[I1]: the recipe assigned its own default over an exported ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.001s\n\nOK\n"
+    },
+    {
+      "stage": "reversed",
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "output": "test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one)\n[I1]: the recipe assigned its own default over an exported ... FAIL\n\n======================================================================\nFAIL: test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one)\n[I1]: the recipe assigned its own default over an exported\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/home/sl/src/baton/v12/python/tests/tools/test_environment.py\", line 325, in test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one\n    self.assertIn('tools.environment test-root --chosen \"\"', expanded)\n    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'tools.environment test-root --chosen \"\"' not found in '#!/usr/bin/env bash\\nset -euo pipefail\\ncd \"$(dirname \"/tmp/w183883-review186356-8it19brl/justfile\")/python\"\\nSELECTED=\"\"\\nPREPARED=\"$(python3 -m tools.environment interpreter)\"\\nexec env BATON_V12_STACK_TEST_ROOT=\"$SELECTED\" PYTHONPATH=src:. \\\\\\n\\ttimeout --kill-after=10s 180s \\\\\\n\\t\"$PREPARED\" -m unittest -v tests.tools.test_bootstrap\\n'\n\n----------------------------------------------------------------------\nRan 1 test in 0.001s\n\nFAILED (failures=1)\n"
+    },
+    {
+      "stage": "restored",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "output": "test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one (tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one)\n[I1]: the recipe assigned its own default over an exported ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.001s\n\nOK\n"
+    }
+  ],
+  "source_identity": {
+    "command": "baton-v12-stack",
+    "frozen": false,
+    "machine": "x86_64",
+    "native_rpds": "/usr/lib/python3/dist-packages/rpds/__init__.py",
+    "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+    "python": "3.13.7",
+    "schema_assets": {
+      "agent-session-1.0": 48212,
+      "worker-control-1.0": 51419
+    }
+  },
+  "verification_seconds": 1.6185368220321834,
+  "retained_scratch": "/tmp/w183883-review186356-8it19brl",
+  "scope": "Source dispatch/lifecycle tests and temporary recipe reversal only; no packaged rebuild, external writes, provider, engine, Job, dependency install or Git mutation. Existing tests cleaned owned children; all subprocesses returned. Frozen mode in unit tests is simulated, not a real bundle."
+}

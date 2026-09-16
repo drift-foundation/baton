@@ -1,0 +1,73 @@
+{
+  "candidate_hashes": {
+    "v12/STACK.md": "c01d81a9173e56f2af221f2bd2eecd08df71eb2fd83abe0487cfa02eacdbeb34",
+    "v12/justfile": "8f3ed773705c5f6e636ac826601d5f7cbc9701d9a87ea8910c12c3c1dd22b96c",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tests/tools/test_bootstrap.py": "d6009a16292c09187170488d3f7c3317b011908297d67ea11ad76c7dc0d5a498",
+    "v12/python/tests/tools/test_environment.py": "84b15abc2bc81ffea8e433260c8e43b898101bb0a79b854bdb8a31461f4fa31c",
+    "v12/python/tests/tools/test_instance.py": "f752188de581f833e25da62161e6845a5ba5b57534e38547d8f6cabe32aeda35",
+    "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+    "v12/python/tests/tools/test_stack.py": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+    "v12/python/tools/bootstrap.py": "6f5c94add9d5523f41142de3934bac52d8ffc8d7075cd5c4aeaca2d15cc5feed",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/instance.py": "765bfd64aa9967c16741f940b5c77070bdcd268c56ae935ecc2fa6f795bfa9c9",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+    "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+    "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59",
+    "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+  },
+  "cases": {
+    "custody_after_lock": {
+      "calls": [],
+      "foreign_preserved": true,
+      "refusal": "there is already a runtime at /tmp/w183883-review188763-dfbmo0oq/lock/deployment/distro; nothing here upgrades a deployment in place. Stop that instance and prepare a new destination if you mean a different runtime."
+    },
+    "partial_write_retry_fixed": {
+      "error": "injected full disk during justfile write",
+      "output": "cleanup       unwound /tmp/w183883-review188763-dfbmo0oq/partial-write/deployment/justfile\ncleanup       unwound /tmp/w183883-review188763-dfbmo0oq/partial-write/deployment/distro\ninstance      /tmp/w183883-review188763-dfbmo0oq/partial-write/deployment/instance.json\nruntime       2 files, digest 6f3faf0acbb36b18...\nstores        /tmp/w183883-review188763-dfbmo0oq/partial-write/deployment/db\nrepository    /tmp/w183883-review188763-dfbmo0oq/partial-write/deployment/repo\njustfile      /tmp/w183883-review188763-dfbmo0oq/partial-write/deployment/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /tmp/w183883-review188763-dfbmo0oq/partial-write/deployment && just status\n    just --justfile /tmp/w183883-review188763-dfbmo0oq/partial-write/deployment/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /tmp/w183883-review188763-dfbmo0oq/partial-write/deployment/distro/baton-v12-stack status --instance /tmp/w183883-review188763-dfbmo0oq/partial-write/deployment/instance.json\n",
+      "retry_succeeded": true
+    },
+    "public_io_error_escapes": {
+      "exception": "OSError",
+      "justfile_exists": false,
+      "message": "injected public selector I/O failure",
+      "output": "repositories  not prepared: this input names no repository_source, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling\ncleanup       unwound /tmp/w183883-review188763-dfbmo0oq/public-error/deployment/justfile\ncleanup       unwound /tmp/w183883-review188763-dfbmo0oq/public-error/deployment/distro\n",
+      "runtime_exists": false
+    },
+    "publication_retry": {
+      "output": "cleanup       unwound /tmp/w183883-review188763-dfbmo0oq/normal-retry/deployment/justfile\ncleanup       unwound /tmp/w183883-review188763-dfbmo0oq/normal-retry/deployment/distro\ninstance      /tmp/w183883-review188763-dfbmo0oq/normal-retry/deployment/instance.json\nruntime       2 files, digest 6f3faf0acbb36b18...\nstores        /tmp/w183883-review188763-dfbmo0oq/normal-retry/deployment/db\nrepository    /tmp/w183883-review188763-dfbmo0oq/normal-retry/deployment/repo\njustfile      /tmp/w183883-review188763-dfbmo0oq/normal-retry/deployment/justfile\n\nThe deployment is operated from the destination, and needs nothing else:\n\n    cd /tmp/w183883-review188763-dfbmo0oq/normal-retry/deployment && just status\n    just --justfile /tmp/w183883-review188763-dfbmo0oq/normal-retry/deployment/justfile start        # from anywhere\n\nor the command directly, which is the same program:\n\n    /tmp/w183883-review188763-dfbmo0oq/normal-retry/deployment/distro/baton-v12-stack status --instance /tmp/w183883-review188763-dfbmo0oq/normal-retry/deployment/instance.json\n",
+      "retry_succeeded": true
+    },
+    "replacement_preserved": {
+      "foreign_file_exists": true,
+      "output": "cleanup       left /tmp/w183883-review188763-dfbmo0oq/replacement/deployment/justfile alone: it is no longer the justfile this attempt made, so it belongs to whoever replaced it\ncleanup       unwound /tmp/w183883-review188763-dfbmo0oq/replacement/deployment/distro\n",
+      "refusal": "simulated publication refusal after replacement"
+    },
+    "storage_absent": {
+      "paths": [
+        "/tmp/w183883-review188763-dfbmo0oq/absent/deployment/workers/impl-a/storage",
+        "/tmp/w183883-review188763-dfbmo0oq/absent/deployment/workers/review-a/storage",
+        "/tmp/w183883-review188763-dfbmo0oq/absent/deployment/workers/integ-a/storage"
+      ]
+    },
+    "storage_external": {
+      "refusal": "this input asks for repositories to be prepared under /tmp/w183883-review188763-dfbmo0oq/external/deployment AND puts worker storage outside it:\n  impl-a stores at /tmp/w183883-review188763-dfbmo0oq/external (/tmp/w183883-review188763-dfbmo0oq/external)\n  review-a stores at /tmp/w183883-review188763-dfbmo0oq/external (/tmp/w183883-review188763-dfbmo0oq/external)\n  integ-a stores at /tmp/w183883-review188763-dfbmo0oq/external (/tmp/w183883-review188763-dfbmo0oq/external)\nA self-contained deployment keeps its mutable state under its own destination. Drop the member to have it derived, name one inside the destination, or drop repository_source."
+    },
+    "storage_shared-local": {
+      "paths": [
+        "/tmp/w183883-review188763-dfbmo0oq/shared-local/deployment/workers/shared",
+        "/tmp/w183883-review188763-dfbmo0oq/shared-local/deployment/workers/shared",
+        "/tmp/w183883-review188763-dfbmo0oq/shared-local/deployment/workers/shared"
+      ]
+    },
+    "storage_symlink-external": {
+      "refusal": "this input asks for repositories to be prepared under /tmp/w183883-review188763-dfbmo0oq/symlink-external/deployment AND puts worker storage outside it:\n  impl-a stores at /tmp/w183883-review188763-dfbmo0oq/symlink-external/deployment/linked/storage (/tmp/w183883-review188763-dfbmo0oq/external/storage)\n  review-a stores at /tmp/w183883-review188763-dfbmo0oq/symlink-external/deployment/linked/storage (/tmp/w183883-review188763-dfbmo0oq/external/storage)\n  integ-a stores at /tmp/w183883-review188763-dfbmo0oq/symlink-external/deployment/linked/storage (/tmp/w183883-review188763-dfbmo0oq/external/storage)\nA self-contained deployment keeps its mutable state under its own destination. Drop the member to have it derived, name one inside the destination, or drop repository_source."
+    }
+  },
+  "claim": 188763,
+  "limits": "Actual installer and binding functions, inert runtime identity, simulated repository runner and deterministic publication/write boundary injections. No actual Git, store/Authority open, credential read, provider/engine/Job or live stack operation. Replacement is a deterministic boundary case, not a claim of adversarial filesystem protection.",
+  "scratch_retained": "/tmp/w183883-review188763-dfbmo0oq",
+  "seconds": 0.12674616603180766
+}

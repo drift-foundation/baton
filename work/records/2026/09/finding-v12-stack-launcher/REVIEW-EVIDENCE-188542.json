@@ -1,0 +1,284 @@
+{
+  "candidate_hashes": {
+    "v12/STACK.md": "c01d81a9173e56f2af221f2bd2eecd08df71eb2fd83abe0487cfa02eacdbeb34",
+    "v12/justfile": "8f3ed773705c5f6e636ac826601d5f7cbc9701d9a87ea8910c12c3c1dd22b96c",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tests/tools/test_bootstrap.py": "c01cbbd39f286e66e5969e8f0517351f42bd77f609383e2eb3580525ced1ec57",
+    "v12/python/tests/tools/test_environment.py": "84b15abc2bc81ffea8e433260c8e43b898101bb0a79b854bdb8a31461f4fa31c",
+    "v12/python/tests/tools/test_instance.py": "398d1dc758b7df6aa03894ebfed63c499d308899c21f6a0d1377c93542aae975",
+    "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+    "v12/python/tests/tools/test_stack.py": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+    "v12/python/tools/bootstrap.py": "c2592c3bc80ddb0c33e88546811237128c711c306c598fa5f42e69962cb6111d",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/instance.py": "765bfd64aa9967c16741f940b5c77070bdcd268c56ae935ecc2fa6f795bfa9c9",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+    "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+    "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59",
+    "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+  },
+  "cases": {
+    "missing_input_mutates_first": {
+      "calls": [
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "--mirror",
+          "/tmp/w183883-review188542-xtkbx548/owner-source",
+          "/tmp/w183883-review188542-xtkbx548/missing-input-install/repo/target.git"
+        ],
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "/tmp/w183883-review188542-xtkbx548/missing-input-install/repo/target.git",
+          "/tmp/w183883-review188542-xtkbx548/missing-input-install/repo/workspace"
+        ],
+        [
+          "git",
+          "-C",
+          "/tmp/w183883-review188542-xtkbx548/missing-input-install/repo/target.git",
+          "rev-parse",
+          "--path-format=absolute",
+          "--git-common-dir"
+        ],
+        [
+          "git",
+          "-C",
+          "/tmp/w183883-review188542-xtkbx548/missing-input-install/repo/workspace",
+          "rev-parse",
+          "--path-format=absolute",
+          "--git-common-dir"
+        ]
+      ],
+      "clone_targets": [
+        "/tmp/w183883-review188542-xtkbx548/missing-input-install/repo/target.git",
+        "/tmp/w183883-review188542-xtkbx548/missing-input-install/repo/workspace"
+      ],
+      "destination_exists": true,
+      "exit": 2,
+      "output": "repositories  2 prepared under /tmp/w183883-review188542-xtkbx548/missing-input-install/repo: target, workspace\nrefused: this deployment cannot be prepared: the following are not named and cannot be derived -- authority_uuid, checkpoint_profile, integration_profile, jobs, policy_generation, pool_generation, receipt_participants, retention_disposition, retention_policy_digest, schema, workers. These are production selections; nothing here invents one, and a fixture digest, proof task or disposable credential is not a production selection. See v12/STACK.md.\n",
+      "selector_exists": false
+    },
+    "prepared_paths_not_bound": {
+      "planned": [
+        [
+          "target",
+          "/tmp/w183883-review188542-xtkbx548/binding/repo/target.git",
+          true
+        ],
+        [
+          "workspace",
+          "/tmp/w183883-review188542-xtkbx548/binding/repo/workspace",
+          false
+        ],
+        [
+          "source-impl-a",
+          "/tmp/w183883-review188542-xtkbx548/binding/repo/source-impl-a",
+          false
+        ],
+        [
+          "source-review-a",
+          "/tmp/w183883-review188542-xtkbx548/binding/repo/source-review-a",
+          false
+        ],
+        [
+          "source-integ-a",
+          "/tmp/w183883-review188542-xtkbx548/binding/repo/source-integ-a",
+          false
+        ]
+      ],
+      "selected_sources": [
+        "/var/tmp/v12-w71917-58q3_mby/source",
+        "/var/tmp/v12-w71917-58q3_mby/source",
+        "/var/tmp/v12-w71917-58q3_mby/source"
+      ],
+      "selected_storage": [
+        "/var/tmp/v12-w71917-58q3_mby/storage",
+        "/var/tmp/v12-w71917-58q3_mby/storage",
+        "/var/tmp/v12-w71917-58q3_mby/storage"
+      ],
+      "selected_target": "/tmp/w183883-review188542-xtkbx548/unrelated-target",
+      "selected_workspace": "/tmp/w183883-review188542-xtkbx548/binding/repo/unprepared-workspace"
+    },
+    "regular_justfile": {
+      "after": "# The deployed v12 stack. Written by `just bootstrap`; do not edit by hand.\n#\n# OWNER-STANDALONE-INTERFACE-20260916.md selects this interface: once a\n# deployment is installed, its lifecycle needs NOTHING but the destination.\n#\n#     cd /tmp/w183883-review188542-xtkbx548/regular-justfile && just status\n#     just --justfile /tmp/w183883-review188542-xtkbx548/regular-justfile/justfile status      # from anywhere at all\n#\n# EVERY PATH IS RESOLVED FROM THIS FILE'S OWN DIRECTORY, never from the\n# caller's working directory, which is what makes the second form mean the same\n# deployment as the first. The instance selector beneath is unchanged: the\n# command still verifies the runtime it is about to run and still refuses to\n# drive an instance that is not its own.\n# NOT A LOGIN SHELL. A deployed command must not depend on whoever's\n# profile happens to be readable where it runs; the first live run of\n# this interface printed a profile permission error before every recipe.\nset shell := [\"bash\", \"-euo\", \"pipefail\", \"-c\"]\nset quiet\n\nHERE := justfile_directory()\nCOMMAND := HERE / \"distro\" / \"baton-v12-stack\"\nINSTANCE := HERE / \"instance.json\"\n\ndefault: status\n\n# The scheduler and its snapshot publisher. Repeatable.\nstart:\n\t\"{{COMMAND}}\" start --instance \"{{INSTANCE}}\"\n\n# Only the processes this deployment owns. Stores and evidence are retained.\nstop:\n\t\"{{COMMAND}}\" stop --instance \"{{INSTANCE}}\"\n\n# Process health, snapshot freshness, observed Jobs, the runtime boundary.\nstatus:\n\t\"{{COMMAND}}\" status --instance \"{{INSTANCE}}\"\n\n# The read-only monitor. INTERVAL is seconds between refreshes; Ctrl-C leaves\n# it, and leaving it does not stop scheduling -- that is `just stop`.\nmonitor INTERVAL=\"5\":\n\t\"{{COMMAND}}\" monitor --instance \"{{INSTANCE}}\" --interval \"{{INTERVAL}}\"\n\n# What this deployment's repositories actually are. Read-only.\nrepository:\n\t\"{{COMMAND}}\" repository --instance \"{{INSTANCE}}\"\n\n# What this build IS: frozen, platform, packaged assets, digests.\nidentity:\n\t\"{{COMMAND}}\" identity\n",
+      "before": "# pre-existing owner material\n",
+      "selector_published": true
+    },
+    "repository_source_leaks": {
+      "baseline_without_source_accepted": true,
+      "extra_keys": [
+        "repository_source"
+      ],
+      "with_source_refusal": "the deployment this document describes is not one the manager would accept, so nothing was prepared: a stage-execution configuration carries exactly authority_store, authority_uuid, canonical_target_id, checkpoint_profile, integration_profile, integration_store, job_work_id, line_declared_base, policy_generation, pool_generation, receipt_participants, retention_disposition, retention_policy_digest, review_work_id, schema, state_root, workers. Each worker's `deployment` member is the single-worker launch document v12/python/DEPLOYMENT.md specifies; this helper fills in only participant, principal, authority_store, authority_uuid and launch_role, and names the rest as yours to select."
+    },
+    "valid_source_install": {
+      "calls": [
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "--mirror",
+          "/tmp/w183883-review188542-xtkbx548/owner-source",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/target.git"
+        ],
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/target.git",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/workspace"
+        ],
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/target.git",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/source-impl-a"
+        ],
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/target.git",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/source-review-a"
+        ],
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/target.git",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/source-integ-a"
+        ],
+        [
+          "git",
+          "-C",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/target.git",
+          "rev-parse",
+          "--path-format=absolute",
+          "--git-common-dir"
+        ],
+        [
+          "git",
+          "-C",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/workspace",
+          "rev-parse",
+          "--path-format=absolute",
+          "--git-common-dir"
+        ],
+        [
+          "git",
+          "-C",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/source-impl-a",
+          "rev-parse",
+          "--path-format=absolute",
+          "--git-common-dir"
+        ],
+        [
+          "git",
+          "-C",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/source-review-a",
+          "rev-parse",
+          "--path-format=absolute",
+          "--git-common-dir"
+        ],
+        [
+          "git",
+          "-C",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/source-integ-a",
+          "rev-parse",
+          "--path-format=absolute",
+          "--git-common-dir"
+        ],
+        [
+          "git",
+          "-C",
+          "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/target.git",
+          "cat-file",
+          "-e",
+          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa^{commit}"
+        ]
+      ],
+      "clone_targets": [
+        "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/target.git",
+        "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/workspace",
+        "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/source-impl-a",
+        "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/source-review-a",
+        "/tmp/w183883-review188542-xtkbx548/valid-source-install/repo/source-integ-a"
+      ],
+      "destination_exists": true,
+      "exit": 2,
+      "output": "repositories  5 prepared under /tmp/w183883-review188542-xtkbx548/valid-source-install/repo: target, workspace, source-impl-a, source-review-a, source-integ-a\nrefused: the deployment this document describes is not one the manager would accept, so nothing was prepared: a stage-execution configuration carries exactly authority_store, authority_uuid, canonical_target_id, checkpoint_profile, integration_profile, integration_store, job_work_id, line_declared_base, policy_generation, pool_generation, receipt_participants, retention_disposition, retention_policy_digest, review_work_id, schema, state_root, workers. Each worker's `deployment` member is the single-worker launch document v12/python/DEPLOYMENT.md specifies; this helper fills in only participant, principal, authority_store, authority_uuid and launch_role, and names the rest as yours to select.\n",
+      "selector_exists": false
+    },
+    "worker_path_escapes_before_validation": {
+      "calls": [
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "--mirror",
+          "/tmp/w183883-review188542-xtkbx548/owner-source",
+          "/tmp/w183883-review188542-xtkbx548/traversal-install/repo/target.git"
+        ],
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "/tmp/w183883-review188542-xtkbx548/traversal-install/repo/target.git",
+          "/tmp/w183883-review188542-xtkbx548/traversal-install/repo/workspace"
+        ],
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "/tmp/w183883-review188542-xtkbx548/traversal-install/repo/target.git",
+          "/tmp/w183883-review188542-xtkbx548/traversal-install/repo/source-x/../../../escape"
+        ],
+        [
+          "git",
+          "-C",
+          "/tmp/w183883-review188542-xtkbx548/traversal-install/repo/target.git",
+          "rev-parse",
+          "--path-format=absolute",
+          "--git-common-dir"
+        ],
+        [
+          "git",
+          "-C",
+          "/tmp/w183883-review188542-xtkbx548/traversal-install/repo/workspace",
+          "rev-parse",
+          "--path-format=absolute",
+          "--git-common-dir"
+        ],
+        [
+          "git",
+          "-C",
+          "/tmp/w183883-review188542-xtkbx548/traversal-install/repo/source-x/../../../escape",
+          "rev-parse",
+          "--path-format=absolute",
+          "--git-common-dir"
+        ]
+      ],
+      "clone_targets": [
+        "/tmp/w183883-review188542-xtkbx548/traversal-install/repo/target.git",
+        "/tmp/w183883-review188542-xtkbx548/traversal-install/repo/workspace",
+        "/tmp/w183883-review188542-xtkbx548/traversal-install/repo/source-x/../../../escape"
+      ],
+      "destination_exists": true,
+      "exit": 2,
+      "output": "repositories  3 prepared under /tmp/w183883-review188542-xtkbx548/traversal-install/repo: target, workspace, source-x/../../../escape\nrefused: this deployment cannot be prepared: the following are not named and cannot be derived -- authority_uuid, checkpoint_profile, integration_profile, jobs, policy_generation, pool_generation, receipt_participants, retention_disposition, retention_policy_digest, schema, workers[0].deployment, workers[0].participant, workers[0].role. These are production selections; nothing here invents one, and a fixture digest, proof task or disposable credential is not a production selection. See v12/STACK.md.\n",
+      "outside_destination_targets": [
+        "/tmp/w183883-review188542-xtkbx548/escape"
+      ],
+      "selector_exists": false
+    }
+  },
+  "claim": 188542,
+  "limits": "Real installer/configuration/validation functions with inert runtime identity and simulated Git subprocess boundary. Ordinary scratch directories only, retained. No real Git, Authority/store open, provider, engine, Job or stack process. Binding case demonstrates mapping, not a successful full install.",
+  "scratch_retained": "/tmp/w183883-review188542-xtkbx548",
+  "seconds": 0.011346058046910912
+}

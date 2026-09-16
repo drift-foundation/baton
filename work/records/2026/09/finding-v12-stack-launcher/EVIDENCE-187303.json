@@ -1,0 +1,334 @@
+{
+ "H1a_the_harness_decided_what_it_owned_from_printed_text": {
+  "file": "LIFECYCLE-HARNESS-187303.py (187223, 187142 and 187015 retained)",
+  "the_normal_run": {
+   "output": "LIFECYCLE-187303.json",
+   "owned_pids": {
+    "/var/tmp/w183883-live-186890/deployment": {
+     "manager": 3910008,
+     "publisher": 3910009
+    },
+    "/var/tmp/w183883-live-186890/deployment-b": {
+     "manager": 3910018,
+     "publisher": 3910019
+    }
+   },
+   "seconds": 7.557,
+   "verdict": {
+    "cleanup_resolved": true,
+    "instances_claimed": [
+     "/var/tmp/w183883-live-186890/deployment",
+     "/var/tmp/w183883-live-186890/deployment-b"
+    ],
+    "ok": true,
+    "steps_failed": 0
+   }
+  },
+  "what_it_does_now": [
+   "OWNERSHIP FIRST, through the deployment's OWN reader: each instance is asked for `status` before anything is started, and anything but a positive `absent` for every process means this run does not own it -- it refuses, starts nothing, stops nothing and exits non-zero",
+   "identity is COMPLETE or it is UNKNOWN: a start must report a pid for every process AND `status` must then agree with those pids; anything less is recorded as unknown and is never read as absence",
+   "the four states are the product's (absent / running / gone / unknown) and are read rather than re-implemented -- no new process manager, and no global `pgrep`",
+   "cleanup stops ONLY instances this run claimed",
+   "the runtime-mismatch case is not re-run here at all: LIFECYCLE-187142.json holds it against a real installed bundle and test_packaging holds it against the build, and corrupting a library is not something to do on the strength of a pid map that might be empty"
+  ],
+  "what_the_review_found": [
+   "`start` on an ALREADY-RUNNING instance prints no 'started: \u2026 pid N' line and a TIMED-OUT start prints nothing, so the pid map was empty -- and an empty pid map read as 'nothing of ours is alive', after which the run corrupted a library and claimed cleanup ownership over processes it had not started",
+   "a PermissionError in the liveness read became 'dead': not being allowed to look is not evidence of absence"
+  ]
+ },
+ "H1b_the_repeated_bootstrap_recorded_preservation_without_asserting_it": {
+  "proved_by": "the `selector-changed` boundary -- one step failed, exit 2",
+  "what_it_does_now": "the comparison is an assertion: a changed selector is a failure naming what a refusal that rewrote what it refused to replace actually is",
+  "what_was_wrong": "a refusal that rewrote the selector produced `selector_unchanged: false` and still exited 0 with ok true"
+ },
+ "O3_the_packet_ordered_the_work_impossibly": {
+  "the_preflight_was_not_weakened": "nothing in the product changed; the document was brought into line with what the product already refuses",
+  "what_it_says_now": "one order -- create the worker roots, make the three clones, run the fail-closed check, THEN build and bootstrap -- plus the two things `nominate_source` also requires: the final component must not be a symlink, and the spelling must already be the resolved path.",
+  "what_was_wrong": "it said cloning after `just bootstrap` was simpler. It is not possible: bootstrap validates through held_configuration -> single_worker._held -> nominate_source, which proves each worker's source directory with an lstat and an O_DIRECTORY|O_NOFOLLOW open, so an absent source is refused before an Authority exists."
+ },
+ "all_owned_children_reaped": true,
+ "answers_review": "review-2026-09-16T14-54-21Z.md sha256 1babd2bbc6cbbc196ea1f8a7a035d37cf58f30bff721770f69c9a46874460f95 -- H1a, H1b, O3 and the contradicted build field",
+ "candidates": {
+  "v12/STACK.md": "0100b24410aae8b00c49593964c6f7cac66b79989a2cfb6e650d1749a0b48946",
+  "v12/justfile": "2a541f4782b984d06747847061cebffbc28646f32cd2fb3ec92b7ee888771ae4",
+  "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+  "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+  "v12/python/tests/tools/test_bootstrap.py": "c01cbbd39f286e66e5969e8f0517351f42bd77f609383e2eb3580525ced1ec57",
+  "v12/python/tests/tools/test_environment.py": "059ea493cdb9a10b8c098c0c982a982e453c7eb2a7407c4f3ec7592a702e4cfb",
+  "v12/python/tests/tools/test_instance.py": "fdcf7b072c0af71cf672cfeb8234866eeda94c7a5739e4fb5c038f40fb726a7a",
+  "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+  "v12/python/tests/tools/test_stack.py": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+  "v12/python/tools/bootstrap.py": "533511939872f3bcb6c8e8d62a0402b9a4a43ef76d6c35e0e5b364cd7a3dbe3f",
+  "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+  "v12/python/tools/instance.py": "f9b64570771fd5c88677da687964b74be7595de885e95f072fa35f5f03e05cef",
+  "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+  "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+  "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+  "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59",
+  "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+ },
+ "claim": 187303,
+ "cumulative_verification_seconds": {
+  "J1_history": "0.125s reversal within a 1.291s whole harness; both intervals preserved",
+  "author_claim183891": 1.195,
+  "author_claim183998": 151.908,
+  "author_claim184239": 127.816,
+  "author_claim184442": 63.532,
+  "author_claim185653": 26.94,
+  "author_claim185774": 27.256,
+  "author_claim185884": 33.299,
+  "author_claim185976": 32.661,
+  "author_claim186044": 30.937,
+  "author_claim186132": 2.476,
+  "author_claim186214": 28.576,
+  "author_claim186284": 27.262,
+  "author_claim186381": {
+   "focused": 27.19,
+   "stage_suite": 55.317
+  },
+  "author_claim186468": 27.183,
+  "author_claim186523": 27.128,
+  "author_claim186583": {
+   "focused": 27.154,
+   "reversal_probes": 0.589
+  },
+  "author_claim186672": {
+   "focused": 27.202,
+   "reversal_probes": 0.625,
+   "scenarios": 0.003
+  },
+  "author_claim186742": {
+   "focused": 27.256,
+   "reversal_probes": {
+    "instance_lifecycle": 2.197,
+    "temporary_custody": 0.541
+   },
+   "scenarios": 0.003
+  },
+  "author_claim186838": {
+   "focused": 27.547,
+   "reversal_probes": 1.247
+  },
+  "author_claim186890": {
+   "builds": "four builds this claim, three of them inside the packaging probe tree; the retained one is BUILD-186890.log, 10156 bytes, exit 0",
+   "focused": 29.559,
+   "live_installed_lifecycle": 7.194,
+   "reversal_probes": {
+    "build_and_revert_packaging": 17.09,
+    "source": 3.683
+   }
+  },
+  "author_claim187015": {
+   "builds": "two builds this claim; the retained one is BUILD-187015.log, exit 0",
+   "focused": 30.191,
+   "live_installed_lifecycle": 7.219,
+   "reversal_probes": 28.886
+  },
+  "author_claim187142": {
+   "builds": "one build; BUILD-187142.log, exit 0",
+   "focused": 30.153,
+   "injected_failure_proofs": "three runs, each ~7s, retained in CLEANUP-PROOF-187142.json",
+   "live_installed_lifecycle": 7.37,
+   "reversal_probes": 28.295
+  },
+  "author_claim187223": {
+   "boundary_runs": "six injected-boundary runs of the harness, each about seven seconds, retained",
+   "builds": "none -- no product code changed, and the review said no rebuild was needed for packet/harness-only changes",
+   "focused": 30.309,
+   "live_installed_lifecycle": 7.398,
+   "packet_check_proof": "nine extracted-block scenarios, sub-second"
+  },
+  "earlier_build_and_bundle_checks": "unknown duration, VERIFICATION rather than deployment cost",
+  "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+  "owner_bootstrap_run": 0.938,
+  "owner_composition_run": 10.535,
+  "reviewer_claim183958": 1.5529989219503477,
+  "reviewer_claim184197": 12.840890395978931,
+  "reviewer_claim184197_readiness_check": 0.002758326008915901,
+  "reviewer_claim184403": 20.8455910270568,
+  "reviewer_claim184537": 15.599983819993213,
+  "reviewer_claim185739": 0.12554923997959122,
+  "reviewer_claim185857": 0.22083405102603137,
+  "reviewer_claim185945": 0.0037346489843912423,
+  "reviewer_claim186022": 0.004474725050386041,
+  "reviewer_claim186081": 0.005015750008169562,
+  "reviewer_claim186175": 0.04717645701020956,
+  "reviewer_claim186262": 0.4171164730214514,
+  "reviewer_claim186356": 1.6185368220321834,
+  "reviewer_claim186439": 0.0028278949903324246,
+  "reviewer_claim186499": 0.003370393009390682,
+  "this_claim_boundary_runs": "nine injected-boundary runs of the harness, each a few seconds, retained",
+  "this_claim_builds": "none; no product code changed and no rebuild was requested",
+  "this_claim_focused_tests": "not re-run: no product or test file changed, and the review said not to re-run an unchanged suite for a handoff. Every candidate hash is identical to claim187223's.",
+  "this_claim_live_installed_lifecycle": 7.557,
+  "this_claim_packet_check_proof": "nine extracted-block scenarios, sub-second"
+ },
+ "edited_this_claim": [
+  "work/records/.../LIFECYCLE-HARNESS-187303.py (new)",
+  "work/records/.../OPERATOR-INDEPENDENT-REPOSITORY.md (ordering section)",
+  "work/records/.../EVIDENCE-187223.json (the build field)"
+ ],
+ "no_probes_and_no_suite_run_this_claim": "no product or test file changed -- every candidate hash is identical to claim187223's -- so a reversal probe would have nothing to revert and an unchanged suite would establish nothing the review has not already accepted. What changed is a harness and a document, and both are checked by RUNNING them: nine boundaries and nine extracted scenarios.",
+ "not_done": {
+  "no_build_this_claim": true,
+  "no_credential_registry_read": true,
+  "no_job_submitted": true,
+  "no_live_provider_or_engine_run": true,
+  "no_product_or_test_file_changed": true,
+  "no_v11_path_service_store_or_configuration_touched": true,
+  "no_version_control_mutation": true
+ },
+ "operational_findings_preserved": [
+  {
+   "modules": [
+    "tests.manager.test_claude_context",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.tools.test_correction_restart",
+    "tests.tools.test_managed_apply"
+   ],
+   "note": "unchanged; re-observed this claim",
+   "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+  },
+  {
+   "note": "unchanged, not re-run this claim",
+   "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+  }
+ ],
+ "proved_by_injected_boundaries": {
+  "after-starts": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [
+    "/var/tmp/w183883-live-186890/deployment",
+    "/var/tmp/w183883-live-186890/deployment-b"
+   ],
+   "json_was_emitted": true,
+   "raised": "RuntimeError: injected failure at after-starts",
+   "steps_that_failed": [],
+   "still_not_absent": {}
+  },
+  "alive-unknown": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [],
+   "json_was_emitted": true,
+   "raised": null,
+   "steps_that_failed": [
+    "ownership preflight deployment",
+    "ownership preflight deployment-b"
+   ],
+   "still_not_absent": {}
+  },
+  "already-running": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [],
+   "json_was_emitted": true,
+   "raised": null,
+   "steps_that_failed": [
+    "ownership preflight deployment",
+    "ownership preflight deployment-b"
+   ],
+   "still_not_absent": {}
+  },
+  "cleanup-raises": {
+   "cleanup_resolved": false,
+   "exit": 2,
+   "instances_claimed": [
+    "/var/tmp/w183883-live-186890/deployment",
+    "/var/tmp/w183883-live-186890/deployment-b"
+   ],
+   "json_was_emitted": true,
+   "raised": null,
+   "steps_that_failed": [],
+   "still_not_absent": {}
+  },
+  "selector-changed": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [
+    "/var/tmp/w183883-live-186890/deployment",
+    "/var/tmp/w183883-live-186890/deployment-b"
+   ],
+   "json_was_emitted": true,
+   "raised": null,
+   "steps_that_failed": [
+    "a repeated bootstrap"
+   ],
+   "still_not_absent": {}
+  },
+  "start-silent": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [
+    "/var/tmp/w183883-live-186890/deployment",
+    "/var/tmp/w183883-live-186890/deployment-b"
+   ],
+   "json_was_emitted": true,
+   "raised": null,
+   "steps_that_failed": [
+    "ownership of deployment",
+    "ownership of deployment-b"
+   ],
+   "still_not_absent": {}
+  },
+  "start-timeout": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [
+    "/var/tmp/w183883-live-186890/deployment",
+    "/var/tmp/w183883-live-186890/deployment-b"
+   ],
+   "json_was_emitted": true,
+   "raised": null,
+   "steps_that_failed": [
+    "start deployment",
+    "ownership of deployment",
+    "start deployment-b",
+    "ownership of deployment-b"
+   ],
+   "still_not_absent": {}
+  },
+  "stop-nonzero": {
+   "cleanup_resolved": false,
+   "exit": 2,
+   "instances_claimed": [
+    "/var/tmp/w183883-live-186890/deployment",
+    "/var/tmp/w183883-live-186890/deployment-b"
+   ],
+   "json_was_emitted": true,
+   "raised": null,
+   "steps_that_failed": [],
+   "still_not_absent": {}
+  },
+  "timeout-status": {
+   "cleanup_resolved": true,
+   "exit": 2,
+   "instances_claimed": [],
+   "json_was_emitted": true,
+   "raised": null,
+   "steps_that_failed": [
+    "ownership preflight deployment",
+    "ownership preflight deployment-b"
+   ],
+   "still_not_absent": {}
+  }
+ },
+ "remaining_scope": [
+  "the owner's own selections and preparation: the source, the base, the three clones, the reference and the observer participant. Creating or cloning a repository is a version-control mutation this Work does not perform, and the packet is now the exact command set for it."
+ ],
+ "scope": "the harness's ownership, the repeated-bootstrap assertion, the packet's ordering, and one field in the previous record. NO product or test file changed and nothing was built.",
+ "the_packet_block_still_fails_closed": {
+  "cases": 9,
+  "every_bad_case_refuses": true,
+  "file": "PACKET-CHECK-PROOF-187303.json",
+  "note": "re-extracted after the ordering rewrite, because the block lives in the document that changed",
+  "the_good_case_passes": true
+ },
+ "the_previous_record_corrected": {
+  "now": "that record says `no_build_this_claim: true` and carries the correction and its reason",
+  "what": "EVIDENCE-187223.json carried `a_build_WAS_run_this_claim: true`, inherited from claim187142 rather than measured, contradicting its own no-build handoff"
+ },
+ "work": "W183883"
+}

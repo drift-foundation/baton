@@ -1,0 +1,317 @@
+{
+  "all_owned_children_reaped": true,
+  "answers_review": "review-2026-09-16T10-39-48Z.md sha256 6ce965338ec0f1fc83612a203ed948310d109763b195db5a9e0557385fed4081 (E1, E2, B1)",
+  "candidates": {
+    "v12/STACK.md": "d01b42a5762854c1abd62b5994bdff63185c4254db73c6d2298af08618c9a8d0",
+    "v12/justfile": "52f7083c86dc8071531a2848fa986821de98935859d434ee8a6e1881e44dd886",
+    "v12/python/tests/tools/test_bootstrap.py": "ada5eed660527ce29ab8cc7f86e62cc4a61067b95c57d4af305174a7b323ade0",
+    "v12/python/tests/tools/test_environment.py": "c0b5ce194d333494e528a0174705c2c2fdd65d2e64f1d60a59b71e33df444ecc",
+    "v12/python/tests/tools/test_stack.py": "a2bc1a222650ecc7e5f846b5007373796bb7cc0b187dfb866eac1a400af5e1b1",
+    "v12/python/tools/bootstrap.py": "10e6590955723b4a70da1720b5e89f654968bad00f553aabec8a3318755c6cdf",
+    "v12/python/tools/environment.py": "25f781cef478247bac61b2cfa79f802577bb1b13e8c2749a0ae4d244972fd042",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136"
+  },
+  "claim": 185774,
+  "corrections": {
+    "B1": {
+      "checks_count": 28,
+      "recipe": "just bootstrap <inputs.json>, on the prepared interpreter",
+      "what": "the bootstrap is WRITTEN. tools/bootstrap.py validates the operator's selections and names every missing one at once BEFORE anything durable, composes the Authority (principals derived, Works created, three route handlers, four grants per Work in its own scope), lays out the external state, emits the stage-execution document as /1 or /2 with job_bindings, reports configured capacity, and prints the four exports. It selects nothing, submits no Job and executes nothing. Repeating it preserves state and refuses a conflicting binding before the Authority is even opened."
+    },
+    "E1": {
+      "checks": [
+        "TheInterpreterOverrideIsExecutable.test_a_positional_interpreter_reaches_the_helper_as_a_path",
+        "TheInterpreterOverrideIsExecutable.test_the_default_is_the_ambient_python3",
+        "TheInterpreterOverrideIsExecutable.test_the_named_option_spelling_would_have_been_forwarded_whole",
+        "TheInterpreterOverrideIsExecutable.test_nothing_recommends_the_spelling_that_does_not_work",
+        "TheInterpreterOverrideIsExecutable.test_the_runbook_says_the_wrong_spelling_is_wrong"
+      ],
+      "note": "the checks RUN `just`; reading the recipe is what let the wrong spelling survive",
+      "what": "the interpreter override is POSITIONAL. `just setup /path/to/python3`, in the recipe comment, the runbook and both refusals. Reproduced first with real just expansion: `just --dry-run setup PY=/usr/bin/python3.13` expands to --python \"PY=/usr/bin/python3.13\", and `just --dry-run version PY=...` against the sibling justfile is refused as an unknown recipe, so the variable spelling is not an override here either."
+    },
+    "E2": {
+      "checks": [
+        "AnInterruptedSetupResumes.test_a_failed_first_install_leaves_a_resumable_environment",
+        "AnInterruptedSetupResumes.test_an_incomplete_environment_is_not_admitted_as_ready",
+        "AnInterruptedSetupResumes.test_the_retry_resumes_without_recreating_the_environment",
+        "AnInterruptedSetupResumes.test_ready_is_published_only_after_the_install_succeeds",
+        "AnInterruptedSetupResumes.test_a_genuinely_foreign_directory_is_still_refused"
+      ],
+      "what": "ownership is published BEFORE the install and records `installed`. A tool-created environment whose install has not succeeded is `incomplete`: setup RESUMES it without recreating, `interpreter` refuses it, and a genuinely foreign or incompatible directory is still refused and still never deleted. Ready is published only after the locked install succeeds."
+    }
+  },
+  "cumulative_verification_seconds": {
+    "author_claim183891": 1.195,
+    "author_claim183998": 151.908,
+    "author_claim184239": 127.816,
+    "author_claim184442": 63.532,
+    "author_claim185653": 26.94,
+    "note": "reported per actor and never summed; the real locked install of claim185653 and the earliest recipe duration remain unknown rather than erased, and none is an execution gate",
+    "owner_composition_run": 10.535,
+    "reviewer_claim183958": 1.5529989219503477,
+    "reviewer_claim184197": 12.840890395978931,
+    "reviewer_claim184197_readiness_check": 0.002758326008915901,
+    "reviewer_claim184403": 20.8455910270568,
+    "reviewer_claim184537": 15.599983819993213,
+    "reviewer_claim185739": 0.12554923997959122,
+    "this_claim_focused_tests": 26.299,
+    "this_claim_reversal_probes": 0.957,
+    "this_claim_total": 27.256
+  },
+  "discovery_corrected": {
+    "file": "DEPLOYMENT-INPUTS-185653.md",
+    "sha256": "a24609822cf1720eb4abedcd1c65b034ebddf28f8a23800bea45fb8460910105",
+    "what_was_wrong": [
+      "/2 was described as pool-only; _held_bindings requires a NONEMPTY job_bindings list, one entry per Job carrying its own Work, base, target and producer, and a /1 document carrying job_bindings is refused outright",
+      "two Works per Job was implied; _held_bindings requires the implementation and review Work IDs EQUAL within a binding, because the review-cycle provider keys one line by one (authority, work) pair and attach_review binds the reviewer to the writer's own Work",
+      "a fixed count of nine endpoints was asserted; _RECEIPT_MEMBERS names three receipt participants and _minted DERIVES the integrator and the publisher. The actual selected set for a one-Job deployment sharing its integrator with its integration worker is six, and the bootstrap derives it rather than gating on a count",
+      "capacity was a producer count; it is now reported as configured workers by role, Jobs, per-Job producer affinity and distinct targets, with the serialization note"
+    ]
+  },
+  "focused_tests": {
+    "command": "cd v12/python && python3 -m unittest tests.tools.test_environment tests.tools.test_bootstrap tests.tools.test_stack",
+    "new_this_claim": 38,
+    "returncode": 0,
+    "seconds": 26.299,
+    "tests": 163
+  },
+  "not_done": {
+    "no_dependency_download_this_claim": true,
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true,
+    "scratch_removed": "the probe tree copy was removed after use"
+  },
+  "operational_findings_preserved": [
+    {
+      "note": "unchanged, not adopted",
+      "what": "tools/parallel_test.py still refuses its whole run over the same five unregistered test modules; tests.tools.test_environment and tests.tools.test_bootstrap ARE registered"
+    },
+    {
+      "note": "proved pre-existing in claim184239; unchanged",
+      "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+    }
+  ],
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "count": 17,
+    "harness": "probes-185774.py in this dossier; set W183883_PROBE_TREE to a COPY of the checkout's v12/ INCLUDING STACK.md",
+    "one_probe_anchor_did_not_apply_first": "E1-the-refusal-recommends-the-broken-spelling was first anchored on a fragment that had already been reworded; re-anchored on the full refusal line and it then failed as required",
+    "probes": [
+      {
+        "checks": [
+          "TheInterpreterOverrideIsExecutable.test_a_positional_interpreter_reaches_the_helper_as_a_path"
+        ],
+        "failed_as_required": true,
+        "file": "justfile",
+        "module": "environment",
+        "probe": "E1-the-recipe-takes-a-named-option",
+        "returncode": 1,
+        "seconds": 0.042
+      },
+      {
+        "checks": [
+          "TheInterpreterOverrideIsExecutable.test_nothing_recommends_the_spelling_that_does_not_work"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "module": "environment",
+        "probe": "E1-the-refusal-recommends-the-broken-spelling",
+        "returncode": 1,
+        "seconds": 0.038
+      },
+      {
+        "checks": [
+          "AnInterruptedSetupResumes.test_a_failed_first_install_leaves_a_resumable_environment",
+          "AnInterruptedSetupResumes.test_the_retry_resumes_without_recreating_the_environment"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "module": "environment",
+        "probe": "E2-ownership-is-published-only-after-the-install",
+        "returncode": 1,
+        "seconds": 0.053
+      },
+      {
+        "checks": [
+          "AnInterruptedSetupResumes.test_an_incomplete_environment_is_not_admitted_as_ready",
+          "AnInterruptedSetupResumes.test_a_failed_first_install_leaves_a_resumable_environment"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "module": "environment",
+        "probe": "E2-an-incomplete-environment-reads-as-ready",
+        "returncode": 1,
+        "seconds": 0.063
+      },
+      {
+        "checks": [
+          "AnInterruptedSetupResumes.test_ready_is_published_only_after_the_install_succeeds"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "module": "environment",
+        "probe": "E2-ready-is-published-before-the-install-succeeds",
+        "returncode": 1,
+        "seconds": 0.049
+      },
+      {
+        "checks": [
+          "AnInterruptedSetupResumes.test_a_genuinely_foreign_directory_is_still_refused",
+          "WhatItSeesThere.test_a_directory_this_setup_did_not_create_is_foreign"
+        ],
+        "failed_as_required": true,
+        "file": "environment.py",
+        "module": "environment",
+        "probe": "E2-resumability-becomes-acceptance",
+        "returncode": 1,
+        "seconds": 0.047
+      },
+      {
+        "checks": [
+          "EveryMissingInputIsNamedAtOnce.test_an_empty_document_names_every_operand_it_needs",
+          "EveryMissingInputIsNamedAtOnce.test_a_missing_member_inside_a_worker_or_job_is_named_by_position"
+        ],
+        "failed_as_required": true,
+        "file": "bootstrap.py",
+        "module": "bootstrap",
+        "probe": "B-missing-inputs-are-not-named",
+        "returncode": 1,
+        "seconds": 0.025
+      },
+      {
+        "checks": [
+          "WhatItRefusesBeforeItTouchesAnything.test_a_state_root_inside_the_checkout_is_refused"
+        ],
+        "failed_as_required": true,
+        "file": "bootstrap.py",
+        "module": "bootstrap",
+        "probe": "B-a-state-root-inside-the-checkout-is-accepted",
+        "returncode": 1,
+        "seconds": 0.046
+      },
+      {
+        "checks": [
+          "WhatItRefusesBeforeItTouchesAnything.test_implementation_and_review_may_share_no_participant"
+        ],
+        "failed_as_required": true,
+        "file": "bootstrap.py",
+        "module": "bootstrap",
+        "probe": "B-implementation-may-review-itself",
+        "returncode": 1,
+        "seconds": 0.038
+      },
+      {
+        "checks": [
+          "WhatItRefusesBeforeItTouchesAnything.test_a_job_naming_a_producer_that_is_not_configured_is_refused"
+        ],
+        "failed_as_required": true,
+        "file": "bootstrap.py",
+        "module": "bootstrap",
+        "probe": "B-a-job-may-name-any-producer",
+        "returncode": 1,
+        "seconds": 0.038
+      },
+      {
+        "checks": [
+          "WhatItDerives.test_one_job_is_written_as_the_one_job_schema"
+        ],
+        "failed_as_required": true,
+        "file": "bootstrap.py",
+        "module": "bootstrap",
+        "probe": "B-every-deployment-is-written-as-multi-job",
+        "returncode": 1,
+        "seconds": 0.038
+      },
+      {
+        "checks": [
+          "WhatItDerives.test_each_binding_carries_one_work_on_both_axes"
+        ],
+        "failed_as_required": true,
+        "file": "bootstrap.py",
+        "module": "bootstrap",
+        "probe": "B-a-binding-may-carry-two-different-works",
+        "returncode": 1,
+        "seconds": 0.038
+      },
+      {
+        "checks": [
+          "WhatItDerives.test_every_principal_is_derived_rather_than_configured"
+        ],
+        "failed_as_required": true,
+        "file": "bootstrap.py",
+        "module": "bootstrap",
+        "probe": "B-principals-are-not-written-into-the-document",
+        "returncode": 1,
+        "seconds": 0.037
+      },
+      {
+        "checks": [
+          "WhatItComposesOnTheAuthority.test_each_job_gets_its_work_its_routes_and_its_four_grants"
+        ],
+        "failed_as_required": true,
+        "file": "bootstrap.py",
+        "module": "bootstrap",
+        "probe": "B-no-grants-are-issued",
+        "returncode": 1,
+        "seconds": 0.039
+      },
+      {
+        "checks": [
+          "RepeatingIt.test_a_conflicting_binding_is_refused_and_nothing_is_rewritten",
+          "RepeatingIt.test_a_conflicting_authority_is_refused",
+          "RepeatingIt.test_the_conflict_is_found_before_the_authority_is_even_opened"
+        ],
+        "failed_as_required": true,
+        "file": "bootstrap.py",
+        "module": "bootstrap",
+        "probe": "B-a-conflicting-binding-is-rewritten",
+        "returncode": 1,
+        "seconds": 0.042
+      },
+      {
+        "checks": [
+          "RepeatingIt.test_the_conflict_is_found_before_the_authority_is_even_opened"
+        ],
+        "failed_as_required": true,
+        "file": "bootstrap.py",
+        "module": "bootstrap",
+        "probe": "B-the-conflict-is-found-after-the-authority-is-opened",
+        "returncode": 1,
+        "seconds": 0.039
+      },
+      {
+        "checks": [
+          "WhatItDerives.test_capacity_is_what_is_configured_rather_than_a_concurrency_claim"
+        ],
+        "failed_as_required": true,
+        "file": "bootstrap.py",
+        "module": "bootstrap",
+        "probe": "B-capacity-is-reported-as-a-concurrency-guarantee",
+        "returncode": 1,
+        "seconds": 0.036
+      }
+    ],
+    "restored_tree_matches_working_tree": true,
+    "seconds": 0.957,
+    "what_the_probe_run_itself_found": [
+      "the first harness copied only python/ and justfile, so a check reading STACK.md errored in the restored tree -- a harness gap, fixed by copying it",
+      "a reversal that removed the inside-the-checkout guard made test_a_state_root_inside_the_checkout_is_refused CREATE a directory in the checkout and leave it there. That is a case that dirties the tree it asserts about, so it now cleans up unconditionally -- a real test-hygiene defect the probes surfaced, not a product one"
+    ]
+  },
+  "scope": "focused deterministic verification; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation, no dependency download this claim",
+  "secrets": "the baton.user-credential-sources/1 registry at /home/sl/.baton/credential-sources.json mode 0600 was NOT read; its contents appear in no file this claim wrote",
+  "still_the_owner's_to_choose": {
+    "how_they_are_handled_now": "bootstrap refuses each by name rather than inventing one; the helper and its checks exist and do not wait on them",
+    "what": "the production selections in DEPLOYMENT-INPUTS-185653.md, by exact field name: image_digest, adapter_name/adapter_digest, profile_name/profile_digest/policy_digest, credential_sources/credential_slots/credential_profile, nominated_source/task_document/input_manifest/workspace_capacity, canonical_target_id/line_declared_base and the integration target, workspace_group, retention_policy_digest, and the participant endpoints"
+  },
+  "unchanged_this_claim": [
+    "v12/python/tools/stack.py",
+    "v12/python/tools/job_manager.py",
+    "v12/python/tests/tools/test_stack.py"
+  ],
+  "work": "W183883"
+}

@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_the_PUBLIC_command_answers_an_installation_failure",
+    "tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_the_PUBLIC_refusal_never_claims_a_cleanup_that_did_not_happen",
+    "tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_a_programming_fault_is_NOT_dressed_up_as_a_refusal"
+  ],
+  "exit": 0,
+  "seconds": 0.1697127310326323,
+  "stdout": "",
+  "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.129s\n\nOK\n"
+}

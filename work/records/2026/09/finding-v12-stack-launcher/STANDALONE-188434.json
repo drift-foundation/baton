@@ -1,0 +1,152 @@
+{
+ "record": {
+  "after_stop": {
+   "argv": [
+    "just",
+    "status"
+   ],
+   "cwd": "/var/tmp/w183883-standalone-188434/deployment",
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "manager    absent",
+    "publisher  absent",
+    "snapshot   fresh (observed 5.2s ago, written 5.2s ago)",
+    "jobs       0 observed (canonical=True)"
+   ]
+  },
+  "cd_destination_just_start": {
+   "argv": [
+    "just",
+    "start"
+   ],
+   "cwd": "/var/tmp/w183883-standalone-188434/deployment",
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "started: manager pid 3930002",
+    "started: publisher pid 3930003",
+    "ready: every manager this start ran acknowledged that its deployment composed, and the publisher wrote a valid, freshly observed snapshot",
+    "state root: /var/tmp/w183883-standalone-188434/deployment/state"
+   ]
+  },
+  "cd_destination_just_status": {
+   "argv": [
+    "just",
+    "status"
+   ],
+   "cwd": "/var/tmp/w183883-standalone-188434/deployment",
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "manager    absent",
+    "publisher  absent",
+    "snapshot   stale (observed 31.2s ago, written 31.2s ago)",
+    "jobs       0 observed (canonical=True)"
+   ]
+  },
+  "cd_destination_just_stop": {
+   "argv": [
+    "just",
+    "stop"
+   ],
+   "cwd": "/var/tmp/w183883-standalone-188434/deployment",
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "stopped: manager pid 3930002",
+    "stopped: publisher pid 3930003",
+    "runtime   0 open episode(s), 0 with a recorded runtime, observed 5.1s ago",
+    "stores and evidence retained under the configured paths"
+   ]
+  },
+  "from_root_identity": {
+   "argv": [
+    "just",
+    "--justfile",
+    "/var/tmp/w183883-standalone-188434/deployment/justfile",
+    "identity"
+   ],
+   "cwd": "/",
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "{",
+    "  \"command\": \"baton-v12-stack\",",
+    "  \"executable\": \"/var/tmp/w183883-standalone-188434/deployment/distro/baton-v12-stack\",",
+    "  \"frozen\": true,"
+   ]
+  },
+  "from_root_repository": {
+   "argv": [
+    "just",
+    "--justfile",
+    "/var/tmp/w183883-standalone-188434/deployment/justfile",
+    "repository"
+   ],
+   "cwd": "/",
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "workspace      /var/tmp/w183883-standalone-188434/deployment/repo -- inside this instance -- empty",
+    "target         not configured",
+    "reference      not configured -- a reconciled result is imported at exactly one explicitly configured reference",
+    "declared bases aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+   ]
+  },
+  "from_root_with_justfile_status": {
+   "argv": [
+    "just",
+    "--justfile",
+    "/var/tmp/w183883-standalone-188434/deployment/justfile",
+    "status"
+   ],
+   "cwd": "/",
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "manager    running pid 3930002",
+    "publisher  running pid 3930003",
+    "snapshot   fresh (observed 0.2s ago, written 0.2s ago)",
+    "jobs       0 observed (canonical=True)"
+   ]
+  },
+  "how": "environment of HOME and PATH only; no PYTHONPATH, no BATON_V12_*, no virtual environment, no JSON operand, nothing from the checkout",
+  "the_monitor_bounded_at_the_command": {
+   "argv": [
+    "/var/tmp/w183883-standalone-188434/deployment/distro/baton-v12-stack",
+    "monitor",
+    "--instance",
+    "/var/tmp/w183883-standalone-188434/deployment/instance.json",
+    "--interval",
+    "0.2",
+    "--ticks",
+    "2"
+   ],
+   "cwd": "/",
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "observed at 2026-09-16T18:38:50.769Z   (0s old, read 0s ago)",
+    "  (this snapshot reports no Jobs)",
+    "observed at 2026-09-16T18:38:50.769Z   (0s old, read 0s ago)",
+    "  (this snapshot reports no Jobs)"
+   ]
+  },
+  "the_same_deployment_from_both_forms": true,
+  "what_the_destination_holds": [
+   ".bootstrap.lock",
+   "bootstrap.json",
+   "db",
+   "deployment-state",
+   "deployment.json",
+   "distro",
+   "instance.json",
+   "justfile",
+   "logs",
+   "repo",
+   "state"
+  ]
+ },
+ "seconds": 5.66
+}

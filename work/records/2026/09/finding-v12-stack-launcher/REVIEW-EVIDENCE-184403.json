@@ -1,0 +1,80 @@
+{
+  "adjacent_tests": {
+    "count": 168,
+    "modules": [
+      "tests.job_manager.test_tool",
+      "tests.job_manager.test_recovery",
+      "tests.tools.test_job_viewer",
+      "tests.tools.test_stage_execution_status_hardening"
+    ],
+    "output": "........................................................................................................................................................................\n----------------------------------------------------------------------\nRan 168 tests in 6.352s\n\nOK\n",
+    "seconds": 6.37693740503164,
+    "success": true
+  },
+  "all_reviewer_children_reaped": true,
+  "author_manifest_sha256": "5c637925f2ea06c246f46136ec2d1747def2c0197dd3919b91c62c7be9e4c684",
+  "both-already-live": {
+    "manager_acknowledged": false,
+    "output": "already running: manager pid 1037\nalready running: publisher pid 1038\n",
+    "returncode": 0,
+    "serving_status": "unacknowledged: this manager has not said its deployment composed"
+  },
+  "claim": 184403,
+  "composition_not_run": "Two ValidIdleComposition cases need disk-backed external storage; /tmp is tmpfs and /var/tmp is outside reviewer write authority. Author evidence retained separately.",
+  "hashes": [
+    {
+      "actual": "a325545b477aa65e7dcec5089b421e962785bc212a44bd6b370aedd7e69ce2b9",
+      "expected": "a325545b477aa65e7dcec5089b421e962785bc212a44bd6b370aedd7e69ce2b9",
+      "path": "v12/STACK.md"
+    },
+    {
+      "actual": "b3ae4b4f08ab17ddce18555457c881d12f8754ee075278065b6d971c1c8f2254",
+      "expected": "b3ae4b4f08ab17ddce18555457c881d12f8754ee075278065b6d971c1c8f2254",
+      "path": "v12/justfile"
+    },
+    {
+      "actual": "be651a1793fc7484b75fe198f2540b5f719f0af0d47ac9cf432e9284284b3724",
+      "expected": "be651a1793fc7484b75fe198f2540b5f719f0af0d47ac9cf432e9284284b3724",
+      "path": "v12/python/tests/tools/test_stack.py"
+    },
+    {
+      "actual": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+      "expected": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+      "path": "v12/python/tools/job_manager.py"
+    },
+    {
+      "actual": "94cdc0f6f7933a2498b0490fd4c434409d7bae92f64a80d3ac358cfe69f91805",
+      "expected": "94cdc0f6f7933a2498b0490fd4c434409d7bae92f64a80d3ac358cfe69f91805",
+      "path": "v12/python/tools/parallel_test.py"
+    },
+    {
+      "actual": "377d8b4e8bd08eb44f249acdb31a9cf46936ce7ee97645892ba36da8af7daa52",
+      "expected": "377d8b4e8bd08eb44f249acdb31a9cf46936ce7ee97645892ba36da8af7daa52",
+      "path": "v12/python/tools/stack.py"
+    }
+  ],
+  "manager_incarnation_write_failure": {
+    "error": "injected incarnation record update failure",
+    "manager_live": true,
+    "output": "",
+    "record_has_incarnation": false,
+    "writes": [
+      "manager",
+      "manager"
+    ]
+  },
+  "publisher-replacement": {
+    "manager_acknowledged": false,
+    "output": "started: publisher pid 1040\nready: every manager this start ran acknowledged that its deployment composed, and the publisher wrote a valid, freshly observed snapshot\nstate root: /tmp/w184403-review-u73vjrya/publisher-replacement\nno Job was submitted; an empty configured stack is a valid idle state\n",
+    "returncode": 0,
+    "serving_status": "unacknowledged: this manager has not said its deployment composed"
+  },
+  "scope": "focused deterministic local tests, owned sleeper stand-ins; no deployed manager, provider, engine or v11 operation",
+  "stack_tests": {
+    "count": 84,
+    "output": "....................................................................................\n----------------------------------------------------------------------\nRan 84 tests in 14.461s\n\nOK\n",
+    "seconds": 14.4608839469729,
+    "success": true
+  },
+  "total_seconds": 20.8455910270568
+}

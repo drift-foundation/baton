@@ -366,6 +366,27 @@ def _serve(taken, clock, stream):
             try:
                 operations = _operations_from(taken.operations, store,
                                               control)
+                # W183883 REVIEW 2026-09-16T06-00-07Z [C3]: THE SERVING
+                # ACKNOWLEDGEMENT, and this is the only place that can give
+                # one. `stage_execution.observation_from` builds a reader out
+                # of a held configuration; `operations_from` opens the
+                # Authority, mints and authorizes five sessions, runs three
+                # worker preflights, opens the integration store and activates
+                # the pool. So a status document published by the OBSERVER
+                # says nothing about whether a serving process initialized --
+                # a manager stopped before initialization coexists happily
+                # with an observer reading a valid empty store, which is
+                # exactly what a stopped process proved. The loop therefore
+                # says so itself, once, after initialization and before it
+                # serves anything.
+                #
+                # ON STDERR. Stdout is this tool's machine-readable report, and
+                # a diagnostic line in front of it would not be one. Nothing
+                # else about this command changes.
+                print(f"serving initialization complete: "
+                      f"incarnation={taken.incarnation!r} "
+                      f"operations={taken.operations!r}",
+                      file=sys.stderr, flush=True)
                 running = [True]
 
                 def stop(number, frame):

@@ -1,0 +1,294 @@
+{
+ "R1_the_recipe_died_before_python": {
+  "fix": "only a supplied operand is resolved; an empty one is passed through untouched so the refusal stays the helper's, by name",
+  "held_by": "tests/tools/test_environment.py, TheBootstrapRecipeReachesTheHelper -- three checks that RUN the recipe",
+  "what": "the bootstrap recipe resolved the OPTIONAL distro unconditionally, and `realpath -m \"\"` is an error -- so `just bootstrap inputs.json`, the form that installs nothing, failed in the shell before the helper ran. My own expansion checks could not see it: the expansion was right and the shell rejected it."
+ },
+ "R2_the_gate_could_pass_while_skipping": {
+  "fix": "the recipe binds BATON_V12_STACK_DISTRO to the bundle it just built and sets BATON_V12_STACK_PACKAGING_REQUIRED, and the module FAILS rather than skipping when that is set. Registered runs without it still skip, loudly, because a machine may legitimately have no bundle.",
+  "held_by": "tests/tools/test_environment.py, TheGateCannotSkip -- four checks, including the module's own run() under each environment",
+  "what": "`just test-packaging` inherited BATON_V12_STACK_DISTRO while building the default output, so an operator whose environment named something else -- or nothing -- got exit 0 with nine skipped checks from the one gate that cannot be stood in for"
+ },
+ "all_owned_children_reaped": true,
+ "answers_review": "review-2026-09-16T14-06-35Z.md sha256 fadf2e3243783bd7dde9ee304ad778358274d6a0bdb7d2ef8084807edc37d730 -- two recipe gaps and the repository/operator completion",
+ "candidates": {
+  "v12/STACK.md": "0100b24410aae8b00c49593964c6f7cac66b79989a2cfb6e650d1749a0b48946",
+  "v12/justfile": "2a541f4782b984d06747847061cebffbc28646f32cd2fb3ec92b7ee888771ae4",
+  "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+  "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+  "v12/python/tests/tools/test_bootstrap.py": "c01cbbd39f286e66e5969e8f0517351f42bd77f609383e2eb3580525ced1ec57",
+  "v12/python/tests/tools/test_environment.py": "059ea493cdb9a10b8c098c0c982a982e453c7eb2a7407c4f3ec7592a702e4cfb",
+  "v12/python/tests/tools/test_instance.py": "fdcf7b072c0af71cf672cfeb8234866eeda94c7a5739e4fb5c038f40fb726a7a",
+  "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+  "v12/python/tests/tools/test_stack.py": "940298c9f04f6e1791a18bc849bf7f6545970980a986f786fb3b0b174c17b2fc",
+  "v12/python/tools/bootstrap.py": "533511939872f3bcb6c8e8d62a0402b9a4a43ef76d6c35e0e5b364cd7a3dbe3f",
+  "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+  "v12/python/tools/instance.py": "f9b64570771fd5c88677da687964b74be7595de885e95f072fa35f5f03e05cef",
+  "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+  "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+  "v12/python/tools/stack.py": "9ef3bff16d08edc431d8bae7dbd451c06abba57c44c2194e4cdfb07d0a2c3e60",
+  "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59",
+  "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+ },
+ "claim": 187015,
+ "cumulative_verification_seconds": {
+  "J1_history": "0.125s reversal within a 1.291s whole harness; both intervals preserved",
+  "author_claim183891": 1.195,
+  "author_claim183998": 151.908,
+  "author_claim184239": 127.816,
+  "author_claim184442": 63.532,
+  "author_claim185653": 26.94,
+  "author_claim185774": 27.256,
+  "author_claim185884": 33.299,
+  "author_claim185976": 32.661,
+  "author_claim186044": 30.937,
+  "author_claim186132": 2.476,
+  "author_claim186214": 28.576,
+  "author_claim186284": 27.262,
+  "author_claim186381": {
+   "focused": 27.19,
+   "stage_suite": 55.317
+  },
+  "author_claim186468": 27.183,
+  "author_claim186523": 27.128,
+  "author_claim186583": {
+   "focused": 27.154,
+   "reversal_probes": 0.589
+  },
+  "author_claim186672": {
+   "focused": 27.202,
+   "reversal_probes": 0.625,
+   "scenarios": 0.003
+  },
+  "author_claim186742": {
+   "focused": 27.256,
+   "reversal_probes": {
+    "instance_lifecycle": 2.197,
+    "temporary_custody": 0.541
+   },
+   "scenarios": 0.003
+  },
+  "author_claim186838": {
+   "focused": 27.547,
+   "reversal_probes": 1.247
+  },
+  "author_claim186890": {
+   "builds": "four builds this claim, three of them inside the packaging probe tree; the retained one is BUILD-186890.log, 10156 bytes, exit 0",
+   "focused": 29.559,
+   "live_installed_lifecycle": 7.194,
+   "reversal_probes": {
+    "build_and_revert_packaging": 17.09,
+    "source": 3.683
+   }
+  },
+  "earlier_build_and_bundle_checks": "unknown duration, VERIFICATION rather than deployment cost",
+  "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+  "owner_bootstrap_run": 0.938,
+  "owner_composition_run": 10.535,
+  "reviewer_claim183958": 1.5529989219503477,
+  "reviewer_claim184197": 12.840890395978931,
+  "reviewer_claim184197_readiness_check": 0.002758326008915901,
+  "reviewer_claim184403": 20.8455910270568,
+  "reviewer_claim184537": 15.599983819993213,
+  "reviewer_claim185739": 0.12554923997959122,
+  "reviewer_claim185857": 0.22083405102603137,
+  "reviewer_claim185945": 0.0037346489843912423,
+  "reviewer_claim186022": 0.004474725050386041,
+  "reviewer_claim186081": 0.005015750008169562,
+  "reviewer_claim186175": 0.04717645701020956,
+  "reviewer_claim186262": 0.4171164730214514,
+  "reviewer_claim186356": 1.6185368220321834,
+  "reviewer_claim186439": 0.0028278949903324246,
+  "reviewer_claim186499": 0.003370393009390682,
+  "this_claim_builds": "two builds this claim; the retained one is BUILD-187015.log, exit 0",
+  "this_claim_focused_tests": 30.191,
+  "this_claim_live_installed_lifecycle": 7.219,
+  "this_claim_reversal_probes": 28.886
+ },
+ "edited_this_claim": [
+  "v12/justfile",
+  "v12/STACK.md",
+  "v12/python/tools/bootstrap.py",
+  "v12/python/tools/stack.py",
+  "v12/python/tools/stack_command.py",
+  "v12/python/tests/tools/test_packaging.py",
+  "v12/python/tests/tools/test_instance.py",
+  "v12/python/tests/tools/test_environment.py",
+  "v12/python/tests/tools/test_stack.py"
+ ],
+ "focused_tests": {
+  "by_module": {
+   "test_bootstrap": 69,
+   "test_environment": 68,
+   "test_instance": 70,
+   "test_packaging": 9,
+   "test_stack": 120
+  },
+  "command": "cd v12/python && PYTHONPATH=src:. python3 -m unittest tests.tools.test_instance tests.tools.test_bootstrap tests.tools.test_stack tests.tools.test_environment tests.tools.test_packaging",
+  "returncode": 0,
+  "seconds": {
+   "test_bootstrap": 0.955,
+   "test_environment": 1.013,
+   "test_instance": 0.22,
+   "test_packaging": 1.899,
+   "test_stack": 26.104
+  },
+  "tests": 336
+ },
+ "not_done": {
+  "a_build_WAS_run_this_claim": true,
+  "no_credential_registry_read": true,
+  "no_job_submitted": true,
+  "no_live_provider_or_engine_run": true,
+  "no_repository_created_cloned_or_modified": true,
+  "no_v11_path_service_store_or_configuration_touched": true,
+  "no_version_control_mutation": true
+ },
+ "operational_findings_preserved": [
+  {
+   "modules": [
+    "tests.manager.test_claude_context",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.tools.test_correction_restart",
+    "tests.tools.test_managed_apply"
+   ],
+   "note": "unchanged; re-observed this claim",
+   "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+  },
+  {
+   "note": "unchanged, not re-run this claim",
+   "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+  }
+ ],
+ "remaining_scope": [
+  "the owner's own selections: integration_target, integration_target_reference and integration_observer, and the independent repository behind them. The exact commands are in OPERATOR-INDEPENDENT-REPOSITORY.md; creating or cloning a repository is a version-control mutation this Work does not perform."
+ ],
+ "reversal_probes": {
+  "all_killed": true,
+  "harness": "work/records/2026/09/finding-v12-stack-launcher/probes-187015.py",
+  "one_probe_first_proved_nothing": "S4 reverted the BRANCH and fell through to a KeyError -- an error, not the assertion it was about [J1]. It is re-anchored on the derivation itself, and the check it names now asks whether the member is there before reading it, so a missing derivation fails as an assertion rather than erroring out of the check.",
+  "restored_ok": true,
+  "results": [
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_environment.TheBootstrapRecipeReachesTheHelper.test_the_form_that_installs_NOTHING_reaches_the_helper"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "S1-the-optional-distro-is-resolved-unconditionally-again",
+    "reverted_returncode": 1,
+    "seconds": 0.137,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_environment.TheGateCannotSkip.test_the_recipe_binds_the_bundle_it_just_built"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "S2-the-gate-stops-binding-the-bundle-it-just-built",
+    "reverted_returncode": 1,
+    "seconds": 0.085,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_environment.TheGateCannotSkip.test_the_module_FAILS_rather_than_skipping_when_it_is_the_gate"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "S3-the-gate-skips-instead-of-failing",
+    "reverted_returncode": 1,
+    "seconds": 0.088,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheDestinationOwnsItsWorkspace.test_an_absent_workspace_is_DERIVED_from_the_destination"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "S4-the-destination-stops-owning-its-workspace",
+    "reverted_returncode": 1,
+    "seconds": 0.088,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheDestinationOwnsItsWorkspace.test_a_workspace_OUTSIDE_the_destination_is_refused",
+     "tests.tools.test_instance.TheDestinationOwnsItsWorkspace.test_a_LINK_out_of_the_destination_is_refused_too"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "S5-a-workspace-outside-the-destination-is-accepted",
+    "reverted_returncode": 1,
+    "seconds": 0.09,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_stack.WhatTheRepositoryIS.test_an_absent_target_is_named_as_absent"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "S6-the-repository-report-believes-the-configuration",
+    "reverted_returncode": 1,
+    "seconds": 0.826,
+    "valid_kill": true
+   }
+  ],
+  "seconds": 28.886
+ },
+ "scope": "R1 and R2, the destination's integration workspace, a read-only repository verification in the installed command, the operator document with exact owner commands and input mapping, the retained lifecycle harness and fixture digest mapping, and a re-recorded lifecycle and artifact manifest for the bundle that carries all of it",
+ "the_artifact": {
+  "both_installed_copies_match": true,
+  "build_log": "BUILD-187015.log",
+  "digest": "e142ba6d15e23726932114e5b49075ee326aaa47fe74c879c7fe9cbe45877ea3",
+  "files": 80,
+  "manifest": "ARTIFACT-MANIFEST-187015.json",
+  "supersedes": "ARTIFACT-MANIFEST-186890.json, whose bundle predates the repository verb and the bound workspace; both are retained"
+ },
+ "the_repository_completion": {
+  "the_operator_document": "OPERATOR-INDEPENDENT-REPOSITORY.md: what is derived versus what is the owner's, the exact clone and read-only verification commands, the input members to add, and -- stated plainly -- that the two installed instances carry no target, reference or observer, so their repo/ is bound and empty.",
+  "the_read_only_verification": "`baton-v12-stack repository --instance ...`, registered in the bundled command. It reports the workspace and target -- inside or outside this instance, present or ABSENT, a repository layout (work tree or bare) or not, and the HEAD it holds, read from the file of that name -- plus the configured reference and every declared base. It runs no repository tool and writes nothing, and one of its checks proves that by failing if it starts a process.",
+  "the_workspace_is_bound": "`bootstrap.workspace_bound` derives <destination>/repo as `integration_workspace` when the input does not name one, and refuses a named workspace that resolves outside the destination -- including through a link. An explicit null still travels verbatim [G2], and `integration_target` is never derived: it is not deployment state and it outlives any instance.",
+  "why_repo_is_still_empty": "an empty configured stack schedules nothing, so nothing has been written into the workspace. That is the state the deployments are in, and it is reported rather than implied."
+ },
+ "the_retained_harness": {
+  "cleanup": {
+   "both_instances_stopped": true,
+   "no_owned_child_left_running": true,
+   "nothing_removed": "the destinations and the fixture roots are retained",
+   "tampered_library_restored": true
+  },
+  "commands": 19,
+  "file": "work/records/2026/09/finding-v12-stack-launcher/LIFECYCLE-HARNESS-187015.py",
+  "fixtures": {
+   "/var/tmp/w183883-live-186890/credential-sources.json": {
+    "bytes": 197,
+    "mode": "0o600",
+    "sha256": "dee715ce30e0ab8794ad57e36172dd2b4d0d546e259193bdc46fad099901f8bf"
+   },
+   "/var/tmp/w183883-live-186890/fixture-credential.txt": {
+    "bytes": 32,
+    "mode": "0o600",
+    "sha256": "95f9d6b506420b62c94e3c468c9af3d29eec6fd04d0f61a42c583268934d51a6"
+   },
+   "/var/tmp/w183883-live-186890/inputs-b.json": {
+    "bytes": 18068,
+    "mode": "0o664",
+    "sha256": "596a9483dc13530108213d4c8b32f4704ed6989eb0347730a26be8ec6047545d"
+   },
+   "/var/tmp/w183883-live-186890/inputs.json": {
+    "bytes": 18066,
+    "mode": "0o664",
+    "sha256": "cc52ea37b368812264081f4cd1b3e3c132e0181ef4d731395982c36c3a301879"
+   }
+  },
+  "output": "LIFECYCLE-187015.json",
+  "records": "every command as the argv it ran, the cwd, the exact environment, the per-command timeout and elapsed seconds, plus the cleanup block and the fixture digest mapping",
+  "seconds": 7.219
+ },
+ "work": "W183883"
+}

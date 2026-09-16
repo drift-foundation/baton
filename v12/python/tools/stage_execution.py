@@ -42,6 +42,7 @@ slots, and a configuration carrying bytes is refused as one.
 
 import json
 import os
+import sys
 import re
 import stat
 from types import SimpleNamespace
@@ -374,7 +375,25 @@ def _outside(place, checkout, what):
 
 
 def _checkout():
-    """This distribution's own working tree, resolved once."""
+    """This distribution's own working tree -- or, FROZEN, the bundle itself.
+
+    W183883, OWNER-PYINSTALLER-20260916.md. In a one-folder bundle there is no
+    working tree: `__file__` sits inside the bundle's own directory, so walking
+    three parents up answered the INSTANCE DESTINATION and refused that
+    destination's own `db/` for being "inside the checkout". The rule this
+    serves is that mutable deployment state must never be written into the
+    CODE'S OWN TREE -- and frozen, that tree is the bundle. So the bundle is
+    what is answered, which keeps the rule exactly as strong: a store inside
+    `distro/` is still refused, and the destination beside it is not.
+    """
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        # THE WHOLE DISTRO, not just `_MEIPASS`. W183883 review [K4]: for a
+        # one-folder build `_MEIPASS` is `<distro>/_internal`, so answering it
+        # protected the libraries and left `<distro>/` itself open -- a store
+        # written beside the executable passed. The folder that holds the code
+        # is the folder the code must not be asked to write into, and the
+        # instance's own mutable siblings are OUTSIDE it.
+        return os.path.dirname(os.path.realpath(sys._MEIPASS))
     return os.path.realpath(
         os.path.join(os.path.dirname(os.path.abspath(__file__)),
                      "..", "..", ".."))

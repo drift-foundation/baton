@@ -1,0 +1,9 @@
+{
+  "all_owned_children_reaped": true,
+  "claim": 184197,
+  "kind": "deterministic readiness-boundary stand-ins; no actual manager initialization, provider or engine",
+  "limitation": "Snapshot and processes are controlled stand-ins. Static observation_from inspection independently shows the publisher need not initialize the serving factory. This proves the admission gate requires no serving acknowledgement, not a full deployed failure.",
+  "manager_process_state": "T",
+  "readiness_accepted": true,
+  "seconds": 0.002758326008915901
+}

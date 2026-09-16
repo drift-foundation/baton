@@ -1,0 +1,26 @@
+# The BUILD tool, pinned with hashes and kept OUT of the runtime set.
+#
+# W183883, OWNER-PYINSTALLER-20260916.md: "Use a pinned build-tool
+# dependency in the build environment; avoid adding it to runtime
+# requirements." `requirements.lock` is what a RUNNING stack resolves;
+# this is what BUILDS one, and the two are separate files so a deployed
+# distribution can never acquire a packaging tool as a runtime dependency.
+#
+# Every hash below was computed from the ARTIFACT downloaded on
+# 2026-09-16, not copied from an index page, which is the same rule
+# `requirements.lock` states for itself.
+#
+# The bundle this builds is HOST-SPECIFIC: a one-folder build is for the
+# platform it was built on, and `baton-v12-stack identity` records that
+# rather than claiming portability.
+
+altgraph==0.17.5 \
+    --hash=sha256:f3a22400bce1b0c701683820ac4f3b159cd301acab067c51c653e06961600597
+packaging==26.3 \
+    --hash=sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c
+pyinstaller==6.16.0 \
+    --hash=sha256:ba618a61627ee674d6d68e5de084ba17c707b59a4f2a856084b3999bdffbd3f0
+pyinstaller-hooks-contrib==2026.7 \
+    --hash=sha256:24257a04c7a5a7a034cf28e39dcee20fbeeb9f043076729480f2e1b69904408a
+setuptools==84.0.0 \
+    --hash=sha256:51a52592b3b99e102b609654876bd65f19f999935166d1352678931132b0c670

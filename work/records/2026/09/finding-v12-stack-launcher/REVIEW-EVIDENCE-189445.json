@@ -1,0 +1,151 @@
+{
+  "candidate_mismatches": [],
+  "untracked_default": {
+    "argv": [
+      "git",
+      "-C",
+      "/home/sl/src/baton",
+      "status",
+      "--porcelain",
+      "--",
+      "v12/python/tests/tools/test_version.py"
+    ],
+    "returncode": 0,
+    "stdout": "?? v12/python/tests/tools/test_version.py\n",
+    "stderr": ""
+  },
+  "untracked_hidden": {
+    "argv": [
+      "git",
+      "-c",
+      "status.showUntrackedFiles=no",
+      "-C",
+      "/home/sl/src/baton",
+      "status",
+      "--porcelain",
+      "--",
+      "v12/python/tests/tools/test_version.py"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "untracked_explicit": {
+    "argv": [
+      "git",
+      "-c",
+      "status.showUntrackedFiles=no",
+      "-C",
+      "/home/sl/src/baton",
+      "status",
+      "--porcelain",
+      "--untracked-files=all",
+      "--",
+      "v12/python/tests/tools/test_version.py"
+    ],
+    "returncode": 0,
+    "stdout": "?? v12/python/tests/tools/test_version.py\n",
+    "stderr": ""
+  },
+  "capture_with_status_scoped_to_hidden_untracked_source": {
+    "schema": "baton.v12.build-stamp/1",
+    "source": "/home/sl/src/baton",
+    "commit": "3c0dd08225e1691d2134e87c8a04e28c9c644b7c",
+    "dirty": false,
+    "detail": null,
+    "changed_entries": 0
+  },
+  "generated_paths": {
+    "argv": [
+      "git",
+      "-C",
+      "/home/sl/src/baton",
+      "status",
+      "--porcelain",
+      "--untracked-files=normal",
+      "--",
+      "v12/python/build",
+      "v12/python/packaging/build-stamp.json"
+    ],
+    "returncode": 0,
+    "stdout": "?? v12/python/build/out/\n?? v12/python/build/work/\n?? v12/python/packaging/build-stamp.json\n",
+    "stderr": ""
+  },
+  "recipe_dry_runs": [
+    {
+      "argv": [
+        "just",
+        "--dry-run",
+        "--justfile",
+        "/home/sl/src/baton/v12/justfile",
+        "bootstrap",
+        "/tmp/review-input.json",
+        "/tmp/review-destination",
+        "--no-repositories"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "#!/usr/bin/env bash\nset -euo pipefail\n# RESOLVED BEFORE THE `cd`, so a path you typed means what it says. The body\n# runs from `python/`, and a relative operand resolved AFTER that would have\n# quietly meant `v12/python/<what you typed>`.\n#\n# ONLY WHAT WAS SUPPLIED. `realpath -m \"\"` is an error, and resolving the\n# OPTIONAL distro unconditionally made `just bootstrap inputs.json` -- the\n# form that installs nothing -- fail in the shell before Python ever ran.\n# An empty operand is passed through untouched so the refusal comes from the\n# helper, by name, as it does for every other missing selection.\nINPUTS_HERE=\"/tmp/review-input.json\"\nif [[ -n \"/tmp/review-input.json\" ]]; then INPUTS_HERE=\"$(realpath -m \"/tmp/review-input.json\")\"; fi\nDISTRO_HERE=\"--no-repositories\"\nif [[ -n \"--no-repositories\" ]]; then DISTRO_HERE=\"$(realpath -m \"--no-repositories\")\"; fi\n# TWO OPERANDS, NOT THREE. OWNER-STANDALONE-INTERFACE-20260916.md: \"Finish\n# the agreed two-argument bootstrap: it creates the bundled distro, databases\n# and independent repositories.\" Naming a DISTRO is a development\n# convenience; installing without one BUILDS the distribution here, so the\n# owner never has to know where a build lands.\nif [[ -n \"/tmp/review-destination\" && -z \"--no-repositories\" ]]; then\n\tjust --justfile \"/home/sl/src/baton/v12/justfile\" build\n\tDISTRO_HERE=\"$(dirname \"/home/sl/src/baton/v12/justfile\")/python/build/out/distro\"\nfi\ncd \"$(dirname \"/home/sl/src/baton/v12/justfile\")/python\"\nPREPARED=\"$(python3 -m tools.environment interpreter)\"\nINSTALLING=()\nif [[ -n \"/tmp/review-destination\" ]]; then\n\tINSTALLING+=(--destination \"/tmp/review-destination\" --distro \"$DISTRO_HERE\")\nfi\nEXTRA=()\nif [[ -n \"\" ]]; then read -r -a EXTRA <<< \"\"; fi\nexec env PYTHONPATH=src:. \"$PREPARED\" -m tools.bootstrap --inputs \"$INPUTS_HERE\" \"${INSTALLING[@]}\" \"${EXTRA[@]}\"\n"
+    },
+    {
+      "argv": [
+        "just",
+        "--dry-run",
+        "--justfile",
+        "/home/sl/src/baton/v12/justfile",
+        "bootstrap",
+        "/tmp/review-input.json",
+        "/tmp/review-destination",
+        "--repository-source",
+        "/other/checkout"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "#!/usr/bin/env bash\nset -euo pipefail\n# RESOLVED BEFORE THE `cd`, so a path you typed means what it says. The body\n# runs from `python/`, and a relative operand resolved AFTER that would have\n# quietly meant `v12/python/<what you typed>`.\n#\n# ONLY WHAT WAS SUPPLIED. `realpath -m \"\"` is an error, and resolving the\n# OPTIONAL distro unconditionally made `just bootstrap inputs.json` -- the\n# form that installs nothing -- fail in the shell before Python ever ran.\n# An empty operand is passed through untouched so the refusal comes from the\n# helper, by name, as it does for every other missing selection.\nINPUTS_HERE=\"/tmp/review-input.json\"\nif [[ -n \"/tmp/review-input.json\" ]]; then INPUTS_HERE=\"$(realpath -m \"/tmp/review-input.json\")\"; fi\nDISTRO_HERE=\"--repository-source\"\nif [[ -n \"--repository-source\" ]]; then DISTRO_HERE=\"$(realpath -m \"--repository-source\")\"; fi\n# TWO OPERANDS, NOT THREE. OWNER-STANDALONE-INTERFACE-20260916.md: \"Finish\n# the agreed two-argument bootstrap: it creates the bundled distro, databases\n# and independent repositories.\" Naming a DISTRO is a development\n# convenience; installing without one BUILDS the distribution here, so the\n# owner never has to know where a build lands.\nif [[ -n \"/tmp/review-destination\" && -z \"--repository-source\" ]]; then\n\tjust --justfile \"/home/sl/src/baton/v12/justfile\" build\n\tDISTRO_HERE=\"$(dirname \"/home/sl/src/baton/v12/justfile\")/python/build/out/distro\"\nfi\ncd \"$(dirname \"/home/sl/src/baton/v12/justfile\")/python\"\nPREPARED=\"$(python3 -m tools.environment interpreter)\"\nINSTALLING=()\nif [[ -n \"/tmp/review-destination\" ]]; then\n\tINSTALLING+=(--destination \"/tmp/review-destination\" --distro \"$DISTRO_HERE\")\nfi\nEXTRA=()\nif [[ -n \"/other/checkout\" ]]; then read -r -a EXTRA <<< \"/other/checkout\"; fi\nexec env PYTHONPATH=src:. \"$PREPARED\" -m tools.bootstrap --inputs \"$INPUTS_HERE\" \"${INSTALLING[@]}\" \"${EXTRA[@]}\"\n"
+    }
+  ],
+  "bundle_manifest": {
+    "files": 81,
+    "digest": "32b81cd3b46149bbc90ca6116f56b2e9540d789b1a5b989600098f12be63a38a"
+  },
+  "installed_manifest": {
+    "files": 81,
+    "digest": "32b81cd3b46149bbc90ca6116f56b2e9540d789b1a5b989600098f12be63a38a"
+  },
+  "version": {
+    "argv": [
+      "/var/tmp/w183883-version-189383/deployment/distro/baton-v12-stack",
+      "--version"
+    ],
+    "returncode": 0,
+    "stdout": "baton 12.0.0 (3c0dd082, dirty)\n",
+    "stderr": ""
+  },
+  "installed_stamp": {
+    "changed_entries": 23,
+    "commit": "3c0dd08225e1691d2134e87c8a04e28c9c644b7c",
+    "detail": null,
+    "dirty": true,
+    "schema": "baton.v12.build-stamp/1",
+    "source": "/home/sl/src/baton"
+  },
+  "build_record_stamp": {
+    "changed_entries": 23,
+    "commit": "3c0dd08225e1691d2134e87c8a04e28c9c644b7c",
+    "detail": null,
+    "dirty": true,
+    "schema": "baton.v12.build-stamp/1",
+    "source": "/home/sl/src/baton"
+  },
+  "identity_record_stamp": {
+    "changed_entries": 23,
+    "commit": "3c0dd08225e1691d2134e87c8a04e28c9c644b7c",
+    "detail": null,
+    "dirty": true,
+    "schema": "baton.v12.build-stamp/1",
+    "source": "/home/sl/src/baton"
+  },
+  "stamps_equal": true,
+  "manifest_equal": true,
+  "seconds": 0.12422490800963715
+}

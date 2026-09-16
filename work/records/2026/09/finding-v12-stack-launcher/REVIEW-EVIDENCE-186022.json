@@ -1,0 +1,88 @@
+{
+  "claim": 186022,
+  "candidate_hashes": {
+    "v12/STACK.md": "525ed106a86785416c1414a686db1accbc90c2bb4ad185081cfa9b87ab8de6e7",
+    "v12/justfile": "52f7083c86dc8071531a2848fa986821de98935859d434ee8a6e1881e44dd886",
+    "v12/python/tests/tools/test_bootstrap.py": "f0df4d2165067cc6508b804c9abbb73d6d008289fa84c65b493e23901a4619c8",
+    "v12/python/tests/tools/test_environment.py": "c0b5ce194d333494e528a0174705c2c2fdd65d2e64f1d60a59b71e33df444ecc",
+    "v12/python/tests/tools/test_stack.py": "a2bc1a222650ecc7e5f846b5007373796bb7cc0b187dfb866eac1a400af5e1b1",
+    "v12/python/tools/bootstrap.py": "6c1eff3b428535af48a90415b135ac2e360b43433cf3b5a2cf9c0a91e4db1d34",
+    "v12/python/tools/environment.py": "25f781cef478247bac61b2cfa79f802577bb1b13e8c2749a0ae4d244972fd042",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136"
+  },
+  "tests": {
+    "count": 21,
+    "successful": true,
+    "seconds": 0.0033585199853405356,
+    "output": "test_a_missing_member_inside_a_worker_or_job_is_named_by_position (tests.tools.test_bootstrap.EveryMissingInputIsNamedAtOnce.test_a_missing_member_inside_a_worker_or_job_is_named_by_position) ... ok\ntest_a_missing_receipt_participant_or_profile_member_is_named (tests.tools.test_bootstrap.EveryMissingInputIsNamedAtOnce.test_a_missing_receipt_participant_or_profile_member_is_named) ... ok\ntest_an_empty_document_names_every_operand_it_needs (tests.tools.test_bootstrap.EveryMissingInputIsNamedAtOnce.test_an_empty_document_names_every_operand_it_needs) ... ok\ntest_another_schema_is_refused (tests.tools.test_bootstrap.EveryMissingInputIsNamedAtOnce.test_another_schema_is_refused) ... ok\ntest_nothing_durable_is_created_by_a_refusal (tests.tools.test_bootstrap.EveryMissingInputIsNamedAtOnce.test_nothing_durable_is_created_by_a_refusal) ... ok\ntest_a_misspelled_member_is_refused_rather_than_ignored (tests.tools.test_bootstrap.TheInputContractIsClosed.test_a_misspelled_member_is_refused_rather_than_ignored) ... ok\ntest_an_unsupported_nested_member_is_refused (tests.tools.test_bootstrap.TheInputContractIsClosed.test_an_unsupported_nested_member_is_refused) ... ok\ntest_an_unsupported_top_level_member_is_refused_by_name (tests.tools.test_bootstrap.TheInputContractIsClosed.test_an_unsupported_top_level_member_is_refused_by_name) ... ok\ntest_the_refusal_names_what_IS_supported (tests.tools.test_bootstrap.TheInputContractIsClosed.test_the_refusal_names_what_IS_supported) ... ok\ntest_a_job_naming_a_producer_that_is_not_configured_is_refused (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_a_job_naming_a_producer_that_is_not_configured_is_refused) ... ok\ntest_a_malformed_authority_uuid_is_refused (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_a_malformed_authority_uuid_is_refused) ... ok\ntest_a_missing_stage_is_refused (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_a_missing_stage_is_refused) ... ok\ntest_a_relative_state_root_is_refused (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_a_relative_state_root_is_refused) ... ok\ntest_a_role_this_deployment_does_not_serve_is_refused (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_a_role_this_deployment_does_not_serve_is_refused) ... ok\ntest_a_state_root_inside_the_checkout_is_refused (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_a_state_root_inside_the_checkout_is_refused) ... ok\ntest_implementation_and_review_may_share_no_participant (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_implementation_and_review_may_share_no_participant)\nIndependence is the whole reason a review exists, and a deployment ... ok\ntest_two_jobs_cannot_share_one_identifier (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_two_jobs_cannot_share_one_identifier) ... ok\ntest_two_workers_cannot_share_one_identifier (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_two_workers_cannot_share_one_identifier) ... ok\ntest_the_accepted_validator_is_called_rather_than_reimplemented (tests.tools.test_bootstrap.AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade.test_the_accepted_validator_is_called_rather_than_reimplemented)\nA second, more permissive copy of the deployment contract is exactly ... ok\ntest_the_missing_worker_members_are_named_and_nothing_is_created (tests.tools.test_bootstrap.AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade.test_the_missing_worker_members_are_named_and_nothing_is_created) ... ok\ntest_the_refusal_says_which_members_this_helper_fills_in (tests.tools.test_bootstrap.AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade.test_the_refusal_says_which_members_this_helper_fills_in) ... ok\n\n----------------------------------------------------------------------\nRan 21 tests in 0.003s\n\nOK\n"
+  },
+  "not_run": {
+    "count": 40,
+    "tests": [
+      "test_capacity_is_what_is_configured_rather_than_a_concurrency_claim",
+      "test_each_binding_carries_one_work_on_both_axes",
+      "test_every_principal_is_derived_rather_than_configured",
+      "test_one_job_and_one_worker_per_role_is_the_one_job_schema",
+      "test_one_job_with_a_larger_pool_is_still_the_multi_job_schema",
+      "test_several_jobs_are_written_as_the_multi_job_schema_with_bindings",
+      "test_the_derived_principals_are_the_authoritys_own_answer",
+      "test_the_generated_deployment_is_one_the_manager_accepts",
+      "test_the_layout_is_one_root_and_every_store_is_under_it",
+      "test_the_operator_commands_name_the_four_operands_start_needs",
+      "test_a_selected_false_is_carried_as_false_rather_than_omitted",
+      "test_a_selected_true_is_carried_as_true",
+      "test_an_absent_selection_is_omitted",
+      "test_an_accepted_form_of_another_optional_member_travels",
+      "test_an_explicit_null_is_refused_in_the_consumers_own_words",
+      "test_another_optional_member_in_an_unusable_form_is_refused",
+      "test_where_each_optional_member_is_actually_validated_is_recorded",
+      "test_a_binding_of_the_wrong_type_is_refused_rather_than_traversed",
+      "test_a_binding_that_says_nothing_is_refused_rather_than_trusted",
+      "test_a_complete_and_agreeing_pair_still_repeats",
+      "test_a_configuration_binding_a_different_number_of_jobs_is_refused",
+      "test_a_configuration_naming_another_authority_is_refused",
+      "test_a_configuration_that_disagrees_with_its_record_is_refused",
+      "test_a_corrupt_emitted_configuration_is_refused_beside_a_good_record",
+      "test_a_missing_emitted_configuration_is_refused",
+      "test_a_record_naming_no_bindings_is_refused",
+      "test_a_record_naming_no_readable_authority_is_refused",
+      "test_each_job_gets_its_routes_and_its_four_grants",
+      "test_no_job_is_submitted_and_nothing_is_executed",
+      "test_a_changed_declared_base_is_refused_too",
+      "test_a_configuration_with_no_record_is_refused",
+      "test_a_conflicting_authority_is_refused",
+      "test_a_conflicting_binding_is_refused_and_nothing_is_rewritten",
+      "test_a_corrupt_record_is_refused_rather_than_overwritten",
+      "test_a_record_of_another_schema_is_refused",
+      "test_a_removed_job_is_refused_across_a_schema_change",
+      "test_an_identical_repeat_is_idempotent",
+      "test_both_documents_are_published_atomically",
+      "test_growing_from_one_job_to_two_is_also_refused_rather_than_migrated",
+      "test_the_conflict_is_found_before_the_authority_is_composed"
+    ],
+    "reason": "ValidFixture requires external disk-backed writable storage outside this managed reviewer's authority"
+  },
+  "incomplete_record_now_refused": [
+    "the record at /tmp/v12-bootstrap-b4__eyf9/deployment/bootstrap.json does not say job 'job-a''s work_id, line_declared_base, canonical_target_id, source_worker_id. Nothing here overwrites state it cannot identify."
+  ],
+  "corrupt_json_now_refused": [
+    "the configuration at /tmp/v12-bootstrap-b4__eyf9/deployment/deployment.json could not be read (JSONDecodeError), so what it binds is unknown. Nothing here overwrites state it cannot identify."
+  ],
+  "unrecognized_emitted_drift": {
+    "review_work": {
+      "conflicts": []
+    },
+    "unsupported_schema": {
+      "conflicts": []
+    },
+    "sole_producer_identity": {
+      "conflicts": []
+    }
+  },
+  "null_preserved_for_validator": true,
+  "null_validator_refusal": "a managed preparation selection is one of (True, False); this deployment configures None, which this build cannot place",
+  "verification_seconds_including_cleanup": 0.004474725050386041,
+  "scope": "Real conflict and selection helpers with controlled emitted-document stand-ins, not a full valid bootstrap or live rebind; no Authority mutation, subprocess, provider, engine, Job, install or production operation"
+}

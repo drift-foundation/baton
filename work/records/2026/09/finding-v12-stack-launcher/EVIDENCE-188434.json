@@ -1,0 +1,361 @@
+{
+ "all_owned_children_reaped": true,
+ "answers": "the owner direction rerouted to baton.impl at seq 188431 and pinned in OWNER-STANDALONE-INTERFACE-20260916.md sha256 6094313210377d1181e376ab73ec834500ec2f173cc3528be2214aa755e427c4",
+ "candidates": {
+  "v12/STACK.md": "c01d81a9173e56f2af221f2bd2eecd08df71eb2fd83abe0487cfa02eacdbeb34",
+  "v12/justfile": "8f3ed773705c5f6e636ac826601d5f7cbc9701d9a87ea8910c12c3c1dd22b96c",
+  "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+  "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+  "v12/python/tests/tools/test_bootstrap.py": "c01cbbd39f286e66e5969e8f0517351f42bd77f609383e2eb3580525ced1ec57",
+  "v12/python/tests/tools/test_environment.py": "84b15abc2bc81ffea8e433260c8e43b898101bb0a79b854bdb8a31461f4fa31c",
+  "v12/python/tests/tools/test_instance.py": "398d1dc758b7df6aa03894ebfed63c499d308899c21f6a0d1377c93542aae975",
+  "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+  "v12/python/tests/tools/test_stack.py": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+  "v12/python/tools/bootstrap.py": "c2592c3bc80ddb0c33e88546811237128c711c306c598fa5f42e69962cb6111d",
+  "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+  "v12/python/tools/instance.py": "765bfd64aa9967c16741f940b5c77070bdcd268c56ae935ecc2fa6f795bfa9c9",
+  "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+  "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+  "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+  "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59",
+  "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+ },
+ "changed_this_claim": [
+  "v12/STACK.md",
+  "v12/justfile",
+  "v12/python/tests/tools/test_environment.py",
+  "v12/python/tests/tools/test_instance.py",
+  "v12/python/tools/bootstrap.py",
+  "v12/python/tools/instance.py"
+ ],
+ "claim": 188434,
+ "cumulative_verification_seconds": {
+  "J1_history": "0.125s reversal within a 1.291s whole harness; both intervals preserved",
+  "author_claim183891": 1.195,
+  "author_claim183998": 151.908,
+  "author_claim184239": 127.816,
+  "author_claim184442": 63.532,
+  "author_claim185653": 26.94,
+  "author_claim185774": 27.256,
+  "author_claim185884": 33.299,
+  "author_claim185976": 32.661,
+  "author_claim186044": 30.937,
+  "author_claim186132": 2.476,
+  "author_claim186214": 28.576,
+  "author_claim186284": 27.262,
+  "author_claim186381": {
+   "focused": 27.19,
+   "stage_suite": 55.317
+  },
+  "author_claim186468": 27.183,
+  "author_claim186523": 27.128,
+  "author_claim186583": {
+   "focused": 27.154,
+   "reversal_probes": 0.589
+  },
+  "author_claim186672": {
+   "focused": 27.202,
+   "reversal_probes": 0.625,
+   "scenarios": 0.003
+  },
+  "author_claim186742": {
+   "focused": 27.256,
+   "reversal_probes": {
+    "instance_lifecycle": 2.197,
+    "temporary_custody": 0.541
+   },
+   "scenarios": 0.003
+  },
+  "author_claim186838": {
+   "focused": 27.547,
+   "reversal_probes": 1.247
+  },
+  "author_claim186890": {
+   "builds": "four builds this claim, three of them inside the packaging probe tree; the retained one is BUILD-186890.log, 10156 bytes, exit 0",
+   "focused": 29.559,
+   "live_installed_lifecycle": 7.194,
+   "reversal_probes": {
+    "build_and_revert_packaging": 17.09,
+    "source": 3.683
+   }
+  },
+  "author_claim187015": {
+   "builds": "two builds this claim; the retained one is BUILD-187015.log, exit 0",
+   "focused": 30.191,
+   "live_installed_lifecycle": 7.219,
+   "reversal_probes": 28.886
+  },
+  "author_claim187142": {
+   "builds": "one build; BUILD-187142.log, exit 0",
+   "focused": 30.153,
+   "injected_failure_proofs": "three runs, each ~7s, retained in CLEANUP-PROOF-187142.json",
+   "live_installed_lifecycle": 7.37,
+   "reversal_probes": 28.295
+  },
+  "author_claim187223": {
+   "boundary_runs": "six injected-boundary runs of the harness, each about seven seconds, retained",
+   "builds": "none -- no product code changed, and the review said no rebuild was needed for packet/harness-only changes",
+   "focused": 30.309,
+   "live_installed_lifecycle": 7.398,
+   "packet_check_proof": "nine extracted-block scenarios, sub-second"
+  },
+  "author_claim187303": {
+   "boundary_runs": "nine injected-boundary runs of the harness, each a few seconds, retained",
+   "builds": "none; no product code changed and no rebuild was requested",
+   "focused": "not re-run: no product or test file changed, and the review said not to re-run an unchanged suite for a handoff. Every candidate hash is identical to claim187223's.",
+   "live_installed_lifecycle": 7.557,
+   "packet_check_proof": "nine extracted-block scenarios, sub-second"
+  },
+  "author_claim187356": {
+   "builds": "none; no product code changed",
+   "control_runs": "eleven injected control runs, each a few seconds, retained in this record",
+   "focused": "not re-run: no product or test file changed, and the review said not to re-run an unchanged suite for a handoff",
+   "live_installed_lifecycle": 7.569
+  },
+  "earlier_build_and_bundle_checks": "unknown duration, VERIFICATION rather than deployment cost",
+  "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+  "owner_bootstrap_run": 0.938,
+  "owner_composition_run": 10.535,
+  "reviewer_claim183958": 1.5529989219503477,
+  "reviewer_claim184197": 12.840890395978931,
+  "reviewer_claim184197_readiness_check": 0.002758326008915901,
+  "reviewer_claim184403": 20.8455910270568,
+  "reviewer_claim184537": 15.599983819993213,
+  "reviewer_claim185739": 0.12554923997959122,
+  "reviewer_claim185857": 0.22083405102603137,
+  "reviewer_claim185945": 0.0037346489843912423,
+  "reviewer_claim186022": 0.004474725050386041,
+  "reviewer_claim186081": 0.005015750008169562,
+  "reviewer_claim186175": 0.04717645701020956,
+  "reviewer_claim186262": 0.4171164730214514,
+  "reviewer_claim186356": 1.6185368220321834,
+  "reviewer_claim186439": 0.0028278949903324246,
+  "reviewer_claim186499": 0.003370393009390682,
+  "this_claim_builds": "two builds; the install log is INSTALL-188434.log, exit 0",
+  "this_claim_focused_tests": 30.169,
+  "this_claim_reversal_probes": 2.588,
+  "this_claim_standalone_interface": 5.66
+ },
+ "focused_tests": {
+  "by_module": {
+   "test_bootstrap": 69,
+   "test_environment": 69,
+   "test_instance": 89,
+   "test_packaging": 9,
+   "test_stack": 122
+  },
+  "command": "cd v12/python && PYTHONPATH=src:. python3 -m unittest tests.tools.test_instance tests.tools.test_bootstrap tests.tools.test_stack tests.tools.test_environment tests.tools.test_packaging",
+  "new_this_claim": 20,
+  "returncode": 0,
+  "seconds": {
+   "test_bootstrap": 0.996,
+   "test_environment": 0.841,
+   "test_instance": 0.222,
+   "test_packaging": 1.972,
+   "test_stack": 26.138
+  },
+  "tests": 358
+ },
+ "not_done": {
+  "no_credential_registry_read": true,
+  "no_job_submitted": true,
+  "no_live_provider_or_engine_run": true,
+  "no_repository_created_cloned_or_modified_by_this_agent": true,
+  "no_v11_path_service_store_or_configuration_touched": true,
+  "no_version_control_mutation_by_this_agent": true
+ },
+ "operational_findings_preserved": [
+  {
+   "modules": [
+    "tests.manager.test_claude_context",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.tools.test_correction_restart",
+    "tests.tools.test_managed_apply"
+   ],
+   "note": "unchanged; re-observed this claim",
+   "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+  },
+  {
+   "note": "unchanged, not re-run this claim",
+   "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+  }
+ ],
+ "remaining_scope": [
+  "the owner's production choices -- the repository source, the immutable base, the import reference and the observer participant -- and the owner-run bootstrap that uses them. The command is built and tested; what is missing is the selection, which is not this Work's to make."
+ ],
+ "reversal_probes": {
+  "all_killed": true,
+  "harness": "probes-188434.py",
+  "restored_ok": true,
+  "results": [
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_installing_writes_it"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "U1-the-destination-gets-no-justfile-of-its-own",
+    "reverted_returncode": 1,
+    "seconds": 0.619,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_every_path_is_resolved_from_the_justfile_s_OWN_directory",
+     "tests.tools.test_environment.TheRecipesRefuseAChangedRuntime.test_the_DEPLOYED_justfile_reaches_it_from_anywhere"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "U2-the-deployed-recipes-resolve-from-the-caller-s-cwd",
+    "reverted_returncode": 1,
+    "seconds": 0.111,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_the_instance_selector_is_still_what_selects"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "U3-the-deployed-recipes-stop-naming-the-instance",
+    "reverted_returncode": 1,
+    "seconds": 0.09,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_bootstrap_builds_its_own_distribution_from_two_operands"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "U4-the-two-operand-bootstrap-stops-building",
+    "reverted_returncode": 1,
+    "seconds": 0.085,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_a_lifecycle_recipe_given_a_DESTINATION_dispatches_to_its_justfile"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "U5-the-source-wrapper-reaches-into-the-deployment-again",
+    "reverted_returncode": 1,
+    "seconds": 0.09,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheBootstrapPreparesTheRepositories.test_an_existing_path_is_refused_and_left_alone"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "U6-a-repository-that-already-exists-is-replaced",
+    "reverted_returncode": 1,
+    "seconds": 0.092,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheBootstrapPreparesTheRepositories.test_two_repositories_that_are_ONE_repository_are_refused"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "U7-two-repositories-may-be-one-repository",
+    "reverted_returncode": 1,
+    "seconds": 0.091,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheBootstrapPreparesTheRepositories.test_borrowed_objects_are_refused"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "U8-borrowed-objects-are-accepted",
+    "reverted_returncode": 1,
+    "seconds": 0.094,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheBootstrapPreparesTheRepositories.test_a_declared_base_that_is_not_in_the_target_is_refused"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "U9-the-declared-base-need-not-be-in-the-target",
+    "reverted_returncode": 1,
+    "seconds": 0.094,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheBootstrapPreparesTheRepositories.test_three_roles_are_prepared_from_one_source"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "U10-nothing-is-prepared-when-a-source-IS-named",
+    "reverted_returncode": 1,
+    "seconds": 0.092,
+    "valid_kill": true
+   }
+  ],
+  "seconds": 2.588
+ },
+ "scope": "the two-operand bootstrap, the destination-local justfile, the deployed lifecycle that needs nothing but the destination, the source-side wrappers that take at most a DESTINATION, and the repository preparation the two-argument operation performs. No Job, no provider, no engine, no v11 operation, no version-control mutation BY THIS AGENT.",
+ "the_deployed_justfile": {
+  "it_is_an_owned_path": "custody refuses a link at that name and never replaces an existing one",
+  "not_a_login_shell": "the first live run printed a profile permission error before every recipe; a deployed command must not depend on whoever's profile happens to be readable where it runs",
+  "nothing_beneath_it_was_loosened": "every recipe still passes --instance, so the command still verifies the whole runtime and still refuses another instance's selector",
+  "resolves_from_itself": "HERE := justfile_directory(), and COMMAND and INSTANCE derive from HERE, which is what makes --justfile mean the same deployment as cd",
+  "written_by": "bootstrap.install, from bootstrap.deployed_justfile, before the selector -- so a destination carrying a selector always carries the justfile that drives it"
+ },
+ "the_repositories": {
+  "and_it_names_them": "repositories_bound puts those paths into the emitted configuration where the input did not already choose",
+  "this_agent_ran_none_of_it": "the repository tool is invoked through an injectable runner and every check here substitutes it. This Work performs no version-control mutation; the owner invokes the finished operation.",
+  "what_it_does": "with `repository_source` named, it prepares <destination>/repo/target.git (a mirror of the owner's source), <destination>/repo/workspace and one <destination>/repo/source-<worker_id> per worker -- each a separate --no-local clone, so each has its own object store -- and then PROVES them: every one identifies itself, no two are one repository or one directory, none borrows objects, and the target holds every declared base and the configured import reference",
+  "what_the_owner_directed": "the two-argument bootstrap creates the bundled distro, databases AND independent repositories",
+  "when_no_source_is_named": "nothing is cloned and the install says so: missing production choices do not prevent building and testing the generic owner-run command"
+ },
+ "the_selected_interface_now_works": {
+  "from_the_checkout": "just status /absolute/destination -- the wrapper dispatches to the deployed justfile and reaches into nothing",
+  "install": "cd v12 && just bootstrap inputs.json /absolute/destination -- two operands; the recipe builds the one-folder distribution itself and a third DISTRO operand stays a development convenience",
+  "live": {
+   "exits": {
+    "after_stop": 0,
+    "cd_destination_just_start": 0,
+    "cd_destination_just_status": 0,
+    "cd_destination_just_stop": 0,
+    "from_root_identity": 0,
+    "from_root_repository": 0,
+    "from_root_with_justfile_status": 0,
+    "the_monitor_bounded_at_the_command": 0
+   },
+   "file": "STANDALONE-188434.json",
+   "how": "environment of HOME and PATH only; no PYTHONPATH, no BATON_V12_*, no virtual environment, no JSON operand, nothing from the checkout",
+   "seconds": 5.66,
+   "the_same_deployment_from_both_forms": true,
+   "what_the_destination_holds": [
+    ".bootstrap.lock",
+    "bootstrap.json",
+    "db",
+    "deployment-state",
+    "deployment.json",
+    "distro",
+    "instance.json",
+    "justfile",
+    "logs",
+    "repo",
+    "state"
+   ]
+  },
+  "operate": "cd /absolute/destination && just start|status|monitor|stop, or just --justfile /absolute/destination/justfile <verb> from anywhere at all"
+ },
+ "what_the_interface_change_COST_and_where_it_is_said": {
+  "the_limit": "a self-contained deployment cannot prove its own launcher's bytes before that launcher runs; nothing inside it is outside it. A changed library, frozen asset, unbound extra file or foreign selector is still refused.",
+  "what": "the source recipe used to ask `tools.instance command`, which verified the runtime and only then printed a path to exec, so a changed LAUNCHER never ran. The deployed interface has no checkout to ask: it runs the command, and the command verifies its own instance before deriving anything.",
+  "where_it_is_said": "v12/STACK.md, and a focused check (test_the_runtime_CHECK_moved_into_the_command_and_this_says_so) that drives stack.main with instance.verify refusing and requires exit 2. The four stand-in 'never executes' cases were REMOVED rather than left passing for the wrong reason: a printing stand-in cannot verify itself."
+ },
+ "work": "W183883"
+}

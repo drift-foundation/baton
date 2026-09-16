@@ -1,0 +1,315 @@
+{
+ "R1_the_installer_operand_leaked_into_a_closed_schema": {
+  "covered_where_the_REAL_validator_runs": "tests/tools/test_bootstrap.py, TheInstallerOperandNeverReachesTheManager -- prepare with the member (real fixtures, real held_configuration), the written configuration without it, and the WHOLE `main` with a destination, a stand-in distribution and the repository tool substituted: exit 0, five clones planned, the deployed justfile and selector written.",
+  "fix": "INSTALLER_ONLY names it; `_unknown` accepts it on the way in, `configuration` never carries it because it is not in OPTIONAL, and `prepare` strips installer members before composing at all.",
+  "what_was_wrong": "`repository_source` was listed as an ordinary OPTIONAL selection, so it was carried into the emitted stage-execution document -- a CLOSED schema -- and a perfectly valid input composed an Authority and then exited 2 on the validator."
+ },
+ "R2_effects_ran_before_the_checks": {
+  "fix": "preparation proves the whole document first (the same `held` the manager's rules use, over the installer-stripped document), then that the plan agrees with the configuration, then custody, and only then -- under the destination's own lock, with the existence checks inside it -- does it clone. A worker_id must be one path component, and every planned path must resolve inside the destination.",
+  "partial_effects_are_named_not_removed": "a failure part-way through reports what was already prepared and leaves it: repository data this command cannot re-derive is not something it deletes on the way out.",
+  "what_was_wrong": "a source-only input made two clones and only then hit the missing-structure refusal, and a worker_id of x/../../../escape planned a clone OUTSIDE the destination"
+ },
+ "R3_an_existing_justfile_was_overwritten": {
+  "fix": "custody refuses existing material there, and `install` creates it with O_CREAT|O_EXCL|O_NOFOLLOW so the interval between looking and writing is closed; both are checked, including the appears-after-custody case.",
+  "what_was_wrong": "custody refused only a LINK at that name, so a regular justfile somebody else had put in the destination was overwritten and the selector published over it"
+ },
+ "R4_the_prepared_and_the_configured_could_diverge": {
+  "fix": "`repositories_agree` refuses, before any effect, naming both sides: nothing is silently overridden and nothing is prepared that will not be used. Drop the member to keep your own paths, or drop the paths to have them prepared. The earlier expectation that an external target survives is kept for `repositories_bound` -- which fills only what is absent -- and paired with the refusal that now covers it.",
+  "what_was_wrong": "the plan was fixed under the destination while an explicitly named target, workspace or source was preserved -- so one repository was prepared and proved and a different one was configured"
+ },
+ "all_owned_children_reaped": true,
+ "answers_review": "review-2026-09-16T18-45-20Z.md sha256 1b9f751de36d653e2ed8d4caf494b40b6515d179159ed17aa7ec5040b05c8652 -- R1 to R4",
+ "candidates": {
+  "v12/STACK.md": "c01d81a9173e56f2af221f2bd2eecd08df71eb2fd83abe0487cfa02eacdbeb34",
+  "v12/justfile": "8f3ed773705c5f6e636ac826601d5f7cbc9701d9a87ea8910c12c3c1dd22b96c",
+  "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+  "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+  "v12/python/tests/tools/test_bootstrap.py": "3309d23f5d2a50de4f98a449cc7ad5c2f769748bf7961ceda611428a5b515493",
+  "v12/python/tests/tools/test_environment.py": "84b15abc2bc81ffea8e433260c8e43b898101bb0a79b854bdb8a31461f4fa31c",
+  "v12/python/tests/tools/test_instance.py": "85b4448f5e5cdae870ad5d4ee727ca06f68b057737622ca6dd5f7fc1d1826793",
+  "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+  "v12/python/tests/tools/test_stack.py": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+  "v12/python/tools/bootstrap.py": "a8bbae338b5f60a2d81fbf64d02b1245c93ddaacbfb881b7016450eb578d61f3",
+  "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+  "v12/python/tools/instance.py": "765bfd64aa9967c16741f940b5c77070bdcd268c56ae935ecc2fa6f795bfa9c9",
+  "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+  "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+  "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+  "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59",
+  "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+ },
+ "changed_this_claim": [
+  "v12/python/tests/tools/test_bootstrap.py",
+  "v12/python/tests/tools/test_instance.py",
+  "v12/python/tools/bootstrap.py"
+ ],
+ "claim": 188582,
+ "cumulative_verification_seconds": {
+  "J1_history": "0.125s reversal within a 1.291s whole harness; both intervals preserved",
+  "author_claim183891": 1.195,
+  "author_claim183998": 151.908,
+  "author_claim184239": 127.816,
+  "author_claim184442": 63.532,
+  "author_claim185653": 26.94,
+  "author_claim185774": 27.256,
+  "author_claim185884": 33.299,
+  "author_claim185976": 32.661,
+  "author_claim186044": 30.937,
+  "author_claim186132": 2.476,
+  "author_claim186214": 28.576,
+  "author_claim186284": 27.262,
+  "author_claim186381": {
+   "focused": 27.19,
+   "stage_suite": 55.317
+  },
+  "author_claim186468": 27.183,
+  "author_claim186523": 27.128,
+  "author_claim186583": {
+   "focused": 27.154,
+   "reversal_probes": 0.589
+  },
+  "author_claim186672": {
+   "focused": 27.202,
+   "reversal_probes": 0.625,
+   "scenarios": 0.003
+  },
+  "author_claim186742": {
+   "focused": 27.256,
+   "reversal_probes": {
+    "instance_lifecycle": 2.197,
+    "temporary_custody": 0.541
+   },
+   "scenarios": 0.003
+  },
+  "author_claim186838": {
+   "focused": 27.547,
+   "reversal_probes": 1.247
+  },
+  "author_claim186890": {
+   "builds": "four builds this claim, three of them inside the packaging probe tree; the retained one is BUILD-186890.log, 10156 bytes, exit 0",
+   "focused": 29.559,
+   "live_installed_lifecycle": 7.194,
+   "reversal_probes": {
+    "build_and_revert_packaging": 17.09,
+    "source": 3.683
+   }
+  },
+  "author_claim187015": {
+   "builds": "two builds this claim; the retained one is BUILD-187015.log, exit 0",
+   "focused": 30.191,
+   "live_installed_lifecycle": 7.219,
+   "reversal_probes": 28.886
+  },
+  "author_claim187142": {
+   "builds": "one build; BUILD-187142.log, exit 0",
+   "focused": 30.153,
+   "injected_failure_proofs": "three runs, each ~7s, retained in CLEANUP-PROOF-187142.json",
+   "live_installed_lifecycle": 7.37,
+   "reversal_probes": 28.295
+  },
+  "author_claim187223": {
+   "boundary_runs": "six injected-boundary runs of the harness, each about seven seconds, retained",
+   "builds": "none -- no product code changed, and the review said no rebuild was needed for packet/harness-only changes",
+   "focused": 30.309,
+   "live_installed_lifecycle": 7.398,
+   "packet_check_proof": "nine extracted-block scenarios, sub-second"
+  },
+  "author_claim187303": {
+   "boundary_runs": "nine injected-boundary runs of the harness, each a few seconds, retained",
+   "builds": "none; no product code changed and no rebuild was requested",
+   "focused": "not re-run: no product or test file changed, and the review said not to re-run an unchanged suite for a handoff. Every candidate hash is identical to claim187223's.",
+   "live_installed_lifecycle": 7.557,
+   "packet_check_proof": "nine extracted-block scenarios, sub-second"
+  },
+  "author_claim187356": {
+   "builds": "none; no product code changed",
+   "control_runs": "eleven injected control runs, each a few seconds, retained in this record",
+   "focused": "not re-run: no product or test file changed, and the review said not to re-run an unchanged suite for a handoff",
+   "live_installed_lifecycle": 7.569
+  },
+  "author_claim188434": {
+   "builds": "two builds; the install log is INSTALL-188434.log, exit 0",
+   "focused": 30.169,
+   "reversal_probes": 2.588,
+   "standalone_interface": 5.66
+  },
+  "earlier_build_and_bundle_checks": "unknown duration, VERIFICATION rather than deployment cost",
+  "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+  "owner_bootstrap_run": 0.938,
+  "owner_composition_run": 10.535,
+  "reviewer_claim183958": 1.5529989219503477,
+  "reviewer_claim184197": 12.840890395978931,
+  "reviewer_claim184197_readiness_check": 0.002758326008915901,
+  "reviewer_claim184403": 20.8455910270568,
+  "reviewer_claim184537": 15.599983819993213,
+  "reviewer_claim185739": 0.12554923997959122,
+  "reviewer_claim185857": 0.22083405102603137,
+  "reviewer_claim185945": 0.0037346489843912423,
+  "reviewer_claim186022": 0.004474725050386041,
+  "reviewer_claim186081": 0.005015750008169562,
+  "reviewer_claim186175": 0.04717645701020956,
+  "reviewer_claim186262": 0.4171164730214514,
+  "reviewer_claim186356": 1.6185368220321834,
+  "reviewer_claim186439": 0.0028278949903324246,
+  "reviewer_claim186499": 0.003370393009390682,
+  "this_claim_builds": "one build, during the live two-operand install",
+  "this_claim_focused_tests": 30.199,
+  "this_claim_reversal_probes": 3.239
+ },
+ "focused_tests": {
+  "by_module": {
+   "test_bootstrap": 72,
+   "test_environment": 69,
+   "test_instance": 98,
+   "test_packaging": 9,
+   "test_stack": 122
+  },
+  "command": "cd v12/python && PYTHONPATH=src:. python3 -m unittest tests.tools.test_instance tests.tools.test_bootstrap tests.tools.test_stack tests.tools.test_environment tests.tools.test_packaging",
+  "returncode": 0,
+  "seconds": {
+   "test_bootstrap": 1.014,
+   "test_environment": 0.848,
+   "test_instance": 0.283,
+   "test_packaging": 1.931,
+   "test_stack": 26.123
+  },
+  "tests": 370
+ },
+ "not_done": {
+  "no_credential_registry_read": true,
+  "no_job_submitted": true,
+  "no_live_provider_or_engine_run": true,
+  "no_repository_created_cloned_or_modified_by_this_agent": true,
+  "no_v11_path_service_store_or_configuration_touched": true,
+  "no_version_control_mutation_by_this_agent": true
+ },
+ "operational_findings_preserved": [
+  {
+   "modules": [
+    "tests.manager.test_claude_context",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.tools.test_correction_restart",
+    "tests.tools.test_managed_apply"
+   ],
+   "note": "unchanged; re-observed this claim",
+   "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+  },
+  {
+   "note": "unchanged, not re-run this claim",
+   "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+  }
+ ],
+ "remaining_scope": [
+  "the owner's production choices -- the repository source, the immutable base, the import reference and the observer participant -- and the owner-run bootstrap that uses them. The command is built and tested; what is missing is the selection, which is not this Work's to make."
+ ],
+ "reversal_probes": {
+  "V1_is_a_COMBINED_reversal_and_why": "two things keep the installer operand out of the emitted document -- it is not in OPTIONAL, and `prepare` strips installer members -- so reverting either alone proves nothing. The harness now takes several edits per probe, and the reason is recorded rather than dressed up as a kill.",
+  "V3_is_belt_and_braces_and_says_so": "reverting the worker_id name check still refuses the escape, by the containment rule that follows. The probe measures that the name check is the earlier and clearer refusal; containment is what makes it safe.",
+  "all_killed": true,
+  "harness": "probes-188582.py",
+  "restored_ok": true,
+  "results": [
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_bootstrap.TheInstallerOperandNeverReachesTheManager"
+    ],
+    "edits": 2,
+    "failed_on_the_intended_assertion": true,
+    "probe": "V1-the-installer-operand-reaches-the-manager-again",
+    "reverted_returncode": 1,
+    "seconds": 0.934,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheBootstrapPreparesTheRepositories.test_a_source_only_input_clones_NOTHING"
+    ],
+    "edits": 1,
+    "failed_on_the_intended_assertion": true,
+    "probe": "V2-repositories-are-cloned-before-the-structure-is-proved",
+    "reverted_returncode": 1,
+    "seconds": 0.094,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheBootstrapPreparesTheRepositories.test_a_worker_id_that_is_a_PATH_is_refused_before_anything"
+    ],
+    "edits": 1,
+    "failed_on_the_intended_assertion": true,
+    "probe": "V3-a-worker-id-may-be-a-path-again",
+    "reverted_returncode": 1,
+    "seconds": 0.097,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheBootstrapPreparesTheRepositories.test_a_named_target_that_is_not_the_prepared_one_is_REFUSED",
+     "tests.tools.test_instance.TheBootstrapPreparesTheRepositories.test_a_named_source_that_is_not_the_prepared_one_is_REFUSED"
+    ],
+    "edits": 1,
+    "failed_on_the_intended_assertion": true,
+    "probe": "V4-the-plan-and-the-configuration-may-disagree",
+    "reverted_returncode": 1,
+    "seconds": 0.097,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheDeploymentCarriesItsOwnJustfile.test_existing_material_at_that_name_is_refused"
+    ],
+    "edits": 1,
+    "failed_on_the_intended_assertion": true,
+    "probe": "V5-an-existing-justfile-is-overwritten-again",
+    "reverted_returncode": 1,
+    "seconds": 0.093,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheBootstrapPreparesTheRepositories.test_what_was_already_prepared_is_NAMED_when_a_later_clone_fails"
+    ],
+    "edits": 1,
+    "failed_on_the_intended_assertion": true,
+    "probe": "V6-a-partial-preparation-is-not-reported",
+    "reverted_returncode": 1,
+    "seconds": 0.095,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheBootstrapPreparesTheRepositories.test_preparation_is_serialized_with_other_attempts"
+    ],
+    "edits": 1,
+    "failed_on_the_intended_assertion": true,
+    "probe": "V7-preparation-stops-serializing-with-other-attempts",
+    "reverted_returncode": 1,
+    "seconds": 0.158,
+    "valid_kill": true
+   }
+  ],
+  "seconds": 3.239
+ },
+ "scope": "the four corrections that review named, under OWNER-STANDALONE-INTERFACE-20260916.md. No Job, provider, engine, v11 operation, credential read, or version-control mutation by this agent.",
+ "the_concrete_owner_command": {
+  "then": "cd /absolute/destination && just start|status|monitor|stop",
+  "what_is_still_the_owner_s": "the repository source, the immutable base, the import reference and the observer participant -- and running the command, because cloning is a version-control mutation this agent does not perform",
+  "with_them": "add a repository_source member naming your source to the input document and run the same two-operand command; it prepares <destination>/repo/target.git, <destination>/repo/workspace and one <destination>/repo/source-<worker_id> per worker, then proves their isolation before the deployment is composed",
+  "without_repositories": "cd v12 && just bootstrap /path/to/inputs.json /absolute/destination"
+ },
+ "the_count_correction": "my claim188434 handoff said 349 focused checks and the evidence said 358. The evidence was right (89+69+122+69+9); the handoff number was an arithmetic slip, not a different run. This claim's total is 370.",
+ "the_live_install_after_these_corrections": {
+  "command": "cd v12 && just bootstrap <inputs> <destination>  -- two operands",
+  "said": "repositories not prepared: this input names no repository_source, so the deployment has no target, workspace or worker sources yet and will schedule without reconciling",
+  "then": "a second install into the same destination refused -- already a runtime -- and the deployed interface started and stopped the deployment with no operands at all"
+ },
+ "work": "W183883"
+}

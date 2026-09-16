@@ -1,0 +1,54 @@
+{
+  "claim": 185739,
+  "candidate_hashes": {
+    "v12/STACK.md": "d1a59c684227d2db3d073e6593f97713f8d252bdbfad98af003cd816b2f37f4c",
+    "v12/justfile": "1e5f7c30e89edff8de15a07bef5aed5558048a76b5b87e56912bdc7310e9c3d3",
+    "v12/python/tests/tools/test_environment.py": "56a467b207da0a84e0de9c17caa9ebd030627634b829926ddbf024567cf96672",
+    "v12/python/tests/tools/test_stack.py": "a2bc1a222650ecc7e5f846b5007373796bb7cc0b187dfb866eac1a400af5e1b1",
+    "v12/python/tools/environment.py": "00458dc7c6a10571cf908e62fd08f1f533ff5c6b7f9be741ad2c68537ab3c056",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "3746114ca2577f13de16d303fdda47d32bce3576a72b683507e9c6e17336a11f",
+    "v12/python/tools/stack.py": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136"
+  },
+  "all_author_hashes_match": true,
+  "tests": {
+    "returncode": 0,
+    "seconds": 0.11846645700279623,
+    "stdout": "",
+    "stderr": "test_a_ready_environment_answers_its_interpreters_path (tests.tools.test_environment.NamingTheInterpreter.test_a_ready_environment_answers_its_interpreters_path) ... ok\ntest_an_unprepared_environment_refuses_and_names_the_command (tests.tools.test_environment.NamingTheInterpreter.test_an_unprepared_environment_refuses_and_names_the_command) ... ok\ntest_the_refusal_never_reaches_the_stream_a_recipe_reads (tests.tools.test_environment.NamingTheInterpreter.test_the_refusal_never_reaches_the_stream_a_recipe_reads)\nA recipe runs what STDOUT answers, so a refusal printed there would ... ok\ntest_a_first_setup_creates_installs_and_records (tests.tools.test_environment.PreparingIt.test_a_first_setup_creates_installs_and_records) ... ok\ntest_a_foreign_directory_is_refused_and_never_deleted (tests.tools.test_environment.PreparingIt.test_a_foreign_directory_is_refused_and_never_deleted) ... ok\ntest_a_refused_install_supplies_the_exact_command_and_deletes_nothing (tests.tools.test_environment.PreparingIt.test_a_refused_install_supplies_the_exact_command_and_deletes_nothing)\nThe owner's rule for anything this authority cannot do itself: the ... ok\ntest_a_repeated_setup_installs_nothing_at_all (tests.tools.test_environment.PreparingIt.test_a_repeated_setup_installs_nothing_at_all) ... ok\ntest_a_stale_environment_is_reinstalled_and_not_recreated (tests.tools.test_environment.PreparingIt.test_a_stale_environment_is_reinstalled_and_not_recreated) ... /home/sl/src/baton/v12/python/tests/tools/test_environment.py:200: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>\n  environment.setup(self.root, self.environ, runner=self.runner(),\nResourceWarning: Enable tracemalloc to get the object allocation traceback\nok\ntest_an_incompatible_environment_is_refused_and_never_deleted (tests.tools.test_environment.PreparingIt.test_an_incompatible_environment_is_refused_and_never_deleted) ... ok\ntest_an_interpreter_below_the_minimum_builds_nothing (tests.tools.test_environment.PreparingIt.test_an_interpreter_below_the_minimum_builds_nothing) ... ok\ntest_an_interpreter_that_is_not_there_is_named (tests.tools.test_environment.PreparingIt.test_an_interpreter_that_is_not_there_is_named) ... ok\ntest_setup_never_touches_the_stacks_own_runtime_state (tests.tools.test_environment.PreparingIt.test_setup_never_touches_the_stacks_own_runtime_state)\nRepeat setup preserves persistent stack state, which it does by ... ok\ntest_the_dependencies_are_installed_with_their_hashes_enforced (tests.tools.test_environment.PreparingIt.test_the_dependencies_are_installed_with_their_hashes_enforced) ... /home/sl/src/baton/v12/python/tests/tools/test_environment.py:188: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>\n  environment.setup(self.root, self.environ, runner=self.runner(),\nResourceWarning: Enable tracemalloc to get the object allocation traceback\nok\ntest_every_stack_recipe_resolves_the_prepared_interpreter (tests.tools.test_environment.TheRecipesUseIt.test_every_stack_recipe_resolves_the_prepared_interpreter) ... ok\ntest_no_recipe_asks_an_operator_to_activate_anything (tests.tools.test_environment.TheRecipesUseIt.test_no_recipe_asks_an_operator_to_activate_anything)\nOver the recipe BODIES, not the file: asserting over the whole text ... ok\ntest_no_stack_recipe_installs_anything (tests.tools.test_environment.TheRecipesUseIt.test_no_stack_recipe_installs_anything) ... ok\ntest_setup_is_its_own_recipe_and_the_node_install_is_untouched (tests.tools.test_environment.TheRecipesUseIt.test_setup_is_its_own_recipe_and_the_node_install_is_untouched) ... ok\ntest_a_directory_this_setup_did_not_create_is_foreign (tests.tools.test_environment.WhatItSeesThere.test_a_directory_this_setup_did_not_create_is_foreign) ... ok\ntest_a_marker_naming_another_path_is_foreign (tests.tools.test_environment.WhatItSeesThere.test_a_marker_naming_another_path_is_foreign)\nA copied or moved environment: its interpreter's shebangs and its ... ok\ntest_a_matching_environment_is_ready (tests.tools.test_environment.WhatItSeesThere.test_a_matching_environment_is_ready) ... ok\ntest_an_absent_environment_is_absent (tests.tools.test_environment.WhatItSeesThere.test_an_absent_environment_is_absent) ... ok\ntest_an_environment_installed_from_another_lock_is_stale (tests.tools.test_environment.WhatItSeesThere.test_an_environment_installed_from_another_lock_is_stale) ... ok\ntest_an_interpreter_below_the_declared_minimum_is_incompatible (tests.tools.test_environment.WhatItSeesThere.test_an_interpreter_below_the_declared_minimum_is_incompatible) ... ok\ntest_an_interpreter_that_does_not_run_is_broken (tests.tools.test_environment.WhatItSeesThere.test_an_interpreter_that_does_not_run_is_broken) ... ok\ntest_an_unreadable_marker_is_foreign_rather_than_absent (tests.tools.test_environment.WhatItSeesThere.test_an_unreadable_marker_is_foreign_rather_than_absent) ... ok\ntest_a_pyproject_with_no_minimum_is_refused_rather_than_guessed (tests.tools.test_environment.WhereItLives.test_a_pyproject_with_no_minimum_is_refused_rather_than_guessed) ... ok\ntest_the_declared_minimum_is_read_rather_than_assumed (tests.tools.test_environment.WhereItLives.test_the_declared_minimum_is_read_rather_than_assumed)\nThe distribution says `requires-python`; nothing here restates it. ... ok\ntest_the_environment_is_outside_the_checkout_by_default (tests.tools.test_environment.WhereItLives.test_the_environment_is_outside_the_checkout_by_default) ... ok\ntest_the_lock_is_digested_from_its_own_bytes (tests.tools.test_environment.WhereItLives.test_the_lock_is_digested_from_its_own_bytes) ... ok\n\n----------------------------------------------------------------------\nRan 29 tests in 0.082s\n\nOK\n"
+  },
+  "documented_override": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "cd python && python3 -m tools.environment --python \"PY=/usr/bin/python3.13\" setup\n"
+  },
+  "failed_first_install_retry": {
+    "refusals": [
+      "the locked dependency install refused. Nothing was deleted. This is the exact command, so it can be run wherever the artifacts are reachable:\n\n    /tmp/w183883-review-185739-sstcxeix/env/bin/pip install --no-cache-dir --disable-pip-version-check --require-hashes --ignore-installed -r /home/sl/src/baton/v12/python/requirements.lock\n\npip said:\nsimulated index unavailable",
+      "there is something at /tmp/w183883-review-185739-sstcxeix/env that this setup did not create. It will not be installed into and it will NOT be deleted. Remove it yourself if that is what you want, or point BATON_V12_VENV at another path. This setup will not delete a directory it did not create."
+    ],
+    "runner_calls": [
+      [
+        "/usr/bin/python3",
+        "-m",
+        "venv",
+        "/tmp/w183883-review-185739-sstcxeix/env"
+      ],
+      [
+        "/tmp/w183883-review-185739-sstcxeix/env/bin/pip",
+        "install",
+        "--no-cache-dir",
+        "--disable-pip-version-check",
+        "--require-hashes",
+        "--ignore-installed",
+        "-r",
+        "/home/sl/src/baton/v12/python/requirements.lock"
+      ]
+    ],
+    "observed_state": "foreign",
+    "marker_exists": false,
+    "directory_preserved": true
+  },
+  "verification_seconds_including_cleanup": 0.12554923997959122,
+  "cleanup": "TemporaryDirectory removed owned stand-in; all subprocesses completed; no install, network, provider, engine, Job or deployment executed"
+}

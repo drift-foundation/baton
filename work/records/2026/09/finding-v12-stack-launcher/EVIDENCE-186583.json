@@ -1,0 +1,236 @@
+{
+ "all_owned_children_reaped": true,
+ "answers_review": "review-2026-09-16T12-53-30Z.md sha256 2174ebb04e6e1f350670d136c512cfe9383949a1a3289dd9cfa7dce85bca368d (the bootstrap admission/custody remainders and the coverage for them)",
+ "candidates": {
+  "v12/justfile": "6acbd6029baaacab31da1a0f87feba3fb4876d99226ccd981ef30837b4614a32",
+  "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+  "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+  "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+  "v12/python/tests/tools/test_instance.py": "856635b5cc53c46030b5aba8a0f4525d217792696b49a05d07c3f652c299260d",
+  "v12/python/tools/bootstrap.py": "ef8cb835f013966967b8ccafaca2c2d1cfa74c436fb5873e0e4cd6fddad687c0",
+  "v12/python/tools/instance.py": "6385c3df5c413735230e1dd38d1b29123360e1b804a26d271be4634ec16dfeb3",
+  "v12/python/tools/parallel_test.py": "14404bcb51c08650df3b136dcc72242bb5cc2b81bb0d703de6b89fe13cbe19a4",
+  "v12/python/tools/stack.py": "0766c7c4dd27cd84ffd5aaa2a3cd6db2730f540ef3fad337129aef912a4bcbef",
+  "v12/python/tools/stack_command.py": "4f923e87142bda2667826a992c2108e63bd4ac4bea6cc01e3b9d981c4216de13",
+  "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+ },
+ "claim": 186583,
+ "corrections": {
+  "lexists_not_exists": "`exists` follows the final link, so a DANGLING `instance.json` link read as absent and was then overwritten -- through the link, into wherever it pointed. Existing entries are detected without being followed, and any link at an owned name is refused outright.",
+  "one_admission_is_carried_not_repeated": "`main` admitted, threw the answer away, and `install` admitted again -- so a source changed while `prepare` was composing was re-admitted and installed, exit 0, with a digest nobody had agreed to. `install` takes the admission it was given, refuses an admission made for another destination, and refuses a source that has drifted since.",
+  "owned_paths_are_decided_before_any_effect": "install SUCCEEDED with an owned path linked outside the destination and published a selector `instance.read` rejected on the very next read -- a deployment that could never be started, left behind. `admit` now applies the same containment rule to every derived path BEFORE any effect.",
+  "the_native_validator_is_anchored_to_what_was_ADMITTED": "the first correction anchored `native_rpds` to the identity's OWN reported `resources`, so `resources: \"/\"` made every path on the host qualify and a prefix fallback admitted a file that was not in the manifest or did not exist. It is anchored to the admitted distro and its manifest entries; the permissive prefix fallback is gone."
+ },
+ "cumulative_verification_seconds": {
+  "J1_history": "0.125s reversal within a 1.291s whole harness; both intervals preserved",
+  "author_claim183891": 1.195,
+  "author_claim183998": 151.908,
+  "author_claim184239": 127.816,
+  "author_claim184442": 63.532,
+  "author_claim185653": 26.94,
+  "author_claim185774": 27.256,
+  "author_claim185884": 33.299,
+  "author_claim185976": 32.661,
+  "author_claim186044": 30.937,
+  "author_claim186132": 2.476,
+  "author_claim186214": 28.576,
+  "author_claim186284": 27.262,
+  "author_claim186381": {
+   "focused": 27.19,
+   "stage_suite": 55.317
+  },
+  "author_claim186468": 27.183,
+  "author_claim186523": 27.128,
+  "earlier_build_and_bundle_checks": "unknown duration, VERIFICATION rather than deployment cost",
+  "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+  "owner_bootstrap_run": 0.938,
+  "owner_composition_run": 10.535,
+  "reviewer_claim183958": 1.5529989219503477,
+  "reviewer_claim184197": 12.840890395978931,
+  "reviewer_claim184197_readiness_check": 0.002758326008915901,
+  "reviewer_claim184403": 20.8455910270568,
+  "reviewer_claim184537": 15.599983819993213,
+  "reviewer_claim185739": 0.12554923997959122,
+  "reviewer_claim185857": 0.22083405102603137,
+  "reviewer_claim185945": 0.0037346489843912423,
+  "reviewer_claim186022": 0.004474725050386041,
+  "reviewer_claim186081": 0.005015750008169562,
+  "reviewer_claim186175": 0.04717645701020956,
+  "reviewer_claim186262": 0.4171164730214514,
+  "reviewer_claim186356": 1.6185368220321834,
+  "reviewer_claim186439": 0.0028278949903324246,
+  "reviewer_claim186499": 0.003370393009390682,
+  "this_claim_focused_tests": 27.154,
+  "this_claim_reversal_probes": 0.589
+ },
+ "edited_this_claim": [
+  "v12/python/tools/bootstrap.py",
+  "v12/python/tests/tools/test_instance.py"
+ ],
+ "focused_tests": {
+  "by_module": {
+   "test_bootstrap": 67,
+   "test_environment": 50,
+   "test_instance": 40,
+   "test_stack": 103
+  },
+  "command": "cd v12/python && PYTHONPATH=src:. python3 -m unittest tests.tools.test_instance tests.tools.test_bootstrap tests.tools.test_stack tests.tools.test_environment",
+  "returncode": 0,
+  "seconds": {
+   "test_bootstrap": 0.954,
+   "test_environment": 0.15,
+   "test_instance": 0.018,
+   "test_stack": 26.032
+  },
+  "tests": 260
+ },
+ "new_this_claim": [],
+ "not_done": {
+  "no_build_this_claim": true,
+  "no_credential_registry_read": true,
+  "no_job_submitted": true,
+  "no_live_provider_or_engine_run": true,
+  "no_v11_path_service_store_or_configuration_touched": true,
+  "no_version_control_mutation": true
+ },
+ "operational_findings_preserved": [
+  {
+   "modules": [
+    "tests.manager.test_claude_context",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.tools.test_correction_restart",
+    "tests.tools.test_managed_apply"
+   ],
+   "note": "unchanged; re-observed this claim",
+   "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+  },
+  {
+   "note": "unchanged, not re-run this claim",
+   "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+  }
+ ],
+ "remaining_scope": [
+  "tests/tools/test_packaging.py: a REAL built-bundle smoke check, registered -- the one thing here that genuinely needs a build",
+  "an external-run fixture whose workers carry a credential registry, so start/status/monitor/stop can be demonstrated with the manager, publisher and viewer actually RUNNING through instance.json",
+  "STACK.md and the four lifecycle recipes taking an instance path, and an installed monitor -- the 'installed dispatch' the review notes is still unfinished in the source recipes",
+  "the independent repo from the selected immutable base, and repeat/corrupt/mismatch checks for instances",
+  "a retained final artifact manifest with digests and full build/smoke/source/lock/platform provenance"
+ ],
+ "reversal_probes": {
+  "all_killed": true,
+  "harness": "work/records/2026/09/finding-v12-stack-launcher/probes-186583.py",
+  "method": "each probe proves a PASSING BASELINE on pristine code, reverts one guard in an isolated COPY of the tree, and requires the named checks to fail ON THE INTENDED ASSERTION [J1]",
+  "one_arm_is_NOT_independently_reachable_and_is_recorded_as_such": "the containment arm of the owned-path preflight cannot be reached without the link arm firing first, because every path `instance.layout` derives is a DIRECT child of the destination and a direct child only resolves outside by being a link. Probe K3-b therefore reverts the whole preflight rather than claiming to isolate that arm. The arm is kept because it is the invariant `instance.read` applies afterwards, and a layout that ever nests a path would reach it -- but it is belt-and-braces today and is reported as such rather than as covered.",
+  "restored_ok": true,
+  "results": [
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheAdmissionDecidesBeforeAnythingHappens.test_a_DANGLING_selector_link_is_refused_rather_than_written_through",
+     "tests.tools.test_instance.TheAdmissionDecidesBeforeAnythingHappens.test_an_owned_path_that_LINKS_out_of_the_destination_is_refused"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "K3-a-the-link-refusal-goes-away",
+    "reverted_returncode": 1,
+    "seconds": 0.085,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheAdmissionDecidesBeforeAnythingHappens.test_a_DANGLING_selector_link_is_refused_rather_than_written_through",
+     "tests.tools.test_instance.TheAdmissionDecidesBeforeAnythingHappens.test_an_owned_path_that_LINKS_out_of_the_destination_is_refused"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "K3-b-the-whole-owned-path-preflight-goes-away",
+    "reverted_returncode": 1,
+    "seconds": 0.087,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheIdentityHasToMeanSomething.test_a_permissive_resources_claim_cannot_widen_what_counts",
+     "tests.tools.test_instance.TheIdentityHasToMeanSomething.test_a_path_under_the_reported_resources_that_is_not_in_the_manifest"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "K3-c-the-native-validator-is-anchored-to-what-the-build-SAYS",
+    "reverted_returncode": 1,
+    "seconds": 0.091,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheIdentityHasToMeanSomething.test_a_native_validator_from_the_HOST_is_refused",
+     "tests.tools.test_instance.TheIdentityHasToMeanSomething.test_a_missing_native_report_is_refused"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "K3-d-the-identity-is-asked-without-the-admitted-runtime",
+    "reverted_returncode": 1,
+    "seconds": 0.091,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheAdmissionIsCarriedNotRepeated.test_a_source_changed_after_admission_is_refused"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "K3-e-the-source-may-change-after-it-was-admitted",
+    "reverted_returncode": 1,
+    "seconds": 0.087,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheAdmissionIsCarriedNotRepeated.test_an_admission_for_another_destination_is_refused"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "K3-f-an-admission-installs-into-any-destination",
+    "reverted_returncode": 1,
+    "seconds": 0.088,
+    "valid_kill": true
+   }
+  ],
+  "seconds": 0.589,
+  "two_probes_first_PROVED_NOTHING_and_why": "K3-c and K3-e failed on an assertion other than the one I had named. Reverted, the anchoring ADMITS the host path, so the intended failure is the refusal that never came, not the message it would have carried; and reverted, the drift is caught LATER by the copied-runtime comparison, so the intended failure is that the refusal names the wrong thing -- after a destination has been created and a distro copied, which is exactly the cost the earlier gate avoids. The probes were corrected to name those assertions rather than counted."
+ },
+ "scope": "the four bootstrap admission corrections the review named, and the deterministic regressions that hold them; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation, no build",
+ "the_regressions_the_review_asked_for": {
+  "classes": [
+   "TheAdmissionDecidesBeforeAnythingHappens",
+   "TheIdentityHasToMeanSomething",
+   "TheAdmissionIsCarriedNotRepeated"
+  ],
+  "covers": [
+   "an owned path that LINKS out of the destination, refused with nothing written and the outside directory left empty",
+   "a DANGLING instance.json link refused rather than written through, with the link target still absent afterwards",
+   "an existing runtime or selector never replaced, the selector's bytes unchanged after the refusal",
+   "a relative destination, and one inside the checkout, with nothing created",
+   "an unnamed and an absent runtime, refused before the destination exists",
+   "a build that is not frozen",
+   "schema_assets: empty, short, zero-length, wrongly named and over-full",
+   "a native validator from the HOST, under a permissive resources claim, under the reported resources but not in the manifest, and absent or non-text -- plus the bundled one ADMITTED, so the refusals are not passing by accident",
+   "a source changed after admission, refused with the distro not copied",
+   "an admission used for another destination",
+   "the carried admission installing, and instance.read accepting what it published"
+  ],
+  "file": "v12/python/tests/tools/test_instance.py (already registered in tools/parallel_test.py)",
+  "new_this_claim": 16,
+  "what_is_substituted_and_what_is_not": "only the built command's own answer -- `_identity_of`'s subprocess -- is stood in for. The rules applied to that answer are the real ones, and `tests/tools/test_packaging.py` (still outstanding) owns the real bundle."
+ },
+ "unchanged_this_claim": [
+  "v12/python/tools/instance.py",
+  "v12/python/tools/stack.py",
+  "v12/python/tools/stack_command.py",
+  "v12/python/tools/stage_execution.py",
+  "v12/python/tools/parallel_test.py",
+  "v12/python/packaging/stack.spec",
+  "v12/python/requirements.build.lock",
+  "v12/justfile"
+ ],
+ "work": "W183883"
+}

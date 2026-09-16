@@ -1,0 +1,159 @@
+{
+  "candidate_hashes": {
+    "v12/STACK.md": "c01d81a9173e56f2af221f2bd2eecd08df71eb2fd83abe0487cfa02eacdbeb34",
+    "v12/justfile": "8f3ed773705c5f6e636ac826601d5f7cbc9701d9a87ea8910c12c3c1dd22b96c",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tests/tools/test_bootstrap.py": "3309d23f5d2a50de4f98a449cc7ad5c2f769748bf7961ceda611428a5b515493",
+    "v12/python/tests/tools/test_environment.py": "84b15abc2bc81ffea8e433260c8e43b898101bb0a79b854bdb8a31461f4fa31c",
+    "v12/python/tests/tools/test_instance.py": "85b4448f5e5cdae870ad5d4ee727ca06f68b057737622ca6dd5f7fc1d1826793",
+    "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+    "v12/python/tests/tools/test_stack.py": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+    "v12/python/tools/bootstrap.py": "a8bbae338b5f60a2d81fbf64d02b1245c93ddaacbfb881b7016450eb578d61f3",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/instance.py": "765bfd64aa9967c16741f940b5c77070bdcd268c56ae935ecc2fa6f795bfa9c9",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+    "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+    "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59",
+    "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+  },
+  "cases": {
+    "R1_real_validator": {
+      "accepted": true,
+      "repository_source_emitted": false
+    },
+    "R2_custody_not_rechecked_under_lock": {
+      "clones_after_foreign_install": [
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "--mirror",
+          "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/their-source",
+          "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/target.git"
+        ],
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/target.git",
+          "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/workspace"
+        ],
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/target.git",
+          "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/source-impl-a"
+        ],
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/target.git",
+          "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/source-review-a"
+        ],
+        [
+          "git",
+          "clone",
+          "--no-local",
+          "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/target.git",
+          "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/source-integ-a"
+        ]
+      ],
+      "foreign_selector_preserved": true,
+      "returned_prepared": {
+        "prepared": [
+          {
+            "path": "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/target.git",
+            "role": "target"
+          },
+          {
+            "path": "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/workspace",
+            "role": "workspace"
+          },
+          {
+            "path": "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/source-impl-a",
+            "role": "source-impl-a"
+          },
+          {
+            "path": "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/source-review-a",
+            "role": "source-review-a"
+          },
+          {
+            "path": "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/source-integ-a",
+            "role": "source-integ-a"
+          }
+        ],
+        "proved": {
+          "declared_bases": [
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          ],
+          "identities": {
+            "source-impl-a": "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/source-impl-a",
+            "source-integ-a": "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/source-integ-a",
+            "source-review-a": "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/source-review-a",
+            "target": "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/target.git",
+            "workspace": "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/deployment/repo/workspace"
+          },
+          "reference": "refs/heads/main"
+        },
+        "source": "/tmp/w183883-review188639-z1wf43bi/custody_after_wait/their-source"
+      }
+    },
+    "R3_existing_preserved": {
+      "refusal": "there is already a justfile at /tmp/w183883-review188639-z1wf43bi/existing/deployment/justfile. Nothing here replaces one; prepare a new destination.",
+      "unchanged": true
+    },
+    "R3_own_leftover_blocks_retry": {
+      "initial_error": "injected transient selector write failure",
+      "justfile_present": true,
+      "retry_refusal": "there is already a justfile at /tmp/w183883-review188639-z1wf43bi/retry/deployment/justfile. Nothing here replaces one; prepare a new destination.",
+      "runtime_present": false,
+      "selector_present": false
+    },
+    "R3_race_preserved": {
+      "refusal": "there is already a justfile at /tmp/w183883-review188639-z1wf43bi/race/deployment/justfile, which this install would be the deployed interface at. It was left exactly as it is; a destination is prepared once.",
+      "unchanged": true
+    },
+    "R4_external_storage_accepted": {
+      "destination": "/tmp/w183883-review188639-z1wf43bi/storage/deployment",
+      "emitted_workspace_storage": [
+        "/tmp/w183883-review188639-z1wf43bi/shared-worker-storage",
+        "/tmp/w183883-review188639-z1wf43bi/shared-worker-storage",
+        "/tmp/w183883-review188639-z1wf43bi/shared-worker-storage"
+      ],
+      "limits": "Configuration mapping and preparation accepted; this wrapper fixture is not a full manager-valid deployment.",
+      "prepared_count": 5
+    },
+    "R4_real_configuration_storage": {
+      "destination": "/var/tmp/w183883-standalone-188434/deployment",
+      "validated": true,
+      "workspace_storage": [
+        "/var/tmp/v12-w71917-58q3_mby/storage",
+        "/var/tmp/v12-w71917-58q3_mby/storage",
+        "/var/tmp/v12-w71917-58q3_mby/storage"
+      ]
+    },
+    "fixed_mismatch": {
+      "calls": [],
+      "destination_absent": true,
+      "refusal": "this input asks for repositories to be prepared AND names different ones:\n  integration_target is /elsewhere/target, and this bootstrap prepares /tmp/w183883-review188639-z1wf43bi/mismatch/deployment/repo/target.git\nNothing here silently overrides a selection or prepares a repository nobody will use. Drop repository_source to keep your own paths, or drop the paths to have them prepared."
+    },
+    "fixed_missing": {
+      "calls": [],
+      "destination_absent": true,
+      "refusal": "this deployment cannot be prepared: the following are not named and cannot be derived -- authority_uuid, checkpoint_profile, integration_profile, jobs, policy_generation, pool_generation, receipt_participants, retention_disposition, retention_policy_digest, schema, state_root, workers. These are production selections; nothing here invents one, and a fixture digest, proof task or disposable credential is not a production selection. See v12/STACK.md."
+    },
+    "fixed_traversal": {
+      "calls": [],
+      "destination_absent": true,
+      "refusal": "worker_id 'x/../../../escape' is not a name this bootstrap can make a repository directory from; it must be one path component, and a repository is prepared under the destination or not at all"
+    }
+  },
+  "claim": 188639,
+  "limits": "No actual Git, Authority open, store read, live stack, provider, engine or Job. Actual installer/validator functions, real ordinary files, inert runtime identity and fake repository subprocess runner. Deterministic lock-boundary injection, not a real concurrent deployment.",
+  "scratch_retained": "/tmp/w183883-review188639-z1wf43bi",
+  "seconds": 0.13164438703097403
+}

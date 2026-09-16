@@ -1,0 +1,92 @@
+test_the_accepted_validator_is_called_rather_than_reimplemented (tests.tools.test_bootstrap.AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade.test_the_accepted_validator_is_called_rather_than_reimplemented)
+A second, more permissive copy of the deployment contract is exactly ... ok
+test_the_missing_worker_members_are_named_and_nothing_is_created (tests.tools.test_bootstrap.AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade.test_the_missing_worker_members_are_named_and_nothing_is_created) ... ok
+test_the_refusal_says_which_members_this_helper_fills_in (tests.tools.test_bootstrap.AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade.test_the_refusal_says_which_members_this_helper_fills_in) ... ok
+test_a_selected_false_is_carried_as_false_rather_than_omitted (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_a_selected_false_is_carried_as_false_rather_than_omitted)
+Omission and an explicit `false` reach the same serving behaviour, ... ok
+test_a_selected_true_is_carried_as_true (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_a_selected_true_is_carried_as_true) ... ok
+test_an_absent_selection_is_omitted (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_an_absent_selection_is_omitted) ... ok
+test_an_accepted_form_of_another_optional_member_travels (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_an_accepted_form_of_another_optional_member_travels) ... ok
+test_an_explicit_null_is_refused_in_the_consumers_own_words (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_an_explicit_null_is_refused_in_the_consumers_own_words) ... ok
+test_another_optional_member_in_an_unusable_form_is_refused (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_another_optional_member_in_an_unusable_form_is_refused)
+`result_judgment_workers` is held by `held_configuration` too, so an ... ok
+test_where_each_optional_member_is_actually_validated_is_recorded (tests.tools.test_bootstrap.AnOptionalSelectionTravelsOrIsRefused.test_where_each_optional_member_is_actually_validated_is_recorded)
+THE HONEST LIMIT OF THIS PREFLIGHT, stated rather than implied. ... ok
+test_a_missing_member_inside_a_worker_or_job_is_named_by_position (tests.tools.test_bootstrap.EveryMissingInputIsNamedAtOnce.test_a_missing_member_inside_a_worker_or_job_is_named_by_position) ... ok
+test_a_missing_receipt_participant_or_profile_member_is_named (tests.tools.test_bootstrap.EveryMissingInputIsNamedAtOnce.test_a_missing_receipt_participant_or_profile_member_is_named) ... ok
+test_an_empty_document_names_every_operand_it_needs (tests.tools.test_bootstrap.EveryMissingInputIsNamedAtOnce.test_an_empty_document_names_every_operand_it_needs) ... ok
+test_another_schema_is_refused (tests.tools.test_bootstrap.EveryMissingInputIsNamedAtOnce.test_another_schema_is_refused) ... ok
+test_nothing_durable_is_created_by_a_refusal (tests.tools.test_bootstrap.EveryMissingInputIsNamedAtOnce.test_nothing_durable_is_created_by_a_refusal) ... ok
+test_a_changed_declared_base_is_refused_too (tests.tools.test_bootstrap.RepeatingIt.test_a_changed_declared_base_is_refused_too) ... ok
+test_a_configuration_with_no_record_is_refused (tests.tools.test_bootstrap.RepeatingIt.test_a_configuration_with_no_record_is_refused)
+Its identity is unknown, not proven absent. ... ok
+test_a_conflicting_authority_is_refused (tests.tools.test_bootstrap.RepeatingIt.test_a_conflicting_authority_is_refused) ... ok
+test_a_conflicting_binding_is_refused_and_nothing_is_rewritten (tests.tools.test_bootstrap.RepeatingIt.test_a_conflicting_binding_is_refused_and_nothing_is_rewritten) ... ok
+test_a_corrupt_record_is_refused_rather_than_overwritten (tests.tools.test_bootstrap.RepeatingIt.test_a_corrupt_record_is_refused_rather_than_overwritten) ... ok
+test_a_record_of_another_schema_is_refused (tests.tools.test_bootstrap.RepeatingIt.test_a_record_of_another_schema_is_refused) ... ok
+test_a_removed_job_is_refused_across_a_schema_change (tests.tools.test_bootstrap.RepeatingIt.test_a_removed_job_is_refused_across_a_schema_change)
+The case that used to pass: `/2` repeated as `/1` compared `None` ... ok
+test_an_identical_repeat_is_idempotent (tests.tools.test_bootstrap.RepeatingIt.test_an_identical_repeat_is_idempotent) ... ok
+test_both_documents_are_published_atomically (tests.tools.test_bootstrap.RepeatingIt.test_both_documents_are_published_atomically)
+An interrupted write must not turn a known configuration into ... ok
+test_growing_from_one_job_to_two_is_also_refused_rather_than_migrated (tests.tools.test_bootstrap.RepeatingIt.test_growing_from_one_job_to_two_is_also_refused_rather_than_migrated)
+A many-to-one and a one-to-many repeat are the same question, and ... ok
+test_the_conflict_is_found_before_the_authority_is_composed (tests.tools.test_bootstrap.RepeatingIt.test_the_conflict_is_found_before_the_authority_is_composed)
+Validated before durable mutation: the refusal must not arrive after ... ok
+test_a_binding_of_the_wrong_type_is_refused_rather_than_traversed (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_binding_of_the_wrong_type_is_refused_rather_than_traversed) ... ok
+test_a_binding_that_says_nothing_is_refused_rather_than_trusted (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_binding_that_says_nothing_is_refused_rather_than_trusted) ... ok
+test_a_changed_review_work_in_the_configuration_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_changed_review_work_in_the_configuration_is_refused)
+H1: the review Work was dropped by a projection of my own, so a ... ok
+test_a_changed_sole_producer_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_changed_sole_producer_is_refused)
+`/1` names no producer, so the accepted validator DERIVES it from the ... ok
+test_a_complete_and_agreeing_pair_still_repeats (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_complete_and_agreeing_pair_still_repeats)
+The distinction only matters if the ordinary repeat still works. ... ok
+test_a_configuration_binding_a_different_number_of_jobs_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_binding_a_different_number_of_jobs_is_refused) ... ok
+test_a_configuration_naming_another_authority_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_naming_another_authority_is_refused) ... ok
+test_a_configuration_that_disagrees_with_its_record_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_configuration_that_disagrees_with_its_record_is_refused) ... ok
+test_a_corrupt_emitted_configuration_is_refused_beside_a_good_record (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_corrupt_emitted_configuration_is_refused_beside_a_good_record)
+The original F2 case that survived: the record was trusted and the ... ok
+test_a_malformed_nested_binding_is_refused_rather_than_escaping (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_malformed_nested_binding_is_refused_rather_than_escaping) ... ok
+test_a_missing_emitted_configuration_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_missing_emitted_configuration_is_refused) ... ok
+test_a_multi_job_configuration_binding_another_set_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_multi_job_configuration_binding_another_set_is_refused)
+The `/2` counterpart of the Job-count case: a configuration edited to ... ok
+test_a_record_naming_no_bindings_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_record_naming_no_bindings_is_refused) ... ok
+test_a_record_naming_no_readable_authority_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_a_record_naming_no_readable_authority_is_refused) ... ok
+test_an_unchanged_multi_job_deployment_still_repeats (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_an_unchanged_multi_job_deployment_still_repeats)
+The `/2` half of the pair, so the comparison is exercised in both ... ok
+test_an_unsupported_schema_in_the_configuration_is_refused (tests.tools.test_bootstrap.TheCustodyRecordIsEvidenceOrItIsNothing.test_an_unsupported_schema_in_the_configuration_is_refused) ... ok
+test_a_misspelled_member_is_refused_rather_than_ignored (tests.tools.test_bootstrap.TheInputContractIsClosed.test_a_misspelled_member_is_refused_rather_than_ignored) ... ok
+test_an_unsupported_nested_member_is_refused (tests.tools.test_bootstrap.TheInputContractIsClosed.test_an_unsupported_nested_member_is_refused) ... ok
+test_an_unsupported_top_level_member_is_refused_by_name (tests.tools.test_bootstrap.TheInputContractIsClosed.test_an_unsupported_top_level_member_is_refused_by_name) ... ok
+test_the_refusal_names_what_IS_supported (tests.tools.test_bootstrap.TheInputContractIsClosed.test_the_refusal_names_what_IS_supported) ... ok
+test_each_job_gets_its_routes_and_its_four_grants (tests.tools.test_bootstrap.WhatItComposesOnTheAuthority.test_each_job_gets_its_routes_and_its_four_grants) ... ok
+test_no_job_is_submitted_and_nothing_is_executed (tests.tools.test_bootstrap.WhatItComposesOnTheAuthority.test_no_job_is_submitted_and_nothing_is_executed) ... ok
+test_capacity_is_what_is_configured_rather_than_a_concurrency_claim (tests.tools.test_bootstrap.WhatItDerives.test_capacity_is_what_is_configured_rather_than_a_concurrency_claim) ... ok
+test_each_binding_carries_one_work_on_both_axes (tests.tools.test_bootstrap.WhatItDerives.test_each_binding_carries_one_work_on_both_axes)
+`_held_bindings` requires the implementation and review Work IDs to ... ok
+test_every_principal_is_derived_rather_than_configured (tests.tools.test_bootstrap.WhatItDerives.test_every_principal_is_derived_rather_than_configured) ... ok
+test_one_job_and_one_worker_per_role_is_the_one_job_schema (tests.tools.test_bootstrap.WhatItDerives.test_one_job_and_one_worker_per_role_is_the_one_job_schema) ... ok
+test_one_job_with_a_larger_pool_is_still_the_multi_job_schema (tests.tools.test_bootstrap.WhatItDerives.test_one_job_with_a_larger_pool_is_still_the_multi_job_schema)
+F1: `/1` permits only one worker per role, so the POOL is half the ... ok
+test_several_jobs_are_written_as_the_multi_job_schema_with_bindings (tests.tools.test_bootstrap.WhatItDerives.test_several_jobs_are_written_as_the_multi_job_schema_with_bindings) ... ok
+test_the_derived_principals_are_the_authoritys_own_answer (tests.tools.test_bootstrap.WhatItDerives.test_the_derived_principals_are_the_authoritys_own_answer)
+They are read without building anything, so this holds the shortcut ... ok
+test_the_generated_deployment_is_one_the_manager_accepts (tests.tools.test_bootstrap.WhatItDerives.test_the_generated_deployment_is_one_the_manager_accepts)
+F1's core: the emitted document passes the REAL validator. ... ok
+test_the_layout_is_one_root_and_every_store_is_under_it (tests.tools.test_bootstrap.WhatItDerives.test_the_layout_is_one_root_and_every_store_is_under_it) ... ok
+test_the_operator_commands_name_the_four_operands_start_needs (tests.tools.test_bootstrap.WhatItDerives.test_the_operator_commands_name_the_four_operands_start_needs) ... ok
+test_a_job_naming_a_producer_that_is_not_configured_is_refused (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_a_job_naming_a_producer_that_is_not_configured_is_refused) ... ok
+test_a_malformed_authority_uuid_is_refused (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_a_malformed_authority_uuid_is_refused) ... ok
+test_a_missing_stage_is_refused (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_a_missing_stage_is_refused) ... ok
+test_a_relative_state_root_is_refused (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_a_relative_state_root_is_refused) ... ok
+test_a_role_this_deployment_does_not_serve_is_refused (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_a_role_this_deployment_does_not_serve_is_refused) ... ok
+test_a_state_root_inside_the_checkout_is_refused (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_a_state_root_inside_the_checkout_is_refused) ... ok
+test_implementation_and_review_may_share_no_participant (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_implementation_and_review_may_share_no_participant)
+Independence is the whole reason a review exists, and a deployment ... ok
+test_two_jobs_cannot_share_one_identifier (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_two_jobs_cannot_share_one_identifier) ... ok
+test_two_workers_cannot_share_one_identifier (tests.tools.test_bootstrap.WhatItRefusesBeforeItTouchesAnything.test_two_workers_cannot_share_one_identifier) ... ok
+
+----------------------------------------------------------------------
+Ran 67 tests in 0.938s
+
+OK

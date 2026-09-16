@@ -1,0 +1,141 @@
+{
+  "all_owned_children_reaped": true,
+  "answers_review": "review-2026-09-16T12-43-53Z.md sha256 33c7c0d2dd22484580392cddd7c63d86d83eb6b26e8935f67ada424d34b5094f (K1-K3 remainders)",
+  "candidates": {
+    "v12/justfile": "6acbd6029baaacab31da1a0f87feba3fb4876d99226ccd981ef30837b4614a32",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tests/tools/test_instance.py": "bb904782a982c0898976efd96cdd852feb2451c0fc7b7d67db1878356cf384d2",
+    "v12/python/tools/bootstrap.py": "a71b62c3a956fe1dce538a807b6d1cc4517dde4d06a06ef291ff977034eaef59",
+    "v12/python/tools/instance.py": "6385c3df5c413735230e1dd38d1b29123360e1b804a26d271be4634ec16dfeb3",
+    "v12/python/tools/parallel_test.py": "14404bcb51c08650df3b136dcc72242bb5cc2b81bb0d703de6b89fe13cbe19a4",
+    "v12/python/tools/stack.py": "0766c7c4dd27cd84ffd5aaa2a3cd6db2730f540ef3fad337129aef912a4bcbef",
+    "v12/python/tools/stack_command.py": "4f923e87142bda2667826a992c2108e63bd4ac4bea6cc01e3b9d981c4216de13",
+    "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+  },
+  "claim": 186523,
+  "corrections": {
+    "K1_remainder": {
+      "a_path_that_is_not_text": "`isabs` on an integer raised TypeError out of a validator whose whole job is to turn a bad document into a refusal; every owned path is type-checked first.",
+      "realpath_equality_is_not_containment": "comparing RESOLVED paths made `a/state` symlinked to `b/state` compare EQUAL to itself -- both sides resolved to b -- so an unchanged selector dispatched `stop` into another instance. The comparison is now literal string equality against the derived layout AND the derived path must RESOLVE inside the resolved destination."
+    },
+    "K2_remainder": {
+      "a_distro_that_is_itself_a_link": "every link INSIDE the bundle was bound and the root was not, so a `distro` that was a name for another tree digested that tree and called it this one. A symlinked root is refused."
+    },
+    "K3_remainder": {
+      "assets_are_the_expected_ones": "`schema_assets` was any dict of positive integers, so an empty one or one carrying an arbitrary key passed; it must now be exactly the two frozen assets this distribution ships, each non-empty",
+      "identity_asked_before_any_effect": "the identity was asked of the INSTALLED command, so a digestible but unsuitable runtime reached a composed Authority, a created destination and a copied distro before being refused -- leaving all of it behind. `admit` now asks it of the SOURCE command before any effect, and returns the manifest and identity it admitted.",
+      "the_copy_is_re-digested": "install refuses if what landed does not digest as what was admitted",
+      "the_native_validator_must_be_the_BUNDLE's": "`native_rpds` was accepted as any non-empty string, so a build that had imported the HOST's rpds answered perfectly well; the path it names must now resolve inside the bundle's own resources"
+    }
+  },
+  "cumulative_verification_seconds": {
+    "J1_history": "0.125s reversal within a 1.291s whole harness; both intervals preserved",
+    "author_claim183891": 1.195,
+    "author_claim183998": 151.908,
+    "author_claim184239": 127.816,
+    "author_claim184442": 63.532,
+    "author_claim185653": 26.94,
+    "author_claim185774": 27.256,
+    "author_claim185884": 33.299,
+    "author_claim185976": 32.661,
+    "author_claim186044": 30.937,
+    "author_claim186132": 2.476,
+    "author_claim186214": 28.576,
+    "author_claim186284": 27.262,
+    "author_claim186381": {
+      "focused": 27.19,
+      "stage_suite": 55.317
+    },
+    "author_claim186468": 27.183,
+    "earlier_build_and_bundle_checks": "unknown duration, VERIFICATION rather than deployment cost",
+    "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+    "owner_bootstrap_run": 0.938,
+    "owner_composition_run": 10.535,
+    "reviewer_claim183958": 1.5529989219503477,
+    "reviewer_claim184197": 12.840890395978931,
+    "reviewer_claim184197_readiness_check": 0.002758326008915901,
+    "reviewer_claim184403": 20.8455910270568,
+    "reviewer_claim184537": 15.599983819993213,
+    "reviewer_claim185739": 0.12554923997959122,
+    "reviewer_claim185857": 0.22083405102603137,
+    "reviewer_claim185945": 0.0037346489843912423,
+    "reviewer_claim186022": 0.004474725050386041,
+    "reviewer_claim186081": 0.005015750008169562,
+    "reviewer_claim186175": 0.04717645701020956,
+    "reviewer_claim186262": 0.4171164730214514,
+    "reviewer_claim186356": 1.6185368220321834,
+    "reviewer_claim186439": 0.0028278949903324246,
+    "reviewer_claim186499": 0.003370393009390682,
+    "this_claim_focused_tests": 27.128
+  },
+  "focused_tests": {
+    "command": "cd v12/python && python3 -m unittest tests.tools.test_instance tests.tools.test_bootstrap tests.tools.test_stack tests.tools.test_environment",
+    "new_this_claim": 24,
+    "returncode": 0,
+    "seconds": 27.128,
+    "tests": 244
+  },
+  "new_this_claim": [
+    "v12/python/tests/tools/test_instance.py"
+  ],
+  "no_build_this_claim": "deliberately. The reviewer said further partial builds do not replace regression coverage, so this claim spent its effort on the coverage instead. The corrections are held by checks that run in 0.011s rather than by a bundle that has to be rebuilt to be believed.",
+  "not_done": {
+    "no_build_this_claim": true,
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true
+  },
+  "not_done_and_returned": {
+    "remaining_scope": [
+      "tests/tools/test_packaging.py: a REAL built-bundle smoke check, registered -- the one thing here that genuinely needs a build",
+      "an external-run fixture whose workers carry a credential registry, so start/status/monitor/stop can be demonstrated with the manager, publisher and viewer actually RUNNING through instance.json",
+      "STACK.md and the four lifecycle recipes taking an instance path, and an installed monitor -- the 'installed dispatch' the review notes is still unfinished in the source recipes",
+      "the independent repo from the selected immutable base, and repeat/corrupt/mismatch checks for instances",
+      "a retained final artifact manifest with digests and full build/smoke/source/lock/platform provenance"
+    ]
+  },
+  "operational_findings_preserved": [
+    {
+      "note": "unchanged; tests.tools.test_instance IS registered by this claim",
+      "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+    },
+    {
+      "note": "unchanged",
+      "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+    }
+  ],
+  "scope": "the K1-K3 remainders and the regressions that hold them; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation, no build this claim",
+  "the_regressions_that_now_hold_all_of_it": {
+    "covers": [
+      "a path the destination does not derive, for all seven owned paths",
+      "a derived path that LINKS out of the instance -- K1's subtler half",
+      "a path that is not text, refused rather than raising",
+      "a relative path",
+      "a selector read from another place",
+      "an absent, unreadable, wrong-schema or incomplete selector",
+      "every file digested and the digest covering the listing",
+      "a changed runtime refused by verify, an unchanged one verified",
+      "a link out of the bundle, a broken link, and a safe internal link recorded",
+      "a distro that is itself a link",
+      "an absent or empty runtime",
+      "frozen: a foreign command refused, its own command accepted, and from source not compared at all",
+      "the layout all under one destination, with deployment-state distinct from state",
+      "bootstrap deriving the SAME places -- two layouts that disagreed would be two deployments sharing a name",
+      "atomic publication"
+    ],
+    "file": "v12/python/tests/tools/test_instance.py, registered in parallel_test.py",
+    "tests": 24,
+    "why_it_matters_most": "K1-K4 were verified by RUNNING bundles that were afterwards removed. A refusal nothing holds can be undone by the next edit without anybody noticing, and the reviewer was right that further partial builds do not replace regression coverage."
+  },
+  "unchanged_this_claim": [
+    "v12/python/tools/stage_execution.py",
+    "v12/python/tools/stack.py",
+    "v12/python/tools/stack_command.py",
+    "v12/python/packaging/stack.spec",
+    "v12/python/requirements.build.lock",
+    "v12/justfile"
+  ],
+  "work": "W183883"
+}

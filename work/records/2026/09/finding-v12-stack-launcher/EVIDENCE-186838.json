@@ -1,0 +1,233 @@
+{
+ "all_owned_children_reaped": true,
+ "answers_review": "review-2026-09-16T13-36-58Z.md sha256 0538d2fa10bb9c3879bb23ef222e2386f3cf0511259224383e8b3196fb192a76 (a changed runtime executed before it was verified)",
+ "candidates": {
+  "v12/STACK.md": "c614f051372c859d4357608b35da2b1bbb16f1d226db800255f5e8f0746662b3",
+  "v12/justfile": "39ea96c9b22a85775062df6564316d23c1d07b214977f6d821f2a3ad8a430ba6",
+  "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+  "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+  "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+  "v12/python/tests/tools/test_environment.py": "66f143d96d3d467d067edc4eb45360b5f1f433ac56ff1612551ec78e1947d0b7",
+  "v12/python/tests/tools/test_instance.py": "68558922137503d56576c3530f630fd19bf5c9bfa0cfdabf829358cc5ea0dafc",
+  "v12/python/tests/tools/test_stack.py": "f0bddbf4ca4422cccb570efd4c63d1955235c66cf70ddbec512eb84da3b716d7",
+  "v12/python/tools/bootstrap.py": "0e6334ecd92eadf12c6129868f0c5cc4bd255ac1b2d58a320d4770d1f6a5340e",
+  "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+  "v12/python/tools/instance.py": "f9b64570771fd5c88677da687964b74be7595de885e95f072fa35f5f03e05cef",
+  "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+  "v12/python/tools/parallel_test.py": "14404bcb51c08650df3b136dcc72242bb5cc2b81bb0d703de6b89fe13cbe19a4",
+  "v12/python/tools/stack.py": "f1b07c8792f8c2da02b1eb34281a4368717fd6d2f4670129c3547b5e06d9abfd",
+  "v12/python/tools/stack_command.py": "619c693ebeaa78905204b58e5a70a61757faa8d70109f2c3e286f131b7833b48",
+  "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+ },
+ "claim": 186838,
+ "cumulative_verification_seconds": {
+  "J1_history": "0.125s reversal within a 1.291s whole harness; both intervals preserved",
+  "author_claim183891": 1.195,
+  "author_claim183998": 151.908,
+  "author_claim184239": 127.816,
+  "author_claim184442": 63.532,
+  "author_claim185653": 26.94,
+  "author_claim185774": 27.256,
+  "author_claim185884": 33.299,
+  "author_claim185976": 32.661,
+  "author_claim186044": 30.937,
+  "author_claim186132": 2.476,
+  "author_claim186214": 28.576,
+  "author_claim186284": 27.262,
+  "author_claim186381": {
+   "focused": 27.19,
+   "stage_suite": 55.317
+  },
+  "author_claim186468": 27.183,
+  "author_claim186523": 27.128,
+  "author_claim186583": {
+   "focused": 27.154,
+   "reversal_probes": 0.589
+  },
+  "author_claim186672": {
+   "focused": 27.202,
+   "reversal_probes": 0.625,
+   "scenarios": 0.003
+  },
+  "author_claim186742": {
+   "focused": 27.256,
+   "reversal_probes": {
+    "instance_lifecycle": 2.197,
+    "temporary_custody": 0.541
+   },
+   "scenarios": 0.003
+  },
+  "earlier_build_and_bundle_checks": "unknown duration, VERIFICATION rather than deployment cost",
+  "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+  "owner_bootstrap_run": 0.938,
+  "owner_composition_run": 10.535,
+  "reviewer_claim183958": 1.5529989219503477,
+  "reviewer_claim184197": 12.840890395978931,
+  "reviewer_claim184197_readiness_check": 0.002758326008915901,
+  "reviewer_claim184403": 20.8455910270568,
+  "reviewer_claim184537": 15.599983819993213,
+  "reviewer_claim185739": 0.12554923997959122,
+  "reviewer_claim185857": 0.22083405102603137,
+  "reviewer_claim185945": 0.0037346489843912423,
+  "reviewer_claim186022": 0.004474725050386041,
+  "reviewer_claim186081": 0.005015750008169562,
+  "reviewer_claim186175": 0.04717645701020956,
+  "reviewer_claim186262": 0.4171164730214514,
+  "reviewer_claim186356": 1.6185368220321834,
+  "reviewer_claim186439": 0.0028278949903324246,
+  "reviewer_claim186499": 0.003370393009390682,
+  "this_claim_focused_tests": 27.547,
+  "this_claim_reversal_probes": 1.247
+ },
+ "edited_this_claim": [
+  "v12/python/tools/instance.py",
+  "v12/STACK.md",
+  "v12/python/tests/tools/test_instance.py",
+  "v12/python/tests/tools/test_environment.py"
+ ],
+ "focused_tests": {
+  "by_module": {
+   "test_bootstrap": 67,
+   "test_environment": 61,
+   "test_instance": 62,
+   "test_stack": 110
+  },
+  "command": "cd v12/python && PYTHONPATH=src:. python3 -m unittest tests.tools.test_instance tests.tools.test_bootstrap tests.tools.test_stack tests.tools.test_environment",
+  "returncode": 0,
+  "seconds": {
+   "test_bootstrap": 0.956,
+   "test_environment": 0.377,
+   "test_instance": 0.092,
+   "test_stack": 26.122
+  },
+  "tests": 300
+ },
+ "not_done": {
+  "no_build_this_claim": true,
+  "no_credential_registry_read": true,
+  "no_job_submitted": true,
+  "no_live_provider_or_engine_run": true,
+  "no_v11_path_service_store_or_configuration_touched": true,
+  "no_version_control_mutation": true
+ },
+ "operational_findings_preserved": [
+  {
+   "modules": [
+    "tests.manager.test_claude_context",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.tools.test_correction_restart",
+    "tests.tools.test_managed_apply"
+   ],
+   "note": "unchanged; re-observed this claim",
+   "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+  },
+  {
+   "note": "unchanged, not re-run this claim",
+   "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+  }
+ ],
+ "regressions_added": {
+  "the_actual_recipes": {
+   "covers": [
+    "the positive control: an unchanged runtime is REACHED by all four recipes, with the instance named on the command line",
+    "a changed launcher never executes, for all four recipes",
+    "a changed library never executes",
+    "an unbound extra resource never executes",
+    "a removed library never executes"
+   ],
+   "file": "v12/python/tests/tools/test_environment.py, class TheRecipesRefuseAChangedRuntime",
+   "method": "these RUN `just` against a harmless printing stand-in, in a runtime directory the test owns (a host whose XDG_RUNTIME_DIR is read-only would otherwise fail before the recipe launched, which is a fact about the host). Expansion checks could not have caught this: the expansion was right and what it ran was wrong.",
+   "tests": 5,
+   "what_it_is_not": "not a packaged-build acceptance -- `test_packaging.py` owns that when it exists -- and no security claim beyond the selected corrupt/mismatch preservation follows from a fixture."
+  },
+  "the_helper": {
+   "covers": [
+    "a changed launcher is never handed back to be run",
+    "a changed library beside it is refused",
+    "an unbound extra file in the bundle is refused",
+    "and `state`, `logs` and `destination` are still answered"
+   ],
+   "file": "v12/python/tests/tools/test_instance.py, class WhatARecipeAsksAnInstance",
+   "tests": 4
+  }
+ },
+ "remaining_scope": [
+  "tests/tools/test_packaging.py against a REAL built bundle, registered -- the recipe cases here use a printing stand-in on purpose and do not replace it",
+  "an external-run fixture whose workers carry a credential registry, so start/status/monitor/stop can be demonstrated with the manager, publisher and viewer actually RUNNING through instance.json",
+  "the independent repo from the selected immutable base; two-instance isolation and source/build-environment independence",
+  "a retained final artifact manifest with digests and full build/smoke logs, exits and source/lock/platform provenance"
+ ],
+ "reversal_probes": {
+  "all_killed": true,
+  "harness": "work/records/2026/09/finding-v12-stack-launcher/probes-186838.py",
+  "method": "each probe proves a PASSING BASELINE on pristine code, reverts one guard in an isolated COPY of the tree, and requires the named checks to fail ON THE INTENDED ASSERTION [J1]",
+  "restored_ok": true,
+  "results": [
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.WhatARecipeAsksAnInstance.test_a_CHANGED_LAUNCHER_is_never_handed_back_to_be_run",
+     "tests.tools.test_instance.WhatARecipeAsksAnInstance.test_a_CHANGED_LIBRARY_beside_it_is_refused_too",
+     "tests.tools.test_instance.WhatARecipeAsksAnInstance.test_an_UNBOUND_EXTRA_file_in_the_bundle_is_refused"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "P1-the-helper-answers-from-the-selector-alone-again",
+    "reverted_returncode": 1,
+    "seconds": 0.088,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_environment.TheRecipesRefuseAChangedRuntime.test_a_changed_launcher_never_executes",
+     "tests.tools.test_environment.TheRecipesRefuseAChangedRuntime.test_a_changed_library_never_executes",
+     "tests.tools.test_environment.TheRecipesRefuseAChangedRuntime.test_an_unbound_extra_resource_never_executes"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "P2-the-ACTUAL-recipe-runs-a-changed-runtime",
+    "reverted_returncode": 1,
+    "seconds": 0.264,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.WhatARecipeAsksAnInstance.test_the_places_an_operator_LOOKS_are_still_answered"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "P3-the-places-an-operator-looks-are-refused-too",
+    "reverted_returncode": 1,
+    "seconds": 0.088,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_environment.TheRecipesRefuseAChangedRuntime.test_an_unchanged_runtime_is_reached"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "P4-the-recipe-stops-running-the-deployment-s-own-command",
+    "reverted_returncode": 1,
+    "seconds": 0.291,
+    "valid_kill": true
+   }
+  ],
+  "seconds": 1.247,
+  "two_intended_assertions_were_misnamed_and_corrected": "P1 and P2 both failed on assertions other than the ones I named -- reverted, the helper ANSWERS and the recipe EXITS 0, so the intended failures are the exit that was zero and the path that was printed, not the messages a refusal would have carried. Corrected rather than counted."
+ },
+ "scope": "the confirmed K2 dispatch remainder, the actual-recipe regressions for it, and the STACK.md alignment the review named; no build, no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation",
+ "the_correction": {
+  "the_fix": "`verify(document)` -- the existing whole-bundle digest check, including the frozen running-command identity check at an installed entry point -- runs BEFORE the command is printed. Nothing new validates; the verifier that already refused this was simply not being asked.",
+  "what_was_wrong": "`instance.main` answered `command` from `read` alone. `read` validates the SELECTOR -- its members, the layout it derives, the containment of every path -- and says nothing about the bytes at the end of them. All four recipes execute what it prints, so a changed launcher, a changed library or an unbound extra file in the bundle was EXECUTED and `just status <instance>` returned 0. A runtime cannot check its own bytes once it has been loaded.",
+  "why_the_other_answers_are_still_reads": "`state`, `logs` and `destination` are where an operator looks when a deployment is broken, and nothing executes them. A runtime that no longer verifies must not also take away the means of finding out why -- which is its own check, and its own probe."
+ },
+ "the_runbook_alignment": {
+  "file": "v12/STACK.md",
+  "normal_ux_is_the_installed_instance": "the opening example is now `just build` + `just bootstrap inputs.json <destination> <distro>` and the four lifecycle commands taking `instance.json`; running from the checkout with four exported operands is presented as the older form, for developing on the stack itself.",
+  "the_lock_scope_is_qualified": "`.bootstrap.lock` coordinates bootstraps that both take it AND NOTHING ELSE; the exclusive publication from an owned temporary is what makes the last step safe regardless.",
+  "verify_before_execute_is_documented": "the runtime is verified before the command runs, not after; `state`, `logs` and `destination` are still answered for a deployment whose runtime no longer verifies.",
+  "who_needs_the_checkout": "`just <verb> <instance.json>` still needs this checkout to ask `tools.instance` where the installed command is; the installed command itself needs nothing from here, and the runbook shows that form."
+ },
+ "work": "W183883"
+}

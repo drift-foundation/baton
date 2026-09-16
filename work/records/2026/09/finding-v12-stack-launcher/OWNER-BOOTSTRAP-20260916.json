@@ -1,0 +1,65 @@
+{
+  "actor": "baton.slaw",
+  "source": "Owner reported success; retained terminal log read by baton.prompt",
+  "result": "67 tests OK",
+  "unittest_seconds": 0.938,
+  "separate_supervisor_exit_status": "not captured in retained log",
+  "separate_resource_inventory": "not captured",
+  "interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "working_directory": "/home/sl/src/baton/v12/python",
+  "command": "BATON_V12_STACK_TEST_ROOT=/var/tmp PYTHONPATH=src:. timeout --kill-after=10s 180s /home/sl/.local/state/baton-v12-venv/bin/python -m unittest -v tests.tools.test_bootstrap",
+  "log_sha256": "9eea305ae5ece63cec9e9c8f73e0640b94d59c5b75ccae6767b66871c02f7fdd",
+  "candidate_checks": [
+    {
+      "path": "v12/STACK.md",
+      "expected": "525ed106a86785416c1414a686db1accbc90c2bb4ad185081cfa9b87ab8de6e7",
+      "actual": "525ed106a86785416c1414a686db1accbc90c2bb4ad185081cfa9b87ab8de6e7"
+    },
+    {
+      "path": "v12/justfile",
+      "expected": "52f7083c86dc8071531a2848fa986821de98935859d434ee8a6e1881e44dd886",
+      "actual": "52f7083c86dc8071531a2848fa986821de98935859d434ee8a6e1881e44dd886"
+    },
+    {
+      "path": "v12/python/tests/tools/test_bootstrap.py",
+      "expected": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+      "actual": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806"
+    },
+    {
+      "path": "v12/python/tests/tools/test_environment.py",
+      "expected": "c0b5ce194d333494e528a0174705c2c2fdd65d2e64f1d60a59b71e33df444ecc",
+      "actual": "c0b5ce194d333494e528a0174705c2c2fdd65d2e64f1d60a59b71e33df444ecc"
+    },
+    {
+      "path": "v12/python/tests/tools/test_stack.py",
+      "expected": "a2bc1a222650ecc7e5f846b5007373796bb7cc0b187dfb866eac1a400af5e1b1",
+      "actual": "a2bc1a222650ecc7e5f846b5007373796bb7cc0b187dfb866eac1a400af5e1b1"
+    },
+    {
+      "path": "v12/python/tools/bootstrap.py",
+      "expected": "2c78a8005fd8a9e79b0ddaf0a9e8d3a8c700cf142acd77ca5e2505520d484510",
+      "actual": "2c78a8005fd8a9e79b0ddaf0a9e8d3a8c700cf142acd77ca5e2505520d484510"
+    },
+    {
+      "path": "v12/python/tools/environment.py",
+      "expected": "25f781cef478247bac61b2cfa79f802577bb1b13e8c2749a0ae4d244972fd042",
+      "actual": "25f781cef478247bac61b2cfa79f802577bb1b13e8c2749a0ae4d244972fd042"
+    },
+    {
+      "path": "v12/python/tools/job_manager.py",
+      "expected": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+      "actual": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12"
+    },
+    {
+      "path": "v12/python/tools/parallel_test.py",
+      "expected": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+      "actual": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74"
+    },
+    {
+      "path": "v12/python/tools/stack.py",
+      "expected": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136",
+      "actual": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136"
+    }
+  ],
+  "setup": "Owner reported just setup completed with locked dependencies hash-verified"
+}

@@ -1,0 +1,578 @@
+{
+ "build": {
+  "build_lock": "v12/python/requirements.build.lock (--require-hashes)",
+  "builder_interpreter": "/home/sl/.local/state/baton-v12-venv/bin/python",
+  "command": "just build  ->  pyinstaller packaging/stack.spec --distpath build/out --workpath build/work",
+  "exit": 0,
+  "last_line": "5484 INFO: Build complete! The results are available in: /home/sl/src/baton/v12/python/build/out",
+  "log": "BUILD-187142.log",
+  "log_bytes": 10156,
+  "log_sha256": "99f2a0a1cc378bf54084ab40fab0b449e650928021eb92d7a503a0039b26f61f",
+  "runtime_lock": "v12/python/requirements.lock"
+ },
+ "bundle": {
+  "entries": {
+   "_internal/attrs-26.1.0.dist-info/INSTALLER": {
+    "bytes": 4,
+    "mode": "0o664",
+    "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+   },
+   "_internal/attrs-26.1.0.dist-info/METADATA": {
+    "bytes": 8754,
+    "mode": "0o664",
+    "sha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc"
+   },
+   "_internal/attrs-26.1.0.dist-info/RECORD": {
+    "bytes": 3643,
+    "mode": "0o664",
+    "sha256": "40de9b239d81f3e4ff3b005e4749cda91549d56e10415ffce54a25c0c995df10"
+   },
+   "_internal/attrs-26.1.0.dist-info/REQUESTED": {
+    "bytes": 0,
+    "mode": "0o664",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "_internal/attrs-26.1.0.dist-info/WHEEL": {
+    "bytes": 87,
+    "mode": "0o664",
+    "sha256": "41c708c5adba6e097513ab8ccb9f1d7865a2fb469e22491a9e01dcc64da459fc"
+   },
+   "_internal/attrs-26.1.0.dist-info/licenses/LICENSE": {
+    "bytes": 1109,
+    "mode": "0o664",
+    "sha256": "882115c95dfc2af1eeb6714f8ec6d5cbcabf667caff8729f42420da63f714e9f"
+   },
+   "_internal/base_library.zip": {
+    "bytes": 1401218,
+    "mode": "0o664",
+    "sha256": "fd45eaa9f9b439ec8fafa50f765fa26d9c3d1bcfc5581c2f2d4476c00d7b7a36"
+   },
+   "_internal/baton_v12/contracts/schema/agent-session-1.0.schema.json": {
+    "bytes": 48212,
+    "mode": "0o664",
+    "sha256": "22e6e61c8fbe4b4312b0bc5e33e5be23dff7ba944e213a2855106dc06b55202c"
+   },
+   "_internal/baton_v12/contracts/schema/worker-control-1.0.schema.json": {
+    "bytes": 51419,
+    "mode": "0o664",
+    "sha256": "22caa60ae0aab610d93d9c676925b52c49a893352b2f8a72b03bee7a6a3301bc"
+   },
+   "_internal/jsonschema-4.26.0.dist-info/INSTALLER": {
+    "bytes": 4,
+    "mode": "0o664",
+    "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+   },
+   "_internal/jsonschema-4.26.0.dist-info/METADATA": {
+    "bytes": 7592,
+    "mode": "0o664",
+    "sha256": "05b189866ca98a96da3934bf6b83687ced3ff85325273b77e16b705f6d8b26d2"
+   },
+   "_internal/jsonschema-4.26.0.dist-info/RECORD": {
+    "bytes": 6415,
+    "mode": "0o664",
+    "sha256": "473f7af882f4287adcd1747f4f2f85ccf410f3ca3e4ff9e50a5b59e8e507abf9"
+   },
+   "_internal/jsonschema-4.26.0.dist-info/REQUESTED": {
+    "bytes": 0,
+    "mode": "0o664",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "_internal/jsonschema-4.26.0.dist-info/WHEEL": {
+    "bytes": 87,
+    "mode": "0o664",
+    "sha256": "58b82a17209f9bf2804afe161f2632d0fde933f9bb2792fd936b2474a2e2ac2f"
+   },
+   "_internal/jsonschema-4.26.0.dist-info/entry_points.txt": {
+    "bytes": 51,
+    "mode": "0o664",
+    "sha256": "bceeeb5f816cff1215272da99c0b4a8134b17e99e8cc0550d038c29a93319d61"
+   },
+   "_internal/jsonschema-4.26.0.dist-info/licenses/COPYING": {
+    "bytes": 1057,
+    "mode": "0o664",
+    "sha256": "4f92a015a13c4d1a040bef018aa13430b4f1bc73b41b16bb846c346766de7439"
+   },
+   "_internal/jsonschema/benchmarks/issue232/issue.json": {
+    "bytes": 117105,
+    "mode": "0o664",
+    "sha256": "79a3ce663311bb9bbc4692abb00f6e93bb9c3d94b9b64286e03fe190e4d0dc79"
+   },
+   "_internal/jsonschema_specifications/schemas/draft201909/metaschema.json": {
+    "bytes": 1785,
+    "mode": "0o664",
+    "sha256": "7b761b3e121f0a0ca1ea2a0b8e2cc856bcf801604b8268d71bacaa202bc0c13b"
+   },
+   "_internal/jsonschema_specifications/schemas/draft201909/vocabularies/applicator": {
+    "bytes": 1860,
+    "mode": "0o664",
+    "sha256": "6895100e99726fbb107058512bbec3ecfd4b24e8fd2facee3e505ee72b0d4c31"
+   },
+   "_internal/jsonschema_specifications/schemas/draft201909/vocabularies/content": {
+    "bytes": 517,
+    "mode": "0o664",
+    "sha256": "9b7d4f55a4e2fdb02c430068fdffabc732addce238da3f1df2690249c3353274"
+   },
+   "_internal/jsonschema_specifications/schemas/draft201909/vocabularies/core": {
+    "bytes": 1531,
+    "mode": "0o664",
+    "sha256": "b5a2c4957f6495d0a5081f0409ebe8a14e4139acb203fc748471f8ede2af5b2c"
+   },
+   "_internal/jsonschema_specifications/schemas/draft201909/vocabularies/format": {
+    "bytes": 403,
+    "mode": "0o664",
+    "sha256": "50ebbfe790611a849b8cc400a09c1d0e0fb6ab5c0d43a0f22201fd3625056bf4"
+   },
+   "_internal/jsonschema_specifications/schemas/draft201909/vocabularies/meta-data": {
+    "bytes": 892,
+    "mode": "0o664",
+    "sha256": "d47e2445dd6a82271a298d83cc6c6cb8d4ae1e15e0dc56becd37a163ecf01286"
+   },
+   "_internal/jsonschema_specifications/schemas/draft201909/vocabularies/validation": {
+    "bytes": 2834,
+    "mode": "0o664",
+    "sha256": "1e526c1d335a734805fc82cf5798c12b960ad7da2517c66cda5a1b09359c3c1c"
+   },
+   "_internal/jsonschema_specifications/schemas/draft202012/metaschema.json": {
+    "bytes": 2452,
+    "mode": "0o664",
+    "sha256": "41da76f5afb7ce062d248f762463a92f7ca47e4e0f905b224ba6afeef91ded0f"
+   },
+   "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/applicator": {
+    "bytes": 1659,
+    "mode": "0o664",
+    "sha256": "c4a6e4147b91fef7fea6dc058cb1bf93402f7414b76578a8b16aaf1dad6aacef"
+   },
+   "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/content": {
+    "bytes": 519,
+    "mode": "0o664",
+    "sha256": "08343747764e4a5814262793cf4d652057a7913863c5950d43297e8e1fdac5b6"
+   },
+   "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/core": {
+    "bytes": 1564,
+    "mode": "0o664",
+    "sha256": "c2d12a8e4dd11d336dfc83a3f663aa4c69f0b49b3beb094ffeb25b5316f4803d"
+   },
+   "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-annotation": {
+    "bytes": 448,
+    "mode": "0o664",
+    "sha256": "abc775adfefd89d22358170d9bf93f4ebd2349563bbbedd60f02bef7c812bcc0"
+   },
+   "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/format-assertion": {
+    "bytes": 445,
+    "mode": "0o664",
+    "sha256": "c52242b9a1bb786b26c3e82c7add428c31f9c96e575dce99e56ea5feaa6da20c"
+   },
+   "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/meta-data": {
+    "bytes": 892,
+    "mode": "0o664",
+    "sha256": "8f76d6e14f41b9b92ef933b708cdc5144c8b5268651ad11918485fb1754f1c76"
+   },
+   "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/unevaluated": {
+    "bytes": 506,
+    "mode": "0o664",
+    "sha256": "2dbfbcb73994b670b0976492adee1fffb46c21682784d2f5a4ca561f9e2d0cb4"
+   },
+   "_internal/jsonschema_specifications/schemas/draft202012/vocabularies/validation": {
+    "bytes": 2834,
+    "mode": "0o664",
+    "sha256": "7010a31e541f32d2be721e2de348df75c9b36876a3ed304877fc0abda1d37a58"
+   },
+   "_internal/jsonschema_specifications/schemas/draft3/metaschema.json": {
+    "bytes": 2600,
+    "mode": "0o664",
+    "sha256": "2cf75f64436fb5be374a2eaa27ab8b7e1fd651c9b46daea6c67b02fd64e2458b"
+   },
+   "_internal/jsonschema_specifications/schemas/draft4/metaschema.json": {
+    "bytes": 4357,
+    "mode": "0o664",
+    "sha256": "e1489d0b4755f02793302591d3fcb8f07b6893a82a94f24895f8e4edf11b82e2"
+   },
+   "_internal/jsonschema_specifications/schemas/draft6/metaschema.json": {
+    "bytes": 4437,
+    "mode": "0o664",
+    "sha256": "c29dfce9f54835c3a06c03b3c5d5ec0eda77706568f9c4df7cfbc7566a51006d"
+   },
+   "_internal/jsonschema_specifications/schemas/draft7/metaschema.json": {
+    "bytes": 4819,
+    "mode": "0o664",
+    "sha256": "3d5392088261606c559b603f385329c9f1ab45b5d667eb990687453b055d405e"
+   },
+   "_internal/libbz2.so.1.0": {
+    "bytes": 83192,
+    "mode": "0o755",
+    "sha256": "0e276ebe9060dc27ccff9d08e928127a1ee194c064e88b9262beb7f3ee76f3d7"
+   },
+   "_internal/libcrypto.so.3": {
+    "bytes": 6353776,
+    "mode": "0o755",
+    "sha256": "4769ffaae2d5fcb04ab023d06370ee0481f03857de88356f565a85792de39d76"
+   },
+   "_internal/libexpat.so.1": {
+    "bytes": 182608,
+    "mode": "0o755",
+    "sha256": "510dc18b54fcd0f6957974bf5019347218edc0f74a43522b6be72d686ed0a3a3"
+   },
+   "_internal/libffi.so.8": {
+    "bytes": 47824,
+    "mode": "0o755",
+    "sha256": "f9e062f25194c7f4ecf0a58469cb6ab76b8a95f522c290e47a5c9dd688e7d6be"
+   },
+   "_internal/libgcc_s.so.1": {
+    "bytes": 178928,
+    "mode": "0o755",
+    "sha256": "e21d29dd2609dff45f898b5002c9a2268a0e8eece4eff8417e5087e77d2a136c"
+   },
+   "_internal/liblzma.so.5": {
+    "bytes": 215448,
+    "mode": "0o755",
+    "sha256": "bb0cc2b52f9602da45e3a5088e156b07548a79cf4c822e321a4c119b8c8b7650"
+   },
+   "_internal/libncursesw.so.6": {
+    "bytes": 240008,
+    "mode": "0o755",
+    "sha256": "7dbbb6bea122614f846cad9e099550ce7f62b425057298da1586b2304dc79214"
+   },
+   "_internal/libobjc.so.4": {
+    "bytes": 92192,
+    "mode": "0o755",
+    "sha256": "2d64c020c448724c2f063cf61ae6fa4f4629d99ef1ba1bb73e1e68e4882c15df"
+   },
+   "_internal/libpython3.13.so.1.0": {
+    "bytes": 7508808,
+    "mode": "0o755",
+    "sha256": "1b7613e0039be781d480c4613041c68efcd8be52240e3baf1e09ae21775746a2"
+   },
+   "_internal/libreadline.so.8": {
+    "bytes": 389304,
+    "mode": "0o755",
+    "sha256": "3183f28b78d21c148bd844c0b0e356ceb132de370c44591171aa7ea1488c8e60"
+   },
+   "_internal/libsqlite3.so.0": {
+    "bytes": 1518056,
+    "mode": "0o755",
+    "sha256": "a19187db849e9a95b33f2e6fa6d7c3218f8de6f284865832409224bef741dd4a"
+   },
+   "_internal/libssl.so.3": {
+    "bytes": 1106088,
+    "mode": "0o755",
+    "sha256": "e2f779425f91a9bbb2a5817d975b6ddb8f9fec40ad4c060ddae350c4e4986c5d"
+   },
+   "_internal/libtinfo.so.6": {
+    "bytes": 212504,
+    "mode": "0o755",
+    "sha256": "51cdf4890364a45c5dea607d011caf2546f45acdfa036adaacb6a932ab641267"
+   },
+   "_internal/libuuid.so.1": {
+    "bytes": 35184,
+    "mode": "0o755",
+    "sha256": "427e04ce400955eae6a5f3d737d1f5fed6bb2f7ad4dcea9d017a6e93c0b8d1bc"
+   },
+   "_internal/libz.so.1": {
+    "bytes": 125440,
+    "mode": "0o755",
+    "sha256": "a83ec9e0fee275a2c2b1f2b3773fef6277d7d8fa57f6d50bf0806301b438e281"
+   },
+   "_internal/libzstd.so.1": {
+    "bytes": 817376,
+    "mode": "0o755",
+    "sha256": "f501ac1465c6c254bade367fa5c079b5beb8a6f2c3e9a51da128ce7202f66ca1"
+   },
+   "_internal/python3.13/lib-dynload/_bz2.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 32192,
+    "mode": "0o755",
+    "sha256": "1db37b946a0cdfe9d56b296d8616b71d8b85753001a1856769a7aa43c21796f5"
+   },
+   "_internal/python3.13/lib-dynload/_codecs_cn.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 154240,
+    "mode": "0o755",
+    "sha256": "17f6cf505d7b35797b4886eafeba11913d53bdbbb9684f12663a614118e0486a"
+   },
+   "_internal/python3.13/lib-dynload/_codecs_hk.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 162464,
+    "mode": "0o755",
+    "sha256": "f123c4ad45c9a845a2a73a2dd9a7ccab4ca12e53f930c696b66761f03c6396c8"
+   },
+   "_internal/python3.13/lib-dynload/_codecs_iso2022.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 31392,
+    "mode": "0o755",
+    "sha256": "692b39a825400739b8f1dd28ad2c7ba021d9962cd1697cb8c2daef16afc3d360"
+   },
+   "_internal/python3.13/lib-dynload/_codecs_jp.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 273024,
+    "mode": "0o755",
+    "sha256": "e65f9bdc1e9187272b57bbcbb411efb40538b1b6a7e31bcbf3de5ae445943aef"
+   },
+   "_internal/python3.13/lib-dynload/_codecs_kr.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 141952,
+    "mode": "0o755",
+    "sha256": "6725f1d9756f0fc87107245c85662b63d2d22a005b837e146619bc3eead6b1af"
+   },
+   "_internal/python3.13/lib-dynload/_codecs_tw.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 113280,
+    "mode": "0o755",
+    "sha256": "6b78f534cfb41ae6a75efe75e4a8941a57876b047212c5e04059a74404fd7de4"
+   },
+   "_internal/python3.13/lib-dynload/_contextvars.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 14616,
+    "mode": "0o755",
+    "sha256": "6abe2beb3f377b5f1991deb39deeae277be17d44a0b02f8b9e1af191e3695a91"
+   },
+   "_internal/python3.13/lib-dynload/_ctypes.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 154816,
+    "mode": "0o755",
+    "sha256": "c7f5c03cb9fe5abc8f246dce5cef71888ea44e27f0899ffa3f57d6b1c0e1a48c"
+   },
+   "_internal/python3.13/lib-dynload/_curses.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 128664,
+    "mode": "0o755",
+    "sha256": "ae96e666f0a54a5f093f1c5e9bca3e45dcf54f7766ed1d81a1be07b999efba88"
+   },
+   "_internal/python3.13/lib-dynload/_decimal.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 351352,
+    "mode": "0o755",
+    "sha256": "3a01f5030ca6beaa727166c8a562e859c7c955fa81625fbd7ab813fc9e159f1c"
+   },
+   "_internal/python3.13/lib-dynload/_hashlib.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 68512,
+    "mode": "0o755",
+    "sha256": "b6b8f95a045e64adb9b862785089f688b236bd73734d0e8cc52af8bd69eed6e2"
+   },
+   "_internal/python3.13/lib-dynload/_lzma.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 45184,
+    "mode": "0o755",
+    "sha256": "105d6f054f59bddd0ff06f4e5ee85ef75622bce9b319d4e4e0b629cd15fa2807"
+   },
+   "_internal/python3.13/lib-dynload/_multibytecodec.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 50648,
+    "mode": "0o755",
+    "sha256": "7caaf2b15aa6535d32cec32b9e217238630171598928fab57cd8ed61c7dd0baa"
+   },
+   "_internal/python3.13/lib-dynload/_multiprocessing.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 24328,
+    "mode": "0o755",
+    "sha256": "8c7d5e09db92e056bbf49f40ab9aa4f7862082c9bb125cb56e22f5773ecd2c04"
+   },
+   "_internal/python3.13/lib-dynload/_posixshmem.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 14960,
+    "mode": "0o755",
+    "sha256": "9bbce1a1112c8edb655ad63e151518e254a5fd76bcda9a2b6645fa6b196a7962"
+   },
+   "_internal/python3.13/lib-dynload/_queue.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 24000,
+    "mode": "0o755",
+    "sha256": "e5d33dbbe1a0b977680d81f28b7dbd209bf784d75bb3eab1a491dbf229515079"
+   },
+   "_internal/python3.13/lib-dynload/_sqlite3.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 145048,
+    "mode": "0o755",
+    "sha256": "bc47aa134738716ee4789c86907bc13aa7e46369911571df6fd5ecc3add8343d"
+   },
+   "_internal/python3.13/lib-dynload/_ssl.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 232128,
+    "mode": "0o755",
+    "sha256": "3bb0b8c0392d68b19915c0b975d39faaba2a5232fa823e2cbc406873d9f308a3"
+   },
+   "_internal/python3.13/lib-dynload/_uuid.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 14800,
+    "mode": "0o755",
+    "sha256": "2f41fc9f3eb1a6f63c74a91b075b0f62627be926757bd85471c65df01c16ceb4"
+   },
+   "_internal/python3.13/lib-dynload/mmap.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 32712,
+    "mode": "0o755",
+    "sha256": "2021518293aedf55a25372a1114de3dcdccb3b96bad8affa0ddd702fbc129e9c"
+   },
+   "_internal/python3.13/lib-dynload/readline.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 40720,
+    "mode": "0o755",
+    "sha256": "2ed5141e320395b4659086a3340ae3a5ddbd7283afee7d0b3d90bba70986441d"
+   },
+   "_internal/python3.13/lib-dynload/resource.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 23632,
+    "mode": "0o755",
+    "sha256": "ae7244a9624046d1d57ffbc79e9e8a45e566474fc49316926fce9f6c13eeff7a"
+   },
+   "_internal/python3.13/lib-dynload/termios.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 35728,
+    "mode": "0o755",
+    "sha256": "a32df9cb3dc03642366408fe91f48fec32b0a87327d4323ce8463e90cd13d79e"
+   },
+   "_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so": {
+    "bytes": 965608,
+    "mode": "0o755",
+    "sha256": "bddb35d7ceaef748a4661a73774e1ff8d5ae76969b31e1cc7f757fb424bd8ed5"
+   },
+   "_internal/setuptools/_vendor/jaraco/text/Lorem ipsum.txt": {
+    "bytes": 1335,
+    "mode": "0o664",
+    "sha256": "37fedcffbf73c4eb9f058f47677cb33203a436ff9390e4d38a8e01c9dad28e0b"
+   },
+   "baton-v12-stack": {
+    "bytes": 5706976,
+    "mode": "0o755",
+    "sha256": "c3e1722e6eddba241984509cf258809dd543219a938eb850935f1385397eded9"
+   }
+  },
+  "files": 80,
+  "manifest_digest": "8f4a59ea380263b3d82ec156c666b6c7c393850a401fbe75ef92321fd9bfcfd8",
+  "path": "/home/sl/src/baton/v12/python/build/out/distro"
+ },
+ "claim": 187142,
+ "fixtures": {
+  "/var/tmp/w183883-live-186890/credential-sources.json": {
+   "bytes": 197,
+   "mode": "0o600",
+   "sha256": "dee715ce30e0ab8794ad57e36172dd2b4d0d546e259193bdc46fad099901f8bf"
+  },
+  "/var/tmp/w183883-live-186890/fixture-credential.txt": {
+   "bytes": 32,
+   "mode": "0o600",
+   "sha256": "95f9d6b506420b62c94e3c468c9af3d29eec6fd04d0f61a42c583268934d51a6"
+  },
+  "/var/tmp/w183883-live-186890/inputs-b.json": {
+   "bytes": 18068,
+   "mode": "0o664",
+   "sha256": "596a9483dc13530108213d4c8b32f4704ed6989eb0347730a26be8ec6047545d"
+  },
+  "/var/tmp/w183883-live-186890/inputs.json": {
+   "bytes": 18066,
+   "mode": "0o664",
+   "sha256": "cc52ea37b368812264081f4cd1b3e3c132e0181ef4d731395982c36c3a301879"
+  }
+ },
+ "identity": {
+  "command": "baton-v12-stack",
+  "executable": "/home/sl/src/baton/v12/python/build/out/distro/baton-v12-stack",
+  "frozen": true,
+  "machine": "x86_64",
+  "native_rpds": "/home/sl/src/baton/v12/python/build/out/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+  "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+  "python": "3.13.7",
+  "resources": "/home/sl/src/baton/v12/python/build/out/distro/_internal",
+  "schema_assets": {
+   "agent-session-1.0": 48212,
+   "worker-control-1.0": 51419
+  },
+  "sha256": "c3e1722e6eddba241984509cf258809dd543219a938eb850935f1385397eded9"
+ },
+ "platform": {
+  "libc": "glibc 2.42",
+  "machine": "x86_64",
+  "note": "a one-folder bundle is built for the platform it was built on; nothing here claims portability",
+  "python": "3.13.7",
+  "release": "6.17.0-41-generic",
+  "system": "Linux"
+ },
+ "retained": {
+  "credential_registry": "/var/tmp/w183883-live-186890/credential-sources.json",
+  "destinations": [
+   "/var/tmp/w183883-live-186890/deployment",
+   "/var/tmp/w183883-live-186890/deployment-b"
+  ],
+  "inputs": [
+   "/var/tmp/w183883-live-186890/inputs.json",
+   "/var/tmp/w183883-live-186890/inputs-b.json"
+  ],
+  "note": "a FIXTURE registry naming a fixture bearer file, both 0600. No owner registry was read, no provider contacted."
+ },
+ "smoke": {
+  "cleanup_proof": "CLEANUP-PROOF-187142.json -- three injected failures, each leaving nothing owned running",
+  "lifecycle": {
+   "cleanup": {
+    "attempts": {
+     "/var/tmp/w183883-live-186890/deployment": 1,
+     "/var/tmp/w183883-live-186890/deployment-b": 1
+    },
+    "no_owned_child_left_running": true,
+    "nothing_removed": "the destinations and the fixture roots are retained; only this harness's own changes are undone",
+    "still_running": [],
+    "stops": [
+     {
+      "attempt": 1,
+      "exit": 0,
+      "instance": "/var/tmp/w183883-live-186890/deployment",
+      "stdout": [
+       "not running: manager",
+       "not running: publisher",
+       "runtime   0 open episode(s), 0 with a recorded runtime, observed 6.6s ago",
+       "stores and evidence retained under the configured paths"
+      ]
+     },
+     {
+      "attempt": 1,
+      "exit": 0,
+      "instance": "/var/tmp/w183883-live-186890/deployment-b",
+      "stdout": [
+       "not running: manager",
+       "not running: publisher",
+       "runtime   0 open episode(s), 0 with a recorded runtime, observed 6.2s ago",
+       "stores and evidence retained under the configured paths"
+      ]
+     }
+    ],
+    "undone": [
+     "instance-b's libpython",
+     "instance-b's selector"
+    ]
+   },
+   "commands": 21,
+   "failure": null,
+   "harness": "LIFECYCLE-HARNESS-187142.py",
+   "output": "LIFECYCLE-187142.json",
+   "seconds": 7.37
+  },
+  "packaging": "tests/tools/test_packaging.py, 9 checks against THIS bundle under BATON_V12_STACK_DISTRO and BATON_V12_STACK_PACKAGING_REQUIRED, exit 0, no skips"
+ },
+ "source": {
+  "v12/STACK.md": "0100b24410aae8b00c49593964c6f7cac66b79989a2cfb6e650d1749a0b48946",
+  "v12/justfile": "2a541f4782b984d06747847061cebffbc28646f32cd2fb3ec92b7ee888771ae4",
+  "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+  "v12/python/pyproject.toml": "d546ff3e20e236de3330f48560a761728bcaf518e44eb92fa61603470ae3177e",
+  "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+  "v12/python/requirements.lock": "cc5be0b2eda9da024d481a8c6716ba09a59e4b71f2df8d6df46f984da4b21157",
+  "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+  "v12/python/tools/bootstrap.py": "533511939872f3bcb6c8e8d62a0402b9a4a43ef76d6c35e0e5b364cd7a3dbe3f",
+  "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+  "v12/python/tools/instance.py": "f9b64570771fd5c88677da687964b74be7595de885e95f072fa35f5f03e05cef",
+  "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+  "v12/python/tools/job_viewer.py": "70fe513789786565c2ddf4d4748f830478e53f89d4a9df13fedf213153a86b6e",
+  "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+  "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59"
+ },
+ "the_drift_in_187015_explained": {
+  "both_manifests_are_retained": "187015 is not edited; it is superseded",
+  "digests_that_differed": {
+   "v12/STACK.md": {
+    "now": "0100b24410aae8b00c49593964c6f7cac66b79989a2cfb6e650d1749a0b48946",
+    "recorded_in_187015": "1ae4ce82e600a4b6f96b844ac5dcc47d39f759fa659ebf15c639b5650b1cb115",
+    "when": "drifted during claim187015, before it was passed"
+   },
+   "v12/python/tools/bootstrap.py": {
+    "now": "533511939872f3bcb6c8e8d62a0402b9a4a43ef76d6c35e0e5b364cd7a3dbe3f",
+    "recorded_in_187015": "97388e5f72e220bdfde9e9522eca68a3c4b14748098a32f501565bfd6a4afd65",
+    "when": "drifted during claim187015, before it was passed"
+   },
+   "v12/python/tools/stack.py": {
+    "now": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+    "recorded_in_187015": "9ef3bff16d08edc431d8bae7dbd451c06abba57c44c2194e4cdfb07d0a2c3e60",
+    "when": "NOT drift: the 187015 digest is what that claim passed; this entry is claim187142's own edit, rebuilt and re-verified here"
+   }
+  },
+  "what_that_did_and_did_not_change": "the extraction moved code without changing what it does, and STACK.md is not in the bundle at all -- but 'the behaviour did not change' is an argument rather than evidence, and the recorded digests were wrong for what shipped. Both are corrected by rebuilding rather than by arguing.",
+  "what_the_review_found": "ARTIFACT-MANIFEST-187015.json recorded source digests for bootstrap.py and STACK.md that do not match the candidates reviewed with it. Three bundle copies agreeing proves they are one artifact; it says nothing about which source built it.",
+  "what_was_done_about_it": "rebuilt from the current tree, re-ran the nine real packaging checks against THAT bundle with the gate's own environment, reinstalled both destinations from it, and re-ran the lifecycle. Every source digest below is the tree as passed.",
+  "why": "TWO files drifted and one did not, and the first version of this explanation got that wrong. `bootstrap.py` and `STACK.md` were edited after ARTIFACT-MANIFEST-187015.json was generated and before claim187015 was passed -- `workspace_bound` was extracted from `main`, and STACK.md gained the repository section -- so that manifest described a bundle built from earlier source. `stack.py` did NOT drift then: its digest in the 187015 manifest is the one that claim passed (9ef3bff16d08edc4...), the `repository` verb was already in it, and the retained 187015 lifecycle already exercised that verb. Its different digest here is THIS claim's own edit -- the warning a workspace that is not a repository now carries."
+ },
+ "the_installed_copies_digest_the_same": {
+  "a": {
+   "digest": "8f4a59ea380263b3d82ec156c666b6c7c393850a401fbe75ef92321fd9bfcfd8",
+   "files": 80
+  },
+  "b": {
+   "digest": "8f4a59ea380263b3d82ec156c666b6c7c393850a401fbe75ef92321fd9bfcfd8",
+   "files": 80
+  }
+ },
+ "what": "the bundle this claim built, installed twice and ran. It SUPERSEDES ARTIFACT-MANIFEST-187015.json and reconciles that record's source drift, which review 2026-09-16T14-26-38Z found.",
+ "work": "W183883"
+}

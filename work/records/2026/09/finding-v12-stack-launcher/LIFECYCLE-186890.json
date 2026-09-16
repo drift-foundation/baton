@@ -1,0 +1,221 @@
+{
+ "record": {
+  "a_changed_runtime_is_refused": {
+   "start": {
+    "exit": 2,
+    "stderr": [],
+    "stdout": [
+     "refused: the runtime at /var/tmp/w183883-live-186890/deployment-b/distro is not the one this instance was prepared with: it holds 80 files digesting 70cea554280e04bb... and the instance records 80 digesting 50cc5a1bf071ce97... Nothing here upgrades a deployment in place; prepare a new destination."
+    ]
+   },
+   "status": {
+    "exit": 2,
+    "stderr": [],
+    "stdout": [
+     "refused: the runtime at /var/tmp/w183883-live-186890/deployment-b/distro is not the one this instance was prepared with: it holds 80 files digesting 70cea554280e04bb... and the instance records 80 digesting 50cc5a1bf071ce97... Nothing here upgrades a deployment in place; prepare a new destination."
+    ]
+   }
+  },
+  "a_corrupt_selector_is_refused": {
+   "exit": 2,
+   "stderr": [],
+   "stdout": [
+    "refused: /var/tmp/w183883-live-186890/deployment-b/instance.json could not be read as an instance (JSONDecodeError), so nothing was derived from it"
+   ]
+  },
+  "a_repeated_bootstrap_preserves_what_is_there": {
+   "exit": 2,
+   "selector_unchanged": true,
+   "stderr": [],
+   "stdout": [
+    "refused: there is already a runtime at /var/tmp/w183883-live-186890/deployment/distro; nothing here upgrades a deployment in place. Stop that instance and prepare a new destination if you mean a different runtime."
+   ]
+  },
+  "after_stop": {
+   "a": {
+    "exit": 0,
+    "stderr": [],
+    "stdout": [
+     "manager    absent",
+     "publisher  absent",
+     "snapshot   fresh (observed 6.2s ago, written 6.1s ago)",
+     "jobs       0 observed (canonical=True)",
+     "runtime   0 open episode(s), 0 with a recorded runtime, observed 6.2s ago"
+    ]
+   },
+   "b": {
+    "exit": 0,
+    "stderr": [],
+    "stdout": [
+     "manager    absent",
+     "publisher  absent",
+     "snapshot   fresh (observed 5.7s ago, written 5.7s ago)",
+     "jobs       0 observed (canonical=True)",
+     "runtime   0 open episode(s), 0 with a recorded runtime, observed 5.7s ago"
+    ]
+   }
+  },
+  "and_the_restored_runtime_is_accepted_again": {
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "manager    absent",
+    "publisher  absent",
+    "snapshot   fresh (observed 6.1s ago, written 6.0s ago)",
+    "jobs       0 observed (canonical=True)",
+    "runtime   0 open episode(s), 0 with a recorded runtime, observed 6.1s ago"
+   ]
+  },
+  "and_the_restored_selector_works_again": {
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "manager    running pid 3893580",
+    "publisher  running pid 3893581",
+    "snapshot   fresh (observed 1.2s ago, written 1.2s ago)",
+    "jobs       0 observed (canonical=True)",
+    "serving    acknowledged",
+    "runtime   0 open episode(s), 0 with a recorded runtime, observed 1.2s ago"
+   ]
+  },
+  "how": "every command run from / with an environment of HOME and PATH only: no PYTHONPATH, no BATON_V12_* operand, no virtual environment, nothing from the checkout",
+  "identity": {
+   "command": "baton-v12-stack",
+   "executable": "/var/tmp/w183883-live-186890/deployment/distro/baton-v12-stack",
+   "frozen": true,
+   "machine": "x86_64",
+   "native_rpds": "/var/tmp/w183883-live-186890/deployment/distro/_internal/rpds/rpds.cpython-313-x86_64-linux-gnu.so",
+   "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+   "python": "3.13.7",
+   "resources": "/var/tmp/w183883-live-186890/deployment/distro/_internal",
+   "schema_assets": {
+    "agent-session-1.0": 48212,
+    "worker-control-1.0": 51419
+   },
+   "sha256": "2dc27d9f715beef47270c6ee8b73b8fc58a6b2668fa308ea464c522dc84b9c58"
+  },
+  "no_owned_child_is_left_running": true,
+  "one_command_will_not_drive_another_instance": {
+   "exit": 2,
+   "stderr": [],
+   "stdout": [
+    "refused: this command is /var/tmp/w183883-live-186890/deployment/distro/baton-v12-stack and the instance names /var/tmp/w183883-live-186890/deployment-b/distro/baton-v12-stack; a deployed command drives its OWN instance, and one build must not dispatch children on behalf of another."
+   ]
+  },
+  "start_a": {
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "started: manager pid 3893575",
+    "started: publisher pid 3893576",
+    "ready: every manager this start ran acknowledged that its deployment composed, and the publisher wrote a valid, freshly observed snapshot",
+    "state root: /var/tmp/w183883-live-186890/deployment/state",
+    "no Job was submitted; an empty configured stack is a valid idle state"
+   ]
+  },
+  "start_b": {
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "started: manager pid 3893580",
+    "started: publisher pid 3893581",
+    "ready: every manager this start ran acknowledged that its deployment composed, and the publisher wrote a valid, freshly observed snapshot",
+    "state root: /var/tmp/w183883-live-186890/deployment-b/state",
+    "no Job was submitted; an empty configured stack is a valid idle state"
+   ]
+  },
+  "stop_a": {
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "stopped: manager pid 3893575",
+    "stopped: publisher pid 3893576",
+    "runtime   0 open episode(s), 0 with a recorded runtime, observed 5.1s ago",
+    "stores and evidence retained under the configured paths"
+   ]
+  },
+  "stop_b": {
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "stopped: manager pid 3893580",
+    "stopped: publisher pid 3893581",
+    "runtime   0 open episode(s), 0 with a recorded runtime, observed 5.0s ago",
+    "stores and evidence retained under the configured paths"
+   ]
+  },
+  "the_monitor_reads_this_instance_s_own_snapshot": {
+   "exit": 0,
+   "stderr": [],
+   "stdout": [
+    "observed at 2026-09-16T13:56:15.658Z   (1s old, read 0s ago)",
+    "  (this snapshot reports no Jobs)",
+    "observed at 2026-09-16T13:56:15.658Z   (1s old, read 0s ago)",
+    "  (this snapshot reports no Jobs)"
+   ]
+  },
+  "two_instances_are_isolated": {
+   "a_status": {
+    "exit": 0,
+    "stderr": [],
+    "stdout": [
+     "manager    running pid 3893575",
+     "publisher  running pid 3893576",
+     "snapshot   fresh (observed 0.7s ago, written 0.7s ago)",
+     "jobs       0 observed (canonical=True)",
+     "serving    acknowledged",
+     "runtime   0 open episode(s), 0 with a recorded runtime, observed 0.7s ago"
+    ]
+   },
+   "a_stores": [
+    "authority.sqlite3",
+    "authority.sqlite3-shm",
+    "authority.sqlite3-wal",
+    "control.sqlite3",
+    "control.sqlite3-shm",
+    "control.sqlite3-wal",
+    "integration.sqlite3",
+    "integration.sqlite3-shm",
+    "integration.sqlite3-wal",
+    "jobs.sqlite3",
+    "jobs.sqlite3-shm",
+    "jobs.sqlite3-wal"
+   ],
+   "b_status": {
+    "exit": 0,
+    "stderr": [],
+    "stdout": [
+     "manager    running pid 3893580",
+     "publisher  running pid 3893581",
+     "snapshot   fresh (observed 0.3s ago, written 0.3s ago)",
+     "jobs       0 observed (canonical=True)",
+     "serving    acknowledged",
+     "runtime   0 open episode(s), 0 with a recorded runtime, observed 0.3s ago"
+    ]
+   },
+   "b_stores": [
+    "authority.sqlite3",
+    "authority.sqlite3-shm",
+    "authority.sqlite3-wal",
+    "control.sqlite3",
+    "control.sqlite3-shm",
+    "control.sqlite3-wal",
+    "integration.sqlite3",
+    "integration.sqlite3-shm",
+    "integration.sqlite3-wal",
+    "jobs.sqlite3",
+    "jobs.sqlite3-shm",
+    "jobs.sqlite3-wal"
+   ],
+   "distinct_state_roots": [
+    "/var/tmp/w183883-live-186890/deployment/state",
+    "/var/tmp/w183883-live-186890/deployment-b/state"
+   ],
+   "distinct_stores": [
+    "/var/tmp/w183883-live-186890/deployment/db",
+    "/var/tmp/w183883-live-186890/deployment-b/db"
+   ]
+  }
+ },
+ "seconds": 7.194
+}

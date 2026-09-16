@@ -1,0 +1,316 @@
+{
+  "all_owned_children_reaped": true,
+  "answers_review": "review-2026-09-16T05-15-54Z.md sha256 b4d74a659cce21e91a5285ac2ee74dca97593020160e1c832cb21e00ac7e0bfd (R1-R4)",
+  "candidates": {
+    "v12/STACK.md": "eccf49c9bef6c5eb90f68270a9ea28dd6bed5659db76004e80b717bc8a92c37f",
+    "v12/justfile": "b3ae4b4f08ab17ddce18555457c881d12f8754ee075278065b6d971c1c8f2254",
+    "v12/python/tests/tools/test_stack.py": "6797e264d953e8d482e8be9b4fe2836cab9b71d3004e5d10e9870bb1ff9b221f",
+    "v12/python/tools/parallel_test.py": "94cdc0f6f7933a2498b0490fd4c434409d7bae92f64a80d3ac358cfe69f91805",
+    "v12/python/tools/stack.py": "3d5cd94351a4d5ce161710c0a6fb31464d6324bd28de8084049e30a4628518e7"
+  },
+  "claim": 183998,
+  "composition": {
+    "counterexample": "the same machinery with a deployment the child refuses: start returns non-zero carrying the child's own ContractRefusal, prints no `ready:`, and leaves no record",
+    "observed": {
+      "open_episodes": 0,
+      "published_jobs": 0,
+      "ready": true,
+      "runtime_state": "observed",
+      "second_start": "already running x2",
+      "start": 0,
+      "stop": 0,
+      "viewer_returncode": 0
+    },
+    "probed_first": "the real tools.stage_execution:factory was composed against a relocated real deployment before any of this was written: it passed document validation, the Authority open, the five sessions and their receipt capability grants, the pool generation compare and all three worker_preflights with NO Docker and NO provider, and failed only on a 5-day-old fixture's integration-store schema. That is why an idle stack is checkable at all.",
+    "what": "R3's composition requirement, answered by BUILDING the check rather than reporting a gap: ValidIdleComposition reuses the accepted ServingCase deployment fixture on a disk-backed root OUTSIDE the checkout, creates an EMPTY Job store and a fresh control store, and drives the REAL tools.stack children and the REAL job_viewer. Nothing is substituted, because a separate child process is exactly a composer that cannot inject."
+  },
+  "corrections": {
+    "R1": {
+      "checks": [
+        "Admission.test_a_second_start_cannot_enter_while_the_first_holds_admission",
+        "Admission.test_a_stop_cannot_interleave_with_a_start",
+        "Admission.test_admission_is_released_even_when_its_holder_is_killed",
+        "Admission.test_a_spawn_that_cannot_be_recorded_leaves_no_orphan"
+      ],
+      "what": "one exclusive flock over the whole ownership transition, taken by start AND stop; a spawn that cannot be recorded stops and reaps its own child"
+    },
+    "R2": {
+      "checks": [
+        "UnknownOwnership.test_an_unreadable_record_is_unknown_rather_than_gone",
+        "UnknownOwnership.test_a_record_whose_identity_cannot_be_read_is_unknown",
+        "UnknownOwnership.test_the_proc_read_itself_tells_denial_from_absence",
+        "UnknownOwnership.test_a_denied_process_read_is_unknown_rather_than_absent",
+        "UnknownOwnership.test_every_positive_absence_is_still_gone",
+        "UnknownOwnership.test_a_terminated_but_unreaped_process_is_gone",
+        "UnknownOwnership.test_start_refuses_to_replace_an_owner_it_cannot_establish",
+        "UnknownOwnership.test_a_denied_process_read_also_stops_a_start",
+        "UnknownOwnership.test_stop_retains_an_unknown_record_and_reports_failure"
+      ],
+      "what": "ownership() is four-state: absent / live / gone / unknown. gone is positive (no /proc entry, disagreeing start time, or state Z); unknown is an unreadable or uninterpretable record or a denied /proc read. start REFUSES on unknown, retains the record, names the recovery, kills nothing; stop retains it and fails."
+    },
+    "R3": {
+      "checks": [
+        "Readiness.test_the_child_environment_carries_this_distributions_package_path",
+        "Readiness.test_an_empty_or_absent_operator_path_adds_no_empty_entry",
+        "Readiness.test_the_documented_child_can_actually_import_its_package",
+        "Readiness.test_the_monitors_child_can_import_the_same_package",
+        "Readiness.test_every_recipe_that_runs_a_child_names_the_runtime_prerequisite",
+        "Readiness.test_start_fails_with_the_childs_own_reason_when_it_exits_at_once",
+        "Readiness.test_start_fails_when_nothing_is_ever_published",
+        "Readiness.test_a_previous_runs_snapshot_is_not_this_starts_acknowledgement",
+        "Readiness.test_an_unwind_that_cannot_take_a_process_back_retains_its_record",
+        "ValidIdleComposition.test_the_real_children_compose_an_empty_configured_stack",
+        "ValidIdleComposition.test_a_deployment_that_does_not_compose_fails_the_start"
+      ],
+      "what": "child_environment builds PYTHONPATH absolutely from this distribution's src and . for the manager, the publisher and the publisher's own job_manager subprocess; all four recipes name it, including monitor, which was broken identically because job_viewer imports baton_v12. start then waits, bounded, for POSITIVE acknowledgement: every owned process live AND a snapshot published during this start."
+    },
+    "R4": {
+      "checks": [
+        "Lifecycle.test_a_process_that_will_not_die_fails_the_stop",
+        "RuntimeBoundary.test_no_snapshot_is_unknown_rather_than_nothing_running",
+        "RuntimeBoundary.test_a_stale_snapshot_is_unknown_rather_than_its_own_contents",
+        "RuntimeBoundary.test_a_torn_snapshot_is_unknown_rather_than_zero",
+        "RuntimeBoundary.test_open_episodes_and_recorded_runtimes_are_counted",
+        "RuntimeBoundary.test_stop_reports_what_it_did_not_resolve",
+        "RuntimeBoundary.test_stop_without_a_snapshot_says_unknown_rather_than_none",
+        "RuntimeBoundary.test_status_carries_the_same_boundary"
+      ],
+      "what": "stop returns non-success for any unresolved owned process and retains its record, and every stop and status prints a runtime boundary line read from the last snapshot -- unknown when that snapshot is absent, unreadable or stale."
+    }
+  },
+  "cumulative_verification_seconds": {
+    "author_claim183891": 1.195,
+    "note": "reported separately and not summed into one figure: the reviewer's total already includes its own test subprocess, and the earlier recipe execution duration remains unknown rather than erased",
+    "reviewer_claim183958": 1.5529989219503477,
+    "this_claim_focused_tests": 23.368,
+    "this_claim_reversal_probes": 128.54,
+    "this_claim_total": 151.908
+  },
+  "focused_tests": {
+    "command": "cd v12/python && python3 -m unittest tests.tools.test_stack",
+    "previous": 32,
+    "returncode": 0,
+    "seconds": 23.368,
+    "tests": 63
+  },
+  "not_done": {
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true,
+    "scratch_removed": "the probe tree copy and the relocated deployment probe, including a copied fixture credential file, were removed after use"
+  },
+  "operational_finding_preserved": {
+    "modules": [
+      "tests.manager.test_claude_context",
+      "tests.manager.test_provider_context",
+      "tests.manager.test_provider_context_delivery",
+      "tests.tools.test_correction_restart",
+      "tests.tools.test_managed_apply"
+    ],
+    "mtimes": [
+      "2026-09-15",
+      "2026-09-14",
+      "2026-09-14",
+      "2026-09-15",
+      "2026-09-15"
+    ],
+    "note": "all predate this claim and belong to other in-flight Work; tests.tools.test_stack IS registered. Reported, not adopted: the PLAN forbids unrelated cleanup and the reviewer agreed it is not a gate.",
+    "what": "tools/parallel_test.py still refuses its whole run: five discovered test modules belong to no registry"
+  },
+  "parallel_test_unchanged_this_claim": true,
+  "recipes_exercised": {
+    "just monitor (no snapshot)": {
+      "exit": 2,
+      "reports": "no snapshot yet; run just start"
+    },
+    "just monitor (real snapshot)": {
+      "note": "the viewer rendered a real status document; before this correction the recipe could not import baton_v12 at all",
+      "rendered": true
+    },
+    "just start (unconfigured)": {
+      "exit": 2,
+      "reports": "refused, nothing started"
+    },
+    "just status (unconfigured)": {
+      "exit": 0,
+      "reports": "unconfigured, names all four operands, runtime unknown"
+    }
+  },
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "count": 19,
+    "harness": "probes-183998.py in this dossier; set W183883_PROBE_TREE to a COPY of the checkout's v12/",
+    "probes": [
+      {
+        "checks": [
+          "Admission.test_a_second_start_cannot_enter_while_the_first_holds_admission",
+          "Admission.test_a_stop_cannot_interleave_with_a_start"
+        ],
+        "failed_as_required": true,
+        "probe": "R1-no-admission-lock",
+        "seconds": 20.41
+      },
+      {
+        "checks": [
+          "Admission.test_a_spawn_that_cannot_be_recorded_leaves_no_orphan"
+        ],
+        "failed_as_required": true,
+        "probe": "R1-orphan-on-record-failure",
+        "seconds": 0.413
+      },
+      {
+        "checks": [
+          "UnknownOwnership.test_an_unreadable_record_is_unknown_rather_than_gone",
+          "UnknownOwnership.test_start_refuses_to_replace_an_owner_it_cannot_establish",
+          "UnknownOwnership.test_stop_retains_an_unknown_record_and_reports_failure"
+        ],
+        "failed_as_required": true,
+        "probe": "R2-unknown-collapses-to-gone",
+        "seconds": 0.409
+      },
+      {
+        "checks": [
+          "UnknownOwnership.test_a_record_whose_identity_cannot_be_read_is_unknown"
+        ],
+        "failed_as_required": true,
+        "probe": "R2-unreadable-identity-collapses",
+        "seconds": 0.406
+      },
+      {
+        "checks": [
+          "UnknownOwnership.test_the_proc_read_itself_tells_denial_from_absence"
+        ],
+        "failed_as_required": true,
+        "probe": "R2-denied-proc-read-is-absence",
+        "seconds": 0.405
+      },
+      {
+        "checks": [
+          "UnknownOwnership.test_a_denied_process_read_is_unknown_rather_than_absent",
+          "UnknownOwnership.test_a_denied_process_read_also_stops_a_start"
+        ],
+        "failed_as_required": true,
+        "probe": "R2-denied-read-does-not-stop-a-start",
+        "seconds": 0.419
+      },
+      {
+        "checks": [
+          "UnknownOwnership.test_a_terminated_but_unreaped_process_is_gone"
+        ],
+        "failed_as_required": true,
+        "probe": "R2-a-zombie-reads-as-running",
+        "seconds": 0.415
+      },
+      {
+        "checks": [
+          "UnknownOwnership.test_start_refuses_to_replace_an_owner_it_cannot_establish",
+          "UnknownOwnership.test_a_denied_process_read_also_stops_a_start"
+        ],
+        "failed_as_required": true,
+        "probe": "R2-start-replaces-an-unknown-owner",
+        "seconds": 0.411
+      },
+      {
+        "checks": [
+          "Readiness.test_the_child_environment_carries_this_distributions_package_path",
+          "Readiness.test_the_documented_child_can_actually_import_its_package",
+          "Readiness.test_the_monitors_child_can_import_the_same_package",
+          "ValidIdleComposition.test_the_real_children_compose_an_empty_configured_stack"
+        ],
+        "failed_as_required": true,
+        "probe": "R3-no-package-path-for-children",
+        "seconds": 5.632
+      },
+      {
+        "checks": [
+          "Readiness.test_start_fails_with_the_childs_own_reason_when_it_exits_at_once",
+          "Readiness.test_start_fails_when_nothing_is_ever_published",
+          "ValidIdleComposition.test_a_deployment_that_does_not_compose_fails_the_start"
+        ],
+        "failed_as_required": true,
+        "probe": "R3-no-readiness-gate-at-all",
+        "seconds": 0.491
+      },
+      {
+        "checks": [
+          "Readiness.test_start_fails_with_the_childs_own_reason_when_it_exits_at_once"
+        ],
+        "failed_as_required": true,
+        "probe": "R3-readiness-ignores-liveness",
+        "seconds": 60.47
+      },
+      {
+        "checks": [
+          "Readiness.test_a_previous_runs_snapshot_is_not_this_starts_acknowledgement"
+        ],
+        "failed_as_required": true,
+        "probe": "R3-any-snapshot-acknowledges",
+        "seconds": 0.407
+      },
+      {
+        "checks": [
+          "Readiness.test_an_unwind_that_cannot_take_a_process_back_retains_its_record"
+        ],
+        "failed_as_required": true,
+        "probe": "R3-unwind-clears-what-it-could-not-stop",
+        "seconds": 10.719
+      },
+      {
+        "checks": [
+          "Readiness.test_every_recipe_that_runs_a_child_names_the_runtime_prerequisite"
+        ],
+        "failed_as_required": true,
+        "probe": "R3-recipes-drop-the-prerequisite",
+        "seconds": 0.404
+      },
+      {
+        "checks": [
+          "Lifecycle.test_a_process_that_will_not_die_fails_the_stop",
+          "UnknownOwnership.test_stop_retains_an_unknown_record_and_reports_failure"
+        ],
+        "failed_as_required": true,
+        "probe": "R4-stop-always-succeeds",
+        "seconds": 1.427
+      },
+      {
+        "checks": [
+          "UnknownOwnership.test_stop_retains_an_unknown_record_and_reports_failure"
+        ],
+        "failed_as_required": true,
+        "probe": "R4-stop-clears-an-unknown-record",
+        "seconds": 0.406
+      },
+      {
+        "checks": [
+          "RuntimeBoundary.test_stop_reports_what_it_did_not_resolve",
+          "RuntimeBoundary.test_stop_without_a_snapshot_says_unknown_rather_than_none"
+        ],
+        "failed_as_required": true,
+        "probe": "R4-no-runtime-boundary-reported",
+        "seconds": 0.507
+      },
+      {
+        "checks": [
+          "RuntimeBoundary.test_a_stale_snapshot_is_unknown_rather_than_its_own_contents"
+        ],
+        "failed_as_required": true,
+        "probe": "R4-a-stale-snapshot-is-read-as-current",
+        "seconds": 0.407
+      },
+      {
+        "checks": [
+          "RuntimeBoundary.test_a_torn_snapshot_is_unknown_rather_than_zero"
+        ],
+        "failed_as_required": true,
+        "note": "first form of this probe was malformed and failed on a SyntaxError, which proves nothing; re-run with a well-formed reversal",
+        "probe": "R4-a-torn-snapshot-counts-as-zero",
+        "seconds": 0.405
+      }
+    ],
+    "restored_tree_matches_working_tree": true,
+    "seconds": 128.54
+  },
+  "scope": "focused deterministic verification; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation",
+  "work": "W183883"
+}

@@ -1,0 +1,330 @@
+{
+ "all_owned_children_reaped": true,
+ "answers_review": "review-2026-09-16T13-20-49Z.md sha256 afd2790bb9bfa854dd0fe314e1b5969dfed6cfbeb1c6ab49797f2fbc85b5f3bc (first publication must own its temporary file before writing it) -- and then continues the selected delivery, as that review asked",
+ "candidates": {
+  "v12/STACK.md": "f016f72b8523a4e02c08f1cf3fbcd43c16b59c0b733dcf8b705e84350e65f6e4",
+  "v12/justfile": "39ea96c9b22a85775062df6564316d23c1d07b214977f6d821f2a3ad8a430ba6",
+  "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+  "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+  "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+  "v12/python/tests/tools/test_environment.py": "035964cb859f99a46be167b1d1b59610cf57248edd642da044b52ed020365217",
+  "v12/python/tests/tools/test_instance.py": "c69000b356644d80a0207fdcbd84976bddff14c714861ff0f7cba70e23126789",
+  "v12/python/tests/tools/test_stack.py": "f0bddbf4ca4422cccb570efd4c63d1955235c66cf70ddbec512eb84da3b716d7",
+  "v12/python/tools/bootstrap.py": "0e6334ecd92eadf12c6129868f0c5cc4bd255ac1b2d58a320d4770d1f6a5340e",
+  "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+  "v12/python/tools/instance.py": "202a8804cf3d600103462e4cd2903f8132ad693094d9fea8ba53ad9675ce9ef6",
+  "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+  "v12/python/tools/parallel_test.py": "14404bcb51c08650df3b136dcc72242bb5cc2b81bb0d703de6b89fe13cbe19a4",
+  "v12/python/tools/stack.py": "f1b07c8792f8c2da02b1eb34281a4368717fd6d2f4670129c3547b5e06d9abfd",
+  "v12/python/tools/stack_command.py": "619c693ebeaa78905204b58e5a70a61757faa8d70109f2c3e286f131b7833b48",
+  "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+ },
+ "claim": 186742,
+ "cumulative_verification_seconds": {
+  "J1_history": "0.125s reversal within a 1.291s whole harness; both intervals preserved",
+  "author_claim183891": 1.195,
+  "author_claim183998": 151.908,
+  "author_claim184239": 127.816,
+  "author_claim184442": 63.532,
+  "author_claim185653": 26.94,
+  "author_claim185774": 27.256,
+  "author_claim185884": 33.299,
+  "author_claim185976": 32.661,
+  "author_claim186044": 30.937,
+  "author_claim186132": 2.476,
+  "author_claim186214": 28.576,
+  "author_claim186284": 27.262,
+  "author_claim186381": {
+   "focused": 27.19,
+   "stage_suite": 55.317
+  },
+  "author_claim186468": 27.183,
+  "author_claim186523": 27.128,
+  "author_claim186583": {
+   "focused": 27.154,
+   "reversal_probes": 0.589
+  },
+  "author_claim186672": {
+   "focused": 27.202,
+   "reversal_probes": 0.625,
+   "scenarios": 0.003
+  },
+  "earlier_build_and_bundle_checks": "unknown duration, VERIFICATION rather than deployment cost",
+  "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+  "owner_bootstrap_run": 0.938,
+  "owner_composition_run": 10.535,
+  "reviewer_claim183958": 1.5529989219503477,
+  "reviewer_claim184197": 12.840890395978931,
+  "reviewer_claim184197_readiness_check": 0.002758326008915901,
+  "reviewer_claim184403": 20.8455910270568,
+  "reviewer_claim184537": 15.599983819993213,
+  "reviewer_claim185739": 0.12554923997959122,
+  "reviewer_claim185857": 0.22083405102603137,
+  "reviewer_claim185945": 0.0037346489843912423,
+  "reviewer_claim186022": 0.004474725050386041,
+  "reviewer_claim186081": 0.005015750008169562,
+  "reviewer_claim186175": 0.04717645701020956,
+  "reviewer_claim186262": 0.4171164730214514,
+  "reviewer_claim186356": 1.6185368220321834,
+  "reviewer_claim186439": 0.0028278949903324246,
+  "reviewer_claim186499": 0.003370393009390682,
+  "this_claim_focused_tests": 27.256,
+  "this_claim_reversal_probes": {
+   "instance_lifecycle": 2.197,
+   "temporary_custody": 0.541
+  },
+  "this_claim_scenarios": 0.003
+ },
+ "edited_this_claim": [
+  "v12/python/tools/instance.py",
+  "v12/python/tools/stack.py",
+  "v12/python/tools/stack_command.py",
+  "v12/justfile",
+  "v12/STACK.md",
+  "v12/python/tests/tools/test_instance.py",
+  "v12/python/tests/tools/test_stack.py",
+  "v12/python/tests/tools/test_environment.py"
+ ],
+ "focused_tests": {
+  "by_module": {
+   "test_bootstrap": 67,
+   "test_environment": 56,
+   "test_instance": 58,
+   "test_stack": 110
+  },
+  "command": "cd v12/python && PYTHONPATH=src:. python3 -m unittest tests.tools.test_instance tests.tools.test_bootstrap tests.tools.test_stack tests.tools.test_environment",
+  "returncode": 0,
+  "seconds": {
+   "test_bootstrap": 0.923,
+   "test_environment": 0.163,
+   "test_instance": 0.087,
+   "test_stack": 26.083
+  },
+  "tests": 291
+ },
+ "not_done": {
+  "no_build_this_claim": true,
+  "no_credential_registry_read": true,
+  "no_job_submitted": true,
+  "no_live_provider_or_engine_run": true,
+  "no_v11_path_service_store_or_configuration_touched": true,
+  "no_version_control_mutation": true
+ },
+ "operational_findings_preserved": [
+  {
+   "modules": [
+    "tests.manager.test_claude_context",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.tools.test_correction_restart",
+    "tests.tools.test_managed_apply"
+   ],
+   "note": "unchanged; re-observed this claim",
+   "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+  },
+  {
+   "note": "unchanged, not re-run this claim",
+   "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+  }
+ ],
+ "regressions_added": {
+  "temporary_custody": {
+   "covers": [
+    "a symlink at the old fixed temporary name cannot redirect the write, the published selector is a regular file, and the unknown entry is left alone",
+    "a hardlink at it cannot damage the existing selector",
+    "a regular file at it is left alone",
+    "`publish` cannot write through a link either",
+    "and `test_publication_is_atomic` now asserts the rename comes from a temporary this attempt owns rather than a fixed name"
+   ],
+   "file": "v12/python/tests/tools/test_instance.py, class PublicationRefusesToReplace",
+   "tests": 4
+  },
+  "the_lifecycle": {
+   "files": [
+    "v12/python/tests/tools/test_instance.py, class WhatARecipeAsksAnInstance (4)",
+    "v12/python/tests/tools/test_stack.py, class TheInstalledMonitor (7)",
+    "v12/python/tests/tools/test_environment.py, class TheInterpreterOverrideIsExecutable (6 recipe expansions)"
+   ],
+   "note": "the recipe checks EXPAND the recipes with `just --dry-run`, because reading prose is what let an earlier wrong spelling survive; the guarded branches are read AS guards, since `just` prints a body whether or not it runs.",
+   "tests": 17
+  }
+ },
+ "remaining_scope": [
+  "tests/tools/test_packaging.py: a REAL built-bundle smoke check, registered -- the one thing here that genuinely needs a build, and the one that would exercise the installed dispatch end to end",
+  "an external-run fixture whose workers carry a credential registry, so start/status/monitor/stop can be demonstrated with the manager, publisher and viewer actually RUNNING through instance.json",
+  "the independent repo from the selected immutable base, and repeat/corrupt/mismatch preservation checks for instances",
+  "a retained final artifact manifest with digests and full build/smoke logs, exits and source/lock/platform provenance"
+ ],
+ "reversal_probes": {
+  "all_killed": true,
+  "harnesses": [
+   "work/records/2026/09/finding-v12-stack-launcher/probes-186742.py",
+   "work/records/2026/09/finding-v12-stack-launcher/probes-186742-lifecycle.py"
+  ],
+  "instance_lifecycle": [
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_a_lifecycle_recipe_given_an_instance_runs_THAT_deployment"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "N1-the-recipes-run-this-checkout-instead-of-the-deployment",
+    "reverted_returncode": 1,
+    "seconds": 0.087,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_environment.TheInterpreterOverrideIsExecutable.test_the_monitor_takes_the_instance_and_the_interval"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "N2-the-monitor-recipe-rebuilds-the-snapshot-path-itself",
+    "reverted_returncode": 1,
+    "seconds": 0.085,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_stack.TheInstalledMonitor.test_the_bundled_command_puts_a_verb_s_options_AFTER_the_verb",
+     "tests.tools.test_stack.TheInstalledMonitor.test_the_older_verbs_are_dispatched_exactly_as_before"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "N3-a-verb-s-own-options-are-appended-after-the-verb-again",
+    "reverted_returncode": 1,
+    "seconds": 0.822,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_stack.TheInstalledMonitor.test_a_stack_that_has_published_nothing_is_said_so_rather_than_watched"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "N4-the-monitor-watches-a-snapshot-that-is-not-there",
+    "reverted_returncode": 1,
+    "seconds": 0.823,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.WhatARecipeAsksAnInstance.test_a_selector_it_would_refuse_answers_nothing"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "N5-a-recipe-is-handed-a-path-out-of-a-selector-nothing-validated",
+    "reverted_returncode": 1,
+    "seconds": 0.082,
+    "valid_kill": true
+   }
+  ],
+  "method": "each probe proves a PASSING BASELINE on pristine code, reverts one guard in an isolated COPY of the tree, and requires the named checks to fail ON THE INTENDED ASSERTION [J1]",
+  "restored_ok": true,
+  "temporary_custody": [
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.PublicationRefusesToReplace.test_a_SYMLINK_at_the_old_temporary_name_cannot_redirect_the_write",
+     "tests.tools.test_instance.PublicationRefusesToReplace.test_a_HARDLINK_at_the_old_temporary_name_cannot_damage_the_selector"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "M1-the-temporary-is-a-fixed-name-again",
+    "reverted_returncode": 1,
+    "seconds": 0.082,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.PublicationRefusesToReplace.test_a_REGULAR_file_at_the_old_temporary_name_is_left_alone",
+     "tests.tools.test_instance.PublicationRefusesToReplace.test_a_SYMLINK_at_the_old_temporary_name_cannot_redirect_the_write"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "M2-an-unknown-entry-is-treated-as-ours-to-remove",
+    "reverted_returncode": 1,
+    "seconds": 0.082,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.PublicationRefusesToReplace.test_an_existing_selector_is_left_exactly_as_it_was",
+     "tests.tools.test_instance.TheDestinationIsAskedAboutAgain.test_a_selector_appearing_BETWEEN_custody_and_publication_is_refused"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "M3-the-final-name-is-replaced-rather-than-claimed",
+    "reverted_returncode": 1,
+    "seconds": 0.091,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.PublicationRefusesToReplace.test_a_REGULAR_file_at_the_old_temporary_name_is_left_alone"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "M4-this-attempt-s-own-temporary-is-left-behind",
+    "reverted_returncode": 1,
+    "seconds": 0.077,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.WhatAnInstanceDerives.test_publication_is_atomic"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "M5-the-selector-is-written-in-place-rather-than-renamed",
+    "reverted_returncode": 1,
+    "seconds": 0.08,
+    "valid_kill": true
+   }
+  ]
+ },
+ "scope": "the confirmed K3 remainder, plus the instance lifecycle recipes and the installed monitor from the already-authorized delivery scope; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation, no build",
+ "the_correction": {
+  "the_same_defect_was_fixed_in_publish_too": "`publish` had the identical fixed `.tmp` name. The review named `create`; fixing only the case and not the class is the mistake I have been caught making repeatedly, so both go through `_owned`.",
+  "the_temporary_is_OWNED_before_it_is_written": "`instance._owned` creates it with `tempfile.mkstemp` in the selector's own parent -- O_EXCL, a regular file, a name nobody else holds -- and writes through that descriptor. A pre-existing entry at any other name is neither followed, truncated, reused nor removed: an unknown entry is somebody else's. Only this attempt's temporary is cleaned up.",
+  "what_was_kept": "the final-name no-clobber (`os.link`, which fails rather than replaces), atomic arrival by rename in `publish`, the pinned source digest and identity, and every earlier custody rule.",
+  "what_was_wrong": "`instance.create` wrote a FIXED `instance.json.new`, so it wrote through whatever was already at that name -- before the final name was ever considered. A symlink there redirected the write into a foreign document and published a SYMLINK as the selector; a hardlink to an existing selector destroyed that selector's bytes while publication went on to refuse and say it had left them alone."
+ },
+ "the_delivery_this_claim_continued": {
+  "still_not_done": [
+   "tests/tools/test_packaging.py: a REAL built-bundle smoke check, registered -- the one thing here that genuinely needs a build",
+   "an external-run fixture whose workers carry a credential registry, so start/status/monitor/stop can be demonstrated with the manager, publisher and viewer actually RUNNING through instance.json",
+   "STACK.md and the four lifecycle recipes taking an instance path, and an installed monitor -- the 'installed dispatch' the review notes is still unfinished in the source recipes",
+   "the independent repo from the selected immutable base, and repeat/corrupt/mismatch checks for instances",
+   "a retained final artifact manifest with digests and full build/smoke/source/lock/platform provenance"
+  ],
+  "the_lifecycle_takes_an_instance_path": {
+   "a_verbs_options_follow_the_verb": "`stack_command._stack` split the instance/root selection from the rest instead of appending the verb to everything, because argparse reads a subcommand's options only after the subcommand -- `monitor --interval 5` would otherwise have been unparseable. The four older verbs dispatch exactly as before, which is its own check.",
+   "how_the_command_is_found": "v12/python/tools/instance.py `main`: `python3 -m tools.instance command <instance.json>` validates the selector and prints the installed command. Deriving it in shell would have been a second copy of `layout`.",
+   "recipes": "v12/justfile: `bootstrap INPUTS DESTINATION DISTRO` forwards --destination/--distro when a destination is named; `start`, `stop`, `status` and `monitor` take an optional INSTANCE and, when given one, run THAT deployment's own command out of its own distro -- not this checkout's interpreter and not its sources. Without it, the older exported-operand form is unchanged.",
+   "runbook": "v12/STACK.md: installing to a destination, the four instance-path commands, the same program without `just`, what the selector is validated against, and that the older form still works.",
+   "the_installed_monitor": "v12/python/tools/stack.py `monitor`, registered in `stack_command.COMMANDS`. It derives the snapshot from `snapshot_path` -- the same answer `publish` and `status` use -- instead of the recipe rebuilding it from an environment variable, and refuses by name when nothing has been published."
+  },
+  "why": "the review asked not to return only another partial demonstration if the selected implementation can continue"
+ },
+ "the_reviews_reproductions_against_the_corrected_code": {
+  "a_hardlink_at_the_old_temporary_name": {
+   "existing_selector_bytes_preserved": true,
+   "refused": "there is already an instance selector at /tmp/w183883-claim186742-s0o4nvvz/hardlink/instance.json, which appeared while this one was being prepared. It was left exactly as it was and nothing was published; an instance is prepared once, and whichever attempt got there first owns it.",
+   "the_hardlink_is_untouched": true
+  },
+  "a_symlink_at_the_old_temporary_name": {
+   "foreign_bytes_preserved": true,
+   "install_refused": null,
+   "no_leftover_temporaries": true,
+   "published_selector_is_a_regular_file": true,
+   "selector_reads_back": true,
+   "the_unknown_entry_was_left_alone": true
+  },
+  "the_controls": {
+   "late_selector_bytes_preserved": true,
+   "late_selector_refused": "there is already an instance selector at /tmp/w183883-claim186742-s0o4nvvz/late-selector/instance.json. Nothing here replaces one; prepare a new destination.",
+   "ordinary_installation_reads_back": true
+  }
+ },
+ "work": "W183883"
+}

@@ -1,0 +1,323 @@
+{
+ "V1_untracked_observation_was_left_to_the_host": {
+  "fix": "`--untracked-files=normal` is passed explicitly, so the observation is this command's rather than the host configuration's.",
+  "held_by": "test_untracked_entries_are_ASKED_FOR_rather_than_left_to_the_host -- it asserts the exact argv, and that every argv issued is a read (`rev-parse` or `status`) with no add, commit, checkout, clean, stash, tag or reset among them.",
+  "what_was_wrong": "`status --porcelain` honours `status.showUntrackedFiles=no`, so on a host configured that way an ordinary untracked source file was omitted -- and a dirty tree reported itself CLEAN, which is the one thing the stamp exists not to do."
+ },
+ "V2_the_build_output_was_untracked_rather_than_ignored": {
+  "fix": "three EXACT repository-relative paths are excused, and only when the entry is `??`. A tracked change anywhere -- including under build/out -- is dirty; ordinary untracked SOURCE anywhere is dirty.",
+  "held_by": [
+   "test_only_THIS_distribution_s_build_output_is_excused",
+   "test_a_REPEATED_capture_after_a_build_is_still_clean",
+   "test_untracked_SOURCE_still_makes_it_dirty -- five controls, including files under build/ and packaging/ that are NOT the three",
+   "test_a_tracked_change_under_the_build_directory_is_not_excused",
+   "test_a_quoted_or_renamed_entry_is_read_as_the_path_it_names"
+  ],
+  "the_boundary": [
+   "v12/python/build/out/",
+   "v12/python/build/work/",
+   "v12/python/packaging/build-stamp.json"
+  ],
+  "what_was_wrong": "I assumed `build/out`, `build/work` and the written stamp were ignored. They are UNTRACKED, so the first build made every later capture report a dirty tree -- a stamp saying `dirty` about its own output says nothing about the source it was built from."
+ },
+ "V3_an_option_after_the_destination_bound_as_the_distribution": {
+  "fix": "the recipe REFUSES an option in a positional slot and prints the form that works, with the operand it was actually given; the guide shows `just bootstrap INPUTS DEST \"\" \"--no-repositories\"` and the direct helper invocation, and a check walks every `just bootstrap` line in the guide to make sure none of them recommends the broken shape.",
+  "held_by": [
+   "test_an_OPTION_in_a_positional_slot_is_refused_by_the_recipe -- the REAL recipe, exit 2, nothing else run",
+   "test_the_documented_form_reaches_the_helper",
+   "test_the_guide_shows_that_form_and_not_the_broken_one"
+  ],
+  "what_was_wrong": "`just bootstrap inputs dest --no-repositories` binds that option as DISTRO. `just` has no option forwarding, so the option never reached the helper -- and the guide I wrote showed exactly that form."
+ },
+ "all_owned_children_reaped": true,
+ "answers_review": "review-2026-09-16T21-21-54Z.md sha256 985fa7b29e97357308a16c4f778afe796dc7589ea158a84740330a91b9041bef -- V1, V2 and V3",
+ "candidates": {
+  "v12/STACK.md": "3b61c616c55ba0829ec12c90671e9fd78b2bbc15f3a3bcb9cd216933baff81ef",
+  "v12/justfile": "5b261079e035f06371b6f0a88b7c0ce2bdd55a2fb8b152c4c38f101146598368",
+  "v12/python/packaging/stack.spec": "bd949228761abaff4ab339c4651c9abe6268968c88adc1a46803f4453f54aeaf",
+  "v12/python/pyproject.toml": "ac925c1f73ea3309dfd1d844978f24fc31c4d9dd9acd026f79edb275ce53ee38",
+  "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+  "v12/python/src/baton_v12/version.py": "8f854cd7b3e8ee5ae7216f226ce484f1a3e112c453e27e1e116fe3fb8e4ffd69",
+  "v12/python/tests/tools/test_bootstrap.py": "520d6f5d4238154e0624deb878db981ec886929abe50cf226f4ed18988a13d97",
+  "v12/python/tests/tools/test_environment.py": "ec21a4ae1eb9a6a2de460c3cc85ae0a7dfcd2447e30ab5df4967bcdeace9a1af",
+  "v12/python/tests/tools/test_instance.py": "ffc034af33c7e416f71851eba964818e04b2875c87547fe04ec0f76bf29101d8",
+  "v12/python/tests/tools/test_packaging.py": "f2ba0e039a9e0fa58c071506decf82958986fd17edde87e7f75ea51c87568d60",
+  "v12/python/tests/tools/test_stack.py": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+  "v12/python/tests/tools/test_version.py": "0b2e2191a99f071c65b1c39cf680e6ada8feef4eddc64773c3e0e31bbe8ca8e2",
+  "v12/python/tools/bootstrap.py": "d25c90c5221eccc0fc83d44265bb144bc929d727e8888552bd23791f403e7bd3",
+  "v12/python/tools/build_stamp.py": "6b4fed17742702e9dc3577d8f4a54a9bf01d7ca947c1eacf739b18cad7c91218",
+  "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+  "v12/python/tools/instance.py": "765bfd64aa9967c16741f940b5c77070bdcd268c56ae935ecc2fa6f795bfa9c9",
+  "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+  "v12/python/tools/parallel_test.py": "ea1ef7b298f33c856b90cb73dd205d2c6cd1ee3b758bc3add063944596831085",
+  "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+  "v12/python/tools/stack_command.py": "da81a6950b4d6d9a87118816013a6a4499bdf651d78eb2845e9bc27ba124d51f",
+  "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+ },
+ "changed_this_claim": [
+  "v12/STACK.md",
+  "v12/justfile",
+  "v12/python/tests/tools/test_environment.py",
+  "v12/python/tests/tools/test_version.py",
+  "v12/python/tools/build_stamp.py"
+ ],
+ "claim": 189471,
+ "cumulative_verification_seconds": {
+  "J1_history": "0.125s reversal within a 1.291s whole harness; both intervals preserved",
+  "author_claim183891": 1.195,
+  "author_claim183998": 151.908,
+  "author_claim184239": 127.816,
+  "author_claim184442": 63.532,
+  "author_claim185653": 26.94,
+  "author_claim185774": 27.256,
+  "author_claim185884": 33.299,
+  "author_claim185976": 32.661,
+  "author_claim186044": 30.937,
+  "author_claim186132": 2.476,
+  "author_claim186214": 28.576,
+  "author_claim186284": 27.262,
+  "author_claim186381": {
+   "focused": 27.19,
+   "stage_suite": 55.317
+  },
+  "author_claim186468": 27.183,
+  "author_claim186523": 27.128,
+  "author_claim186583": {
+   "focused": 27.154,
+   "reversal_probes": 0.589
+  },
+  "author_claim186672": {
+   "focused": 27.202,
+   "reversal_probes": 0.625,
+   "scenarios": 0.003
+  },
+  "author_claim186742": {
+   "focused": 27.256,
+   "reversal_probes": {
+    "instance_lifecycle": 2.197,
+    "temporary_custody": 0.541
+   },
+   "scenarios": 0.003
+  },
+  "author_claim186838": {
+   "focused": 27.547,
+   "reversal_probes": 1.247
+  },
+  "author_claim186890": {
+   "builds": "four builds this claim, three of them inside the packaging probe tree; the retained one is BUILD-186890.log, 10156 bytes, exit 0",
+   "focused": 29.559,
+   "live_installed_lifecycle": 7.194,
+   "reversal_probes": {
+    "build_and_revert_packaging": 17.09,
+    "source": 3.683
+   }
+  },
+  "author_claim187015": {
+   "builds": "two builds this claim; the retained one is BUILD-187015.log, exit 0",
+   "focused": 30.191,
+   "live_installed_lifecycle": 7.219,
+   "reversal_probes": 28.886
+  },
+  "author_claim187142": {
+   "builds": "one build; BUILD-187142.log, exit 0",
+   "focused": 30.153,
+   "injected_failure_proofs": "three runs, each ~7s, retained in CLEANUP-PROOF-187142.json",
+   "live_installed_lifecycle": 7.37,
+   "reversal_probes": 28.295
+  },
+  "author_claim187223": {
+   "boundary_runs": "six injected-boundary runs of the harness, each about seven seconds, retained",
+   "builds": "none -- no product code changed, and the review said no rebuild was needed for packet/harness-only changes",
+   "focused": 30.309,
+   "live_installed_lifecycle": 7.398,
+   "packet_check_proof": "nine extracted-block scenarios, sub-second"
+  },
+  "author_claim187303": {
+   "boundary_runs": "nine injected-boundary runs of the harness, each a few seconds, retained",
+   "builds": "none; no product code changed and no rebuild was requested",
+   "focused": "not re-run: no product or test file changed, and the review said not to re-run an unchanged suite for a handoff. Every candidate hash is identical to claim187223's.",
+   "live_installed_lifecycle": 7.557,
+   "packet_check_proof": "nine extracted-block scenarios, sub-second"
+  },
+  "author_claim187356": {
+   "builds": "none; no product code changed",
+   "control_runs": "eleven injected control runs, each a few seconds, retained in this record",
+   "focused": "not re-run: no product or test file changed, and the review said not to re-run an unchanged suite for a handoff",
+   "live_installed_lifecycle": 7.569
+  },
+  "author_claim188434": {
+   "builds": "two builds; the install log is INSTALL-188434.log, exit 0",
+   "focused": 30.169,
+   "reversal_probes": 2.588,
+   "standalone_interface": 5.66
+  },
+  "author_claim188582": {
+   "builds": "one build, during the live two-operand install",
+   "focused": 30.199,
+   "reversal_probes": 3.239
+  },
+  "author_claim188671": {
+   "builds": "one build, during the live two-operand install",
+   "focused": 30.233,
+   "reversal_probes": 3.524
+  },
+  "author_claim188740": {
+   "builds": "none: this correction is in bootstrap.py and its focused checks, and the review asked for no live campaign",
+   "focused": 30.271,
+   "reversal_probes": 4.205
+  },
+  "author_claim188783": {
+   "builds": "none; the review asked for no rebuild for this fix",
+   "focused": 30.305,
+   "reversal_probes": 2.955
+  },
+  "author_claim188860": {
+   "builds": "none",
+   "focused": 0.839,
+   "reversal_probes": "none: no guard changed, and a reversal over an unchanged guard proves nothing"
+  },
+  "author_claim189383": {
+   "builds": "two builds; the retained transcript is INSTALL-189383.log and the stamp it captured is in IDENTITY-189383.json",
+   "focused": 31.876,
+   "reversal_probes": 1.13
+  },
+  "earlier_build_and_bundle_checks": "unknown duration, VERIFICATION rather than deployment cost",
+  "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+  "owner_bootstrap_run": 0.938,
+  "owner_composition_run": 10.535,
+  "reviewer_claim183958": 1.5529989219503477,
+  "reviewer_claim184197": 12.840890395978931,
+  "reviewer_claim184197_readiness_check": 0.002758326008915901,
+  "reviewer_claim184403": 20.8455910270568,
+  "reviewer_claim184537": 15.599983819993213,
+  "reviewer_claim185739": 0.12554923997959122,
+  "reviewer_claim185857": 0.22083405102603137,
+  "reviewer_claim185945": 0.0037346489843912423,
+  "reviewer_claim186022": 0.004474725050386041,
+  "reviewer_claim186081": 0.005015750008169562,
+  "reviewer_claim186175": 0.04717645701020956,
+  "reviewer_claim186262": 0.4171164730214514,
+  "reviewer_claim186356": 1.6185368220321834,
+  "reviewer_claim186439": 0.0028278949903324246,
+  "reviewer_claim186499": 0.003370393009390682,
+  "this_claim_builds": "none: these are stamp, recipe and document corrections, and the review asked for no rebuild or live campaign",
+  "this_claim_focused_tests": 38.504,
+  "this_claim_reversal_probes": 8.068
+ },
+ "focused_tests": {
+  "by_module": {
+   "test_bootstrap": 72,
+   "test_environment": 72,
+   "test_instance": 117,
+   "test_packaging": 11,
+   "test_stack": 122,
+   "test_version": 27
+  },
+  "command": "cd v12/python && PYTHONPATH=src:. python3 -m unittest tests.tools.test_version tests.tools.test_instance tests.tools.test_bootstrap tests.tools.test_stack tests.tools.test_environment tests.tools.test_packaging",
+  "new_this_claim": 9,
+  "returncode": 0,
+  "seconds": {
+   "test_bootstrap": 1.001,
+   "test_environment": 8.833,
+   "test_instance": 0.396,
+   "test_packaging": 2.219,
+   "test_stack": 26.054,
+   "test_version": 0.001
+  },
+  "tests": 421
+ },
+ "not_done": {
+  "no_credential_registry_read": true,
+  "no_job_submitted": true,
+  "no_live_provider_or_engine_run": true,
+  "no_repository_cloned_by_this_agent": true,
+  "no_v11_path_service_store_or_configuration_touched": true,
+  "no_version_control_mutation_by_this_agent": true
+ },
+ "not_rebuilt_and_why": "the stamp module changed, so the retained bundle's captured stamp was made by the previous capture logic. It is still an accurate record of THAT build; a bundle built from this source will capture with the corrected boundary. The review asked for no rebuild, and this is stated rather than left for a reader to notice.",
+ "operational_findings_preserved": [
+  {
+   "modules": [
+    "tests.manager.test_claude_context",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.tools.test_correction_restart",
+    "tests.tools.test_managed_apply"
+   ],
+   "note": "unchanged; re-observed this claim",
+   "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+  },
+  {
+   "note": "unchanged, not re-run this claim",
+   "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+  }
+ ],
+ "remaining_scope": [
+  "the owner's step, now including the version-stamped build: the actual source selections and the owner-run two-operand bootstrap, which prepares the repositories from this checkout.",
+  "a decision, if the owner wants one: whether a dirty checkout's uncommitted work should reach the prepared repositories. Today it does not, and that is stated rather than changed."
+ ],
+ "reversal_probes": {
+  "B4_first_proved_nothing": "reverted, the option reaches `realpath`, which rejects it with exit 1 and a usage message about a tool the operator never named -- so the intended failure is that exit rather than the refusal's own. The confusion it produces is the point of the guard.",
+  "all_killed": true,
+  "harness": "probes-189471.py",
+  "restored_ok": true,
+  "results": [
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_version.TheStampIsCapturedFromTheCheckout.test_untracked_entries_are_ASKED_FOR_rather_than_left_to_the_host"
+    ],
+    "edits": 1,
+    "failed_on_the_intended_assertion": true,
+    "probe": "B1-untracked-observation-is-left-to-the-host-again",
+    "reverted_returncode": 1,
+    "seconds": 0.073,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_version.TheStampIsCapturedFromTheCheckout.test_only_THIS_distribution_s_build_output_is_excused",
+     "tests.tools.test_version.TheStampIsCapturedFromTheCheckout.test_a_REPEATED_capture_after_a_build_is_still_clean"
+    ],
+    "edits": 1,
+    "failed_on_the_intended_assertion": true,
+    "probe": "B2-this-run-s-own-output-dirties-every-later-capture",
+    "reverted_returncode": 1,
+    "seconds": 0.073,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_version.TheStampIsCapturedFromTheCheckout.test_a_tracked_change_under_the_build_directory_is_not_excused"
+    ],
+    "edits": 1,
+    "failed_on_the_intended_assertion": true,
+    "probe": "B3-the-excuse-widens-past-the-pinned-paths",
+    "reverted_returncode": 1,
+    "seconds": 0.074,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_environment.TheBootstrapRecipeReachesTheHelper.test_an_OPTION_in_a_positional_slot_is_refused_by_the_recipe"
+    ],
+    "edits": 1,
+    "failed_on_the_intended_assertion": true,
+    "probe": "B4-an-option-in-a-positional-slot-is-bound-again",
+    "reverted_returncode": 1,
+    "seconds": 0.093,
+    "valid_kill": true
+   }
+  ],
+  "seconds": 8.068
+ },
+ "scope": "three bounded corrections to the stamp and the recipe, and the guide that describes them. No version redesign, no dirty-content copy decision, no rebuild, no live campaign, no Job, provider, engine, v11 operation or version-control mutation.",
+ "the_owner_packet_is_updated": {
+  "file": "OWNER-READY-188837.md sha256 b9d4780c1abaabda539c293f6371b3624a311eae9d12e68b6c66784fc93994f9",
+  "what_changed": "its `repository_source` instructions are superseded: the source is inferred from the checkout, the JSON member is refused, and the option form for --no-repositories / --repository-source is the one that works."
+ },
+ "work": "W183883"
+}

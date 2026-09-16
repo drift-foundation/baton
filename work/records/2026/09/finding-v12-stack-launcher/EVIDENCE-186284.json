@@ -1,0 +1,149 @@
+{
+  "J1": {
+    "result": {
+      "baseline_passes_on_pristine": true,
+      "failed_as_required": true,
+      "failed_on_the_intended_assertion": true,
+      "restored_ok": true,
+      "seconds": 0.125
+    },
+    "the_methodology_is_fixed_not_just_the_name": "probes-186284-j1.py asserts the named checks PASS on pristine code BEFORE applying the reversal, and additionally requires the reversed run to fail on the INTENDED assertion rather than merely to exit non-zero. A probe that cannot pass before the reversal is not measuring the reversal.",
+    "the_other_five_probes_of_claim186214": "unaffected: each named a class that exists and a method that belongs to it; only the recipe probe was misnamed",
+    "the_reviewer_is_right": "probes-186214.py named TheRecipesUseIt.test_the_recipe_asks_the_helper_for_the_root_rather_than_assigning_one, and that method belongs to TheInterpreterOverrideIsExecutable. It errored with AttributeError on the PRISTINE candidate, so that one claimed mutation kill was INVALID. The original evidence is preserved unchanged; this is the attributable correction."
+  },
+  "all_owned_children_reaped": true,
+  "answers": "review-2026-09-16T12-04-20Z.md sha256 268aed147a5269c5f6cd3ad12e7e4dcbe31fbf3004210684394e9f106a97cd16 (J1), and the first part of the authorized PyInstaller slice",
+  "candidates": {
+    "v12/STACK.md": "5f5d0026740ad28ec19b5ad7046c6211eec2b19bda20a6d645a9ed4908c6ce7c",
+    "v12/justfile": "b1ee92e1a33fa3c98f5b87de7262ba0d2001066c41c5400e7d93dadecb790ee6",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+    "v12/python/tests/tools/test_environment.py": "c05bfb4177a8cf5f8e04c34f250d5da1480d61f726d79b3b33cc7aac2a1b864a",
+    "v12/python/tests/tools/test_stack.py": "6608d603457856d92abf6600609d7e81b416a6c2642d341a824aa09a2315794b",
+    "v12/python/tools/bootstrap.py": "2c78a8005fd8a9e79b0ddaf0a9e8d3a8c700cf142acd77ca5e2505520d484510",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "20b65702fc082fd786de5f7a6feba728a08866e1a93813bf0b97c80769525523",
+    "v12/python/tools/stack_command.py": "4f923e87142bda2667826a992c2108e63bd4ac4bea6cc01e3b9d981c4216de13"
+  },
+  "claim": 186284,
+  "cumulative_verification_seconds": {
+    "author_claim183891": 1.195,
+    "author_claim183998": 151.908,
+    "author_claim184239": 127.816,
+    "author_claim184442": 63.532,
+    "author_claim185653": 26.94,
+    "author_claim185774": 27.256,
+    "author_claim185884": 33.299,
+    "author_claim185976": 32.661,
+    "author_claim186044": 30.937,
+    "author_claim186132": 2.476,
+    "author_claim186214": 28.576,
+    "note": "reported per actor and never summed; claim186214's total is retained as measured INCLUDING the invalid probe's cost, as the review requires, and the real locked install and earliest recipe durations remain unknown",
+    "note_on_the_build": "the PyInstaller build and the frozen smoke runs are deployment work rather than verification measurements and are not counted here",
+    "owner_bootstrap_run": 0.938,
+    "owner_composition_run": 10.535,
+    "reviewer_claim183958": 1.5529989219503477,
+    "reviewer_claim184197": 12.840890395978931,
+    "reviewer_claim184197_readiness_check": 0.002758326008915901,
+    "reviewer_claim184403": 20.8455910270568,
+    "reviewer_claim184537": 15.599983819993213,
+    "reviewer_claim185739": 0.12554923997959122,
+    "reviewer_claim185857": 0.22083405102603137,
+    "reviewer_claim185945": 0.0037346489843912423,
+    "reviewer_claim186022": 0.004474725050386041,
+    "reviewer_claim186081": 0.005015750008169562,
+    "reviewer_claim186175": 0.04717645701020956,
+    "reviewer_claim186262": 0.4171164730214514,
+    "this_claim_focused_tests": 27.137,
+    "this_claim_j1_probe": 0.125,
+    "this_claim_total": 27.262
+  },
+  "focused_tests": {
+    "changed_expectations": "two Lifecycle assertions now read the stack_command dispatch instead of `-m tools.job_manager` and `-m tools.stack`; that is the corrected contract, not a weakened one",
+    "command": "cd v12/python && python3 -m unittest tests.tools.test_stack tests.tools.test_environment tests.tools.test_bootstrap",
+    "new_this_claim": 4,
+    "returncode": 0,
+    "seconds": 27.137,
+    "tests": 220
+  },
+  "new_this_claim": [
+    "v12/python/tools/stack_command.py",
+    "v12/python/packaging/stack.spec",
+    "v12/python/requirements.build.lock"
+  ],
+  "not_done": {
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true,
+    "scratch_removed": "the J1 probe tree, the build environment, the built bundle and the frozen demonstration root were removed after use"
+  },
+  "not_done_and_returned": {
+    "operator_boundary": "repository initialization and external installation outside this authority remain exact operator commands; no proof fixture is substituted for a missing production input",
+    "remaining_scope": [
+      "tools/instance.py: emit instance.json at a destination, read it, derive every state/store/log/process path from it, refuse a mismatched or foreign one, and record the bundle identity `baton-v12-stack identity` reports",
+      "bootstrap.py: take `inputs.json` PLUS an absolute external destination, prepare destination/{distro,db,repo,logs}, copy the built distro in, and emit instance.json -- keeping every custody refusal it already has",
+      "the four lifecycle commands taking that instance.json path instead of the four environment operands, in stack.py and in the recipes",
+      "a `just build` recipe over the spec, and STACK.md rewritten around the installed-command UX",
+      "tests/tools/test_instance.py and test_packaging.py, registered in parallel_test.py",
+      "the remaining acceptance the owner named: an external fixture instance started, read and stopped through its JSON with a VALID deployment; two instance selectors proved unable to cross-control one supervisor or one store; repeat and corrupt-state preservation for instances; and the independent repo/base prepared from the selected immutable base"
+    ],
+    "what": "the rest of the PyInstaller slice: the instance.json contract and the external destination layout",
+    "why_not_now": "the instance contract changes how all four lifecycle commands are addressed, and the owner's acceptance for it is a real two-instance isolation run. Starting that at the end of a claim and handing it on as done is the failure the last several reviews have been catching in my work."
+  },
+  "operational_findings_preserved": [
+    {
+      "note": "unchanged, not adopted; no new test module was added this claim, so no registry change was needed",
+      "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+    },
+    {
+      "note": "unchanged",
+      "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+    }
+  ],
+  "packaging_slice_delivered_this_claim": {
+    "packaging/stack.spec": "one-folder: the dynamically resolved `module:attribute` factories as hidden imports, the frozen JSON Schema assets as datas at their package-relative place, and rpds-py's native library. Each is named because PyInstaller finds imports by reading code and this distribution resolves these at RUN time.",
+    "requirements.build.lock": "the build tool pinned with hashes MEASURED from the downloaded artifacts, in a file separate from requirements.lock so a deployed distribution can never acquire a packaging tool as a runtime dependency",
+    "tools/stack.py": "child dispatch through `stack_command.bundled_argv` for the manager, the publisher and the publisher's own status subprocess",
+    "tools/stack_command.py": "the ONE command a deployed stack is: bootstrap, start, stop, status, publish, manager, view, identity. `bundled_argv` owns the single place a frozen build differs from a source run -- frozen, `sys.executable` IS the application and `-m` means nothing to it, so a supervisor keeping the old dispatch would have started copies of itself with operands it does not understand."
+  },
+  "scope": "an evidence correction and a real one-folder build; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation",
+  "the_real_build_and_what_it_proved": {
+    "built": "pyinstaller --noconfirm --clean packaging/stack.spec in a venv carrying BOTH locks, hash-enforced; exit 0",
+    "bundled_children_proved_by_running_them": {
+      "what_happened": "the manager child's traceback reads stack_command.py main -> _manager -> tools/job_manager.py main -> tools/stage_execution.py, ending in ContractRefusal naming every required member, and the PyInstaller bootloader reported 'Failed to execute script stack_command'",
+      "what_it_does_not_establish": "a successful idle composition through a bundle, which needs the instance contract and a valid deployment and is part of the remaining scope",
+      "what_that_establishes": "the child WAS the bundled command dispatching through its own subcommand -- not an interpreter re-importing the checkout -- and it reached the real accepted validator from bundled code. `start` then refused with the child's own words and unwound, clearing both records.",
+      "what_was_run": "the built command's `start`, with a deliberately one-key deployment document, from /var/tmp under `env -i`"
+    },
+    "host_specific": "a one-folder bundle is built for the platform it was built on; `identity` records that and claims no portability",
+    "identity_from_an_unrelated_directory_with_env_-i": {
+      "frozen": true,
+      "note": "run from /var/tmp with a cleared environment: no PYTHONPATH, no checkout on any path",
+      "platform": "Linux-6.17.0-41-generic-x86_64-with-glibc2.42",
+      "python": "3.13.7"
+    },
+    "the_packaged_resources_are_proved_not_assumed": {
+      "native_rpds": "imported from _internal/rpds inside the bundle; rpds-py has no pure-Python fallback, so 'it imported' is the whole question",
+      "schema_assets": {
+        "agent-session-1.0": 48212,
+        "why_that_proves_it": "contracts.frozen reads them from disk at IMPORT time, so a bundle missing them fails rather than silently refusing every document later",
+        "worker-control-1.0": 51419
+      }
+    }
+  },
+  "unchanged_this_claim": [
+    "v12/justfile",
+    "v12/STACK.md",
+    "v12/python/tools/environment.py",
+    "v12/python/tests/tools/test_environment.py",
+    "v12/python/tools/bootstrap.py",
+    "v12/python/tests/tools/test_bootstrap.py",
+    "v12/python/tools/parallel_test.py",
+    "v12/python/tools/job_manager.py"
+  ],
+  "work": "W183883"
+}

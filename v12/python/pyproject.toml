@@ -24,7 +24,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "baton-v12"
-version = "0.1.0"
+# ONE AUTHORITY. OWNER-VERSION-STAMP-20260916.md: the application version lives
+# in `baton_v12.version`, and this metadata reads it rather than repeating a
+# number that would drift the first time only one of them was edited.
+dynamic = ["version"]
 description = "The Baton v12 trusted host: assignment authority and worker manager"
 requires-python = ">=3.13"
 dependencies = ["jsonschema==4.26.0"]
@@ -37,6 +40,9 @@ test = []
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+
+[tool.setuptools.dynamic]
+version = {attr = "baton_v12.version.VERSION"}
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -1,0 +1,33 @@
+{
+  "claim": 188889,
+  "candidate_count": 17,
+  "changed_since_accepted_188818": [
+    "v12/STACK.md"
+  ],
+  "mismatches": [],
+  "candidate_hashes": {
+    "v12/STACK.md": "4637942819f4d1c93add9ad7831be8826878e652d4458cc0189bb5794b2d2309",
+    "v12/justfile": "8f3ed773705c5f6e636ac826601d5f7cbc9701d9a87ea8910c12c3c1dd22b96c",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tests/tools/test_bootstrap.py": "d6009a16292c09187170488d3f7c3317b011908297d67ea11ad76c7dc0d5a498",
+    "v12/python/tests/tools/test_environment.py": "84b15abc2bc81ffea8e433260c8e43b898101bb0a79b854bdb8a31461f4fa31c",
+    "v12/python/tests/tools/test_instance.py": "c05610da74539e5b544ad0fda6d1549f16805ef48235223f7791834f959b4388",
+    "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+    "v12/python/tests/tools/test_stack.py": "fd0dded0dfee8e6ff4e12e47e5236af4021e3ba7981c340344eb844b2640e201",
+    "v12/python/tools/bootstrap.py": "9f4a711bf41b3008e345031dc4b45a3ea1544c04c2f77f96fc98b51919abfc7c",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/instance.py": "765bfd64aa9967c16741f940b5c77070bdcd268c56ae935ecc2fa6f795bfa9c9",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+    "v12/python/tools/stack.py": "354c81d84032de15900f661830d6cd7ad0c2907b5f45848a692ef0c0f2c450e1",
+    "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59",
+    "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+  },
+  "tests_run": false,
+  "builds_run": false,
+  "live_runs": false,
+  "author_document_test_result": "69 environment tests reported OK, 0.839s; not independently rerun",
+  "evidence_interpretation": "EVIDENCE-188860.scope says no suite rerun but focused_tests and cumulative fields report 69 environment tests; those specific fields govern. provenance.what_changed describes earlier bootstrap correction, not this documentation claim. Independent hashes establish only STACK.md changed.",
+  "audit_seconds": 0.0009302190155722201
+}

@@ -69,7 +69,33 @@ ROOT = HERE.parents[1]
 # mechanically, so a new module is a loud failure rather than a silent
 # assumption. `tests/tools/test_parallel_runner.py` owns that check.
 
-PARALLEL_MODULES = ("tests.authority.test_assignment",
+PARALLEL_MODULES = ("tests.tools.test_stack",
+                    # W183883. The prepared-environment checks: the one command
+                    # that reaches an index is injected, so they need no
+                    # network, Docker, engine or serial resource either.
+                    "tests.tools.test_environment",
+                    # W183883. The one-time deployment setup: a real Authority,
+                    # which is a self-contained durable store, and no Docker,
+                    # engine, network or serial resource.
+                    "tests.tools.test_bootstrap",
+                    # W183883. The deployed instance selector: a stand-in
+                    # runtime of ordinary files, no build, no Docker, engine,
+                    # network or serial resource.
+                    "tests.tools.test_instance",
+                    # W183883. The REAL one-folder bundle: subprocesses of the
+                    # built command and digests of a copy of it. No Docker,
+                    # engine, network or serial resource -- and it SKIPS with
+                    # the exact build command when there is no bundle, because
+                    # a check that cannot be answered must not answer.
+                    "tests.tools.test_packaging",
+                    # W183883. The application version and the captured build
+                    # stamp: pure formatting and a substituted repository tool,
+                    # so no Docker, engine, network or serial resource -- and
+                    # no version-control operation at all.
+                    "tests.tools.test_version",
+                    # W183883. The stack lifecycle checks: pure, no Docker,
+                    # engine, network or serial resource, so they shard.
+                    "tests.authority.test_assignment",
                     "tests.authority.test_boundary",
                     "tests.authority.test_catalog",
                     # W16823's closed claim result and its schema-4 boundary.

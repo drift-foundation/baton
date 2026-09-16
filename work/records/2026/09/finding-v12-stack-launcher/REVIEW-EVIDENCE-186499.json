@@ -1,0 +1,68 @@
+{
+  "claim": 186499,
+  "candidate_hashes": {
+    "v12/STACK.md": "5f5d0026740ad28ec19b5ad7046c6211eec2b19bda20a6d645a9ed4908c6ce7c",
+    "v12/justfile": "6acbd6029baaacab31da1a0f87feba3fb4876d99226ccd981ef30837b4614a32",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tests/tools/test_bootstrap.py": "7d58312f6cebfa541ea2dfec7e973d795a26d6a826c90178a57be8020f88f806",
+    "v12/python/tests/tools/test_environment.py": "c05bfb4177a8cf5f8e04c34f250d5da1480d61f726d79b3b33cc7aac2a1b864a",
+    "v12/python/tests/tools/test_stack.py": "6608d603457856d92abf6600609d7e81b416a6c2642d341a824aa09a2315794b",
+    "v12/python/tools/bootstrap.py": "31bfc7025febab3ae8d651029e684bee8324b7beecce94f0871bbfd4a0bf198f",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/instance.py": "441df833f8c499a5a00ad8c8a648d4dc8630c71047a808ed4ea70687d1084c3b",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "0766c7c4dd27cd84ffd5aaa2a3cd6db2730f540ef3fad337129aef912a4bcbef",
+    "v12/python/tools/stack_command.py": "4f923e87142bda2667826a992c2108e63bd4ac4bea6cc01e3b9d981c4216de13",
+    "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+  },
+  "results": {
+    "fixed_K1_direct_foreign_path": "/tmp/w183883-review186499-1ev8mcjt/a/instance.json names state '/tmp/w183883-review186499-1ev8mcjt/b/state' and this destination derives '/tmp/w183883-review186499-1ev8mcjt/a/state'; every path an instance owns is DERIVED from its destination, so one that disagrees is describing a different deployment.",
+    "fixed_K2_foreign_frozen_executable": "this command is /tmp/w183883-review186499-1ev8mcjt/a/distro/baton-v12-stack and the instance names /tmp/w183883-review186499-1ev8mcjt/b/distro/baton-v12-stack; a deployed command drives its OWN instance, and one build must not dispatch children on behalf of another.",
+    "own_frozen_executable_positive": true,
+    "fixed_K2_external_child_link": "the bundled runtime at /tmp/w183883-review186499-1ev8mcjt/linked-runtime carries a link at lib pointing outside it, to /tmp/w183883-review186499-1ev8mcjt/external. A bundle whose bytes live somewhere else is not self-contained, and its target could change while this manifest did not.",
+    "remaining_K1_symlink_cross_control": {
+      "selected": "/tmp/w183883-review186499-1ev8mcjt/a/instance.json",
+      "state_argument": "/tmp/w183883-review186499-1ev8mcjt/a/state",
+      "resolved_state": "/tmp/w183883-review186499-1ev8mcjt/b/state",
+      "returncode": 0,
+      "note": "stop substituted; no signals sent"
+    },
+    "remaining_K2_symlink_runtime_root": {
+      "accepted_root": "/tmp/w183883-review186499-1ev8mcjt/distro-root-link",
+      "external_target": "/tmp/w183883-review186499-1ev8mcjt/b/distro"
+    },
+    "remaining_K1_wrong_type": "expected str, bytes or os.PathLike object, not int",
+    "fixed_K3_missing_distro_preflight": true,
+    "fixed_K3_existing_selector_preserved": "there is already an instance selector at /tmp/w183883-review186499-1ev8mcjt/existing-selector/instance.json. Nothing here replaces one; prepare a new destination.",
+    "fixed_K3_obvious_bad_identity": "the command at /never-executed is not a frozen build; an installed instance runs a bundle, not an interpreter reading a checkout.",
+    "remaining_K3_late_identity_refusal": {
+      "order": [
+        "prepare",
+        "identity"
+      ],
+      "returncode": 2,
+      "copied_runtime_exists": true,
+      "output": "refused: the command at /tmp/w183883-review186499-1ev8mcjt/bad-identity-dest/distro/baton-v12-stack is not a frozen build; an installed instance runs a bundle, not an interpreter reading a checkout.\n",
+      "note": "prepare and identity subprocess substituted; real install directories/copy left in scratch"
+    },
+    "remaining_K3_identity_empty_accepted": {
+      "frozen": true,
+      "schema_assets": {},
+      "native_rpds": ""
+    },
+    "remaining_K3_identity_foreign_accepted": {
+      "frozen": true,
+      "schema_assets": {
+        "unrelated": 1
+      },
+      "native_rpds": "/usr/lib/python3/dist-packages/rpds/__init__.py"
+    },
+    "fixed_K4_distro_root_state_refused": "review state at '/tmp/w183883-review186499-1ev8mcjt/b/distro/mutable-state' is inside the checkout at '/tmp/w183883-review186499-1ev8mcjt/b/distro'; mutable deployment state belongs outside the working tree",
+    "fixed_K4_instance_sibling_allowed": true
+  },
+  "verification_seconds": 0.003370393009390682,
+  "retained_scratch": "/tmp/w183883-review186499-1ev8mcjt",
+  "scope": "Real isolated helper calls/file writes in scratch; explicit process-control, prepare, subprocess and frozen-mode substitutes. No Authority, actual lifecycle, bundle rebuild, external write, provider, engine, Job or Git mutation."
+}

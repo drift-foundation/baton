@@ -1,0 +1,93 @@
+{
+  "all_owned_children_reaped": true,
+  "author_manifest_sha256": "1a512888fda4b238223fbde69ed3b94c71b5d1458feeed5d3c9d42bb76253dd2",
+  "author_tests": {
+    "returncode": 0,
+    "seconds": 1.2311618709936738,
+    "stderr": "..........................usage: stack [-h] [--root ROOT] {start,stop,status,publish} ...\nstack: error: unrecognized arguments: --root /tmp/v12-stack-2yl8_0i2/state\n......\n----------------------------------------------------------------------\nRan 32 tests in 1.191s\n\nOK\n",
+    "stdout": ""
+  },
+  "candidate_checks": [
+    {
+      "actual": "f7621bde465df252a8dca39b06a3d11fa4af36d0928824e162e1a8c7b71da14c",
+      "path": "v12/python/tools/stack.py",
+      "sha256": "f7621bde465df252a8dca39b06a3d11fa4af36d0928824e162e1a8c7b71da14c"
+    },
+    {
+      "actual": "3774e8c1ebdf4c0e66ed2e7f3ff8f16447728c3c7c53d17da64d4803c5d5873f",
+      "path": "v12/justfile",
+      "sha256": "3774e8c1ebdf4c0e66ed2e7f3ff8f16447728c3c7c53d17da64d4803c5d5873f"
+    },
+    {
+      "actual": "4f76a7c04818b8b00634e8680e0537fe24c5aedd2edf8eef02f95f9a6689802e",
+      "path": "v12/python/tests/tools/test_stack.py",
+      "sha256": "4f76a7c04818b8b00634e8680e0537fe24c5aedd2edf8eef02f95f9a6689802e"
+    },
+    {
+      "actual": "94cdc0f6f7933a2498b0490fd4c434409d7bae92f64a80d3ac358cfe69f91805",
+      "path": "v12/python/tools/parallel_test.py",
+      "sha256": "94cdc0f6f7933a2498b0490fd4c434409d7bae92f64a80d3ac358cfe69f91805"
+    },
+    {
+      "actual": "06157db7c28401a1a7fc659c3ea0d6ecc0ff57228c8071e91a85f756bc5da3e0",
+      "path": "v12/STACK.md",
+      "sha256": "06157db7c28401a1a7fc659c3ea0d6ecc0ff57228c8071e91a85f756bc5da3e0"
+    }
+  ],
+  "claim": 183958,
+  "concurrent_start": {
+    "live_children": 4,
+    "retained_records": 2,
+    "returncodes": [
+      0,
+      0
+    ],
+    "spawned_names": [
+      "manager",
+      "manager",
+      "publisher",
+      "publisher"
+    ]
+  },
+  "invalid_configuration_start": {
+    "manager_log": "Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/sl/src/baton/v12/python/tools/job_manager.py\", line 40, in <module>\n    from baton_v12.contracts import ContractRefusal\nModuleNotFoundError: No module named 'baton_v12'\n",
+    "output": "started: manager pid 35\nstarted: publisher pid 36\nstate root: /tmp/w183958-review-6p3yiiiu/invalid\nno Job was submitted; an empty configured stack is a valid idle state\n",
+    "returncode": 0,
+    "status": {
+      "configuration": {
+        "state": "configured"
+      },
+      "jobs": {
+        "state": "absent"
+      },
+      "processes": {
+        "manager": {
+          "log": "/tmp/w183958-review-6p3yiiiu/invalid/manager.log",
+          "pid": 35,
+          "state": "stale"
+        },
+        "publisher": {
+          "log": "/tmp/w183958-review-6p3yiiiu/invalid/publisher.log",
+          "pid": 36,
+          "state": "running"
+        }
+      },
+      "root": "/tmp/w183958-review-6p3yiiiu/invalid",
+      "schema": "baton.v12.stack/1",
+      "snapshot": {
+        "state": "absent"
+      }
+    }
+  },
+  "invalid_configuration_stop_code": 0,
+  "invalid_configuration_stop_output": "stopped: publisher pid 36\nnot running: manager\nstores and evidence retained under the configured paths\n",
+  "scope": "focused deterministic verification; no live providers, engines, or v11 operations",
+  "total_seconds": 1.5529989219503477,
+  "unreadable_record_start": {
+    "original_pid": 32,
+    "original_process_still_alive": true,
+    "output": "started: manager pid 33\nstarted: publisher pid 34\nstate root: /tmp/w183958-review-6p3yiiiu/unknown\nno Job was submitted; an empty configured stack is a valid idle state\n",
+    "replacement_pid": 33,
+    "returncode": 0
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "artifact_source_mismatches": {
+    "v12/STACK.md": {
+      "current": "0100b24410aae8b00c49593964c6f7cac66b79989a2cfb6e650d1749a0b48946",
+      "recorded": "1ae4ce82e600a4b6f96b844ac5dcc47d39f759fa659ebf15c639b5650b1cb115"
+    },
+    "v12/python/tools/bootstrap.py": {
+      "current": "533511939872f3bcb6c8e8d62a0402b9a4a43ef76d6c35e0e5b364cd7a3dbe3f",
+      "recorded": "97388e5f72e220bdfde9e9522eca68a3c4b14748098a32f501565bfd6a4afd65"
+    }
+  },
+  "author_reported_pid_check": {
+    "pids": [
+      "3899018",
+      "3899019",
+      "3899023",
+      "3899024"
+    ],
+    "returncode": 1,
+    "stderr": "",
+    "stdout": ""
+  },
+  "build_log_sha256": "168c35374fec64a41675385fd11139acac05129eebebca1c2abf09901f6de9af",
+  "bundles": {
+    "/home/sl/src/baton/v12/python/build/out/distro": {
+      "digest": "e142ba6d15e23726932114e5b49075ee326aaa47fe74c879c7fe9cbe45877ea3",
+      "files": 80
+    },
+    "/var/tmp/w183883-live-186890/deployment-b/distro": {
+      "digest": "e142ba6d15e23726932114e5b49075ee326aaa47fe74c879c7fe9cbe45877ea3",
+      "files": 80
+    },
+    "/var/tmp/w183883-live-186890/deployment/distro": {
+      "digest": "e142ba6d15e23726932114e5b49075ee326aaa47fe74c879c7fe9cbe45877ea3",
+      "files": 80
+    }
+  },
+  "candidate_hashes": {
+    "v12/STACK.md": "0100b24410aae8b00c49593964c6f7cac66b79989a2cfb6e650d1749a0b48946",
+    "v12/justfile": "2a541f4782b984d06747847061cebffbc28646f32cd2fb3ec92b7ee888771ae4",
+    "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+    "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+    "v12/python/tests/tools/test_bootstrap.py": "c01cbbd39f286e66e5969e8f0517351f42bd77f609383e2eb3580525ced1ec57",
+    "v12/python/tests/tools/test_environment.py": "059ea493cdb9a10b8c098c0c982a982e453c7eb2a7407c4f3ec7592a702e4cfb",
+    "v12/python/tests/tools/test_instance.py": "fdcf7b072c0af71cf672cfeb8234866eeda94c7a5739e4fb5c038f40fb726a7a",
+    "v12/python/tests/tools/test_packaging.py": "b8311202ef202cf5f7663d84b9af0b435da0bfccc264e36c665a3229be030d3b",
+    "v12/python/tests/tools/test_stack.py": "940298c9f04f6e1791a18bc849bf7f6545970980a986f786fb3b0b174c17b2fc",
+    "v12/python/tools/bootstrap.py": "533511939872f3bcb6c8e8d62a0402b9a4a43ef76d6c35e0e5b364cd7a3dbe3f",
+    "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+    "v12/python/tools/instance.py": "f9b64570771fd5c88677da687964b74be7595de885e95f072fa35f5f03e05cef",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+    "v12/python/tools/stack.py": "9ef3bff16d08edc431d8bae7dbd451c06abba57c44c2194e4cdfb07d0a2c3e60",
+    "v12/python/tools/stack_command.py": "0067f02161a4f16a0f3f90200a1e456a9ad4e6270524c295d65a8447c1cbab59",
+    "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+  },
+  "claim": 187086,
+  "focused_tests": {
+    "argv": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "tests.tools.test_instance",
+      "tests.tools.test_environment",
+      "tests.tools.test_packaging",
+      "tests.tools.test_stack.WhatTheRepositoryIS"
+    ],
+    "cwd": "/home/sl/src/baton/v12/python",
+    "environment_overrides": {
+      "BATON_V12_STACK_DISTRO": "/home/sl/src/baton/v12/python/build/out/distro",
+      "BATON_V12_STACK_PACKAGING_REQUIRED": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:.",
+      "TMPDIR": "/tmp/w183883-review187086-h3qh2yv_",
+      "XDG_RUNTIME_DIR": "/tmp/w183883-review187086-h3qh2yv_"
+    },
+    "returncode": 0,
+    "seconds": 3.2128791360300966,
+    "stderr": "..........................................................refused: the runtime at /tmp/w183883-review187086-h3qh2yv_/v12-instance-hmue7vey/a/distro is not the one this instance was prepared with: it holds 2 files digesting aebd9f0a1e35c2ae... and the instance records 2 digesting 7293e8241ae0d98a... Nothing here upgrades a deployment in place; prepare a new destination.\n.refused: the runtime at /tmp/w183883-review187086-h3qh2yv_/v12-instance-86ooq0uq/a/distro is not the one this instance was prepared with: it holds 2 files digesting 30f3d827fd48dd11... and the instance records 2 digesting 7293e8241ae0d98a... Nothing here upgrades a deployment in place; prepare a new destination.\n.refused: /tmp/w183883-review187086-h3qh2yv_/v12-instance-5vqwxrpc/a/instance.json names state '/tmp/w183883-review187086-h3qh2yv_/v12-instance-5vqwxrpc/b/state' and this destination derives '/tmp/w183883-review187086-h3qh2yv_/v12-instance-5vqwxrpc/a/state'; every path an instance owns is DERIVED from its destination, so one that disagrees is describing a different deployment.\n.refused: the runtime at /tmp/w183883-review187086-h3qh2yv_/v12-instance-wlx70qsh/a/distro is not the one this instance was prepared with: it holds 3 files digesting 70f6a156483a85bd... and the instance records 2 digesting 7293e8241ae0d98a... Nothing here upgrades a deployment in place; prepare a new destination.\n.refused: there is no instance at /tmp/w183883-review187086-h3qh2yv_/v12-instance-u5_cg2o9/nothing.json. `just bootstrap <inputs.json> <destination>` prepares one and writes it there.\n......../usr/lib/python3.13/traceback.py:269: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>\n  tb.tb_frame.clear()\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n../usr/lib/python3.13/traceback.py:269: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>\n  tb.tb_frame.clear()\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n./usr/lib/python3.13/traceback.py:269: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>\n  tb.tb_frame.clear()\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n/home/sl/src/baton/v12/python/tests/tools/test_environment.py:759: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>\n  environment.setup(self.root, self.environ, runner=self.creating([]),\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n./usr/lib/python3.13/traceback.py:269: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>\n  tb.tb_frame.clear()\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n......../home/sl/src/baton/v12/python/tests/tools/test_environment.py:201: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>\n  environment.setup(self.root, self.environ, runner=self.runner(),\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n...../home/sl/src/baton/v12/python/tests/tools/test_environment.py:189: ResourceWarning: unclosed file <_io.TextIOWrapper name='/dev/null' mode='w' encoding='UTF-8'>\n  environment.setup(self.root, self.environ, runner=self.runner(),\nResourceWarning: Enable tracemalloc to get the object allocation traceback\n......................................................................\n----------------------------------------------------------------------\nRan 157 tests in 3.033s\n\nOK\n",
+    "stdout": "",
+    "timeout_seconds": 120
+  },
+  "limits": "No rebuild, actual installed lifecycle rerun, credential/store read, provider/engine/Job, Git mutation, product/test edit or external-root write. Mock timeout proves missing cleanup invocation, not an observed live process leak.",
+  "mock_lifecycle_timeout": {
+    "actual_stack_started": false,
+    "calls": [
+      [
+        "/var/tmp/w183883-live-186890/deployment",
+        "start"
+      ],
+      [
+        "/var/tmp/w183883-live-186890/deployment-b",
+        "start"
+      ],
+      [
+        "/var/tmp/w183883-live-186890/deployment",
+        "status"
+      ]
+    ],
+    "stop_calls": 0,
+    "timeout_escaped": true
+  },
+  "scratch_retained": "/tmp/w183883-review187086-h3qh2yv_",
+  "seconds_including_hash_audit": 3.261850885988679
+}

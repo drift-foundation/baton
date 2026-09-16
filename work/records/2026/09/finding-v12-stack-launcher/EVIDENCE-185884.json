@@ -1,0 +1,254 @@
+{
+  "all_owned_children_reaped": true,
+  "answers_review": "review-2026-09-16T10-58-20Z.md sha256 198f758662ba8ab0c02cd55bc74df7b0582b3730d5e7970cfd1103d079b44ab5 (F1, F2, F3)",
+  "candidates": {
+    "v12/STACK.md": "ba8cdcf7261a409b4eaeb04ec1c33b50f0207064bb428596350cabfd1d12d4ce",
+    "v12/justfile": "52f7083c86dc8071531a2848fa986821de98935859d434ee8a6e1881e44dd886",
+    "v12/python/tests/tools/test_bootstrap.py": "1925f5a215b852562eb4b3d9dbfb1d8e080e1829c394de3c4f78e45d73d0f2f4",
+    "v12/python/tests/tools/test_environment.py": "c0b5ce194d333494e528a0174705c2c2fdd65d2e64f1d60a59b71e33df444ecc",
+    "v12/python/tests/tools/test_stack.py": "a2bc1a222650ecc7e5f846b5007373796bb7cc0b187dfb866eac1a400af5e1b1",
+    "v12/python/tools/bootstrap.py": "7d59a0a17b45c2e4f4b0fc3d755d2fe4823ccc20a8aaab4d5888fb88e49f0a40",
+    "v12/python/tools/environment.py": "25f781cef478247bac61b2cfa79f802577bb1b13e8c2749a0ae4d244972fd042",
+    "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+    "v12/python/tools/parallel_test.py": "2982b25b449e311e65dd06f923793cb79bfac7554f474d0d450afb27fae44e74",
+    "v12/python/tools/stack.py": "ff12a99de9cb120c0d3f52938324755eb5c28138154b0650bb8862ad8ce48136"
+  },
+  "claim": 185884,
+  "corrections": {
+    "F1": {
+      "checks": [
+        "AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade.test_the_missing_worker_members_are_named_and_nothing_is_created",
+        "AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade.test_the_refusal_says_which_members_this_helper_fills_in",
+        "AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade.test_the_accepted_validator_is_called_rather_than_reimplemented",
+        "WhatItDerives.test_the_generated_deployment_is_one_the_manager_accepts",
+        "WhatItDerives.test_one_job_and_one_worker_per_role_is_the_one_job_schema",
+        "WhatItDerives.test_one_job_with_a_larger_pool_is_still_the_multi_job_schema",
+        "WhatItDerives.test_the_derived_principals_are_the_authoritys_own_answer"
+      ],
+      "what": "the emitted configuration is now handed to the ACCEPTED validator, stage_execution.held_configuration, before anything durable. The 22 missing worker members the reviewer reproduced are named in an operator-facing refusal and no Authority, directory or document is made. Principals are derived WITHOUT building anything -- principal_of is a read, and an Authority that does not exist has no bindings, so the package's own principal_for_endpoint is the answer -- which is what lets the whole document be proved first. The derived identities and paths now go INTO what is validated rather than being grafted on afterwards. The schema is chosen from POOL SHAPE as well as Job count, because /1 permits exactly one worker per role."
+    },
+    "F2": {
+      "checks": [
+        "RepeatingIt.test_an_identical_repeat_is_idempotent",
+        "RepeatingIt.test_a_conflicting_binding_is_refused_and_nothing_is_rewritten",
+        "RepeatingIt.test_a_changed_declared_base_is_refused_too",
+        "RepeatingIt.test_a_removed_job_is_refused_across_a_schema_change",
+        "RepeatingIt.test_growing_from_one_job_to_two_is_also_refused_rather_than_migrated",
+        "RepeatingIt.test_a_corrupt_record_is_refused_rather_than_overwritten",
+        "RepeatingIt.test_a_configuration_with_no_record_is_refused",
+        "RepeatingIt.test_a_record_of_another_schema_is_refused",
+        "RepeatingIt.test_a_conflicting_authority_is_refused",
+        "RepeatingIt.test_the_conflict_is_found_before_the_authority_is_composed",
+        "RepeatingIt.test_both_documents_are_published_atomically"
+      ],
+      "what": "the helper keeps its OWN record, bootstrap.json, keyed by Job in one shape whichever variant is emitted, so a /2 deployment repeated as /1 is comparable Job by Job. A changed binding, a changed Authority and a REMOVED Job are all refused; a corrupt record, a configuration with no record, and a record of another schema are refused as UNCERTAIN rather than overwritten. All of it is settled before the Authority is opened. Both documents are published atomically."
+    },
+    "F3": {
+      "checks": [
+        "TheInputContractIsClosed.test_an_unsupported_top_level_member_is_refused_by_name",
+        "TheInputContractIsClosed.test_a_misspelled_member_is_refused_rather_than_ignored",
+        "TheInputContractIsClosed.test_an_unsupported_nested_member_is_refused",
+        "TheInputContractIsClosed.test_the_refusal_names_what_IS_supported",
+        "WhatItDerives.test_a_supported_optional_selection_reaches_the_configuration"
+      ],
+      "what": "the input document is CLOSED, including its nested wrappers: a member nothing reads is refused by name, and the refusal lists what IS supported. Every accepted optional selection -- including integration_preparation, which was accepted and then dropped so the serving deployment defaulted it to false -- is carried through to the configuration."
+    }
+  },
+  "cumulative_verification_seconds": {
+    "author_claim183891": 1.195,
+    "author_claim183998": 151.908,
+    "author_claim184239": 127.816,
+    "author_claim184442": 63.532,
+    "author_claim185653": 26.94,
+    "author_claim185774": 27.256,
+    "note": "reported per actor and never summed; the real locked install of claim185653 and the earliest recipe duration remain unknown rather than erased, and none is an execution gate",
+    "owner_composition_run": 10.535,
+    "reviewer_claim183958": 1.5529989219503477,
+    "reviewer_claim184197": 12.840890395978931,
+    "reviewer_claim184197_readiness_check": 0.002758326008915901,
+    "reviewer_claim184403": 20.8455910270568,
+    "reviewer_claim184537": 15.599983819993213,
+    "reviewer_claim185739": 0.12554923997959122,
+    "reviewer_claim185857": 0.22083405102603137,
+    "this_claim_focused_tests": 26.718,
+    "this_claim_reversal_probes": 6.581,
+    "this_claim_total": 33.299
+  },
+  "focused_tests": {
+    "command": "cd v12/python && python3 -m unittest tests.tools.test_environment tests.tools.test_bootstrap tests.tools.test_stack",
+    "returncode": 0,
+    "seconds": 26.718,
+    "tests": 181
+  },
+  "not_done": {
+    "no_dependency_download": true,
+    "no_job_submitted": true,
+    "no_live_provider_or_engine_run": true,
+    "no_v11_path_service_store_or_configuration_touched": true,
+    "no_version_control_mutation": true,
+    "scratch_removed": "the probe tree copy was removed after use"
+  },
+  "operational_findings_preserved": [
+    {
+      "note": "unchanged, not adopted",
+      "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+    },
+    {
+      "note": "unchanged",
+      "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+    }
+  ],
+  "reversal_probes": {
+    "all_failed_as_required": true,
+    "count": 13,
+    "harness": "probes-185884.py in this dossier; set W183883_PROBE_TREE to a COPY of the checkout's v12/ including STACK.md and the worker-contract vectors",
+    "one_probe_first_passed": "F1-the-derived-identities-are-not-in-what-is-validated PASSED, proving nothing: my ValidFixture supplied the SAME principal the helper derives, so dropping the derivation changed nothing. The fixture now carries a deliberately STALE principal, which also proves the input's own value is discarded, and the probe then failed as required.",
+    "probes": [
+      {
+        "checks": [
+          "AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade.test_the_missing_worker_members_are_named_and_nothing_is_created",
+          "WhatItDerives.test_the_generated_deployment_is_one_the_manager_accepts"
+        ],
+        "failed_as_required": true,
+        "probe": "F1-the-emitted-configuration-is-never-validated",
+        "returncode": 1,
+        "seconds": 0.434
+      },
+      {
+        "checks": [
+          "AnIncompleteDeploymentIsRefusedBeforeAnythingIsMade.test_the_missing_worker_members_are_named_and_nothing_is_created"
+        ],
+        "failed_as_required": true,
+        "probe": "F1-validation-happens-after-the-authority-is-composed",
+        "returncode": 1,
+        "seconds": 0.413
+      },
+      {
+        "checks": [
+          "WhatItDerives.test_one_job_with_a_larger_pool_is_still_the_multi_job_schema"
+        ],
+        "failed_as_required": true,
+        "probe": "F1-the-schema-is-chosen-by-job-count-alone",
+        "returncode": 1,
+        "seconds": 0.427
+      },
+      {
+        "checks": [
+          "WhatItDerives.test_the_generated_deployment_is_one_the_manager_accepts",
+          "WhatItDerives.test_every_principal_is_derived_rather_than_configured"
+        ],
+        "failed_as_required": true,
+        "probe": "F1-the-derived-identities-are-not-in-what-is-validated",
+        "returncode": 1,
+        "seconds": 0.455
+      },
+      {
+        "checks": [
+          "RepeatingIt.test_a_corrupt_record_is_refused_rather_than_overwritten",
+          "RepeatingIt.test_a_configuration_with_no_record_is_refused",
+          "RepeatingIt.test_a_record_of_another_schema_is_refused"
+        ],
+        "failed_as_required": true,
+        "probe": "F2-an-unreadable-record-reads-as-absent",
+        "returncode": 1,
+        "seconds": 0.471
+      },
+      {
+        "checks": [
+          "RepeatingIt.test_a_configuration_with_no_record_is_refused"
+        ],
+        "failed_as_required": true,
+        "probe": "F2-a-configuration-with-no-record-is-a-clean-root",
+        "returncode": 1,
+        "seconds": 0.441
+      },
+      {
+        "checks": [
+          "RepeatingIt.test_a_removed_job_is_refused_across_a_schema_change"
+        ],
+        "failed_as_required": true,
+        "probe": "F2-a-removed-job-is-not-noticed",
+        "returncode": 1,
+        "seconds": 0.434
+      },
+      {
+        "checks": [
+          "RepeatingIt.test_a_conflicting_binding_is_refused_and_nothing_is_rewritten",
+          "RepeatingIt.test_a_changed_declared_base_is_refused_too"
+        ],
+        "failed_as_required": true,
+        "probe": "F2-a-changed-binding-is-not-noticed",
+        "returncode": 1,
+        "seconds": 0.468
+      },
+      {
+        "checks": [
+          "RepeatingIt.test_the_conflict_is_found_before_the_authority_is_composed",
+          "RepeatingIt.test_a_conflicting_authority_is_refused"
+        ],
+        "failed_as_required": true,
+        "probe": "F2-the-conflict-is-settled-after-the-authority-is-read",
+        "returncode": 1,
+        "seconds": 0.458
+      },
+      {
+        "checks": [
+          "RepeatingIt.test_both_documents_are_published_atomically"
+        ],
+        "failed_as_required": true,
+        "probe": "F2-publication-is-not-atomic",
+        "returncode": 1,
+        "seconds": 0.432
+      },
+      {
+        "checks": [
+          "TheInputContractIsClosed.test_an_unsupported_top_level_member_is_refused_by_name",
+          "TheInputContractIsClosed.test_a_misspelled_member_is_refused_rather_than_ignored",
+          "TheInputContractIsClosed.test_an_unsupported_nested_member_is_refused"
+        ],
+        "failed_as_required": true,
+        "probe": "F3-the-input-member-set-is-open",
+        "returncode": 1,
+        "seconds": 0.413
+      },
+      {
+        "checks": [
+          "TheInputContractIsClosed.test_an_unsupported_nested_member_is_refused"
+        ],
+        "failed_as_required": true,
+        "probe": "F3-nested-wrappers-are-not-closed",
+        "returncode": 1,
+        "seconds": 0.411
+      },
+      {
+        "checks": [
+          "WhatItDerives.test_a_supported_optional_selection_reaches_the_configuration"
+        ],
+        "failed_as_required": true,
+        "probe": "F3-a-supported-selection-is-dropped",
+        "returncode": 1,
+        "seconds": 0.433
+      }
+    ],
+    "restored_tree_matches_working_tree": true,
+    "seconds": 6.581
+  },
+  "scope": "focused deterministic verification; no live provider, no engine run, no Job submission, no v11 operation, no version-control mutation, no dependency download",
+  "still_the_owner's": "the production selections by exact field name in DEPLOYMENT-INPUTS-185653.md; the helper refuses each by name and, since F1, refuses an incomplete worker document before anything durable exists",
+  "the_test_module_was_restructured": {
+    "how": "two fixtures. `Fixture` keeps the deliberately incomplete wrappers for everything refused BEFORE a deployment is built. `ValidFixture` subclasses the accepted ServingCase, on a disk-backed root outside the checkout, so every success path runs against a deployment held_configuration really accepts",
+    "previously": 28,
+    "tests": 46,
+    "why": "every success path used to run on wrapper dictionaries whose nested deployment merely had to be nonempty, so nothing established that this helper emits a configuration the accepted validator holds"
+  },
+  "unchanged_this_claim": [
+    "v12/python/tools/environment.py",
+    "v12/python/tests/tools/test_environment.py",
+    "v12/justfile",
+    "v12/python/tools/parallel_test.py",
+    "v12/python/tests/tools/test_stack.py",
+    "v12/python/tools/stack.py",
+    "v12/python/tools/job_manager.py"
+  ],
+  "work": "W183883"
+}

@@ -1,0 +1,281 @@
+{
+ "all_owned_children_reaped": true,
+ "answers_review": "review-2026-09-16T13-45-15Z.md sha256 dd29dfd50abb7a1dc9d966ba8cc0b1f567fd1d328025ac5d0fd1d99eb857c9dd -- the K2 correction was ACCEPTED there; this claim is the selected delivery it said to continue with",
+ "candidates": {
+  "v12/STACK.md": "1ae4ce82e600a4b6f96b844ac5dcc47d39f759fa659ebf15c639b5650b1cb115",
+  "v12/justfile": "43ba475aab10554d1865554274ef1fadbae05842524c1ebd9fce826ee3ec630f",
+  "v12/python/packaging/stack.spec": "f1f742e40a4732ac8a3b497d27c84282085169bb15c9f9838c75330ca2890eb1",
+  "v12/python/requirements.build.lock": "89700ccde780dd511a9a3c3a911bdfd077fda0be373b88ecd1fdba3ea974ad70",
+  "v12/python/tests/tools/test_bootstrap.py": "c01cbbd39f286e66e5969e8f0517351f42bd77f609383e2eb3580525ced1ec57",
+  "v12/python/tests/tools/test_environment.py": "5b272595c8a61c7f9a3913ae51ee142b7e6be78549344535c3d74a3cf4472fa7",
+  "v12/python/tests/tools/test_instance.py": "ac7c0175d2aa0086930dc6332244a1c19938433c7a1058297cf9dd3097740e3f",
+  "v12/python/tests/tools/test_packaging.py": "9a29fbbece2ab6a1b71e8355b0e80136104262a7a93ade9bdbd6ee99b54975e9",
+  "v12/python/tests/tools/test_stack.py": "f0bddbf4ca4422cccb570efd4c63d1955235c66cf70ddbec512eb84da3b716d7",
+  "v12/python/tools/bootstrap.py": "45e196fa3f76a8437a7b6e971a693f47a7cb5e6d98efa9880ecb187666c094c8",
+  "v12/python/tools/environment.py": "82a958740cf902cdaea54c4e089b76f45dbb8fe9711e31498791dd1bd08567a4",
+  "v12/python/tools/instance.py": "f9b64570771fd5c88677da687964b74be7595de885e95f072fa35f5f03e05cef",
+  "v12/python/tools/job_manager.py": "78a8103f009df2a1b01eff240aa9a1acd719ae03f3e30ed461b04d7fa6924a12",
+  "v12/python/tools/parallel_test.py": "bb28d535a25680491277fa6fddb3e127ed3ee698b7c8464441e140d35e2f6589",
+  "v12/python/tools/stack.py": "f1b07c8792f8c2da02b1eb34281a4368717fd6d2f4670129c3547b5e06d9abfd",
+  "v12/python/tools/stack_command.py": "6718700f1721dece29df54e2cfac12d63e6163f380d17fc85cd20cdeb808d319",
+  "v12/python/tools/stage_execution.py": "c00e39bec89c3e6a78ca44d6f9fbc2c22163b81aa24f199e82e362d45c08cec1"
+ },
+ "claim": 186890,
+ "cumulative_verification_seconds": {
+  "J1_history": "0.125s reversal within a 1.291s whole harness; both intervals preserved",
+  "author_claim183891": 1.195,
+  "author_claim183998": 151.908,
+  "author_claim184239": 127.816,
+  "author_claim184442": 63.532,
+  "author_claim185653": 26.94,
+  "author_claim185774": 27.256,
+  "author_claim185884": 33.299,
+  "author_claim185976": 32.661,
+  "author_claim186044": 30.937,
+  "author_claim186132": 2.476,
+  "author_claim186214": 28.576,
+  "author_claim186284": 27.262,
+  "author_claim186381": {
+   "focused": 27.19,
+   "stage_suite": 55.317
+  },
+  "author_claim186468": 27.183,
+  "author_claim186523": 27.128,
+  "author_claim186583": {
+   "focused": 27.154,
+   "reversal_probes": 0.589
+  },
+  "author_claim186672": {
+   "focused": 27.202,
+   "reversal_probes": 0.625,
+   "scenarios": 0.003
+  },
+  "author_claim186742": {
+   "focused": 27.256,
+   "reversal_probes": {
+    "instance_lifecycle": 2.197,
+    "temporary_custody": 0.541
+   },
+   "scenarios": 0.003
+  },
+  "author_claim186838": {
+   "focused": 27.547,
+   "reversal_probes": 1.247
+  },
+  "earlier_build_and_bundle_checks": "unknown duration, VERIFICATION rather than deployment cost",
+  "note": "reported per actor and never summed; earlier unknowns remain unknown rather than reconstructed",
+  "owner_bootstrap_run": 0.938,
+  "owner_composition_run": 10.535,
+  "reviewer_claim183958": 1.5529989219503477,
+  "reviewer_claim184197": 12.840890395978931,
+  "reviewer_claim184197_readiness_check": 0.002758326008915901,
+  "reviewer_claim184403": 20.8455910270568,
+  "reviewer_claim184537": 15.599983819993213,
+  "reviewer_claim185739": 0.12554923997959122,
+  "reviewer_claim185857": 0.22083405102603137,
+  "reviewer_claim185945": 0.0037346489843912423,
+  "reviewer_claim186022": 0.004474725050386041,
+  "reviewer_claim186081": 0.005015750008169562,
+  "reviewer_claim186175": 0.04717645701020956,
+  "reviewer_claim186262": 0.4171164730214514,
+  "reviewer_claim186356": 1.6185368220321834,
+  "reviewer_claim186439": 0.0028278949903324246,
+  "reviewer_claim186499": 0.003370393009390682,
+  "this_claim_builds": "four builds this claim, three of them inside the packaging probe tree; the retained one is BUILD-186890.log, 10156 bytes, exit 0",
+  "this_claim_focused_tests": 29.559,
+  "this_claim_live_installed_lifecycle": 7.194,
+  "this_claim_reversal_probes": {
+   "build_and_revert_packaging": 17.09,
+   "source": 3.683
+  }
+ },
+ "edited_this_claim": [
+  "v12/python/tools/bootstrap.py",
+  "v12/python/tools/stack_command.py",
+  "v12/python/tools/parallel_test.py",
+  "v12/justfile",
+  "v12/STACK.md",
+  "v12/python/tests/tools/test_packaging.py (new)",
+  "v12/python/tests/tools/test_instance.py",
+  "v12/python/tests/tools/test_bootstrap.py",
+  "v12/python/tests/tools/test_environment.py"
+ ],
+ "focused_tests": {
+  "by_module": {
+   "test_bootstrap": 69,
+   "test_environment": 61,
+   "test_instance": 63,
+   "test_packaging": 9,
+   "test_stack": 110
+  },
+  "command": "cd v12/python && PYTHONPATH=src:. python3 -m unittest tests.tools.test_instance tests.tools.test_bootstrap tests.tools.test_stack tests.tools.test_environment tests.tools.test_packaging",
+  "returncode": 0,
+  "seconds": {
+   "test_bootstrap": 0.945,
+   "test_environment": 0.369,
+   "test_instance": 0.21,
+   "test_packaging": 1.905,
+   "test_stack": 26.13
+  },
+  "tests": 312
+ },
+ "not_done": {
+  "a_build_WAS_run_this_claim": true,
+  "no_credential_registry_read": true,
+  "no_job_submitted": true,
+  "no_live_provider_or_engine_run": true,
+  "no_v11_path_service_store_or_configuration_touched": true,
+  "no_version_control_mutation": true
+ },
+ "operational_findings_preserved": [
+  {
+   "modules": [
+    "tests.manager.test_claude_context",
+    "tests.manager.test_provider_context",
+    "tests.manager.test_provider_context_delivery",
+    "tests.tools.test_correction_restart",
+    "tests.tools.test_managed_apply"
+   ],
+   "note": "unchanged; re-observed this claim",
+   "what": "tools/parallel_test.py still refuses over the same five unregistered modules"
+  },
+  {
+   "note": "unchanged, not re-run this claim",
+   "what": "tests/tools/test_stage_execution.py still has 12 pre-existing errors"
+  }
+ ],
+ "remaining_scope": [
+  "the independent repository from the selected immutable base: the destination's repo/ is created and empty, and choosing that base and preparing it is an owner selection this Work may not make -- it returns as exact operator commands",
+  "a Job actually submitted and scheduled: deliberately not done, and the review said no live model, engine or Job is needed for empty scheduling"
+ ],
+ "reversal_probes": {
+  "all_killed": true,
+  "harnesses": [
+   "work/records/2026/09/finding-v12-stack-launcher/probes-186890.py",
+   "work/records/2026/09/finding-v12-stack-launcher/probes-186890-packaging.py"
+  ],
+  "restored_ok": true,
+  "source": [
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_instance.TheAdmissionDecidesBeforeAnythingHappens.test_FROZEN_the_checkout_is_the_bundle_and_not_the_destination"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "Q1-frozen-the-checkout-is-computed-from-__file__-again",
+    "reverted_returncode": 1,
+    "seconds": 0.343,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_bootstrap.WhatItTELLSYouToDoNext.test_installing_is_not"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "Q2-installing-is-told-to-export-the-source-run-operands",
+    "reverted_returncode": 1,
+    "seconds": 0.917,
+    "valid_kill": true
+   },
+   {
+    "baseline_passes_on_pristine": true,
+    "checks": [
+     "tests.tools.test_bootstrap.WhatItTELLSYouToDoNext.test_running_from_the_checkout_is_told_what_to_export"
+    ],
+    "failed_on_the_intended_assertion": true,
+    "probe": "Q3-the-source-run-form-stops-being-told-what-to-export",
+    "reverted_returncode": 1,
+    "seconds": 0.938,
+    "valid_kill": true
+   }
+  ],
+  "the_one_that_had_to_BUILD": {
+   "baseline_passes_on_a_pristine_build": true,
+   "builds": 3,
+   "check": "tests.tools.test_packaging.WhatTheBundleSaysItIs.test_the_native_validator_is_ONE_OF_THE_FILES_THIS_BUNDLE_BINDS",
+   "failed_on_the_intended_assertion": true,
+   "probe": "R1-the-identity-reports-the-package-__init__-again",
+   "restored_ok": true,
+   "reverted_returncode": 1,
+   "total_seconds": 17.09,
+   "valid_kill": true,
+   "what_the_reverted_bundle_reported": [
+    "AssertionError: False is not true : /tmp/w183883-probes-186890-packaging/v12/python/build/out/distro/_internal/rpds/__init__.py"
+   ]
+  }
+ },
+ "scope": "the real installed delivery: a built bundle, a registered real packaging smoke, a fixture credential registry, an actual bundled manager/publisher/viewer lifecycle through instance.json from an unrelated cwd with nothing from the checkout, two-instance isolation, repeat/corrupt/mismatch preservation, a retained artifact manifest, and the docs scoping the review named. No live provider, no engine run, no Job submission, no v11 operation, no version-control mutation.",
+ "the_credential_fixture": {
+  "what": "a baton.user-credential-sources/1 registry composed by this claim at /var/tmp/w183883-live-186890/credential-sources.json, mode 0600, naming one fixture bearer file, also 0600",
+  "what_it_is_NOT": "no owner registry was read, no provider was contacted, no secret is in source, in this record or in the dossier, and the three workers' credential profile entries are references (provider 'fixture', reference 'fixture/one') rather than material",
+  "why_it_was_needed": "the bundled manager refused to serve without an absolute credential_sources registry -- a real contract refusal from the real worker preflight, reached only by running the bundle"
+ },
+ "the_docs_scoping": {
+  "and_the_path_that_was_wrong": "STACK.md named build/out/baton-v12-stack; the bundle is python/build/out/distro, and both recipe operands are now resolved WHERE THEY WERE TYPED rather than relative to v12/python -- which is where the first live install refused, saying there was no runtime there.",
+  "which_lock_is_which": "<destination>/.bootstrap.lock is held while INSTALLING and coordinates bootstraps that both take it and nothing else; the start admission is what keeps two STARTS of an installed instance from spawning two schedulers. They never contend.",
+  "which_python_is_which": "the build/development virtual environment (what just build builds WITH and what the source-run form uses) versus the installed runtime in distro/ (what a started deployment runs). Deleting or rebuilding either does not change the other."
+ },
+ "the_real_installed_lifecycle": {
+  "file": "work/records/2026/09/finding-v12-stack-launcher/LIFECYCLE-186890.json",
+  "how": "every command run from / with an environment of HOME and PATH only: no PYTHONPATH, no BATON_V12_* operand, no virtual environment, nothing from the checkout",
+  "isolation": "two instances installed from one bundle, started together, each with its own manager and publisher pids, its own db/ and its own state/; one command given the other's selector refuses by name",
+  "no_owned_child_left_running": true,
+  "preservation": "a repeated bootstrap refuses with the selector byte-identical; a corrupt selector refuses and the restored one works; a changed runtime refuses status AND start, and the restored one is accepted",
+  "seconds": 7.194,
+  "the_mismatch_was_done_STOPPED_on_purpose": "an earlier attempt rewrote a library the RUNNING manager had mapped and killed it. The refusal was real and so was the crash; reporting them together would have been reporting my own doing as a product property.",
+  "what_ran": {
+   "a_corrupt_selector_is_refused": 2,
+   "a_repeated_bootstrap_preserves_what_is_there": 2,
+   "and_the_restored_runtime_is_accepted_again": 0,
+   "and_the_restored_selector_works_again": 0,
+   "one_command_will_not_drive_another_instance": 2,
+   "start_a": 0,
+   "start_b": 0,
+   "stop_a": 0,
+   "stop_b": 0,
+   "the_monitor_reads_this_instance_s_own_snapshot": 0
+  }
+ },
+ "the_registered_packaging_smoke": {
+  "covers": [
+   "the bundle answers for itself from / with an environment of HOME and PATH only -- no PYTHONPATH, no BATON_V12_*, no venv",
+   "both frozen schema assets travelled and are non-empty",
+   "the native validator it reports is a real file AND one of the files its manifest binds",
+   "an unknown subcommand is refused by name; --help offers every subcommand this command serves",
+   "a real bundle digests whole and verifies; one changed byte in a real shared library is refused; an unbound extra file is refused",
+   "a copy of the bundle digests as the build, which is what install re-checks"
+  ],
+  "file": "v12/python/tests/tools/test_packaging.py, registered in tools/parallel_test.py",
+  "tests": 9,
+  "when_there_is_no_bundle": "it SKIPS with the exact command, because a check that cannot be answered must not answer -- and `just test-packaging` builds first, so there is a command that cannot skip"
+ },
+ "the_retained_artifact_manifest": {
+  "both_installed_copies_digest_the_same": true,
+  "build_log": "work/records/2026/09/finding-v12-stack-launcher/BUILD-186890.log (sha256 5a1b944b35de386a3bec2d276a135265fd73d37117664838f916a0721dce95c8, exit 0)",
+  "bundle_files": 80,
+  "file": "work/records/2026/09/finding-v12-stack-launcher/ARTIFACT-MANIFEST-186890.json",
+  "manifest_digest": "50cc5a1bf071ce978ef6fb9d84d73312851351151c9ecf7e2a00358774c33db5",
+  "provenance": {
+   "locks": [
+    "v12/python/requirements.build.lock, installed with --require-hashes",
+    "v12/python/requirements.lock, the environment the build ran under"
+   ],
+   "platform": {
+    "libc": "glibc 2.42",
+    "machine": "x86_64",
+    "note": "a one-folder bundle is built for the platform it was built on; nothing here claims portability",
+    "python": "3.13.7",
+    "release": "6.17.0-41-generic",
+    "system": "Linux"
+   },
+   "source_digests": 14
+  }
+ },
+ "two_defects_the_REAL_run_found_that_no_stand_in_could": {
+  "and_one_UX_defect": "a composed install printed 'Now export these and run `just start` from v12/' -- the source-run operands an installed instance carries in its own selector. `prepare(installing=True)` does not.",
+  "frozen_bootstrap_called_the_destination_its_own_checkout": "`bootstrap` had two inline copies of the unfrozen half of a rule `stage_execution._checkout` already owns -- and frozen, walking three parents up from `__file__` answers the INSTANCE DESTINATION. So a repeated bootstrap into a prepared destination was refused for being 'inside the checkout at <that same destination>': a true-sounding refusal naming the wrong thing, in place of 'there is already a runtime here'. `bootstrap.checkout()` now asks the owner of the rule.",
+  "the_identity_reported_a_file_that_is_not_there": "`rpds.__file__` names an `__init__.py` that a one-folder build freezes into the archive, so the first real install refused the bundle for reporting a native validator that is not one of the files it binds -- true of the path, false of the bundle. `stack_command._identity` reports the compiled extension, which is what has to have travelled. Held by test_packaging's native-validator check and by a probe that REBUILDS."
+ },
+ "work": "W183883"
+}
